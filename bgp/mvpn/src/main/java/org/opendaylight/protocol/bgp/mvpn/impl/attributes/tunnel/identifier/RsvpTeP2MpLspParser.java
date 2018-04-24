@@ -6,38 +6,42 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PAddressPMulticastGroupUtil.parseIpAddress;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PAddressPMulticastGroupUtil.serializeIpAddress;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.PAddressPMulticastGroupUtil.parseIpAddress;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.PAddressPMulticastGroupUtil.serializeIpAddress;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier.AbstractTunnelIdentifier;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.PmsiTunnelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.RsvpTeP2mpLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.RsvpTeP2mpLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLpsBuilder;
 
-final class RsvpTeP2MpLspParser implements TunnelIdentifierSerializer, TunnelIdentifierParser {
+public final class RsvpTeP2MpLspParser extends AbstractTunnelIdentifier<RsvpTeP2mpLsp> {
 
     private static final int RESERVED = 2;
 
     @Override
-    public int serialize(final TunnelIdentifier tunnelIdentifier, final ByteBuf buffer) {
-        Preconditions.checkArgument(tunnelIdentifier instanceof RsvpTeP2mpLsp,
-                "The tunnelIdentifier %s is not RsvpTeP2mpLps type.", tunnelIdentifier);
-        final RsvpTeP2mpLps rsvpTeP2mpLsp = ((RsvpTeP2mpLsp) tunnelIdentifier).getRsvpTeP2mpLps();
+    public Class<? extends TunnelIdentifier> getClazz() {
+        return RsvpTeP2mpLsp.class;
+    }
+
+    @Override
+    public int serialize(final RsvpTeP2mpLsp tunnelIdentifier, final ByteBuf buffer) {
+        final RsvpTeP2mpLps rsvpTeP2mpLsp = tunnelIdentifier.getRsvpTeP2mpLps();
         ByteBufWriteUtil.writeUnsignedInt(rsvpTeP2mpLsp.getP2mpId(), buffer);
         buffer.writeZero(RESERVED);
         ByteBufWriteUtil.writeUnsignedShort(rsvpTeP2mpLsp.getTunnelId(), buffer);
         serializeIpAddress(rsvpTeP2mpLsp.getExtendedTunnelId(), buffer);
-        return TunnelType.RSVP_TE_P2MP_LSP.getIntValue();
+        return getType();
     }
 
     @Override
-    public TunnelIdentifier parse(final ByteBuf buffer) {
+    public RsvpTeP2mpLsp parse(final ByteBuf buffer) {
         final RsvpTeP2mpLpsBuilder rsvpTeP2mpLps = new RsvpTeP2mpLpsBuilder();
         rsvpTeP2mpLps.setP2mpId(buffer.readUnsignedInt());
         buffer.skipBytes(2);
@@ -45,5 +49,10 @@ final class RsvpTeP2MpLspParser implements TunnelIdentifierSerializer, TunnelIde
         final int ipLength = buffer.readableBytes();
         rsvpTeP2mpLps.setExtendedTunnelId(parseIpAddress(ipLength, buffer));
         return new RsvpTeP2mpLspBuilder().setRsvpTeP2mpLps(rsvpTeP2mpLps.build()).build();
+    }
+
+    @Override
+    public int getType() {
+        return PmsiTunnelType.RsvpTeP2mpLps.getIntValue();
     }
 }

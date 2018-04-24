@@ -11,6 +11,8 @@ package org.opendaylight.protocol.bgp.mvpn.impl;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PEDistinguisherLabelsAttributeHandler;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.SourceAS4OctectHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.SourceASHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.VrfRouteImportHandler;
@@ -31,7 +33,14 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private static void registerAttributesHandler(
             final BGPExtensionProviderContext context,
             final List<AutoCloseable> regs) {
-        //TODO
+        final PEDistinguisherLabelsAttributeHandler peDistHandler =
+                new PEDistinguisherLabelsAttributeHandler();
+        regs.add(context.registerAttributeParser(peDistHandler.getType(), peDistHandler));
+        regs.add(context.registerAttributeSerializer(peDistHandler.getClazz(), peDistHandler));
+
+        final PMSITunnelAttributeHandler pmsiParser = new PMSITunnelAttributeHandler();
+        regs.add(context.registerAttributeParser(pmsiParser.getType(), pmsiParser));
+        regs.add(context.registerAttributeSerializer(pmsiParser.getClazz(), pmsiParser));
     }
 
     private static void registerNlriHandler(
@@ -63,6 +72,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
+        TunnelIdentifierActivator.registerTunnelIdentifierHandlers(context, regs);
         registerNlriHandler(context, regs);
         registerExtendedCommunities(context, regs);
         registerAttributesHandler(context, regs);

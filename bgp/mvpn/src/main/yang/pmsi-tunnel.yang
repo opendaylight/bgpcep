@@ -36,6 +36,32 @@ module pmsi-tunnel {
         reference "https://tools.ietf.org/html/rfc6514#section-5";
     }
 
+    typedef pmsi-tunnel-type {
+        type enumeration {
+            enum rsvp-te-p2mp-lps {
+                value 1;
+            }
+            enum mldp-p2mp-lsp {
+                value 2;
+            }
+            enum pim-ssm-tree {
+                value 3;
+            }
+            enum pim-sm-tree {
+                value 4;
+            }
+            enum bidir-pim-tree {
+                value 5;
+            }
+            enum ingress-replication {
+                value 6;
+            }
+            enum mldp-mp2mp-lsp {
+                value 7;
+            }
+        }
+    }
+
     grouping opaque {
         leaf opaque-type {
             mandatory true;

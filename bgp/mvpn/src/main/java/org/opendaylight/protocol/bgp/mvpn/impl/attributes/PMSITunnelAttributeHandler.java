@@ -1,44 +1,64 @@
 /*
- * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import javax.annotation.Nonnull;
-import org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.TunnelIdentifierHandler;
-import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.mvpn.spi.pojo.attributes.tunnel.identifier.SimpleTunnelIdentifierRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.MplsLabelUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.PmsiTunnelAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.PmsiTunnelAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.bgp.rib.route.PmsiTunnelAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.bgp.rib.route.PmsiTunnelAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.PmsiTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.PmsiTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
+/**
+ * PE Distinguisher Labels Attribute Handler.
+ * https://tools.ietf.org/html/rfc6514#section-5
+ *
+ * @author Claudio D. Gasparini
+ */
 public final class PMSITunnelAttributeHandler implements AttributeParser, AttributeSerializer {
     private static final int PMSI_ATTRIBUTE = 22;
     private static final int MPLS_LENGTH = 3;
-    private final TunnelIdentifierHandler tunnelIdentifierHandler;
+    private final SimpleTunnelIdentifierRegistry tunnelIdentifierHandler =
+            SimpleTunnelIdentifierRegistry.getInstance();
 
-    public PMSITunnelAttributeHandler(final AddressFamilyRegistry addressFamilyRegistry) {
-        this.tunnelIdentifierHandler = new TunnelIdentifierHandler(addressFamilyRegistry);
+    private static void parseMpls(final PmsiTunnelBuilder pmsiTunnelBuilder, final ByteBuf buffer) {
+        final MplsLabel mpls = MplsLabelUtil.mplsLabelForByteBuf(buffer);
+        if (mpls.getValue() != 0) {
+            pmsiTunnelBuilder.setMplsLabel(mpls);
+        }
+    }
+
+    private static void serializeMpls(final MplsLabel mplsLabel, final ByteBuf body) {
+        if (mplsLabel == null) {
+            body.writeZero(MPLS_LENGTH);
+            return;
+        }
+        body.writeBytes(MplsLabelUtil.byteBufForMplsLabel(mplsLabel));
+    }
+
+    private static void serializeFlag(final PmsiTunnel pmsiTunnelAttribute, final ByteBuf body) {
+        body.writeBoolean(pmsiTunnelAttribute.isLeafInformationRequired());
     }
 
     @Override
-    public void parseAttribute(@Nonnull final ByteBuf buffer, @Nonnull final AttributesBuilder builder) {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
         if (!buffer.isReadable()) {
             return;
         }
@@ -52,13 +72,6 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         }
         builder.addAugmentation(PmsiTunnelAugmentation.class, new PmsiTunnelAugmentationBuilder()
                 .setPmsiTunnel(pmsiTunnelBuilder.build()).build());
-    }
-
-    private static void parseMpls(final PmsiTunnelBuilder pmsiTunnelBuilder, final ByteBuf buffer) {
-        final MplsLabel mpls = MplsLabelUtil.mplsLabelForByteBuf(buffer);
-        if (mpls.getValue() != 0) {
-            pmsiTunnelBuilder.setMplsLabel(mpls);
-        }
     }
 
     public int getType() {
@@ -85,17 +98,6 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         serializeMpls(pmsiTunnelAttribute.getMplsLabel(), body);
         body.writeBytes(tunnelBuffer);
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, getType(), body, byteAggregator);
-    }
-
-    private static void serializeMpls(final MplsLabel mplsLabel, final ByteBuf body) {
-        if (mplsLabel == null) {
-            body.writeZero(MPLS_LENGTH);
-        }
-        body.writeBytes(MplsLabelUtil.byteBufForMplsLabel(mplsLabel));
-    }
-
-    private static void serializeFlag(final PmsiTunnel pmsiTunnelAttribute, final ByteBuf body) {
-        body.writeBoolean(pmsiTunnelAttribute.isLeafInformationRequired());
     }
 
     public Class<? extends DataObject> getClazz() {

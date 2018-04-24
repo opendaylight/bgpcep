@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -24,9 +24,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class OpaqueUtil {
-    static final short GENERIC_LSP_IDENTIFIER = 1;
-    static final short EXTENDED_TYPE = 255;
+public final class OpaqueUtil {
+    public static final short GENERIC_LSP_IDENTIFIER = 1;
+    public static final short EXTENDED_TYPE = 255;
     private static final Logger LOG = LoggerFactory.getLogger(OpaqueUtil.class);
     private static final String SEPARATOR = ":";
     private static final String EMPTY_SEPARATOR = "";
@@ -35,7 +35,7 @@ final class OpaqueUtil {
         throw new UnsupportedOperationException();
     }
 
-    static boolean serializeOpaque(final Opaque opaque, final ByteBuf byteBuf) {
+    public static boolean serializeOpaque(final Opaque opaque, final ByteBuf byteBuf) {
         final Short type = opaque.getOpaqueType();
         switch (type) {
             case GENERIC_LSP_IDENTIFIER:
@@ -71,7 +71,7 @@ final class OpaqueUtil {
         return DatatypeConverter.parseHexBinary(joined);
     }
 
-    static Opaque parseOpaque(final ByteBuf buffer) {
+    public static Opaque parseOpaque(final ByteBuf buffer) {
         final short type = buffer.readUnsignedByte();
         final OpaqueValueBuilder builder = new OpaqueValueBuilder();
         switch (type) {
@@ -105,7 +105,7 @@ final class OpaqueUtil {
         return new HexString(Joiner.on(SEPARATOR).join(splitted));
     }
 
-    static List<OpaqueValue> parseOpaqueList(final ByteBuf byteBuf) {
+    public static List<OpaqueValue> parseOpaqueList(final ByteBuf byteBuf) {
         final List<OpaqueValue> opaqueValues = new ArrayList<>();
         while (byteBuf.isReadable()) {
             final Opaque opaque = parseOpaque(byteBuf);
@@ -116,7 +116,7 @@ final class OpaqueUtil {
         return opaqueValues;
     }
 
-    static boolean serializeOpaqueList(final List<OpaqueValue> mldpP2mpLsp, final ByteBuf buffer) {
+    public static boolean serializeOpaqueList(final List<OpaqueValue> mldpP2mpLsp, final ByteBuf buffer) {
         boolean parsed = false;
         for (final OpaqueValue opaque : mldpP2mpLsp) {
             if (serializeOpaque(opaque, buffer)) {

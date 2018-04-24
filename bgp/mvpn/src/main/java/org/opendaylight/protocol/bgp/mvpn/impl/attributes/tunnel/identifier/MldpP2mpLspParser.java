@@ -6,46 +6,45 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.OpaqueUtil.serializeOpaqueList;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PAddressPMulticastGroupUtil.parseIpAddress;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PAddressPMulticastGroupUtil.serializeIpAddress;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.TunnelIdentifierHandler.NO_TUNNEL_INFORMATION_PRESENT;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.OpaqueUtil.serializeOpaqueList;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.PAddressPMulticastGroupUtil.parseIpAddress;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.PAddressPMulticastGroupUtil.serializeIpAddress;
+import static org.opendaylight.protocol.bgp.mvpn.spi.pojo.attributes.tunnel.identifier.SimpleTunnelIdentifierRegistry.NO_TUNNEL_INFORMATION_PRESENT;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.OpaqueUtil;
+import org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier.AbstractTunnelIdentifier;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.PmsiTunnelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.MldpP2mpLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.MldpP2mpLspBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class MldpP2mpLspParser implements TunnelIdentifierSerializer, TunnelIdentifierParser {
+public final class MldpP2mpLspParser extends AbstractTunnelIdentifier<MldpP2mpLsp> {
     private static final Logger LOG = LoggerFactory.getLogger(MldpP2mpLspParser.class);
     private static final short P2MP_TYPE = 6;
     private static final int RESERVED = 1;
     private final AddressFamilyRegistry addressFamilyRegistry;
 
-    MldpP2mpLspParser(final AddressFamilyRegistry addressFamilyRegistry) {
+    public MldpP2mpLspParser(final AddressFamilyRegistry addressFamilyRegistry) {
         this.addressFamilyRegistry = addressFamilyRegistry;
     }
 
     @Override
-    public int serialize(final TunnelIdentifier tunnelIdentifier, final ByteBuf buffer) {
-        Preconditions.checkArgument(tunnelIdentifier instanceof MldpP2mpLsp,
-                "The tunnelIdentifier %s is not RsvpTeP2mpLps type.", tunnelIdentifier);
+    public int serialize(final MldpP2mpLsp tunnelIdentifier, final ByteBuf buffer) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi
-                .tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLsp mldpP2mpLsp =
-                ((MldpP2mpLsp) tunnelIdentifier).getMldpP2mpLsp();
+                .tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLsp mldpP2mpLsp = tunnelIdentifier.getMldpP2mpLsp();
 
         final ByteBuf opaqueValues = Unpooled.buffer();
         final int addressFamily = getAddressFamilyValue(mldpP2mpLsp.getAddressFamily());
@@ -61,7 +60,17 @@ final class MldpP2mpLspParser implements TunnelIdentifierSerializer, TunnelIdent
 
         ByteBufWriteUtil.writeUnsignedShort(opaqueValues.readableBytes(), buffer);
         buffer.writeBytes(opaqueValues);
-        return TunnelType.MLDP_P2MP_LSP.getIntValue();
+        return getType();
+    }
+
+    @Override
+    public Class<? extends TunnelIdentifier> getClazz() {
+        return MldpP2mpLsp.class;
+    }
+
+    @Override
+    public int getType() {
+        return PmsiTunnelType.MldpP2mpLsp.getIntValue();
     }
 
     private static short getAdressFamilyLength(final IpAddress ipAddress) {
@@ -80,7 +89,7 @@ final class MldpP2mpLspParser implements TunnelIdentifierSerializer, TunnelIdent
     }
 
     @Override
-    public TunnelIdentifier parse(final ByteBuf buffer) {
+    public MldpP2mpLsp parse(final ByteBuf buffer) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi
                 .tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder mldpP2mpLsp =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel

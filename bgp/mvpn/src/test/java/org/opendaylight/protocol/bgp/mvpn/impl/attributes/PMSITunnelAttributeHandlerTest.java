@@ -6,49 +6,44 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier;
+package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.BIDIR_PIM_EXPECTED;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.INGRESS_REPLICATION_EXPECTED;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.M_LDP_MP_2_MP_LSP_EXPECTED;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.M_LDP_MP_2_MP_LSP_WRONG;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_IPV4;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_IPV4_2;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_IPV6;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_L2VPN;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_WRONG_FAMILY;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.MockTunnelIdentifier;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.NO_TUNNEL_INFORMATION_PRESENT_EXPECTED;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.PIM_SM_TREE_EXPECTED;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.PIM_SSM_TREE_EXPECTED;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.RSVP_TE_P2MP_LSP_LSP_EXPECTED;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildBidirPimTreeAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildIngressReplicationAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMLDpMp2mPLspAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMldpMP2mpLspWrongAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMldpP2mpLspIpv4Attribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMldpP2mpLspIpv6Attribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildMldpp2MPLspL2vpnAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildNoSupportedFamilyAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildNoSupportedOpaqueAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildPimSMTreeAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildPimSSMTreeAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildRsvpTep2MPLspAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.PMSITunnelAttributeHandlerTestUtil.buildWOTunnelInfAttribute;
-import static org.opendaylight.protocol.bgp.evpn.impl.attributes.tunnel.identifier.TunnelIdentifierHandler.NO_TUNNEL_INFORMATION_PRESENT;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.BIDIR_PIM_EXPECTED;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.INGRESS_REPLICATION_EXPECTED;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.M_LDP_MP_2_MP_LSP_EXPECTED;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.M_LDP_MP_2_MP_LSP_WRONG;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_IPV4;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_IPV4_2;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_IPV6;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_L2VPN;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.M_LDP_P2MP_LSP_EXPECTED_WRONG_FAMILY;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.NO_TUNNEL_INFORMATION_PRESENT_EXPECTED;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.PIM_SM_TREE_EXPECTED;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.PIM_SSM_TREE_EXPECTED;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.RSVP_TE_P2MP_LSP_LSP_EXPECTED;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildBidirPimTreeAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildIngressReplicationAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildMLDpMp2mPLspAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildMldpMP2mpLspWrongAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildMldpP2mpLspIpv4Attribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildMldpP2mpLspIpv6Attribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildMldpp2MPLspL2vpnAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildNoSupportedFamilyAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildNoSupportedOpaqueAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildPimSMTreeAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildPimSSMTreeAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildRsvpTep2MPLspAttribute;
+import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.buildWOTunnelInfAttribute;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.evpn.impl.BGPActivator;
-import org.opendaylight.protocol.bgp.evpn.impl.attributes.PMSITunnelAttributeHandler;
+import org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -95,7 +90,7 @@ public class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void serializePimSSMTree() throws Exception {
+    public void serializePimSSMTree() {
         final Attributes attributes = buildPimSSMTreeAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(attributes, actual);
@@ -112,12 +107,9 @@ public class PMSITunnelAttributeHandlerTest {
 
     @Test
     public void testMldpP2MpLsp() throws Exception {
-        final ByteBuf actualIpv4 = Unpooled.buffer();
         final Attributes expectedIpv4Att = buildMldpP2mpLspIpv4Attribute();
-
-        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext
-                .getSingletonInstance();
-        providerContext.getAttributeRegistry().serializeAttribute(expectedIpv4Att, actualIpv4);
+        final ByteBuf actualIpv4 = Unpooled.buffer();
+        this.handler.serializeAttribute(expectedIpv4Att, actualIpv4);
         assertArrayEquals(M_LDP_P2MP_LSP_EXPECTED_IPV4, ByteArray.readAllBytes(actualIpv4));
 
         final Attributes actualIpv4Attribute = this.handler.parseAttributes(
@@ -143,6 +135,7 @@ public class PMSITunnelAttributeHandlerTest {
         assertEquals(buildWOTunnelInfAttribute(), actualWrongFamily);
 
         final Attributes expectedL2vpnAtt = buildMldpp2MPLspL2vpnAttribute();
+
         final Attributes actualL2vpnAttribute = this.handler.parseAttributes(
                 Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_L2VPN), null);
         assertEquals(expectedL2vpnAtt, actualL2vpnAttribute);
@@ -213,21 +206,8 @@ public class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void testTunnelIdentifierUtil() {
-        final TunnelIdentifierHandler tunnelIdentifierHandler =
-                new TunnelIdentifierHandler(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                        .getAddressFamilyRegistry());
-        assertNull(tunnelIdentifierHandler.parse(1, Unpooled.buffer()));
-        assertNull(tunnelIdentifierHandler.parse(125, Unpooled.buffer()));
-        assertEquals(NO_TUNNEL_INFORMATION_PRESENT, tunnelIdentifierHandler
-                .serialize(new MockTunnelIdentifier(), Unpooled.buffer()));
-    }
-
-    @Test
     public void testPMSITunnelAttributeParser() {
-        final PMSITunnelAttributeHandler pmsiHandler =
-                new PMSITunnelAttributeHandler(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                        .getAddressFamilyRegistry());
+        final PMSITunnelAttributeHandler pmsiHandler = new PMSITunnelAttributeHandler();
         assertEquals(22, pmsiHandler.getType());
         final AttributesBuilder builder = new AttributesBuilder();
         final ByteBuf emptyBuffer = Unpooled.buffer();
