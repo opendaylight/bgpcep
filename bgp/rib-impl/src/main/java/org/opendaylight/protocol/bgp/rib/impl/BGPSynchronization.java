@@ -82,13 +82,13 @@ public class BGPSynchronization {
         boolean isEOR = false;
         if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
             if (msg.getAttributes() != null) {
-                if (msg.getAttributes().getAugmentation(Attributes1.class) != null) {
-                    final Attributes1 pa = msg.getAttributes().getAugmentation(Attributes1.class);
+                if (msg.getAttributes().augmentation(Attributes1.class) != null) {
+                    final Attributes1 pa = msg.getAttributes().augmentation(Attributes1.class);
                     if (pa.getMpReachNlri() != null) {
                         type = new TablesKey(pa.getMpReachNlri().getAfi(), pa.getMpReachNlri().getSafi());
                     }
-                } else if (msg.getAttributes().getAugmentation(Attributes2.class) != null) {
-                    final Attributes2 pa = msg.getAttributes().getAugmentation(Attributes2.class);
+                } else if (msg.getAttributes().augmentation(Attributes2.class) != null) {
+                    final Attributes2 pa = msg.getAttributes().augmentation(Attributes2.class);
                     if (pa.getMpUnreachNlri() != null) {
                         type = new TablesKey(pa.getMpUnreachNlri().getAfi(), pa.getMpUnreachNlri().getSafi());
                     }

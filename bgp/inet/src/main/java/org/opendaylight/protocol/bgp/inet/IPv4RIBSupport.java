@@ -83,7 +83,7 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4Route, Ipv4RouteKey>
         } else {
             builder = new Ipv4RouteBuilder();
         }
-        builder.setKey(new Ipv4RouteKey(new PathId(pathId), routeKey)).setAttributes(attributes);
+        builder.withKey(new Ipv4RouteKey(new PathId(pathId), routeKey)).setAttributes(attributes);
         return builder.build();
     }
 

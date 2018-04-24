@@ -84,9 +84,9 @@ final class PCEPStatefulPeerProposal {
     }
 
     private static boolean isSynOptimizationEnabled(final TlvsBuilder openTlvsBuilder) {
-        final Tlvs1 statefulTlv = openTlvsBuilder.getAugmentation(Tlvs1.class);
+        final Tlvs1 statefulTlv = openTlvsBuilder.augmentation(Tlvs1.class);
         if (statefulTlv != null && statefulTlv.getStateful() != null) {
-            return statefulTlv.getStateful().getAugmentation(Stateful1.class) != null;
+            return statefulTlv.getStateful().augmentation(Stateful1.class) != null;
         }
         return false;
     }

@@ -83,7 +83,7 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         Preconditions.checkArgument(attribute instanceof Attributes,
                 "Attribute parameter is not a PathAttribute object.");
         final PmsiTunnelAugmentation pmsiTunnelAugmentation = ((Attributes) attribute)
-                .getAugmentation(PmsiTunnelAugmentation.class);
+                .augmentation(PmsiTunnelAugmentation.class);
         if (pmsiTunnelAugmentation == null) {
             return;
         }

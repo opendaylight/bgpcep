@@ -31,8 +31,8 @@ public class Stateful07OpenObjectParser extends PCEPOpenObjectParser {
     public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
         super.addTlv(tbuilder, tlv);
         final Tlvs1Builder statefulBuilder = new Tlvs1Builder();
-        if (tbuilder.getAugmentation(Tlvs1.class) != null) {
-            final Tlvs1 t = tbuilder.getAugmentation(Tlvs1.class);
+        if (tbuilder.augmentation(Tlvs1.class) != null) {
+            final Tlvs1 t = tbuilder.augmentation(Tlvs1.class);
             if (t.getStateful() != null) {
                 statefulBuilder.setStateful(t.getStateful());
             }
@@ -52,8 +52,8 @@ public class Stateful07OpenObjectParser extends PCEPOpenObjectParser {
         if (tlvs.getOfList() != null) {
             serializeTlv(tlvs.getOfList(), body);
         }
-        if (tlvs.getAugmentation(Tlvs1.class) != null) {
-            final Tlvs1 statefulTlvs = tlvs.getAugmentation(Tlvs1.class);
+        if (tlvs.augmentation(Tlvs1.class) != null) {
+            final Tlvs1 statefulTlvs = tlvs.augmentation(Tlvs1.class);
             if (statefulTlvs.getStateful() != null) {
                 serializeTlv(statefulTlvs.getStateful(), body);
             }

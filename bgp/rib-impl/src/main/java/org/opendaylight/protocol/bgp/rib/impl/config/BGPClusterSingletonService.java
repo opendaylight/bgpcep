@@ -238,7 +238,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
 
     private synchronized void onNeighborModified(final Neighbor neighbor) {
         //restart peer instance with a new configuration
-        final PeerBean bgpPeer = this.peers.get(getNeighborInstanceIdentifier(this.bgpIid, neighbor.getKey()));
+        final PeerBean bgpPeer = this.peers.get(getNeighborInstanceIdentifier(this.bgpIid, neighbor.key()));
         if (bgpPeer == null) {
             onNeighborCreated(neighbor);
         } else if (!bgpPeer.containsEqualConfiguration(neighbor)) {
@@ -256,7 +256,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.PEER.getBeanName());
         }
         final InstanceIdentifier<Neighbor> neighborInstanceIdentifier =
-                getNeighborInstanceIdentifier(this.bgpIid, neighbor.getKey());
+                getNeighborInstanceIdentifier(this.bgpIid, neighbor.key());
         initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
         this.peers.put(neighborInstanceIdentifier, bgpPeer);
 
@@ -272,9 +272,9 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("Peer instance created {}", bgpPeer);
     }
 
-    private String getPeerGroupName(final Config config) {
-        if (config != null && config.getAugmentation(NeighborPeerGroupConfig.class) != null) {
-            return config.getAugmentation(NeighborPeerGroupConfig.class).getPeerGroup();
+    private static String getPeerGroupName(final Config config) {
+        if (config != null && config.augmentation(NeighborPeerGroupConfig.class) != null) {
+            return config.augmentation(NeighborPeerGroupConfig.class).getPeerGroup();
         }
         return null;
     }
@@ -284,12 +284,12 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         closePeer(bgpPeer);
 
         final InstanceIdentifier<Neighbor> neighborInstanceIdentifier
-                = getNeighborInstanceIdentifier(this.bgpIid, neighbor.getKey());
+                = getNeighborInstanceIdentifier(this.bgpIid, neighbor.key());
         initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
         LOG.debug("Peer instance updated {}", bgpPeer);
     }
 
-    private void closePeer(final PeerBean bgpPeer) {
+    private static void closePeer(final PeerBean bgpPeer) {
         if (bgpPeer != null) {
             try {
                 bgpPeer.closeServiceInstance().get();
@@ -303,7 +303,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
 
     private synchronized void onNeighborRemoved(final Neighbor neighbor) {
         LOG.debug("Removing Peer instance: {}", neighbor);
-        final PeerBean bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(this.bgpIid, neighbor.getKey()));
+        final PeerBean bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(this.bgpIid, neighbor.key()));
 
         final String groupName = getPeerGroupName(neighbor.getConfig());
         if (groupName != null) {

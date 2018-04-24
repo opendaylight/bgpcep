@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBSupport<FlowspecL3vpnIpv6NlriParser,
         FlowspecL3vpnRoute, FlowspecL3vpnRouteKey> {
-    private FlowspecL3vpnIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
+    private FlowspecL3vpnIpv6RIBSupport(final SimpleFlowspecExtensionProviderContext context) {
         super(
                 FlowspecL3vpnIpv6RoutesCase.class,
                 FlowspecL3vpnIpv6Routes.class,
@@ -55,7 +55,7 @@ public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBS
         } else {
             builder = new FlowspecL3vpnRouteBuilder();
         }
-        return builder.setKey(new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey))
+        return builder.withKey(new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey))
                 .setAttributes(attributes).build();
     }
 

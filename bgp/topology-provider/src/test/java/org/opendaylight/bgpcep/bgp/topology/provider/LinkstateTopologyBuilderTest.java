@@ -143,9 +143,9 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     @Test
     public void testLinkstateTopologyBuilderTopologyTypes() throws ReadFailedException {
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
-            assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight
+            assertNotNull(topology.getTopologyTypes().augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight
                     .params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class));
-            assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight
+            assertNotNull(topology.getTopologyTypes().augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight
                     .params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class)
                     .getBgpLinkstateTopology());
             return topology;
@@ -160,17 +160,17 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
             assertEquals(1, topology.getNode().size());
             final Node node1 = topology.getNode().get(0);
             assertEquals(NODE_1_ISIS_ID, node1.getNodeId().getValue());
-            final IgpNodeAttributes igpNode1 = node1.getAugmentation(Node1.class).getIgpNodeAttributes();
+            final IgpNodeAttributes igpNode1 = node1.augmentation(Node1.class).getIgpNodeAttributes();
             assertEquals(ROUTER_1_ID, igpNode1.getRouterId().get(0).getIpv4Address().getValue());
             assertEquals("node1", igpNode1.getName().getValue());
-            final IgpNodeAttributes1 igpNodeAttributes1 = igpNode1.getAugmentation(IgpNodeAttributes1.class);
+            final IgpNodeAttributes1 igpNodeAttributes1 = igpNode1.augmentation(IgpNodeAttributes1.class);
             assertEquals("0000.0102.0304", igpNodeAttributes1.getIsisNodeAttributes().getIso().getIsoSystemId()
                     .getValue());
             assertEquals(ROUTER_1_ID, igpNodeAttributes1.getIsisNodeAttributes().getTed().getTeRouterIdIpv4()
                     .getValue());
             assertEquals("47.0000.0000.0000.0000.0102.0304", igpNodeAttributes1.getIsisNodeAttributes()
                     .getNet().get(0).getValue());
-            assertNull(igpNode1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf
+            assertNull(igpNode1.augmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf
                     .topology.rev131021.IgpNodeAttributes1.class));
             return topology;
         });
@@ -188,11 +188,11 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                     + "=2&mt=1", link1.getLinkId().getValue());
             assertEquals(NODE_1_ISIS_ID, link1.getSource().getSourceNode().getValue());
             assertEquals(NODE_2_ISIS_ID, link1.getDestination().getDestNode().getValue());
-            final IgpLinkAttributes igpLink1 = link1.getAugmentation(Link1.class).getIgpLinkAttributes();
+            final IgpLinkAttributes igpLink1 = link1.augmentation(Link1.class).getIgpLinkAttributes();
             assertEquals("link1", igpLink1.getName());
-            assertEquals((short) 1, igpLink1.getAugmentation(IgpLinkAttributes1.class).getIsisLinkAttributes()
+            assertEquals((short) 1, igpLink1.augmentation(IgpLinkAttributes1.class).getIsisLinkAttributes()
                     .getMultiTopologyId().shortValue());
-            assertNull(igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf
+            assertNull(igpLink1.augmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf
                     .topology.rev131021.IgpLinkAttributes1.class));
             return topology;
         });
@@ -203,7 +203,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 NODE_1_AS, ROUTER_2_ID));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getNode().size());
-            final IgpNodeAttributes igpNode2 = topology.getNode().get(0).getAugmentation(Node1.class)
+            final IgpNodeAttributes igpNode2 = topology.getNode().get(0).augmentation(Node1.class)
                     .getIgpNodeAttributes();
             assertEquals(ROUTER_2_ID, igpNode2.getRouterId().get(0).getIpv4Address().getValue());
             assertEquals("updated-node", igpNode2.getName().getValue());
@@ -229,11 +229,11 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
             assertEquals(1, topology.getNode().size());
             final Node node1 = topology.getNode().get(0);
             assertEquals(NODE_1_OSPF_ID, node1.getNodeId().getValue());
-            final IgpNodeAttributes igpNode1 = node1.getAugmentation(Node1.class).getIgpNodeAttributes();
+            final IgpNodeAttributes igpNode1 = node1.augmentation(Node1.class).getIgpNodeAttributes();
             assertEquals(ROUTER_1_ID, igpNode1.getRouterId().get(0).getIpv4Address().getValue());
             assertEquals("node1", igpNode1.getName().getValue());
-            assertNull(igpNode1.getAugmentation(IgpNodeAttributes1.class));
-            assertEquals(ROUTER_1_ID, igpNode1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns
+            assertNull(igpNode1.augmentation(IgpNodeAttributes1.class));
+            assertEquals(ROUTER_1_ID, igpNode1.augmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns
                     .yang.ospf.topology.rev131021.IgpNodeAttributes1.class).getOspfNodeAttributes().getTed()
                     .getTeRouterIdIpv4().getValue());
             return topology;
@@ -243,8 +243,8 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         updateLinkstateRoute(createLinkstatePrefixRoute(ProtocolId.Ospf, NODE_1_AS, NODE_1_PREFIX,
                 500L, ROUTER_1_ID));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
-            final IgpNodeAttributes igpNode2 = topology.getNode().get(0)
-                    .getAugmentation(Node1.class).getIgpNodeAttributes();
+            final IgpNodeAttributes igpNode2 = topology.getNode().get(0).augmentation(Node1.class)
+                    .getIgpNodeAttributes();
             assertEquals(1, igpNode2.getPrefix().size());
             final Prefix prefix = igpNode2.getPrefix().get(0);
             assertEquals(NODE_1_PREFIX, prefix.getPrefix().getIpv4Prefix().getValue());
@@ -265,13 +265,13 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                     link1.getLinkId().getValue());
             assertEquals(NODE_1_OSPF_ID, link1.getSource().getSourceNode().getValue());
             assertEquals(NODE_2_OSPF_ID, link1.getDestination().getDestNode().getValue());
-            final IgpLinkAttributes igpLink1 = link1.getAugmentation(Link1.class).getIgpLinkAttributes();
+            final IgpLinkAttributes igpLink1 = link1.augmentation(Link1.class).getIgpLinkAttributes();
             assertEquals("link1", igpLink1.getName());
-            assertNull(igpLink1.getAugmentation(IgpLinkAttributes1.class));
-            assertEquals((short) 1, igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang
+            assertNull(igpLink1.augmentation(IgpLinkAttributes1.class));
+            assertEquals((short) 1, igpLink1.augmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang
                     .ospf.topology.rev131021.IgpLinkAttributes1.class).getOspfLinkAttributes().getMultiTopologyId()
                     .shortValue());
-            assertEquals(2, igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns
+            assertEquals(2, igpLink1.augmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns
                     .yang.ospf.topology.rev131021.IgpLinkAttributes1.class).getOspfLinkAttributes().getTed().getSrlg()
                     .getSrlgValues().size());
             return topology;
@@ -424,7 +424,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                                         .setMaxReservableBandwidth(
                                                 new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0x1f}))
                                         .setUnreservedBandwidth(Lists.newArrayList(new UnreservedBandwidthBuilder()
-                                                .setKey(new UnreservedBandwidthKey((short) 1))
+                                                .withKey(new UnreservedBandwidthKey((short) 1))
                                                 .setBandwidth(new Bandwidth(new byte[]{0x00, 0x00, 0x00, (byte) 0xff}))
                                                 .build()))
                                         .setTeMetric(new TeMetric(100L)).setLinkName(linkName).build()).build())
@@ -436,7 +436,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private static LinkstateRouteBuilder createBaseBuilder(final ProtocolId protocolId) {
         return new LinkstateRouteBuilder()
             .setIdentifier(IDENTIFIER)
-            .setKey(new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY))
+            .withKey(new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY))
             .setRouteKey(LINKSTATE_ROUTE_KEY)
             .setProtocolId(protocolId);
     }

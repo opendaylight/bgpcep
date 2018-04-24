@@ -28,8 +28,8 @@ public class PcepOpenObjectWithSpcTlvParser extends SyncOptimizationsOpenObjectP
     public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
         super.addTlv(tbuilder, tlv);
         final Tlvs1Builder tlvBuilder = new Tlvs1Builder();
-        if (tbuilder.getAugmentation(Tlvs1.class) != null) {
-            final Tlvs1 tlvs = tbuilder.getAugmentation(Tlvs1.class);
+        if (tbuilder.augmentation(Tlvs1.class) != null) {
+            final Tlvs1 tlvs = tbuilder.augmentation(Tlvs1.class);
             if (tlvs.getSrPceCapability() != null) {
                 tlvBuilder.setSrPceCapability(tlvs.getSrPceCapability());
             }
@@ -46,8 +46,8 @@ public class PcepOpenObjectWithSpcTlvParser extends SyncOptimizationsOpenObjectP
             return;
         }
         super.serializeTlvs(tlvs, body);
-        if (tlvs.getAugmentation(Tlvs1.class) != null) {
-            final Tlvs1 spcTlvs = tlvs.getAugmentation(Tlvs1.class);
+        if (tlvs.augmentation(Tlvs1.class) != null) {
+            final Tlvs1 spcTlvs = tlvs.augmentation(Tlvs1.class);
             if (spcTlvs.getSrPceCapability() != null) {
                 serializeTlv(spcTlvs.getSrPceCapability(), body);
             }

@@ -9,7 +9,6 @@ package org.opendaylight.protocol.util;
 
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -28,6 +27,7 @@ import com.google.common.base.VerifyException;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.util.concurrent.ExecutionException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -162,7 +162,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     @Test(expected = AssertionError.class)
     public void testCheckEquals() throws Exception {
-        checkEquals(() -> assertTrue(false), TIMEOUT);
+        checkEquals(Assert::fail, TIMEOUT);
     }
 
     @Test(expected = AssertionError.class)

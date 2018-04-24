@@ -102,7 +102,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
 
     @Override
     public synchronized Boolean containsEqualConfiguration(final Neighbor neighbor) {
-        return Objects.equals(this.currentConfiguration.getKey(), neighbor.getKey())
+        return Objects.equals(this.currentConfiguration.key(), neighbor.key())
                 && OpenConfigMappingUtil.isApplicationPeer(neighbor);
     }
 

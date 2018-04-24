@@ -72,7 +72,7 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
         final SimpleFlowspecExtensionProviderContext providerContext = new SimpleFlowspecExtensionProviderContext();
         RIB_SUPPORT = FlowspecL3vpnIpv4RIBSupport.getInstance(providerContext);
         ROUTE_KEY = new FlowspecL3vpnRouteKey(PATH_ID, "[l3vpn with route-distinguisher 0:5:3] all packets to 172.17.1.0/24");
-        ROUTE = new FlowspecL3vpnRouteBuilder().setKey(ROUTE_KEY).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
+        ROUTE = new FlowspecL3vpnRouteBuilder().withKey(ROUTE_KEY).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
             .setAttributes(new AttributesBuilder().build()).setRouteDistinguisher(RD).build();
     }
 
@@ -108,18 +108,18 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest {
     public void testBuildMpUnreachNlriUpdate() {
         final Update update = RIB_SUPPORT.buildUpdate(Collections.emptyList(), createRoutes(
             new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()), ATTRIBUTES);
-        assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class)
+        assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes1.class));
+        assertNull(update.getAttributes().augmentation(Attributes1.class));
     }
 
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Update update = RIB_SUPPORT.buildUpdate(createRoutes(
             new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()), Collections.emptyList(), ATTRIBUTES);
-        final AdvertizedRoutes advertised = update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri().getAdvertizedRoutes();
+        final AdvertizedRoutes advertised = update.getAttributes().augmentation(Attributes1.class).getMpReachNlri().getAdvertizedRoutes();
         assertEquals(REACH_NLRI, advertised.getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes2.class));
+        assertNull(update.getAttributes().augmentation(Attributes2.class));
     }
 
     @Test

@@ -55,7 +55,7 @@ public final class MPUnreachAttributeParser extends ReachAttributeParser {
         Preconditions.checkArgument(attribute instanceof Attributes,
                 "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
-        final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
+        final Attributes2 pathAttributes2 = pathAttributes.augmentation(Attributes2.class);
         if (pathAttributes2 == null) {
             return;
         }
