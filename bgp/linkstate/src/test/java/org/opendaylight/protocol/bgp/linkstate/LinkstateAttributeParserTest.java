@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -196,7 +197,7 @@ public class LinkstateAttributeParserTest {
     public void testPositiveLinks() throws BGPParsingException {
         final AttributesBuilder builder = createBuilder(new LinkCaseBuilder().build());
         this.parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR), builder);
-        final Attributes1 attrs = builder.getAugmentation(Attributes1.class);
+        final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final LinkAttributes ls = ((LinkAttributesCase) attrs.getLinkStateAttribute()).getLinkAttributes();
         assertNotNull(ls);
 
@@ -240,7 +241,7 @@ public class LinkstateAttributeParserTest {
         final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
         this.parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR), builder);
 
-        final Attributes1 attrs = builder.getAugmentation(Attributes1.class);
+        final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final NodeAttributes ls = ((NodeAttributesCase) attrs.getLinkStateAttribute()).getNodeAttributes();
         assertNotNull(ls);
 
@@ -270,7 +271,7 @@ public class LinkstateAttributeParserTest {
             new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32"))).build()).build());
         this.parser.parseAttribute(Unpooled.copiedBuffer(P4_ATTR), builder);
 
-        final Attributes1 attrs = builder.getAugmentation(Attributes1.class);
+        final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final PrefixAttributes ls = ((PrefixAttributesCase) attrs.getLinkStateAttribute()).getPrefixAttributes();
         assertNotNull(ls);
 
@@ -305,7 +306,7 @@ public class LinkstateAttributeParserTest {
         final AttributesBuilder builder = createBuilder(new TeLspCaseBuilder().build());
         this.parser.parseAttribute(Unpooled.copiedBuffer(TE_LSP_ATTR), builder);
 
-        final Attributes1 attrs = builder.getAugmentation(Attributes1.class);
+        final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final TeLspAttributes teLspAttributes = ((TeLspAttributesCase) attrs.getLinkStateAttribute()).getTeLspAttributes();
         assertNotNull(teLspAttributes);
         final TspecObject tSpec = teLspAttributes.getTspecObject();

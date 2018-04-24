@@ -142,7 +142,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
         private NodeHolder(final NodeId id) {
             this.inab = new IgpNodeAttributesBuilder();
-            this.nb = new NodeBuilder().setKey(new NodeKey(id)).setNodeId(id);
+            this.nb = new NodeBuilder().withKey(new NodeKey(id)).setNodeId(id);
         }
 
         /**
@@ -152,7 +152,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
          * @return True if the node has been purged, false otherwise.
          */
         private boolean syncState(final WriteTransaction trans) {
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(this.nb.getKey());
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(this.nb.key());
 
             /*
              * Transaction's putOperationalData() does a merge. Force it onto a replace
@@ -185,7 +185,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
 
         private boolean checkForRemoval(final WriteTransaction trans) {
-            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(this.nb.getKey());
+            final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(this.nb.key());
 
             if (!this.advertized) {
                 if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
@@ -218,7 +218,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
 
         private void addPrefix(final Prefix pfx) {
-            this.prefixes.put(pfx.getKey(), pfx);
+            this.prefixes.put(pfx.key(), pfx);
         }
 
         private void removePrefix(final PrefixCase prefixCase) {
@@ -227,7 +227,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
         private void unadvertized() {
             this.inab = new IgpNodeAttributesBuilder();
-            this.nb = new NodeBuilder().setKey(this.nb.getKey()).setNodeId(this.nb.getNodeId());
+            this.nb = new NodeBuilder().withKey(this.nb.key()).setNodeId(this.nb.getNodeId());
             this.advertized = false;
             LOG.debug("Node {} is unadvertized", this.nb.getNodeId());
         }
@@ -295,7 +295,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
     private static TerminationPoint buildTp(final TpId id, final TerminationPointType type) {
         final TerminationPointBuilder stpb = new TerminationPointBuilder();
-        stpb.setKey(new TerminationPointKey(id));
+        stpb.withKey(new TerminationPointKey(id));
         stpb.setTpId(id);
 
         if (type != null) {
@@ -388,7 +388,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             final LinkstateRoute value, final LinkCase linkCase, final Attributes attributes) {
         // defensive lookup
         final LinkAttributes la;
-        final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
+        final Attributes1 attr = attributes.augmentation(Attributes1.class);
         if (attr != null) {
             final LinkStateAttribute attrType = attr.getLinkStateAttribute();
             if (attrType != null) {
@@ -439,7 +439,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         } else {
             snh.addTp(srcTp, lb.getLinkId(), false);
             final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(snh.getNodeId()));
-            trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, srcTp.getKey()), srcTp);
+            trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, srcTp.key()), srcTp);
         }
 
         LOG.debug("Created TP {} as link destination", dstTp);
@@ -453,7 +453,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             final InstanceIdentifier<Node> nid = getInstanceIdentifier().child(
                     org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network
                             .topology.topology.Node.class, new NodeKey(dnh.getNodeId()));
-            trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, dstTp.getKey()), dstTp);
+            trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, dstTp.key()), dstTp);
         }
 
         final InstanceIdentifier<Link> lid = buildLinkIdentifier(lb.getLinkId());
@@ -493,7 +493,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             final LinkstateRoute value, final NodeCase nodeCase, final Attributes attributes) {
         final NodeAttributes na;
         //defensive lookup
-        final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
+        final Attributes1 attr = attributes.augmentation(Attributes1.class);
         if (attr != null) {
             final LinkStateAttribute attrType = attr.getLinkStateAttribute();
             if (attrType != null) {
@@ -533,7 +533,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
          */
         final NodeBuilder nb = new NodeBuilder();
         nb.setNodeId(nid);
-        nb.setKey(new NodeKey(nb.getNodeId()));
+        nb.withKey(new NodeKey(nb.getNodeId()));
 
         nh.advertized(nb, inab);
         putNode(trans, nh);
@@ -559,12 +559,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
         final PrefixBuilder pb = new PrefixBuilder();
         final PrefixKey pk = new PrefixKey(ippfx);
-        pb.setKey(pk);
+        pb.withKey(pk);
         pb.setPrefix(ippfx);
 
         final PrefixAttributes pa;
         // Very defensive lookup
-        final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
+        final Attributes1 attr = attributes.augmentation(Attributes1.class);
         if (attr != null) {
             final LinkStateAttribute attrType = attr.getLinkStateAttribute();
             if (attrType != null) {

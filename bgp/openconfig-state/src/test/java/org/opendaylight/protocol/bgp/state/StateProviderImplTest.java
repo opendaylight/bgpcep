@@ -305,11 +305,11 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
             assertEquals(expectedTimers, neighborResult.getTimers());
             final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
                     .State stateResult = neighborResult.getState();
-            assertEquals(expectedBgpNeighborState, stateResult.getAugmentation(BgpNeighborStateAugmentation.class));
+            assertEquals(expectedBgpNeighborState, stateResult.augmentation(BgpNeighborStateAugmentation.class));
             assertEquals(BgpNeighborState.SessionState.ESTABLISHED, stateResult
-                    .getAugmentation(NeighborStateAugmentation.class).getSessionState());
+                    .augmentation(NeighborStateAugmentation.class).getSessionState());
             final List<Class<? extends BgpCapability>> supportedCapabilitiesResult = stateResult
-                    .getAugmentation(NeighborStateAugmentation.class).getSupportedCapabilities();
+                    .augmentation(NeighborStateAugmentation.class).getSupportedCapabilities();
             Assert.assertTrue(supportedCapabilitiesResult.containsAll(this.supportedCap));
             return bgpRib;
         });

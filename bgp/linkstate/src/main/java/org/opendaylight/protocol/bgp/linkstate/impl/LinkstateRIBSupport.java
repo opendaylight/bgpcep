@@ -129,7 +129,7 @@ public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute
         } else {
             builder = new LinkstateRouteBuilder();
         }
-        return builder.setKey(new LinkstateRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
+        return builder.withKey(new LinkstateRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
     }
 
     @Override

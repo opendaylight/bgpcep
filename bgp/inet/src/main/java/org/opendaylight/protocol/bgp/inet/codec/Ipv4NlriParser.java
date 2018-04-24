@@ -88,8 +88,8 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
         Preconditions.checkArgument(attribute instanceof Attributes,
                 "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
-        final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
-        final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
+        final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
+        final Attributes2 pathAttributes2 = pathAttributes.augmentation(Attributes2.class);
         if (pathAttributes1 != null) {
             final AdvertizedRoutes advertizedRoutes = pathAttributes1.getMpReachNlri().getAdvertizedRoutes();
             if (advertizedRoutes != null && advertizedRoutes.getDestinationType() instanceof DestinationIpv4Case) {

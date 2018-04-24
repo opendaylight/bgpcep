@@ -65,10 +65,10 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a Attributes object");
         final Attributes pathAttributes = (Attributes) attribute;
-        final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
-        final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
+        final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
+        final Attributes2 pathAttributes2 = pathAttributes.augmentation(Attributes2.class);
         if (pathAttributes1 != null) {
-            final AdvertizedRoutes routes = (pathAttributes1.getMpReachNlri()).getAdvertizedRoutes();
+            final AdvertizedRoutes routes = pathAttributes1.getMpReachNlri().getAdvertizedRoutes();
             if (routes != null) {
                 final DestinationType destinationType = routes.getDestinationType();
                 if ( destinationType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
@@ -110,7 +110,7 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
             final IpPrefix prefix = dest.getPrefix();
             // Serialize the length field
             // Length field contains one Byte which represents the length of label stack and prefix in bits
-            nlriByteBuf.writeByte(((LABEL_LENGTH * (!isUnreachNlri ? labelStack.size() : 1)) + getPrefixLength(prefix)) * Byte.SIZE);
+            nlriByteBuf.writeByte((LABEL_LENGTH * (!isUnreachNlri ? labelStack.size() : 1) + getPrefixLength(prefix)) * Byte.SIZE);
 
             serializeLabelStackEntries(labelStack, isUnreachNlri, nlriByteBuf);
             serializePrefixField(prefix, nlriByteBuf);
@@ -178,7 +178,7 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
             final List<LabelStack> labels = parseLabel(nlri);
             builder.setLabelStack(labels);
             final int labelNum = labels != null ? labels.size() : 1;
-            final int prefixLen = length - (LABEL_LENGTH * Byte.SIZE * labelNum);
+            final int prefixLen = length - LABEL_LENGTH * Byte.SIZE * labelNum;
             builder.setPrefix(parseIpPrefix(nlri, prefixLen, afi));
             dests.add(builder.build());
         }
@@ -186,7 +186,7 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
     }
 
     public static IpPrefix parseIpPrefix(final ByteBuf nlri, final int prefixLen, final Class<? extends AddressFamily> afi) {
-        final int prefixLenInByte = (prefixLen / Byte.SIZE) + (((prefixLen % Byte.SIZE) == 0) ? 0 : 1);
+        final int prefixLenInByte = prefixLen / Byte.SIZE + (prefixLen % Byte.SIZE == 0 ? 0 : 1);
         if (afi.equals(Ipv4AddressFamily.class)) {
             return new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(nlri, prefixLenInByte), prefixLen));
         } else if (afi.equals(Ipv6AddressFamily.class)) {
