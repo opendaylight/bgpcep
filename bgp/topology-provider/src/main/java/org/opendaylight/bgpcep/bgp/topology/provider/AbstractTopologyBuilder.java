@@ -240,7 +240,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
         requireNonNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.put(LogicalDatastoreType.OPERATIONAL, this.topology,
-                new TopologyBuilder().setKey(this.topologyKey).setServerProvided(Boolean.TRUE)
+                new TopologyBuilder().withKey(this.topologyKey).setServerProvided(Boolean.TRUE)
                         .setTopologyTypes(this.topologyTypes)
                         .setLink(Collections.emptyList()).setNode(Collections.emptyList()).build(), true);
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {

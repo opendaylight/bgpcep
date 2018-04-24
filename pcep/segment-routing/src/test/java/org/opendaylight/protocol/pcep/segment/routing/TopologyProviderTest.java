@@ -78,7 +78,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
             assertEquals(1, reportedLsps.size());
             final ReportedLsp lsp = reportedLsps.get(0);
             assertEquals("sr-path1", lsp.getName());
-            assertEquals(1, lsp.getPath().get(0).getAugmentation(Path1.class).getPathSetupType()
+            assertEquals(1, lsp.getPath().get(0).augmentation(Path1.class).getPathSetupType()
                 .getPst().intValue());
             final List<Subobject> subobjects = lsp.getPath().get(0).getEro().getSubobject();
             assertEquals(1, subobjects.size());

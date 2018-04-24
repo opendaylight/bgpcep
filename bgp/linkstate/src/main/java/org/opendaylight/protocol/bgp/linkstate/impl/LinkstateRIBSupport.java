@@ -145,7 +145,7 @@ public final class LinkstateRIBSupport
         } else {
             builder = new LinkstateRouteBuilder();
         }
-        return builder.setKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+        return builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
     }
 
     @Override

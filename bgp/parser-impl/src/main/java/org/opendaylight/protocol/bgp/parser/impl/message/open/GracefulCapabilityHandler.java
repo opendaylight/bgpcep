@@ -91,8 +91,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
 
     private ByteBuf serializeCapability(final GracefulRestartCapability grace) {
         final List<Tables> tables = grace.getTables();
-        final int tablesSize = (tables != null) ? tables.size() : 0;
-        final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
+        final int tablesSize = tables != null ? tables.size() : 0;
+        final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + PER_AFI_SAFI_SIZE * tablesSize);
         int timeval = 0;
         Integer time = grace.getRestartTime();
         if (time == null) {
@@ -112,22 +112,22 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
 
     @Override
     public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
-        if (capability.getAugmentation(CParameters1.class) == null
-            || capability.getAugmentation(CParameters1.class).getGracefulRestartCapability() == null) {
+        final CParameters1 aug = capability.augmentation(CParameters1.class);
+        if (aug == null) {
             return;
         }
-        final GracefulRestartCapability grace = capability.getAugmentation(CParameters1.class).getGracefulRestartCapability();
-
-        final ByteBuf bytes = serializeCapability(grace);
-
-        CapabilityUtil.formatCapability(CODE, bytes, byteAggregator);
+        final GracefulRestartCapability grace = aug.getGracefulRestartCapability();
+        if (grace != null) {
+            final ByteBuf bytes = serializeCapability(grace);
+            CapabilityUtil.formatCapability(CODE, bytes, byteAggregator);
+        }
     }
 
     @Override
     public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
         final GracefulRestartCapabilityBuilder cb = new GracefulRestartCapabilityBuilder();
 
-        final int flagBits = (buffer.getByte(0) >> RESTART_FLAGS_SIZE);
+        final int flagBits = buffer.getByte(0) >> RESTART_FLAGS_SIZE;
         cb.setRestartFlags(new RestartFlags((flagBits & Byte.SIZE) != 0));
 
         final int timer = ((buffer.readUnsignedByte() & TIMER_TOPBITS_MASK) << Byte.SIZE) + buffer.readUnsignedByte();

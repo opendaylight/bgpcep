@@ -114,9 +114,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.lsp.object
                 .lsp.Tlvs tlvs = lsp.getTlvs();
-        if (tlvs != null && tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+        if (tlvs != null && tlvs.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .controller.pcep.sync.optimizations.rev171025.Tlvs1.class) != null) {
-            return tlvs.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
+            return tlvs.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
                     .pcep.sync.optimizations.rev171025.Tlvs1.class).getLspDbVersion();
         }
         return null;
@@ -127,8 +127,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         final InetAddress peerAddress = session.getRemoteAddress();
 
         final Tlvs tlvs = session.getRemoteTlvs();
-        if (tlvs != null && tlvs.getAugmentation(Tlvs1.class) != null) {
-            final Stateful stateful = tlvs.getAugmentation(Tlvs1.class).getStateful();
+        if (tlvs != null && tlvs.augmentation(Tlvs1.class) != null) {
+            final Stateful stateful = tlvs.augmentation(Tlvs1.class).getStateful();
             if (stateful != null) {
                 setStatefulCapabilities(stateful);
                 pccBuilder.setReportedLsp(Collections.emptyList());
@@ -142,7 +142,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                     pccBuilder.setStateSync(PccSyncState.InitialResync);
                 }
                 pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(StatefulTlv1.class,
-                        new StatefulTlv1Builder(tlvs.getAugmentation(Tlvs1.class)).build()).build());
+                        new StatefulTlv1Builder(tlvs.augmentation(Tlvs1.class)).build()).build());
             } else {
                 LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
             }
@@ -303,8 +303,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         solicited = isSolicited(srp, lsp, ctx, rlb);
 
         // if remove flag is set in SRP object, remove the tunnel immediately
-        if (solicited && srp.getAugmentation(Srp1.class) != null) {
-            final Srp1 initiatedSrp = srp.getAugmentation(Srp1.class);
+        if (solicited && srp.augmentation(Srp1.class) != null) {
+            final Srp1 initiatedSrp = srp.augmentation(Srp1.class);
             if (initiatedSrp.isRemove()) {
                 super.removeLsp(ctx, plspid);
                 return false;
@@ -457,7 +457,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             ub.setUpdates(Collections.singletonList(rb.build()));
             msg = new PcupdBuilder().setPcupdMessage(ub.build()).build();
         } else {
-            final Lsp1 lspCreateFlag = reportedLsp.getAugmentation(Lsp1.class);
+            final Lsp1 lspCreateFlag = reportedLsp.augmentation(Lsp1.class);
             // we only retake delegation for PCE initiated tunnels
             if (lspCreateFlag != null && !lspCreateFlag.isCreate()) {
                 LOG.warn("Unable to retake delegation of PCC-initiated tunnel: {}", reportedLsp);
@@ -496,7 +496,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         final OperationalStatus op;
-        final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
+        final Arguments1 aa = input.getArguments().augmentation(Arguments1.class);
         if (aa != null) {
             op = aa.getOperational();
         } else {
@@ -522,7 +522,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             }
             // check if at least one of the paths has the same status as requested
             for (final Path p : rep.get().getPath()) {
-                final Path1 p1 = p.getAugmentation(Path1.class);
+                final Path1 p1 = p.augmentation(Path1.class);
                 if (p1 == null) {
                     LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
                     return OperationResults.UNSENT;
@@ -542,7 +542,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             return null;
         }
         // it doesn't matter how many lsps there are in the path list, we only need data that is the same in each path
-        final Path1 ra = rep.get().getPath().get(0).getAugmentation(Path1.class);
+        final Path1 ra = rep.get().getPath().get(0).augmentation(Path1.class);
         Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
         final Lsp reportedLsp = ra.getLsp();
         Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
@@ -551,7 +551,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     private Optional<PathSetupType> getPST(final Optional<ReportedLsp> rep) {
         if (rep.isPresent()) {
-            final Path1 path1 = rep.get().getPath().get(0).getAugmentation(Path1.class);
+            final Path1 path1 = rep.get().getPath().get(0).augmentation(Path1.class);
             if (path1 != null) {
                 final PathSetupType pst = path1.getPathSetupType();
                 if (!PSTUtil.isDefaultPST(pst)) {
@@ -569,13 +569,13 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     protected synchronized void loadLspData(final Node node, final Map<String, ReportedLsp> lspData,
             final Map<PlspId, String> lsps, final boolean incrementalSynchro) {
         //load node's lsps from DS
-        final PathComputationClient pcc = node.getAugmentation(Node1.class).getPathComputationClient();
+        final PathComputationClient pcc = node.augmentation(Node1.class).getPathComputationClient();
         final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
         for (final ReportedLsp reportedLsp : reportedLsps) {
             final String lspName = reportedLsp.getName();
             lspData.put(lspName, reportedLsp);
             if (!reportedLsp.getPath().isEmpty()) {
-                final Path1 path1 = reportedLsp.getPath().get(0).getAugmentation(Path1.class);
+                final Path1 path1 = reportedLsp.getPath().get(0).augmentation(Path1.class);
                 if (path1 != null) {
                     final PlspId plspId = path1.getLsp().getPlspId();
                     if (!incrementalSynchro) {
@@ -630,7 +630,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (stateful.isLspUpdateCapability() != null) {
             this.lspUpdateCapability.set(stateful.isLspUpdateCapability());
         }
-        final Stateful1 stateful1 = stateful.getAugmentation(Stateful1.class);
+        final Stateful1 stateful1 = stateful.augmentation(Stateful1.class);
         if (stateful1 != null && stateful1.isInitiation() != null) {
             this.initiationCapability.set(stateful1.isInitiation());
         }
@@ -653,7 +653,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             // mark lsp as stale
             final ReportedLsp staleLsp = rep.get();
             if (!staleLsp.getPath().isEmpty()) {
-                final Path1 path1 = staleLsp.getPath().get(0).getAugmentation(Path1.class);
+                final Path1 path1 = staleLsp.getPath().get(0).augmentation(Path1.class);
                 if (path1 != null) {
                     Stateful07TopologySessionListener.this.staleLsps.add(path1.getLsp().getPlspId());
                 }
@@ -714,7 +714,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
             // Build the request
             final RequestsBuilder rb = new RequestsBuilder();
-            final Arguments2 args = this.input.getArguments().getAugmentation(Arguments2.class);
+            final Arguments2 args = this.input.getArguments().augmentation(Arguments2.class);
             final Lsp inputLsp = (args != null) ? args.getLsp() : null;
             if (inputLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.LSP_MISSING).future();
@@ -770,7 +770,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
             }
             // create mandatory objects
-            final Arguments3 args = this.input.getArguments().getAugmentation(Arguments3.class);
+            final Arguments3 args = this.input.getArguments().augmentation(Arguments3.class);
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());
             srpBuilder.setProcessingRule(Boolean.TRUE);

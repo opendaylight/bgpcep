@@ -166,7 +166,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     private synchronized void putTopologyNode() {
-        final Node node = new NodeBuilder().setKey(this.nodeId.getKey())
+        final Node node = new NodeBuilder().withKey(this.nodeId.getKey())
                 .setNodeId(this.nodeId.getKey().getNodeId()).build();
         final WriteTransaction t = this.chain.newWriteOnlyTransaction();
         LOG.trace("Put topology Node {}, value {}", this.nodeId, node);

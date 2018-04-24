@@ -67,7 +67,7 @@ public final class PcepStateUtils {
             stream.println(String.format("Node [%s] not found", nodeId));
             return;
         }
-        final PcepTopologyNodeStatsAug state = node.getAugmentation(PcepTopologyNodeStatsAug.class);
+        final PcepTopologyNodeStatsAug state = node.augmentation(PcepTopologyNodeStatsAug.class);
         if (state == null) {
             stream.println(String.format("State not found for [%s]", nodeId));
             return;
@@ -90,7 +90,7 @@ public final class PcepStateUtils {
         addHeader(table, "Local preferences");
         final LocalPref localPref = pcepSessionState.getLocalPref();
         showPreferences(table, localPref);
-        final PcepEntityIdStatsAug entAug = localPref.getAugmentation(PcepEntityIdStatsAug.class);
+        final PcepEntityIdStatsAug entAug = localPref.augmentation(PcepEntityIdStatsAug.class);
         if (entAug != null) {
             table.addRow().addContent("Speaker Entity Identifier",
                     Arrays.toString(entAug.getSpeakerEntityIdValue()));
@@ -128,7 +128,7 @@ public final class PcepStateUtils {
         if (capa == null) {
             return;
         }
-        final StatefulCapabilitiesStatsAug stateFulCapa = capa.getAugmentation(StatefulCapabilitiesStatsAug.class);
+        final StatefulCapabilitiesStatsAug stateFulCapa = capa.augmentation(StatefulCapabilitiesStatsAug.class);
         if (stateFulCapa != null) {
             addHeader(table, "Stateful Capabilities");
             table.addRow().addContent("Stateful", stateFulCapa.isStateful());
@@ -148,7 +148,7 @@ public final class PcepStateUtils {
         table.addRow().addContent("Sent Msg Count", messages.getSentMsgCount());
         table.addRow().addContent("Unknown Msg Received", messages.getUnknownMsgReceived());
 
-        final StatefulMessagesStatsAug statefulMessages = messages.getAugmentation(StatefulMessagesStatsAug.class);
+        final StatefulMessagesStatsAug statefulMessages = messages.augmentation(StatefulMessagesStatsAug.class);
         if (statefulMessages == null) {
             return;
         }

@@ -87,7 +87,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
                         SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
         this.routeKey = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
-        this.route = new FlowspecRouteBuilder().setKey(this.routeKey).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
+        this.route = new FlowspecRouteBuilder().withKey(this.routeKey).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
                 .setAttributes(new AttributesBuilder().build()).build();
         this.routes = new FlowspecRoutesBuilder().setFlowspecRoute(Collections.singletonList(this.route)).build();
         setUpTestCustomizer(this.ribSupport);
@@ -118,17 +118,17 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(routes), ATTRIBUTES);
-        assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class)
+        assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes1.class));
+        assertNull(update.getAttributes().augmentation(Attributes1.class));
     }
 
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(createRoutes(routes), Collections.emptyList(), ATTRIBUTES);
-        assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri()
+        assertEquals(REACH_NLRI, update.getAttributes().augmentation(Attributes1.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes2.class));
+        assertNull(update.getAttributes().augmentation(Attributes2.class));
     }
 
     @Test

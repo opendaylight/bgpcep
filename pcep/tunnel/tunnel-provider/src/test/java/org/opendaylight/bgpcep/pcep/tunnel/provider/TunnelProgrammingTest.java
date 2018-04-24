@@ -148,7 +148,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private static Node createNode(final NodeId nodeId, final TpId tpId, final String ipv4Address) {
         final TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
         tpBuilder.setTpId(tpId);
-        tpBuilder.setKey(new TerminationPointKey(tpId));
+        tpBuilder.withKey(new TerminationPointKey(tpId));
         tpBuilder.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder()
                 .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
                         .setTerminationPointType(new IpBuilder()
@@ -156,10 +156,10 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
                                 .build()).build()).build());
         final NodeBuilder nodeBuilder = new NodeBuilder();
         nodeBuilder.setNodeId(nodeId);
-        nodeBuilder.setKey(new NodeKey(nodeId));
+        nodeBuilder.withKey(new NodeKey(nodeId));
         nodeBuilder.setTerminationPoint(Lists.newArrayList(tpBuilder.build()));
         final SupportingNode supportingNode = new SupportingNodeBuilder()
-                .setKey(new SupportingNodeKey(nodeId, new TopologyId("dummy")))
+                .withKey(new SupportingNodeKey(nodeId, new TopologyId("dummy")))
                 .addAugmentation(SupportingNode1.class, new SupportingNode1Builder()
                         .setPathComputationClient(new PathComputationClientBuilder()
                                 .setControlling(true).build()).build()).build();
@@ -293,7 +293,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
 
     private void createInitialTopology() throws InterruptedException, ExecutionException {
         final TopologyBuilder topologyBuilder = new TopologyBuilder();
-        topologyBuilder.setKey(new TopologyKey(TOPOLOGY_ID));
+        topologyBuilder.withKey(new TopologyKey(TOPOLOGY_ID));
         topologyBuilder.setServerProvided(true);
         topologyBuilder.setTopologyId(TOPOLOGY_ID);
         topologyBuilder.setNode(Lists.newArrayList(createNode(NODE1_ID, TP1_ID, NODE1_IPV4),
@@ -310,7 +310,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         linkBuilder.setDestination(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                 .rev131021.link.attributes.DestinationBuilder().setDestNode(NODE2_ID).setDestTp(TP2_ID).build());
         linkBuilder.setLinkId(LINK1_ID);
-        linkBuilder.setKey(new LinkKey(LINK1_ID));
+        linkBuilder.withKey(new LinkKey(LINK1_ID));
         linkBuilder.addAugmentation(Link1.class, new Link1Builder().setSymbolicPathName(LINK1_ID.getValue()).build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(),
