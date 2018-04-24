@@ -169,7 +169,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
         } else {
             builder = new VpnRouteBuilder();
         }
-        return builder.setKey(new VpnRouteKey(new PathId(pathId), vpnRouteKey)).setAttributes(attributes).build();
+        return builder.withKey(new VpnRouteKey(new PathId(pathId), vpnRouteKey)).setAttributes(attributes).build();
     }
 
     @Override

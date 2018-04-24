@@ -94,7 +94,7 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
         } else {
             builder = new Ipv6RouteBuilder();
         }
-        return builder.setKey(new Ipv6RouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
+        return builder.withKey(new Ipv6RouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
     }
 
     @Override

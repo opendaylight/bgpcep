@@ -47,7 +47,7 @@ final class NeighborStateCliUtils {
         table.column("Value").alignLeft();
         table.addRow().addContent("Neighbor Address", neighborId);
 
-        final NeighborStateAugmentation stateAug = neighborState.getAugmentation(NeighborStateAugmentation.class);
+        final NeighborStateAugmentation stateAug = neighborState.augmentation(NeighborStateAugmentation.class);
         if (stateAug != null) {
             table.addRow().addContent("Session State", stateAug.getSessionState());
             printCapabilitiesState(stateAug.getSupportedCapabilities(), table);
@@ -83,7 +83,7 @@ final class NeighborStateCliUtils {
 
     private static void printAfiSafiState(final AfiSafi afiSafi, final ShellTable table) {
         final NeighborAfiSafiStateAugmentation state = afiSafi.getState()
-                .getAugmentation(NeighborAfiSafiStateAugmentation.class);
+                .augmentation(NeighborAfiSafiStateAugmentation.class);
         addHeader(table, "AFI state");
         table.addRow().addContent("Family", afiSafi.getAfiSafiName().getSimpleName());
         table.addRow().addContent("Active", state.isActive());
@@ -99,7 +99,7 @@ final class NeighborStateCliUtils {
     }
 
     private static void printMessagesState(final State neighborState, final ShellTable table) {
-        final BgpNeighborStateAugmentation state = neighborState.getAugmentation(BgpNeighborStateAugmentation.class);
+        final BgpNeighborStateAugmentation state = neighborState.augmentation(BgpNeighborStateAugmentation.class);
         if (state == null) {
             return;
         }
@@ -122,7 +122,7 @@ final class NeighborStateCliUtils {
             return;
         }
         final NeighborTransportStateAugmentation state = transport.getState()
-                .getAugmentation(NeighborTransportStateAugmentation.class);
+                .augmentation(NeighborTransportStateAugmentation.class);
         if (state == null) {
             return;
         }
@@ -146,7 +146,7 @@ final class NeighborStateCliUtils {
         }
 
         final NeighborTimersStateAugmentation state = timers.getState()
-                .getAugmentation(NeighborTimersStateAugmentation.class);
+                .augmentation(NeighborTimersStateAugmentation.class);
         if (state == null) {
             return;
         }

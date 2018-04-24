@@ -86,8 +86,8 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
     private static AddressFamily buildAddressFamily(final TerminationPoint sp, final TerminationPoint dp) {
         // We need the IGP augmentation -- it has IP addresses
-        final TerminationPoint1 sp1 = requireNonNull(sp.getAugmentation(TerminationPoint1.class));
-        final TerminationPoint1 dp1 = requireNonNull(dp.getAugmentation(TerminationPoint1.class));
+        final TerminationPoint1 sp1 = requireNonNull(sp.augmentation(TerminationPoint1.class));
+        final TerminationPoint1 dp1 = requireNonNull(dp.augmentation(TerminationPoint1.class));
 
         // Get the types
         final TerminationPointType spt = sp1.getIgpTerminationPointAttributes().getTerminationPointType();
@@ -190,7 +190,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         args.setEro(TunelProgrammingUtil.buildEro(this.p2pTunnelInput.getExplicitHops()));
         args.setLspa(new LspaBuilder(this.p2pTunnelInput).build());
 
-        final AdministrativeStatus adminStatus = this.p2pTunnelInput.getAugmentation(PcepCreateP2pTunnelInput1.class)
+        final AdministrativeStatus adminStatus = this.p2pTunnelInput.augmentation(PcepCreateP2pTunnelInput1.class)
                 .getAdministrativeStatus();
         if (adminStatus != null) {
             args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder()

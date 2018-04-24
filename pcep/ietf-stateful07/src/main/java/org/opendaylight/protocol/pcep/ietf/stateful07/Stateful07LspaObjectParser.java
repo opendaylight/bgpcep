@@ -31,8 +31,8 @@ public class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
     public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
         super.addTlv(tbuilder, tlv);
         final Tlvs2Builder nameBuilder = new Tlvs2Builder();
-        if (tbuilder.getAugmentation(Tlvs2.class) != null) {
-            final Tlvs2 t = tbuilder.getAugmentation(Tlvs2.class);
+        if (tbuilder.augmentation(Tlvs2.class) != null) {
+            final Tlvs2 t = tbuilder.augmentation(Tlvs2.class);
             if (t.getSymbolicPathName() != null) {
                 nameBuilder.setSymbolicPathName(t.getSymbolicPathName());
             }
@@ -49,8 +49,8 @@ public class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
             return;
         }
         super.serializeTlvs(tlvs, body);
-        if (tlvs.getAugmentation(Tlvs2.class) != null) {
-            final Tlvs2 nameTlvs = tlvs.getAugmentation(Tlvs2.class);
+        if (tlvs.augmentation(Tlvs2.class) != null) {
+            final Tlvs2 nameTlvs = tlvs.augmentation(Tlvs2.class);
             if (nameTlvs.getSymbolicPathName() != null) {
                 serializeTlv(nameTlvs.getSymbolicPathName(), body);
             }

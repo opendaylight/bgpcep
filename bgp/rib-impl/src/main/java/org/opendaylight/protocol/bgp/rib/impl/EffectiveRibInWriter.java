@@ -138,7 +138,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             switch (modificationType) {
                 case DELETE:
                     final Tables removeTable = table.getDataBefore();
-                    final TablesKey tableKey = removeTable.getKey();
+                    final TablesKey tableKey = removeTable.key();
                     final KeyedInstanceIdentifier<Tables, TablesKey> effectiveTablePath
                             = this.effRibTables.child(Tables.class, tableKey);
                     LOG.debug("Delete Effective Table {} modification type {}, "
@@ -149,7 +149,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 case SUBTREE_MODIFIED:
                     final Tables before = table.getDataBefore();
                     final Tables after = table.getDataAfter();
-                    final TablesKey tk = after.getKey();
+                    final TablesKey tk = after.key();
                     LOG.debug("Process table {} type {}, dataAfter {}, dataBefore {}",
                             tk, modificationType, after, before);
 
@@ -240,7 +240,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         if (newTable == null) {
             return;
         }
-        final TablesKey tableKey = newTable.getKey();
+        final TablesKey tableKey = newTable.key();
         final KeyedInstanceIdentifier<Tables, TablesKey> tablePath
                 = this.effRibTables.child(Tables.class, tableKey);
 

@@ -89,7 +89,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             throws BGPDocumentedException {
         final BitArray flags = BitArray.valueOf(buffer.readByte());
         final int type = buffer.readUnsignedByte();
-        final int len = (flags.get(EXTENDED_LENGTH_BIT)) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
+        final int len = flags.get(EXTENDED_LENGTH_BIT) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
         if (!attributes.containsKey(type)) {
             final AttributeParser parser = this.handlers.getParser(type);
             if (parser == null) {
@@ -107,7 +107,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
         }
         final UnrecognizedAttributes unrecognizedAttribute = new UnrecognizedAttributesBuilder()
-            .setKey(new UnrecognizedAttributesKey((short) type))
+            .withKey(new UnrecognizedAttributesKey((short) type))
             .setPartial(flags.get(PARTIAL_BIT))
             .setTransitive(flags.get(TRANSITIVE_BIT))
             .setType((short) type)

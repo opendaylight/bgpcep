@@ -200,11 +200,11 @@ public class BGPMessageParserMockTest {
                 .getBgpParameters()) {
             for (final OptionalCapabilities capa : p.getOptionalCapabilities()) {
                 final CParameters cp = capa.getCParameters();
-                if (cp.getAugmentation(CParameters1.class) != null && cp.getAugmentation(CParameters1.class)
+                if (cp.augmentation(CParameters1.class) != null && cp.augmentation(CParameters1.class)
                         .getMultiprotocolCapability() != null) {
-                    final BgpTableType t = new BgpTableTypeImpl(cp.getAugmentation(CParameters1.class)
+                    final BgpTableType t = new BgpTableTypeImpl(cp.augmentation(CParameters1.class)
                             .getMultiprotocolCapability().getAfi(),
-                            cp.getAugmentation(CParameters1.class).getMultiprotocolCapability().getSafi());
+                            cp.augmentation(CParameters1.class).getMultiprotocolCapability().getSafi());
                     result.add(t);
                 }
             }

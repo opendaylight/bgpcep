@@ -83,7 +83,7 @@ final class BgpConditionsRegistry {
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final Attributes attributes,
             final Conditions conditions) {
-        final Conditions1 bgpConditionsAug = conditions.getAugmentation(Conditions1.class);
+        final Conditions1 bgpConditionsAug = conditions.augmentation(Conditions1.class);
         if (bgpConditionsAug != null) {
 
             final BgpConditions bgpConditions = bgpConditionsAug.getBgpConditions();
@@ -115,7 +115,7 @@ final class BgpConditionsRegistry {
             final Attributes attributes,
             final Conditions conditions) {
 
-        final Conditions1 bgpConditionsAug = conditions.getAugmentation(Conditions1.class);
+        final Conditions1 bgpConditionsAug = conditions.augmentation(Conditions1.class);
         if (bgpConditionsAug != null) {
             final BgpConditions bgpConditions = bgpConditionsAug.getBgpConditions();
             synchronized (this) {

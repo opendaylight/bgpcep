@@ -264,11 +264,11 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         for (final BgpParameters param : open.getBgpParameters()) {
             for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                 final CParameters cParam = optCapa.getCParameters();
-                if (cParam.getAugmentation(CParameters1.class) == null
-                        || cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability() == null) {
+                if (cParam.augmentation(CParameters1.class) == null
+                        || cParam.augmentation(CParameters1.class).getMultiprotocolCapability() == null) {
                     continue;
                 }
-                final MultiprotocolCapability multi = cParam.getAugmentation(CParameters1.class)
+                final MultiprotocolCapability multi = cParam.augmentation(CParameters1.class)
                         .getMultiprotocolCapability();
                 final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
                 tables.add(tt);

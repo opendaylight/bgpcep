@@ -60,7 +60,7 @@ public final class BmpMonitorConfigFileProcessor implements ConfigFileProcessor,
 
     private static void processBmpMonitorConfig(final BmpMonitorConfig bmpConfig, final WriteTransaction wtx) {
         final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = ODL_BMP_MONITORS_IID
-                .child(BmpMonitorConfig.class, bmpConfig.getKey());
+                .child(BmpMonitorConfig.class, bmpConfig.key());
 
         wtx.merge(LogicalDatastoreType.CONFIGURATION, iid, bmpConfig, true);
     }

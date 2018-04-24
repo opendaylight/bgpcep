@@ -59,7 +59,7 @@ public class PcRptMessageCodec extends Stateful07PCReportMessageParser {
     protected void serializeObject(final Object object, final ByteBuf buffer) {
         super.serializeObject(object, buffer);
         if (object instanceof Bandwidth) {
-            final Bandwidth1 bw = ((Bandwidth) object).getAugmentation(Bandwidth1.class);
+            final Bandwidth1 bw = ((Bandwidth) object).augmentation(Bandwidth1.class);
             if (bw != null) {
                 super.serializeObject(new BandwidthUsageBuilder().setBwSample(bw.getBwSample()).build(), buffer);
             }

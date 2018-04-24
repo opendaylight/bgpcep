@@ -97,7 +97,7 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
         } else {
             builder = new Ipv4RouteBuilder();
         }
-        builder.setKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes);
+        builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes);
         return builder.build();
     }
 
