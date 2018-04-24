@@ -123,18 +123,18 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv
     public void testBuildMpUnreachNlriUpdate() {
         final Collection<MapEntryNode> routes = createRoutes(MVPN_ROUTES);
         final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), routes, ATTRIBUTES);
-        assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri()
+        assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class).getMpUnreachNlri()
                 .getWithdrawnRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes1.class));
+        assertNull(update.getAttributes().augmentation(Attributes1.class));
     }
 
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Collection<MapEntryNode> routes = createRoutes(MVPN_ROUTES);
         final Update update = this.ribSupport.buildUpdate(routes, Collections.emptyList(), ATTRIBUTES);
-        assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri()
+        assertEquals(REACH_NLRI, update.getAttributes().augmentation(Attributes1.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes2.class));
+        assertNull(update.getAttributes().augmentation(Attributes2.class));
     }
 
     @Test

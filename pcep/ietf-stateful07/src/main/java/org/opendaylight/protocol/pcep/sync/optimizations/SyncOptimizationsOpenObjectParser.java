@@ -30,8 +30,8 @@ public class SyncOptimizationsOpenObjectParser extends Stateful07OpenObjectParse
     public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
         super.addTlv(tbuilder, tlv);
         final Tlvs3Builder syncOptTlvsBuilder = new Tlvs3Builder();
-        if (tbuilder.getAugmentation(Tlvs3.class) != null) {
-            final Tlvs3 t = tbuilder.getAugmentation(Tlvs3.class);
+        if (tbuilder.augmentation(Tlvs3.class) != null) {
+            final Tlvs3 t = tbuilder.augmentation(Tlvs3.class);
             if (t.getLspDbVersion() != null) {
                 syncOptTlvsBuilder.setLspDbVersion(t.getLspDbVersion());
             }
@@ -54,8 +54,8 @@ public class SyncOptimizationsOpenObjectParser extends Stateful07OpenObjectParse
             return;
         }
         super.serializeTlvs(tlvs, body);
-        if (tlvs.getAugmentation(Tlvs3.class) != null) {
-            final Tlvs3 syncOptTlvs = tlvs.getAugmentation(Tlvs3.class);
+        if (tlvs.augmentation(Tlvs3.class) != null) {
+            final Tlvs3 syncOptTlvs = tlvs.augmentation(Tlvs3.class);
             if (syncOptTlvs.getLspDbVersion() != null) {
                 serializeTlv(syncOptTlvs.getLspDbVersion(), body);
             }

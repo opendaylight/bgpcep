@@ -25,11 +25,12 @@ public class RouteRefreshCapabilityHandler implements CapabilityParser, Capabili
 
     @Override
     public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
-        if (capability == null || (capability.getAugmentation(CParameters1.class) == null) ||
-            (capability.getAugmentation(CParameters1.class).getRouteRefreshCapability() == null) ) {
-            return;
+        if (capability != null) {
+            final CParameters1 aug = capability.augmentation(CParameters1.class);
+            if (aug != null && aug.getRouteRefreshCapability() != null) {
+                CapabilityUtil.formatCapability(CODE, Unpooled.EMPTY_BUFFER, byteAggregator);
+            }
         }
-        CapabilityUtil.formatCapability(CODE, Unpooled.EMPTY_BUFFER, byteAggregator);
     }
 
     @Override

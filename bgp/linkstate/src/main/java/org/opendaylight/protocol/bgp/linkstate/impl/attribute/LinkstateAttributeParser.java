@@ -94,7 +94,7 @@ public final class LinkstateAttributeParser implements AttributeParser, Attribut
     }
 
     private static CLinkstateDestination getNlriType(final AttributesBuilder pab) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1.class);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1 mpr = pab.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1.class);
         if (mpr != null && mpr.getMpReachNlri() != null) {
             final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
             if (dt instanceof DestinationLinkstateCase) {
@@ -103,7 +103,7 @@ public final class LinkstateAttributeParser implements AttributeParser, Attribut
                 }
             }
         }
-        final Attributes2 mpu = pab.getAugmentation(Attributes2.class);
+        final Attributes2 mpu = pab.augmentation(Attributes2.class);
         if (mpu != null && mpu.getMpUnreachNlri() != null) {
             final DestinationType dt = mpu.getMpUnreachNlri().getWithdrawnRoutes().getDestinationType();
             if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
@@ -142,7 +142,7 @@ public final class LinkstateAttributeParser implements AttributeParser, Attribut
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
-        final Attributes1 pathAttributes1 = ((Attributes) attribute).getAugmentation(Attributes1.class);
+        final Attributes1 pathAttributes1 = ((Attributes) attribute).augmentation(Attributes1.class);
         if (pathAttributes1 == null) {
             return;
         }

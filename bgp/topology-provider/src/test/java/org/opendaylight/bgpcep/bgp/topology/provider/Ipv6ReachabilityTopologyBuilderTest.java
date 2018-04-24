@@ -70,13 +70,13 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         updateIpv6Route(createIpv6Route(NEXT_HOP));
 
         readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
-            final TopologyTypes1 topologyType = topology.getTopologyTypes().getAugmentation(TopologyTypes1.class);
+            final TopologyTypes1 topologyType = topology.getTopologyTypes().augmentation(TopologyTypes1.class);
             assertNotNull(topologyType);
             assertNotNull(topologyType.getBgpIpv6ReachabilityTopology());
             assertEquals(1, topology.getNode().size());
             final Node node = topology.getNode().get(0);
             assertEquals(NEXT_HOP, node.getNodeId().getValue());
-            assertEquals(ROUTE_IP6PREFIX, node.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix()
+            assertEquals(ROUTE_IP6PREFIX, node.augmentation(Node1.class).getIgpNodeAttributes().getPrefix()
                 .get(0).getPrefix().getIpv6Prefix().getValue());
             return topology;
         });
@@ -88,7 +88,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
             assertEquals(1, topology.getNode().size());
             final Node nodeUpdated = topology.getNode().get(0);
             assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
-            assertEquals(ROUTE_IP6PREFIX, nodeUpdated.getAugmentation(Node1.class).getIgpNodeAttributes().getPrefix()
+            assertEquals(ROUTE_IP6PREFIX, nodeUpdated.augmentation(Node1.class).getIgpNodeAttributes().getPrefix()
                 .get(0).getPrefix().getIpv6Prefix().getValue());
             return topology;
         });
@@ -117,7 +117,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
             .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
             .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(
                 new Ipv6NextHopBuilder().setGlobal(new Ipv6Address(netxHop)).build()).build()).build();
-        return new Ipv6RouteBuilder().setKey(new Ipv6RouteKey(new PathId(PATH_ID), ROUTE_IP6PREFIX))
+        return new Ipv6RouteBuilder().withKey(new Ipv6RouteKey(new PathId(PATH_ID), ROUTE_IP6PREFIX))
             .setPrefix(new Ipv6Prefix(ROUTE_IP6PREFIX)).setAttributes(attribute).build();
     }
 }

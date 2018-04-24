@@ -52,11 +52,14 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
 
     @Override
     public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
-        if ( capability.getAugmentation(CParameters1.class) == null
-            || capability.getAugmentation(CParameters1.class).getMultiprotocolCapability() == null ) {
+        final CParameters1 aug = capability.augmentation(CParameters1.class);
+        if (aug == null) {
             return;
         }
-        final MultiprotocolCapability mp = capability.getAugmentation(CParameters1.class).getMultiprotocolCapability();
+        final MultiprotocolCapability mp = aug.getMultiprotocolCapability();
+        if (mp == null) {
+            return;
+        }
 
         final ByteBuf capBuffer = Unpooled.buffer();
         MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, mp.getAfi(),

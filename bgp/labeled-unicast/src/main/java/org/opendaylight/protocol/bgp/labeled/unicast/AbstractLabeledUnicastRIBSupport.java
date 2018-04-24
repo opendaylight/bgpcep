@@ -176,7 +176,7 @@ abstract class AbstractLabeledUnicastRIBSupport<
         } else {
             builder = new LabeledUnicastRouteBuilder();
         }
-        return builder.setKey(new LabeledUnicastRouteKey(new PathId(pathId), routeKey))
+        return builder.withKey(new LabeledUnicastRouteKey(new PathId(pathId), routeKey))
                 .setAttributes(attributes).build();
     }
 }

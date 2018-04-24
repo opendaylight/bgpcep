@@ -103,8 +103,8 @@ final class BmpRibInWriter {
             MpReachNlri mpReach = null;
             if (message.getNlri() != null) {
                 mpReach = prefixesToMpReach(message);
-            } else if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
-                mpReach = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+            } else if (attrs != null && attrs.augmentation(Attributes1.class) != null) {
+                mpReach = attrs.augmentation(Attributes1.class).getMpReachNlri();
             }
             if (mpReach != null) {
                 addRoutes(mpReach, attrs);
@@ -114,8 +114,8 @@ final class BmpRibInWriter {
             MpUnreachNlri mpUnreach = null;
             if (message.getWithdrawnRoutes() != null) {
                 mpUnreach = prefixesToMpUnreach(message);
-            } else if (attrs != null && attrs.getAugmentation(Attributes2.class) != null) {
-                mpUnreach = attrs.getAugmentation(Attributes2.class).getMpUnreachNlri();
+            } else if (attrs != null && attrs.augmentation(Attributes2.class) != null) {
+                mpUnreach = attrs.augmentation(Attributes2.class).getMpUnreachNlri();
             }
             if (mpUnreach != null) {
                 removeRoutes(mpUnreach);
@@ -253,13 +253,13 @@ final class BmpRibInWriter {
         boolean isEOR = false;
         if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
             if (msg.getAttributes() != null) {
-                if (msg.getAttributes().getAugmentation(Attributes1.class) != null) {
-                    final Attributes1 pa = msg.getAttributes().getAugmentation(Attributes1.class);
+                if (msg.getAttributes().augmentation(Attributes1.class) != null) {
+                    final Attributes1 pa = msg.getAttributes().augmentation(Attributes1.class);
                     if (pa.getMpReachNlri() != null) {
                         type = new TablesKey(pa.getMpReachNlri().getAfi(), pa.getMpReachNlri().getSafi());
                     }
-                } else if (msg.getAttributes().getAugmentation(Attributes2.class) != null) {
-                    final Attributes2 pa = msg.getAttributes().getAugmentation(Attributes2.class);
+                } else if (msg.getAttributes().augmentation(Attributes2.class) != null) {
+                    final Attributes2 pa = msg.getAttributes().augmentation(Attributes2.class);
                     if (pa.getMpUnreachNlri() != null) {
                         type = new TablesKey(pa.getMpUnreachNlri().getAfi(), pa.getMpUnreachNlri().getSafi());
                     }

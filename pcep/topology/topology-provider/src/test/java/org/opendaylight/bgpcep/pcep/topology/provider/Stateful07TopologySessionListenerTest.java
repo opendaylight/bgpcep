@@ -179,13 +179,13 @@ public class Stateful07TopologySessionListenerTest
         checkEquals(() -> assertEquals(1, listenerState.getDelegatedLspsCount().intValue()));
         checkEquals(() -> assertTrue(this.listener.isSessionSynchronized()));
         checkEquals(() -> assertTrue(listenerState.getMessages()
-                .getAugmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp() > 0));
+                .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp() > 0));
         checkEquals(() -> assertEquals(2, listenerState.getMessages()
-                .getAugmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount().intValue()));
+                .augmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount().intValue()));
         checkEquals(() -> assertEquals(1, listenerState.getMessages()
-                .getAugmentation(StatefulMessagesStatsAug.class).getSentInitMsgCount().intValue()));
+                .augmentation(StatefulMessagesStatsAug.class).getSentInitMsgCount().intValue()));
         checkEquals(() -> assertEquals(0, listenerState.getMessages()
-                .getAugmentation(StatefulMessagesStatsAug.class).getSentUpdMsgCount().intValue()));
+                .augmentation(StatefulMessagesStatsAug.class).getSentUpdMsgCount().intValue()));
 
         // update-lsp
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.update.lsp.args
@@ -223,7 +223,7 @@ public class Stateful07TopologySessionListenerTest
             assertEquals(1, listenerState.getDelegatedLspsCount().intValue());
             assertTrue(this.listener.isSessionSynchronized());
             final StatefulMessagesStatsAug statefulstate = listenerState.getMessages()
-                    .getAugmentation(StatefulMessagesStatsAug.class);
+                    .augmentation(StatefulMessagesStatsAug.class);
             assertTrue(statefulstate.getLastReceivedRptMsgTimestamp() > 0);
             assertEquals(3, statefulstate.getReceivedRptMsgCount().intValue());
             assertEquals(1, statefulstate.getSentInitMsgCount().intValue());
@@ -232,7 +232,7 @@ public class Stateful07TopologySessionListenerTest
             assertTrue(replyTime.getAverageTime() > 0);
             assertTrue(replyTime.getMaxTime() > 0);
             final StatefulCapabilitiesStatsAug statefulCapabilities = listenerState
-                    .getPeerCapabilities().getAugmentation(StatefulCapabilitiesStatsAug.class);
+                    .getPeerCapabilities().augmentation(StatefulCapabilitiesStatsAug.class);
             assertFalse(statefulCapabilities.isActive());
             assertTrue(statefulCapabilities.isInstantiation());
             assertTrue(statefulCapabilities.isStateful());
@@ -277,13 +277,13 @@ public class Stateful07TopologySessionListenerTest
         checkEquals(() -> assertEquals(0, listenerState.getDelegatedLspsCount().intValue()));
         checkEquals(() -> assertTrue(this.listener.isSessionSynchronized()));
         checkEquals(() -> assertTrue(listenerState.getMessages()
-                .getAugmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp() > 0));
+                .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp() > 0));
         checkEquals(() -> assertEquals(4, listenerState.getMessages()
-                .getAugmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount().intValue()));
+                .augmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount().intValue()));
         checkEquals(() -> assertEquals(2, listenerState.getMessages()
-                .getAugmentation(StatefulMessagesStatsAug.class).getSentInitMsgCount().intValue()));
+                .augmentation(StatefulMessagesStatsAug.class).getSentInitMsgCount().intValue()));
         checkEquals(() -> assertEquals(1, listenerState.getMessages()
-                .getAugmentation(StatefulMessagesStatsAug.class).getSentUpdMsgCount().intValue()));
+                .augmentation(StatefulMessagesStatsAug.class).getSentUpdMsgCount().intValue()));
     }
 
     @Test

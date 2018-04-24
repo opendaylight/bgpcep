@@ -104,7 +104,7 @@ public final class NetworkTopologyConfigFileProcessor implements ConfigFileProce
     private static void processTopology(final Topology topology, final WriteTransaction wtx) {
         LOG.info("Storing Topology {}", topology);
         final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =
-                InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, topology.getKey());
+                InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, topology.key());
         wtx.merge(LogicalDatastoreType.CONFIGURATION, topologyIIdKeyed, topology, true);
     }
 }

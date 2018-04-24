@@ -57,6 +57,6 @@ public class UnrecognizedAttributesTest {
         assertTrue(unrecogAttrib.isTransitive());
         assertArrayEquals(ByteArray.cutBytes(attributeBytes, NON_VALUE_BYTES), unrecogAttrib.getValue());
         assertEquals(NON_EXISTENT_TYPE, unrecogAttrib.getType().shortValue());
-        assertEquals(expectedAttribKey, unrecogAttrib.getKey());
+        assertEquals(expectedAttribKey, unrecogAttrib.key());
     }
 }

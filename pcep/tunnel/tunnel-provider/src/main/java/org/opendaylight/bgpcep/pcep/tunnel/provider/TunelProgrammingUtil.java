@@ -68,7 +68,7 @@ final class TunelProgrammingUtil {
             final List<Subobject> subobjs = new ArrayList<>(explicitHops.size());
             for (final ExplicitHops h : explicitHops) {
 
-                final ExplicitHops1 h1 = h.getAugmentation(ExplicitHops1.class);
+                final ExplicitHops1 h1 = h.augmentation(ExplicitHops1.class);
                 if (h1 != null) {
                     final SubobjectBuilder sb = new SubobjectBuilder();
                     sb.fieldsFrom(h1);
@@ -85,9 +85,9 @@ final class TunelProgrammingUtil {
 
     public static NodeId supportingNode(final Node node) {
         for (final SupportingNode n : node.getSupportingNode()) {
-            final SupportingNode1 n1 = n.getAugmentation(SupportingNode1.class);
+            final SupportingNode1 n1 = n.augmentation(SupportingNode1.class);
             if (n1 != null && n1.getPathComputationClient().isControlling()) {
-                return n.getKey().getNodeRef();
+                return n.key().getNodeRef();
             }
         }
 

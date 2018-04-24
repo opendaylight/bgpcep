@@ -110,7 +110,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(LINKSTATE_DESTINATION, buffer);
         final byte[] arrayKey = ByteArray.readAllBytes(buffer);
         ROUTE_KEY = new LinkstateRouteKey(PATH_ID, Arrays.toString(arrayKey));
-        ROUTE = new LinkstateRouteBuilder().setKey(ROUTE_KEY).setRouteDistinguisher(RD)
+        ROUTE = new LinkstateRouteBuilder().withKey(ROUTE_KEY).setRouteDistinguisher(RD)
                 .setIdentifier(ID).setObjectType(OBJECT_TYPE2)
                 .setProtocolId(ProtocolId.IsisLevel1).setAttributes(new AttributesBuilder().build()).build();
         ROUTES = new LinkstateRoutesBuilder().setLinkstateRoute(Collections.singletonList(ROUTE)).build();
@@ -148,17 +148,17 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
-        assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class)
+        assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes1.class));
+        assertNull(update.getAttributes().augmentation(Attributes1.class));
     }
 
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
-        assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class)
+        assertEquals(REACH_NLRI, update.getAttributes().augmentation(Attributes1.class)
                 .getMpReachNlri().getAdvertizedRoutes().getDestinationType());
-        assertNull(update.getAttributes().getAugmentation(Attributes2.class));
+        assertNull(update.getAttributes().augmentation(Attributes2.class));
     }
 
     @Test

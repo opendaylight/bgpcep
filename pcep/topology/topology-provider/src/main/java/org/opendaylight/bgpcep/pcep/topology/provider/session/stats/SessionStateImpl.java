@@ -65,8 +65,8 @@ public final class SessionStateImpl implements PcepSessionState {
         this.pcepSessionState = session;
         final Open localOpen = session.getLocalOpen();
 
-        if (localOpen.getTlvs() != null && localOpen.getTlvs().getAugmentation(Tlvs3.class) != null) {
-            final SpeakerEntityId entityId = localOpen.getTlvs().getAugmentation(Tlvs3.class).getSpeakerEntityId();
+        if (localOpen.getTlvs() != null && localOpen.getTlvs().augmentation(Tlvs3.class) != null) {
+            final SpeakerEntityId entityId = localOpen.getTlvs().augmentation(Tlvs3.class).getSpeakerEntityId();
             if (entityId != null) {
                 this.localPref = new LocalPrefBuilder(session.getLocalPref())
                         .addAugmentation(PcepEntityIdStatsAug.class,

@@ -83,18 +83,17 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
             for (final BgpParameters param : ((Open) message).getBgpParameters()) {
                 for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
                     final CParameters cParam = capa.getCParameters();
-                    if (cParam.getAugmentation(CParameters1.class) == null) {
+                    final CParameters1 aug = cParam.augmentation(CParameters1.class);
+                    if (aug == null) {
                         continue;
                     }
-                    if (cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability() != null) {
-                        final MultiprotocolCapability p = cParam.getAugmentation(CParameters1.class)
-                                .getMultiprotocolCapability();
+                    if (aug.getMultiprotocolCapability() != null) {
+                        final MultiprotocolCapability p = aug.getMultiprotocolCapability();
                         LOG.debug("Adding open parameter {}", p);
                         final BgpTableType type = new BgpTableTypeImpl(p.getAfi(), p.getSafi());
                         tts.add(type);
-                    } else if (cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null) {
-                        final AddPathCapability addPathCap = cParam.getAugmentation(CParameters1.class)
-                                .getAddPathCapability();
+                    } else if (aug.getAddPathCapability() != null) {
+                        final AddPathCapability addPathCap = aug.getAddPathCapability();
                         addPathCapabilitiesList.addAll(addPathCap.getAddressFamilies());
                     }
                 }
