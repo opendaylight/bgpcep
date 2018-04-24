@@ -26,6 +26,7 @@ public interface NlriParser {
      * @param builder MP UNREACH NLRI builder.
      * @throws BGPParsingException
      */
+    @Deprecated
     void parseNlri(@Nonnull ByteBuf nlri, @Nonnull MpUnreachNlriBuilder builder) throws BGPParsingException;
 
     /**
@@ -35,6 +36,7 @@ public interface NlriParser {
      * @param builder MP REACH NLRI builder.
      * @throws BGPParsingException
      */
+    @Deprecated
     void parseNlri(@Nonnull ByteBuf nlri, @Nonnull MpReachNlriBuilder builder) throws BGPParsingException;
 
     /**
