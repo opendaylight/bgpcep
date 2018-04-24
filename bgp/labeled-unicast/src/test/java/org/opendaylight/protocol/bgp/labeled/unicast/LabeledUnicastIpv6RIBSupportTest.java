@@ -132,11 +132,6 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest {
     }
 
     @Test
-    public void testIsComplexRoute() {
-        Assert.assertTrue(RIB_SUPPORT.isComplexRoute());
-    }
-
-    @Test
     public void testCacheableNlriObjects() {
         Assert.assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableNlriObjects());
     }

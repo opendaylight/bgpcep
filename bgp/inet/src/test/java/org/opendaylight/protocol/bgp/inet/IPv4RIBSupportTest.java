@@ -120,11 +120,6 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
     }
 
     @Test
-    public void testIsComplexRoute() {
-        assertTrue(RIB_SUPPORT.isComplexRoute());
-    }
-
-    @Test
     public void testCacheableNlriObjects() {
         assertEquals(ImmutableSet.of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                 .message.rev180329.Ipv4PrefixAndPathId.class), RIB_SUPPORT.cacheableNlriObjects());
