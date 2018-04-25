@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EvpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.L2vpnAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.destination.EvpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.destination.EvpnDestinationBuilder;
@@ -77,12 +79,16 @@ public class EvpnNlriParserTest {
     @Test
     public void testMpUnreach() throws BGPParsingException {
         final MpUnreachNlriBuilder mpReach = new MpUnreachNlriBuilder();
+        mpReach.setAfi(L2vpnAddressFamily.class);
+        mpReach.setSafi(EvpnSubsequentAddressFamily.class);
         this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach, null);
         assertEquals(createUnreach(), mpReach.build());
     }
 
     private MpUnreachNlri createUnreach() {
         final MpUnreachNlriBuilder mpReachExpected = new MpUnreachNlriBuilder();
+        mpReachExpected.setAfi(L2vpnAddressFamily.class);
+        mpReachExpected.setSafi(EvpnSubsequentAddressFamily.class);
         final WithdrawnRoutes wd = new WithdrawnRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.update
                         .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder()
@@ -96,9 +102,13 @@ public class EvpnNlriParserTest {
     @Test
     public void testMpReach() throws BGPParsingException {
         final MpReachNlriBuilder mpReach = new MpReachNlriBuilder();
+        mpReach.setAfi(L2vpnAddressFamily.class);
+        mpReach.setSafi(EvpnSubsequentAddressFamily.class);
         this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach, null);
 
         final MpReachNlriBuilder mpReachExpected = new MpReachNlriBuilder();
+        mpReachExpected.setAfi(L2vpnAddressFamily.class);
+        mpReachExpected.setSafi(EvpnSubsequentAddressFamily.class);
         final AdvertizedRoutes wd = new AdvertizedRoutesBuilder().setDestinationType(new DestinationEvpnCaseBuilder()
                 .setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(this.dest).build())
                 .build()).build();

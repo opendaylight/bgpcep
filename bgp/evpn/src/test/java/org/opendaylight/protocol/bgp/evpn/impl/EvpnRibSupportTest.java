@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETHERNET_AD_ROUTE_CASE;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETHERNET_AD_ROUTE_CASE_KEY;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -55,8 +56,11 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest {
     private static final EvpnRibSupport RIB_SUPPORT = EvpnRibSupport.getInstance();
     private static final EvpnRoute ROUTE;
     private static final EvpnRouteKey ROUTE_KEY;
-    private static final EvpnDestination EVPN_DESTINATION = new EvpnDestinationBuilder().setRouteDistinguisher(RD)
-            .setEvpnChoice(ETHERNET_AD_ROUTE_CASE).build();
+    private static final EvpnDestination EVPN_DESTINATION = new EvpnDestinationBuilder()
+            .setRouteDistinguisher(RD)
+            .setEvpnChoice(ETHERNET_AD_ROUTE_CASE)
+            .setPathId(NON_PATH_ID)
+            .build();
     private static final DestinationEvpnCase REACH_NLRI = new DestinationEvpnCaseBuilder()
             .setDestinationEvpn(new DestinationEvpnBuilder()
                     .setEvpnDestination(Collections.singletonList(EVPN_DESTINATION)).build()).build();

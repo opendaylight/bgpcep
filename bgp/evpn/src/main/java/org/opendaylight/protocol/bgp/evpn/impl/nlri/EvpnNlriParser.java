@@ -20,8 +20,11 @@ import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.evpn.spi.EvpnRegistry;
 import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEvpnNlriRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
@@ -40,7 +43,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -51,26 +57,30 @@ import org.slf4j.LoggerFactory;
 public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnNlriParser.class);
     private static final NodeIdentifier EVPN_CHOICE_NID = new NodeIdentifier(EvpnChoice.QNAME);
+    private static final NodeIdentifier  PATH_ID_NID =
+            new NodeIdentifier(QName.create(EvpnChoice.QNAME, "path-id").intern());
 
     @FunctionalInterface
     private interface ExtractionInterface {
         EvpnChoice check(EvpnRegistry reg, ChoiceNode cont);
     }
 
-    public static EvpnDestination extractEvpnDestination(final DataContainerNode<? extends PathArgument> evpnChoice) {
-        return extractDestination(evpnChoice, EvpnRegistry::serializeEvpnModel);
+    public static EvpnDestination extractEvpnDestination(final DataContainerNode<? extends PathArgument> route) {
+        return extractDestination(route, EvpnRegistry::serializeEvpnModel);
     }
 
-    private static EvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> evpnChoice,
+    private static EvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> route,
             final ExtractionInterface extract) {
         final EvpnRegistry reg = SimpleEvpnNlriRegistry.getInstance();
-        final ChoiceNode cont = (ChoiceNode) evpnChoice.getChild(EVPN_CHOICE_NID).get();
+        final ChoiceNode cont = (ChoiceNode) route.getChild(EVPN_CHOICE_NID).get();
         final EvpnChoice evpnValue = extract.check(reg, cont);
         if (evpnValue == null) {
             LOG.warn("Unrecognized Nlri {}", cont);
             return null;
         }
-        return new EvpnDestinationBuilder().setRouteDistinguisher(extractRouteDistinguisher(evpnChoice))
+        return new EvpnDestinationBuilder()
+                .setRouteDistinguisher(extractRouteDistinguisher(route))
+                .setPathId(PathIdUtil.buildPathId(route, PATH_ID_NID))
                 .setEvpnChoice(evpnValue).build();
     }
 
@@ -85,7 +95,7 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<EvpnDestination> dst = parseNlri(nlri);
+        final List<EvpnDestination> dst = parseNlri(nlri, constraint, builder.getAfi(), builder.getSafi());
 
         builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.update.attributes
@@ -101,7 +111,7 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<EvpnDestination> dst = parseNlri(nlri);
+        final List<EvpnDestination> dst = parseNlri(nlri, constraint, builder.getAfi(), builder.getSafi());
 
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationEvpnCaseBuilder().setDestinationEvpn(new DestinationEvpnBuilder()
@@ -109,7 +119,8 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Nullable
-    private static List<EvpnDestination> parseNlri(final ByteBuf nlri) {
+    private static List<EvpnDestination> parseNlri(final ByteBuf nlri, final PeerSpecificParserConstraint constraints,
+            final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
         if (!nlri.isReadable()) {
             return null;
         }
@@ -117,6 +128,9 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
 
         while (nlri.isReadable()) {
             final EvpnDestinationBuilder builder = new EvpnDestinationBuilder();
+            if (MultiPathSupportUtil.isTableTypeSupported(constraints, new BgpTableTypeImpl(afi, safi))) {
+                builder.setPathId(PathIdUtil.readPathId(nlri));
+            }
             final NlriType type = NlriType.forValue(nlri.readUnsignedByte());
             final int length = nlri.readUnsignedByte();
             final ByteBuf nlriBuf = nlri.readSlice(length);
