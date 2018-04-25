@@ -13,7 +13,6 @@ import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
@@ -106,21 +105,23 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
 
     @Override
     public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder,
-            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+        final PeerSpecificParserConstraint constraint) {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, builder.getAfi());
+        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, constraint,
+                builder.getAfi(), builder.getSafi());
         builder.setWithdrawnRoutes(getWithdrawnRoutesByDestination(dst));
     }
 
     @Override
     public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
-            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+        final PeerSpecificParserConstraint constraint) {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, builder.getAfi());
+        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, constraint,
+                builder.getAfi(), builder.getSafi());
         builder.setAdvertizedRoutes(getAdvertizedRoutesByDestination(dst));
     }
 }

@@ -14,8 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.LabelStack;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
 
@@ -24,7 +29,11 @@ final class VpnDestinationUtil {
         throw new UnsupportedOperationException();
     }
 
-    static List<VpnDestination> parseNlri(final ByteBuf nlri, final Class<? extends AddressFamily> afi) {
+    static List<VpnDestination> parseNlri(
+            final ByteBuf nlri,
+            final PeerSpecificParserConstraint constraints,
+            final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi) {
         if (!nlri.isReadable()) {
             return null;
         }
@@ -32,6 +41,9 @@ final class VpnDestinationUtil {
 
         while (nlri.isReadable()) {
             final VpnDestinationBuilder builder = new VpnDestinationBuilder();
+            if (MultiPathSupportUtil.isTableTypeSupported(constraints, new BgpTableTypeImpl(afi, safi))) {
+                builder.setPathId(PathIdUtil.readPathId(nlri));
+            }
             final short length = nlri.readUnsignedByte();
             final List<LabelStack> labels = LUNlriParser.parseLabel(nlri);
             builder.setLabelStack(labels);
