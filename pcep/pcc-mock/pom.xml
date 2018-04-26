@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent</artifactId>
-        <version>2.0.5</version>
+        <version>2.0.6</version>
         <relativePath/>
     </parent>
 
@@ -163,8 +163,7 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.opendaylight.protocol.pcep.pcc.mock.Main</mainClass>
                                 </transformer>
                             </transformers>

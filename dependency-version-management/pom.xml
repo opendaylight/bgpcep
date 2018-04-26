@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>2.0.5</version>
+        <version>2.0.6</version>
         <relativePath/>
     </parent>
 
@@ -23,7 +21,7 @@
         <mdsal.common.version>2.3.3-SNAPSHOT</mdsal.common.version>
         <mdsal.model.version>0.11.3-SNAPSHOT</mdsal.model.version>
         <yangtools.version>1.2.3-SNAPSHOT</yangtools.version>
-        <odlparent.version>2.0.5</odlparent.version>
+        <odlparent.version>2.0.6</odlparent.version>
         <config.version>0.7.3-SNAPSHOT</config.version>
         <netconf.version>1.6.3-SNAPSHOT</netconf.version>
     </properties>
@@ -49,7 +47,7 @@
             <dependency>
                 <groupId>org.opendaylight.odlparent</groupId>
                 <artifactId>odlparent-artifacts</artifactId>
-                <version>${odlparent.version}</version>
+                <version>2.0.6</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
