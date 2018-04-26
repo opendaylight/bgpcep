@@ -1,5 +1,5 @@
 {
-    "bgp-vpn-ipv6:vpn-ipv6-routes": {
+    "bgp-vpn-ipv4:vpn-ipv4-routes": {
         "vpn-route": [
             {
                 "attributes": {
@@ -7,50 +7,43 @@
                         "segments": [
                             {
                                 "as-sequence": [
-                                    25186,
-                                    64512,
-                                    65000
+                                    35000,
+                                    60000,
+                                    64000
                                 ]
                             }
                         ]
                     },
                     "communities": [
                         {
-                            "as-number": 65000,
-                            "semantics": 33
+                            "as-number": 64000,
+                            "semantics": 43
                         }
                     ],
                     "extended-communities": [
                         {
                             "route-target-extended-community": {
-                                "global-administrator": 10283,
-                                "local-administrator": "BPlceA=="
+                                "global-administrator": 24563,
+                                "local-administrator": "ByNLLg=="
                             },
                             "transitive": true
                         }
                     ],
-                    "ipv6-next-hop": {
-                        "global": "::ffff"
-                    },
-                    "local-pref": {
-                        "pref": 100
+                    "ipv4-next-hop": {
+                        "global": "104.36.0.254"
                     },
                     "origin": {
                         "value": "igp"
-                    },
-                    "originator-id": {
-                        "originator": "57.35.2.240"
                     }
                 },
                 "label-stack": [
                     {
-                        "label-value": 926
+                        "label-value": 256
                     }
                 ],
-                "path-id": 0,
-                "prefix": "2001:4b50:20c0::/48",
-                "route-distinguisher": "0:3215:583457597",
-                "route-key": "cAAADI8ixts9IAFLUCDA"
+                "prefix": "103.36.0.0/24",
+                "route-distinguisher": "0:3548:478513974",
+                "route-key": "WAAADdwchYs2ZyQA"
             }
         ]
     }

@@ -9,7 +9,8 @@
                                 "as-sequence": [
                                     35000,
                                     60000,
-                                    64000
+                                    64000,
+                                    64496
                                 ]
                             }
                         ]
@@ -41,6 +42,7 @@
                         "label-value": 256
                     }
                 ],
+                "path-id": 0,
                 "prefix": "103.36.0.0/24",
                 "route-distinguisher": "0:3548:478513974",
                 "route-key": "WAAADdwchYs2ZyQA"

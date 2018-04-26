@@ -47,6 +47,7 @@
                         "label-value": 926
                     }
                 ],
+                "path-id": 0,
                 "prefix": "2001:4b50:20c0::/48",
                 "route-distinguisher": "0:3215:583457597",
                 "route-key": "cAAADI8ixts9IAFLUCDA"

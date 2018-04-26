@@ -3,7 +3,15 @@
         "ipv4-route": [
             {
                 "attributes": {
-                    "as-path": {},
+                    "as-path": {
+                        "segments": [
+                            {
+                                "as-sequence": [
+                                    64496
+                                ]
+                            }
+                        ]
+                    },
                     "communities": [
                         {
                             "as-number": 30740,
@@ -22,7 +30,8 @@
                     }
                 },
                 "path-id": 0,
-                "prefix": "4.1.1.0/24"
+                "prefix": "4.1.1.0/24",
+                "route-key": "4.1.1.0/24"
             }
         ]
     }
