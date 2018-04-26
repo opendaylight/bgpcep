@@ -291,7 +291,8 @@ def add_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
         prefix = prefix_base + prefix_index * prefix_gap
         logger.info("Adding prefix %s/%s to %s:%s/restconf/%s",
                     prefix, prefix_len, odl_ip, port, uri)
-        xml_stream = _stream_data(xml_template, prefix, prefix_len, 1, route_key)
+        xml_stream = _stream_data(xml_template, prefix, prefix_len, 1, route_key,
+                                  element="ipv4-route")
         send_request("POST", odl_ip, port, uri_add_prefix, auth,
                      xml_data=xml_stream, expect_status_code=204)
 
