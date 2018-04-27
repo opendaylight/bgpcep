@@ -13,4 +13,10 @@
 
   <service ref="BGPActivator" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator"/>
+
+  <bean id="TableTypeActivator" class="org.opendaylight.protocol.bgp.mvpn.impl.TableTypeActivator"/>
+
+  <service ref="TableTypeActivator"
+           interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator"
+           odl:type="org.opendaylight.protocol.bgp.mvpn.TableTypeActivator"/>
 </blueprint>
