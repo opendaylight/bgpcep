@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.Sou
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.VrfRouteImportHandler;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.McastVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.SourceAs4ExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.SourceAsExtendedCommunityCase;
 
@@ -26,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  */
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
-    static final int MVPN_SAFI = 5;
+    private static final int MVPN_SAFI = 5;
 
     private static void registerAttributesHandler(
             final BGPExtensionProviderContext context,
@@ -60,9 +61,14 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerExtendedCommunitySerializer(SourceAsExtendedCommunityCase.class, sourceASHandler));
     }
 
+    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+        regs.add(context.registerSubsequentAddressFamily(McastVpnSubsequentAddressFamily.class, MVPN_SAFI));
+    }
+
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
+        registerAfiSafi(context, regs);
         registerNlriHandler(context, regs);
         registerExtendedCommunities(context, regs);
         registerAttributesHandler(context, regs);
