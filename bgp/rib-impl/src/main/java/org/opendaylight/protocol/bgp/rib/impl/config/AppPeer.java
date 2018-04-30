@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 import javax.annotation.concurrent.GuardedBy;
@@ -94,7 +95,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
     public synchronized ListenableFuture<Void> closeServiceInstance() {
         if (this.bgpAppPeerSingletonService != null) {
-            return this.bgpAppPeerSingletonService.closeServiceInstance();
+            return Futures.transform(this.bgpAppPeerSingletonService.closeServiceInstance(), input -> null,
+                MoreExecutors.directExecutor());
         }
 
         return Futures.immediateFuture(null);
@@ -138,7 +140,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         }
 
         @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-        public synchronized ListenableFuture<Void> closeServiceInstance() {
+        public synchronized ListenableFuture<?> closeServiceInstance() {
             if (!this.isServiceInstantiated) {
                 LOG.trace("Application peer already closed {}", this.appRibId.getValue());
                 return Futures.immediateFuture(null);

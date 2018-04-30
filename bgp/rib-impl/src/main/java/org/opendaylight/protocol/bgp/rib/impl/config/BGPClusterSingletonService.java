@@ -102,13 +102,14 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.info("BGPClusterSingletonService {} close service instance", this.serviceGroupIdentifier.getValue());
         this.instantiated.set(false);
 
-        final List<ListenableFuture<Void>> futurePeerCloseList = this.peers.values().stream()
+        final List<ListenableFuture<?>> futurePeerCloseList = this.peers.values().stream()
                 .map(PeerBean::closeServiceInstance).collect(Collectors.toList());
         final SettableFuture<Void> done = SettableFuture.create();
-        Futures.addCallback(Futures.allAsList(futurePeerCloseList), new FutureCallback<List<Void>>() {
+        Futures.addCallback(Futures.allAsList(futurePeerCloseList), new FutureCallback<List<?>>() {
             @Override
-            public void onSuccess(final List<Void> result) {
-                done.setFuture(BGPClusterSingletonService.this.ribImpl.closeServiceInstance());
+            public void onSuccess(final List<?> result) {
+                done.setFuture(Futures.transform(BGPClusterSingletonService.this.ribImpl.closeServiceInstance(),
+                    input -> null, MoreExecutors.directExecutor()));
             }
 
             @Override

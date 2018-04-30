@@ -118,7 +118,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         tx.merge(LogicalDatastoreType.OPERATIONAL,
                 this.locRibTableIID.builder().child(Attributes.class).build(),
                 new AttributesBuilder().setUptodate(true).build());
-        tx.submit();
+        tx.commit();
 
         final InstanceIdentifier<Tables> tableId = this.ribIId.builder().child(Peer.class)
                 .child(EffectiveRibIn.class).child(Tables.class, this.tk).build();
@@ -182,7 +182,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         } catch (final Exception e) {
             LOG.error("Failed to completely propagate updates {}, state is undefined", changes, e);
         } finally {
-            tx.submit();
+            tx.commit();
         }
     }
 
@@ -240,12 +240,10 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         updateRoutesEntries(routesChangesContainer.getModifiedChildren(), peerUuid, routes);
     }
 
-    @SuppressWarnings("unchecked")
     private void updateRoutesEntries(
             final Collection<DataObjectModification<? extends DataObject>> routeChanges,
             final UnsignedInteger routerId,
-            final Map<RouteUpdateKey, RouteEntry> routes
-    ) {
+            final Map<RouteUpdateKey, RouteEntry> routes) {
         for (final DataObjectModification<? extends DataObject> route : routeChanges) {
             final Route newRoute = (Route) route.getDataAfter();
             final Route oldRoute = (Route) route.getDataBefore();

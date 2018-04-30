@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -30,7 +31,6 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -174,8 +174,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), table.build());
             try {
-                tx.submit().checkedGet();
-            } catch (final TransactionCommitFailedException e1) {
+                tx.commit().get();
+            } catch (final InterruptedException | ExecutionException e1) {
                 LOG.error("Failed to initiate LocRIB for key {}", key, e1);
             }
         } else {
@@ -184,7 +184,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     }
 
     private synchronized void createLocRibWriter(final TablesKey key) {
-        final RIBSupport ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        final RIBSupport<?, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
         if (ribSupport == null) {
             return;
         }
@@ -357,8 +357,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         trans.put(LogicalDatastoreType.OPERATIONAL, this.yangRibId, ribInstance);
 
         try {
-            trans.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
+            trans.commit().get();
+        } catch (final InterruptedException | ExecutionException e) {
             LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
         }
 
@@ -369,7 +369,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     }
 
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
+    public synchronized ListenableFuture<?> closeServiceInstance() {
         if (!this.isServiceInstantiated) {
             LOG.trace("RIB {} already closed", this.ribId.getValue());
             return Futures.immediateFuture(null);
@@ -383,7 +383,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
         final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-        final ListenableFuture<Void> cleanFuture = t.submit();
+        final ListenableFuture<?> cleanFuture = t.commit();
 
         this.domChain.close();
         return cleanFuture;

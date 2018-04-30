@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -81,17 +82,17 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    final synchronized ListenableFuture<Void> removePeer(
+    final synchronized ListenableFuture<? extends CommitInfo> removePeer(
             @Nonnull final DOMTransactionChain chain,
             @Nullable final YangInstanceIdentifier peerPath) {
         if (peerPath != null) {
             LOG.info("AdjRibInWriter closed per Peer {} removed", peerPath);
             final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, peerPath);
-            final ListenableFuture<Void> future = tx.submit();
-            Futures.addCallback(future, new FutureCallback<Void>() {
+            final ListenableFuture<? extends CommitInfo> future = tx.commit();
+            Futures.addCallback(future, new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(final Void result) {
+                public void onSuccess(final CommitInfo result) {
                     LOG.debug("Peer {} removed", peerPath);
                 }
 

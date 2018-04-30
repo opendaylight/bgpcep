@@ -81,7 +81,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     private Ipv4Address routerId;
 
     private ClusterIdentifier clusterId;
-    private DataBroker dataBroker;
+    private final DataBroker dataBroker;
 
     public RibImpl(
             final RIBExtensionConsumerContext contextProvider,
@@ -186,7 +186,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     }
 
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    ListenableFuture<Void> closeServiceInstance() {
+    ListenableFuture<?> closeServiceInstance() {
         if (this.ribImpl != null) {
             return this.ribImpl.closeServiceInstance();
         }

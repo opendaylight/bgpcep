@@ -170,7 +170,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             }
         }
         if (tx != null) {
-            tx.submit();
+            tx.commit();
         }
     }
 

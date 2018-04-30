@@ -208,7 +208,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 }
             }
         }
-        tx.submit();
+        tx.commit();
     }
 
     private synchronized void processRoutesTable(final DataTreeCandidateNode node,
@@ -248,7 +248,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    public synchronized ListenableFuture<Void> close() {
+    public synchronized ListenableFuture<?> close() {
         setActive(false);
         if (this.registration != null) {
             this.registration.close();
@@ -257,7 +257,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         if (this.effectiveRibInWriter != null) {
             this.effectiveRibInWriter.close();
         }
-        final ListenableFuture<Void> future;
+        final ListenableFuture<?> future;
         if (this.chain != null) {
             future = removePeer(this.chain, this.peerPath);
             this.chain.close();

@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
 import java.util.Locale;
@@ -27,6 +26,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
@@ -148,9 +148,9 @@ final class AdjRibInWriter {
         final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(peerPath, registry, tableTypes,
                 addPathTablesType, tx);
 
-        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+        Futures.addCallback(tx.commit(), new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 if (registerAppPeerListener != null) {
                     LOG.trace("Application Peer Listener registered");
                     registerAppPeerListener.register();
@@ -209,7 +209,7 @@ final class AdjRibInWriter {
         tb.put(tableKey, ctx);
     }
 
-    private void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
+    private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
             final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey,
             final SendReceive sendReceive, final DOMDataWriteTransaction tx) {
         final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
@@ -252,9 +252,9 @@ final class AdjRibInWriter {
         final TableContext ctx = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME)
                 .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
-        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+        Futures.addCallback(tx.commit(), new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Write Attributes uptodate, succeed");
             }
 
@@ -277,9 +277,9 @@ final class AdjRibInWriter {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
-        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+        Futures.addCallback(tx.commit(), new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Write routes {}, succeed", nlri);
             }
 
@@ -300,9 +300,9 @@ final class AdjRibInWriter {
         LOG.trace("Removing routes {}", nlri);
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
-        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+        Futures.addCallback(tx.commit(), new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Removing routes {}, succeed", nlri);
             }
 

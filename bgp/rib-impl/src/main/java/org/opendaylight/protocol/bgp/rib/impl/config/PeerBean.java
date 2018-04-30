@@ -31,7 +31,7 @@ public interface PeerBean extends AutoCloseable {
 
     void instantiateServiceInstance();
 
-    ListenableFuture<Void> closeServiceInstance();
+    ListenableFuture<?> closeServiceInstance();
 
     Boolean containsEqualConfiguration(Neighbor neighbor);
 }

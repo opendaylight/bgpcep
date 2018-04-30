@@ -117,7 +117,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
-    private DOMTransactionChain chain;
+    private final DOMTransactionChain chain;
     @GuardedBy("this")
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
@@ -224,10 +224,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         setActive(true);
     }
 
-    // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
-    public synchronized ListenableFuture<Void> close() {
-        final ListenableFuture<Void> future = releaseConnection();
+    public synchronized ListenableFuture<?> close() {
+        final ListenableFuture<?> future = releaseConnection();
         this.chain.close();
         setActive(false);
         return future;
@@ -389,7 +388,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    private synchronized ListenableFuture<Void> cleanup() {
+    private synchronized ListenableFuture<?> cleanup() {
         // FIXME: BUG-196: support graceful
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
@@ -429,14 +428,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @Override
-    public synchronized ListenableFuture<Void> releaseConnection() {
+    public synchronized ListenableFuture<?> releaseConnection() {
         LOG.info("Closing session with peer");
         this.sessionUp = false;
         closeRegistration();
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
-        final ListenableFuture<Void> future = cleanup();
+        final ListenableFuture<?> future = cleanup();
 
         if (this.session != null) {
             try {

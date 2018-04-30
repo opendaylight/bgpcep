@@ -165,9 +165,9 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     @Override
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
+    public synchronized ListenableFuture<?> closeServiceInstance() {
         if (this.bgpPeerSingletonService != null) {
-            final ListenableFuture<Void> fut = this.bgpPeerSingletonService.closeServiceInstance();
+            final ListenableFuture<?> fut = this.bgpPeerSingletonService.closeServiceInstance();
             this.bgpPeerSingletonService = null;
             return fut;
         }
@@ -218,7 +218,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     private final class BgpPeerSingletonService implements BGPPeerStateConsumer {
-        private boolean activeConnection;
+        private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
         private final int retryTimer;
@@ -300,7 +300,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         }
 
         @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-        private synchronized ListenableFuture<Void> closeServiceInstance() {
+        private synchronized ListenableFuture<?> closeServiceInstance() {
             if (!this.isServiceInstantiated) {
                 LOG.info("Peer {} already closed", this.neighborAddress);
                 return Futures.immediateFuture(null);
@@ -311,7 +311,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                 this.connection.cancel(true);
                 this.connection = null;
             }
-            final ListenableFuture<Void> future = this.bgpPeer.close();
+            final ListenableFuture<?> future = this.bgpPeer.close();
             removePeer(this.dispatcher.getBGPPeerRegistry());
             return future;
         }
