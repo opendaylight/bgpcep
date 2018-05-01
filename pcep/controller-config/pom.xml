@@ -19,7 +19,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>pcep-controller-config</artifactId>
-    <version>0.8.3-SNAPSHOT</version>
+    <version>0.8.3</version>
     <packaging>jar</packaging>
     <description>Controller Configuration files for PCEP protocol</description>
     <name>${project.artifactId}</name>
@@ -29,7 +29,7 @@
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgpcep-parent</artifactId>
-                <version>0.8.3-SNAPSHOT</version>
+                <version>0.8.3</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
