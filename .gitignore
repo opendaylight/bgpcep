@@ -35,3 +35,4 @@ maven-eclipse.xml
 .metadata
 .checkstyle
 .factorypath
+.fbExcludeFilterFile

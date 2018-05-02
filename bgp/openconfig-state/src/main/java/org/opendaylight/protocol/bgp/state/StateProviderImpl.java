@@ -11,6 +11,9 @@ package org.opendaylight.protocol.bgp.state;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -69,18 +73,29 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     private BindingTransactionChain transactionChain;
     @GuardedBy("this")
     private ScheduledFuture<?> scheduleTask;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler;
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
             @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
             @Nonnull final BGPStateConsumer stateCollector,
             @Nonnull final String networkInstanceName) {
+        this(dataBroker, timeout, bgpTableTypeRegistry, stateCollector, networkInstanceName,
+                Executors.newScheduledThreadPool(1));
+    }
+
+    public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
+            @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
+            @Nonnull final BGPStateConsumer stateCollector,
+            @Nonnull final String networkInstanceName,
+            @Nonnull final ScheduledExecutorService scheduler) {
         this.dataBroker = requireNonNull(dataBroker);
         this.bgpTableTypeRegistry = requireNonNull(bgpTableTypeRegistry);
         this.stateCollector = requireNonNull(stateCollector);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
                 .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         this.timeout = timeout;
+        this.scheduler = scheduler;
     }
 
     public synchronized void init() {
@@ -93,10 +108,21 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
                     final WriteTransaction wTx = StateProviderImpl.this.transactionChain.newWriteOnlyTransaction();
                     try {
                         updateBGPStats(wTx);
+
+                        Futures.addCallback(wTx.submit(), new FutureCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                LOG.debug("Successfully committed BGP stats update");
+                            }
+
+                            @Override
+                            public void onFailure(Throwable ex) {
+                                LOG.error("Failed to commit BGP stats update", ex);
+                            }
+                        }, MoreExecutors.directExecutor());
                     } catch (final Exception e) {
-                        LOG.warn("Failed to update BGP Stats", e);
-                    } finally {
-                        wTx.submit();
+                        LOG.warn("Failed to prepare Tx for BGP stats update", e);
+                        wTx.cancel();
                     }
                 }
             }
@@ -143,22 +169,30 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     }
 
     @Override
-    public synchronized void close() throws Exception {
-        this.scheduleTask.cancel(true);
-        if (!this.instanceIdentifiersCache.keySet().isEmpty()) {
-            final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-            this.instanceIdentifiersCache.keySet().iterator()
-                    .forEachRemaining(ribId -> removeStoredOperationalState(ribId, wTx));
-            wTx.submit().get();
+    public synchronized void close() {
+        if (closed.compareAndSet(false, true)) {
+            this.scheduleTask.cancel(true);
+            if (!this.instanceIdentifiersCache.keySet().isEmpty()) {
+                final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
+                this.instanceIdentifiersCache.keySet().iterator()
+                .forEachRemaining(ribId -> removeStoredOperationalState(ribId, wTx));
+                wTx.submit();
+            }
+            this.transactionChain.close();
+            this.scheduler.shutdown();
         }
-        this.transactionChain.close();
-        this.scheduler.shutdown();
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
-            final Throwable cause) {
-        LOG.error("Transaction chain failed {}.", transaction != null ? transaction.getIdentifier() : null, cause);
+    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
+            final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        LOG.error("Transaction chain {} failed for tx {}",
+                chain, transaction != null ? transaction.getIdentifier() : null, cause);
+
+        if (!closed.get()) {
+            transactionChain.close();
+            transactionChain = dataBroker.createTransactionChain(this);
+        }
     }
 
     @Override
