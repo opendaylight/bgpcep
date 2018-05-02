@@ -9,13 +9,25 @@
 package org.opendaylight.protocol.bgp.state;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -23,13 +35,26 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.controller.md.sal.binding.test.ConcurrentDataBrokerTestCustomizer;
+import org.opendaylight.controller.md.sal.binding.test.ConstantSchemaAbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStore;
+import org.opendaylight.controller.sal.core.spi.data.DOMStore;
+import org.opendaylight.controller.sal.core.spi.data.DOMStoreThreePhaseCommitCohort;
+import org.opendaylight.controller.sal.core.spi.data.DOMStoreTransactionChain;
+import org.opendaylight.controller.sal.core.spi.data.DOMStoreWriteTransaction;
+import org.opendaylight.infrautils.testutils.LogCapture;
+import org.opendaylight.infrautils.testutils.internal.RememberingLogger;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
@@ -117,8 +142,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.slf4j.LoggerFactory;
 
-public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
+public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest {
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
     private final PortNumber localPort = new PortNumber(1790);
@@ -160,6 +188,9 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
 
     private final List<BGPPeerState> bgpPeerStates = new ArrayList<>();
     private final List<BGPRibState> bgpRibStates = new ArrayList<>();
+
+    private InMemoryDOMDataStore realOperStore;
+    private InMemoryDOMDataStore spiedOperStore;
 
     @Before
     public void setUp() throws Exception {
@@ -238,6 +269,30 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         doReturn(true).when(this.bgpAfiSafiState).isAfiSafiSupported(any());
         doReturn(true).when(this.bgpAfiSafiState).isGracefulRestartAdvertized(any());
         doReturn(true).when(this.bgpAfiSafiState).isGracefulRestartReceived(any());
+    }
+
+    @Override
+    protected Iterable<YangModuleInfo> getModuleInfos() throws Exception {
+        return ImmutableSet.of(BindingReflections.getModuleInfo(NetworkInstances.class),
+                BindingReflections.getModuleInfo(NetworkInstanceProtocol.class));
+    }
+
+    @Override
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        return new ConcurrentDataBrokerTestCustomizer(true) {
+            @Override
+            public DOMStore createOperationalDatastore() {
+                realOperStore = new InMemoryDOMDataStore("OPER", getDataTreeChangeListenerExecutor());
+                spiedOperStore = spy(realOperStore);
+                getSchemaService().registerSchemaContextListener(spiedOperStore);
+                return spiedOperStore;
+            }
+
+            @Override
+            public ListeningExecutorService getCommitCoordinatorExecutor() {
+                return MoreExecutors.newDirectExecutorService();
+            }
+        };
     }
 
     @Test
@@ -339,6 +394,73 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
         checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
 
         stateProvider.close();
+    }
+
+    @Test
+    public void testTransactionChainFailure() throws Exception {
+        if (!(LoggerFactory.getLogger(StateProviderImpl.class) instanceof RememberingLogger)) {
+            throw new IllegalStateException("infrautils-testutils must be on the classpath BEFORE other logger impls"
+                + LoggerFactory.getLogger(StateProviderImpl.class).getClass());
+        }
+
+        doReturn(true).when(this.bgpRibState).isActive();
+
+        this.bgpRibStates.add(this.bgpRibState);
+
+        ScheduledFuture<?> mockScheduledFuture = mock(ScheduledFuture.class);
+        doReturn(true).when(mockScheduledFuture).cancel(anyBoolean());
+
+        ScheduledExecutorService mockScheduler = mock(ScheduledExecutorService.class);
+        doReturn(mockScheduledFuture).when(mockScheduler).scheduleAtFixedRate(any(Runnable.class), anyLong(),
+                anyLong(), any(TimeUnit.class));
+        doNothing().when(mockScheduler).shutdown();
+
+        Throwable mockCommitEx = new Exception("mock commit failure");
+        doAnswer(invocation -> {
+            DOMStoreThreePhaseCommitCohort mockCohort = mock(DOMStoreThreePhaseCommitCohort.class);
+            doReturn(Futures.immediateFailedFuture(mockCommitEx)).when(mockCohort).canCommit();
+            doReturn(Futures.immediateFuture(null)).when(mockCohort).abort();
+
+            DOMStoreTransactionChain mockTxChain = mock(DOMStoreTransactionChain.class);
+            doNothing().when(mockTxChain).close();
+
+            doAnswer(notused -> {
+                DOMStoreWriteTransaction mockWriteTx = mock(DOMStoreWriteTransaction .class);
+                doNothing().when(mockWriteTx).write(any(), any());
+                doNothing().when(mockWriteTx).merge(any(), any());
+                doNothing().when(mockWriteTx).delete(any());
+                doReturn(mockCohort).when(mockWriteTx).ready();
+                return mockWriteTx;
+            }).when(mockTxChain).newWriteOnlyTransaction();
+
+            return mockTxChain;
+        }).doAnswer(invocation -> {
+            return realOperStore.createTransactionChain();
+        }).when(spiedOperStore).createTransactionChain();
+
+        int timerInterval = 1;
+        try (StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), timerInterval, tableTypeRegistry,
+                stateCollector, "global-bgp", mockScheduler)) {
+            stateProvider.init();
+
+            ArgumentCaptor<Runnable> timerTask = ArgumentCaptor.forClass(Runnable.class);
+            verify(mockScheduler).scheduleAtFixedRate(timerTask.capture(), eq(0L), eq((long)timerInterval),
+                    eq(TimeUnit.SECONDS));
+
+            timerTask.getValue().run();
+
+            String lastError = RememberingLogger.getLastErrorThrowable().orElseThrow(
+                () -> new AssertionError("Expected logged ERROR")).toString();
+            assertTrue("Last logged ERROR didn't contain expected string: " + lastError,
+                    lastError.contains(mockCommitEx.getMessage()));
+
+            RememberingLogger.resetLastError();
+
+            timerTask.getValue().run();
+
+            ImmutableList<LogCapture> loggedErrors = RememberingLogger.getErrorLogCaptures();
+            assertTrue("Expected no logged ERRORs: " + loggedErrors, loggedErrors.isEmpty());
+        }
     }
 
     private static BgpNeighborStateAugmentation buildBgpNeighborStateAugmentation() {
