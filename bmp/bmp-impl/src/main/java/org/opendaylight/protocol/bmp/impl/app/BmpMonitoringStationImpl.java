@@ -13,18 +13,19 @@ import static org.opendaylight.protocol.bmp.impl.app.KeyConstructorUtil.construc
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
@@ -106,7 +107,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     }
 
     @Override
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
+    public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("BMP Monitor Singleton Service {} instance closed, Monitor Id {}",
                 getIdentifier().getValue(), this.monitorId.getValue());
         if (this.channel != null) {
@@ -120,7 +121,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.yangMonitorId);
         LOG.info("BMP monitoring station {} closed.", this.monitorId.getValue());
-        return wTx.submit();
+        return wTx.commit();
     }
 
     @Nonnull
@@ -157,8 +158,8 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
                         .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
                         .build());
         try {
-            wTx.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
+            wTx.commit().get();
+        } catch (final ExecutionException | InterruptedException e) {
             LOG.error("Failed to initiate BMP Monitor {}.", this.monitorId.getValue(), e);
         }
     }

@@ -7,11 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -22,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -80,18 +79,17 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 rib.getLocalTablesKeys(), afiSafisGracefulAdvertized);
     }
 
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    final synchronized ListenableFuture<Void> removePeer(
+    final synchronized FluentFuture<? extends CommitInfo> removePeer(
             @Nonnull final DOMTransactionChain chain,
             @Nullable final YangInstanceIdentifier peerPath) {
         if (peerPath != null) {
             LOG.info("AdjRibInWriter closed per Peer {} removed", peerPath);
             final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, peerPath);
-            final ListenableFuture<Void> future = tx.submit();
-            Futures.addCallback(future, new FutureCallback<Void>() {
+            final FluentFuture<? extends CommitInfo> future = tx.commit();
+            future.addCallback(new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(final Void result) {
+                public void onSuccess(final CommitInfo result) {
                     LOG.debug("Peer {} removed", peerPath);
                 }
 
@@ -102,7 +100,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             }, MoreExecutors.directExecutor());
             return future;
         }
-        return Futures.immediateFuture(null);
+        return CommitInfo.emptyFluentFuture();
     }
 
     synchronized YangInstanceIdentifier createPeerPath() {

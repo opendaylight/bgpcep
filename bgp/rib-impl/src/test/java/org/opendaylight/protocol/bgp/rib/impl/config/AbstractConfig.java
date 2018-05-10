@@ -16,7 +16,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -29,6 +29,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
@@ -111,14 +112,13 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
                 any(YangInstanceIdentifier.class));
         doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        final CheckedFuture<?, ?> checkedFuture = mock(CheckedFuture.class);
+        final FluentFuture<? extends CommitInfo> checkedFuture = mock(FluentFuture.class);
         doAnswer(invocation -> {
             final Runnable callback = (Runnable) invocation.getArguments()[0];
             callback.run();
             return null;
         }).when(checkedFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        doReturn(checkedFuture).when(this.domDW).submit();
-        doReturn(null).when(checkedFuture).checkedGet();
+        doReturn(checkedFuture).when(this.domDW).commit();
         doReturn(null).when(checkedFuture).get();
         doReturn(true).when(checkedFuture).isDone();
         doReturn("checkedFuture").when(checkedFuture).toString();

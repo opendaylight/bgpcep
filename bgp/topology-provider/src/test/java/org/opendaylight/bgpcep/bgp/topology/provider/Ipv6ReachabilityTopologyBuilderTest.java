@@ -95,7 +95,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // delete route
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv6RouteIID);
-        wTx.submit();
+        wTx.commit();
         readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(0, topology.getNode().size());
             return topology;
@@ -108,7 +108,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     private void updateIpv6Route(final Ipv6Route data) {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.ipv6RouteIID, data, true);
-        wTx.submit();
+        wTx.commit();
     }
 
     private static Ipv6Route createIpv6Route(final String netxHop) {

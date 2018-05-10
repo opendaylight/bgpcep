@@ -11,6 +11,8 @@ package org.opendaylight.protocol.bmp.impl.app;
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ATTRIBUTES_QNAME;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
@@ -69,7 +72,17 @@ final class BmpRibInWriter {
         this.tables = createTableInstance(tableTypes, tablesRoot, tx, ribExtensions, tree).build();
 
         LOG.debug("New RIB table {} structure installed.", tablesRoot.toString());
-        tx.submit();
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     public static BmpRibInWriter create(@Nonnull final YangInstanceIdentifier tablesRootPath,
@@ -151,21 +164,17 @@ final class BmpRibInWriter {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
-        tx.submit();
-    }
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
 
-    private synchronized void removeRoutes(final MpUnreachNlri nlri) {
-        final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final TableContext ctx = this.tables.get(key);
-
-        if (ctx == null) {
-            LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
-            return;
-        }
-        LOG.trace("Removing routes {}", nlri);
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        ctx.removeRoutes(tx, nlri);
-        tx.submit();
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     /**
@@ -187,6 +196,30 @@ final class BmpRibInWriter {
             b.setCNextHop(message.getAttributes().getCNextHop());
         }
         return b.build();
+    }
+
+    private synchronized void removeRoutes(final MpUnreachNlri nlri) {
+        final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
+        final TableContext ctx = this.tables.get(key);
+
+        if (ctx == null) {
+            LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
+            return;
+        }
+        LOG.trace("Removing routes {}", nlri);
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        ctx.removeRoutes(tx, nlri);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     /**
@@ -253,8 +286,17 @@ final class BmpRibInWriter {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         final TableContext ctxPre = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctxPre.getTableId().node(BMP_ATTRIBUTES_QNAME)
-                        .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()),
-                ATTRIBUTES_UPTODATE_TRUE);
-        tx.submit();
+                .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
     }
 }

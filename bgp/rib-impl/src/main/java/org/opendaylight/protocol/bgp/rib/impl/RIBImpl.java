@@ -12,15 +12,16 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -30,12 +31,12 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
@@ -174,8 +175,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), table.build());
             try {
-                tx.submit().checkedGet();
-            } catch (final TransactionCommitFailedException e1) {
+                tx.commit().get();
+            } catch (final InterruptedException | ExecutionException e1) {
                 LOG.error("Failed to initiate LocRIB for key {}", key, e1);
             }
         } else {
@@ -357,8 +358,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         trans.put(LogicalDatastoreType.OPERATIONAL, this.yangRibId, ribInstance);
 
         try {
-            trans.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
+            trans.commit().get();
+        } catch (final InterruptedException | ExecutionException e) {
             LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
         }
 
@@ -368,11 +369,10 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.localTablesKeys.forEach(this::createLocRibWriter);
     }
 
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
+    public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         if (!this.isServiceInstantiated) {
             LOG.trace("RIB {} already closed", this.ribId.getValue());
-            return Futures.immediateFuture(null);
+            return CommitInfo.emptyFluentFuture();
         }
         LOG.info("Close RIB {}", this.ribId.getValue());
         this.isServiceInstantiated = false;
@@ -383,8 +383,19 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
         final DOMDataWriteTransaction t = this.domChain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-        final ListenableFuture<Void> cleanFuture = t.submit();
+        final FluentFuture<? extends CommitInfo> cleanFuture = t.commit();
+        cleanFuture.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.info("RIB cleaned {}", RIBImpl.this.ribId.getValue());
+            }
 
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to clean RIB {}",
+                        RIBImpl.this.ribId.getValue(), throwable);
+            }
+        }, MoreExecutors.directExecutor());
         this.domChain.close();
         return cleanFuture;
     }

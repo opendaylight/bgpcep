@@ -63,7 +63,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     private static final String TEST_RIB_ID = "testRib";
-    private static final TablesKey TABLE_KEY = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+    private static final TablesKey TABLE_KEY
+            = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;

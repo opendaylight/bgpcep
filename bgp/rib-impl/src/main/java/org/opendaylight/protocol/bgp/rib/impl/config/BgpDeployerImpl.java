@@ -14,9 +14,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +31,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
@@ -92,15 +92,15 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         this.tableTypeRegistry = requireNonNull(mappingService);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
                 .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
-        Futures.addCallback(initializeNetworkInstance(dataBroker, this.networkInstanceIId), new FutureCallback<Void>() {
+        initializeNetworkInstance(dataBroker, this.networkInstanceIId).addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.debug("Network Instance {} initialized successfully.", networkInstanceName);
             }
 
             @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to initialize Network Instance {}.", networkInstanceName, t);
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to initialize Network Instance {}.", networkInstanceName, throwable);
             }
         }, MoreExecutors.directExecutor());
     }
@@ -174,13 +174,13 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
 
     }
 
-    private static ListenableFuture<Void> initializeNetworkInstance(
+    private static FluentFuture<? extends CommitInfo> initializeNetworkInstance(
             final DataBroker dataBroker, final InstanceIdentifier<NetworkInstance> networkInstance) {
         final WriteTransaction wTx = dataBroker.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.CONFIGURATION, networkInstance,
                 new NetworkInstanceBuilder().setName(networkInstance.firstKeyOf(NetworkInstance.class).getName())
                         .setProtocols(new ProtocolsBuilder().build()).build());
-        return wTx.submit();
+        return wTx.commit();
     }
 
     @VisibleForTesting

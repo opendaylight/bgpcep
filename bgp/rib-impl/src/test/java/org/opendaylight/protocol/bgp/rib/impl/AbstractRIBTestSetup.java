@@ -16,6 +16,7 @@ import static org.mockito.Mockito.mock;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,6 +52,7 @@ import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrate
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -124,7 +126,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private DOMDataWriteTransaction domTransWrite;
 
     @Mock
-    private CheckedFuture<?, ?> future;
+    private FluentFuture<? extends CommitInfo> future;
 
     @Mock
     private Optional<Rib> o;
@@ -214,14 +216,14 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(this.domChain).when(this.dom).createTransactionChain(any(BGPPeer.class));
         doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
         doReturn(false).when(this.o).isPresent();
-        doReturn(this.o).when(this.future).checkedGet();
-        doReturn(this.future).when(this.domTransWrite).submit();
+        doReturn(this.o).when(this.future).get();
+        doReturn(this.future).when(this.domTransWrite).commit();
         doNothing().when(this.future).addListener(any(Runnable.class), any(Executor.class));
         doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(InstanceIdentifier.class), any(DataObject.class), eq(true));
         doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(InstanceIdentifier.class), any(DataObject.class));
-        doReturn(this.future).when(this.transWrite).submit();
+        doReturn(this.future).when(this.transWrite).commit();
     }
 
     public Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target,

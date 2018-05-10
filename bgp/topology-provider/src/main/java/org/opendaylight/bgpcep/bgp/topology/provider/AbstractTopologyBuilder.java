@@ -11,11 +11,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,6 +31,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
@@ -71,8 +70,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     private ListenerRegistration<AbstractTopologyBuilder<T>> listenerRegistration = null;
     @GuardedBy("this")
     private BindingTransactionChain chain = null;
-    @GuardedBy("this")
-    private boolean closed = false;
+    private AtomicBoolean closed = new AtomicBoolean(false);
     @GuardedBy("this")
     @VisibleForTesting
     protected long listenerScheduledRestartTime = 0;
@@ -152,16 +150,14 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
         return this.topology;
     }
 
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    public final synchronized ListenableFuture<Void> close() {
-        if (this.closed) {
+    public final synchronized FluentFuture<? extends CommitInfo> close() {
+        if (this.closed.getAndSet(true)) {
             LOG.trace("Transaction chain was already closed.");
-            Futures.immediateFuture(null);
+            return CommitInfo.emptyFluentFuture();
         }
-        this.closed = true;
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
         unregisterDataChangeListener();
-        final ListenableFuture<Void> future = destroyOperationalTopology();
+        final FluentFuture<? extends CommitInfo> future = destroyOperationalTopology();
         destroyTransactionChain();
         return future;
     }
@@ -169,7 +165,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized void onDataTreeChanged(final Collection<DataTreeModification<T>> changes) {
-        if (this.closed) {
+        if (this.closed.get()) {
             LOG.trace("Transaction chain was already closed, skipping update.");
             return;
         }
@@ -188,16 +184,16 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
                 LOG.warn("Data change {} (transaction {}) was not completely propagated to listener {}", change,
                         trans.getIdentifier(), this, exc);
                 // trans.cancel() is not supported by PingPongTransactionChain, so we just skip the problematic change
-                // trans.submit() must be called first to unlock the current transaction chain, to make the chain
+                // trans.commit() must be called first to unlock the current transaction chain, to make the chain
                 // closable so we cannot exit the #onDataTreeChanged() yet
                 transactionInError.set(true);
                 break;
             }
         }
-        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
-                // as we are enforcing trans.submit(), in some cases the transaction execution actually could be
+            public void onSuccess(final CommitInfo result) {
+                // as we are enforcing trans.commit(), in some cases the transaction execution actually could be
                 // successfully even when an exception is captured, thus #onTransactionChainFailed() never get invoked.
                 // Though the transaction chain remains usable,
                 // the data loss will not be able to be recovered. Thus we schedule a listener restart here
@@ -247,9 +243,9 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
                 new TopologyBuilder().setKey(this.topologyKey).setServerProvided(Boolean.TRUE)
                         .setTopologyTypes(this.topologyTypes)
                         .setLink(Collections.emptyList()).setNode(Collections.emptyList()).build(), true);
-        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Transaction {} committed successfully", trans.getIdentifier());
             }
 
@@ -265,14 +261,14 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     /**
      * Destroy the current operational topology data. Note a valid transaction must be provided.
      */
-    private synchronized ListenableFuture<Void> destroyOperationalTopology() {
+    private synchronized FluentFuture<? extends CommitInfo> destroyOperationalTopology() {
         requireNonNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
-        final ListenableFuture<Void> future = trans.submit();
-        Futures.addCallback(future, new FutureCallback<Void>() {
+        final FluentFuture<? extends CommitInfo> future = trans.commit();
+        future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Operational topology removed {}", AbstractTopologyBuilder.this.topology);
             }
 

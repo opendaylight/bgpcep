@@ -213,7 +213,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         // remove
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.linkstateRouteIID);
-        wTx.submit();
+        wTx.commit();
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(0, topology.getNode().size());
             assertEquals(0, topology.getLink().size());
@@ -358,7 +358,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private void updateLinkstateRoute(final LinkstateRoute data) {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.linkstateRouteIID, data, true);
-        wTx.submit();
+        wTx.commit();
     }
 
     private static LinkstateRoute createLinkstateNodeRoute(final ProtocolId protocolId, final String nodeName,

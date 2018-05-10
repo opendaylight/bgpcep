@@ -22,7 +22,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -46,6 +46,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -193,14 +194,14 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doNothing().when(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
-        final CheckedFuture<?, ?> future = mock(CheckedFuture.class);
+        final FluentFuture<? extends CommitInfo> fluentFuture = mock(FluentFuture.class);
         doAnswer(invocation -> {
             final Runnable callback = (Runnable) invocation.getArguments()[0];
             callback.run();
             return null;
-        }).when(future).addListener(any(Runnable.class), any(Executor.class));
-        doReturn(future).when(this.tx).submit();
-        doReturn(mock(Optional.class)).when(future).checkedGet();
+        }).when(fluentFuture).addListener(any(Runnable.class), any(Executor.class));
+        doReturn(fluentFuture).when(this.tx).commit();
+        doReturn(mock(Optional.class)).when(fluentFuture).get();
     }
 
     @Test

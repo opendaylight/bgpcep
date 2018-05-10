@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.primitives.UnsignedInteger;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +28,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
@@ -118,7 +121,17 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         tx.merge(LogicalDatastoreType.OPERATIONAL,
                 this.locRibTableIID.builder().child(Attributes.class).build(),
                 new AttributesBuilder().setUptodate(true).build());
-        tx.submit();
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
 
         final InstanceIdentifier<Tables> tableId = this.ribIId.builder().child(Peer.class)
                 .child(EffectiveRibIn.class).child(Tables.class, this.tk).build();
@@ -182,7 +195,17 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         } catch (final Exception e) {
             LOG.error("Failed to completely propagate updates {}, state is undefined", changes, e);
         } finally {
-            tx.submit();
+            tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    LOG.trace("Successful commit");
+                }
+
+                @Override
+                public void onFailure(final Throwable trw) {
+                    LOG.error("Failed commit", trw);
+                }
+            }, MoreExecutors.directExecutor());
         }
     }
 

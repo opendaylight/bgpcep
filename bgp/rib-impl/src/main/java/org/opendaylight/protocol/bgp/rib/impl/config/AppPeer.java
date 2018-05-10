@@ -10,14 +10,13 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.google.common.util.concurrent.FluentFuture;
 import java.util.Objects;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -91,13 +90,12 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
+    public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         if (this.bgpAppPeerSingletonService != null) {
             return this.bgpAppPeerSingletonService.closeServiceInstance();
         }
 
-        return Futures.immediateFuture(null);
+        return CommitInfo.emptyFluentFuture();
     }
 
     @Override
@@ -137,11 +135,10 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
                     new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
         }
 
-        @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-        public synchronized ListenableFuture<Void> closeServiceInstance() {
+        public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
             if (!this.isServiceInstantiated) {
                 LOG.trace("Application peer already closed {}", this.appRibId.getValue());
-                return Futures.immediateFuture(null);
+                return CommitInfo.emptyFluentFuture();
             }
             LOG.info("Application peer instance closed {}", this.appRibId.getValue());
             this.isServiceInstantiated = false;

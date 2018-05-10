@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
@@ -98,17 +99,20 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @Override
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
+    public synchronized ListenableFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("BGPClusterSingletonService {} close service instance", this.serviceGroupIdentifier.getValue());
         this.instantiated.set(false);
 
-        final List<ListenableFuture<Void>> futurePeerCloseList = this.peers.values().stream()
+        final List<ListenableFuture<? extends CommitInfo>> futurePeerCloseList = this.peers.values().stream()
                 .map(PeerBean::closeServiceInstance).collect(Collectors.toList());
-        final SettableFuture<Void> done = SettableFuture.create();
-        Futures.addCallback(Futures.allAsList(futurePeerCloseList), new FutureCallback<List<Void>>() {
+        final SettableFuture<? extends CommitInfo> done = SettableFuture.create();
+
+        final ListenableFuture<List<CommitInfo>> futureResult = Futures.allAsList(futurePeerCloseList);
+        Futures.addCallback(futureResult, new FutureCallback<List<? extends CommitInfo>>() {
             @Override
-            public void onSuccess(final List<Void> result) {
-                done.setFuture(BGPClusterSingletonService.this.ribImpl.closeServiceInstance());
+            public void onSuccess(final List<? extends CommitInfo> result) {
+                done.setFuture(Futures.transform(BGPClusterSingletonService.this.ribImpl.closeServiceInstance(),
+                        input -> null, MoreExecutors.directExecutor()));
             }
 
             @Override
