@@ -25,7 +25,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgp-testtool</artifactId>
-    <version>0.8.3-SNAPSHOT</version>
+    <version>0.8.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>BGP Interop Testing Tool</description>
     <name>${project.artifactId}</name>
@@ -35,7 +35,7 @@
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgpcep-parent</artifactId>
-                <version>0.8.3-SNAPSHOT</version>
+                <version>0.8.4-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
