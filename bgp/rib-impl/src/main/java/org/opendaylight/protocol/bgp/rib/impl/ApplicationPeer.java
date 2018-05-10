@@ -14,9 +14,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.net.InetAddresses;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,6 +29,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
@@ -208,7 +209,17 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 }
             }
         }
-        tx.submit();
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     private synchronized void processRoutesTable(final DataTreeCandidateNode node,
@@ -245,10 +256,8 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         }
     }
 
-    // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    public synchronized ListenableFuture<Void> close() {
+    public synchronized FluentFuture<? extends CommitInfo> close() {
         setActive(false);
         if (this.registration != null) {
             this.registration.close();
@@ -257,13 +266,13 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         if (this.effectiveRibInWriter != null) {
             this.effectiveRibInWriter.close();
         }
-        final ListenableFuture<Void> future;
+        final FluentFuture<? extends CommitInfo> future;
         if (this.chain != null) {
             future = removePeer(this.chain, this.peerPath);
             this.chain.close();
             this.chain = null;
         } else {
-            future = Futures.immediateFuture(null);
+            future = CommitInfo.emptyFluentFuture();
         }
         if (this.writerChain != null) {
             this.writerChain.close();

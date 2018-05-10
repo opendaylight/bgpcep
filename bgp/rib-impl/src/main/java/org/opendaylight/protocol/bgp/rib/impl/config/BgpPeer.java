@@ -12,9 +12,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.google.common.util.concurrent.FluentFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -26,6 +24,7 @@ import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
@@ -164,14 +163,13 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
+    public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         if (this.bgpPeerSingletonService != null) {
-            final ListenableFuture<Void> fut = this.bgpPeerSingletonService.closeServiceInstance();
+            final FluentFuture<? extends CommitInfo> fut = this.bgpPeerSingletonService.closeServiceInstance();
             this.bgpPeerSingletonService = null;
             return fut;
         }
-        return Futures.immediateFuture(null);
+        return CommitInfo.emptyFluentFuture();
     }
 
     @Override
@@ -299,11 +297,10 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             }
         }
 
-        @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-        private synchronized ListenableFuture<Void> closeServiceInstance() {
+        private synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
             if (!this.isServiceInstantiated) {
                 LOG.info("Peer {} already closed", this.neighborAddress);
-                return Futures.immediateFuture(null);
+                return CommitInfo.emptyFluentFuture();
             }
             LOG.info("Close Peer {}", this.neighborAddress);
             this.isServiceInstantiated = false;
@@ -311,7 +308,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                 this.connection.cancel(true);
                 this.connection = null;
             }
-            final ListenableFuture<Void> future = this.bgpPeer.close();
+            final FluentFuture<? extends CommitInfo> future = this.bgpPeer.close();
             removePeer(this.dispatcher.getBGPPeerRegistry());
             return future;
         }

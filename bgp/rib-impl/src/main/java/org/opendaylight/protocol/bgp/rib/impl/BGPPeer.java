@@ -18,7 +18,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.InetAddresses;
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +35,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
@@ -224,10 +225,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         setActive(true);
     }
 
-    // FIXME ListenableFuture<?> should be used once closeServiceInstance uses wildcard too
     @Override
-    public synchronized ListenableFuture<Void> close() {
-        final ListenableFuture<Void> future = releaseConnection();
+    public synchronized FluentFuture<? extends CommitInfo> close() {
+        final FluentFuture<? extends CommitInfo> future = releaseConnection();
         this.chain.close();
         setActive(false);
         return future;
@@ -388,8 +388,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    private synchronized ListenableFuture<Void> cleanup() {
+    private synchronized FluentFuture<? extends CommitInfo> cleanup() {
         // FIXME: BUG-196: support graceful
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
@@ -429,14 +428,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @Override
-    public synchronized ListenableFuture<Void> releaseConnection() {
+    public synchronized FluentFuture<? extends CommitInfo> releaseConnection() {
         LOG.info("Closing session with peer");
         this.sessionUp = false;
         closeRegistration();
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
-        final ListenableFuture<Void> future = cleanup();
+        final FluentFuture<? extends CommitInfo> future = cleanup();
 
         if (this.session != null) {
             try {

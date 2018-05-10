@@ -40,6 +40,6 @@ public abstract class AbstractTopologyBuilderTest extends AbstractConcurrentData
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(),
             new NetworkTopologyBuilder().setTopology(Collections.emptyList()).build());
-        wTx.submit();
+        wTx.commit();
     }
 }

@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +34,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
@@ -109,9 +109,9 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
                     try {
                         updateBGPStats(wTx);
 
-                        Futures.addCallback(wTx.submit(), new FutureCallback<Void>() {
+                        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
                             @Override
-                            public void onSuccess(Void result) {
+                            public void onSuccess(CommitInfo result) {
                                 LOG.debug("Successfully committed BGP stats update");
                             }
 
@@ -176,7 +176,17 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
                 final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
                 this.instanceIdentifiersCache.keySet().iterator()
                 .forEachRemaining(ribId -> removeStoredOperationalState(ribId, wTx));
-                wTx.submit();
+                wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+                    @Override
+                    public void onSuccess(final CommitInfo result) {
+                        LOG.trace("Successfully operational stats removed.");
+                    }
+
+                    @Override
+                    public void onFailure(final Throwable throwable) {
+                        LOG.error("Failed to clean up operational stats", throwable);
+                    }
+                }, MoreExecutors.directExecutor());
             }
             this.transactionChain.close();
             this.scheduler.shutdown();

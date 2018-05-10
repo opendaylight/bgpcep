@@ -95,7 +95,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // delete route
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv4RouteIID);
-        wTx.submit();
+        wTx.commit();
         readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(0, topology.getNode().size());
             return topology;
@@ -108,7 +108,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     private void updateIpv4Route(final Ipv4Route data) {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.ipv4RouteIID, data, true);
-        wTx.submit();
+        wTx.commit();
     }
 
     private static Ipv4Route createIpv4Route(final String nextHop) {

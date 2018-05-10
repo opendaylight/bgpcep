@@ -14,6 +14,8 @@ import static org.opendaylight.yangtools.yang.common.QName.create;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Locale;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -21,6 +23,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeNode;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.impl.spi.BmpRouterPeer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -69,10 +72,13 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BmpRouterPeerImpl.class);
     private static final String TIMESTAMP_SEC = "timestamp-sec";
 
     private static final QName PEER_ID_QNAME = create(Peer.QNAME, "peer-id").intern();
@@ -141,7 +147,17 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         final Set<TablesKey> peerTables = setPeerTables(peerUp.getReceivedOpen());
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.peerYangIId, createPeerEntry(peerUp));
-        wTx.submit();
+        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
         this.prePolicyWriter = BmpRibInWriter.create(this.peerYangIId.node(PrePolicyRib.QNAME).node(BMP_TABLES_QNAME),
                 this.domTxChain, extensions, peerTables, tree);
         this.postPolicyWriter = BmpRibInWriter.create(this.peerYangIId.node(PostPolicyRib.QNAME).node(BMP_TABLES_QNAME),
@@ -189,7 +205,17 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
             final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
             wTx.merge(LogicalDatastoreType.OPERATIONAL, this.peerYangIId.node(Stats.QNAME),
                     createStats(statsReports, statsReports.getPeerHeader().getTimestampSec()));
-            wTx.submit();
+            wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    LOG.trace("Successful commit");
+                }
+
+                @Override
+                public void onFailure(final Throwable trw) {
+                    LOG.error("Failed commit", trw);
+                }
+            }, MoreExecutors.directExecutor());
         }
     }
 
@@ -197,14 +223,33 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, this.peerYangIId.node(Mirrors.QNAME),
                 createMirrors(mirror, mirror.getPeerHeader().getTimestampSec()));
-        wTx.submit();
-    }
+        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
 
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
+    }
 
     private synchronized void onPeerDown() {
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.peerYangIId);
-        wTx.submit();
+        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
         close();
     }
 

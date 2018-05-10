@@ -12,21 +12,24 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.impl.spi.BmpRouter;
@@ -170,8 +173,8 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
                     // it means the session was closed before it was written to datastore
                     final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
                     wTx.delete(LogicalDatastoreType.OPERATIONAL, this.routerYangIId);
-                    wTx.submit().checkedGet();
-                } catch (final TransactionCommitFailedException e) {
+                    wTx.commit().get();
+                } catch (final InterruptedException | ExecutionException e) {
                     LOG.error("Failed to remove BMP router data from DS.", e);
                 }
                 this.sessionManager.removeSessionListener(this);
@@ -203,7 +206,17 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
                 .withChild(ImmutableNodes.leafNode(ROUTER_ID_QNAME, this.routerIp))
                 .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, DOWN))
                 .withChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build()).build());
-        wTx.submit();
+        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     private synchronized void onInitiate(final InitiationMessage initiation) {
@@ -218,7 +231,17 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
                 .withChild(ImmutableNodes.leafNode(ROUTER_INFO_QNAME, getStringInfo(initiation.getTlvs()
                         .getStringInformation())))
                 .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, UP)).build());
-        wTx.submit();
+        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     private synchronized void onPeerUp(final PeerUpNotification peerUp) {

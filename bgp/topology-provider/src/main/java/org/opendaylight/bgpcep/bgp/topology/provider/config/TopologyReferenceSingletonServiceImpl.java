@@ -10,10 +10,11 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
@@ -51,7 +52,7 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     }
 
     @Override
-    public ListenableFuture<Void> closeServiceInstance() {
+    public FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("Close Topology Singleton Service {}", getIdentifier());
         return this.topologyBuilder.close();
     }

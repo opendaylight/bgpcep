@@ -10,12 +10,11 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.google.common.util.concurrent.FluentFuture;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
@@ -25,6 +24,7 @@ import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -74,12 +74,11 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         }
     }
 
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    synchronized ListenableFuture<Void> closeServiceInstance() {
+    synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         if (this.pcepTopoProviderCSS != null) {
             return this.pcepTopoProviderCSS.closeServiceInstance();
         }
-        return Futures.immediateFuture(null);
+        return CommitInfo.emptyFluentFuture();
     }
 
     @Override
@@ -134,8 +133,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         private final InstructionScheduler scheduler;
         private ServiceRegistration<?> serviceRegistration;
         private ClusterSingletonServiceRegistration cssRegistration;
-        @GuardedBy("this")
-        private boolean serviceInstantiated;
+        private AtomicBoolean serviceInstantiated = new AtomicBoolean(false);
 
         PCEPTopologyProviderBeanCSS(final PCEPTopologyConfiguration configDependencies,
                 final InstructionScheduler instructionScheduler, final PCEPTopologyProviderBean bean) {
@@ -160,18 +158,16 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
             } catch (final Exception e) {
                 LOG.error("Failed to instantiate PCEP Topology provider", e);
             }
-            this.serviceInstantiated = true;
+            this.serviceInstantiated.set(true);
         }
 
         @Override
-        @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-        public synchronized ListenableFuture<Void> closeServiceInstance() {
+        public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
             LOG.info("Close PCEP Topology Provider Singleton Service {}", getIdentifier().getValue());
-            if (this.serviceInstantiated) {
-                this.serviceInstantiated = false;
+            if (this.serviceInstantiated.compareAndSet(false, true)) {
                 return this.pcepTopoProvider.closeServiceInstance();
             }
-            return Futures.immediateFuture(null);
+            return CommitInfo.emptyFluentFuture();
         }
 
         @Nonnull

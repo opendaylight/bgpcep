@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FluentFuture;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
@@ -31,7 +32,7 @@ public interface PeerBean extends AutoCloseable {
 
     void instantiateServiceInstance();
 
-    ListenableFuture<Void> closeServiceInstance();
+    FluentFuture<? extends CommitInfo> closeServiceInstance();
 
     Boolean containsEqualConfiguration(Neighbor neighbor);
 }

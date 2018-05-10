@@ -15,11 +15,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -28,9 +28,9 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.application.rib.tables.routes.Ipv4RoutesCaseBuilder;
@@ -120,9 +120,9 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
 
         final WriteTransaction wTx = this.txChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.CONFIGURATION, this.appIID, appRib);
-        Futures.addCallback(wTx.submit(), new FutureCallback<Void>() {
+        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.info("Empty Structure created for Application Peer Benchmark {}", AppPeerBenchmark.this.appRibId);
             }
 
@@ -175,8 +175,8 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         final WriteTransaction dTx = this.txChain.newWriteOnlyTransaction();
         dTx.delete(LogicalDatastoreType.CONFIGURATION, this.appIID);
         try {
-            dTx.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
+            dTx.commit().get();
+        } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to clean-up BGP Application RIB.", e);
         }
         this.txChain.close();
@@ -226,12 +226,32 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
                 wt.delete(LogicalDatastoreType.CONFIGURATION, routeIId);
             }
             if (i % batch == 0) {
-                wt.submit();
+                wt.commit().addCallback(new FutureCallback<CommitInfo>() {
+                    @Override
+                    public void onSuccess(final CommitInfo result) {
+                        LOG.trace("Successful commit");
+                    }
+
+                    @Override
+                    public void onFailure(final Throwable trw) {
+                        LOG.error("Failed commit", trw);
+                    }
+                }, MoreExecutors.directExecutor());
                 wt = this.txChain.newWriteOnlyTransaction();
             }
             address = increasePrefix(address);
         }
-        wt.submit();
+        wt.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Route batch stored.");
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to store route batch.", throwable);
+            }
+        }, MoreExecutors.directExecutor());
         return stopwatch.stop().elapsed(TimeUnit.MILLISECONDS);
     }
 

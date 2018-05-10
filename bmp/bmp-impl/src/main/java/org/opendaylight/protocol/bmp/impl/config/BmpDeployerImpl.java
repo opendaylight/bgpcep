@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bmp.impl.config;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
@@ -70,7 +73,17 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     public synchronized void init() {
         final DOMDataWriteTransaction wTx = this.bmpDeployerDependencies.getDomDataBroker().newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, BMP_MONITOR_YII, EMPTY_PARENT_NODE);
-        wTx.submit();
+        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
         this.registration = this.bmpDeployerDependencies.getDataBroker().registerDataTreeChangeListener(
                 new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
     }
