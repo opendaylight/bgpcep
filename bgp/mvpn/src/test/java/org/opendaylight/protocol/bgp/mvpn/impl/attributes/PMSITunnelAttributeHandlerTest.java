@@ -49,7 +49,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 
-public class PMSITunnelAttributeHandlerTest {
+public final class PMSITunnelAttributeHandlerTest {
 
     private AttributeRegistry handler;
 

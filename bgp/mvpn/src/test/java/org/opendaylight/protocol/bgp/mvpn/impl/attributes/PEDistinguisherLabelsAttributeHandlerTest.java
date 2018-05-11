@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.pe.distinguisher.labels.attribute.pe.distinguisher.labels.attribute.PeDistinguisherLabelAttributeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 
-public class PEDistinguisherLabelsAttributeHandlerTest {
+public final class PEDistinguisherLabelsAttributeHandlerTest {
     /**
      * ATT - TYPE - ATT LENGTH.
      * PE ADDRESS - MPLS LABEL
