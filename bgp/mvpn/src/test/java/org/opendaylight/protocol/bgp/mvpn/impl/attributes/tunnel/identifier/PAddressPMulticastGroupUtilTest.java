@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.PAddressPMulticastGroup;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-public class PAddressPMulticastGroupUtilTest {
+public final class PAddressPMulticastGroupUtilTest {
     private static final String IPV6_MODEL = "2001::1";
     private static final IpAddress IPV6 = new IpAddress(new Ipv6Address(IPV6_MODEL));
     private static final byte[] IPV4_ADDRESS_EXPECTED = {(byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01};

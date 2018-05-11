@@ -77,15 +77,15 @@ public final class PEDistinguisherLabelsAttributeHandler implements AttributePar
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes,
                 "Attribute parameter is not a PathAttribute object.");
-        final PeDistinguisherLabelsAttributeAugmentation ipv4Att =
+        final PeDistinguisherLabelsAttributeAugmentation att =
                 ((Attributes) attribute).getAugmentation(PeDistinguisherLabelsAttributeAugmentation.class);
 
-        if (ipv4Att == null) {
+        if (att == null) {
             return;
         }
 
         final List<PeDistinguisherLabelAttribute> distinguishers
-                = ipv4Att.getPeDistinguisherLabelsAttribute().getPeDistinguisherLabelAttribute();
+                = att.getPeDistinguisherLabelsAttribute().getPeDistinguisherLabelAttribute();
         final ByteBuf buffer = Unpooled.buffer();
         for (final PeDistinguisherLabelAttribute peDist : distinguishers) {
             if (peDist.getPeAddress().getIpv4Address() != null) {
