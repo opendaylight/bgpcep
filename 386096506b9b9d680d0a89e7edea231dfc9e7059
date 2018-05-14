@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20e226f4_935a8598",
+        "filename": "bgp/mvpn/src/main/resources/META-INF/services/org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-05-14T07:26:57Z",
+      "side": 1,
+      "message": "fix",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 74
+      },
+      "revId": "386096506b9b9d680d0a89e7edea231dfc9e7059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
