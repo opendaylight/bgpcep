@@ -28,7 +28,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class CheckUtil {
-    private static final int LATCH_TIMEOUT = 10;
     private static final int SLEEP_FOR = 200;
     private static final int TIMEOUT = 30;
 
@@ -39,7 +38,7 @@ public final class CheckUtil {
     public static <T extends Future<?>> void waitFutureSuccess(final T future) {
         final CountDownLatch latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
-        Uninterruptibles.awaitUninterruptibly(latch, LATCH_TIMEOUT, TimeUnit.SECONDS);
+        Uninterruptibles.awaitUninterruptibly(latch, SLEEP_FOR, TimeUnit.SECONDS);
         Verify.verify(future.isSuccess());
     }
 
@@ -146,14 +145,13 @@ public final class CheckUtil {
         throw lastError;
     }
 
-    public static void checkReceivedMessages(final ListenerCheck listener, final int numberOfMessages)
-            throws ReadFailedException {
+    public static void checkReceivedMessages(final ListenerCheck listener, final int numberOfMessages) {
         checkReceivedMessages(listener, numberOfMessages, TIMEOUT);
     }
 
     @VisibleForTesting
     static void checkReceivedMessages(final ListenerCheck listener, final int numberOfMessages,
-            final int timeout) throws ReadFailedException {
+            final int timeout) {
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= timeout) {
             if (listener.getListMessageSize() != numberOfMessages) {
