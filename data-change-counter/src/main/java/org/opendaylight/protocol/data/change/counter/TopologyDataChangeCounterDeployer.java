@@ -68,7 +68,7 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
         }
     }
 
-    public synchronized void deleteCounterChange(final String counterId) {
+    private synchronized void deleteCounterChange(final String counterId) {
         final TopologyDataChangeCounter oldCounter = this.counters.remove(counterId);
         if (oldCounter != null) {
             LOG.info("Data change counter Deployer deleted: {}", counterId);
@@ -76,7 +76,7 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
         }
     }
 
-    public synchronized void chandleCounterChange(final String counterId, final String topologyName) {
+    private synchronized void chandleCounterChange(final String counterId, final String topologyName) {
         deleteCounterChange(counterId);
         LOG.info("Data change counter Deployer created: {} / {}", counterId, topologyName);
 
