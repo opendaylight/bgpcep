@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,18 +22,21 @@ public final class SimpleRIBExtensionProviderContextActivator implements AutoClo
 
     private final RIBExtensionProviderContext providerContext;
     private final List<RIBExtensionProviderActivator> extensionActivators;
+    private final BindingNormalizedNodeSerializer mappingService;
 
     public SimpleRIBExtensionProviderContextActivator(final RIBExtensionProviderContext providerContext,
-            final List<RIBExtensionProviderActivator> extensionActivators) {
+            final List<RIBExtensionProviderActivator> extensionActivators,
+            final BindingNormalizedNodeSerializer mappingService) {
         this.providerContext = requireNonNull(providerContext);
         this.extensionActivators = requireNonNull(extensionActivators);
+        this.mappingService = requireNonNull(mappingService);
     }
 
     public void start() {
         LOG.info("Starting {} RIBExtensionProviderActivator instances", this.extensionActivators.size());
 
         for (final RIBExtensionProviderActivator e : this.extensionActivators) {
-            e.startRIBExtensionProvider(this.providerContext);
+            e.startRIBExtensionProvider(this.providerContext, this.mappingService);
         }
     }
 

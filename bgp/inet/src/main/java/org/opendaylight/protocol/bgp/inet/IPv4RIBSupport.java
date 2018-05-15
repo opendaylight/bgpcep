@@ -9,11 +9,13 @@ package org.opendaylight.protocol.bgp.inet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.peer.effective.rib.in.tables.routes.Ipv4RoutesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
@@ -28,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
@@ -36,16 +37,29 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 /**
  * Class supporting IPv4 unicast RIBs.
  */
-final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4Route, Ipv4RouteKey> {
+final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Routes, Ipv4Route, Ipv4RouteKey> {
 
-    private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
+    private static final Ipv4Routes EMPTY_CONTAINER
+            = new Ipv4RoutesBuilder().setIpv4Route(Collections.emptyList()).build();
+    private static final Ipv4RoutesCase EMPTY_CASE = new Ipv4RoutesCaseBuilder().setIpv4Routes(EMPTY_CONTAINER).build();
+    private static IPv4RIBSupport SINGLETON = null;
 
-    private IPv4RIBSupport() {
-        super(Ipv4PrefixAndPathId.class, Ipv4AddressFamily.class,
-                Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, DestinationIpv4.QNAME, Ipv4Prefixes.QNAME);
+    private IPv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+        super(
+                mappingService,
+                Ipv4PrefixAndPathId.class,
+                Ipv4AddressFamily.class,
+                Ipv4RoutesCase.class,
+                Ipv4Routes.class,
+                Ipv4Route.class,
+                DestinationIpv4.QNAME,
+                Ipv4Prefixes.QNAME);
     }
 
-    static IPv4RIBSupport getInstance() {
+    static synchronized IPv4RIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
+        if (SINGLETON == null) {
+            SINGLETON = new IPv4RIBSupport(mappingService);
+        }
         return SINGLETON;
     }
 
@@ -83,13 +97,18 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4Route, Ipv4RouteKey>
         } else {
             builder = new Ipv4RouteBuilder();
         }
-        builder.setKey(new Ipv4RouteKey(new PathId(pathId), routeKey)).setAttributes(attributes);
+        builder.setKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes);
         return builder.build();
     }
 
     @Override
-    public Routes emptyRoutesContainer() {
-        return new Ipv4RoutesCaseBuilder().setIpv4Routes(new Ipv4RoutesBuilder().build()).build();
+    public Ipv4RoutesCase emptyRoutesCase() {
+        return EMPTY_CASE;
+    }
+
+    @Override
+    public Ipv4Routes emptyRoutesContainer() {
+        return EMPTY_CONTAINER;
     }
 
     @Override

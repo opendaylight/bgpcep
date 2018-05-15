@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -22,19 +23,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Prefixes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.RIBSupportTestImp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -56,6 +54,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.Ipv4Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.ipv4.routes.Ipv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
@@ -74,13 +76,13 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
 
-public class RIBSupportTest {
+public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
     private static final QName PATH_ID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
     private static final NodeIdentifierWithPredicates PREFIX_NII = new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
         ImmutableMap.of(QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
-    private static final RIBSupportTestImp ABSTRACT_RIB_SUPP_TEST = new RIBSupportTestImp();
+    private RIBSupportTestImp ribSupportTestImp;
     private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
     private static final YangInstanceIdentifier LOC_RIB_TARGET = YangInstanceIdentifier
@@ -93,14 +95,16 @@ public class RIBSupportTest {
     private DataTreeCandidateNode subTree;
     private DOMDataWriteTransaction tx;
     private ContainerNode nlri;
-    private Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap;
+    private Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap = new HashMap<>();
     private ContainerNode attributes;
     private MapEntryNode mapEntryNode;
+    private BindingToNormalizedNodeCodec mappingService;
 
     @Before
-    public void setUp() {
-        this.routesMap = new HashMap<>();
+    public void setUp() throws Exception {
+        super.setup();
         MockitoAnnotations.initMocks(this);
+        this.ribSupportTestImp = new RIBSupportTestImp(this.mappingService);
         this.emptyTree = Mockito.mock(DataTreeCandidateNode.class);
         this.emptySubTree = Mockito.mock(DataTreeCandidateNode.class);
         this.subTree = Mockito.mock(DataTreeCandidateNode.class);
@@ -136,13 +140,13 @@ public class RIBSupportTest {
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            RIBSupportTest.this.routesMap.remove(args[1]);
+            this.routesMap.remove(args[1]);
             return args[1];
         }).when(this.tx).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             final NormalizedNode<?, ?> node1 = (NormalizedNode<?, ?>) args[2];
-            RIBSupportTest.this.routesMap.put((YangInstanceIdentifier) args[1], node1);
+            this.routesMap.put((YangInstanceIdentifier) args[1], node1);
             return args[1];
         }).when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class),
                 any(NormalizedNode.class));
@@ -150,90 +154,97 @@ public class RIBSupportTest {
         this.mapEntryNode = Mockito.mock(MapEntryNode.class);
     }
 
+    @Override
+    protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+        this.mappingService = customizer.getBindingToNormalized();
+        return customizer;
+    }
+
     @Test
     public void pathIdQName() {
-        assertEquals(PATH_ID_QNAME, ABSTRACT_RIB_SUPP_TEST.pathIdQName());
+        assertEquals(PATH_ID_QNAME,this.ribSupportTestImp.pathIdQName());
     }
 
     @Test
     public void routesCaseClass() {
-        assertEquals(Ipv4RoutesCase.class, ABSTRACT_RIB_SUPP_TEST.routesCaseClass());
+        assertEquals(Ipv4RoutesCase.class,this.ribSupportTestImp.routesCaseClass());
     }
 
     @Test
     public void routesContainerClass() {
-        assertEquals(Ipv4Routes.class, ABSTRACT_RIB_SUPP_TEST.routesContainerClass());
+        assertEquals(Ipv4Routes.class,this.ribSupportTestImp.routesContainerClass());
     }
 
     @Test
     public void routesListClass() {
-        assertEquals(Ipv4Route.class, ABSTRACT_RIB_SUPP_TEST.routesListClass());
+        assertEquals(Ipv4Route.class,this.ribSupportTestImp.routesListClass());
     }
 
     @Test
     public void routeQName() {
-        assertEquals(Ipv4Route.QNAME, ABSTRACT_RIB_SUPP_TEST.routeQName());
+        assertEquals(Ipv4Route.QNAME,this.ribSupportTestImp.routeQName());
     }
 
     @Test
     public void emptyRoutes() {
         final ChoiceNode emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES_IDENTIFIER)
                 .addChild(Builders.containerBuilder().withNodeIdentifier(IPV4_ROUTES_IDENTIFIER)
-                        .withChild(ImmutableNodes.mapNodeBuilder(ABSTRACT_RIB_SUPP_TEST.routeQName())
+                        .withChild(ImmutableNodes.mapNodeBuilder(ribSupportTestImp.routeQName())
                                 .build()).build()).build();
-        assertEquals(emptyRoutes, ABSTRACT_RIB_SUPP_TEST.emptyRoutes());
+        assertEquals(emptyRoutes,this.ribSupportTestImp.emptyRoutes());
     }
 
     @Test
     public void routeNid() {
-        assertEquals(new NodeIdentifier(Ipv4Route.QNAME), ABSTRACT_RIB_SUPP_TEST.routeNid());
+        assertEquals(new NodeIdentifier(Ipv4Route.QNAME),this.ribSupportTestImp.routeNid());
     }
 
     @Test
     public void getAfi() {
-        assertEquals(Ipv4AddressFamily.class, ABSTRACT_RIB_SUPP_TEST.getAfi());
+        assertEquals(Ipv4AddressFamily.class,this.ribSupportTestImp.getAfi());
     }
 
     @Test
     public void getSafi() {
-        assertEquals(UnicastSubsequentAddressFamily.class, ABSTRACT_RIB_SUPP_TEST.getSafi());
+        assertEquals(UnicastSubsequentAddressFamily.class,this.ribSupportTestImp.getSafi());
     }
 
     @Test
     public void routesContainerIdentifier() {
-        assertEquals(IPV4_ROUTES_IDENTIFIER, ABSTRACT_RIB_SUPP_TEST.routesContainerIdentifier());
+        assertEquals(IPV4_ROUTES_IDENTIFIER,this.ribSupportTestImp.routesContainerIdentifier());
 
     }
 
     @Test
     public void routeAttributesIdentifier() {
         assertEquals(new NodeIdentifier(QName.create(Ipv4Routes.QNAME,
-                Attributes.QNAME.getLocalName().intern())), ABSTRACT_RIB_SUPP_TEST.routeAttributesIdentifier());
+                Attributes.QNAME.getLocalName().intern())),this.ribSupportTestImp.routeAttributesIdentifier());
     }
 
     @Test
     public void routePath() {
-        Assert.assertEquals(LOC_RIB_TARGET.node(ROUTES_IDENTIFIER)
+        assertEquals(LOC_RIB_TARGET.node(ROUTES_IDENTIFIER)
                         .node(Ipv4Routes.QNAME).node(Ipv4Route.QNAME).node(PREFIX_NII),
-            ABSTRACT_RIB_SUPP_TEST.routePath(LOC_RIB_TARGET.node(Routes.QNAME), PREFIX_NII));
+                this.ribSupportTestImp.routePath(LOC_RIB_TARGET.node(Routes.QNAME), PREFIX_NII));
     }
 
     @Test
     public void changedRoutes() {
-        Assert.assertTrue(ABSTRACT_RIB_SUPP_TEST.changedRoutes(this.emptyTree).isEmpty());
-        Assert.assertTrue(ABSTRACT_RIB_SUPP_TEST.changedRoutes(this.emptySubTree).isEmpty());
-        Assert.assertNotNull(ABSTRACT_RIB_SUPP_TEST.changedRoutes(this.subTree));
+        assertTrue(ribSupportTestImp.changedRoutes(this.emptyTree).isEmpty());
+        assertTrue(ribSupportTestImp.changedRoutes(this.emptySubTree).isEmpty());
+        assertNotNull(ribSupportTestImp.changedRoutes(this.subTree));
     }
 
     @Test
     public void putRoutes() {
-        ABSTRACT_RIB_SUPP_TEST.putRoutes(this.tx, LOC_RIB_TARGET, this.nlri, this.attributes);
+        this.ribSupportTestImp.putRoutes(this.tx, LOC_RIB_TARGET, this.nlri, this.attributes);
         assertFalse(this.routesMap.isEmpty());
     }
 
     @Test
     public void deleteRoutes() {
-        ABSTRACT_RIB_SUPP_TEST.deleteRoutes(this.tx, LOC_RIB_TARGET, this.nlri);
+        this.ribSupportTestImp.deleteRoutes(this.tx, LOC_RIB_TARGET, this.nlri);
         assertTrue(this.routesMap.isEmpty());
     }
 
@@ -246,7 +257,7 @@ public class RIBSupportTest {
         final Collection<MapEntryNode> routes = new HashSet<>();
 
         assertEquals(new UpdateBuilder().setAttributes(new AttributesBuilder().build()).build(),
-                ABSTRACT_RIB_SUPP_TEST.buildUpdate(routes, routes, attr));
+               this.ribSupportTestImp.buildUpdate(routes, routes, attr));
 
         routes.add(this.mapEntryNode);
         final MpReachNlri mpReach = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class)
@@ -256,7 +267,7 @@ public class RIBSupportTest {
         final Attributes attMpR = new AttributesBuilder().addAugmentation(Attributes1.class,
                 new Attributes1Builder().setMpReachNlri(mpReach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpR).build(),
-                ABSTRACT_RIB_SUPP_TEST.buildUpdate(routes, Collections.emptySet(), attr));
+               this.ribSupportTestImp.buildUpdate(routes, Collections.emptySet(), attr));
 
         final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class)
                 .setSafi(UnicastSubsequentAddressFamily.class)
@@ -265,6 +276,6 @@ public class RIBSupportTest {
         final Attributes attMpU = new AttributesBuilder().addAugmentation(Attributes2.class,
                 new Attributes2Builder().setMpUnreachNlri(mpUnreach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpU).build(),
-                ABSTRACT_RIB_SUPP_TEST.buildUpdate(Collections.emptySet(), routes, attr));
+               this.ribSupportTestImp.buildUpdate(Collections.emptySet(), routes, attr));
     }
 }

@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv6;
 
+import java.util.Collections;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv6RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.peer.effective.rib.in.tables.routes.FlowspecL3vpnIpv6RoutesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv6RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.l3vpn.destination.ipv6.DestinationFlowspecL3vpnIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRouteBuilder;
@@ -19,13 +21,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.l3vpn.ipv6.routes.FlowspecL3vpnIpv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 
-public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBSupport<FlowspecL3vpnIpv6NlriParser,
-        FlowspecL3vpnRoute, FlowspecL3vpnRouteKey> {
-    private FlowspecL3vpnIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
+public final class FlowspecL3vpnIpv6RIBSupport
+        extends AbstractFlowspecL3vpnRIBSupport<FlowspecL3vpnIpv6NlriParser,
+        FlowspecL3vpnIpv6RoutesCase,
+        FlowspecL3vpnIpv6Routes,
+        FlowspecL3vpnRoute,
+        FlowspecL3vpnRouteKey> {
+    private static final FlowspecL3vpnIpv6Routes EMPTY_CONTAINER
+            = new FlowspecL3vpnIpv6RoutesBuilder().setFlowspecL3vpnRoute(Collections.emptyList()).build();
+    private static final FlowspecL3vpnIpv6RoutesCase EMPTY_CASE = new FlowspecL3vpnIpv6RoutesCaseBuilder()
+            .setFlowspecL3vpnIpv6Routes(EMPTY_CONTAINER).build();
+    private static FlowspecL3vpnIpv6RIBSupport SINGLETON;
+
+    private FlowspecL3vpnIpv6RIBSupport(
+            final SimpleFlowspecExtensionProviderContext context,
+            final BindingNormalizedNodeSerializer mappingService) {
         super(
+                mappingService,
                 FlowspecL3vpnIpv6RoutesCase.class,
                 FlowspecL3vpnIpv6Routes.class,
                 FlowspecL3vpnRoute.class,
@@ -37,8 +51,13 @@ public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBS
         );
     }
 
-    public static FlowspecL3vpnIpv6RIBSupport getInstance(final SimpleFlowspecExtensionProviderContext context) {
-        return new FlowspecL3vpnIpv6RIBSupport(context);
+    public static synchronized FlowspecL3vpnIpv6RIBSupport getInstance(
+            final SimpleFlowspecExtensionProviderContext context,
+            final BindingNormalizedNodeSerializer mappingService) {
+        if (SINGLETON == null) {
+            SINGLETON = new FlowspecL3vpnIpv6RIBSupport(context, mappingService);
+        }
+        return SINGLETON;
     }
 
     @Override
@@ -60,8 +79,12 @@ public final class FlowspecL3vpnIpv6RIBSupport extends AbstractFlowspecL3vpnRIBS
     }
 
     @Override
-    public Routes emptyRoutesContainer() {
-        return new FlowspecL3vpnIpv6RoutesCaseBuilder()
-                .setFlowspecL3vpnIpv6Routes(new FlowspecL3vpnIpv6RoutesBuilder().build()).build();
+    public FlowspecL3vpnIpv6RoutesCase emptyRoutesCase() {
+        return EMPTY_CASE;
+    }
+
+    @Override
+    public FlowspecL3vpnIpv6Routes emptyRoutesContainer() {
+        return EMPTY_CONTAINER;
     }
 }

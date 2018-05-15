@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Optional;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -32,8 +33,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
@@ -65,8 +72,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Beta
-public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
-        implements RIBSupport<R, N> {
+public abstract class AbstractRIBSupport<
+        C extends Routes & DataObject,
+        S extends DataObject,
+        R extends Route,
+        I extends Identifier>
+        implements RIBSupport<C, S, R, I> {
     public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
     private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
@@ -77,9 +88,9 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
-    private final Class<? extends Routes> cazeClass;
-    private final Class<? extends DataObject> containerClass;
-    private final Class<? extends Route> listClass;
+    private final Class<C> cazeClass;
+    private final Class<S> containerClass;
+    private final Class<R> listClass;
     private final ApplyRoute putRoute = new PutRoute();
     private final ChoiceNode emptyRoutes;
     private final QName routeQname;
@@ -91,13 +102,14 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     private final QName routeKeyQname;
     private final NodeIdentifier prefixTypeNid;
     private final NodeIdentifier rdNid;
+    private final BindingNormalizedNodeSerializer mappingService;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
-     *  @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
+     * @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass   Binding class of the container in routes choice, must not be null.
      * @param listClass        Binding class of the route list, nust not be null;
      * @param afiClass         address Family Class
@@ -105,9 +117,10 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
      * @param destinationQname destination Qname
      */
     protected AbstractRIBSupport(
-            final Class<? extends Routes> cazeClass,
-            final Class<? extends DataObject> containerClass,
-            final Class<? extends Route> listClass,
+            final BindingNormalizedNodeSerializer mappingService,
+            final Class<C> cazeClass,
+            final Class<S> containerClass,
+            final Class<R> listClass,
             final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
             final QName destinationQname) {
@@ -116,14 +129,22 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
         this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname,
                 Attributes.QNAME.getLocalName().intern()));
         this.cazeClass = requireNonNull(cazeClass);
+        this.mappingService = requireNonNull(mappingService);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
         this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
-        this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES)
-                .addChild(Builders.containerBuilder()
-                .withNodeIdentifier(routesContainerIdentifier())
-                .withChild(ImmutableNodes.mapNodeBuilder(this.routeQname).build()).build()).build();
+
+        final TablesKey tk = new TablesKey(afiClass, safiClass);
+        //FIXME Use Route Iid instead of Tables.
+        final InstanceIdentifier<Tables> routeIID = InstanceIdentifier.create(BgpRib.class)
+                .child(Rib.class, new RibKey(requireNonNull(new RibId("rib"))))
+                .child(LocRib.class)
+                .child(Tables.class, tk);
+        this.emptyRoutes = (ChoiceNode) ((MapEntryNode) this.mappingService
+                .toNormalizedNode(routeIID, new TablesBuilder().setKey(tk)
+                        .setRoutes(emptyRoutesCase()).build()).getValue())
+                .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = new NodeIdentifier(destinationQname);
@@ -135,17 +156,17 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     }
 
     @Override
-    public final Class<? extends Routes> routesCaseClass() {
+    public final Class<C> routesCaseClass() {
         return this.cazeClass;
     }
 
     @Override
-    public final Class<? extends DataObject> routesContainerClass() {
+    public final Class<S> routesContainerClass() {
         return this.containerClass;
     }
 
     @Override
-    public final Class<? extends Route> routesListClass() {
+    public final Class<R> routesListClass() {
         return this.listClass;
     }
 
@@ -330,7 +351,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
 
     @Override
     public final InstanceIdentifier<R> createRouteIdentifier(
-            final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final N key) {
+            final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final I key) {
         return tableIId.child((Class) routesContainerClass()).child(routesListClass(), key);
     }
 
@@ -448,7 +469,7 @@ public abstract class AbstractRIBSupport<R extends Route, N extends Identifier>
     }
 
     protected final RouteDistinguisher extractRouteDistinguisher(
-            final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route) {
+            final DataContainerNode<? extends PathArgument> route) {
         if (route.getChild(this.rdNid).isPresent()) {
             return RouteDistinguisherBuilder.getDefaultInstance((String) route.getChild(this.rdNid).get().getValue());
         }

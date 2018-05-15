@@ -40,7 +40,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport<R extends Route, N extends Identifier> extends AddPathRibSupport {
+public interface RIBSupport<
+        C extends Routes & DataObject,
+        S extends DataObject,
+        R extends Route,
+        I extends Identifier> {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -66,7 +70,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return Class
      */
     @Nonnull
-    Class<? extends Routes> routesCaseClass();
+    Class<C> routesCaseClass();
 
     /**
      * Return class object of the Routes Container statement.
@@ -74,7 +78,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return Class
      */
     @Nonnull
-    Class<? extends DataObject> routesContainerClass();
+    Class<S> routesContainerClass();
 
     /**
      * Return class object of the Routes List statement.
@@ -82,7 +86,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return Class
      */
     @Nonnull
-    Class<? extends Route> routesListClass();
+    Class<R> routesListClass();
 
     @Nonnull
     default ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
@@ -218,7 +222,7 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
     @Nonnull
     InstanceIdentifier<R> createRouteIdentifier(
             @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> tableKey,
-            @Nonnull N newRouteKey);
+            @Nonnull I newRouteKey);
 
     /**
      * Creates a route with new path Id and attributes.
@@ -246,7 +250,18 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return Protocol-specific case in the routes choice, may not be null.
      */
     @Nonnull
-    Routes emptyRoutesContainer();
+    C emptyRoutesCase();
+
+    /**
+     * Return the table-type-specific empty routes container, as augmented into the
+     * bgp-peer model under /peer/effect-rib-in/tables/routes choice node/routes container. This needs to include all
+     * the skeleton nodes under which the individual routes will be stored.
+     *
+     * @return Protocol-specific container in the routes, may not be null.
+     */
+    @Nonnull
+    S emptyRoutesContainer();
+
 
 
     /**
@@ -257,5 +272,5 @@ public interface RIBSupport<R extends Route, N extends Identifier> extends AddPa
      * @return route list Key (RouteKey + pathId)
      */
     @Nonnull
-    N createRouteListKey(@Nonnull long pathId, @Nonnull String routeKey);
+    I createRouteListKey(@Nonnull long pathId, @Nonnull String routeKey);
 }

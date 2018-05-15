@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.LabeledUnicastSubsequentAddressFamily;
@@ -19,10 +20,14 @@ public class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(
-        final RIBExtensionProviderContext context) {
+        final RIBExtensionProviderContext context,
+            final BindingNormalizedNodeSerializer mappingService
+    ) {
         final List<AutoCloseable> regs = new ArrayList<>(2);
-        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class, LabeledUnicastIpv4RIBSupport.getInstance()));
-        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class, LabeledUnicastIpv6RIBSupport.getInstance()));
+        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
+                LabeledUnicastIpv4RIBSupport.getInstance(mappingService)));
+        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
+                LabeledUnicastIpv6RIBSupport.getInstance(mappingService)));
         return regs;
     }
 }

@@ -16,17 +16,18 @@ import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBActivatorTest;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.rsvp.parser.spi.pojo.ServiceLoaderRSVPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 
-public class ActivatorTest {
-
+public class ActivatorTest extends AbstractRIBActivatorTest {
     @Test
-    public void testActivator() throws Exception {
-        final BGPActivator act = new BGPActivator(true, ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
+    public void testActivator() {
+        final BGPActivator act = new BGPActivator(true,
+                ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getAddressFamilyRegistry().classForFamily(16388));
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(71));
@@ -34,7 +35,8 @@ public class ActivatorTest {
         act.start(context);
 
         assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
-        assertEquals(LinkstateSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(71));
+        assertEquals(LinkstateSubsequentAddressFamily.class,
+                context.getSubsequentAddressFamilyRegistry().classForFamily(71));
 
         act.close();
     }
@@ -46,7 +48,7 @@ public class ActivatorTest {
 
         assertNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 
-        ribAct.startRIBExtensionProvider(context);
+        ribAct.startRIBExtensionProvider(context, this.mappingService);
 
         assertNotNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 

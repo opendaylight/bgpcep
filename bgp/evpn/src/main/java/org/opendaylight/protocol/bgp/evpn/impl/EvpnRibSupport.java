@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -22,7 +23,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.L2vpnAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.bgp.rib.rib.peer.effective.rib.in.tables.routes.EvpnRoutesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.destination.EvpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.EvpnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.EvpnRoutesBuilder;
@@ -35,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -48,17 +48,30 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
-    private static final EvpnRibSupport SINGLETON = new EvpnRibSupport();
+final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes, EvpnRoute, EvpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
-    private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
 
-    private EvpnRibSupport() {
-        super(EvpnRoutesCase.class, EvpnRoutes.class, EvpnRoute.class, L2vpnAddressFamily.class,
-                EvpnSubsequentAddressFamily.class, DestinationEvpn.QNAME);
+    private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
+    private static final EvpnRoutes EMPTY_CONTAINER
+            =  new EvpnRoutesBuilder().setEvpnRoute(Collections.emptyList()).build();
+    private static final EvpnRoutesCase EMPTY_CASE =
+            new EvpnRoutesCaseBuilder().setEvpnRoutes(EMPTY_CONTAINER).build();
+    private static EvpnRibSupport SINGLETON;
+
+    private EvpnRibSupport(final BindingNormalizedNodeSerializer mappingService) {
+        super(mappingService,
+                EvpnRoutesCase.class,
+                EvpnRoutes.class,
+                EvpnRoute.class,
+                L2vpnAddressFamily.class,
+                EvpnSubsequentAddressFamily.class,
+                DestinationEvpn.QNAME);
     }
 
-    static EvpnRibSupport getInstance() {
+    static synchronized EvpnRibSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
+        if (SINGLETON == null) {
+            SINGLETON = new EvpnRibSupport(mappingService);
+        }
         return SINGLETON;
     }
 
@@ -121,12 +134,17 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoute, EvpnRouteKey> {
         } else {
             builder = new EvpnRouteBuilder();
         }
-        return builder.setKey(new EvpnRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
+        return builder.setKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
     }
 
     @Override
-    public Routes emptyRoutesContainer() {
-        return new EvpnRoutesCaseBuilder().setEvpnRoutes(new EvpnRoutesBuilder().build()).build();
+    public EvpnRoutesCase emptyRoutesCase() {
+        return EMPTY_CASE;
+    }
+
+    @Override
+    public EvpnRoutes emptyRoutesContainer() {
+        return EMPTY_CONTAINER;
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Optional;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
@@ -33,20 +34,25 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 @Beta
-public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser,
-        R extends Route, S extends Identifier> extends AbstractRIBSupport<R, S> {
+public abstract class AbstractFlowspecRIBSupport<
+        T extends AbstractFlowspecNlriParser,
+        C extends Routes & DataObject,
+        S extends DataObject,
+        R extends Route,
+        I extends Identifier> extends AbstractRIBSupport<C, S, R, I> {
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(
-        final Class<? extends Routes> cazeClass,
-        final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass,
-        final Class<? extends AddressFamily> afiClass,
-        final Class<? extends SubsequentAddressFamily> safiClass,
-        final QName dstContainerClassQName,
-        final T nlriParser
+            final BindingNormalizedNodeSerializer mappingService,
+            final Class<C> cazeClass,
+            final Class<S> containerClass,
+            final Class<R> listClass,
+            final Class<? extends AddressFamily> afiClass,
+            final Class<? extends SubsequentAddressFamily> safiClass,
+            final QName dstContainerClassQName,
+            final T nlriParser
     ) {
-        super(cazeClass, containerClass, listClass, afiClass, safiClass, dstContainerClassQName);
+        super(mappingService, cazeClass, containerClass, listClass, afiClass, safiClass, dstContainerClassQName);
 
         this.nlriParser = requireNonNull(nlriParser);
     }

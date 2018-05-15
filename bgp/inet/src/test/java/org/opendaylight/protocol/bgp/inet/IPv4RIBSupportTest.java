@@ -46,8 +46,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
-    private static final IPv4RIBSupport RIB_SUPPORT = IPv4RIBSupport.getInstance();
+public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4Route> {
+    private IPv4RIBSupport ribSupport;
     private static final PathId PATH_ID = new PathId(1L);
     private static final Ipv4Prefix PREFIX = new Ipv4Prefix("1.2.3.4/32");
     private static final Ipv4RouteKey ROUTE_KEY = new Ipv4RouteKey(PATH_ID, PREFIX.getValue());
@@ -77,20 +77,20 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        setUpTestCustomizer(RIB_SUPPORT);
+        this.ribSupport = IPv4RIBSupport.getInstance(this.mappingService);
+        setUpTestCustomizer(this.ribSupport);
     }
 
     @Test
     public void testDeleteRoutes() {
-        RIB_SUPPORT.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        @SuppressWarnings("unchecked") final InstanceIdentifier<Ipv4Route> instanceIdentifier =
-                (InstanceIdentifier<Ipv4Route>) this.deletedRoutes.get(0);
+        this.ribSupport.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
+        final InstanceIdentifier<Ipv4Route> instanceIdentifier = this.deletedRoutes.get(0);
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(Ipv4Route.class));
     }
 
     @Test
     public void testPutRoutes() {
-        RIB_SUPPORT.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        this.ribSupport.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
         final Ipv4Route route = (Ipv4Route) this.insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }
@@ -99,13 +99,13 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
     @Test
     public void testEmptyRoute() {
         final Routes empty = new Ipv4RoutesCaseBuilder().setIpv4Routes(EMPTY_ROUTES).build();
-        final ChoiceNode emptyRoutes = RIB_SUPPORT.emptyRoutes();
+        final ChoiceNode emptyRoutes = this.ribSupport.emptyRoutes();
         assertEquals(createRoutes(empty), emptyRoutes);
     }
 
     @Test
     public void testBuildMpUnreachNlriUpdate() {
-        final Update update = RIB_SUPPORT.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
+        final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri()
                 .getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().getAugmentation(Attributes1.class));
@@ -113,7 +113,7 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
 
     @Test
     public void testBuildMpReachNlriUpdate() {
-        final Update update = RIB_SUPPORT.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
+        final Update update = this.ribSupport.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
         assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().getAugmentation(Attributes2.class));
@@ -122,46 +122,46 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
     @Test
     public void testCacheableNlriObjects() {
         assertEquals(ImmutableSet.of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-                .message.rev180329.Ipv4PrefixAndPathId.class), RIB_SUPPORT.cacheableNlriObjects());
+                .message.rev180329.Ipv4PrefixAndPathId.class), this.ribSupport.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableAttributeObjects());
+        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
     }
 
     @Test
     public void testRouteIdAddPath() {
         final Ipv4RouteKey expected = new Ipv4RouteKey(new PathId(1L), PREFIX.getValue());
-        assertEquals(expected, RIB_SUPPORT.createRouteListKey(expected.getPathId().getValue(), PREFIX.getValue()));
+        assertEquals(expected, this.ribSupport.createRouteListKey(expected.getPathId().getValue(), PREFIX.getValue()));
     }
 
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
-        assertEquals(getRoutePath().node(prefixNii), RIB_SUPPORT.routePath(getTablePath()
+        assertEquals(getRoutePath().node(prefixNii), this.ribSupport.routePath(getTablePath()
                 .node(Routes.QNAME), prefixNii));
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
         assertEquals(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME.getLocalName().intern())),
-                RIB_SUPPORT.routeAttributesIdentifier());
+                this.ribSupport.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        assertEquals(Ipv4RoutesCase.class, RIB_SUPPORT.routesCaseClass());
+        assertEquals(Ipv4RoutesCase.class, this.ribSupport.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        assertEquals(Ipv4Routes.class, RIB_SUPPORT.routesContainerClass());
+        assertEquals(Ipv4Routes.class, this.ribSupport.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        assertEquals(Ipv4Route.class, RIB_SUPPORT.routesListClass());
+        assertEquals(Ipv4Route.class, this.ribSupport.routesListClass());
     }
 
     @Test
@@ -169,15 +169,15 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest {
         final Routes emptyCase = new Ipv4RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new Ipv4RoutesCaseBuilder().setIpv4Routes(new Ipv4RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
+        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes routes = new Ipv4RoutesCaseBuilder().setIpv4Routes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

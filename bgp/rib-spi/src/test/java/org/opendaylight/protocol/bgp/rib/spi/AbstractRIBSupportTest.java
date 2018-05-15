@@ -18,18 +18,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javassist.ClassPool;
-import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
-import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
-import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -45,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
@@ -65,7 +62,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-public abstract class AbstractRIBSupportTest {
+public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractConcurrentDataBrokerTest {
     protected static final PathId PATH_ID = new PathId(1L);
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
@@ -76,21 +73,23 @@ public abstract class AbstractRIBSupportTest {
             .augmentation(Attributes2.class).child(MpUnreachNlri.class);
     private static final InstanceIdentifier<MpReachNlri> MP_REACH_IID = ATTRIBUTES_IID.augmentation(Attributes1.class)
             .child(MpReachNlri.class);
-
     @Mock
     protected DOMDataWriteTransaction tx;
-    protected List<InstanceIdentifier<?>> deletedRoutes;
+    protected List<InstanceIdentifier<R>> deletedRoutes;
     protected List<Map.Entry<InstanceIdentifier<?>, DataObject>> insertedRoutes;
 
-    private BindingToNormalizedNodeCodec mappingService;
+    protected BindingNormalizedNodeSerializer mappingService;
     private AbstractRIBSupport abstractRIBSupport;
     private ModuleInfoBackedContext moduleInfoBackedContext;
 
     protected final void setUpTestCustomizer(final AbstractRIBSupport ribSupport) throws Exception {
         this.abstractRIBSupport = ribSupport;
-        this.moduleInfoBackedContext.registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport
-                .routesContainerClass()));
-        this.mappingService.onGlobalContextUpdated(this.moduleInfoBackedContext.tryToCreateSchemaContext().get());
+        this.moduleInfoBackedContext
+                .registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesContainerClass()));
+        this.moduleInfoBackedContext
+                .registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesCaseClass()));
+        this.moduleInfoBackedContext
+                .registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesListClass()));
     }
 
     @Before
@@ -106,18 +105,20 @@ public abstract class AbstractRIBSupportTest {
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            AbstractRIBSupportTest.this.deletedRoutes.add(AbstractRIBSupportTest.this.mappingService
-                    .fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
+            AbstractRIBSupportTest.this.deletedRoutes.add((InstanceIdentifier<R>)
+                    this.mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
             return args[1];
         }).when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         this.deletedRoutes = new ArrayList<>();
         this.insertedRoutes = new ArrayList<>();
-
-        this.mappingService = new BindingToNormalizedNodeCodec(GeneratedClassLoadingStrategy
-                .getTCCLClassLoadingStrategy(),
-            new BindingNormalizedNodeCodecRegistry(StreamWriterGenerator
-                    .create(JavassistUtils.forClassPool(ClassPool.getDefault()))));
         this.moduleInfoBackedContext = ModuleInfoBackedContext.create();
+    }
+
+    @Override
+    protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+        this.mappingService = customizer.getBindingToNormalized();
+        return customizer;
     }
 
     protected final ContainerNode createNlriWithDrawnRoute(final DestinationType destUnreach) {
@@ -189,10 +190,5 @@ public abstract class AbstractRIBSupportTest {
     protected final NodeIdentifierWithPredicates createRouteNIWP(final DataObject routes) {
         final Collection<MapEntryNode> map = createRoutes(routes);
         return Iterables.getOnlyElement(map).getIdentifier();
-    }
-
-    @After
-    public final void tearDown() {
-        this.mappingService.close();
     }
 }

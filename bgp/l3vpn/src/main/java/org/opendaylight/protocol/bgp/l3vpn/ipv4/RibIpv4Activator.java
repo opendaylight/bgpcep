@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn.ipv4;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
@@ -17,11 +18,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class RibIpv4Activator extends AbstractRIBExtensionProviderActivator {
 
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
-        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class,
-                MplsLabeledVpnSubsequentAddressFamily.class, new VpnIpv4RIBSupport()));
-        return regs;
+    protected List<AutoCloseable> startRIBExtensionProviderImpl(
+            final RIBExtensionProviderContext context,
+            final BindingNormalizedNodeSerializer mappingService) {
+
+        return Collections.singletonList(context.registerRIBSupport(Ipv4AddressFamily.class,
+                MplsLabeledVpnSubsequentAddressFamily.class, VpnIpv4RIBSupport.getInstance(mappingService)));
     }
 
 }

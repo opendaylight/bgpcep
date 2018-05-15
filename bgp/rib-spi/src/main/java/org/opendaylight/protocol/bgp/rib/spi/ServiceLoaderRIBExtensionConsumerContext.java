@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ServiceLoader;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,20 +20,22 @@ public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExt
     private static final Logger LOG = LoggerFactory.getLogger(ServiceLoaderRIBExtensionConsumerContext.class);
     private final ServiceLoader<RIBExtensionProviderActivator> loader;
 
-    private ServiceLoaderRIBExtensionConsumerContext(final ServiceLoader<RIBExtensionProviderActivator> loader) {
+    private ServiceLoaderRIBExtensionConsumerContext(final ServiceLoader<RIBExtensionProviderActivator> loader,
+            final BindingNormalizedNodeSerializer mappingService) {
         this.loader = requireNonNull(loader);
 
         for (RIBExtensionProviderActivator a : loader) {
-            a.startRIBExtensionProvider(this);
+            a.startRIBExtensionProvider(this, mappingService);
         }
     }
 
     @VisibleForTesting
-    static ServiceLoaderRIBExtensionConsumerContext createConsumerContext() {
+    static ServiceLoaderRIBExtensionConsumerContext createConsumerContext(
+            final BindingNormalizedNodeSerializer mappingService) {
         final ServiceLoader<RIBExtensionProviderActivator> loader =
                 ServiceLoader.load(RIBExtensionProviderActivator.class);
 
-        return new ServiceLoaderRIBExtensionConsumerContext(loader);
+        return new ServiceLoaderRIBExtensionConsumerContext(loader, mappingService);
     }
 
     @Override

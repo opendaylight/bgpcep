@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.inet;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
@@ -18,11 +19,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
+    protected List<AutoCloseable> startRIBExtensionProviderImpl(
+            final RIBExtensionProviderContext context,
+            final BindingNormalizedNodeSerializer mappingService) {
         return Lists.newArrayList(
             context.registerRIBSupport(Ipv4AddressFamily.class,
-                    UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance()),
+                    UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance(mappingService)),
             context.registerRIBSupport(Ipv6AddressFamily.class,
-                    UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance()));
+                    UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance(mappingService)));
     }
 }
