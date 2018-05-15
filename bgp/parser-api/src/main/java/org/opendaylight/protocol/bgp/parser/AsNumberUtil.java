@@ -12,6 +12,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 public final class AsNumberUtil {
 
@@ -39,5 +43,19 @@ public final class AsNumberUtil {
         }
         // Fallback to whatever is in the header
         return new AsNumber(open.getMyAsNumber().longValue());
+    }
+
+    /**
+     * @param dtc route container
+     * @param nid as node identifier
+     * @return as number
+     */
+    public static AsNumber extractAS(final DataContainerNode<?> dtc,
+            final NodeIdentifier nid) {
+        final NormalizedNode<?, ?> as = NormalizedNodes.findNode(dtc, nid).orElse(null);
+        if (as != null) {
+            return new AsNumber((Long) as.getValue());
+        }
+        return null;
     }
 }
