@@ -25,8 +25,7 @@ module bgp-mvpn-ipv4 {
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
         case destination-mvpn-ipv4-advertized-case {
-            container destination-advertized-mvpn {
-                when "../../afi = ipv4";
+            container destination-mvpn {
                 uses mvpn-destination;
             }
         }
@@ -34,8 +33,7 @@ module bgp-mvpn-ipv4 {
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
         case destination-mvpn-ipv4-withdrawn-case {
-            container destination-withdrawn-mvpn {
-                 when "../../afi = ipv4";
+            container destination-mvpn {
                 uses mvpn-destination;
             }
         }

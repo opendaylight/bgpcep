@@ -22,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  * @author Claudio D. Gasparini
  */
 final class CMulticastUtil {
-
     private CMulticastUtil() {
         throw new UnsupportedOperationException();
     }

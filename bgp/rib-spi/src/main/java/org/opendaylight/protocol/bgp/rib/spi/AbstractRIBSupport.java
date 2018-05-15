@@ -54,6 +54,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -83,6 +84,8 @@ public abstract class AbstractRIBSupport<
     private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
+    private static final InstanceIdentifier LOC_RIB_NII = InstanceIdentifier.create(BgpRib.class)
+            .child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private final NodeIdentifier routesContainerIdentifier;
@@ -102,13 +105,16 @@ public abstract class AbstractRIBSupport<
     private final QName routeKeyQname;
     private final NodeIdentifier prefixTypeNid;
     private final NodeIdentifier rdNid;
-    private final BindingNormalizedNodeSerializer mappingService;
+    protected final BindingNormalizedNodeSerializer mappingService;
+    protected final InstanceIdentifier<Tables> tablesIId;
+    protected final InstanceIdentifier<DataObject> routeIid;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
+     *
      * @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass   Binding class of the container in routes choice, must not be null.
      * @param listClass        Binding class of the route list, nust not be null;
@@ -124,25 +130,23 @@ public abstract class AbstractRIBSupport<
             final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
             final QName destinationQname) {
-        final QName qname = BindingReflections.findQName(containerClass).intern();
-        this.routesContainerIdentifier = new NodeIdentifier(qname);
-        this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname,
-                Attributes.QNAME.getLocalName().intern()));
+        final QNameModule module = BindingReflections.getQNameModule(cazeClass);
+        this.routesContainerIdentifier
+                = new NodeIdentifier(BindingReflections.findQName(containerClass).withModule(module));
+        this.routeAttributesIdentifier = new NodeIdentifier(Attributes.QNAME.withModule(module));
         this.cazeClass = requireNonNull(cazeClass);
         this.mappingService = requireNonNull(mappingService);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
-        this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
+        this.routeQname = BindingReflections.findQName(listClass).withModule(module);
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
 
         final TablesKey tk = new TablesKey(afiClass, safiClass);
-        //FIXME Use Route Iid instead of Tables.
-        final InstanceIdentifier<Tables> routeIID = InstanceIdentifier.create(BgpRib.class)
-                .child(Rib.class, new RibKey(requireNonNull(new RibId("rib"))))
-                .child(LocRib.class)
-                .child(Tables.class, tk);
+        this.tablesIId = LOC_RIB_NII.child(Tables.class, tk);
+        this.routeIid = this.tablesIId.child((Class) this.containerClass);
+        //FIXME Use Route Case IId instead of Tables IId.
         this.emptyRoutes = (ChoiceNode) ((MapEntryNode) this.mappingService
-                .toNormalizedNode(routeIID, new TablesBuilder().setKey(tk)
+                .toNormalizedNode(this.tablesIId, new TablesBuilder().setKey(tk)
                         .setRoutes(emptyRoutesCase()).build()).getValue())
                 .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
         this.afiClass = afiClass;
