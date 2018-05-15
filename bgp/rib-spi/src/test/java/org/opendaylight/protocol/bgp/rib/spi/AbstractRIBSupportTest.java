@@ -157,7 +157,7 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
 
     private InstanceIdentifier<DataObject> routesIId() {
         final InstanceIdentifier<Tables> tables = tablesIId();
-        return tables.child((Class) this.abstractRIBSupport.routesContainerClass());
+        return tables.child(this.abstractRIBSupport.routesContainerClass());
     }
 
     protected final YangInstanceIdentifier getTablePath() {
@@ -183,8 +183,8 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
     }
 
     private QName getRouteListQname() {
-        return QName.create(BindingReflections.findQName(this.abstractRIBSupport.routesContainerClass()),
-                BindingReflections.findQName(this.abstractRIBSupport.routesListClass()).intern().getLocalName());
+        return BindingReflections.findQName(this.abstractRIBSupport.routesListClass())
+                .withModule(BindingReflections.getQNameModule(this.abstractRIBSupport.routesCaseClass()));
     }
 
     protected final NodeIdentifierWithPredicates createRouteNIWP(final DataObject routes) {

@@ -34,10 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
@@ -54,6 +52,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -83,6 +82,8 @@ public abstract class AbstractRIBSupport<
     private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
+    private static final InstanceIdentifier TABLES_II = InstanceIdentifier.create(BgpRib.class)
+            .child(Rib.class).child(LocRib.class).child(Tables.class);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private final NodeIdentifier routesContainerIdentifier;
@@ -102,19 +103,22 @@ public abstract class AbstractRIBSupport<
     private final QName routeKeyQname;
     private final NodeIdentifier prefixTypeNid;
     private final NodeIdentifier rdNid;
-    private final BindingNormalizedNodeSerializer mappingService;
+    protected final BindingNormalizedNodeSerializer mappingService;
+    protected final YangInstanceIdentifier routeDefaultYii;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
+     *
+     * @param mappingService   Serialization service
      * @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass   Binding class of the container in routes choice, must not be null.
      * @param listClass        Binding class of the route list, nust not be null;
      * @param afiClass         address Family Class
      * @param safiClass        SubsequentAddressFamily
-     * @param destinationQname destination Qname
+     * @param destContainerQname destination Container Qname
      */
     protected AbstractRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
@@ -123,36 +127,43 @@ public abstract class AbstractRIBSupport<
             final Class<R> listClass,
             final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
-            final QName destinationQname) {
-        final QName qname = BindingReflections.findQName(containerClass).intern();
-        this.routesContainerIdentifier = new NodeIdentifier(qname);
-        this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname,
-                Attributes.QNAME.getLocalName().intern()));
+            final QName destContainerQname) {
+        final QNameModule module = BindingReflections.getQNameModule(cazeClass);
+        this.routesContainerIdentifier
+                = new NodeIdentifier(BindingReflections.findQName(containerClass).withModule(module));
+        this.routeAttributesIdentifier = new NodeIdentifier(Attributes.QNAME.withModule(module));
         this.cazeClass = requireNonNull(cazeClass);
         this.mappingService = requireNonNull(mappingService);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
-        this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
+        this.routeQname = BindingReflections.findQName(listClass).withModule(module);
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
-
         final TablesKey tk = new TablesKey(afiClass, safiClass);
-        //FIXME Use Route Iid instead of Tables.
-        final InstanceIdentifier<Tables> routeIID = InstanceIdentifier.create(BgpRib.class)
-                .child(Rib.class, new RibKey(requireNonNull(new RibId("rib"))))
-                .child(LocRib.class)
-                .child(Tables.class, tk);
+        //FIXME Use Route Case IId instead of Tables IId.
         this.emptyRoutes = (ChoiceNode) ((MapEntryNode) this.mappingService
-                .toNormalizedNode(routeIID, new TablesBuilder().setKey(tk)
+                .toNormalizedNode(TABLES_II, new TablesBuilder().setKey(tk)
                         .setRoutes(emptyRoutesCase()).build()).getValue())
                 .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
-        this.destinationNid = new NodeIdentifier(destinationQname);
+        this.destinationNid = new NodeIdentifier(destContainerQname);
         this.pathIdQname = QName.create(routeQName(), "path-id").intern();
         this.pathIdNid = new NodeIdentifier(this.pathIdQname);
         this.routeKeyQname = QName.create(routeQName(), ROUTE_KEY).intern();
-        this.prefixTypeNid = NodeIdentifier.create(QName.create(destinationQname, "prefix").intern());
-        this.rdNid = NodeIdentifier.create(QName.create(destinationQname, "route-distinguisher").intern());
+        this.prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
+        this.rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
+        this.routeDefaultYii =
+                YangInstanceIdentifier.builder()
+                        .node(BgpRib.QNAME)
+                        .node(Rib.QNAME)
+                        .node(Rib.QNAME)
+                        .node(LocRib.QNAME)
+                        .node(Tables.QNAME)
+                        .node(Tables.QNAME)
+                        .node(Routes.QNAME)
+                        .node(BindingReflections.findQName(containerClass).withModule(module))
+                        .node(this.routeQname)
+                        .node(this.routeQname).build();
     }
 
     @Override

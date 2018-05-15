@@ -31,7 +31,9 @@ module bgp-mvpn {
     }
 
     identity mcast-vpn-subsequent-address-family {
+        description "SAFI 5 MCAST-VPN";
         reference "https://www.iana.org/assignments/safi-namespace/safi-namespace.xhtml";
+
         base bgp-t:subsequent-address-family;
     }
 
@@ -146,8 +148,6 @@ module bgp-mvpn {
             description "https://tools.ietf.org/html/rfc6514#section-4.5";
 
             uses multicast-source-rd-grouping;
-            uses source-as-grouping;
-
             leaf multicast-group {
                 type inet:ip-address;
             }

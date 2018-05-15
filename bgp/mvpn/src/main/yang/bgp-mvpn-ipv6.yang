@@ -16,7 +16,7 @@ module bgp-mvpn-ipv6 {
     grouping mvpn-destination {
         list mvpn-destination {
             uses mvpn:mvpn;
-            leaf ipv6-prefix {
+            leaf prefix {
                 type inet:ipv6-prefix;
             }
             uses bgp-msg:path-id-grouping;
@@ -25,8 +25,7 @@ module bgp-mvpn-ipv6 {
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
         case destination-mvpn-ipv6-advertized-case {
-            container destination-advertized-mvpn {
-                when "../../afi = ipv6";
+            container destination-mvpn {
                 uses mvpn-destination;
             }
         }
@@ -34,8 +33,7 @@ module bgp-mvpn-ipv6 {
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
         case destination-mvpn-ipv6-withdrawn-case {
-            container destination-withdrawn-mvpn {
-                 when "../../afi = ipv6";
+            container destination-mvpn {
                 uses mvpn-destination;
             }
         }
