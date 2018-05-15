@@ -8,15 +8,13 @@
 
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
-import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.extractOrigRouteIp;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEsiTypeRegistry;
-import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.es.route.EsRoute;
@@ -40,7 +38,7 @@ final class EthSegRParser extends AbstractEvpnNlri {
             "Wrong length of array of bytes. Passed: %s ;", buffer);
 
         final Esi esi = SimpleEsiTypeRegistry.getInstance().parseEsi(buffer.readSlice(ESI_SIZE));
-        final IpAddress ip = requireNonNull(parseOrigRouteIp(buffer));
+        final IpAddress ip = IpAddressUtil.addressForByteBuf(buffer);
 
         final EsRouteBuilder builder = new EsRouteBuilder().setEsi(esi).setOrigRouteIp(ip);
         return new EsRouteCaseBuilder().setEsRoute(builder.build()).build();
@@ -58,7 +56,7 @@ final class EthSegRParser extends AbstractEvpnNlri {
         final EsRoute evpn = ((EsRouteCase) evpnInput).getEsRoute();
         final ByteBuf body = Unpooled.buffer();
         SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
-        final ByteBuf orig = serializeOrigRouteIp(evpn.getOrigRouteIp());
+        final ByteBuf orig = IpAddressUtil.bytesFor(evpn.getOrigRouteIp());
         Preconditions.checkArgument(orig.readableBytes() > 0);
         body.writeBytes(orig);
         return body;
@@ -75,29 +73,5 @@ final class EthSegRParser extends AbstractEvpnNlri {
         builder.setEsi(serializeEsi(evpn));
         builder.setOrigRouteIp(extractOrigRouteIp(evpn));
         return new EsRouteCaseBuilder().setEsRoute(builder.build()).build();
-    }
-
-    static IpAddress parseOrigRouteIp(final ByteBuf buffer) {
-        final int ipLength = buffer.readUnsignedByte();
-        if (ipLength == Ipv6Util.IPV6_BITS_LENGTH) {
-            return new IpAddress(Ipv6Util.addressForByteBuf(buffer));
-        } else if (ipLength == Ipv4Util.IP4_BITS_LENGTH) {
-            return new IpAddress(Ipv4Util.addressForByteBuf(buffer));
-        }
-        return null;
-    }
-
-    static ByteBuf serializeOrigRouteIp(final IpAddress origRouteIp) {
-        final ByteBuf body = Unpooled.buffer();
-        if (origRouteIp.getIpv4Address() != null) {
-            body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
-            body.writeBytes(Ipv4Util.bytesForAddress(origRouteIp.getIpv4Address()));
-        } else if (origRouteIp.getIpv6Address() != null) {
-            body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
-            body.writeBytes(Ipv6Util.bytesForAddress(origRouteIp.getIpv6Address()));
-        } else {
-            body.writeZero(ZERO_BYTE);
-        }
-        return body;
     }
 }
