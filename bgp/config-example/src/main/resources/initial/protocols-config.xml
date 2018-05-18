@@ -14,7 +14,7 @@
         <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
             <global>
                 <config>
-                    <router-id>192.0.2.2</router-id>
+                    <router-id>127.0.0.1</router-id>
                     <as>64496</as>
                     <!-- if cluster-id is not present, it's value is the same as bgp-id -->
                     <!-- <route-reflector-cluster-id>192.0.2.3</route-reflector-cluster-id> -->
@@ -77,27 +77,14 @@
             </global>
             <neighbors>
                 <neighbor>
-                    <neighbor-address>192.0.2.1</neighbor-address>
+                    <neighbor-address>127.0.0.2</neighbor-address>
                     <config>
                         <peer-group>/bgp/neighbors/neighbor/bgp/peer-groups/peer-group[peer-group-name="internal-neighbor"]</peer-group>
                     </config>
                     <transport>
                         <config>
                             <remote-port>179</remote-port>
-                            <passive-mode>true</passive-mode>
-                        </config>
-                    </transport>
-                </neighbor>
-                <neighbor>
-                    <neighbor-address>192.0.2.5</neighbor-address>
-                    <config>
-                        <peer-group>/bgp/neighbors/neighbor/bgp/peer-groups/peer-group[peer-group-name="external-neighbor"]</peer-group>
-                        <local-as>65001</local-as>
-                    </config>
-                    <transport>
-                        <config>
-                            <remote-port>179</remote-port>
-                            <passive-mode>true</passive-mode>
+                            <passive-mode>false</passive-mode>
                         </config>
                     </transport>
                 </neighbor>
