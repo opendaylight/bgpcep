@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.McastVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
@@ -54,10 +55,12 @@ final class BGPTestTool {
     void start(final Arguments arguments) {
         final BGPDispatcher dispatcher = initializeActivator();
 
-        final ArrayList<OptionalCapabilities> optCap = Lists.newArrayList(createMPCapability(Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class),
-            createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
-                createAs4BytesMPCapability(arguments.getAs()));
+        final ArrayList<OptionalCapabilities> optCap = Lists.newArrayList(
+                createMPCapability(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
+                createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
+                createMPCapability(Ipv4AddressFamily.class, McastVpnSubsequentAddressFamily.class),
+                createAs4BytesMPCapability(arguments.getAs())
+        );
         if (arguments.getMultiPathSupport()) {
             optCap.add(createAddPathCapability());
         }
@@ -108,6 +111,10 @@ final class BGPTestTool {
         final org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator bgpIpv6Activator
                 = new org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator();
         bgpIpv6Activator.start(ctx);
+
+        final org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator mvpnActivator
+                = new org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator();
+        mvpnActivator.start(ctx);
 
         return new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup(),
             new StrictBGPPeerRegistry());
