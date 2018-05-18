@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -36,26 +35,19 @@ import org.slf4j.LoggerFactory;
 /**
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
-abstract class AbstractIPRibSupport<
-        C extends Routes & DataObject,
-        S extends DataObject,
-        R extends Route,
-        N extends Identifier>
-        extends AbstractRIBSupport<C, S, R, N> {
+abstract class AbstractIPRibSupport<R extends Route, N extends Identifier>
+        extends AbstractRIBSupport<R,N> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;
     private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
 
-    AbstractIPRibSupport(
-            final BindingNormalizedNodeSerializer mappingService,
-            final Class<? extends DataObject> prefixClass,
+    AbstractIPRibSupport(final Class<? extends DataObject> prefixClass,
             final Class<? extends AddressFamily> addressFamilyClass,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
-            final Class<R> listClass,
+            final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
             final QName destinationQname, final QName prefixesQname) {
-        super(mappingService, cazeClass, containerClass, listClass, addressFamilyClass,
+        super(cazeClass, containerClass, listClass, addressFamilyClass,
                 UnicastSubsequentAddressFamily.class, destinationQname);
         this.nlriRoutesList = new NodeIdentifier(prefixesQname);
         this.cacheableNlriObjects = ImmutableSet.of(prefixClass);

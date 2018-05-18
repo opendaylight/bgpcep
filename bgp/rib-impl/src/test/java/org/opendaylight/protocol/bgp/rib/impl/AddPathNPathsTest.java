@@ -47,7 +47,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
                 this.peerTracker, TABLES_TYPE,  pathTables);
 
         this.ribImpl.instantiateServiceInstance();
-        this.ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
+        this.ribImpl.onGlobalContextUpdated(this.schemaContext);
         final ChannelFuture channelFuture = this.serverDispatcher.createServer(new InetSocketAddress(RIB_ID, PORT));
         waitFutureSuccess(channelFuture);
         this.serverChannel = channelFuture.channel();

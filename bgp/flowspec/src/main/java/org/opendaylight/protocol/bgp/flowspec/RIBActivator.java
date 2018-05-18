@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4.FlowspecL3vpnIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv6.FlowspecL3vpnIpv6RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
@@ -29,18 +28,16 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     }
 
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(
-            final RIBExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
-        final List<AutoCloseable> regs = new ArrayList<>(4);
-        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class,
-                FlowspecIpv4RIBSupport.getInstance(this.fsContext, mappingService)));
-        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class,
-                FlowspecIpv6RIBSupport.getInstance(this.fsContext, mappingService)));
-        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
-                FlowspecL3vpnIpv4RIBSupport.getInstance(this.fsContext, mappingService)));
-        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
-                FlowspecL3vpnIpv6RIBSupport.getInstance(this.fsContext, mappingService)));
+    protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
+        final List<AutoCloseable> regs = new ArrayList<>();
+        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class,
+                FlowspecSubsequentAddressFamily.class, FlowspecIpv4RIBSupport.getInstance(this.fsContext)));
+        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class,
+                FlowspecSubsequentAddressFamily.class, FlowspecIpv6RIBSupport.getInstance(this.fsContext)));
+        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class,
+                FlowspecL3vpnSubsequentAddressFamily.class, FlowspecL3vpnIpv4RIBSupport.getInstance(this.fsContext)));
+        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class,
+                FlowspecL3vpnSubsequentAddressFamily.class, FlowspecL3vpnIpv6RIBSupport.getInstance(this.fsContext)));
         return regs;
     }
 }

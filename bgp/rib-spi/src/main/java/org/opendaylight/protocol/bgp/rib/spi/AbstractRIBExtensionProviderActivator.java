@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,17 +22,13 @@ public abstract class AbstractRIBExtensionProviderActivator implements AutoClose
     private List<AutoCloseable> registrations;
 
     @GuardedBy("this")
-    protected abstract List<AutoCloseable> startRIBExtensionProviderImpl(
-            RIBExtensionProviderContext context,
-            BindingNormalizedNodeSerializer mappingService);
+    protected abstract List<AutoCloseable> startRIBExtensionProviderImpl(RIBExtensionProviderContext context);
 
     @Override
-    public final synchronized void startRIBExtensionProvider(
-            final RIBExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
+    public final synchronized void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
         Preconditions.checkState(this.registrations == null);
 
-        this.registrations = requireNonNull(startRIBExtensionProviderImpl(context, mappingService));
+        this.registrations = requireNonNull(startRIBExtensionProviderImpl(context));
     }
 
     @Override

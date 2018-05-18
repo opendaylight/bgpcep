@@ -7,11 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import java.util.Collections;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.peer.effective.rib.in.tables.routes.FlowspecIpv6RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv6.DestinationFlowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.route.FlowspecRouteBuilder;
@@ -20,25 +18,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.routes.FlowspecIpv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 
-public final class FlowspecIpv6RIBSupport
-        extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv6NlriParser,
-        FlowspecIpv6RoutesCase,
-        FlowspecIpv6Routes,
-        FlowspecRoute,
-        FlowspecRouteKey> {
-    private static final FlowspecIpv6Routes EMPTY_CONTAINER
-            = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Collections.emptyList()).build();
-    private static final FlowspecIpv6RoutesCase EMPTY_CASE = new FlowspecIpv6RoutesCaseBuilder()
-            .setFlowspecIpv6Routes(EMPTY_CONTAINER).build();
-    private static FlowspecIpv6RIBSupport SINGLETON;
+public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv6NlriParser,
+        FlowspecRoute, FlowspecRouteKey> {
 
-    private FlowspecIpv6RIBSupport(
-            SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
+    public FlowspecIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
         super(
-                mappingService,
                 FlowspecIpv6RoutesCase.class,
                 FlowspecIpv6Routes.class,
                 FlowspecRoute.class,
@@ -51,13 +38,8 @@ public final class FlowspecIpv6RIBSupport
         );
     }
 
-    static synchronized FlowspecIpv6RIBSupport getInstance(
-            SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
-        if(SINGLETON == null){
-            SINGLETON = new FlowspecIpv6RIBSupport(context, mappingService);
-        }
-        return SINGLETON;
+    static FlowspecIpv6RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
+        return new FlowspecIpv6RIBSupport(context);
     }
 
     @Override
@@ -73,13 +55,9 @@ public final class FlowspecIpv6RIBSupport
     }
 
     @Override
-    public FlowspecIpv6RoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
-    public FlowspecIpv6Routes emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
+    public Routes emptyRoutesContainer() {
+        return new FlowspecIpv6RoutesCaseBuilder()
+                .setFlowspecIpv6Routes(new FlowspecIpv6RoutesBuilder().build()).build();
     }
 
     @Override

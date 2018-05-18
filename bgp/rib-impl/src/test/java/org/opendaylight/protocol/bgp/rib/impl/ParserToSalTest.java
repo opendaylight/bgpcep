@@ -93,8 +93,8 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         this.baseact = new RIBActivator();
         this.lsact = new org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator();
 
-        this.baseact.startRIBExtensionProvider(this.ext1, this.mappingService);
-        this.lsact.startRIBExtensionProvider(this.ext2, this.mappingService);
+        this.baseact.startRIBExtensionProvider(this.ext1);
+        this.lsact.startRIBExtensionProvider(this.ext2);
         this.codecsRegistry = CodecsRegistryImpl.create(this.bindingCodecTreeFactory,
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
     }

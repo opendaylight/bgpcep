@@ -14,9 +14,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>binding-parent</artifactId>
+        <artifactId>bgpcep-parent</artifactId>
         <version>0.10.0-SNAPSHOT</version>
-        <relativePath>../../binding-parent</relativePath>
+        <relativePath>../../parent</relativePath>
     </parent>
 
     <artifactId>bgp-rib-spi</artifactId>
@@ -112,17 +112,6 @@
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-dom-adapter</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-broker-impl</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-broker-impl</artifactId>
-            <scope>test</scope>
-            <type>test-jar</type>
         </dependency>
     </dependencies>
 

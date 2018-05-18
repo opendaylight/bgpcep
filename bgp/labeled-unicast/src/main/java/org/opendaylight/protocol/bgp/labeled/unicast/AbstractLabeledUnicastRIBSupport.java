@@ -17,12 +17,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.LabeledUnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.LabelStack;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.LabelStackBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.destination.CLabeledUnicastDestination;
@@ -32,8 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -50,10 +50,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractLabeledUnicastRIBSupport<
-        C extends Routes & DataObject,
-        S extends DataObject>
-        extends AbstractRIBSupport<C, S, LabeledUnicastRoute, LabeledUnicastRouteKey> {
+abstract class AbstractLabeledUnicastRIBSupport
+        extends AbstractRIBSupport<LabeledUnicastRoute, LabeledUnicastRouteKey> {
     private static final NodeIdentifier LABEL_STACK_NID
             = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
     private static final NodeIdentifier LV_NID
@@ -66,25 +64,20 @@ abstract class AbstractLabeledUnicastRIBSupport<
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
-     * @param mappingService  Binding Normalized Node Serializer
-     * @param cazeClass Binding class of the AFI/SAFI-specific case statement, must not be null
+     *  @param cazeClass Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass Binding class of the container in routes choice, must not be null.
+     * @param listClass Binding class of the route list, nust not be null;
      * @param addressFamilyClass address Family Class
+     * @param safiClass SubsequentAddressFamily
      * @param destinationQname destination Qname
      */
-    AbstractLabeledUnicastRIBSupport(
-            final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
+    AbstractLabeledUnicastRIBSupport(final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass,
+            final Class<? extends Route> listClass,
             final Class<? extends AddressFamily> addressFamilyClass,
+            final Class<? extends SubsequentAddressFamily> safiClass,
             final QName destinationQname) {
-        super(mappingService,
-                cazeClass,
-                containerClass,
-                LabeledUnicastRoute.class,
-                addressFamilyClass,
-                LabeledUnicastSubsequentAddressFamily.class,
-                destinationQname);
+        super(cazeClass, containerClass, listClass, addressFamilyClass, safiClass, destinationQname);
     }
 
     @Override

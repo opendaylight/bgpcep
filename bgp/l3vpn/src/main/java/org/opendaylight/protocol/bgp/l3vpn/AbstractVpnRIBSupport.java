@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
 import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -27,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
@@ -51,8 +51,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S extends DataObject>
-        extends AbstractRIBSupport<C, S, VpnRoute, VpnRouteKey> {
+public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport<VpnRoute, VpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesListNid;
     private final NodeIdentifier labelStackNid;
@@ -66,14 +65,12 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
      *
      * @param cazeClass      Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass Binding class of the container in routes choice, must not be null.
+     * @param listClass      Binding class of the route list, nust not be null;
      */
-    protected AbstractVpnRIBSupport(
-            final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
-            final Class<? extends AddressFamily> afiClass,
-            final QName vpnDstContainerClassQname) {
-        super(mappingService, cazeClass, containerClass, VpnRoute.class, afiClass,
+    protected AbstractVpnRIBSupport(final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
+        final Class<? extends AddressFamily> afiClass, final QName vpnDstContainerClassQname) {
+        super(cazeClass, containerClass, listClass, afiClass,
                 MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
         final QName classQname = BindingReflections.findQName(containerClass).intern();
         final QName vpnDstClassQname = QName.create(classQname, VpnDestination.QNAME.getLocalName());

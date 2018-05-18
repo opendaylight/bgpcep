@@ -8,12 +8,9 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import javax.annotation.Nonnull;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 
 public interface RIBExtensionProviderActivator {
-    void startRIBExtensionProvider(
-            @Nonnull RIBExtensionProviderContext context,
-            @Nonnull BindingNormalizedNodeSerializer mappingService);
+    void startRIBExtensionProvider(@Nonnull RIBExtensionProviderContext context);
 
     void stopRIBExtensionProvider();
 }

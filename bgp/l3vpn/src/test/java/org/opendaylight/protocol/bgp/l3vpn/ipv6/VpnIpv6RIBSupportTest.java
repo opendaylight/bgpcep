@@ -47,8 +47,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnRoute> {
-    private VpnIpv6RIBSupport ribSupport;
+public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest {
+    private static final VpnIpv6RIBSupport RIB_SUPPORT = new VpnIpv6RIBSupport();
 
     private static final DestinationVpnIpv6Case REACH_NLRI = new DestinationVpnIpv6CaseBuilder()
             .setVpnIpv6Destination(new VpnIpv6DestinationBuilder()
@@ -70,20 +70,20 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnRoute> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = VpnIpv6RIBSupport.getInstance(this.mappingService);
-        setUpTestCustomizer(this.ribSupport);
+        setUpTestCustomizer(RIB_SUPPORT);
     }
 
     @Test
     public void testDeleteRoutes() {
-        this.ribSupport.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final InstanceIdentifier<VpnRoute> instanceIdentifier = this.deletedRoutes.get(0);
+        RIB_SUPPORT.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
+        @SuppressWarnings("unchecked") final InstanceIdentifier<VpnRoute> instanceIdentifier =
+                (InstanceIdentifier<VpnRoute>) this.deletedRoutes.get(0);
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(VpnRoute.class));
     }
 
     @Test
     public void testPutRoutes() {
-        this.ribSupport.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        RIB_SUPPORT.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
         final VpnRoute route = (VpnRoute) this.insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }
@@ -92,13 +92,13 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnRoute> {
     public void testEmptyRoute() {
         final Routes empty = new VpnIpv6RoutesCaseBuilder().setVpnIpv6Routes(new VpnIpv6RoutesBuilder()
                 .setVpnRoute(Collections.emptyList()).build()).build();
-        final ChoiceNode emptyRoutes = this.ribSupport.emptyRoutes();
+        final ChoiceNode emptyRoutes = RIB_SUPPORT.emptyRoutes();
         assertEquals(createRoutes(empty), emptyRoutes);
     }
 
     @Test
     public void testBuildMpUnreachNlriUpdate() {
-        final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
+        final Update update = RIB_SUPPORT.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().getAugmentation(Attributes2.class)
                 .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().getAugmentation(Attributes1.class));
@@ -106,7 +106,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnRoute> {
 
     @Test
     public void testBuildMpReachNlriUpdate() {
-        final Update update = this.ribSupport.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
+        final Update update = RIB_SUPPORT.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
         assertEquals(REACH_NLRI, update.getAttributes().getAugmentation(Attributes1.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().getAugmentation(Attributes2.class));
@@ -114,45 +114,45 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnRoute> {
 
     @Test
     public void testCacheableNlriObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableNlriObjects());
+        assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
+        assertEquals(ImmutableSet.of(), RIB_SUPPORT.cacheableAttributeObjects());
     }
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(0L, ROUTE_KEY.getRouteKey()));
+        Assert.assertEquals(ROUTE_KEY, RIB_SUPPORT.createRouteListKey(0L, ROUTE_KEY.getRouteKey()));
     }
 
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
         assertEquals(getRoutePath().node(prefixNii),
-                this.ribSupport.routePath(getTablePath().node(Routes.QNAME), prefixNii));
+                RIB_SUPPORT.routePath(getTablePath().node(Routes.QNAME), prefixNii));
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
         assertEquals(new NodeIdentifier(QName.create(VpnIpv6Routes.QNAME,
-                Attributes.QNAME.getLocalName().intern())), this.ribSupport.routeAttributesIdentifier());
+                Attributes.QNAME.getLocalName().intern())), RIB_SUPPORT.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        assertEquals(VpnIpv6RoutesCase.class, this.ribSupport.routesCaseClass());
+        assertEquals(VpnIpv6RoutesCase.class, RIB_SUPPORT.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        assertEquals(VpnIpv6Routes.class, this.ribSupport.routesContainerClass());
+        assertEquals(VpnIpv6Routes.class, RIB_SUPPORT.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        assertEquals(VpnRoute.class, this.ribSupport.routesListClass());
+        assertEquals(VpnRoute.class, RIB_SUPPORT.routesListClass());
     }
 
     @Test
@@ -160,16 +160,16 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnRoute> {
         final Routes emptyCase = new VpnIpv6RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new VpnIpv6RoutesCaseBuilder()
                 .setVpnIpv6Routes(new VpnIpv6RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(RIB_SUPPORT.changedRoutes(tree).isEmpty());
 
         final Routes routes = new VpnIpv6RoutesCaseBuilder().setVpnIpv6Routes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = RIB_SUPPORT.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

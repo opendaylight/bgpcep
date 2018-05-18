@@ -11,12 +11,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -25,7 +23,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.peer.effective.rib.in.tables.routes.LinkstateRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.routes.LinkstateRoutesBuilder;
@@ -38,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -49,33 +48,18 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class LinkstateRIBSupport
-        extends AbstractRIBSupport<LinkstateRoutesCase, LinkstateRoutes, LinkstateRoute, LinkstateRouteKey> {
+public final class LinkstateRIBSupport extends AbstractRIBSupport<LinkstateRoute, LinkstateRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
-
-    private static final LinkstateRoutes EMPTY_CONTAINER
-            = new LinkstateRoutesBuilder().setLinkstateRoute(Collections.emptyList()).build();
-    private static final LinkstateRoutesCase EMPTY_CASE
-            = new LinkstateRoutesCaseBuilder().setLinkstateRoutes(EMPTY_CONTAINER).build();
-    private static LinkstateRIBSupport SINGLETON;
+    private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
     private final YangInstanceIdentifier.NodeIdentifier nlriRoutesList
             = new YangInstanceIdentifier.NodeIdentifier(CLinkstateDestination.QNAME);
 
-    private LinkstateRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
-        super(
-                mappingService,
-                LinkstateRoutesCase.class,
-                LinkstateRoutes.class,
-                LinkstateRoute.class,
-                LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class,
-                DestinationLinkstate.QNAME);
+    private LinkstateRIBSupport() {
+        super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class, LinkstateAddressFamily.class,
+                LinkstateSubsequentAddressFamily.class, DestinationLinkstate.QNAME);
     }
 
-    public synchronized static LinkstateRIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if(SINGLETON == null){
-            SINGLETON = new LinkstateRIBSupport(mappingService);
-        }
+    public static LinkstateRIBSupport getInstance() {
         return SINGLETON;
     }
 
@@ -145,17 +129,12 @@ public final class LinkstateRIBSupport
         } else {
             builder = new LinkstateRouteBuilder();
         }
-        return builder.setKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+        return builder.setKey(new LinkstateRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
     }
 
     @Override
-    public LinkstateRoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
-    public LinkstateRoutes emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
+    public Routes emptyRoutesContainer() {
+        return new LinkstateRoutesCaseBuilder().setLinkstateRoutes(new LinkstateRoutesBuilder().build()).build();
     }
 
     @Override

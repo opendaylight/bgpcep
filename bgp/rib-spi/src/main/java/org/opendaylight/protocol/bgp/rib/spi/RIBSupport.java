@@ -40,11 +40,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport<
-        C extends Routes & DataObject,
-        S extends DataObject,
-        R extends Route,
-        I extends Identifier> {
+public interface RIBSupport<R extends Route, N extends Identifier> extends AddPathRibSupport {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -70,7 +66,7 @@ public interface RIBSupport<
      * @return Class
      */
     @Nonnull
-    Class<C> routesCaseClass();
+    Class<? extends Routes> routesCaseClass();
 
     /**
      * Return class object of the Routes Container statement.
@@ -78,7 +74,7 @@ public interface RIBSupport<
      * @return Class
      */
     @Nonnull
-    Class<S> routesContainerClass();
+    Class<? extends DataObject> routesContainerClass();
 
     /**
      * Return class object of the Routes List statement.
@@ -86,7 +82,7 @@ public interface RIBSupport<
      * @return Class
      */
     @Nonnull
-    Class<R> routesListClass();
+    Class<? extends Route> routesListClass();
 
     @Nonnull
     default ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
@@ -222,7 +218,7 @@ public interface RIBSupport<
     @Nonnull
     InstanceIdentifier<R> createRouteIdentifier(
             @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> tableKey,
-            @Nonnull I newRouteKey);
+            @Nonnull N newRouteKey);
 
     /**
      * Creates a route with new path Id and attributes.
@@ -250,18 +246,7 @@ public interface RIBSupport<
      * @return Protocol-specific case in the routes choice, may not be null.
      */
     @Nonnull
-    C emptyRoutesCase();
-
-    /**
-     * Return the table-type-specific empty routes container, as augmented into the
-     * bgp-peer model under /peer/effect-rib-in/tables/routes choice node/routes container. This needs to include all
-     * the skeleton nodes under which the individual routes will be stored.
-     *
-     * @return Protocol-specific container in the routes, may not be null.
-     */
-    @Nonnull
-    S emptyRoutesContainer();
-
+    Routes emptyRoutesContainer();
 
 
     /**
@@ -272,5 +257,5 @@ public interface RIBSupport<
      * @return route list Key (RouteKey + pathId)
      */
     @Nonnull
-    I createRouteListKey(@Nonnull long pathId, @Nonnull String routeKey);
+    N createRouteListKey(@Nonnull long pathId, @Nonnull String routeKey);
 }

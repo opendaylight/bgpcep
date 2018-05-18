@@ -14,17 +14,16 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 
-public class SimpleRIBExtensionProviderContextActivatorTest extends AbstractRIBActivatorTest {
+public class SimpleRIBExtensionProviderContextActivatorTest {
     private static boolean RIBACTIVATED;
 
     @Test
-    public void test() {
+    public void test() throws Exception {
         final List<RIBExtensionProviderActivator> extensionActivators = Collections.singletonList(new RibActivator());
         final SimpleRIBExtensionProviderContextActivator activator =
                 new SimpleRIBExtensionProviderContextActivator(new SimpleRIBExtensionProviderContext(),
-                        extensionActivators, this.mappingService);
+                        extensionActivators);
         activator.start();
         assertTrue(RIBACTIVATED);
         activator.close();
@@ -33,9 +32,7 @@ public class SimpleRIBExtensionProviderContextActivatorTest extends AbstractRIBA
 
     private static class RibActivator extends AbstractRIBExtensionProviderActivator {
         @Override
-        protected List<AutoCloseable> startRIBExtensionProviderImpl(
-                final RIBExtensionProviderContext context,
-                final BindingNormalizedNodeSerializer mappingService) {
+        protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
             RIBACTIVATED = true;
             return Collections.singletonList(() -> RIBACTIVATED = false);
         }

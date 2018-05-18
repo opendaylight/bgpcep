@@ -7,11 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import java.util.Collections;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecRoutesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.peer.effective.rib.in.tables.routes.FlowspecRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv4.DestinationFlowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv4.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv4.route.FlowspecRouteBuilder;
@@ -20,25 +18,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.routes.FlowspecRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 
-public final class FlowspecIpv4RIBSupport
-        extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv4NlriParser,
-        FlowspecRoutesCase,
-        FlowspecRoutes,
-        FlowspecRoute,
-        FlowspecRouteKey> {
-    private static final FlowspecRoutes EMPTY_CONTAINER
-            = new FlowspecRoutesBuilder().setFlowspecRoute(Collections.emptyList()).build();
-    private static final FlowspecRoutesCase EMPTY_CASE
-            = new FlowspecRoutesCaseBuilder().setFlowspecRoutes(EMPTY_CONTAINER).build();
-    private static FlowspecIpv4RIBSupport SINGLETON;
+public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv4NlriParser,
+        FlowspecRoute, FlowspecRouteKey> {
 
-    private FlowspecIpv4RIBSupport(
-            SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
+    public FlowspecIpv4RIBSupport(SimpleFlowspecExtensionProviderContext context) {
         super(
-                mappingService,
                 FlowspecRoutesCase.class,
                 FlowspecRoutes.class,
                 FlowspecRoute.class,
@@ -51,13 +38,9 @@ public final class FlowspecIpv4RIBSupport
         );
     }
 
-    static synchronized FlowspecIpv4RIBSupport getInstance(
-            SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
-        if(SINGLETON == null){
-            SINGLETON = new FlowspecIpv4RIBSupport(context, mappingService);
-        }
-        return SINGLETON;    }
+    static FlowspecIpv4RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
+        return new FlowspecIpv4RIBSupport(context);
+    }
 
     @Override
     public FlowspecRoute createRoute(final FlowspecRoute route, final String routeKey, final long pathId,
@@ -72,13 +55,8 @@ public final class FlowspecIpv4RIBSupport
     }
 
     @Override
-    public FlowspecRoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
-    public FlowspecRoutes emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
+    public Routes emptyRoutesContainer() {
+        return new FlowspecRoutesCaseBuilder().setFlowspecRoutes(new FlowspecRoutesBuilder().build()).build();
     }
 
     @Override

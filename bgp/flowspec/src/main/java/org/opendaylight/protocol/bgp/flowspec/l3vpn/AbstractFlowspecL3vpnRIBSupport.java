@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn;
 
 import com.google.common.collect.Iterables;
 import java.util.Collection;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecRIBSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecL3vpnSubsequentAddressFamily;
@@ -25,23 +24,18 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public abstract class AbstractFlowspecL3vpnRIBSupport
-        <T extends AbstractFlowspecL3vpnNlriParser,
-                C extends Routes & DataObject,
-                S extends DataObject,
-                R extends Route,
-                I extends Identifier>
-        extends AbstractFlowspecRIBSupport<T, C, S, R, I> {
+        <T extends AbstractFlowspecL3vpnNlriParser, R extends Route, S extends Identifier>
+        extends AbstractFlowspecRIBSupport<T, R, S> {
 
     protected AbstractFlowspecL3vpnRIBSupport(
-            final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
-            final Class<R> listClass,
+            final Class<? extends Routes> cazeClass,
+            final Class<? extends DataObject> containerClass,
+            final Class<? extends Route> listClass,
             final QName dstContainerClassQName,
             final Class<? extends AddressFamily> afiClass,
             final T flowspecNlriParser
     ) {
-        super(mappingService, cazeClass, containerClass, listClass, afiClass, FlowspecL3vpnSubsequentAddressFamily.class,
+        super(cazeClass, containerClass, listClass, afiClass, FlowspecL3vpnSubsequentAddressFamily.class,
                 dstContainerClassQName, flowspecNlriParser);
     }
 

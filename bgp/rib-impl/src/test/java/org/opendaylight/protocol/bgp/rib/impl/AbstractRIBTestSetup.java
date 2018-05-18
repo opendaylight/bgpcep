@@ -171,7 +171,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         localTables.add(new BgpTableTypeImpl(AFI, SAFI));
 
         this.a1 = new RIBActivator();
-        this.a1.startRIBExtensionProvider(context, this.mappingService);
+        this.a1.startRIBExtensionProvider(context);
 
         final CodecsRegistryImpl codecsRegistry = CodecsRegistryImpl.create(this.codecFactory,
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());

@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.evpn.impl;
 
 import java.util.Collections;
 import java.util.List;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EvpnSubsequentAddressFamily;
@@ -19,11 +18,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(
-            final RIBExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
+    protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
         return Collections.singletonList(context.registerRIBSupport(L2vpnAddressFamily.class,
                 EvpnSubsequentAddressFamily.class,
-                EvpnRibSupport.getInstance(mappingService)));
+                EvpnRibSupport.getInstance()));
     }
 }
