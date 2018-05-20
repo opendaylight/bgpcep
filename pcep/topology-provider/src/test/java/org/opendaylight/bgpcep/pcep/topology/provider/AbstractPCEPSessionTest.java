@@ -153,6 +153,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass().getGenericSuperclass())
             .getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, listenerFactory, RPC_TIMEOUT);
+        this.manager.setRuntimeRootRegistrator(this.registrator);
         startSessionManager();
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener,
             this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
@@ -160,7 +161,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected void startSessionManager() throws InterruptedException {
-        this.manager.setRuntimeRootRegistrator(this.registrator);
         this.manager.instantiateServiceInstance();
         final CountDownLatch lock = new CountDownLatch(1);
         this.manager.instantiateServiceInstance();
