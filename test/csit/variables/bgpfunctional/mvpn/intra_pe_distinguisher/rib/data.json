@@ -1,0 +1,41 @@
+{
+  "bgp-mvpn-ipv4:mvpn-routes-ipv4": {
+    "mvpn-route": [
+      {
+        "route-key": "AQwAAQECAwQBAgoKCgo=",
+        "path-id": 0,
+        "attributes": {
+          "ipv4-next-hop": {
+            "global": "127.1.1.1"
+          },
+          "multi-exit-disc": {
+            "med": 0
+          },
+          "as-path": {},
+          "pe-distinguisher-labels-attribute": {
+            "pe-distinguisher-label-attribute": [
+              {
+                "pe-address": "10.10.10.1",
+                "mpls-label": 20024
+              },
+              {
+                "pe-address": "10.10.20.2",
+                "mpls-label": 20028
+              }
+            ]
+          },
+          "origin": {
+            "value": "egp"
+          },
+          "local-pref": {
+            "pref": 100
+          }
+        },
+        "intra-as-i-pmsi-a-d": {
+          "route-distinguisher": "1.2.3.4:258",
+          "orig-route-ip": "10.10.10.10"
+        }
+      }
+    ]
+  }
+}

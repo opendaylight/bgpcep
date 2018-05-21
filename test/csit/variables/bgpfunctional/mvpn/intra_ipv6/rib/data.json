@@ -1,0 +1,27 @@
+{
+    "bgp-mvpn-ipv6:mvpn-routes-ipv6": {
+        "mvpn-route": [
+            {
+                "route-key": "AQwAAawQACwAZcCoZAE=",
+                "path-id": 0,
+                "intra-as-i-pmsi-a-d": {
+                    "route-distinguisher": "172.16.0.44:101",
+                    "orig-route-ip": "192.168.100.1"
+                },
+                "attributes": {
+                    "as-path": {
+                    },
+                    "ipv6-next-hop": {
+                        "global": "2001:db8:1::6"
+                    },
+                    "origin": {
+                        "value": "igp"
+                    },
+                    "local-pref": {
+                      "pref": 100
+                    }
+                }
+            }
+        ]
+    }
+}

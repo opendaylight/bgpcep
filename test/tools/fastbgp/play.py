@@ -156,6 +156,10 @@ def parse_arguments():
 Enabling this flag makes the script not decoding the update mesage, because of not\
 supported decoding for these elements."
     parser.add_argument("--evpn", default=False, action="store_true", help=str_help)
+    str_help = "Open message includes Multicast in MPLS/BGP IP VPNs arguments.\
+    Enabling this flag makes the script not decoding the update mesage, because of not\
+    supported decoding for these elements."
+    parser.add_argument("--mvpn", default=False, action="store_true", help=str_help)
     parser.add_argument("--wfr", default=10, type=int, help="Wait for read timeout")
     str_help = "Skipping well known attributes for update message"
     parser.add_argument("--skipattr", default=False, action="store_true", help=str_help)
@@ -355,6 +359,7 @@ class MessageGenerator(object):
         self.rfc4760 = args.rfc4760
         self.bgpls = args.bgpls
         self.evpn = args.evpn
+        self.mvpn = args.mvpn
         self.skipattr = args.skipattr
         # Default values when BGP-LS Attributes are used
         if self.bgpls:
@@ -823,6 +828,28 @@ class MessageGenerator(object):
             )
             optional_parameters_hex += optional_parameter_hex
 
+        if self.mvpn:
+            optional_parameter_hex = (
+                "\x02"  # Param type ("Capability Ad")
+                "\x06"  # Length (6 bytes)
+                "\x01"  # Multiprotocol extetension capability,
+                "\x04"  # Capability value length
+                "\x00\x01"  # AFI (IPV4)
+                "\x00"  # (reserved)
+                "\x05"  # SAFI (MCAST-VPN)
+            )
+            optional_parameters_hex += optional_parameter_hex
+            optional_parameter_hex = (
+                "\x02"  # Param type ("Capability Ad")
+                "\x06"  # Length (6 bytes)
+                "\x01"  # Multiprotocol extetension capability,
+                "\x04"  # Capability value length
+                "\x00\x02"  # AFI (IPV6)
+                "\x00"  # (reserved)
+                "\x05"  # SAFI (MCAST-VPN)
+            )
+            optional_parameters_hex += optional_parameter_hex
+
         optional_parameter_hex = (
             "\x02"  # Param type ("Capability Ad")
             "\x06"  # Length (6 bytes)
@@ -1278,7 +1305,7 @@ class ReadTracker(object):
     for idle waiting.
     """
 
-    def __init__(self, bgp_socket, timer, storage, evpn=False, wait_for_read=10):
+    def __init__(self, bgp_socket, timer, storage, evpn=False, mvpn=False, wait_for_read=10):
         """The reader initialisation.
 
         Arguments:
@@ -1286,6 +1313,7 @@ class ReadTracker(object):
             timer: timer to be used for scheduling
             storage: thread safe dict
             evpn: flag that evpn functionality is tested
+            mvpn: flag that mvpn functionality is tested
         """
         # References to outside objects.
         self.socket = bgp_socket
@@ -1308,6 +1336,7 @@ class ReadTracker(object):
         self.rx_activity_detected = True
         self.storage = storage
         self.evpn = evpn
+        self.mvpn = mvpn
         self.wfr = wait_for_read
 
     def read_message_chunk(self):
@@ -1318,6 +1347,7 @@ class ReadTracker(object):
         """
         # TODO: We could return the whole message, currently not needed.
         # We assume the socket is readable.
+        logger.info("READING MESSAGE")
         chunk_message = self.socket.recv(self.bytes_to_read)
         self.msg_in += chunk_message
         self.bytes_to_read -= len(chunk_message)
@@ -1516,6 +1546,11 @@ class ReadTracker(object):
             logger.debug("Skipping update decoding due to evpn data expected")
             return
 
+        logger.debug("Mvpn {}".format(self.mvpn))
+        if self.mvpn:
+            logger.debug("Skipping update decoding due to mvpn data expected")
+            return
+
         if msg_type == 2:
             logger.debug("Message type: 0x%s (update)",
                          binascii.b2a_hex(msg_type_hex))
@@ -1680,7 +1715,8 @@ class StateTracker(object):
         self.generator = generator
         self.timer = timer
         # Sub-trackers.
-        self.reader = ReadTracker(bgp_socket, timer, storage, evpn=cliargs.evpn, wait_for_read=cliargs.wfr)
+        self.reader = ReadTracker(bgp_socket, timer, storage, evpn=cliargs.evpn,
+                                  mvpn=cliargs.mvpn, wait_for_read=cliargs.wfr)
         self.writer = WriteTracker(bgp_socket, generator, timer)
         # Prioritization state.
         self.prioritize_writing = False

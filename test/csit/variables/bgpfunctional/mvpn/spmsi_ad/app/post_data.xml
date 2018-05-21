@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<mvpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp:mvpn:ipv4">
+    <path-id>0</path-id>
+    <route-key>AxYAAQECAwQBAiAKAAAKIAwAAAwBAAAB</route-key>
+    <attributes>
+      <ipv4-next-hop>
+        <global>127.1.1.1</global>
+      </ipv4-next-hop>
+      <multi-exit-disc>
+        <med>0</med>
+      </multi-exit-disc>
+      <as-path/>
+      <origin>
+        <value>egp</value>
+      </origin>
+      <local-pref>
+        <pref>100</pref>
+      </local-pref>
+    </attributes>
+    <s-pmsi-a-d>
+      <orig-route-ip>1.0.0.1</orig-route-ip>
+      <multicast-source>10.0.0.10</multicast-source>
+      <route-distinguisher>1.2.3.4:258</route-distinguisher>
+      <c-g-address>12.0.0.12</c-g-address>
+    </s-pmsi-a-d>
+</mvpn-route>

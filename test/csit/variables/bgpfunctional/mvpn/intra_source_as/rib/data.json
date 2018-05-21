@@ -1,0 +1,37 @@
+{
+  "bgp-mvpn-ipv4:mvpn-routes-ipv4": {
+    "mvpn-route": [
+      {
+        "route-key": "AQwAAQECAwQBAgoKCgo=",
+        "path-id": 0,
+        "attributes": {
+          "multi-exit-disc": {
+            "med": 0
+          },
+          "extended-communities": [
+            {
+              "transitive": true,
+              "source-as-extended-community": {
+                "global-administrator": 65
+              }
+            }
+          ],
+          "ipv4-next-hop": {
+            "global": "127.1.1.1"
+          },
+          "as-path": {},
+          "origin": {
+            "value": "egp"
+          },
+          "local-pref": {
+            "pref": 100
+          }
+        },
+        "intra-as-i-pmsi-a-d": {
+          "route-distinguisher": "1.2.3.4:258",
+          "orig-route-ip": "10.10.10.10"
+        }
+      }
+    ]
+  }
+}
