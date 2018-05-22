@@ -16,9 +16,6 @@ module bgp-mvpn-ipv4 {
     grouping mvpn-destination {
         list mvpn-destination {
             uses mvpn:mvpn;
-            leaf prefix {
-                type inet:ipv4-prefix;
-            }
             uses bgp-msg:path-id-grouping;
         }
     }

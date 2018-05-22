@@ -266,11 +266,7 @@ module bgp-mvpn {
         container mvpn-routes {
             list mvpn-route {
                 key "route-key path-id";
-
                 uses mvpn-bgp-rib-route;
-                leaf prefix {
-                    type inet:ip-prefix;
-                }
             }
         }
     }

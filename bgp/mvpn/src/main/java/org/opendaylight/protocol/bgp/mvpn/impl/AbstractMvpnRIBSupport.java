@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.mvpn.impl;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -45,6 +47,7 @@ public abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject>
         extends AbstractRIBSupport<C, MvpnRoutes, MvpnRoute, MvpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMvpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesList;
+    private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -67,6 +70,13 @@ public abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject>
         super(mappingService, cazeClass, MvpnRoutes.class, MvpnRoute.class, afiClass,
                 McastVpnSubsequentAddressFamily.class, destContainerQname);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
+        this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
+
+    }
+
+    @Override
+    public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+        return this.cacheableNlriObjects;
     }
 
     @Override

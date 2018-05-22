@@ -50,8 +50,8 @@ public final class Ipv4NlriHandler {
             dests.add(builder.build());
         }
 
-        return new DestinationMvpnIpv4AdvertizedCaseBuilder().setDestinationMvpn(
-                new DestinationMvpnBuilder().setMvpnDestination(dests).build()).build();
+        return new DestinationMvpnIpv4AdvertizedCaseBuilder()
+                .setDestinationMvpn(new DestinationMvpnBuilder().setMvpnDestination(dests).build()).build();
     }
 
     static DestinationMvpnIpv4WithdrawnCase parseIpv4UnreachNlri(

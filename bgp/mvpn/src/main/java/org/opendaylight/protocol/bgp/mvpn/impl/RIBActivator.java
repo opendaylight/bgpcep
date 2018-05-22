@@ -28,9 +28,9 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
             final BindingNormalizedNodeSerializer mappingService) {
         return Lists.newArrayList(
                 context.registerRIBSupport(Ipv4AddressFamily.class, McastVpnSubsequentAddressFamily.class,
-                        MvpnIpv6RIBSupport.getInstance(mappingService)),
+                        MvpnIpv4RIBSupport.getInstance(mappingService)),
                 context.registerRIBSupport(Ipv6AddressFamily.class, McastVpnSubsequentAddressFamily.class,
-                        MvpnIpv4RIBSupport.getInstance(mappingService))
+                        MvpnIpv6RIBSupport.getInstance(mappingService))
         );
     }
 }

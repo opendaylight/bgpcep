@@ -82,7 +82,7 @@ public abstract class AbstractRIBSupport<
     private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
-    private static final InstanceIdentifier TABLES_II = InstanceIdentifier.create(BgpRib.class)
+    private static final InstanceIdentifier<Tables> TABLES_II = InstanceIdentifier.create(BgpRib.class)
             .child(Rib.class).child(LocRib.class).child(Tables.class);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();

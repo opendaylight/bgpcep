@@ -19,7 +19,6 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.Ipv6NlriHandler;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.MvpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.bgp.rib.rib.loc.rib.tables.routes.MvpnRoutesIpv6Case;
@@ -74,7 +73,6 @@ public final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesI
     private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn
             .destination.MvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> mvpnDest) {
         return new MvpnDestinationBuilder()
-                .setPrefix(new Ipv6Prefix(extractPrefix(mvpnDest)))
                 .setMvpnChoice(extractMvpnChoice(mvpnDest))
                 .setPathId(PathIdUtil.buildPathId(mvpnDest, routePathIdNid()))
                 .build();

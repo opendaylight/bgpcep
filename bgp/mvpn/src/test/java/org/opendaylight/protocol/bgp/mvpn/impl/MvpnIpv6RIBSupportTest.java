@@ -23,8 +23,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
@@ -65,7 +63,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
     private static final MvpnRouteKey ROUTE_KEY;
     private static final MvpnRoute ROUTE;
-    private static final IpPrefix PREFIX = new IpPrefix(new Ipv6Prefix("2001:db8:1:1::/64"));
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn
             .routes.MvpnRoutes MVPN_ROUTES;
     private static final MvpnChoice MVPN = new InterAsIPmsiADCaseBuilder().setInterAsIPmsiAD(
@@ -76,7 +73,6 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
     private static final PathId PATH_ID = new PathId(0L);
     private static final MvpnDestination MVPN_DESTINATION = new MvpnDestinationBuilder()
             .setMvpnChoice(MVPN)
-            .setPrefix(PREFIX.getIpv6Prefix())
             .setPathId(PATH_ID)
             .build();
     private static final DestinationMvpnIpv6AdvertizedCase REACH_NLRI = new DestinationMvpnIpv6AdvertizedCaseBuilder()
@@ -93,7 +89,6 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
         ROUTE_KEY = new MvpnRouteKey(PATH_ID, ByteArray.encodeBase64(buffer));
         ROUTE = new MvpnRouteBuilder()
                 .setRouteKey(ROUTE_KEY.getRouteKey())
-                .setPrefix(PREFIX)
                 .setPathId(ROUTE_KEY.getPathId())
                 .setAttributes(ATTRIBUTES)
                 .setMvpnChoice(MVPN)
