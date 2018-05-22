@@ -18,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,6 +73,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final PCEPStatefulPeerProposal peerProposal;
     private final short rpcTimeout;
     private final AtomicReference<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = new AtomicReference<>();
+    @GuardedBy("this")
+    private PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator;
 
     @VisibleForTesting
     public final AtomicBoolean isClosed = new AtomicBoolean(false);
@@ -100,6 +103,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         try {
             tx.submit().get();
             LOG.info("PCEP Topology {} created successfully.", topologyId.getValue());
+            ServerSessionManager.this.registerRuntimeRoot();
             ServerSessionManager.this.isClosed.set(false);
         } catch (final ExecutionException | InterruptedException throwable) {
             LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), throwable);
@@ -230,7 +234,14 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     }
 
     synchronized void setRuntimeRootRegistrator(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
-        if (!this.runtimeRootRegistration.compareAndSet(null, runtimeRootRegistrator.register(this))) {
+        if (this.runtimeRootRegistrator != runtimeRootRegistrator) {
+            this.runtimeRootRegistrator = Objects.requireNonNull(runtimeRootRegistrator);
+            registerRuntimeRoot();
+        }
+    }
+
+    private void registerRuntimeRoot() {
+        if (!this.runtimeRootRegistration.compareAndSet(null, this.runtimeRootRegistrator.register(this))) {
             LOG.error("Runtime root registration has been set before.");
         }
     }

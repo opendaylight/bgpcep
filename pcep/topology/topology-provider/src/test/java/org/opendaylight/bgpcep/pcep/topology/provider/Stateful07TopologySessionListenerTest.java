@@ -389,6 +389,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.receivedMsgs.clear();
         // now we restart the session manager
         startSessionManager();
+        assertNotNull(this.manager.getRuntimeRootRegistration());
         // try to start the session again
         // notice since the session was terminated before, it is not usable anymore.
         // we need to get a new session instance. the new session will have the same local / remote preference
