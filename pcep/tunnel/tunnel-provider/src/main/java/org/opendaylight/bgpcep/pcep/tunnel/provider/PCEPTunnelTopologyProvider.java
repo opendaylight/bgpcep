@@ -66,7 +66,7 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
                                                 new TopologyTunnelPcepBuilder().build()).build()).build())
                         .setNode(new ArrayList<>()).build(), true);
         try {
-            tx.submit().get();
+            tx.commit().get();
         } catch (final InterruptedException | ExecutionException e) {
             LOG.error("Failed to create Tunnel Topology root", e);
         }

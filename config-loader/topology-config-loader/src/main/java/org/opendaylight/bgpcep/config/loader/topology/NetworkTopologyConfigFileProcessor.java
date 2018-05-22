@@ -95,7 +95,7 @@ public final class NetworkTopologyConfigFileProcessor implements ConfigFileProce
             }
         }
         try {
-            wtx.submit().get();
+            wtx.commit().get();
         } catch (final ExecutionException | InterruptedException e) {
             LOG.warn("Failed to create Network Topologies", e);
         }

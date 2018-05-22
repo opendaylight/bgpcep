@@ -95,7 +95,7 @@ public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, 
             }
         }
         try {
-            wtx.submit().get();
+            wtx.commit().get();
         } catch (final ExecutionException | InterruptedException e) {
             LOG.warn("Failed to create Protocol", e);
         }

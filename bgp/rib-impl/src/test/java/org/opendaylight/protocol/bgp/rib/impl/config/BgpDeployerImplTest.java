@@ -207,24 +207,24 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
     private void createRib(final Global global) throws ExecutionException, InterruptedException {
         final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
         wr.put(LogicalDatastoreType.CONFIGURATION, GLOBAL_II, global, true);
-        wr.submit().get();
+        wr.commit().get();
     }
 
     private void deleteRib() throws ExecutionException, InterruptedException {
         final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
         wr.delete(LogicalDatastoreType.CONFIGURATION, BGP_II);
-        wr.submit().get();
+        wr.commit().get();
     }
 
     private void createNeighbor(final Neighbors neighbors) throws ExecutionException, InterruptedException {
         final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
         wr.put(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II, neighbors, true);
-        wr.submit().get();
+        wr.commit().get();
     }
 
     private void deleteNeighbors() throws ExecutionException, InterruptedException {
         final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
         wr.delete(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II);
-        wr.submit().get();
+        wr.commit().get();
     }
 }

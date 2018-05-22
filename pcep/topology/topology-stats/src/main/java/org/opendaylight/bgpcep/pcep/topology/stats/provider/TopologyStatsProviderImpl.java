@@ -113,7 +113,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
             for (final KeyedInstanceIdentifier<Node, NodeKey> statId : this.statsMap.keySet()) {
                 wTx.delete(LogicalDatastoreType.OPERATIONAL, statId);
             }
-            wTx.submit().get();
+            wTx.commit().get();
             this.statsMap.clear();
             this.transactionChain.close();
             this.scheduler.shutdown();

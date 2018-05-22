@@ -100,7 +100,7 @@ public final class BmpMonitorConfigFileProcessor implements ConfigFileProcessor,
                 .forEach(bi -> processBmpMonitorConfig((BmpMonitorConfig) bi.getValue(), wtx));
 
         try {
-            wtx.submit().get();
+            wtx.commit().get();
         } catch (final ExecutionException | InterruptedException e) {
             LOG.warn("Failed to create Bmp config", e);
         }

@@ -87,7 +87,7 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
                 .child(Topology.class, new TopologyKey(new TopologyId(PCEP_TOPOLOGY)))
                 .child(Node.class, new NodeKey(new NodeId(NODE_ID))).build();
         wt.put(LogicalDatastoreType.OPERATIONAL, topology, node, true);
-        wt.submit().get();
+        wt.commit().get();
     }
 
     private PcepSessionState createPcepSessionState() {

@@ -64,7 +64,7 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
                 .child(Protocol.class, new ProtocolKey(BGP.class, RIB_ID))
                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
         wt.put(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp, true);
-        wt.submit().get();
+        wt.commit().get();
     }
 
     @Test

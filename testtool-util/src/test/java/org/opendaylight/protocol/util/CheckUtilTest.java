@@ -61,14 +61,14 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test(expected = VerifyException.class)
-    public void testWaitFutureSuccessFail() throws Exception {
+    public void testWaitFutureSuccessFail() {
         when(this.future.isDone()).thenReturn(false);
         doReturn(this.future).when(this.future).addListener(any());
         waitFutureSuccess(this.future);
     }
 
     @Test
-    public void testWaitFutureSuccess() throws Exception {
+    public void testWaitFutureSuccess() {
         when(this.future.isSuccess()).thenReturn(true);
         doAnswer(invocation -> {
             invocation.getArgumentAt(0, GenericFutureListener.class).operationComplete(CheckUtilTest.this.future);
@@ -129,7 +129,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
                 new TopologyBuilder()
                         .setTopologyId(TOPOLOGY_ID)
                         .build(), true);
-        wt.submit().get();
+        wt.commit().get();
     }
 
     @Test
@@ -166,13 +166,13 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void testCheckReceivedMessagesNotEqual() throws Exception {
+    public void testCheckReceivedMessagesNotEqual() {
         doReturn(0).when(this.listenerCheck).getListMessageSize();
         checkReceivedMessages(this.listenerCheck, 1, TIMEOUT);
     }
 
     @Test
-    public void testCheckReceivedMessagesEqual() throws Exception {
+    public void testCheckReceivedMessagesEqual() {
         doReturn(1).when(this.listenerCheck).getListMessageSize();
         checkReceivedMessages(this.listenerCheck, 1, TIMEOUT);
     }

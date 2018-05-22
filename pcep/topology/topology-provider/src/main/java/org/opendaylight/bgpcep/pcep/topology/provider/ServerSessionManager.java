@@ -110,7 +110,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
                                 new TopologyPcepBuilder().build()).build()).build())
                 .setNode(new ArrayList<>()).build(), true);
         try {
-            tx.submit().get();
+            tx.commit().get();
             LOG.info("PCEP Topology {} created successfully.", topologyId.getValue());
             ServerSessionManager.this.isClosed.set(false);
         } catch (final ExecutionException | InterruptedException throwable) {

@@ -74,7 +74,7 @@ public final class OpenconfigRoutingPolicyLoader implements ConfigFileProcessor,
                 WriteTransaction.CREATE_MISSING_PARENTS);
 
         try {
-            wtx.submit().get();
+            wtx.commit().get();
         } catch (final ExecutionException | InterruptedException e) {
             LOG.warn("Failed to create Routing Policy config", e);
         }
