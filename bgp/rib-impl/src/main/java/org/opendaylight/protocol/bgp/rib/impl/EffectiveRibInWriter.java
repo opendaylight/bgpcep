@@ -157,6 +157,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                             table.getModifiedChildContainer(ribSupport.routesContainerClass());
 
                     if (routesChangesContainer == null) {
+                        LOG.error("This shouldn't be null");
                         break;
                     }
                     updateRoutes(tx, tk, ribSupport, tablePath, routesChangesContainer.getModifiedChildren());

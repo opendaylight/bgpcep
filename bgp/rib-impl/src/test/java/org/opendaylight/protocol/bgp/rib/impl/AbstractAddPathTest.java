@@ -82,6 +82,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.McastVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -89,6 +90,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
@@ -143,14 +145,21 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         super.setUp();
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
+        final org.opendaylight.protocol.bgp.mvpn.impl.RIBActivator mvpnRIBActivator =
+                new org.opendaylight.protocol.bgp.mvpn.impl.RIBActivator();
 
         this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService);
+        mvpnRIBActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService);
 
         this.bgpActivator = new BGPActivator();
         this.inetActivator = new org.opendaylight.protocol.bgp.inet.BGPActivator();
+        final org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator mvpnActivator =
+                new org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator();
+
         this.context = new SimpleBGPExtensionProviderContext();
         this.bgpActivator.start(this.context);
         this.inetActivator.start(this.context);
+        mvpnActivator.start(this.context);
         if (!Epoll.isAvailable()) {
             this.worker = new NioEventLoopGroup();
             this.boss = new NioEventLoopGroup();
@@ -202,7 +211,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         waitFutureSuccess(session.writeAndFlush(openObj));
     }
 
-    private void checkLocRib(final int expectedRoutesOnDS) throws Exception {
+    protected void checkLocRib(final int expectedRoutesOnDS) throws Exception {
         Thread.sleep(100);
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             final Ipv4RoutesCase routes = (Ipv4RoutesCase) bgpRib.getRib().get(0).getLocRib().getTables().get(0)
@@ -259,9 +268,20 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         final OptionalCapabilities mp = new OptionalCapabilitiesBuilder().setCParameters(
             new CParametersBuilder().addAugmentation(CParameters1.class,
                 new CParameters1Builder().setMultiprotocolCapability(
-                    new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                        .build()).build()).build()).build();
-        final List<OptionalCapabilities> capabilities = Lists.newArrayList(mp);
+                    new MultiprotocolCapabilityBuilder()
+                            .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build()).build();
+        final OptionalCapabilities mp1 = new OptionalCapabilitiesBuilder().setCParameters(
+                new CParametersBuilder().addAugmentation(CParameters1.class,
+                        new CParameters1Builder().setMultiprotocolCapability(
+                                new MultiprotocolCapabilityBuilder()
+                                        .setAfi(Ipv4AddressFamily.class).setSafi(McastVpnSubsequentAddressFamily.class).build()).build()).build()).build();
+        final OptionalCapabilities mp2 = new OptionalCapabilitiesBuilder().setCParameters(
+                new CParametersBuilder().addAugmentation(CParameters1.class,
+                        new CParameters1Builder().setMultiprotocolCapability(
+                                new MultiprotocolCapabilityBuilder()
+                                        .setAfi(Ipv6AddressFamily.class).setSafi(McastVpnSubsequentAddressFamily.class).build()).build()).build()).build();
+
+        final List<OptionalCapabilities> capabilities = Lists.newArrayList(mp, mp1, mp2);
         if (addPath) {
             final OptionalCapabilities addPathCapa = new OptionalCapabilitiesBuilder().setCParameters(
                 new CParametersBuilder().addAugmentation(CParameters1.class,

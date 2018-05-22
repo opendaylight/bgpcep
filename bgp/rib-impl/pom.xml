@@ -247,6 +247,11 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-mvpn</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
