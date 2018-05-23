@@ -145,7 +145,7 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
 
     @Test
     public void testCacheableNlriObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableNlriObjects());
+        assertEquals(ImmutableSet.of(MvpnRoutesIpv4Case.class), this.ribSupport.cacheableNlriObjects());
     }
 
     @Test
