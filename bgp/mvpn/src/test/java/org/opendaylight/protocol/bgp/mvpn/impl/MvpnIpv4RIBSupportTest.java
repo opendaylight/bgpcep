@@ -55,7 +55,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-@Ignore
 public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
     private static final MvpnRouteKey ROUTE_KEY;
     private static final MvpnRoute ROUTE;
@@ -145,7 +144,7 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
 
     @Test
     public void testCacheableNlriObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableNlriObjects());
+        assertEquals(ImmutableSet.of(MvpnRoutesIpv4Case.class), this.ribSupport.cacheableNlriObjects());
     }
 
     @Test
