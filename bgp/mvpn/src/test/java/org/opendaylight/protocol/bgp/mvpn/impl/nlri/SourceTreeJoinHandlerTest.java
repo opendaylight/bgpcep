@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.c.g.address._case.CGAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SourceTreeJoinCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SourceTreeJoinCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.source.tree.join._case.SourceTreeJoinBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
 
@@ -43,13 +44,15 @@ public final class SourceTreeJoinHandlerTest {
     };
 
     private final SourceTreeJoinCase expected = new SourceTreeJoinCaseBuilder()
-            .setCMulticast(new CMulticastBuilder()
-                    .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
-                    .setSourceAs(new AsNumber(10L))
-                    .setMulticastSource(new IpAddress(new Ipv4Address("1.0.0.1")))
-                    .setMulticastGroup(new CGAddressCaseBuilder().setCGAddress(
-                            new CGAddressBuilder().setCGAddress(new IpAddress(new Ipv4Address("2.0.0.2")))
-                                    .build()).build()).build()).build();
+            .setSourceTreeJoin(new SourceTreeJoinBuilder()
+                    .setCMulticast(new CMulticastBuilder()
+                            .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
+                            .setSourceAs(new AsNumber(10L))
+                            .setMulticastSource(new IpAddress(new Ipv4Address("1.0.0.1")))
+                            .setMulticastGroup(new CGAddressCaseBuilder().setCGAddress(
+                                    new CGAddressBuilder().setCGAddress(
+                                            new IpAddress(new Ipv4Address("2.0.0.2"))).build()).build()).build())
+                    .build()).build();
     private final SourceTreeJoinHandler handler = new SourceTreeJoinHandler();
 
     @Test
