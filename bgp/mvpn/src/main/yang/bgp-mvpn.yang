@@ -187,10 +187,14 @@ module bgp-mvpn {
                 uses source-active-a-d-grouping;
             }
             case shared-tree-join-case {
-                uses c-multicast-grouping;
+                container shared-tree-join {
+                    uses c-multicast-grouping;
+                }
             }
             case source-tree-join-case {
-                uses c-multicast-grouping;
+                container source-tree-join {
+                    uses c-multicast-grouping;
+                }
             }
             mandatory true;
         }

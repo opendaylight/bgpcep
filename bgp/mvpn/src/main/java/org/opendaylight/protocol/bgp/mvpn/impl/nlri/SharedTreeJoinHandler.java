@@ -13,6 +13,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SharedTreeJoinCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SharedTreeJoinCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.shared.tree.join._case.SharedTreeJoinBuilder;
 
 /**
  * https://tools.ietf.org/html/rfc6514#section-4.6.
@@ -27,12 +28,14 @@ public final class SharedTreeJoinHandler extends AbstractMvpnNlri<SharedTreeJoin
 
     @Override
     public SharedTreeJoinCase parseMvpn(final ByteBuf buffer) {
-        return new SharedTreeJoinCaseBuilder().setCMulticast(CMulticastUtil.parseCMulticastGrouping(buffer)).build();
+        return new SharedTreeJoinCaseBuilder().setSharedTreeJoin(new SharedTreeJoinBuilder()
+                .setCMulticast(CMulticastUtil.parseCMulticastGrouping(buffer))
+                .build()).build();
     }
 
     @Override
     protected ByteBuf serializeBody(final SharedTreeJoinCase mvpn) {
-        return CMulticastUtil.serializeCMulticast(mvpn.getCMulticast());
+        return CMulticastUtil.serializeCMulticast(mvpn.getSharedTreeJoin().getCMulticast());
     }
 
     @Override
