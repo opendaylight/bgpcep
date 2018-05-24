@@ -18,8 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.RsvpTeP2mpLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.RsvpTeP2mpLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLpsBuilder;
 
 public final class RsvpTeP2MpLspParser extends AbstractTunnelIdentifier<RsvpTeP2mpLsp> {
 
@@ -32,7 +30,9 @@ public final class RsvpTeP2MpLspParser extends AbstractTunnelIdentifier<RsvpTeP2
 
     @Override
     public int serialize(final RsvpTeP2mpLsp tunnelIdentifier, final ByteBuf buffer) {
-        final RsvpTeP2mpLps rsvpTeP2mpLsp = tunnelIdentifier.getRsvpTeP2mpLps();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi
+                .tunnel.tunnel.identifier.rsvp.te.p2mp.lsp
+                .RsvpTeP2mpLsp rsvpTeP2mpLsp = tunnelIdentifier.getRsvpTeP2mpLsp();
         ByteBufWriteUtil.writeUnsignedInt(rsvpTeP2mpLsp.getP2mpId(), buffer);
         buffer.writeZero(RESERVED);
         ByteBufWriteUtil.writeUnsignedShort(rsvpTeP2mpLsp.getTunnelId(), buffer);
@@ -42,17 +42,20 @@ public final class RsvpTeP2MpLspParser extends AbstractTunnelIdentifier<RsvpTeP2
 
     @Override
     public RsvpTeP2mpLsp parse(final ByteBuf buffer) {
-        final RsvpTeP2mpLpsBuilder rsvpTeP2mpLps = new RsvpTeP2mpLpsBuilder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel
+                .pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLspBuilder rsvpTeP2mpLps
+                = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi
+                .tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLspBuilder();
         rsvpTeP2mpLps.setP2mpId(buffer.readUnsignedInt());
         buffer.skipBytes(2);
         rsvpTeP2mpLps.setTunnelId(buffer.readUnsignedShort());
         final int ipLength = buffer.readableBytes();
         rsvpTeP2mpLps.setExtendedTunnelId(parseIpAddress(ipLength, buffer));
-        return new RsvpTeP2mpLspBuilder().setRsvpTeP2mpLps(rsvpTeP2mpLps.build()).build();
+        return new RsvpTeP2mpLspBuilder().setRsvpTeP2mpLsp(rsvpTeP2mpLps.build()).build();
     }
 
     @Override
     public int getType() {
-        return PmsiTunnelType.RsvpTeP2mpLps.getIntValue();
+        return PmsiTunnelType.RsvpTeP2mpLsp.getIntValue();
     }
 }
