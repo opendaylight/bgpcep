@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
@@ -28,6 +27,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.Node1;
@@ -90,9 +90,9 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         if (!persist) {
             final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
             trans.delete(LogicalDatastoreType.OPERATIONAL, this.nodeId);
-            Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+            trans.commit().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(final Void result) {
+                public void onSuccess(final CommitInfo result) {
                     LOG.trace("Internal state for node {} cleaned up successfully", TopologyNodeState.this.nodeId);
                 }
 
@@ -171,9 +171,9 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         final WriteTransaction t = this.chain.newWriteOnlyTransaction();
         LOG.trace("Put topology Node {}, value {}", this.nodeId, node);
         t.merge(LogicalDatastoreType.OPERATIONAL, this.nodeId, node);
-        Futures.addCallback(t.submit(), new FutureCallback<Void>() {
+        t.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Topology Node stored {}, value {}", TopologyNodeState.this.nodeId, node);
             }
 
@@ -184,16 +184,16 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         }, MoreExecutors.directExecutor());
     }
 
-    public synchronized void storeNode(final InstanceIdentifier<Node1> topologyAugment, final Node1 ta,
+    synchronized void storeNode(final InstanceIdentifier<Node1> topologyAugment, final Node1 ta,
             final PCEPSession session) {
         LOG.trace("Peer data {} set to {}", topologyAugment, ta);
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
 
         // All set, commit the modifications
-        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Node stored {} for session {} updated successfully", topologyAugment, session);
             }
 

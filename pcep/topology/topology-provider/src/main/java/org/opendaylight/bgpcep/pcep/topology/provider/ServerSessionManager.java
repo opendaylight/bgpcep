@@ -10,11 +10,10 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProvide
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -219,11 +219,10 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return listener.tearDownSession(input);
     }
 
-    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Unrecognised NullableDecl")
-    synchronized ListenableFuture<Void> closeServiceInstance() {
+    synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         if (this.isClosed.getAndSet(true)) {
             LOG.error("Session Manager has already been closed.");
-            return Futures.immediateFuture(null);
+            return CommitInfo.emptyFluentFuture();
         }
         for (final TopologySessionListener node : this.nodes.values()) {
             node.close();
@@ -236,10 +235,10 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
 
         final WriteTransaction t = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
-        final ListenableFuture<Void> future = t.submit();
-        Futures.addCallback(future, new FutureCallback<Void>() {
+        final FluentFuture<? extends CommitInfo> future = t.commit();
+        future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.debug("Topology {} removed", ServerSessionManager.this.topology);
             }
 
