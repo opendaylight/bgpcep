@@ -86,7 +86,7 @@ class BgpRpcClient(object):
 
     def play_send(self, hexstring):
         """Sends given hex data, already encoded bgp update message is expected."""
-        return self.proxy.send(hexstring)
+        return self.proxy.send(hexstring.rstrip())
 
     def play_get(self, what='update'):
         """Gets the last received (update) mesage as hex string."""

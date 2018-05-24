@@ -1,0 +1,37 @@
+{
+  "odl-bgp-evpn:evpn-routes": {
+    "evpn-route": [
+      {
+        "route-key": "BBcAAhmZmZkAAQAAAAAAAAAAAAAgKysrKw==",
+        "path-id": 0,
+        "route-distinguisher": "429496729:1",
+        "es-route": {
+          "orig-route-ip": "43.43.43.43",
+          "arbitrary": {
+            "arbitrary": "AAAAAAAAAAAA"
+          }
+        },
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "local-pref": {
+            "pref": 100
+          },
+          "as-path": {},
+          "pmsi-tunnel": {
+            "leaf-information-required": false,
+            "mpls-label": 20024,
+            "mldp-mp2mp-lsp": {
+              "opaque-type": 1,
+              "opaque": "01:01:01:01:01:01:01"
+            }
+          },
+          "ipv4-next-hop": {
+            "global": "199.20.166.41"
+          }
+        }
+      }
+    ]
+  }
+}

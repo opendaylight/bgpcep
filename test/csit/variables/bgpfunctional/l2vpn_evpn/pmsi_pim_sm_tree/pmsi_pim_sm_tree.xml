@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<evpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-evpn">
+    <route-key>BBcAAhmZmZkAAQAAAAAAAAAAAAAgKysrKw==</route-key>
+    <path-id>0</path-id>
+    <route-distinguisher>429496729:1</route-distinguisher>
+    <es-route>
+        <orig-route-ip>43.43.43.43</orig-route-ip>
+        <arbitrary>
+            <arbitrary>AAAAAAAAAAAA</arbitrary>
+        </arbitrary>
+    </es-route>
+    <attributes>
+        <ipv4-next-hop>
+            <global>199.20.166.41</global>
+        </ipv4-next-hop>
+        <as-path/>
+        <origin>
+            <value>igp</value>
+        </origin>
+        <local-pref>
+            <pref>100</pref>
+        </local-pref>
+        <pmsi-tunnel>
+            <leaf-information-required>true</leaf-information-required>
+            <mpls-label>20024</mpls-label>
+            <pim-sm-tree>
+                <p-address>43.43.43.43</p-address>
+                <p-multicast-group>10.10.10.10</p-multicast-group>
+            </pim-sm-tree>
+        </pmsi-tunnel>
+    </attributes>
+</evpn-route>
