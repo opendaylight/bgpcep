@@ -360,8 +360,8 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildRsvpTep2MPLspAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(new RsvpTeP2mpLspBuilder()
-                .setRsvpTeP2mpLps(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
-                        .rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLpsBuilder()
+                .setRsvpTeP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
+                        .rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLspBuilder()
                         .setP2mpId(3458L).setTunnelId(15).setExtendedTunnelId(IP_ADDRESS).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }

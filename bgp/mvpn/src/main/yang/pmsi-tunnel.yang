@@ -38,7 +38,7 @@ module pmsi-tunnel {
 
     typedef pmsi-tunnel-type {
         type enumeration {
-            enum rsvp-te-p2mp-lps {
+            enum rsvp-te-p2mp-lsp {
                 value 1;
             }
             enum mldp-p2mp-lsp {
@@ -102,7 +102,7 @@ module pmsi-tunnel {
             }
             choice tunnel-identifier {
                 case rsvp-te-p2mp-lsp {
-                    container rsvp-te-p2mp-lps {
+                    container rsvp-te-p2mp-lsp {
                         reference "https://tools.ietf.org/html/rfc4875#section-19.1.1";
                         leaf p2mp-id {
                             mandatory true;
