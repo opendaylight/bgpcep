@@ -10,7 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -23,6 +23,7 @@ import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev171025.NetworkTopologyPcepProgrammingService;
@@ -89,7 +90,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
         this.channel = channelFuture.channel();
     }
 
-    public ListenableFuture<Void> closeServiceInstance() {
+    public FluentFuture<? extends CommitInfo> closeServiceInstance() {
         //FIXME return also channelClose once ListenableFuture implements wildcard
         this.channel.close().addListener((ChannelFutureListener) future ->
                 checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause()));

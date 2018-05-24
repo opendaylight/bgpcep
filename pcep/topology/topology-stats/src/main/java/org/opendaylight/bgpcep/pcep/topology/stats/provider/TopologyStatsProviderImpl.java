@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.grouping.PcepSessionStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev171113.PcepTopologyNodeStatsAug;
@@ -87,9 +87,9 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
                         entry.getKey().augmentation(PcepTopologyNodeStatsAug.class);
                 tx.put(LogicalDatastoreType.OPERATIONAL, statId, nodeStatsAug);
             }
-            Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
+            tx.commit().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(Void result) {
+                public void onSuccess(CommitInfo result) {
                     LOG.debug("Successfully committed Topology stats update");
                 }
 
@@ -149,7 +149,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
         final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, nodeId);
         try {
-            wTx.submit().get();
+            wTx.commit().get();
         } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to remove Pcep Node stats {}.", nodeId.getKey().getNodeId());
         }

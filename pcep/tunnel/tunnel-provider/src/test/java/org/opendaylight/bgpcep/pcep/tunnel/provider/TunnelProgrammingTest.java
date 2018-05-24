@@ -228,7 +228,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void testTunnelProgramming() throws TransactionCommitFailedException {
+    public void testTunnelProgramming() throws InterruptedException, ExecutionException {
         final Bandwidth bwd = new Bandwidth(new byte[]{0x00, 0x00, 0x00, (byte) 0xff});
         final ClassType classType = new ClassType((short) 1);
         final String tunnelName = "create-tunnel";
@@ -291,7 +291,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         Assert.assertEquals(NODE1_ID.getValue(), this.removeLspInput.getNode().getValue());
     }
 
-    private void createInitialTopology() throws TransactionCommitFailedException {
+    private void createInitialTopology() throws InterruptedException, ExecutionException {
         final TopologyBuilder topologyBuilder = new TopologyBuilder();
         topologyBuilder.setKey(new TopologyKey(TOPOLOGY_ID));
         topologyBuilder.setServerProvided(true);
@@ -300,10 +300,10 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
                 createNode(NODE2_ID, TP2_ID, NODE2_IPV4)));
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID, topologyBuilder.build(), true);
-        wTx.submit().checkedGet();
+        wTx.commit().get();
     }
 
-    private void createLink() throws TransactionCommitFailedException {
+    private void createLink() throws InterruptedException, ExecutionException {
         final LinkBuilder linkBuilder = new LinkBuilder();
         linkBuilder.setSource(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                 .rev131021.link.attributes.SourceBuilder().setSourceNode(NODE1_ID).setSourceTp(TP1_ID).build());
@@ -315,7 +315,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(),
                 linkBuilder.build(), true);
-        wTx.submit().checkedGet();
+        wTx.commit().get();
     }
 
 }
