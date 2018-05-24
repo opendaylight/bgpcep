@@ -49,7 +49,7 @@ public final class SPmsiADHandlerTest {
                             .setCGAddress(new IpAddress(new Ipv4Address("12.0.0.12"))).build()).build())
                     .setOrigRouteIp(new IpAddress(new Ipv4Address("1.0.0.1")))
                     .build()).build();
-    private SPmsiADHandler handler = new SPmsiADHandler();
+    private final SPmsiADHandler handler = new SPmsiADHandler();
 
     @Test
     public void testIntraASIPmsiADParser() {

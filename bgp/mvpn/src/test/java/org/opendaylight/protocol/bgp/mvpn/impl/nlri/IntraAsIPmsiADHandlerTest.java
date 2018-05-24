@@ -39,7 +39,7 @@ public class IntraAsIPmsiADHandlerTest {
                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                     .setOrigRouteIp(new IpAddress(new Ipv4Address("1.0.0.1")))
                     .build()).build();
-    private IntraAsIPmsiADHandler handler = new IntraAsIPmsiADHandler();
+    private final IntraAsIPmsiADHandler handler = new IntraAsIPmsiADHandler();
 
     @Test
     public void testIntraASIPmsiADParser() {

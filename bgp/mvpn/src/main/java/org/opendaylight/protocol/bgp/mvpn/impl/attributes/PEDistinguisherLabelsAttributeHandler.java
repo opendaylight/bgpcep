@@ -40,7 +40,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
  */
 public final class PEDistinguisherLabelsAttributeHandler implements AttributeParser, AttributeSerializer {
 
-    private static int TYPE = 27;
+    private static final int TYPE = 27;
 
     public PEDistinguisherLabelsAttributeHandler() {
     }

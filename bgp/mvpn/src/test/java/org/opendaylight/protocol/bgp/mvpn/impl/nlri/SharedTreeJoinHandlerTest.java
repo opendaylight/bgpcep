@@ -53,7 +53,7 @@ public final class SharedTreeJoinHandlerTest {
                                     new CGAddressBuilder()
                                             .setCGAddress(new IpAddress(new Ipv4Address("2.0.0.2")))
                                             .build()).build()).build()).build()).build();
-    private SharedTreeJoinHandler handler = new SharedTreeJoinHandler();
+    private final SharedTreeJoinHandler handler = new SharedTreeJoinHandler();
 
     @Test
     public void testParser() {

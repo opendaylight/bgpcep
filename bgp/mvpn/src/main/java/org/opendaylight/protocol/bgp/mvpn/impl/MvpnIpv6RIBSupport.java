@@ -24,13 +24,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.bgp.rib.rib.loc.rib.tables.routes.MvpnRoutesIpv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.bgp.rib.rib.loc.rib.tables.routes.MvpnRoutesIpv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.destination.MvpnDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationMvpnIpv6AdvertizedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.mvpn.ipv6.advertized._case.DestinationMvpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.mvpn.ipv6.advertized._case.DestinationMvpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationMvpnIpv6WithdrawnCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
@@ -43,16 +46,17 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
  *
  * @author Claudio D. Gasparini
  */
-public final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv6Case> {
-    private static final MvpnRoutes EMPTY_CONTAINER = new MvpnRoutesBuilder()
+final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv6Case, MvpnRoutesIpv6> {
+    private static final MvpnRoutesIpv6 EMPTY_CONTAINER = new MvpnRoutesIpv6Builder()
             .setMvpnRoute(Collections.emptyList()).build();
     private static final MvpnRoutesIpv6Case EMPTY_CASE =
-            new MvpnRoutesIpv6CaseBuilder().setMvpnRoutes(EMPTY_CONTAINER).build();
+            new MvpnRoutesIpv6CaseBuilder().setMvpnRoutesIpv6(EMPTY_CONTAINER).build();
     private static MvpnIpv6RIBSupport SINGLETON;
 
     private MvpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 MvpnRoutesIpv6Case.class,
+                MvpnRoutesIpv6.class,
                 Ipv6AddressFamily.class,
                 DestinationMvpn.QNAME,
                 MvpnDestination.QNAME);
@@ -72,8 +76,10 @@ public final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesI
 
     private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn
             .destination.MvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> mvpnDest) {
+        final DataObject nn = this.mappingService.fromNormalizedNode(this.routeDefaultYii, mvpnDest).getValue();
+        final MvpnChoice mvnpChoice = ((MvpnRoute) nn).getMvpnChoice();
         return new MvpnDestinationBuilder()
-                .setMvpnChoice(extractMvpnChoice(mvpnDest))
+                .setMvpnChoice(mvnpChoice)
                 .setPathId(PathIdUtil.buildPathId(mvpnDest, routePathIdNid()))
                 .build();
     }
@@ -99,7 +105,7 @@ public final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesI
     }
 
     @Override
-    public MvpnRoutes emptyRoutesContainer() {
+    public MvpnRoutesIpv6 emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
 

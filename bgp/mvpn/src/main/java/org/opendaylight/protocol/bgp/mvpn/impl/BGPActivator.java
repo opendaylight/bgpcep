@@ -18,13 +18,15 @@ import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHan
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.SourceAS4OctectHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.SourceASHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.VrfRouteImportHandler;
-import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnNlriHandler;
+import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnIpv4NlriHandler;
+import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnIpv6NlriHandler;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.routes.ipv4.MvpnRoutesIpv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.McastVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.SourceAs4ExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.SourceAsExtendedCommunityCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
@@ -55,15 +57,18 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private static void registerNlri(
             final BGPExtensionProviderContext context,
             final List<AutoCloseable> regs) {
-        final MvpnNlriHandler mvpnNlriHandler = new MvpnNlriHandler();
+        final MvpnIpv4NlriHandler mvpnIpv4NlriHandler = new MvpnIpv4NlriHandler();
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
-        final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, McastVpnSubsequentAddressFamily.class,
-                mvpnNlriHandler, ipv4NextHopParser, Ipv4NextHopCase.class));
-        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, McastVpnSubsequentAddressFamily.class,
-                mvpnNlriHandler, ipv6NextHopParser, Ipv6NextHopCase.class));
-        regs.add(context.registerNlriSerializer(MvpnRoutes.class, mvpnNlriHandler));
+                mvpnIpv4NlriHandler, ipv4NextHopParser, Ipv4NextHopCase.class));
+        regs.add(context.registerNlriSerializer(MvpnRoutesIpv4.class, mvpnIpv4NlriHandler));
 
+
+        final MvpnIpv6NlriHandler mvpnIpv6NlriHandler = new MvpnIpv6NlriHandler();
+        final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, McastVpnSubsequentAddressFamily.class,
+                mvpnIpv6NlriHandler, ipv6NextHopParser, Ipv6NextHopCase.class));
+        regs.add(context.registerNlriSerializer(MvpnRoutesIpv6.class, mvpnIpv6NlriHandler));
     }
 
     private static void registerExtendedCommunities(final BGPExtensionProviderContext context,

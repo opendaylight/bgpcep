@@ -267,11 +267,9 @@ module bgp-mvpn {
     }
 
     grouping mvpn-routes {
-        container mvpn-routes {
-            list mvpn-route {
-                key "route-key path-id";
-                uses mvpn-bgp-rib-route;
-            }
+        list mvpn-route {
+            key "route-key path-id";
+            uses mvpn-bgp-rib-route;
         }
     }
 }

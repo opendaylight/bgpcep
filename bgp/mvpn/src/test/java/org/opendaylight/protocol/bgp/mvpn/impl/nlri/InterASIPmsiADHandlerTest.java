@@ -42,7 +42,7 @@ public final class InterASIPmsiADHandlerTest {
                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                     .build()
             ).build();
-    private InterASIPmsiADHandler handler = new InterASIPmsiADHandler();
+    private final InterASIPmsiADHandler handler = new InterASIPmsiADHandler();
 
 
     @Test

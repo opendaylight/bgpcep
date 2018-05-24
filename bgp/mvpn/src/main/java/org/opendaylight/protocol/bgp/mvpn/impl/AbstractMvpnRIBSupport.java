@@ -17,11 +17,9 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.McastVpnSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -32,7 +30,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
@@ -43,8 +40,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Claudio D. Gasparini
  */
-public abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject>
-        extends AbstractRIBSupport<C, MvpnRoutes, MvpnRoute, MvpnRouteKey> {
+abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject, S extends DataObject>
+        extends AbstractRIBSupport<C, S, MvpnRoute, MvpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMvpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesList;
     private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
@@ -64,10 +61,11 @@ public abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject>
     AbstractMvpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass,
+            final Class<S> containerClass,
             final Class<? extends AddressFamily> afiClass,
             final QName destContainerQname,
             final QName destListQname) {
-        super(mappingService, cazeClass, MvpnRoutes.class, MvpnRoute.class, afiClass,
+        super(mappingService, cazeClass, containerClass, MvpnRoute.class, afiClass,
                 McastVpnSubsequentAddressFamily.class, destContainerQname);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
@@ -77,28 +75,6 @@ public abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject>
     @Override
     public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return this.cacheableNlriObjects;
-    }
-
-    @Override
-    public final MvpnRoute createRoute(final MvpnRoute route, final String routeKey, final long pathId,
-            final Attributes attributes) {
-        final MvpnRouteBuilder builder;
-        if (route != null) {
-            builder = new MvpnRouteBuilder(route);
-        } else {
-            builder = new MvpnRouteBuilder();
-        }
-        return builder.setKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
-    }
-
-    @Override
-    public final MvpnRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new MvpnRouteKey(new PathId(pathId), routeKey);
-    }
-
-    final MvpnChoice extractMvpnChoice(final DataContainerNode<? extends PathArgument> route) {
-        final DataObject nn = this.mappingService.fromNormalizedNode(this.routeDefaultYii, route).getValue();
-        return ((MvpnRoute) nn).getMvpnChoice();
     }
 
     @Override
@@ -124,6 +100,24 @@ public abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject>
                 }
             }
         }
+    }
+
+
+    @Override
+    public final MvpnRoute createRoute(final MvpnRoute route, final String routeKey, final long pathId,
+            final Attributes attributes) {
+        final MvpnRouteBuilder builder;
+        if (route != null) {
+            builder = new MvpnRouteBuilder(route);
+        } else {
+            builder = new MvpnRouteBuilder();
+        }
+        return builder.setKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+    }
+
+    @Override
+    public final MvpnRouteKey createRouteListKey(final long pathId, final String routeKey) {
+        return new MvpnRouteKey(new PathId(pathId), routeKey);
     }
 
     abstract NodeIdentifierWithPredicates createRouteKey(UnkeyedListEntryNode mvpn);
