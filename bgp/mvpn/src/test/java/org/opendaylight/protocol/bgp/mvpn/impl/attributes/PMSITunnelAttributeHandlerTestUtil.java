@@ -37,8 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.RsvpTeP2mpLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 final class PMSITunnelAttributeHandlerTestUtil {
     private static final MplsLabel MPLS_LABEL = new MplsLabel(24001L);
@@ -410,12 +408,5 @@ final class PMSITunnelAttributeHandlerTestUtil {
 
     private interface NonSupportedAddressFamily extends AddressFamily {
 
-    }
-
-    static class MockTunnelIdentifier implements TunnelIdentifier, DataObject {
-        @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
-            return MockTunnelIdentifier.class;
-        }
     }
 }

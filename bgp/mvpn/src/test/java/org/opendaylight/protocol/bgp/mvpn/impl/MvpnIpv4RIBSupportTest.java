@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -29,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.bgp.rib.rib.loc.rib.tables.routes.MvpnRoutesIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.destination.MvpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.destination.MvpnDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.routes.ipv4.MvpnRoutesIpv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.routes.ipv4.MvpnRoutesIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationMvpnIpv4AdvertizedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationMvpnIpv4AdvertizedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.mvpn.ipv4.advertized._case.DestinationMvpnBuilder;
@@ -37,11 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.inter.as.i.pmsi.a.d.grouping.InterAsIPmsiADBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.InterAsIPmsiADCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdIpv4;
@@ -55,18 +54,23 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-@Ignore
 public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
-    private static final MvpnRouteKey ROUTE_KEY;
-    private static final MvpnRoute ROUTE;
-    private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn
-            .routes.MvpnRoutes MVPN_ROUTES;
+    private static final PathId PATH_ID = new PathId(0L);
     private static final MvpnChoice MVPN = new InterAsIPmsiADCaseBuilder().setInterAsIPmsiAD(
             new InterAsIPmsiADBuilder()
                     .setSourceAs(new AsNumber(1L))
                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                     .build()).build();
-    private static final PathId PATH_ID = new PathId(0L);
+    private static final MvpnRouteKey ROUTE_KEY = new MvpnRouteKey(PATH_ID, "AgwAAQECAwQBAgAAAAE=");
+    private static final MvpnRoute ROUTE = new MvpnRouteBuilder()
+            .setRouteKey(ROUTE_KEY.getRouteKey())
+            .setPathId(ROUTE_KEY.getPathId())
+            .setAttributes(ATTRIBUTES)
+            .setMvpnChoice(MVPN)
+            .build();
+    private static final MvpnRoutesIpv4 MVPN_ROUTES
+            = new MvpnRoutesIpv4Builder().setMvpnRoute(Collections.singletonList(ROUTE)).build();
+
     private static final MvpnDestination MVPN_DESTINATION = new MvpnDestinationBuilder()
             .setMvpnChoice(MVPN)
             .setPathId(PATH_ID)
@@ -79,17 +83,6 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
                     .rev180417.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.mvpn
                     .ipv4.withdrawn._case.DestinationMvpnBuilder()
                     .setMvpnDestination(Collections.singletonList(MVPN_DESTINATION)).build()).build();
-
-    static {
-        ROUTE_KEY = new MvpnRouteKey(PATH_ID, "AgwAAQECAwQBAgAAAAE=");
-        ROUTE = new MvpnRouteBuilder()
-                .setRouteKey(ROUTE_KEY.getRouteKey())
-                .setPathId(ROUTE_KEY.getPathId())
-                .setAttributes(ATTRIBUTES)
-                .setMvpnChoice(MVPN)
-                .build();
-        MVPN_ROUTES = new MvpnRoutesBuilder().setMvpnRoute(Collections.singletonList(ROUTE)).build();
-    }
 
     private MvpnIpv4RIBSupport ribSupport;
 
@@ -119,7 +112,7 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new MvpnRoutesIpv4CaseBuilder().setMvpnRoutes(new MvpnRoutesBuilder()
+        final Routes empty = new MvpnRoutesIpv4CaseBuilder().setMvpnRoutesIpv4(new MvpnRoutesIpv4Builder()
                 .setMvpnRoute(Collections.emptyList()).build()).build();
         final ChoiceNode expected = createRoutes(empty);
         assertEquals(expected, this.ribSupport.emptyRoutes());
@@ -181,7 +174,7 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
 
     @Test
     public void testRoutesContainerClass() {
-        assertEquals(MvpnRoutes.class, this.ribSupport.routesContainerClass());
+        assertEquals(MvpnRoutesIpv4.class, this.ribSupport.routesContainerClass());
     }
 
     @Test
@@ -197,11 +190,11 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
         assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes
-                = new MvpnRoutesIpv4CaseBuilder().setMvpnRoutes(new MvpnRoutesBuilder().build()).build();
+                = new MvpnRoutesIpv4CaseBuilder().setMvpnRoutesIpv4(new MvpnRoutesIpv4Builder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
         assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
 
-        final Routes routes = new MvpnRoutesIpv4CaseBuilder().setMvpnRoutes(MVPN_ROUTES).build();
+        final Routes routes = new MvpnRoutesIpv4CaseBuilder().setMvpnRoutesIpv4(MVPN_ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
         final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
         assertFalse(result.isEmpty());

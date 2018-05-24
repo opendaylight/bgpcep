@@ -57,7 +57,7 @@ public class LeafADHandlerTest {
                     ).build())
             .setOrigRouteIp(new IpAddress(new Ipv4Address("1.0.0.1"))).build())
             .build();
-    private LeafADHandler handler = new LeafADHandler();
+    private final LeafADHandler handler = new LeafADHandler();
 
     @Before
     public void setUp() {

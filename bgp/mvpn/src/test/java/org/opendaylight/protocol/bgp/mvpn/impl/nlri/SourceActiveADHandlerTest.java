@@ -44,7 +44,7 @@ public final class SourceActiveADHandlerTest {
                     .setMulticastGroup(new IpAddress(new Ipv4Address("2.0.0.2")))
                     .build())
             .build();
-    private SourceActiveADHandler handler = new SourceActiveADHandler();
+    private final SourceActiveADHandler handler = new SourceActiveADHandler();
 
     @Test
     public void testParser() {

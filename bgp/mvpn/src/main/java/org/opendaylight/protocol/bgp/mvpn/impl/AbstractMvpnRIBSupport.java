@@ -18,10 +18,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.McastVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.mvpn.routes.MvpnRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.routes.MvpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -43,8 +42,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Claudio D. Gasparini
  */
-public abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject>
-        extends AbstractRIBSupport<C, MvpnRoutes, MvpnRoute, MvpnRouteKey> {
+abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject, S extends DataObject>
+        extends AbstractRIBSupport<C, S, MvpnRoute, MvpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMvpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesList;
     private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
@@ -64,10 +63,11 @@ public abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject>
     AbstractMvpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass,
+            final Class<S> containerClass,
             final Class<? extends AddressFamily> afiClass,
             final QName destContainerQname,
             final QName destListQname) {
-        super(mappingService, cazeClass, MvpnRoutes.class, MvpnRoute.class, afiClass,
+        super(mappingService, cazeClass, containerClass, MvpnRoute.class, afiClass,
                 McastVpnSubsequentAddressFamily.class, destContainerQname);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
