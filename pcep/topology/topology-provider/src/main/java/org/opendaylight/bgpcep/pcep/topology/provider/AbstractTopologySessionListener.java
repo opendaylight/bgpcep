@@ -33,6 +33,7 @@ import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionState
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -186,9 +187,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             this.triggeredResyncInProcess = true;
         }
         // All set, commit the modifications
-        Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
+        ctx.trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Pcc Internal state for session {} updated successfully",
                         AbstractTopologySessionListener.this.session);
             }
@@ -278,13 +279,23 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         if (onMessage(ctx, message)) {
             LOG.warn("Unhandled message {} on session {}", message, psession);
             //cancel not supported, submit empty transaction
-            ctx.trans.submit();
+            ctx.trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    LOG.trace("Successful commit");
+                }
+
+                @Override
+                public void onFailure(final Throwable trw) {
+                    LOG.error("Failed commit", trw);
+                }
+            }, MoreExecutors.directExecutor());
             return;
         }
 
-        Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
+        ctx.trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.trace("Internal state for session {} updated successfully", psession);
                 ctx.notifyRequests();
 

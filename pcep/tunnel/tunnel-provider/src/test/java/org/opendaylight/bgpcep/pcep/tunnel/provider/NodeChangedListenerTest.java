@@ -14,6 +14,7 @@ import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.collect.Lists;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,7 +24,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
@@ -85,14 +85,14 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     private ListenerRegistration<NodeChangedListener> listenerRegistration;
 
     @Before
-    public void setUp() throws TransactionCommitFailedException {
+    public void setUp() throws InterruptedException, ExecutionException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID, new TopologyBuilder()
                 .setKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Lists.newArrayList())
                 .setTopologyId(PCEP_TOPOLOGY_ID).build(), true);
         wTx.put(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder()
                 .setKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build(), true);
-        wTx.submit().checkedGet();
+        wTx.commit().get();
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(),
                 PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
         this.listenerRegistration = getDataBroker().registerDataTreeChangeListener(new DataTreeIdentifier<>(
@@ -100,7 +100,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void testNodeChangedListener() throws ReadFailedException, TransactionCommitFailedException {
+    public void testNodeChangedListener() throws ReadFailedException, InterruptedException, ExecutionException {
         // add node -> create two nodes with TPs and link
         createNode(NODE1_ID, NODE1_IPV4, LSP1_NAME, LSP1_ID, NODE2_IPV4);
         final Topology tunnelTopo = readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, tunnelTopo1 -> {
@@ -198,7 +198,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     }
 
     private void createNode(final NodeId nodeId, final String ipv4Address, final String lspName, final long lspId,
-            final String dstIpv4Address) throws TransactionCommitFailedException {
+            final String dstIpv4Address) throws InterruptedException, ExecutionException {
         final NodeBuilder nodeBuilder = new NodeBuilder();
         nodeBuilder.setKey(new NodeKey(nodeId));
         nodeBuilder.setNodeId(nodeId);
@@ -225,13 +225,13 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.builder().child(Node.class,
                 new NodeKey(nodeId)).build(), nodeBuilder.build());
-        wTx.submit().checkedGet();
+        wTx.commit().get();
     }
 
-    private void removeNode(final NodeId nodeId) throws TransactionCommitFailedException {
+    private void removeNode(final NodeId nodeId) throws InterruptedException, ExecutionException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.builder()
                 .child(Node.class, new NodeKey(nodeId)).build());
-        wTx.submit().checkedGet();
+        wTx.commit().get();
     }
 }

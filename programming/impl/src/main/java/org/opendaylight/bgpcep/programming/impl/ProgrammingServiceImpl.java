@@ -9,6 +9,7 @@ package org.opendaylight.bgpcep.programming.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -38,6 +39,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -112,9 +114,9 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
                                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming
                                         .rev150720.instruction.queue.Instruction.class,
                                 new InstructionKey(this.builder.getId())), this.builder.build());
-                Futures.addCallback(wt.submit(), new FutureCallback<Void>() {
+                wt.commit().addCallback(new FutureCallback<CommitInfo>() {
                     @Override
-                    public void onSuccess(final Void result) {
+                    public void onSuccess(final CommitInfo result) {
                         LOG.debug("Instruction Queue {} updated", ProgrammingServiceImpl.this.qid);
                     }
 
@@ -140,9 +142,9 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction
                             .queue.Instruction.class,
                     new InstructionKey(this.builder.getId())));
-            Futures.addCallback(wt.submit(), new FutureCallback<Void>() {
+            wt.commit().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(final Void result) {
+                public void onSuccess(final CommitInfo result) {
                     LOG.debug("Instruction Queue {} removed", ProgrammingServiceImpl.this.qid);
                 }
 
@@ -178,9 +180,9 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
         final WriteTransaction wt = this.dataProvider.newWriteOnlyTransaction();
         wt.put(LogicalDatastoreType.OPERATIONAL, this.qid, new InstructionsQueueBuilder()
                 .setKey(new InstructionsQueueKey(this.instructionId)).setInstruction(Collections.emptyList()).build());
-        Futures.addCallback(wt.submit(), new FutureCallback<Void>() {
+        wt.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.debug("Instruction Queue {} added", ProgrammingServiceImpl.this.qid);
             }
 
@@ -411,7 +413,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
     }
 
     @Override
-    public synchronized ListenableFuture<Void> closeServiceInstance() {
+    public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("Closing Instruction Queue service {}", this.sgi.getValue());
 
         if (this.reg != null) {
@@ -425,10 +427,10 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
         final WriteTransaction wt = this.dataProvider.newWriteOnlyTransaction();
         wt.delete(LogicalDatastoreType.OPERATIONAL, this.qid);
 
-        final ListenableFuture<Void> future = wt.submit();
-        Futures.addCallback(future, new FutureCallback<Void>() {
+        final FluentFuture<? extends CommitInfo> future = wt.commit();
+        future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(final Void result) {
+            public void onSuccess(final CommitInfo result) {
                 LOG.debug("Instruction Queue {} removed", ProgrammingServiceImpl.this.qid);
             }
 
