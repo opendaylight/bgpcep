@@ -21,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.c.multicast.grouping.CMulticastBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.CGAddressCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.c.g.address._case.CGAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SourceTreeJoinCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SourceTreeJoinCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.source.tree.join._case.SourceTreeJoinBuilder;
@@ -50,8 +49,7 @@ public final class SourceTreeJoinHandlerTest {
                             .setSourceAs(new AsNumber(10L))
                             .setMulticastSource(new IpAddress(new Ipv4Address("1.0.0.1")))
                             .setMulticastGroup(new CGAddressCaseBuilder().setCGAddress(
-                                    new CGAddressBuilder().setCGAddress(
-                                            new IpAddress(new Ipv4Address("2.0.0.2"))).build()).build()).build())
+                                    new IpAddress(new Ipv4Address("2.0.0.2"))).build()).build())
                     .build()).build();
     private final SourceTreeJoinHandler handler = new SourceTreeJoinHandler();
 

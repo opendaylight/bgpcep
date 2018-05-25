@@ -26,7 +26,7 @@ public final class SourceAS4OctectHandler extends Abstract4OctetAsExtendedCommun
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf body) {
         final SourceAs4ExtendedCommunityBuilder builder = new SourceAs4ExtendedCommunityBuilder();
-        builder.setAsNumber(new AsNumber(body.readUnsignedInt()));
+        builder.setGlobalAdministrator(new AsNumber(body.readUnsignedInt()));
         body.skipBytes(LOCAL_LENGTH);
         return new SourceAs4ExtendedCommunityCaseBuilder().setSourceAs4ExtendedCommunity(
                 builder.build()).build();
@@ -39,7 +39,7 @@ public final class SourceAS4OctectHandler extends Abstract4OctetAsExtendedCommun
                 extendedCommunity);
 
         body.writeInt(((SourceAs4ExtendedCommunityCase) extendedCommunity).getSourceAs4ExtendedCommunity()
-                .getAsNumber().getValue().intValue());
+                .getGlobalAdministrator().getValue().intValue());
         ByteBufWriteUtil.writeUnsignedShort(LOCAL_ADMIN, body);
     }
 

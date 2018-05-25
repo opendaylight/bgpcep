@@ -21,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.c.multicast.grouping.CMulticastBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.CGAddressCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.c.g.address._case.CGAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SharedTreeJoinCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SharedTreeJoinCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.shared.tree.join._case.SharedTreeJoinBuilder;
@@ -49,10 +48,9 @@ public final class SharedTreeJoinHandlerTest {
                             .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                             .setSourceAs(new AsNumber(10L))
                             .setMulticastSource(new IpAddress(new Ipv4Address("1.0.0.1")))
-                            .setMulticastGroup(new CGAddressCaseBuilder().setCGAddress(
-                                    new CGAddressBuilder()
-                                            .setCGAddress(new IpAddress(new Ipv4Address("2.0.0.2")))
-                                            .build()).build()).build()).build()).build();
+                            .setMulticastGroup(new CGAddressCaseBuilder()
+                                    .setCGAddress(new IpAddress(new Ipv4Address("2.0.0.2"))).build()).build())
+                    .build()).build();
     private final SharedTreeJoinHandler handler = new SharedTreeJoinHandler();
 
     @Test

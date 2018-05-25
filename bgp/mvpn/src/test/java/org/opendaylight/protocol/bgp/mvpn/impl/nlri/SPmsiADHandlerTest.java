@@ -19,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.CGAddressCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.c.g.address._case.CGAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SPmsiADCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SPmsiADCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.s.pmsi.a.d.grouping.SPmsiADBuilder;
@@ -45,8 +44,8 @@ public final class SPmsiADHandlerTest {
             .setSPmsiAD(new SPmsiADBuilder()
                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                     .setMulticastSource(new IpAddress(new Ipv4Address("10.0.0.10")))
-                    .setMulticastGroup(new CGAddressCaseBuilder().setCGAddress(new CGAddressBuilder()
-                            .setCGAddress(new IpAddress(new Ipv4Address("12.0.0.12"))).build()).build())
+                    .setMulticastGroup(new CGAddressCaseBuilder()
+                            .setCGAddress(new IpAddress(new Ipv4Address("12.0.0.12"))).build())
                     .setOrigRouteIp(new IpAddress(new Ipv4Address("1.0.0.1")))
                     .build()).build();
     private final SPmsiADHandler handler = new SPmsiADHandler();

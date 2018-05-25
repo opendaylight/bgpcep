@@ -30,7 +30,7 @@ public class SourceAS4OctectASHandlerTest {
     public void testHandler() {
         final SourceAs4ExtendedCommunityCase expected = new SourceAs4ExtendedCommunityCaseBuilder()
                 .setSourceAs4ExtendedCommunity(new SourceAs4ExtendedCommunityBuilder()
-                        .setAsNumber(new AsNumber(20L)).build()).build();
+                        .setGlobalAdministrator(new AsNumber(20L)).build()).build();
 
         final ExtendedCommunity exComm = this.handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
         assertEquals(expected, exComm);

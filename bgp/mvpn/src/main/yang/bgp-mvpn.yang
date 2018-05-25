@@ -76,16 +76,15 @@ module bgp-mvpn {
 
         leaf multicast-source {
             type inet:ip-address;
+            mandatory true;
         }
     }
 
     grouping multicast-group-opaque-grouping {
         choice multicast-group {
             case c-g-address-case {
-                container c-g-address {
-                    leaf c-g-address {
-                        type inet:ip-address;
-                    }
+                leaf c-g-address {
+                    type inet:ip-address;
                 }
             }
 
@@ -150,6 +149,7 @@ module bgp-mvpn {
             uses multicast-source-rd-grouping;
             leaf multicast-group {
                 type inet:ip-address;
+                mandatory true;
             }
         }
     }
@@ -205,6 +205,7 @@ module bgp-mvpn {
             list pe-distinguisher-label-attribute {
                 leaf pe-Address  {
                     type inet:ip-address;
+                    mandatory true;
                 }
                 leaf mpls-label {
                     type netc:mpls-label;
@@ -236,7 +237,7 @@ module bgp-mvpn {
                 case source-as-4-extended-community-case {
                     container source-as-4-extended-community {
                         reference "https://tools.ietf.org/html/rfc6514#section-6";
-                        leaf as-number {
+                        leaf global-administrator {
                             description "Carries a 4-octet Autonomous System (AS) number";
                             reference "https://tools.ietf.org/html/rfc5668#section-2";
 
