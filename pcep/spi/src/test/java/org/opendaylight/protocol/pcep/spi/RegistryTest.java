@@ -92,7 +92,7 @@ public class RegistryTest {
 
     public final List<AutoCloseable> regs = new ArrayList<>();
 
-    AbstractPCEPExtensionProviderActivator activator = new AbstractPCEPExtensionProviderActivator() {
+    final AbstractPCEPExtensionProviderActivator activator = new AbstractPCEPExtensionProviderActivator() {
 
         @Override
         protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
@@ -100,7 +100,7 @@ public class RegistryTest {
         }
     };
 
-    PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
+    final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
 
     @Before
     public void setUp() throws PCEPDeserializerException {

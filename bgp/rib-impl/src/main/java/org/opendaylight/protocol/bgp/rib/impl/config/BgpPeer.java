@@ -216,7 +216,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     private final class BgpPeerSingletonService implements BGPPeerStateConsumer {
-        private boolean activeConnection;
+        private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
         private final int retryTimer;

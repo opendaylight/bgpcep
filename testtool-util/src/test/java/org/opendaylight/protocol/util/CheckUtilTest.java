@@ -9,7 +9,7 @@ package org.opendaylight.protocol.util;
 
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -49,7 +49,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     private final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =
             InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
                     new TopologyKey(TOPOLOGY_ID));
-    private static int TIMEOUT = 1;
+    private static final int TIMEOUT = 1;
     @Mock
     private ListenerCheck listenerCheck;
     @Mock
@@ -162,7 +162,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     @Test(expected = AssertionError.class)
     public void testCheckEquals() throws Exception {
-        checkEquals(() -> assertTrue(false), TIMEOUT);
+        checkEquals(() -> fail(), TIMEOUT);
     }
 
     @Test(expected = AssertionError.class)

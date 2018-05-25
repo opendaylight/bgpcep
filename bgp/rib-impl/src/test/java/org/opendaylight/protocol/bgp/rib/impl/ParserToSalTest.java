@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -73,7 +74,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     @Mock
     private BGPDispatcher dispatcher;
-    private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
+    private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
     private CodecsRegistryImpl codecsRegistry;
 
     @Before
@@ -163,7 +164,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
                 for (final Tables table : tables) {
                     if (table.getAfi().equals(tableType.getAfi()) && table.getSafi().equals(tableType.getSafi())) {
                         found = true;
-                        assertTrue(Boolean.valueOf(true).equals(table.getAttributes().isUptodate()));
+                        assertEquals(Boolean.valueOf(true), table.getAttributes().isUptodate());
                     }
                 }
                 assertTrue(found);

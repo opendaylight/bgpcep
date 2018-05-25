@@ -99,7 +99,7 @@ public class AbstractBmpMessageWithTlvParserTest {
 
         @Override
         protected void addTlv(final TlvsBuilder builder, final Tlv tlv) {
-            if (tlv != null && tlv instanceof DescriptionTlv) {
+            if (tlv instanceof DescriptionTlv) {
                 builder.setDescriptionTlv((DescriptionTlv) tlv);
             }
         }

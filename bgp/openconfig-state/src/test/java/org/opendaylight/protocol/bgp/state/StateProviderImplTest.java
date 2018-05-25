@@ -194,7 +194,7 @@ public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest 
     private InMemoryDOMDataStore spiedOperStore;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         doReturn(Optional.of(IPV4UNICAST.class))
@@ -435,9 +435,7 @@ public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest 
             }).when(mockTxChain).newWriteOnlyTransaction();
 
             return mockTxChain;
-        }).doAnswer(invocation -> {
-            return realOperStore.createTransactionChain();
-        }).when(spiedOperStore).createTransactionChain();
+        }).doAnswer(invocation -> realOperStore.createTransactionChain()).when(spiedOperStore).createTransactionChain();
 
         int timerInterval = 1;
         try (StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), timerInterval, tableTypeRegistry,

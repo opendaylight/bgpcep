@@ -84,8 +84,8 @@ final class BmpMockDispatcher implements AutoCloseable {
         private final Bootstrap bootstrap;
         private final InetSocketAddress remoteAddress;
         private final SocketAddress localAddress;
-        private long delay;
-        private Timer timer = new Timer();
+        private final long delay;
+        private final Timer timer = new Timer();
 
         BootstrapListener(final Bootstrap bootstrap, final SocketAddress localAddress,
                 final InetSocketAddress remoteAddress) {

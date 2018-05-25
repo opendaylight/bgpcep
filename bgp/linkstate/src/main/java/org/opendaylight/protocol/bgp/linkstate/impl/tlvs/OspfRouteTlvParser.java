@@ -19,9 +19,11 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 
-public final class OspfRouteTlvParser implements LinkstateTlvParser<OspfRouteType>, LinkstateTlvParser.LinkstateTlvSerializer<OspfRouteType> {
+public final class OspfRouteTlvParser implements LinkstateTlvParser<OspfRouteType>,
+        LinkstateTlvParser.LinkstateTlvSerializer<OspfRouteType> {
 
-    public static final QName OSPF_ROUTE_TYPE_QNAME = QName.create(PrefixDescriptors.QNAME, "ospf-route-type").intern();
+    public static final QName OSPF_ROUTE_TYPE_QNAME =
+            QName.create(PrefixDescriptors.QNAME.getModule(), "ospf-route-type");
     public static final NodeIdentifier OSPF_ROUTE_NID = new NodeIdentifier(OspfRouteTlvParser.OSPF_ROUTE_TYPE_QNAME);
     private static final int OSPF_ROUTE_TYPE = 264;
 
@@ -46,11 +48,11 @@ public final class OspfRouteTlvParser implements LinkstateTlvParser<OspfRouteTyp
     }
 
     public static OspfRouteType serializeModel(final ContainerNode prefixDesc) {
-        final Optional<DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>> ospfRoute = prefixDesc.getChild(OSPF_ROUTE_NID);
-        if (ospfRoute.isPresent()) {
-            return OspfRouteType.forValue(domOspfRouteTypeValue((String) ospfRoute.get().getValue()));
-        }
-        return null;
+        final Optional<DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>> ospfRoute
+                = prefixDesc.getChild(OSPF_ROUTE_NID);
+        return ospfRoute.map(dataContainerChild
+                -> OspfRouteType.forValue(domOspfRouteTypeValue((String) dataContainerChild.getValue())))
+                .orElse(null);
     }
 
 

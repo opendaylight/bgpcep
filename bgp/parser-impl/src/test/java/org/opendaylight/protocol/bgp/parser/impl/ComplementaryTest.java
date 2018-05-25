@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 
 import java.lang.reflect.Constructor;
@@ -64,7 +65,7 @@ public class ComplementaryTest {
 
         assertEquals(0, tlv3.getRestartTime().intValue());
 
-        assertFalse(tlv1.equals(tlv2));
+        assertNotEquals(tlv1, tlv2);
 
         assertNotSame(tlv1.hashCode(), tlv3.hashCode());
 

@@ -13,6 +13,7 @@ import com.google.common.net.HostAndPort;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created as a util for test tools.
@@ -25,8 +26,8 @@ public final class InetSocketAddressUtil {
     }
 
     public static List<InetSocketAddress> parseAddresses(final String address, final int defaultPort) {
-        return Lists.transform(Arrays.asList(address.split(SEPARATOR)),
-            input -> getInetSocketAddress(input, defaultPort));
+        return Arrays.asList(address.split(SEPARATOR)).stream()
+                .map(input -> getInetSocketAddress(input, defaultPort)).collect(Collectors.toList());
     }
 
     public static List<InetSocketAddress> parseAddresses(final String address) {

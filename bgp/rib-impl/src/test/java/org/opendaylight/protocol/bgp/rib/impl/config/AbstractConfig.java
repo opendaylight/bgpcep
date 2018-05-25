@@ -86,7 +86,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     protected PeerGroupConfigLoader peerGroupLoader;
     @Mock
     private DOMDataTreeChangeService dataTreeChangeService;
-    private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
+    private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
     @Before
     public void setUp() throws Exception {

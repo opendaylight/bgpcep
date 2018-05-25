@@ -80,7 +80,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     private Ipv4Address routerId;
 
     private ClusterIdentifier clusterId;
-    private DataBroker dataBroker;
+    private final DataBroker dataBroker;
 
     public RibImpl(
             final RIBExtensionConsumerContext contextProvider,

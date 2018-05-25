@@ -42,21 +42,16 @@ public final class FlowspecIpv4NlriParserHelper {
 
     public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
         if (fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
-            fsBuilder.setFlowspecType(
-                new DestinationPrefixCaseBuilder()
-                    .setDestinationPrefix(
-                        new Ipv4Prefix((String) fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).get().getValue())
-                    ).build()
-            );
+            fsBuilder.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(
+                    new Ipv4Prefix((String) fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).get()
+                            .getValue())).build());
         } else if (fsType.getChild(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).isPresent()) {
-            fsBuilder.setFlowspecType(
-                new SourcePrefixCaseBuilder()
-                    .setSourcePrefix(
-                        new Ipv4Prefix((String) fsType.getChild(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).get().getValue())
-                    ).build()
-            );
+            fsBuilder.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix((String) fsType
+                    .getChild(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).get().getValue())).build());
         } else if (fsType.getChild(PROTOCOL_IP_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new ProtocolIpCaseBuilder().setProtocolIps(createProtocolsIps((UnkeyedListNode) fsType.getChild(PROTOCOL_IP_NID).get())).build());
+            fsBuilder.setFlowspecType(new ProtocolIpCaseBuilder()
+                    .setProtocolIps(createProtocolsIps((UnkeyedListNode) fsType.getChild(PROTOCOL_IP_NID).get()))
+                    .build());
         }
     }
 
@@ -78,14 +73,13 @@ public final class FlowspecIpv4NlriParserHelper {
 
         for (final UnkeyedListEntryNode node : protocolIpsData.getValue()) {
             final ProtocolIpsBuilder ipsBuilder = new ProtocolIpsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(AbstractFlowspecNlriParser.OP_NID);
-            if (opValue.isPresent()) {
-                ipsBuilder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
-            }
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
-            if (valueNode.isPresent()) {
-                ipsBuilder.setValue((Short) valueNode.get().getValue());
-            }
+            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue
+                    = node.getChild(AbstractFlowspecNlriParser.OP_NID);
+            opValue.ifPresent(dataContainerChild -> ipsBuilder.setOp(NumericOneByteOperandParser
+                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
+            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
+                    = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
+            valueNode.ifPresent(dataContainerChild -> ipsBuilder.setValue((Short) dataContainerChild.getValue()));
             protocolIps.add(ipsBuilder.build());
         }
 

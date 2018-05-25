@@ -36,7 +36,7 @@ public class APITest {
         assertNull(header.isProcessingRule());
 
         assertEquals(new ObjectHeaderImpl(null, true).hashCode(),  header.hashCode());
-        assertTrue(new ObjectHeaderImpl(null, true).equals(header));
+        assertEquals(new ObjectHeaderImpl(null, true), header);
     }
 
     @Test

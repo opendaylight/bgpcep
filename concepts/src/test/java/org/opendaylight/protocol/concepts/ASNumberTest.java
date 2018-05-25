@@ -11,7 +11,7 @@ package org.opendaylight.protocol.concepts;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
@@ -53,7 +53,7 @@ public class ASNumberTest {
         assertThat(this.asn1, not(equalTo(this.asn3)));
         assertThat(this.asn1, not(equalTo(this.asn4)));
         assertThat(this.asn1, not(equalTo(new Object())));
-        assertFalse(this.asn1.equals(new Object()));
+        assertNotEquals(this.asn1, new Object());
     }
 
     @Test

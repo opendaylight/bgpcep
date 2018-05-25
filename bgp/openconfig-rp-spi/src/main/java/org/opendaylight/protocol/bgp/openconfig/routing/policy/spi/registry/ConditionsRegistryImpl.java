@@ -36,7 +36,7 @@ final class ConditionsRegistryImpl {
             = new HashMap<>();
     //TODO Implement match prefix
     //private final GenericConditionPolicyHandler genericConditionHandler;
-    private BgpConditionsRegistry bgpConditionsRegistry = new BgpConditionsRegistry();
+    private final BgpConditionsRegistry bgpConditionsRegistry = new BgpConditionsRegistry();
 
     ConditionsRegistryImpl(final DataBroker databroker) {
     //    this.genericConditionHandler = new GenericConditionPolicyHandler(databroker);

@@ -35,19 +35,19 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
     private final AddressFamilyRegistry afiReg;
     private final SubsequentAddressFamilyRegistry safiReg;
 
-    public MultiProtocolCapabilityHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+    public MultiProtocolCapabilityHandler(final AddressFamilyRegistry afiReg,
+            final SubsequentAddressFamilyRegistry safiReg) {
         this.afiReg = requireNonNull(afiReg);
         this.safiReg = requireNonNull(safiReg);
     }
 
     @Override
     public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        final Optional<BgpTableType> parsedAfiSafiOptional = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(buffer, this.afiReg, this.safiReg);
-        if (!parsedAfiSafiOptional.isPresent()) {
-            return null;
-        }
-        return new CParametersBuilder().addAugmentation(CParameters1.class,new CParameters1Builder().setMultiprotocolCapability(
-            new MultiprotocolCapabilityBuilder(parsedAfiSafiOptional.get()).build()).build()).build();
+        final Optional<BgpTableType> parsedAfiSafiOptional = MultiprotocolCapabilitiesUtil
+                .parseMPAfiSafi(buffer, this.afiReg, this.safiReg);
+        return parsedAfiSafiOptional.map(bgpTableType -> new CParametersBuilder()
+                .addAugmentation(CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
+                new MultiprotocolCapabilityBuilder(bgpTableType).build()).build()).build()).orElse(null);
     }
 
     @Override
@@ -59,7 +59,8 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
         final MultiprotocolCapability mp = capability.getAugmentation(CParameters1.class).getMultiprotocolCapability();
 
         final ByteBuf capBuffer = Unpooled.buffer();
-        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, mp.getAfi(), mp.getSafi(), capBuffer);
+        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, mp.getAfi(),
+                mp.getSafi(), capBuffer);
 
         CapabilityUtil.formatCapability(CODE, capBuffer, byteAggregator);
     }

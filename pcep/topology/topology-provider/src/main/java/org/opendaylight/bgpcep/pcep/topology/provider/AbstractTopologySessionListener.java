@@ -104,7 +104,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     @GuardedBy("this")
     private TopologyNodeState nodeState;
-    private AtomicBoolean synced = new AtomicBoolean(false);
+    private final AtomicBoolean synced = new AtomicBoolean(false);
     @GuardedBy("this")
     private PCEPSession session;
     @GuardedBy("this")

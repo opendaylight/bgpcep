@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
@@ -55,7 +56,8 @@ final class OperationResults implements OperationResult {
     public static OperationResults createUnsent(final PCEPErrors error) {
         final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error))
                 : Collections.emptyList();
-        return new OperationResults(FailureType.Unsent, Lists.transform(e, CONVERT_ERRORS));
+        return new OperationResults(FailureType.Unsent, e.stream().map(CONVERT_ERRORS::apply)
+                .collect(Collectors.toList()));
     }
 
     private static Errors getErrorFor(final PCEPErrors error) {

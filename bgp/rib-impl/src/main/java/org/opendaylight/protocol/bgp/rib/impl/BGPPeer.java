@@ -118,7 +118,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
-    private DOMTransactionChain chain;
+    private final DOMTransactionChain chain;
     @GuardedBy("this")
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")

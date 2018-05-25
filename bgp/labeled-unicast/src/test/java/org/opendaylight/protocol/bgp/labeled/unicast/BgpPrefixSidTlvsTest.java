@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -57,10 +57,10 @@ public final class BgpPrefixSidTlvsTest {
 
         final LuOriginatorSrgbTlv parsed = parser.parseBgpPrefixSidTlv(serialized);
         assertEquals(tlv.getSrgbValue().size(), parsed.getSrgbValue().size());
-        assertTrue(tlv.getSrgbValue().get(0).getBase().equals(srgb1));
-        assertTrue(tlv.getSrgbValue().get(0).getRange().equals(srgb2));
-        assertTrue(tlv.getSrgbValue().get(1).getBase().equals(srgb2));
-        assertTrue(tlv.getSrgbValue().get(1).getRange().equals(srgb1));
+        assertEquals(tlv.getSrgbValue().get(0).getBase(), srgb1);
+        assertEquals(tlv.getSrgbValue().get(0).getRange(), srgb2);
+        assertEquals(tlv.getSrgbValue().get(1).getBase(), srgb2);
+        assertEquals(tlv.getSrgbValue().get(1).getRange(), srgb1);
 
         assertEquals(3, parser.getType());
     }

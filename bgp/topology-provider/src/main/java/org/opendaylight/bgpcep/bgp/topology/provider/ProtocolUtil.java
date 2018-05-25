@@ -7,12 +7,12 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.NodeFlagBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.NodeIdentifier;
@@ -208,7 +208,8 @@ public final class ProtocolUtil {
 
 
     private static List<IsoNetId> toIsoNetIds(final List<IsisAreaIdentifier> areaIds, final String systemId) {
-        return Lists.transform(areaIds, input -> new IsoNetId(UriBuilder.toIsoNetId(input, systemId)));
+        return areaIds.stream().map(input -> new IsoNetId(UriBuilder.toIsoNetId(input, systemId)))
+                .collect(Collectors.toList());
     }
 
     private static List<Short> nodeMultiTopology(final List<TopologyIdentifier> list) {

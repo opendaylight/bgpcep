@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleSessionListener implements PCEPSessionListener {
 
-    public List<Message> messages = Lists.newArrayList();
+    public final List<Message> messages = Lists.newArrayList();
 
     public boolean up = false;
 

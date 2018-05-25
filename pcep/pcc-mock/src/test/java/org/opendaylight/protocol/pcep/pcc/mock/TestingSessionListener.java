@@ -71,8 +71,7 @@ public final class TestingSessionListener implements PCEPSessionListener, Listen
     }
 
     public PCEPSession getSession() {
-        Assert.assertEquals("Session up", true,
-                Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
+        Assert.assertTrue("Session up", Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
         return this.session;
     }
 

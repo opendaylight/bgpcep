@@ -18,7 +18,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 public final class BmpMockSessionListener implements BmpSessionListener {
     private final LongAdder counter = new LongAdder();
     @GuardedBy("this")
-    private AtomicBoolean up = new AtomicBoolean(false);
+    private final AtomicBoolean up = new AtomicBoolean(false);
 
     @Override
     public void onSessionUp(final BmpSession session) {

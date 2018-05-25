@@ -99,7 +99,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         private final BmpSessionListenerFactory slf;
         private final KeyMapping keys;
         private long delay;
-        private Timer timer = new Timer();
+        private final Timer timer = new Timer();
 
         BootstrapListener(final Bootstrap bootstrap,
                 final InetSocketAddress remoteAddress, final BmpSessionListenerFactory slf, final KeyMapping keys) {

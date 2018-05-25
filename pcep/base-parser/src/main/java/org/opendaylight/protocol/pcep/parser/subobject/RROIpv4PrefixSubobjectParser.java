@@ -36,7 +36,7 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
     private static final int PREFIX_F_LENGTH = 1;
     private static final int FLAGS_SIZE = 8;
 
-    private static final int PREFIX4_F_OFFSET = 0 + Ipv4Util.IP4_LENGTH;
+    private static final int PREFIX4_F_OFFSET = Ipv4Util.IP4_LENGTH;
 
     private static final int CONTENT4_LENGTH = Ipv4Util.IP4_LENGTH + PREFIX_F_LENGTH + FLAGS_SIZE / Byte.SIZE;
 

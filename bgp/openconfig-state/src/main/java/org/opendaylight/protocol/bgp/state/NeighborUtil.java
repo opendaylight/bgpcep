@@ -325,13 +325,10 @@ public final class NeighborUtil {
     private static AfiSafi buildAfiSafi(@Nonnull final BGPAfiSafiState neighbor,
             @Nonnull final TablesKey tablesKey, @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         final Optional<Class<? extends AfiSafiType>> afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
-        if (!afiSafi.isPresent()) {
-            return null;
-        }
-
-        return new AfiSafiBuilder().setAfiSafiName(afiSafi.get())
+        return afiSafi.map(aClass -> new AfiSafiBuilder().setAfiSafiName(aClass)
                 .setState(buildAfiSafiState(neighbor, tablesKey, neighbor.isAfiSafiSupported(tablesKey)))
-                .setGracefulRestart(buildAfiSafiGracefulRestartState(neighbor, tablesKey)).build();
+                .setGracefulRestart(buildAfiSafiGracefulRestartState(neighbor, tablesKey)).build()).orElse(null);
+
     }
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi

@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +84,6 @@ public class APITest {
                 BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         params.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final Open open1 = new OpenBuilder().setBgpParameters(params).build();
-        assertEquals(true, BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(open1));
+        assertTrue(BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(open1));
     }
 }

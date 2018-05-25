@@ -70,7 +70,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     private ListenerRegistration<AbstractTopologyBuilder<T>> listenerRegistration = null;
     @GuardedBy("this")
     private BindingTransactionChain chain = null;
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private final AtomicBoolean closed = new AtomicBoolean(false);
     @GuardedBy("this")
     @VisibleForTesting
     protected long listenerScheduledRestartTime = 0;

@@ -135,9 +135,8 @@ public class ByteArrayTest {
         final String FILE_TO_TEST = "src/test/resources/PCEStatefulCapabilityTlv1.bin";
 
         final File fileToCompareWith = new File(FILE_TO_TEST);
-        final InputStream bytesIStream = new FileInputStream(fileToCompareWith);
 
-        try {
+        try (InputStream bytesIStream = new FileInputStream(fileToCompareWith)) {
             final byte[] actualBytes = ByteArray.fileToBytes(FILE_TO_TEST);
 
             if (fileToCompareWith.length() > Integer.MAX_VALUE) {
@@ -154,8 +153,6 @@ public class ByteArrayTest {
             }
 
             assertArrayEquals(expectedBytes, actualBytes);
-        } finally {
-            bytesIStream.close();
         }
     }
 

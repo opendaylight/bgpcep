@@ -90,7 +90,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     // True if the listener should not be notified about events
     @GuardedBy("this")
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final Channel channel;
 

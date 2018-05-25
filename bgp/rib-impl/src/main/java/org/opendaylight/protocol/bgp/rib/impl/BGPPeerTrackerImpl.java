@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 
 public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @GuardedBy("this")
-    private Map<PeerId, Peer> peers = new HashMap<>();
+    private final Map<PeerId, Peer> peers = new HashMap<>();
     private ImmutableList<Peer> peersList;
 
     @Override

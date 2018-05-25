@@ -9,9 +9,8 @@
 package org.opendaylight.protocol.bgp.inet.codec;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -133,10 +132,10 @@ public class Ipv4NlriParserTest {
                 .getDestinationType());
 
         assertEquals(this.ip4caseWD.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
-        assertFalse(this.ip4caseWDWrong.hashCode() == b.getWithdrawnRoutes().getDestinationType().hashCode());
+        assertNotEquals(this.ip4caseWDWrong.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
 
-        assertTrue(this.ip4caseWD.toString().equals(b.getWithdrawnRoutes().getDestinationType().toString()));
-        assertFalse(this.ip4caseWDWrong.toString().equals(b.getWithdrawnRoutes().getDestinationType().toString()));
+        assertEquals(this.ip4caseWD.toString(), b.getWithdrawnRoutes().getDestinationType().toString());
+        assertNotEquals(this.ip4caseWDWrong.toString(), b.getWithdrawnRoutes().getDestinationType().toString());
     }
 
     @Test
@@ -148,10 +147,10 @@ public class Ipv4NlriParserTest {
                 .getDestinationType());
 
         assertEquals(this.ip4caseAD.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
-        assertFalse(this.ip4caseADWrong.hashCode() == b.getAdvertizedRoutes().getDestinationType().hashCode());
+        assertNotEquals(this.ip4caseADWrong.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
 
-        assertTrue(this.ip4caseAD.toString().equals(b.getAdvertizedRoutes().getDestinationType().toString()));
-        assertFalse(this.ip4caseADWrong.toString().equals(b.getAdvertizedRoutes().getDestinationType().toString()));
+        assertEquals(this.ip4caseAD.toString(), b.getAdvertizedRoutes().getDestinationType().toString());
+        assertNotEquals(this.ip4caseADWrong.toString(), b.getAdvertizedRoutes().getDestinationType().toString());
     }
 
     @Test

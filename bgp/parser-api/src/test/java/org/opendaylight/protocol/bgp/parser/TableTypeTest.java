@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
@@ -41,7 +41,7 @@ public class TableTypeTest {
             assertEquals("Subsequent address family may not be null", e.getMessage());
         }
 
-        assertFalse(tt1.equals(tt2));
+        assertNotEquals(tt1, tt2);
         assertNotSame(tt1.hashCode(), tt2.hashCode());
         assertEquals(tt1.toString(), tt1.toString());
         assertNotSame(tt1.getAfi(), tt2.getAfi());

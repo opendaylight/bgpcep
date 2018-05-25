@@ -100,9 +100,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     @GuardedBy("this")
     private final List<PlspId> staleLsps = new ArrayList<>();
 
-    private AtomicBoolean statefulCapability = new AtomicBoolean(false);
-    private AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
-    private AtomicBoolean initiationCapability = new AtomicBoolean(false);
+    private final AtomicBoolean statefulCapability = new AtomicBoolean(false);
+    private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
+    private final AtomicBoolean initiationCapability = new AtomicBoolean(false);
 
     /**
      * Creates a new stateful topology session listener for given server session manager.

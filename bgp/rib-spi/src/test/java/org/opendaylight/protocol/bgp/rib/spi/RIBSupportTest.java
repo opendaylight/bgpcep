@@ -95,7 +95,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private DataTreeCandidateNode subTree;
     private DOMDataWriteTransaction tx;
     private ContainerNode nlri;
-    private Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap = new HashMap<>();
+    private final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap = new HashMap<>();
     private ContainerNode attributes;
     private MapEntryNode mapEntryNode;
     private BindingToNormalizedNodeCodec mappingService;

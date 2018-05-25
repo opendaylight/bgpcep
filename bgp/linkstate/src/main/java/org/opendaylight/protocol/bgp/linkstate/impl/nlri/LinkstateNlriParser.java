@@ -73,17 +73,21 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     @VisibleForTesting
     public static final NodeIdentifier REMOTE_NODE_DESCRIPTORS_NID = new NodeIdentifier(RemoteNodeDescriptors.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier ADVERTISING_NODE_DESCRIPTORS_NID = new NodeIdentifier(AdvertisingNodeDescriptors.QNAME);
+    public static final NodeIdentifier ADVERTISING_NODE_DESCRIPTORS_NID
+            = new NodeIdentifier(AdvertisingNodeDescriptors.QNAME);
     @VisibleForTesting
     public static final NodeIdentifier PREFIX_DESCRIPTORS_NID = new NodeIdentifier(PrefixDescriptors.QNAME);
     @VisibleForTesting
     public static final NodeIdentifier LINK_DESCRIPTORS_NID = new NodeIdentifier(LinkDescriptors.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier PROTOCOL_ID_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "protocol-id").intern());
+    public static final NodeIdentifier PROTOCOL_ID_NID = new NodeIdentifier(
+            QName.create(CLinkstateDestination.QNAME.getModule(), "protocol-id"));
     @VisibleForTesting
-    public static final NodeIdentifier IDENTIFIER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "identifier").intern());
+    public static final NodeIdentifier IDENTIFIER_NID = new NodeIdentifier(
+            QName.create(CLinkstateDestination.QNAME.getModule(), "identifier"));
     @VisibleForTesting
-    private static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "route-distinguisher").intern());
+    private static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(
+            QName.create(CLinkstateDestination.QNAME.getModule(), "route-distinguisher"));
     private final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();
 
 
@@ -137,7 +141,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
@@ -150,8 +155,10 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
     private void serializeWithDrawnRoutes(final WithdrawnRoutes withdrawnRoutes, final ByteBuf byteAggregator) {
         if (withdrawnRoutes != null && withdrawnRoutes.getDestinationType() instanceof DestinationLinkstateCase) {
-            final DestinationLinkstateCase linkstateCase = (DestinationLinkstateCase) withdrawnRoutes.getDestinationType();
-            for (final CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate().getCLinkstateDestination()) {
+            final DestinationLinkstateCase linkstateCase
+                    = (DestinationLinkstateCase) withdrawnRoutes.getDestinationType();
+            for (final CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate()
+                    .getCLinkstateDestination()) {
                 this.nlriTypeReg.serializeNlriType(cLinkstateDestination, byteAggregator);
             }
         }
@@ -159,12 +166,17 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
     private void serializeAdvertisedRoutes(final AdvertizedRoutes advertizedRoutes, final ByteBuf byteAggregator) {
         if (advertizedRoutes != null && advertizedRoutes.getDestinationType()
-            instanceof
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) {
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase
-                linkstateCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) advertizedRoutes.getDestinationType();
+                instanceof
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update
+                        .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update
+                    .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase
+                    linkstateCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate
+                    .rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type
+                    .DestinationLinkstateCase) advertizedRoutes.getDestinationType();
 
-            for (final CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate().getCLinkstateDestination()) {
+            for (final CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate()
+                    .getCLinkstateDestination()) {
                 this.nlriTypeReg.serializeNlriType(cLinkstateDestination, byteAggregator);
             }
         }
@@ -196,7 +208,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         }
     }
 
-    public static CLinkstateDestination extractLinkstateDestination(final DataContainerNode<? extends PathArgument> linkstate) {
+    public static CLinkstateDestination extractLinkstateDestination(
+            final DataContainerNode<? extends PathArgument> linkstate) {
         final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
         serializeCommonParts(builder, linkstate);
 
@@ -215,7 +228,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         return builder.build();
     }
 
-    private static void serializeNodeDescriptor(final CLinkstateDestinationBuilder builder, final ChoiceNode objectType) {
+    private static void serializeNodeDescriptor(final CLinkstateDestinationBuilder builder,
+            final ChoiceNode objectType) {
         final NodeCaseBuilder nodeBuilder = new NodeCaseBuilder();
         // node descriptors
         nodeBuilder.setNodeDescriptors(NodeNlriParser
@@ -223,51 +237,56 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         builder.setObjectType(nodeBuilder.build());
     }
 
-    private static void serializeLocalNodeDescriptor(final CLinkstateDestinationBuilder builder, final ChoiceNode objectType) {
+    private static void serializeLocalNodeDescriptor(final CLinkstateDestinationBuilder builder,
+            final ChoiceNode objectType) {
         // link local node descriptors
         final LinkCaseBuilder linkBuilder = new LinkCaseBuilder();
 
-        linkBuilder.setLocalNodeDescriptors(NodeNlriParser.serializeLocalNodeDescriptors((ContainerNode) objectType.getChild(LOCAL_NODE_DESCRIPTORS_NID).get()));
+        linkBuilder.setLocalNodeDescriptors(NodeNlriParser.serializeLocalNodeDescriptors((ContainerNode) objectType
+                .getChild(LOCAL_NODE_DESCRIPTORS_NID).get()));
         // link remote node descriptors
         if (objectType.getChild(REMOTE_NODE_DESCRIPTORS_NID).isPresent()) {
-            linkBuilder.setRemoteNodeDescriptors(NodeNlriParser.serializeRemoteNodeDescriptors((ContainerNode) objectType.getChild(REMOTE_NODE_DESCRIPTORS_NID).get()));
+            linkBuilder.setRemoteNodeDescriptors(NodeNlriParser
+                    .serializeRemoteNodeDescriptors((ContainerNode) objectType.getChild(REMOTE_NODE_DESCRIPTORS_NID)
+                            .get()));
         }
         // link descriptors
-        final Optional<DataContainerChild<? extends PathArgument, ?>> linkDescriptors = objectType.getChild(LINK_DESCRIPTORS_NID);
-        if (linkDescriptors.isPresent()) {
-            linkBuilder.setLinkDescriptors(LinkNlriParser.serializeLinkDescriptors((ContainerNode) linkDescriptors.get()));
-        }
+        final Optional<DataContainerChild<? extends PathArgument, ?>> linkDescriptors
+                = objectType.getChild(LINK_DESCRIPTORS_NID);
+        linkDescriptors.ifPresent(dataContainerChild -> linkBuilder.setLinkDescriptors(LinkNlriParser
+                .serializeLinkDescriptors((ContainerNode) dataContainerChild)));
         builder.setObjectType(linkBuilder.build());
     }
 
-    private static void serializeAdvertisedNodeDescriptor(final CLinkstateDestinationBuilder builder, final ChoiceNode objectType) {
+    private static void serializeAdvertisedNodeDescriptor(final CLinkstateDestinationBuilder builder,
+            final ChoiceNode objectType) {
         // prefix node descriptors
         final PrefixCaseBuilder prefixBuilder = new PrefixCaseBuilder();
-        prefixBuilder.setAdvertisingNodeDescriptors(NodeNlriParser.serializeAdvNodeDescriptors((ContainerNode) objectType.getChild(
-            ADVERTISING_NODE_DESCRIPTORS_NID).get()));
+        prefixBuilder.setAdvertisingNodeDescriptors(NodeNlriParser
+                .serializeAdvNodeDescriptors((ContainerNode) objectType.getChild(ADVERTISING_NODE_DESCRIPTORS_NID)
+                        .get()));
 
         // prefix descriptors
-        final Optional<DataContainerChild<? extends PathArgument, ?>> prefixDescriptors = objectType.getChild(PREFIX_DESCRIPTORS_NID);
-        if (prefixDescriptors.isPresent()) {
-            prefixBuilder.setPrefixDescriptors(AbstractPrefixNlriParser.serializePrefixDescriptors((ContainerNode) prefixDescriptors.get()));
-        }
+        final Optional<DataContainerChild<? extends PathArgument, ?>> prefixDescriptors
+                = objectType.getChild(PREFIX_DESCRIPTORS_NID);
+        prefixDescriptors.ifPresent(dataContainerChild -> prefixBuilder.setPrefixDescriptors(AbstractPrefixNlriParser
+                .serializePrefixDescriptors((ContainerNode) dataContainerChild)));
         builder.setObjectType(prefixBuilder.build());
     }
 
-    private static void serializeCommonParts(final CLinkstateDestinationBuilder builder, final DataContainerNode<? extends PathArgument> linkstate) {
+    private static void serializeCommonParts(final CLinkstateDestinationBuilder builder,
+            final DataContainerNode<? extends PathArgument> linkstate) {
         // serialize common parts
-        final Optional<DataContainerChild<? extends PathArgument, ?>> distinguisher = linkstate.getChild(DISTINGUISHER_NID);
-        if (distinguisher.isPresent()) {
-            builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(distinguisher.get().getValue()));
-        }
+        final Optional<DataContainerChild<? extends PathArgument, ?>> distinguisher
+                = linkstate.getChild(DISTINGUISHER_NID);
+        distinguisher.ifPresent(dataContainerChild -> builder.setRouteDistinguisher(RouteDistinguisherUtil
+                .parseRouteDistinguisher(dataContainerChild.getValue())));
         final Optional<DataContainerChild<? extends PathArgument, ?>> protocolId = linkstate.getChild(PROTOCOL_ID_NID);
         // DOM representation contains values as are in the model, not as are in generated enum
-        if (protocolId.isPresent()) {
-            builder.setProtocolId(ProtocolId.forValue(domProtocolIdValue((String) protocolId.get().getValue())));
-        }
+        protocolId.ifPresent(dataContainerChild -> builder.setProtocolId(ProtocolId
+                .forValue(domProtocolIdValue((String) dataContainerChild.getValue()))));
         final Optional<DataContainerChild<? extends PathArgument, ?>> identifier = linkstate.getChild(IDENTIFIER_NID);
-        if (identifier.isPresent()) {
-            builder.setIdentifier(new Identifier((BigInteger) identifier.get().getValue()));
-        }
+        identifier.ifPresent(dataContainerChild -> builder
+                .setIdentifier(new Identifier((BigInteger) dataContainerChild.getValue())));
     }
 }

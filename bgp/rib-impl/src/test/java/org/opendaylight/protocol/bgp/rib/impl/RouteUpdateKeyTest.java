@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 import com.google.common.primitives.UnsignedInteger;
 import org.junit.Test;
@@ -28,10 +28,10 @@ public class RouteUpdateKeyTest {
         final RouteUpdateKey rk = new RouteUpdateKey(PEER_ID, PREFIX);
         assertEquals(PEER_ID, rk.getPeerId());
         assertEquals(PREFIX, rk.getRouteId());
-        assertTrue(rk.equals(new RouteUpdateKey(PEER_ID, PREFIX)));
-        assertTrue(rk.equals(rk));
+        assertEquals(rk, new RouteUpdateKey(PEER_ID, PREFIX));
+        assertEquals(rk, rk);
         assertFalse(rk.equals(null));
-        assertFalse(rk.equals(new RouteUpdateKey(PEER_ID_2, PREFIX)));
-        assertFalse(rk.equals(new RouteUpdateKey(PEER_ID_2, PREFIX_2)));
+        assertNotEquals(rk, new RouteUpdateKey(PEER_ID_2, PREFIX));
+        assertNotEquals(rk, new RouteUpdateKey(PEER_ID_2, PREFIX_2));
     }
 }

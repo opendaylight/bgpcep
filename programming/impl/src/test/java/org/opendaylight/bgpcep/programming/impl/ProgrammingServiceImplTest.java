@@ -349,7 +349,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
 
         doReturn(dependencies).when(mockedSubmitInstruction).getPreconditions();
         doReturn(new InstructionId(id)).when(mockedSubmitInstruction).getId();
-        doReturn(deadline.isPresent() ? deadline.get() : new Nanotime(BigInteger.valueOf(Long.MAX_VALUE)))
+        doReturn(deadline.orElseGet(() -> new Nanotime(BigInteger.valueOf(Long.MAX_VALUE))))
                 .when(mockedSubmitInstruction).getDeadline();
         return mockedSubmitInstruction;
     }

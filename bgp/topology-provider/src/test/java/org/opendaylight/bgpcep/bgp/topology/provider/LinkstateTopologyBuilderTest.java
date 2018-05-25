@@ -129,7 +129,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
             .child(Tables.class, new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class))
             .build();
         this.linkstateRouteIID = path.builder().child((Class) LinkstateRoutes.class)
-            .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY.toString()))
+            .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY))
                 .build();
 
     }
@@ -334,7 +334,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         Thread.sleep(LISTENER_RESTART_TIME);
         // manually invoke onTransactionChainFailed() to have the listener restart scheduled again
         spiedLinkstateTopologyBuilder.onTransactionChainFailed(null, null, null);
-        assertTrue(spiedLinkstateTopologyBuilder.listenerScheduledRestartTime == listenerScheduledRestartTime
+        assertEquals(spiedLinkstateTopologyBuilder.listenerScheduledRestartTime, listenerScheduledRestartTime
                 + LISTENER_RESTART_TIME);
         verify(spiedLinkstateTopologyBuilder, times(5)).restartTransactionChainOnDemand();
         verify(spiedLinkstateTopologyBuilder, times(3)).scheduleListenerRestart();

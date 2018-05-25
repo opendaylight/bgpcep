@@ -136,7 +136,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
-    private BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
+    private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
     private static ModuleInfoBackedContext createClassLoadingStrategy() {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
