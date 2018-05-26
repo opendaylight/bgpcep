@@ -109,7 +109,7 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
     }
 
     @Override
-    public void onSessionDown(final Exception exception) {
+    public synchronized void onSessionDown(final Exception exception) {
         // we want to tear down as we want to do clean up like closing the transaction chain, etc.
         // even when datastore is not writable (routerYangIId == null / redundant session)
         tearDown();
@@ -183,7 +183,8 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
+    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
+            final AsyncTransaction<?, ?> transaction,
         final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
     }
@@ -193,7 +194,7 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
         LOG.debug("Transaction chain {} successfully.", chain);
     }
 
-    private boolean isDatastoreWritable() {
+    private synchronized boolean isDatastoreWritable() {
         return (this.routerYangIId != null);
     }
 
