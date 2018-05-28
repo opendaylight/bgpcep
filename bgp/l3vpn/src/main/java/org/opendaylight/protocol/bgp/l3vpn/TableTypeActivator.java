@@ -12,8 +12,11 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.opendaylight.protocol.bgp.openconfig.spi.AbstractBGPTableTypeRegistryProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProvider;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4MULTICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV6MULTICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV6UNICAST;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
@@ -32,7 +35,11 @@ public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProvid
                 provider.registerBGPTableType(Ipv4AddressFamily.class,
                         MplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV4UNICAST.class),
                 provider.registerBGPTableType(Ipv6AddressFamily.class,
-                        MplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV6UNICAST.class)
+                        MplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV6UNICAST.class),
+                provider.registerBGPTableType(Ipv4AddressFamily.class,
+                        McastMplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV4MULTICAST.class),
+                provider.registerBGPTableType(Ipv6AddressFamily.class,
+                        McastMplsLabeledVpnSubsequentAddressFamily.class, L3VPNIPV6MULTICAST.class)
         );
     }
 }

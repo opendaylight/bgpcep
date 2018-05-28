@@ -11,10 +11,13 @@ package org.opendaylight.protocol.bgp.l3vpn;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.protocol.bgp.l3vpn.mcast.L3VpnMcastIpv4RIBSupport;
+import org.opendaylight.protocol.bgp.l3vpn.mcast.L3VpnMcastIpv6RIBSupport;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
@@ -32,7 +35,11 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
                 context.registerRIBSupport(Ipv4AddressFamily.class,
                         MplsLabeledVpnSubsequentAddressFamily.class, VpnIpv4RIBSupport.getInstance(mappingService)),
                 context.registerRIBSupport(Ipv6AddressFamily.class,
-                        MplsLabeledVpnSubsequentAddressFamily.class, VpnIpv6RIBSupport.getInstance(mappingService))
+                        MplsLabeledVpnSubsequentAddressFamily.class, VpnIpv6RIBSupport.getInstance(mappingService)),
+                context.registerRIBSupport(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+                        L3VpnMcastIpv4RIBSupport.getInstance(mappingService)),
+                context.registerRIBSupport(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+                        L3VpnMcastIpv6RIBSupport.getInstance(mappingService))
         );
     }
 }
