@@ -8,14 +8,22 @@
 
 package org.opendaylight.protocol.bgp.l3vpn;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
+import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
+import org.opendaylight.protocol.bgp.l3vpn.mcast.nlri.L3vpnMcastIpv4NlriHandler;
+import org.opendaylight.protocol.bgp.l3vpn.mcast.nlri.L3vpnMcastIpv6NlriHandler;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NlriParser;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.ipv4.L3vpnMcastRoutesIpv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.ipv6.L3vpnMcastRoutesIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
@@ -30,6 +38,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
  * @author Claudio D. Gasparini
  */
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+    @VisibleForTesting
+    static final int MCAST_L3VPN_SAFI = 129;
+
+
     private static void registerNlri(
             final BGPExtensionProviderContext context,
             final List<AutoCloseable> regs) {
@@ -46,11 +58,30 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriParser(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
                 vpnIpv6NlriParser, vpnIpv6NextHopParserSerializer, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(VpnIpv6Routes.class, vpnIpv6NlriParser));
+
+        final L3vpnMcastIpv4NlriHandler l3vpnMcastIpv4NlriHandler = new L3vpnMcastIpv4NlriHandler();
+        final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+                l3vpnMcastIpv4NlriHandler, ipv4NextHopParser, Ipv4NextHopCase.class));
+        regs.add(context.registerNlriSerializer(L3vpnMcastRoutesIpv4.class, l3vpnMcastIpv4NlriHandler));
+
+
+        final L3vpnMcastIpv6NlriHandler l3vpnMcastIpv6NlriHandler = new L3vpnMcastIpv6NlriHandler();
+        final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+                l3vpnMcastIpv6NlriHandler, ipv6NextHopParser, Ipv6NextHopCase.class));
+        regs.add(context.registerNlriSerializer(L3vpnMcastRoutesIpv6.class, l3vpnMcastIpv6NlriHandler));
+    }
+
+    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+        regs.add(context.registerSubsequentAddressFamily(McastMplsLabeledVpnSubsequentAddressFamily.class,
+                MCAST_L3VPN_SAFI));
     }
 
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
+        registerAfiSafi(context, regs);
         registerNlri(context, regs);
         return regs;
     }

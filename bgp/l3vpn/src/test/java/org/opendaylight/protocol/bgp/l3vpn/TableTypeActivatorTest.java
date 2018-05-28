@@ -14,8 +14,11 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.SimpleBGPTableTypeRegistryProvider;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4MULTICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV6MULTICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV6UNICAST;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
@@ -27,6 +30,11 @@ public class TableTypeActivatorTest {
             MplsLabeledVpnSubsequentAddressFamily.class);
     private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class,
             MplsLabeledVpnSubsequentAddressFamily.class);
+
+    private static final BgpTableType MCAST_L3VPN_IPV4 = new BgpTableTypeImpl(
+            Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class);
+    private static final BgpTableType MCAST_L3VPN_IPV6 = new BgpTableTypeImpl(
+            Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class);
 
     @Test
     public void testActivator() {
@@ -44,8 +52,17 @@ public class TableTypeActivatorTest {
         final Optional<BgpTableType> tableType2 = registry.getTableType(L3VPNIPV6UNICAST.class);
         Assert.assertEquals(IPV6, tableType2.get());
 
+        final Optional<Class<? extends AfiSafiType>> afiSafiType4 = registry.getAfiSafiType(MCAST_L3VPN_IPV4);
+        Assert.assertEquals(L3VPNIPV4MULTICAST.class, afiSafiType4.get());
+        final Optional<Class<? extends AfiSafiType>> afiSafiType6 = registry.getAfiSafiType(MCAST_L3VPN_IPV6);
+        Assert.assertEquals(L3VPNIPV6MULTICAST.class, afiSafiType6.get());
+
+        final Optional<BgpTableType> tableType4 = registry.getTableType(L3VPNIPV4MULTICAST.class);
+        Assert.assertEquals(MCAST_L3VPN_IPV4, tableType4.get());
+        final Optional<BgpTableType> tableType6 = registry.getTableType(L3VPNIPV6MULTICAST.class);
+        Assert.assertEquals(MCAST_L3VPN_IPV6, tableType6.get());
+
         tableTypeActivator.stopBGPTableTypeRegistryProvider();
         tableTypeActivator.close();
     }
-
 }
