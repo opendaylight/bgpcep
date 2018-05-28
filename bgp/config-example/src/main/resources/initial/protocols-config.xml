@@ -50,6 +50,12 @@
                         <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
                     </afi-safi>
                     <afi-safi>
+                        <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-MULTICAST</afi-safi-name>
+                    </afi-safi>
+                    <afi-safi>
+                        <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-MULTICAST</afi-safi-name>
+                    </afi-safi>
+                    <afi-safi>
                         <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
                     </afi-safi>
                     <afi-safi>
@@ -149,6 +155,12 @@
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
                         </afi-safi>
                         <afi-safi>
+                            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-MULTICAST</afi-safi-name>
+                        </afi-safi>
+                        <afi-safi>
+                            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-MULTICAST</afi-safi-name>
+                        </afi-safi>
+                        <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
                         </afi-safi>
                         <afi-safi>
@@ -198,6 +210,12 @@
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
+                        </afi-safi>
+                        <afi-safi>
+                            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-MULTICAST</afi-safi-name>
+                        </afi-safi>
+                        <afi-safi>
+                            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-MULTICAST</afi-safi-name>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
