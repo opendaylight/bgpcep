@@ -203,7 +203,7 @@ module bgp-mvpn {
     grouping pe-distinguisher-labels-attribute {
         container pe-distinguisher-labels-attribute {
             list pe-distinguisher-label-attribute {
-                leaf pe-Address  {
+                leaf pe-address  {
                     type inet:ip-address;
                     mandatory true;
                 }
