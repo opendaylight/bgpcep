@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.McastVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.SourceAs4ExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.SourceAsExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.VrfRouteImportExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
@@ -77,7 +78,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final VrfRouteImportHandler vrfRouteImportHandler = new VrfRouteImportHandler();
         regs.add(context.registerExtendedCommunityParser(vrfRouteImportHandler.getType(true),
                 vrfRouteImportHandler.getSubType(), vrfRouteImportHandler));
-        regs.add(context.registerExtendedCommunitySerializer(SourceAsExtendedCommunityCase.class,
+        regs.add(context.registerExtendedCommunitySerializer(VrfRouteImportExtendedCommunityCase.class,
                 vrfRouteImportHandler));
 
         final SourceAS4OctectHandler source4ASHandler = new SourceAS4OctectHandler();
