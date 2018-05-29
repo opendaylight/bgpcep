@@ -101,12 +101,12 @@ final class BGPTestTool {
                 = new org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator();
         labeledActivator.start(ctx);
 
-        final org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator bgpIpv4Activator
-                = new org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator();
+        final org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.BgpIpv4Activator bgpIpv4Activator
+                = new org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.BgpIpv4Activator();
         bgpIpv4Activator.start(ctx);
 
-        final org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator bgpIpv6Activator
-                = new org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator();
+        final org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.BgpIpv6Activator bgpIpv6Activator
+                = new org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.BgpIpv6Activator();
         bgpIpv6Activator.start(ctx);
 
         return new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup(),

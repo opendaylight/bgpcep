@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.l3vpn;
 import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.l3vpn.unicast.TableTypeActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.SimpleBGPTableTypeRegistryProvider;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
