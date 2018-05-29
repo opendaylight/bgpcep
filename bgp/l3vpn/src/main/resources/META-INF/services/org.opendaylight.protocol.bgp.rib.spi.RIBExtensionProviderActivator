@@ -4,5 +4,5 @@
 # under the terms of the Eclipse Public License v1.0 which
 # accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-org.opendaylight.protocol.bgp.l3vpn.ipv4.RibIpv4Activator
-org.opendaylight.protocol.bgp.l3vpn.ipv6.RibIpv6Activator
+org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.RibIpv4Activator
+org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.RibIpv6Activator

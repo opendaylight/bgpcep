@@ -6,15 +6,15 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.l3vpn.ipv4;
+package org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.DISTINGUISHER;
-import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.IPV4_PREFIX;
-import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.IPV4_VPN;
-import static org.opendaylight.protocol.bgp.l3vpn.ipv4.VpnIpv4NlriParserTest.LABEL_STACK;
+import static org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NlriParserTest.DISTINGUISHER;
+import static org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NlriParserTest.IPV4_PREFIX;
+import static org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NlriParserTest.IPV4_VPN;
+import static org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NlriParserTest.LABEL_STACK;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.collect.ImmutableSet;

@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.l3vpn;
+package org.opendaylight.protocol.bgp.l3vpn.unicast;
 
 import com.google.common.collect.Lists;
 import java.util.List;

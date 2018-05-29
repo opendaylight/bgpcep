@@ -5,9 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.l3vpn.ipv6;
+package org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6;
 
-import org.opendaylight.protocol.bgp.l3vpn.AbstractVpnNextHopParserSerializer;
+import org.opendaylight.protocol.bgp.l3vpn.unicast.AbstractVpnNextHopParserSerializer;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
 
