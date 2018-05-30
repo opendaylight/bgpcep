@@ -6,31 +6,22 @@
   ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
   ~ and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-  <bean id="BGPIpv4Activator" class="org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.BgpIpv4Activator"/>
+    <bean id="BGPActivator" class="org.opendaylight.protocol.bgp.l3vpn.BGPActivator"/>
 
-  <bean id="RIBIpv4Activator" class="org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.RibIpv4Activator"/>
+    <service ref="BGPActivator" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator"
+             odl:type="org.opendaylight.protocol.bgp.l3vpn.BGPActivator"/>
 
-  <service ref="BGPIpv4Activator" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.BgpIpv4Activator"/>
+    <bean id="RIBActivator" class="org.opendaylight.protocol.bgp.l3vpn.RIBActivator"/>
 
-  <service ref="RIBIpv4Activator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.RibIpv4Activator"/>
+    <service ref="RIBActivator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
+             odl:type="org.opendaylight.protocol.bgp.l3vpn.RIBActivator"/>
 
-  <bean id="BGPIpv6Activator" class="org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.BgpIpv6Activator"/>
+    <bean id="TableTypeActivator" class="org.opendaylight.protocol.bgp.l3vpn.TableTypeActivator"/>
 
-  <bean id="RIBIpv6Activator" class="org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.RibIpv6Activator"/>
-
-  <service ref="BGPIpv6Activator" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.BgpIpv6Activator"/>
-
-  <service ref="RIBIpv6Activator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.RibIpv6Activator"/>
-
-  <bean id="TableTypeActivator" class="org.opendaylight.protocol.bgp.l3vpn.unicast.TableTypeActivator"/>
-
-  <service ref="TableTypeActivator" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator"
-          odl:type="org.opendaylight.protocol.bgp.l3vpn.unicast.TableTypeActivator"/>
+    <service ref="TableTypeActivator"
+             interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator"
+             odl:type="org.opendaylight.protocol.bgp.l3vpn.TableTypeActivator"/>
 </blueprint>
