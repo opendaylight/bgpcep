@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev180329.l3vpn.ipv6.destination.VpnIpv6DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 
-class VpnIpv6NlriParser extends AbstractVpnNlriParser {
+public class VpnIpv6NlriParser extends AbstractVpnNlriParser {
 
     private <T extends L3vpnIpv6Destination> List<VpnDestination> getVpnDestination(DestinationType dst,
             Class<T> dstTypeCaseClazz) {

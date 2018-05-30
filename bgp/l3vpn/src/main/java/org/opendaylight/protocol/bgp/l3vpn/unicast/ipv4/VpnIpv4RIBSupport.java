@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.l3vpn.ipv4.routes.VpnIpv4RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 
-final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport<VpnIpv4RoutesCase, VpnIpv4Routes> {
+public final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport<VpnIpv4RoutesCase, VpnIpv4Routes> {
     private static final VpnIpv4Routes EMPTY_CONTAINER
             = new VpnIpv4RoutesBuilder().setVpnRoute(Collections.emptyList()).build();
     private static final VpnIpv4RoutesCase EMPTY_CASE
