@@ -266,6 +266,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
                 this.extensions.getClassLoadingStrategy());
 
         return new RIBImpl(
+                tableTypeRegistry,
                 new RibId(bgpInstanceName),
                 this.asNumber,
                 new BgpId(this.routerId),

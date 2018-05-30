@@ -105,6 +105,7 @@ public abstract class AbstractRIBSupport<
     private final NodeIdentifier rdNid;
     protected final BindingNormalizedNodeSerializer mappingService;
     protected final YangInstanceIdentifier routeDefaultYii;
+    private final TablesKey tk;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -138,7 +139,7 @@ public abstract class AbstractRIBSupport<
         this.listClass = requireNonNull(listClass);
         this.routeQname = BindingReflections.findQName(listClass).withModule(module);
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
-        final TablesKey tk = new TablesKey(afiClass, safiClass);
+        this.tk = new TablesKey(afiClass, safiClass);
         //FIXME Use Route Case IId instead of Tables IId.
         this.emptyRoutes = (ChoiceNode) ((MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().setKey(tk)
@@ -164,6 +165,11 @@ public abstract class AbstractRIBSupport<
                         .node(BindingReflections.findQName(containerClass).withModule(module))
                         .node(this.routeQname)
                         .node(this.routeQname).build();
+    }
+
+    @Override
+    public final TablesKey getTablesKey() {
+        return this.tk;
     }
 
     @Override

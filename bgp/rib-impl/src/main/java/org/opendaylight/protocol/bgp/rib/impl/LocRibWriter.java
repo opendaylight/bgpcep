@@ -37,6 +37,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
@@ -86,6 +87,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker peerTracker,
             final TablesKey tablesKey,
+            final Class<? extends AfiSafiType> afiSafiType,
             final PathSelectionMode pathSelectionMode) {
         this.chain = requireNonNull(chain);
         this.ribIId = requireNonNull(ribIId);
@@ -98,12 +100,14 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         this.pathSelectionMode = pathSelectionMode;
 
         this.entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport, ribPolicies,
-                tablesKey, this.locRibTableIID);
+                tablesKey, afiSafiType, this.locRibTableIID);
         init();
     }
 
-    public static LocRibWriter create(@Nonnull final RIBSupport ribSupport,
+    public static LocRibWriter create(
+            @Nonnull final RIBSupport ribSupport,
             @Nonnull final TablesKey tablesKey,
+            @Nonnull final Class<? extends AfiSafiType> afiSafiType,
             @Nonnull final BindingTransactionChain chain,
             @Nonnull final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             @Nonnull final AsNumber ourAs,
@@ -112,7 +116,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             @Nonnull final BGPPeerTracker peerTracker,
             @Nonnull final PathSelectionMode pathSelectionStrategy) {
         return new LocRibWriter(ribSupport, chain, ribIId, ourAs.getValue(), dataBroker, ribPolicies,
-                peerTracker, tablesKey, pathSelectionStrategy);
+                peerTracker, tablesKey, afiSafiType, pathSelectionStrategy);
     }
 
     @SuppressWarnings("unchecked")

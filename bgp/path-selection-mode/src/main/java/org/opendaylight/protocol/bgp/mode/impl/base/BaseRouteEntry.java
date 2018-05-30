@@ -138,7 +138,7 @@ final class BaseRouteEntry extends AbstractRouteEntry<BaseBestPath> {
         final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(
                 this.peerTracker.getPeer(this.bestPath.getPeerId()), toPeer);
         final Optional<Attributes> effAttrib = entryDep.getRoutingPolicies()
-                .applyExportPolicies(routeEntry, this.bestPath.getAttributes());
+                .applyExportPolicies(routeEntry, this.bestPath.getAttributes(), entryDep.getAfiSafType());
         if (effAttrib.isPresent()) {
             final Route route = createRoute(ribSupport,
                     entryInfo.getRouteKey(), this.bestPath.getPathId(), this.bestPath);
@@ -185,7 +185,8 @@ final class BaseRouteEntry extends AbstractRouteEntry<BaseBestPath> {
     private void fillAdjRibsOut(
             @Nullable final Attributes attributes,
             @Nullable final Route route,
-            final Identifier routeKey, final PeerId fromPeerId,
+            final Identifier routeKey,
+            final PeerId fromPeerId,
             final RouteEntryDependenciesContainer routeEntryDep,
             final WriteTransaction tx) {
         /*
@@ -209,7 +210,7 @@ final class BaseRouteEntry extends AbstractRouteEntry<BaseBestPath> {
             if (fromPeer != null && attributes != null) {
                 final BGPRouteEntryExportParameters routeEntry
                         = new BGPRouteEntryExportParametersImpl(fromPeer, toPeer);
-                effAttr = routingPolicies.applyExportPolicies(routeEntry, attributes);
+                effAttr = routingPolicies.applyExportPolicies(routeEntry, attributes, routeEntryDep.getAfiSafType());
             }
             final InstanceIdentifier ribOutTarget
                     = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTK), routeKey);

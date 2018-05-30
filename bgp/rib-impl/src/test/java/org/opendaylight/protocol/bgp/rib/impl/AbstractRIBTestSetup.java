@@ -181,7 +181,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         mockedMethods();
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), RIB_ID, context,
+        this.rib = new RIBImpl(this.tableRegistry, new RibId("test"), new AsNumber(5L), RIB_ID, context,
                 this.dispatcher, codecsRegistry, this.dom, getDataBroker(), this.policies, this.peerTracker,
                 localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));

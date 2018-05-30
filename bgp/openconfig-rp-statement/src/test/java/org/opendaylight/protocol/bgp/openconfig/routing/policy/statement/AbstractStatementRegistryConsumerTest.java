@@ -28,7 +28,7 @@ public class AbstractStatementRegistryConsumerTest extends AbstractStatementRegi
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.statementRegistry = new StatementRegistry(getDataBroker());
+        this.statementRegistry = new StatementRegistry();
         final StatementActivator activator = new StatementActivator(getDataBroker());
         activator.start(this.statementRegistry);
     }

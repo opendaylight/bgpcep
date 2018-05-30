@@ -27,6 +27,7 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.Stat
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.DefaultPolicyType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.apply.policy.group.apply.policy.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
@@ -97,12 +98,13 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
 
     @Override
     public Optional<Attributes> applyImportPolicies(final BGPRouteEntryImportParameters policyParameters,
-            final Attributes attributes) {
+            final Attributes attributes, final Class<? extends AfiSafiType> afiSafi) {
         RouteAttributeContainer currentAttributes = routeAttributeContainerFalse(attributes);
         for (final String policyName : this.importPolicy) {
             for (final Statement statement : this.statements.getUnchecked(policyName)) {
                 currentAttributes = this.policyRegistry
-                        .applyImportStatement(this.ribBaseParameters, policyParameters, currentAttributes, statement);
+                        .applyImportStatement(this.ribBaseParameters, afiSafi, policyParameters, currentAttributes,
+                                statement);
             }
         }
         if (!currentAttributes.anyConditionSatisfied()) {
@@ -115,12 +117,12 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
 
     @Override
     public Optional<Attributes> applyExportPolicies(final BGPRouteEntryExportParameters policyParameters,
-            final Attributes attributes) {
+            final Attributes attributes, final Class<? extends AfiSafiType> afiSafi) {
         RouteAttributeContainer currentAttributes = routeAttributeContainerFalse(attributes);
         for (final String policyName : this.exportPolicy) {
             for (final Statement statement : this.statements.getUnchecked(policyName)) {
                 currentAttributes = this.policyRegistry.applyExportStatement(
-                        this.ribBaseParameters, policyParameters, currentAttributes, statement);
+                        this.ribBaseParameters, afiSafi, policyParameters, currentAttributes, statement);
             }
         }
         if (!currentAttributes.anyConditionSatisfied()) {

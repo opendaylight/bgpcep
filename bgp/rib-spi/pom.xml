@@ -46,6 +46,10 @@
             <artifactId>bgp-rib-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-openconfig-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-inet-types-2013-07-15</artifactId>
         </dependency>

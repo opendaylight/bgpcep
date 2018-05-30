@@ -32,6 +32,7 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
@@ -232,11 +233,11 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         return connectPeer(peer, clientDispatcher);
     }
 
-    protected static BGPPeer configurePeer(final Ipv4Address peerAddress, final RIBImpl ribImpl,
-        final BgpParameters bgpParameters, final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry) {
+    protected static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4Address peerAddress, final RIBImpl ribImpl,
+            final BgpParameters bgpParameters, final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
-        final BGPPeer bgpPeer = new BGPPeer(new IpAddress(peerAddress), ribImpl, peerRole, null,
+        final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), ribImpl, peerRole, null,
             AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,

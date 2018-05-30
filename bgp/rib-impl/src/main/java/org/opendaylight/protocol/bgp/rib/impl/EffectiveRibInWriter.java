@@ -29,6 +29,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
@@ -83,11 +84,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final Map<TablesKey, LongAdder> prefixesInstalled;
     private final BGPRibRoutingPolicy ribPolicies;
     private final BGPRouteEntryImportParameters peerImportParameters;
+    private final BGPTableTypeRegistryConsumer tableTypeRegistry;
 
-    EffectiveRibInWriter(final BGPRouteEntryImportParameters peer, final RIB rib,
+    EffectiveRibInWriter(
+            final BGPRouteEntryImportParameters peer,
+            final RIB rib,
             final BindingTransactionChain chain,
             final KeyedInstanceIdentifier<Peer, PeerKey> peerIId,
-            @Nonnull final Set<TablesKey> tables) {
+            final Set<TablesKey> tables,
+            final BGPTableTypeRegistryConsumer tableTypeRegistry
+    ) {
         this.registry = requireNonNull(rib.getRibSupportContext());
         this.chain = requireNonNull(chain);
         this.peerIId = requireNonNull(peerIId);
@@ -96,6 +102,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.prefixesReceived = buildPrefixesTables(tables);
         this.ribPolicies = requireNonNull(rib.getRibPolicies());
         this.databroker = requireNonNull(rib.getDataBroker());
+        this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.peerImportParameters = peer;
     }
 
@@ -216,7 +223,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
         CountersUtil.increment(this.prefixesReceived.get(tk), tk);
         final Optional<Attributes> effAtt = this.ribPolicies
-                .applyImportPolicies(this.peerImportParameters, route.getAttributes());
+                .applyImportPolicies(this.peerImportParameters, route.getAttributes(),
+                        tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get());
         if (effAtt.isPresent()) {
             CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
             tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);

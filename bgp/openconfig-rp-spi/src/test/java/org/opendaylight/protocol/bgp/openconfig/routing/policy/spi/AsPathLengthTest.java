@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -61,6 +62,7 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -75,6 +77,7 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -99,6 +102,7 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -112,6 +116,7 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -136,6 +141,7 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -147,6 +153,7 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);

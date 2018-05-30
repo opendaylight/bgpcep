@@ -33,7 +33,7 @@ public class AbstractStatementRegistryTest extends AbstractOpenconfigRoutingPoli
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.statementRegistry = new StatementRegistry(getDataBroker());
+        this.statementRegistry = new StatementRegistry();
     }
 
     protected List<Statement> loadStatement(final String policyName) throws ExecutionException, InterruptedException {

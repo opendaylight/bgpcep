@@ -112,15 +112,15 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class));
 
-        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext2, this.dispatcher,
-                this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies, this.peerTracker, tables,
-                Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
+        final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext2,
+                this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies, this.peerTracker,
+                tables, Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
                         .createBestPathSelectionStrategy(this.peerTracker)));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
-        final BGPPeer peer = new BGPPeer(this.localAddress, rib, PeerRole.Ibgp, null, Collections.emptySet(),
-                Collections.emptySet());
+        final BGPPeer peer = new BGPPeer(this.tableRegistry, this.localAddress, rib, PeerRole.Ibgp, null,
+                Collections.emptySet(), Collections.emptySet());
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
@@ -130,15 +130,15 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     public void testWithoutLinkstate() throws ReadFailedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class));
-        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext1, this.dispatcher,
-                this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies, this.peerTracker, tables,
-                Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
-                        .createBestPathSelectionStrategy(this.peerTracker)));
+        final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext1,
+                this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies, this.peerTracker,
+                tables, Collections.singletonMap(TABLE_KEY,
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);
-        final BGPPeer peer = new BGPPeer(this.localAddress, rib, PeerRole.Ibgp, null, Collections.emptySet(),
-                Collections.emptySet());
+        final BGPPeer peer = new BGPPeer(this.tableRegistry, this.localAddress, rib, PeerRole.Ibgp, null,
+                Collections.emptySet(), Collections.emptySet());
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
