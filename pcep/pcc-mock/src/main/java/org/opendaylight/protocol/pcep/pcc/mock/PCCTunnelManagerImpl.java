@@ -21,7 +21,6 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.updToRp
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import java.math.BigInteger;
@@ -354,7 +353,6 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         sendEndOfSynchronization(session, Optional.absent());
     }
 
-    @SuppressFBWarnings(value = "NP_NULL_PARAM_DEREF", justification = "Unrecognised NullableDecl")
     private void sendEndOfSynchronization(final PCCSession session, final Optional<SrpIdNumber> operationId) {
         Srp srp = null;
         if (operationId.isPresent()) {
