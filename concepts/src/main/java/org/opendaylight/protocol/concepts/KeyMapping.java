@@ -9,7 +9,6 @@ package org.opendaylight.protocol.concepts;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -24,8 +23,6 @@ public final class KeyMapping extends HashMap<InetAddress, byte[]> {
     }
 
     @Nonnull
-    @SuppressFBWarnings(value = "NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE",
-            justification = "Unrecognised NullableDecl")
     public static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final String password) {
         final KeyMapping keyMapping = new KeyMapping();
         if (!isNullOrEmpty(password)) {
