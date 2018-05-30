@@ -305,6 +305,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-extensions-api</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-bgp-inet</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
