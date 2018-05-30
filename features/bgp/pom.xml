@@ -42,6 +42,7 @@
         <module>odl-bgpcep-bgp-openconfig-rp-impl</module>
         <module>odl-bgpcep-bgp-openconfig-rp-statement</module>
         <!-- Family extensions -->
+        <module>odl-bgpcep-bgp-extensions-api</module>
         <module>odl-bgpcep-bgp-inet</module>
         <module>odl-bgpcep-bgp-linkstate</module>
         <module>odl-bgpcep-bgp-flowspec</module>
