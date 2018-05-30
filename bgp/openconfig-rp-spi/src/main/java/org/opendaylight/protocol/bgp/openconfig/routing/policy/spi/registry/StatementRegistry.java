@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerTrue;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.ActionsAugPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
@@ -23,6 +22,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameter
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpMatchConditions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.BgpActions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.conditions.BgpConditions;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.statement.Actions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.statement.Conditions;
@@ -35,19 +35,21 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
     private final ConditionsRegistryImpl conditionsRegistry;
     private final ActionsRegistryImpl actionsRegistry;
 
-    public StatementRegistry(final DataBroker databroker) {
-        this.conditionsRegistry = new ConditionsRegistryImpl(databroker);
+    public StatementRegistry() {
+        this.conditionsRegistry = new ConditionsRegistryImpl();
         this.actionsRegistry = new ActionsRegistryImpl();
     }
 
     @Override
     public RouteAttributeContainer applyExportStatement(
             final RouteEntryBaseAttributes routeEntryInfo,
+            final Class<? extends AfiSafiType> afiSafi,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final RouteAttributeContainer attributes,
             final Statement statement) {
         final Attributes att = attributes.getAttributes();
         if (att == null || !this.conditionsRegistry.matchExportConditions(
+                afiSafi,
                 routeEntryInfo,
                 routeEntryExportParameters,
                 att,
@@ -64,11 +66,13 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
     @Override
     public RouteAttributeContainer applyImportStatement(
             final RouteEntryBaseAttributes routeEntryInfo,
+            final Class<? extends AfiSafiType> afiSafi,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final RouteAttributeContainer attributes,
             final Statement statement) {
         final Attributes att = attributes.getAttributes();
         if (att == null || !this.conditionsRegistry.matchImportConditions(
+                afiSafi,
                 routeEntryInfo,
                 routeEntryImportParameters,
                 attributes.getAttributes(),

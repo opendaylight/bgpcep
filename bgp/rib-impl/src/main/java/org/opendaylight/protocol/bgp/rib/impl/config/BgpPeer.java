@@ -268,8 +268,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                 neighborLocalAs = globalAs;
             }
 
-            this.bgpPeer = new BGPPeer(this.neighborAddress, peerGroupName, rib, role, clusterId, neighborLocalAs,
-                    BgpPeer.this.rpcRegistry, afiSafisAdvertized, Collections.emptySet());
+            this.bgpPeer = new BGPPeer(tableTypeRegistry, this.neighborAddress, peerGroupName, rib, role, clusterId,
+                    neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, Collections.emptySet());
             this.prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
                     neighborRemoteAs, bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);

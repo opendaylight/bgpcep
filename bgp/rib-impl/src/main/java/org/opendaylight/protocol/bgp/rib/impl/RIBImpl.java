@@ -40,6 +40,7 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -98,6 +99,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistryImpl codecsRegistry;
+    private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     @GuardedBy("this")
     private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension domService;
@@ -112,7 +114,9 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     @GuardedBy("this")
     private boolean isServiceInstantiated;
 
-    public RIBImpl(final RibId ribId,
+    public RIBImpl(
+            final BGPTableTypeRegistryConsumer tableTypeRegistry,
+            final RibId ribId,
             final AsNumber localAs,
             final BgpId localBgpId,
             final RIBExtensionConsumerContext extensions,
@@ -127,6 +131,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     ) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
                 localBgpId, localAs);
+        this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.localAs = requireNonNull(localAs);
         this.bgpIdentifier = requireNonNull(localBgpId);
         this.dispatcher = requireNonNull(dispatcher);
@@ -199,6 +204,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         final LocRibWriter locRibWriter = LocRibWriter.create(
                 ribSupport,
                 key,
+                this.tableTypeRegistry.getAfiSafiType(key).get(),
                 txChain,
                 getInstanceIdentifier(),
                 this.localAs,

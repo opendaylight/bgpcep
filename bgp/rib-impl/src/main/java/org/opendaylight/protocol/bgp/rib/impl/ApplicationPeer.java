@@ -30,6 +30,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
@@ -84,6 +85,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     private final YangInstanceIdentifier adjRibsInId;
     private final InstanceIdentifier<AdjRibOut> peerRibOutIId;
     private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
+    private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private DOMTransactionChain chain;
     private DOMTransactionChain writerChain;
     private EffectiveRibInWriter effectiveRibInWriter;
@@ -110,9 +112,12 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         void register();
     }
 
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
+    public ApplicationPeer(
+            final BGPTableTypeRegistryConsumer tableTypeRegistry,
+            final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
         super(rib, applicationRibId.getValue(), APP_PEER_GROUP, PeerRole.Internal,
                 new IpAddress(ipAddress), Collections.emptySet());
+        this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         this.adjRibsInId = targetRib.getYangRibId().node(Peer.QNAME)
@@ -147,7 +152,8 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, this.peerPath, context, localTables,
                 Collections.emptyMap(), registerAppPeerListener);
         this.effectiveRibInWriter = new EffectiveRibInWriter(this, this.rib,
-                this.rib.createPeerChain(this), this.peerIId, localTables);
+                this.rib.createPeerChain(this), this.peerIId, localTables, this.tableTypeRegistry
+        );
         this.effectiveRibInWriter.init();
         this.bgpSessionState.registerMessagesCounter(this);
         this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);

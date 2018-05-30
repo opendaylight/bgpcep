@@ -236,6 +236,13 @@ public interface RIBSupport<
     @Nonnull
     R createRoute(@Nullable R route, String routeKey, @Nullable long pathId, @Nonnull Attributes attributes);
 
+    /**
+     * Returns TablesKey which we are providing support.
+     *
+     * @return TablesKey
+     */
+    TablesKey getTablesKey();
+
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
                 @Nonnull NodeIdentifierWithPredicates routeKey,

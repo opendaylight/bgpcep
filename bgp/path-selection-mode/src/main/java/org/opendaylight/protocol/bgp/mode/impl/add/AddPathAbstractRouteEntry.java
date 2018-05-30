@@ -177,7 +177,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
                 final BGPRouteEntryExportParameters baseExp = new BGPRouteEntryExportParametersImpl(
                         this.peerTracker.getPeer(path.getPeerId()), toPeer);
                 final Optional<Attributes> effAttrib = routeEntryDep.getRoutingPolicies()
-                        .applyExportPolicies(baseExp, path.getAttributes());
+                        .applyExportPolicies(baseExp, path.getAttributes(), routeEntryDep.getAfiSafType());
                 if (effAttrib.isPresent()) {
                     Identifier routeIdentifier = ribSupport.createRouteListKey(destPeerSupAddPath
                             ? path.getPathId() : NON_PATH_ID_VALUE, routeKey);
@@ -255,7 +255,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry<AddPa
                     final BGPRouteEntryExportParameters baseExp
                             = new BGPRouteEntryExportParametersImpl(fromPeer, toPeer);
                     effAttrib = routeEntryDep.getRoutingPolicies()
-                            .applyExportPolicies(baseExp, attributes);
+                            .applyExportPolicies(baseExp, attributes, routeEntryDep.getAfiSafType());
                 }
                 Route newRoute = null;
                 InstanceIdentifier ribOutRoute = null;

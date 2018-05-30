@@ -9,9 +9,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -21,14 +23,17 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     private final TablesKey tablesKey;
     private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget;
     private final BGPRibRoutingPolicy routingPolicies;
+    private final Class<? extends AfiSafiType> afiSafiType;
 
     public RouteEntryDependenciesContainerImpl(
             final RIBSupport ribSupport,
             final BGPRibRoutingPolicy routingPolicies,
             final TablesKey tablesKey,
+            final Class<? extends AfiSafiType> afiSafiType,
             final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget) {
         this.ribSupport = requireNonNull(ribSupport);
         this.tablesKey = requireNonNull(tablesKey);
+        this.afiSafiType = requireNonNull(afiSafiType);
         this.routingPolicies = requireNonNull(routingPolicies);
         this.locRibTarget = requireNonNull(locRibTarget);
     }
@@ -41,6 +46,11 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     @Override
     public TablesKey getLocalTablesKey() {
         return this.tablesKey;
+    }
+
+    @Override
+    public Class<? extends AfiSafiType> getAfiSafType() {
+        return this.afiSafiType;
     }
 
     @Override

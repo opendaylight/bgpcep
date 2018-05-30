@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import java.util.Optional;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 
 /**
@@ -20,12 +21,14 @@ public interface BGPRibRoutingPolicy {
      *
      * @param policyParameters containing attributes and sender peer information
      * @param attributes       Route attributes
+     * @param afiSafType       Afi Safi Type
      * @return modified route attributes after apply policies
      */
     @Nonnull
     Optional<Attributes> applyImportPolicies(
             @Nonnull BGPRouteEntryImportParameters policyParameters,
-            @Nonnull Attributes attributes
+            @Nonnull Attributes attributes,
+            @Nonnull Class<? extends AfiSafiType> afiSafType
     );
 
     /**
@@ -33,11 +36,13 @@ public interface BGPRibRoutingPolicy {
      *
      * @param policyParameters containing attributes and sender/receiver peer information
      * @param attributes       Route attributes
+     * @param afiSafType       Afi Safi Type
      * @return modified route attributes after apply policies
      */
     @Nonnull
     Optional<Attributes> applyExportPolicies(
             @Nonnull BGPRouteEntryExportParameters policyParameters,
-            @Nonnull Attributes attributes
+            @Nonnull Attributes attributes,
+            @Nonnull Class<? extends AfiSafiType> afiSafType
     );
 }

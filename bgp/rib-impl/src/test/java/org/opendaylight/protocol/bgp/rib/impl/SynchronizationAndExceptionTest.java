@@ -208,14 +208,15 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     public void testHandleMessageAfterException() {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
-        final RIBImpl ribImpl = new RIBImpl( new RibId(RIB_ID), AS_NUMBER,  new BgpId(RIB_ID), this.ribExtension,
+        final RIBImpl ribImpl = new RIBImpl(this.tableRegistry, new RibId(RIB_ID), AS_NUMBER,  new BgpId(RIB_ID),
+                this.ribExtension,
                 this.serverDispatcher, this.codecsRegistry, this.domBroker, getDataBroker(), this.policies,
                 this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
-        final BGPPeer bgpPeer = new BGPPeer(neighbor, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
-                Collections.emptySet());
+        final BGPPeer bgpPeer = new BGPPeer(this.tableRegistry, neighbor, ribImpl, PeerRole.Ibgp, null,
+                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
                 this.classicOpen.getHoldTimer(), null);
@@ -256,14 +257,15 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     public void testUseCase1() {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
-        final RIBImpl ribImpl = new RIBImpl(new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID), this.ribExtension,
+        final RIBImpl ribImpl = new RIBImpl(this.tableRegistry, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID),
+                this.ribExtension,
                 this.serverDispatcher, this.codecsRegistry, this.domBroker, getDataBroker(), this.policies,
                 this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
-        final BGPPeer bgpPeer = new BGPPeer(neighbor, ribImpl, PeerRole.Ibgp, null, AFI_SAFIS_ADVERTIZED,
-                Collections.emptySet());
+        final BGPPeer bgpPeer = new BGPPeer(this.tableRegistry, neighbor, ribImpl, PeerRole.Ibgp, null,
+                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
                 this.classicOpen.getHoldTimer(), null);

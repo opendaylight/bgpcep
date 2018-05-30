@@ -100,6 +100,17 @@
                     </actions>
                 </statement>
                 <statement>
+                    <name>afi-safi-in-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <afi-safi-in xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-in>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+                <statement>
                     <name>multiple-append-test</name>
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">

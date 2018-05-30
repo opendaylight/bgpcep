@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi.entry;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -34,6 +35,14 @@ public interface RouteEntryDependenciesContainer {
      */
     @Nonnull
     TablesKey getLocalTablesKey();
+
+    /**
+     * Returns the AfiSafiType(AFI/SAFI) corresponding to the Route Entry.
+     *
+     * @return TablesKey
+     */
+    @Nonnull
+    Class<? extends AfiSafiType> getAfiSafType();
 
 
     /**

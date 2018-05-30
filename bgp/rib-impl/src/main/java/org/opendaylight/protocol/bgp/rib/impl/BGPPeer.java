@@ -36,6 +36,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
@@ -103,6 +104,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final RIB rib;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
+    private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private InstanceIdentifier<AdjRibOut> peerRibOutIId;
     @GuardedBy("this")
     private AbstractRegistration trackerRegistration;
@@ -129,6 +131,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private boolean sessionUp;
 
     public BGPPeer(
+            final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final IpAddress neighborAddress,
             final String peerGroupName,
             final RIB rib,
@@ -140,20 +143,22 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final Set<TablesKey> afiSafisGracefulAdvertized) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId,
                 localAs, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized);
+        this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
         this.chain = rib.createPeerDOMChain(this);
     }
 
     BGPPeer(
+            final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final IpAddress neighborAddress,
             final RIB rib,
             final PeerRole role,
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
-        this(neighborAddress, null, rib, role, null, null, rpcRegistry, afiSafisAdvertized,
-                afiSafisGracefulAdvertized);
+        this(tableTypeRegistry, neighborAddress, null, rib, role, null, null, rpcRegistry,
+                afiSafisAdvertized, afiSafisGracefulAdvertized);
     }
 
 
@@ -331,8 +336,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
                 .collect(Collectors.toSet());
         this.tables = ImmutableSet.copyOf(setTables);
-        this.effRibInWriter = new EffectiveRibInWriter(this, this.rib, this.rib.createPeerChain(this),
-                peerIId, this.tables);
+        this.effRibInWriter = new EffectiveRibInWriter(this, this.rib,
+                this.rib.createPeerChain(this),
+                peerIId, this.tables, this.tableTypeRegistry);
         registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
         this.peerRibOutIId = peerIId.child(AdjRibOut.class);
         this.effRibInWriter.init();

@@ -18,6 +18,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -58,6 +60,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -69,6 +72,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
                 .build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -85,6 +89,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -96,6 +101,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
                 .build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -113,6 +119,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -125,6 +132,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
                 .build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -141,6 +149,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);
@@ -152,6 +161,36 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
                 .build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
+                IPV4UNICAST.class,
+                this.exportParameters,
+                attributeContainer,
+                statement);
+        assertNull(result.getAttributes());
+    }
+
+    @Test
+    public void testAfiSafiIn() {
+        Statement statement = this.basicStatements.stream()
+                .filter(st -> st.getName().equals("afi-safi-in-test")).findFirst().get();
+        RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
+                .setLocalPref(new LocalPrefBuilder().setPref(350L).build())
+                .build());
+
+        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
+                this.baseAttributes,
+                IPV6UNICAST.class,
+                this.exportParameters,
+                attributeContainer,
+                statement);
+        assertNotNull(result.getAttributes());
+
+
+        attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
+                .setLocalPref(new LocalPrefBuilder().setPref(100L).build())
+                .build());
+        result = this.statementRegistry.applyExportStatement(
+                this.baseAttributes,
+                IPV4UNICAST.class,
                 this.exportParameters,
                 attributeContainer,
                 statement);

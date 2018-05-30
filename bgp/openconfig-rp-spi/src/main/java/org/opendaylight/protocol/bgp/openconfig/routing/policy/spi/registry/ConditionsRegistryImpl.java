@@ -13,7 +13,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
@@ -22,6 +21,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameter
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpMatchConditions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.conditions.BgpConditions;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.statement.Conditions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
@@ -34,12 +34,9 @@ final class ConditionsRegistryImpl {
     @GuardedBy("this")
     private final Map<Class<? extends Augmentation<Conditions>>, ConditionsAugPolicy> conditionsRegistry
             = new HashMap<>();
-    //TODO Implement match prefix
-    //private final GenericConditionPolicyHandler genericConditionHandler;
     private final BgpConditionsRegistry bgpConditionsRegistry = new BgpConditionsRegistry();
 
-    ConditionsRegistryImpl(final DataBroker databroker) {
-    //    this.genericConditionHandler = new GenericConditionPolicyHandler(databroker);
+    ConditionsRegistryImpl() {
     }
 
     AbstractRegistration registerConditionPolicy(final Class<? extends Augmentation<Conditions>> conditionPolicyClass,
@@ -75,13 +72,14 @@ final class ConditionsRegistryImpl {
 
     @SuppressWarnings("unchecked")
     boolean matchExportConditions(
+            final Class<? extends AfiSafiType> afiSafi,
             final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final Attributes attributes,
             final Conditions conditions) {
 
         if (!this.bgpConditionsRegistry
-                .matchExportConditions(entryInfo, routeEntryExportParameters, attributes, conditions)) {
+                .matchExportConditions(afiSafi, entryInfo, routeEntryExportParameters, attributes, conditions)) {
             return false;
         }
 
@@ -106,17 +104,12 @@ final class ConditionsRegistryImpl {
 
     @SuppressWarnings("unchecked")
     boolean matchImportConditions(
-            final RouteEntryBaseAttributes entryInfo,
+            final Class<? extends AfiSafiType> afiSafi, final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final Attributes attributes,
             final Conditions conditions) {
-        /*if (!this.genericConditionHandler
-                .matchImportCondition(routeEntryImportParameters, conditions)) {
-            return false;
-        }*/
-
         if (!this.bgpConditionsRegistry
-                .matchImportConditions(entryInfo, routeEntryImportParameters, attributes, conditions)) {
+                .matchImportConditions(afiSafi, entryInfo, routeEntryImportParameters, attributes, conditions)) {
             return false;
         }
 
