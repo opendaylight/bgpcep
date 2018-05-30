@@ -354,7 +354,6 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         sendEndOfSynchronization(session, Optional.absent());
     }
 
-    @SuppressFBWarnings(value = "NP_NULL_PARAM_DEREF", justification = "Unrecognised NullableDecl")
     private void sendEndOfSynchronization(final PCCSession session, final Optional<SrpIdNumber> operationId) {
         Srp srp = null;
         if (operationId.isPresent()) {
