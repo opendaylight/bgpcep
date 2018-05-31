@@ -111,7 +111,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         final DataTreeIdentifier treeId = new DataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
                 this.peerIId.child(AdjRibIn.class).child(Tables.class));
         LOG.debug("Registered Effective RIB on {}", this.peerIId);
-        this.reg = requireNonNull(this.databroker).registerDataTreeChangeListener(treeId, this);
+       // this.reg = requireNonNull(this.databroker).registerDataTreeChangeListener(treeId, this);
     }
 
     private Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {

@@ -30,9 +30,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -77,7 +77,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.PeerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -120,15 +122,15 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
-    private final DOMTransactionChain chain;
-    @GuardedBy("this")
-    private AdjRibInWriter ribWriter;
+    private AdjRibInWriter adjRibInWriter;
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
     private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
     private YangInstanceIdentifier peerPath;
+    @GuardedBy("this")
     private boolean sessionUp;
+    private KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
 
     public BGPPeer(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
@@ -146,7 +148,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
-        this.chain = rib.createPeerDOMChain(this);
     }
 
     BGPPeer(
@@ -226,14 +227,13 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     public synchronized void instantiateServiceInstance() {
-        this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.chain);
+        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this);
         setActive(true);
     }
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> close() {
         final FluentFuture<? extends CommitInfo> future = releaseConnection();
-        this.chain.close();
         setActive(false);
         return future;
     }
@@ -242,6 +242,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     public void onMessage(final BGPSession session, final Notification msg) throws BGPDocumentedException {
         if (!(msg instanceof Update) && !(msg instanceof RouteRefresh)) {
             LOG.info("Ignoring unhandled message class {}", msg.getClass());
+            return;
+        }
+        if (!this.sessionUp) {
+            LOG.info("Clossing session, skipping received messages");
             return;
         }
         if (msg instanceof Update) {
@@ -301,7 +305,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             mpReach = MessageUtil.getMpReachNlri(attrs);
         }
         if (mpReach != null) {
-            this.ribWriter.updateRoutes(mpReach, nextHopToAttribute(attrs, mpReach));
+            this.adjRibInWriter.updateRoutes(mpReach, nextHopToAttribute(attrs, mpReach));
         }
         MpUnreachNlri mpUnreach;
         if (message.getWithdrawnRoutes() != null) {
@@ -310,7 +314,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             mpUnreach = MessageUtil.getMpUnreachNlri(attrs);
         }
         if (mpUnreach != null) {
-            this.ribWriter.removeRoutes(mpUnreach);
+            this.adjRibInWriter.removeRoutes(mpUnreach);
         }
     }
 
@@ -318,6 +322,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     public synchronized void onSessionUp(final BGPSession session) {
         this.session = session;
         this.sessionUp = true;
+        this.bindingChain = this.rib.createPeerChain(this);
+        this.domChain = this.rib.createPeerDOMChain(this);
         if (this.session instanceof BGPSessionStateProvider) {
             ((BGPSessionStateProvider) this.session).registerMessagesCounter(this);
         }
@@ -329,8 +335,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 advertizedTableTypes, addPathTablesType);
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         this.peerId = RouterIds.createPeerId(session.getBgpId());
-        final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId =
+        this.peerIId =
                 getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                 .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
         final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
@@ -340,7 +345,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 this.rib.createPeerChain(this),
                 peerIId, this.tables, this.tableTypeRegistry);
         registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
-        this.peerRibOutIId = peerIId.child(AdjRibOut.class);
+        this.peerRibOutIId = this.peerIId.child(AdjRibOut.class);
         this.effRibInWriter.init();
         setAdvertizedGracefulRestartTableTypes(advertizedGracefulRestartTableTypes.stream()
                 .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
@@ -354,7 +359,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         addBgp4Support();
 
         this.peerPath = createPeerPath();
-        this.ribWriter = this.ribWriter.transform(this.peerId, this.peerPath, this.rib.getRibSupportContext(),
+        this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, this.peerPath, this.rib.getRibSupportContext(),
                 this.tables, this.addPathTableMaps);
 
         if (this.rpcRegistry != null) {
@@ -394,16 +399,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    private synchronized FluentFuture<? extends CommitInfo> cleanup() {
-        // FIXME: BUG-196: support graceful
-        this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
-        this.adjRibOutListenerSet.clear();
-        if (this.effRibInWriter != null) {
-            this.effRibInWriter.close();
-        }
-        this.tables = Collections.emptySet();
-        this.addPathTableMaps = Collections.emptyMap();
-        return removePeer(this.chain, this.peerPath);
+    private synchronized void cleanup() {
+
     }
 
     @Override
@@ -435,13 +432,24 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> releaseConnection() {
-        LOG.info("Closing session with peer");
+        LOG.info("Closing session with peer {}", getPeerId());
         this.sessionUp = false;
-        closeRegistration();
-        if (this.rpcRegistration != null) {
-            this.rpcRegistration.close();
+        if(this.domChain != null) {
+            LOG.info("Closing DOM peer chain {}", getPeerId());
+            this.domChain.close();
+            this.domChain = null;
         }
-        final FluentFuture<? extends CommitInfo> future = cleanup();
+        FluentFuture<? extends CommitInfo> future = CommitInfo.emptyFluentFuture();
+        if (this.bindingChain != null) {
+            if (this.peerIId != null) {
+                LOG.info("Remove Peer {}", getPeerId());
+                //Reduce peer removal to specific RIB table only for investigation purpose
+                future = delete(this.peerIId.child(AdjRibIn.class));
+            }
+            LOG.info("Closing peer chain {}", getPeerId());
+            this.bindingChain.close();
+            this.bindingChain = null;
+        }
 
         if (this.session != null) {
             try {
@@ -451,6 +459,20 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             }
             this.session = null;
         }
+        closeRegistration();
+        if (this.rpcRegistration != null) {
+            this.rpcRegistration.close();
+        }
+
+        // FIXME: BUG-196: support graceful
+        this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
+        this.adjRibOutListenerSet.clear();
+        if (this.effRibInWriter != null) {
+            this.effRibInWriter.close();
+        }
+        this.tables = Collections.emptySet();
+        this.addPathTableMaps = Collections.emptyMap();
+
         resetState();
         return future;
     }
@@ -481,18 +503,13 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @Override
     public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
             final AsyncTransaction<?, ?> transaction, final Throwable cause) {
-        LOG.error("Transaction chain failed.", cause);
-        this.chain.close();
-        //FIXME BGPCEP-731
-        /*
-        this.chain = this.rib.createPeerDOMChain(this);
-        this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.chain);
-        releaseConnection();*/
+        LOG.error("Transaction domChain failed.", cause);
+        releaseConnection();
     }
 
     @Override
     public synchronized void markUptodate(final TablesKey tablesKey) {
-        this.ribWriter.markTableUptodate(tablesKey);
+        this.adjRibInWriter.markTableUptodate(tablesKey);
     }
 
     @Override

@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -97,10 +98,10 @@ final class AdjRibInWriter {
 
     private final Map<TablesKey, TableContext> tables;
     private final YangInstanceIdentifier ribPath;
-    private final DOMTransactionChain chain;
+    private final PeerTransactionChain chain;
     private final PeerRole role;
 
-    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerRole role,
+    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final PeerTransactionChain chain, final PeerRole role,
             final Map<TablesKey, TableContext> tables) {
         this.ribPath = requireNonNull(ribPath);
         this.chain = requireNonNull(chain);
@@ -115,7 +116,7 @@ final class AdjRibInWriter {
      * @param chain               transaction chain  @return A fresh writer instance
      */
     static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role,
-            @Nonnull final DOMTransactionChain chain) {
+            @Nonnull final PeerTransactionChain chain) {
         return new AdjRibInWriter(ribId, chain, role, Collections.emptyMap());
     }
 
@@ -141,7 +142,7 @@ final class AdjRibInWriter {
             final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
             final Map<TablesKey, SendReceive> addPathTablesType,
             @Nullable final RegisterAppPeerListener registerAppPeerListener) {
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
 
         createEmptyPeerStructure(newPeerId, peerPath, tx);
         final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(peerPath, registry, tableTypes,
@@ -247,14 +248,14 @@ final class AdjRibInWriter {
     }
 
     void markTableUptodate(final TablesKey tableTypes) {
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         final TableContext ctx = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME)
                 .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.trace("Write Attributes uptodate, succeed");
+                LOG.info("Write Attributes uptodate, succeed");
             }
 
             @Override
@@ -273,7 +274,7 @@ final class AdjRibInWriter {
             return;
         }
 
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -297,7 +298,7 @@ final class AdjRibInWriter {
             return;
         }
         LOG.trace("Removing routes {}", nlri);
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override

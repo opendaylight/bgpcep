@@ -12,15 +12,16 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Arrays;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -30,22 +31,29 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters, TransactionChainListener,
-        Peer {
+        Peer, PeerTransactionChain {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
     protected final RIB rib;
     final String name;
     final PeerRole peerRole;
     private final ClusterIdentifier clusterId;
     private final AsNumber localAs;
+    @GuardedBy("this")
+    DOMTransactionChain domChain;
+    @GuardedBy("this")
+    BindingTransactionChain bindingChain;
     byte[] rawIdentifier;
     @GuardedBy("this")
     PeerId peerId;
@@ -66,6 +74,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         this.clusterId = clusterId;
         this.localAs = localAs;
         this.rib = rib;
+        this.domChain = this.rib.createPeerDOMChain(this);
     }
 
     AbstractPeer(
@@ -77,30 +86,6 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final Set<TablesKey> afiSafisGracefulAdvertized) {
         this(rib, peerName, groupId, role, null, null, neighborAddress,
                 rib.getLocalTablesKeys(), afiSafisGracefulAdvertized);
-    }
-
-    final synchronized FluentFuture<? extends CommitInfo> removePeer(
-            @Nonnull final DOMTransactionChain chain,
-            @Nullable final YangInstanceIdentifier peerPath) {
-        if (peerPath != null) {
-            LOG.info("AdjRibInWriter closed per Peer {} removed", peerPath);
-            final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
-            tx.delete(LogicalDatastoreType.OPERATIONAL, peerPath);
-            final FluentFuture<? extends CommitInfo> future = tx.commit();
-            future.addCallback(new FutureCallback<CommitInfo>() {
-                @Override
-                public void onSuccess(final CommitInfo result) {
-                    LOG.debug("Peer {} removed", peerPath);
-                }
-
-                @Override
-                public void onFailure(final Throwable t) {
-                    LOG.error("Failed to remove Peer {}", peerPath, t);
-                }
-            }, MoreExecutors.directExecutor());
-            return future;
-        }
-        return CommitInfo.emptyFluentFuture();
     }
 
     synchronized YangInstanceIdentifier createPeerPath() {
@@ -171,5 +156,60 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     @Override
     public final AsNumber getLocalAs() {
         return this.localAs;
+    }
+
+    @Override
+    public synchronized DOMTransactionChain getDomChain() {
+        return this.domChain;
+    }
+
+
+    @Override
+    public final synchronized void update(final InstanceIdentifier ribOutTarget, final Route route,
+            final Attributes attributes) {
+        if (this.bindingChain == null) {
+            LOG.debug("Session closed, skip changes route {} to peer AdjRibsOut {}", ribOutTarget, getPeerId());
+            return;
+        }
+        final WriteTransaction tx = this.bindingChain.newWriteOnlyTransaction();
+        LOG.debug("Write route {} to peer AdjRibsOut {}", route, getPeerId());
+        tx.put(LogicalDatastoreType.OPERATIONAL, ribOutTarget, route);
+        tx.put(LogicalDatastoreType.OPERATIONAL, ribOutTarget.child(Attributes.class), attributes);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful update commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed update commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
+
+    }
+
+    @Override
+    public final synchronized FluentFuture<? extends CommitInfo> delete(final InstanceIdentifier ribOutTarget) {
+        if (this.bindingChain == null) {
+            LOG.debug("Session closed, skip changes route {} to peer AdjRibsOut {}", ribOutTarget, getPeerId());
+            return CommitInfo.emptyFluentFuture();
+        }
+        final WriteTransaction tx = this.bindingChain.newWriteOnlyTransaction();
+        LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
+        tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
+        final FluentFuture<? extends CommitInfo> future = tx.commit();
+        future.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful delete commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed delete commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
+        return future;
     }
 }

@@ -144,9 +144,7 @@ final class BaseRouteEntry extends AbstractRouteEntry<BaseBestPath> {
                     entryInfo.getRouteKey(), this.bestPath.getPathId(), this.bestPath);
             InstanceIdentifier ribOutIId = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTK),
                     routeIdentifier);
-            LOG.debug("Write route {} to peer AdjRibsOut {}", route, toPeer.getPeerId());
-            tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId, route);
-            tx.put(LogicalDatastoreType.OPERATIONAL, ribOutIId.child(Attributes.class), effAttrib.get());
+            toPeer.update(ribOutIId, route, effAttrib.get());
         }
     }
 
@@ -214,13 +212,11 @@ final class BaseRouteEntry extends AbstractRouteEntry<BaseBestPath> {
             }
             final InstanceIdentifier ribOutTarget
                     = ribSupport.createRouteIdentifier(toPeer.getRibOutIId(localTK), routeKey);
+
             if (effAttr.isPresent() && route != null) {
-                LOG.debug("Write route {} to peer AdjRibsOut {}", route, toPeer.getPeerId());
-                tx.put(LogicalDatastoreType.OPERATIONAL, ribOutTarget, route);
-                tx.put(LogicalDatastoreType.OPERATIONAL, ribOutTarget.child(Attributes.class), effAttr.get());
+                toPeer.update(ribOutTarget, route, effAttr.get());
             } else {
-                LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, toPeer.getPeerId());
-                tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
+                toPeer.delete(ribOutTarget);
             }
         }
     }

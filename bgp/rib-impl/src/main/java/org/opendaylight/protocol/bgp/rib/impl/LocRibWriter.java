@@ -139,8 +139,8 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
 
         final InstanceIdentifier<Tables> tableId = this.ribIId.builder().child(Peer.class)
                 .child(EffectiveRibIn.class).child(Tables.class, this.tk).build();
-        this.reg = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
+   /*     this.reg = this.dataBroker.registerDataTreeChangeListener(
+                new DataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);*/
     }
 
     /**
@@ -332,7 +332,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         return this.totalPathsCounter.longValue();
     }
 
-    public TablesKey getTableKey() {
+    TablesKey getTableKey() {
         return this.tk;
     }
 }

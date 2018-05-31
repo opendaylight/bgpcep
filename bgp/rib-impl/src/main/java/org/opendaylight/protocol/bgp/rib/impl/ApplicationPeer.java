@@ -43,9 +43,11 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibIn;
@@ -87,7 +89,6 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private DOMTransactionChain chain;
-    private DOMTransactionChain writerChain;
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter adjRibInWriter;
     private ListenerRegistration<ApplicationPeer> registration;
@@ -133,13 +134,12 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
             final DOMDataTreeIdentifier appPeerDOMId) {
         setActive(true);
         this.chain = this.rib.createPeerDOMChain(this);
-        this.writerChain = this.rib.createPeerDOMChain(this);
 
         final Set<TablesKey> localTables = this.rib.getLocalTablesKeys();
         localTables.forEach(tablesKey -> this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey)));
         setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
 
-        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, this.writerChain);
+        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, this);
         final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
         final RegisterAppPeerListener registerAppPeerListener = () -> {
             synchronized (this) {
@@ -272,15 +272,16 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         }
         final FluentFuture<? extends CommitInfo> future;
         if (this.chain != null) {
-            future = removePeer(this.chain, this.peerPath);
+            future = delete(this.peerIId);
             this.chain.close();
             this.chain = null;
         } else {
             future = CommitInfo.emptyFluentFuture();
         }
-        if (this.writerChain != null) {
-            this.writerChain.close();
-            this.writerChain = null;
+        if(this.domChain != null) {
+            LOG.info("Closing DOM peer chain");
+            this.domChain.close();
+            this.domChain = null;
         }
         if (this.trackerRegistration != null) {
             this.trackerRegistration.close();
