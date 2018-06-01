@@ -82,7 +82,7 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
     private AbstractRIBSupport abstractRIBSupport;
     private ModuleInfoBackedContext moduleInfoBackedContext;
 
-    protected final void setUpTestCustomizer(final AbstractRIBSupport ribSupport) throws Exception {
+    protected final void setUpTestCustomizer(final AbstractRIBSupport<?, ?, ?, ?> ribSupport) throws Exception {
         this.abstractRIBSupport = ribSupport;
         this.moduleInfoBackedContext
                 .registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesContainerClass()));
@@ -147,6 +147,17 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
             .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
     }
 
+    protected final Collection<MapEntryNode> createRoutes(final DataObject routes) {
+        Preconditions.checkArgument(routes.getImplementedInterface()
+                .equals(this.abstractRIBSupport.routesContainerClass()));
+        final InstanceIdentifier<DataObject> routesIId = routesIId();
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService
+                .toNormalizedNode(routesIId, routes);
+        final ContainerNode container = (ContainerNode) normalizedNode.getValue();
+        final NodeIdentifier routeNid = new NodeIdentifier(getRouteListQname());
+        return ((MapNode) container.getChild(routeNid).get()).getValue();
+    }
+
     private TablesKey getTablesKey() {
         return new TablesKey(this.abstractRIBSupport.getAfi(), this.abstractRIBSupport.getSafi());
     }
@@ -168,18 +179,6 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
     protected final YangInstanceIdentifier getRoutePath() {
         final InstanceIdentifier<DataObject> routesIId = routesIId();
         return this.mappingService.toYangInstanceIdentifier(routesIId).node(getRouteListQname());
-    }
-
-    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
-    protected final Collection<MapEntryNode> createRoutes(final DataObject routes) {
-        Preconditions.checkArgument(routes.getImplementedInterface()
-                .equals(this.abstractRIBSupport.routesContainerClass()));
-        final InstanceIdentifier<DataObject> routesIId = routesIId();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService
-                .toNormalizedNode(routesIId, routes);
-        final ContainerNode container = (ContainerNode) normalizedNode.getValue();
-        final NodeIdentifier routeNid = new NodeIdentifier(getRouteListQname());
-        return ((MapNode) container.getChild(routeNid).get()).getValue();
     }
 
     private QName getRouteListQname() {
