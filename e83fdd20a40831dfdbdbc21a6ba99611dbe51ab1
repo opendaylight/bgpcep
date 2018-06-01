@@ -22,6 +22,30 @@
       "revId": "e83fdd20a40831dfdbdbc21a6ba99611dbe51ab1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5d5fcba_aa03b3ae",
+        "filename": "features/bgp/odl-bgpcep-bgp-dependencies/src/main/feature/feature.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-06-01T11:25:04Z",
+      "side": 1,
+      "message": "master is still on 2.0.3 -- this actually allows us to make the leap to 2.0.5 in a sane manner.",
+      "parentUuid": "aeb61f8d_22c71844",
+      "range": {
+        "startLine": 11,
+        "startChar": 31,
+        "endLine": 11,
+        "endChar": 32
+      },
+      "revId": "e83fdd20a40831dfdbdbc21a6ba99611dbe51ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
