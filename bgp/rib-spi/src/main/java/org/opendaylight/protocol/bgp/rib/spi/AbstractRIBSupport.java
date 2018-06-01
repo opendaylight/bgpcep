@@ -46,7 +46,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -72,10 +75,10 @@ import org.slf4j.LoggerFactory;
 
 @Beta
 public abstract class AbstractRIBSupport<
-        C extends Routes & DataObject,
-        S extends DataObject,
-        R extends Route,
-        I extends Identifier>
+        C extends Routes & DataObject & ChoiceIn<Tables>,
+        S extends ChildOf<C>,
+        R extends Route & ChildOf<S> & Identifiable<I>,
+        I extends Identifier<R>>
         implements RIBSupport<C, S, R, I> {
     public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
@@ -369,7 +372,7 @@ public abstract class AbstractRIBSupport<
     @Override
     public final InstanceIdentifier<R> createRouteIdentifier(
             final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final I key) {
-        return tableIId.child((Class) routesContainerClass()).child(routesListClass(), key);
+        return tableIId.child(routesCaseClass(), routesContainerClass()).child(routesListClass(), key);
     }
 
     @Override
