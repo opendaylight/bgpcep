@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.TopologyIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.UnreservedBandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.UnreservedBandwidthKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.link._case.LinkDescriptorsBuilder;
@@ -128,7 +129,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         final InstanceIdentifier<Tables> path = LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
             .child(Tables.class, new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class))
             .build();
-        this.linkstateRouteIID = path.builder().child((Class) LinkstateRoutes.class)
+        this.linkstateRouteIID = path.builder().child(LinkstateRoutesCase.class, LinkstateRoutes.class)
             .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY))
                 .build();
 

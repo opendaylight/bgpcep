@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -45,9 +46,8 @@ public final class Ipv4ReachabilityTopologyBuilder extends AbstractReachabilityT
         return new IpPrefix(value.getPrefix());
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected InstanceIdentifier<Ipv4Route> getRouteWildcard(final InstanceIdentifier<Tables> tablesId) {
-        return tablesId.child((Class) Ipv4Routes.class).child(Ipv4Route.class);
+        return tablesId.child(Ipv4RoutesCase.class, Ipv4Routes.class).child(Ipv4Route.class);
     }
 }
