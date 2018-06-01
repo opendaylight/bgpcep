@@ -14,7 +14,6 @@ import org.opendaylight.yangtools.concepts.ObjectRegistration;
  *
  * @param <T> {@link RIBSupport} type
  */
-public interface RIBSupportRegistration<T extends RIBSupport> extends ObjectRegistration<T> {
-    @Override
-    void close();
+public interface RIBSupportRegistration<T extends RIBSupport<?, ?, ?, ?>> extends ObjectRegistration<T> {
+
 }

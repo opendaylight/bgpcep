@@ -49,7 +49,7 @@ public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
         protected List<AutoCloseable> startRIBExtensionProviderImpl(
                 final RIBExtensionProviderContext context,
                 final BindingNormalizedNodeSerializer mappingService) {
-            final RIBSupport support = Mockito.mock(RIBSupport.class);
+            final RIBSupport<?, ?, ?, ?> support = Mockito.mock(RIBSupport.class);
             Mockito.doReturn(Route.class).when(support).routesListClass();
             Mockito.doReturn(DataObject.class).when(support).routesContainerClass();
             Mockito.doReturn(DataObject.class).when(support).routesCaseClass();

@@ -11,8 +11,15 @@ import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
@@ -25,7 +32,8 @@ public interface RouteEntryDependenciesContainer {
      * @return RIBSupport
      */
     @Nonnull
-    RIBSupport getRibSupport();
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
+    R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>> RIBSupport<C, S, R, I> getRibSupport();
 
 
     /**
