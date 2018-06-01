@@ -23,7 +23,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -37,9 +39,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 public abstract class AbstractFlowspecRIBSupport<
         T extends AbstractFlowspecNlriParser,
         C extends Routes & DataObject,
-        S extends DataObject,
-        R extends Route,
-        I extends Identifier> extends AbstractRIBSupport<C, S, R, I> {
+        S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>,
+        I extends Identifier<R>> extends AbstractRIBSupport<C, S, R, I> {
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(
