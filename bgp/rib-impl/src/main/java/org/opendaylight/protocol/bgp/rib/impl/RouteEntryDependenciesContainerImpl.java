@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
@@ -19,14 +18,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
-    private final RIBSupport ribSupport;
+    private final RIBSupport<?, ?, ?, ?> ribSupport;
     private final TablesKey tablesKey;
     private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget;
     private final BGPRibRoutingPolicy routingPolicies;
     private final Class<? extends AfiSafiType> afiSafiType;
 
     public RouteEntryDependenciesContainerImpl(
-            final RIBSupport ribSupport,
+            final RIBSupport<?, ?, ?, ?> ribSupport,
             final BGPRibRoutingPolicy routingPolicies,
             final TablesKey tablesKey,
             final Class<? extends AfiSafiType> afiSafiType,
@@ -39,7 +38,7 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     }
 
     @Override
-    public RIBSupport getRibSupport() {
+    public RIBSupport<?, ?, ?, ?> getRibSupport() {
         return this.ribSupport;
     }
 

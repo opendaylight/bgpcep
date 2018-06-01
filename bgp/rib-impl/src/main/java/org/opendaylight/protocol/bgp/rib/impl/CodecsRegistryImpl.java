@@ -27,11 +27,11 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(CodecsRegistryImpl.class);
 
-    private final LoadingCache<RIBSupport, Codecs> contexts = CacheBuilder.newBuilder()
-        .build(new CacheLoader<RIBSupport, Codecs>(){
+    private final LoadingCache<RIBSupport<?, ?, ?, ?>, Codecs> contexts = CacheBuilder.newBuilder()
+        .build(new CacheLoader<RIBSupport<?, ?, ?, ?>, Codecs>(){
 
             @Override
-            public Codecs load(final RIBSupport key) {
+            public Codecs load(final RIBSupport<?, ?, ?, ?> key) {
                 return createContext(key);
             }
         });
@@ -48,7 +48,7 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
         return new CodecsRegistryImpl(codecFactory, classStrategy);
     }
 
-    private Codecs createContext(final RIBSupport ribSupport) {
+    private Codecs createContext(final RIBSupport<?, ?, ?, ?> ribSupport) {
         final Codecs codecs = new CodecsImpl(ribSupport);
         if (this.latestCodecTree != null) {
             // FIXME: Do we need to recalculate latestCodecTree? E.g. new rib support was added
@@ -71,7 +71,7 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
     }
 
     @Override
-    public Codecs getCodecs(final RIBSupport ribSupport) {
+    public Codecs getCodecs(final RIBSupport<?, ?, ?, ?> ribSupport) {
         return this.contexts.getUnchecked(ribSupport);
     }
 }

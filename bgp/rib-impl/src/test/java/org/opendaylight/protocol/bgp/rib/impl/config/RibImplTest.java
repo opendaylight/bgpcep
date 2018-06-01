@@ -76,7 +76,7 @@ public class RibImplTest extends AbstractConfig {
     @Mock
     private ListenerRegistration<?> dataTreeRegistration;
     @Mock
-    private RIBSupport ribSupport;
+    private RIBSupport<?, ?, ?, ?> ribSupport;
     @Mock
     private ServiceRegistration<?> serviceRegistration;
 

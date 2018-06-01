@@ -190,7 +190,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     }
 
     private synchronized void createLocRibWriter(final TablesKey key) {
-        final RIBSupport ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        final RIBSupport<?, ?, ?, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
         if (ribSupport == null) {
             return;
         }

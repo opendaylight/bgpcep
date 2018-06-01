@@ -73,13 +73,13 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
-    private final RIBSupport support;
+    private final RIBSupport<?, ?, ?, ?> support;
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
     private final LongAdder prefixesSentCounter = new LongAdder();
 
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
-            final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
+            final CodecsRegistry registry, final RIBSupport<?, ?, ?, ?> support, final DOMDataTreeChangeService service,
             final ChannelOutputLimiter session, final boolean mpSupport) {
         this.session = requireNonNull(session);
         this.support = requireNonNull(support);
@@ -96,7 +96,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             @Nonnull final TablesKey tablesKey,
             @Nonnull final YangInstanceIdentifier ribId,
             @Nonnull final CodecsRegistry registry,
-            @Nonnull final RIBSupport support,
+            @Nonnull final RIBSupport<?, ?, ?, ?> support,
             @Nonnull final DOMDataTreeChangeService service,
             @Nonnull final ChannelOutputLimiter session,
             final boolean mpSupport) {

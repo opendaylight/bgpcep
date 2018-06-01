@@ -79,7 +79,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     @GuardedBy("this")
     private ListenerRegistration<LocRibWriter> reg;
 
-    private LocRibWriter(final RIBSupport ribSupport,
+    private LocRibWriter(final RIBSupport<?, ?, ?, ?> ribSupport,
             final BindingTransactionChain chain,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             final Long ourAs,
@@ -105,7 +105,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     }
 
     public static LocRibWriter create(
-            @Nonnull final RIBSupport ribSupport,
+            @Nonnull final RIBSupport<?, ?, ?, ?> ribSupport,
             @Nonnull final TablesKey tablesKey,
             @Nonnull final Class<? extends AfiSafiType> afiSafiType,
             @Nonnull final BindingTransactionChain chain,
@@ -267,7 +267,6 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         updateRoutesEntries(routesChangesContainer.getModifiedChildren(), peerUuid, routes);
     }
 
-    @SuppressWarnings("unchecked")
     private void updateRoutesEntries(
             final Collection<DataObjectModification<? extends DataObject>> routeChanges,
             final UnsignedInteger routerId,

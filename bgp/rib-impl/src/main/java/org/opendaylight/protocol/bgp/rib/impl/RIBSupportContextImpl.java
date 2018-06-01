@@ -34,10 +34,10 @@ class RIBSupportContextImpl extends RIBSupportContext {
 
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes.QNAME);
 
-    private final RIBSupport ribSupport;
+    private final RIBSupport<?, ?, ?, ?> ribSupport;
     private final Codecs codecs;
 
-    public RIBSupportContextImpl(final RIBSupport ribSupport, final CodecsRegistry codecs) {
+    public RIBSupportContextImpl(final RIBSupport<?, ?, ?, ?> ribSupport, final CodecsRegistry codecs) {
         this.ribSupport = requireNonNull(ribSupport);
         this.codecs = codecs.getCodecs(this.ribSupport);
     }

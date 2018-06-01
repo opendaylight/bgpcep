@@ -21,5 +21,5 @@ public interface CodecsRegistry {
      * @param ribSupport associated with Codecs class
      * @return Codecs
      */
-    Codecs getCodecs(final RIBSupport ribSupport);
+    Codecs getCodecs(final RIBSupport<?, ?, ?, ?> ribSupport);
 }

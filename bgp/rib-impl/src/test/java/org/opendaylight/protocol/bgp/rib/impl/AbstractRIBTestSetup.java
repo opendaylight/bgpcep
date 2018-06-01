@@ -106,7 +106,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private RIBImpl rib;
     private BindingCodecTreeFactory codecFactory;
     private RIBActivator a1;
-    private RIBSupport ribSupport;
+    private RIBSupport<?, ?, ?, ?> ribSupport;
     @Mock
     private BGPDispatcher dispatcher;
 
@@ -158,6 +158,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return codec;
     }
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -271,6 +272,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return this.domTransWrite;
     }
 
+    @Override
     @After
     public void tearDown() {
         this.a1.close();

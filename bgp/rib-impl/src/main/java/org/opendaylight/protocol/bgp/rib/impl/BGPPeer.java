@@ -381,7 +381,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     private synchronized void createAdjRibOutListener(final TablesKey key,
             final boolean mpSupport) {
-        final RIBSupport ribSupport = this.rib.getRibSupportContext().getRIBSupport(key);
+        final RIBSupport<?, ?, ?, ?> ribSupport = this.rib.getRibSupportContext().getRIBSupport(key);
 
         // not particularly nice
         if (ribSupport != null && this.session instanceof BGPSessionImpl) {
