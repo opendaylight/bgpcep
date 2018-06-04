@@ -22,7 +22,7 @@ public final class SimpleTunnelIdentifierRegistry {
     public static final int NO_TUNNEL_INFORMATION_PRESENT = 0;
     private static final SimpleTunnelIdentifierRegistry SINGLETON = new SimpleTunnelIdentifierRegistry();
     private static final Logger LOG = LoggerFactory.getLogger(SimpleTunnelIdentifierRegistry.class);
-    private final HandlerRegistry<DataContainer, TunnelIdentifierParser, TunnelIdentifierSerializer> handlers =
+    private final HandlerRegistry<DataContainer, TunnelIdentifierParser<?>, TunnelIdentifierSerializer<?>> handlers =
             new HandlerRegistry<>();
 
     private SimpleTunnelIdentifierRegistry() {
@@ -33,7 +33,7 @@ public final class SimpleTunnelIdentifierRegistry {
     }
 
     public TunnelIdentifier parse(final int tunnelType, final ByteBuf buffer) {
-        final TunnelIdentifierParser parser = this.handlers.getParser(tunnelType);
+        final TunnelIdentifierParser<?> parser = this.handlers.getParser(tunnelType);
         if (!buffer.isReadable() || parser == null) {
             LOG.debug("Skipping parsing of PMSI Tunnel Attribute type {}", tunnelType);
             return null;
@@ -54,11 +54,11 @@ public final class SimpleTunnelIdentifierRegistry {
         return serializer.serialize(tunnel, tunnelBuffer);
     }
 
-    public AbstractRegistration registerParser(final TunnelIdentifierParser parser) {
+    public AbstractRegistration registerParser(final TunnelIdentifierParser<?> parser) {
         return this.handlers.registerParser(parser.getType(), parser);
     }
 
-    public AbstractRegistration registerSerializer(final TunnelIdentifierSerializer serializer) {
+    public AbstractRegistration registerSerializer(final TunnelIdentifierSerializer<?> serializer) {
         return this.handlers.registerSerializer(serializer.getClazz(), serializer);
     }
 }
