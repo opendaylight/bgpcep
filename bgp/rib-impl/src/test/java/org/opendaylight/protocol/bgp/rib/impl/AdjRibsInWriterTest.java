@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -61,6 +62,8 @@ public class AdjRibsInWriterTest {
     private RIBSupportContextRegistry registry;
     @Mock
     private RIBSupportContext context;
+    @Mock
+    private PeerTransactionChain ptc;
     private AdjRibInWriter writer;
 
     @Before
@@ -76,12 +79,13 @@ public class AdjRibsInWriterTest {
         doNothing().when(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doReturn(this.context).when(this.registry).getRIBSupportContext(any(TablesKey.class));
+        doReturn(this.chain).when(this.ptc).getDomChain();
         doNothing().when(this.context).createEmptyTableStructure(eq(this.tx), any(YangInstanceIdentifier.class));
     }
 
     @Test
     public void testTransform() {
-        this.writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, this.chain);
+        this.writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, this.ptc);
         assertNotNull(this.writer);
         final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(Rib.QNAME)
                 .node(Peer.QNAME).nodeWithKey(Peer.QNAME,

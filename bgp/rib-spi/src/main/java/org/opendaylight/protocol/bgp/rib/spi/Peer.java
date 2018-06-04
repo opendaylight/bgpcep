@@ -8,7 +8,20 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.List;
 import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
+import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
+import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
  * Marker interface identifying a BGP peer.
@@ -36,4 +49,30 @@ public interface Peer extends PeerTrackerInformation {
      */
     @Nonnull
     ListenableFuture<?> close();
+
+    /**
+     * Update peers ribout after path selection processing.
+     *
+     * @param entryDep    RouteEntryDependenciesContainer
+     * @param staleRoutes routes to be removed.
+     * @param newRoutes   routes to be advertized.
+     */
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>,
+            I extends Identifier<R>> void refreshRibOut(
+            @Nonnull RouteEntryDependenciesContainer entryDep,
+            @Nonnull List<StaleBestPathRoute<C, S, R, I>> staleRoutes,
+            @Nonnull List<AdvertizedRoute<C, S, R, I>> newRoutes);
+
+    /**
+     * Stores under peers rib Out already present routes, before proceed to process any new route advertizement.
+     *
+     * @param entryDep RouteEntryDependenciesContainer
+     * @param routes   routes to be advertized.
+     */
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>,
+            I extends Identifier<R>> void initializeRibOut(
+            @Nonnull RouteEntryDependenciesContainer entryDep,
+            List<ActualBestPathRoutes<C, S, R, I>> routes);
 }

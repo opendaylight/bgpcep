@@ -39,13 +39,12 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
     public void setUp() throws Exception {
         super.setUp();
         final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk,
-                new AddPathBestNPathSelection(2L, this.peerTracker));
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk, new AddPathBestNPathSelection(2L));
 
         this.ribImpl = new RIBImpl(this.tableRegistry, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID),
                 this.ribExtension,
                 this.serverDispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies,
-                this.peerTracker, TABLES_TYPE,  pathTables);
+                TABLES_TYPE,  pathTables);
 
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());

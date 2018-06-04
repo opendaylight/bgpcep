@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Verify;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Map.Entry;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -44,7 +45,7 @@ class RIBSupportContextImpl extends RIBSupportContext {
     private final RIBSupport<?, ?, ?, ?> ribSupport;
     private final Codecs codecs;
 
-    public RIBSupportContextImpl(final RIBSupport<?, ?, ?, ?> ribSupport, final CodecsRegistry codecs) {
+    RIBSupportContextImpl(final RIBSupport<?, ?, ?, ?> ribSupport, final CodecsRegistry codecs) {
         this.ribSupport = requireNonNull(ribSupport);
         this.codecs = codecs.getCodecs(this.ribSupport);
     }
@@ -85,6 +86,7 @@ class RIBSupportContextImpl extends RIBSupportContext {
 
     @Override
     @SuppressWarnings("unchecked")
+    @SuppressFBWarnings("NM_CONFUSING")
     public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
             RIBSupport<C, S, R, I> getRibSupport() {

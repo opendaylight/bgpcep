@@ -40,7 +40,6 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionPr
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
-import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
@@ -74,7 +73,6 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     @Mock
     private BGPDispatcher dispatcher;
-    private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
     private CodecsRegistryImpl codecsRegistry;
 
     @Before
@@ -113,9 +111,9 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
                 LinkstateSubsequentAddressFamily.class));
 
         final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext2,
-                this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies, this.peerTracker,
+                this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies,
                 tables, Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
-                        .createBestPathSelectionStrategy(this.peerTracker)));
+                        .createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
@@ -131,9 +129,9 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext1,
-                this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies, this.peerTracker,
+                this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies,
                 tables, Collections.singletonMap(TABLE_KEY,
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);

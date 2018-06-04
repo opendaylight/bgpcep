@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Objects;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -120,8 +118,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
-    private final DOMTransactionChain chain;
-    @GuardedBy("this")
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
@@ -146,7 +142,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
-        this.chain = rib.createPeerDOMChain(this);
     }
 
     BGPPeer(
@@ -226,14 +221,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     public synchronized void instantiateServiceInstance() {
-        this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.chain);
+        this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this);
         setActive(true);
     }
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> close() {
         final FluentFuture<? extends CommitInfo> future = releaseConnection();
-        this.chain.close();
+        closeDomChain();
         setActive(false);
         return future;
     }
@@ -318,6 +313,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     public synchronized void onSessionUp(final BGPSession session) {
         this.session = session;
         this.sessionUp = true;
+        this.bindingChain = this.rib.createPeerChain(this);
         if (this.session instanceof BGPSessionStateProvider) {
             ((BGPSessionStateProvider) this.session).registerMessagesCounter(this);
         }
@@ -394,18 +390,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    private synchronized FluentFuture<? extends CommitInfo> cleanup() {
-        // FIXME: BUG-196: support graceful
-        this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
-        this.adjRibOutListenerSet.clear();
-        if (this.effRibInWriter != null) {
-            this.effRibInWriter.close();
-        }
-        this.tables = Collections.emptySet();
-        this.addPathTableMaps = Collections.emptyMap();
-        return removePeer(this.chain, this.peerPath);
-    }
-
     @Override
     public synchronized void onSessionDown(final BGPSession session, final Exception e) {
         if (e.getMessage().equals(BGPSessionImpl.END_OF_INPUT)) {
@@ -424,25 +408,35 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public String toString() {
-        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
-    }
-
-    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("name", this.name);
-        toStringHelper.add("tables", this.tables);
-        return toStringHelper;
-    }
+        return MoreObjects.toStringHelper(this)
+                .add("name", this.name)
+                .add("tables", this.tables).toString();
+        }
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> releaseConnection() {
         LOG.info("Closing session with peer");
         this.sessionUp = false;
-        closeRegistration();
+        this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
+        this.adjRibOutListenerSet.clear();
+        if (this.trackerRegistration != null) {
+            this.trackerRegistration.close();
+            this.trackerRegistration = null;
+        }
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
-        final FluentFuture<? extends CommitInfo> future = cleanup();
+        releaseBindingChain();
 
+        this.ribWriter.releaseChain();
+        // FIXME: BUG-196: support graceful
+
+        if (this.effRibInWriter != null) {
+            this.effRibInWriter.close();
+        }
+        this.tables = Collections.emptySet();
+        this.addPathTableMaps = Collections.emptyMap();
+        final FluentFuture<? extends CommitInfo> future = removePeer(this.peerPath);
         if (this.session != null) {
             try {
                 this.session.close();
@@ -453,13 +447,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         resetState();
         return future;
-    }
-
-    private synchronized void closeRegistration() {
-        if (this.trackerRegistration != null) {
-            this.trackerRegistration.close();
-            this.trackerRegistration = null;
-        }
     }
 
     @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
@@ -481,13 +468,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @Override
     public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
             final AsyncTransaction<?, ?> transaction, final Throwable cause) {
-        LOG.error("Transaction chain failed.", cause);
-        this.chain.close();
-        //FIXME BGPCEP-731
-        /*
-        this.chain = this.rib.createPeerDOMChain(this);
-        this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this.chain);
-        releaseConnection();*/
+        LOG.error("Transaction domChain failed.", cause);
+        releaseConnection();
     }
 
     @Override

@@ -253,9 +253,8 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
         this.asNumber = globalConfig.getAs();
         this.routerId = globalConfig.getRouterId();
         this.clusterId = getGlobalClusterIdentifier(globalConfig);
-        final BGPPeerTrackerImpl peerTracker = new BGPPeerTrackerImpl();
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
-                .toPathSelectionMode(this.afiSafi, tableTypeRegistry, peerTracker).entrySet()
+                .toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
                 .stream()
                 .collect(Collectors.toMap(entry ->
                         new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
@@ -276,7 +275,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
                 this.domBroker,
                 this.dataBroker,
                 ribPolicy,
-                peerTracker,
                 toTableTypes(this.afiSafi, tableTypeRegistry),
                 pathSelectionModes);
     }

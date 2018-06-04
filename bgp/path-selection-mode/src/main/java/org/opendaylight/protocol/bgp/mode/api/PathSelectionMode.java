@@ -8,25 +8,23 @@
 package org.opendaylight.protocol.bgp.mode.api;
 
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
 public interface PathSelectionMode extends AutoCloseable {
-    /**
-     * Create a RouteEntry.
-     *
-     * @param isComplex true if is complex
-     * @return ComplexRouteEntry if is complex otherwise a SimpleRouteEntry
-     * @deprecated All routes are complex.
-     */
-    @Deprecated
-    default @Nonnull RouteEntry createRouteEntry(boolean isComplex) {
-        return createRouteEntry();
-    }
-
     /**
      * Create a RouteEntry.
      *
      * @return ComplexRouteEntry if is complex otherwise a SimpleRouteEntry
      */
     @Nonnull
-    RouteEntry createRouteEntry();
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>
+            > RouteEntry<C, S, R, I> createRouteEntry();
 }

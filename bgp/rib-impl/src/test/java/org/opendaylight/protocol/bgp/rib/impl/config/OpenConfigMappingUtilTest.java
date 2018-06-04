@@ -43,9 +43,7 @@ import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
@@ -117,10 +115,8 @@ public class OpenConfigMappingUtilTest {
 
     private static final Long ALL_PATHS = 0L;
     private static final Long N_PATHS = 2L;
-    private static final BGPPeerTracker PEER_TRACKER = new BGPPeerTrackerImpl();
-    private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION = new AddPathBestNPathSelection(N_PATHS,
-            PEER_TRACKER);
-    private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection(PEER_TRACKER);
+    private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION = new AddPathBestNPathSelection(N_PATHS);
+    private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection();
     private static final BgpTableType BGP_TABLE_TYPE_IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
     private static final BgpTableType BGP_TABLE_TYPE_IPV6
@@ -408,7 +404,7 @@ public class OpenConfigMappingUtilTest {
             .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder()
                     .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
         final Map<BgpTableType, PathSelectionMode> result = OpenConfigMappingUtil
-                .toPathSelectionMode(families, this.tableTypeRegistry, PEER_TRACKER);
+                .toPathSelectionMode(families, this.tableTypeRegistry);
         final Map<BgpTableType, PathSelectionMode> expected = new HashMap<>();
         expected.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
                 ADD_PATH_BEST_N_PATH_SELECTION);

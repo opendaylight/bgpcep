@@ -9,11 +9,22 @@
 package org.opendaylight.protocol.bgp.mode.api;
 
 import com.google.common.primitives.UnsignedInteger;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
+import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
+import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
  * A single route entry inside a route table. Maintains the attributes of
@@ -22,7 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
  * maintain low memory overhead in face of large number of routes and peers,
  * where individual object overhead becomes the dominating factor.
  */
-public interface RouteEntry {
+public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> {
     /**
      * Remove route.
      *
@@ -48,29 +60,42 @@ public interface RouteEntry {
      * @param route        route Data change
      * @return returns the offset
      */
-    int addRoute(@Nonnull UnsignedInteger routerId, long remotePathId, @Nonnull Route route);
+    int addRoute(@Nonnull UnsignedInteger routerId, long remotePathId, @Nonnull R route);
+
 
     /**
-     * Update LocRibOut and AdjRibsOut by removing stale best path and writing new best.
+     * Returns collections of present selected best path.
      *
-     * @param entryDependencies entry Dependencies container
-     * @param routeKey          route key
-     * @param tx                DOM transaction
+     * @param ribSupport RIB Support
+     * @param entryInfo  Route Entry Info wrapper
      */
-    void updateBestPaths(
-            @Nonnull RouteEntryDependenciesContainer entryDependencies,
-            @Nonnull String routeKey,
-            @Nonnull WriteTransaction tx);
+    @Nonnull
+    List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(
+            @Nonnull RIBSupport<C, S, R, I> ribSupport,
+            @Nonnull RouteEntryInfo entryInfo);
+
 
     /**
-     * Initialize LocRibOut and AdjRibsOut for new peers with already present best paths.
+     * Returns list of stale best path.
      *
-     * @param entryDependencies Route Entry Dependencies wrapper
-     * @param entryInfo         Route Entry Info wrapper
-     * @param tx                transaction
+     * @param ribSupport RIB Support
+     * @param routeKey   of stale route
+     * @return list containing list of stale best path
      */
-    void initializeBestPaths(
-            @Nonnull RouteEntryDependenciesContainer entryDependencies,
-            @Nonnull RouteEntryInfo entryInfo,
-            @Nonnull WriteTransaction tx);
+    @Nonnull
+    Optional<StaleBestPathRoute<C, S, R, I>
+            > removeStalePaths(
+            @Nonnull RIBSupport<C, S, R, I> ribSupport,
+            @Nonnull String routeKey);
+
+    /**
+     * Returns collection of best path routes after processing update of stale and new advertisement of routes.
+     *
+     * @param ribSupport RIB Support
+     * @param routeKey   route key
+     */
+    @Nonnull
+    List<AdvertizedRoute<C, S, R, I>> newBestPaths(
+            @Nonnull RIBSupport<C, S, R, I> ribSupport,
+            @Nonnull String routeKey);
 }

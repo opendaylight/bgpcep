@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -32,9 +33,9 @@ public interface RouteEntryDependenciesContainer {
      * @return RIBSupport
      */
     @Nonnull
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
-        R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>>
-            RIBSupport<C, S, R, I> getRibSupport();
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>,
+            I extends Identifier<R>> RIBSupport<C, S, R, I> getRIBSupport();
 
     /**
      * Returns the table key(AFI/SAFI) corresponding to the Route Entry.
@@ -67,4 +68,7 @@ public interface RouteEntryDependenciesContainer {
      */
     @Nonnull
     BGPRibRoutingPolicy getRoutingPolicies();
+
+    @Nonnull
+    BGPPeerTracker getPeerTracker();
 }

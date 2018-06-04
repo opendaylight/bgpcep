@@ -207,11 +207,11 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testHandleMessageAfterException() {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
+            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.tableRegistry, new RibId(RIB_ID), AS_NUMBER,  new BgpId(RIB_ID),
                 this.ribExtension,
                 this.serverDispatcher, this.codecsRegistry, this.domBroker, getDataBroker(), this.policies,
-                this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
+                ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
@@ -256,11 +256,11 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testUseCase1() {
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker));
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(this.tableRegistry, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID),
                 this.ribExtension,
                 this.serverDispatcher, this.codecsRegistry, this.domBroker, getDataBroker(), this.policies,
-                this.peerTracker, ImmutableList.of(this.ipv4tt), pathTables);
+                ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 

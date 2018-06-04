@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
@@ -24,31 +25,34 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-public final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
+final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
     private final RIBSupport<?, ?, ?, ?> ribSupport;
     private final TablesKey tablesKey;
     private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget;
     private final BGPRibRoutingPolicy routingPolicies;
     private final Class<? extends AfiSafiType> afiSafiType;
+    private final BGPPeerTracker peerTracker;
 
-    public RouteEntryDependenciesContainerImpl(
+    RouteEntryDependenciesContainerImpl(
             final RIBSupport<?, ?, ?, ?> ribSupport,
+            final BGPPeerTracker peerTracker,
             final BGPRibRoutingPolicy routingPolicies,
             final TablesKey tablesKey,
             final Class<? extends AfiSafiType> afiSafiType,
             final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget) {
         this.ribSupport = requireNonNull(ribSupport);
+        this.peerTracker = requireNonNull(peerTracker);
         this.tablesKey = requireNonNull(tablesKey);
         this.afiSafiType = requireNonNull(afiSafiType);
         this.routingPolicies = requireNonNull(routingPolicies);
         this.locRibTarget = requireNonNull(locRibTarget);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
-        R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>>
-            RIBSupport<C, S, R, I> getRibSupport() {
+    @SuppressWarnings("unchecked")
+    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+    RIBSupport<C, S, R, I> getRIBSupport() {
         return (RIBSupport<C, S, R, I>) this.ribSupport;
     }
 
@@ -70,5 +74,10 @@ public final class RouteEntryDependenciesContainerImpl implements RouteEntryDepe
     @Override
     public BGPRibRoutingPolicy getRoutingPolicies() {
         return this.routingPolicies;
+    }
+
+    @Override
+    public BGPPeerTracker getPeerTracker() {
+        return this.peerTracker;
     }
 }

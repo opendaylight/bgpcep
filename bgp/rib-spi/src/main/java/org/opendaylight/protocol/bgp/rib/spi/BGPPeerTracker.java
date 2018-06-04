@@ -43,4 +43,13 @@ public interface BGPPeerTracker {
      */
     @Nonnull
     List<Peer> getPeers();
+
+    /**
+     * Returns map of PeerId per PeerRole, filtering internal Peers.
+     * Role with none peerId will be filtered.
+     *
+     * @return Returns map of Peer group by PeerRole
+     */
+    @Nonnull
+    List<Peer> getNonInternalPeers();
 }

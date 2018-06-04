@@ -11,14 +11,17 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
@@ -88,6 +91,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final BGPRibRoutingPolicy ribPolicies;
     private final BGPRouteEntryImportParameters peerImportParameters;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    @GuardedBy("this")
+    private FluentFuture<? extends CommitInfo> submitted;
 
     EffectiveRibInWriter(
             final BGPRouteEntryImportParameters peer,
@@ -182,7 +187,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             }
         }
         if (tx != null) {
-            tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            final FluentFuture<? extends CommitInfo> future = tx.commit();
+            this.submitted = future;
+            future.addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
                     LOG.trace("Successful commit");
@@ -277,6 +284,13 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         if (this.reg != null) {
             this.reg.close();
             this.reg = null;
+        }
+        if (this.submitted != null) {
+            try {
+                this.submitted.get();
+            } catch (final InterruptedException | ExecutionException throwable) {
+                LOG.error("Write routes failed", throwable);
+            }
         }
         if (this.chain != null) {
             this.chain.close();

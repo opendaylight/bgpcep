@@ -12,8 +12,10 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
@@ -36,6 +38,9 @@ import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
+import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -50,22 +55,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
-final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPathsCounter,
+final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+        implements AutoCloseable, TotalPrefixesCounter, TotalPathsCounter,
         ClusteredDataTreeChangeListener<Tables> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
-    private final Map<String, RouteEntry> routeEntries = new HashMap<>();
+    private final Map<String, RouteEntry<C,S,R,I>> routeEntries = new HashMap<>();
     private final Long ourAs;
-    private final RIBSupport ribSupport;
+    private final RIBSupport<C,S,R,I> ribSupport;
     private final DataBroker dataBroker;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
@@ -79,7 +91,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     @GuardedBy("this")
     private ListenerRegistration<LocRibWriter> reg;
 
-    private LocRibWriter(final RIBSupport<?, ?, ?, ?> ribSupport,
+    private LocRibWriter(final RIBSupport<C,S,R,I> ribSupport,
             final BindingTransactionChain chain,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             final Long ourAs,
@@ -99,13 +111,13 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         this.peerTracker = peerTracker;
         this.pathSelectionMode = pathSelectionMode;
 
-        this.entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport, ribPolicies,
+        this.entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport, this.peerTracker, ribPolicies,
                 tablesKey, afiSafiType, this.locRibTableIID);
         init();
     }
 
     public static LocRibWriter create(
-            @Nonnull final RIBSupport<?, ?, ?, ?> ribSupport,
+            @Nonnull final RIBSupport ribSupport,
             @Nonnull final TablesKey tablesKey,
             @Nonnull final Class<? extends AfiSafiType> afiSafiType,
             @Nonnull final BindingTransactionChain chain,
@@ -167,8 +179,8 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     }
 
     @Nonnull
-    private RouteEntry createEntry(final String routeId) {
-        final RouteEntry ret = this.pathSelectionMode.createRouteEntry();
+    private RouteEntry<C,S,R,I> createEntry(final String routeId) {
+        final RouteEntry<C,S,R,I> ret = this.pathSelectionMode.createRouteEntry();
         this.routeEntries.put(routeId, ret);
         this.totalPrefixesCounter.increment();
         LOG.trace("Created new entry for {}", routeId);
@@ -190,7 +202,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         LOG.trace("Received data change {} to LocRib {}", changes, this);
         final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
         try {
-            final Map<RouteUpdateKey, RouteEntry> toUpdate = update(tx, changes);
+            final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> toUpdate = update(tx, changes);
 
             if (!toUpdate.isEmpty()) {
                 walkThrough(tx, toUpdate.entrySet());
@@ -213,9 +225,9 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     }
 
     @SuppressWarnings("unchecked")
-    private Map<RouteUpdateKey, RouteEntry> update(final WriteTransaction tx,
+    private Map<RouteUpdateKey, RouteEntry<C,S,R,I>> update(final WriteTransaction tx,
             final Collection<DataTreeModification<Tables>> changes) {
-        final Map<RouteUpdateKey, RouteEntry> ret = new HashMap<>();
+        final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> ret = new HashMap<>();
         for (final DataTreeModification<Tables> tc : changes) {
             final DataObjectModification<Tables> table = tc.getRootNode();
             final DataTreeIdentifier<Tables> rootPath = tc.getRootPath();
@@ -226,12 +238,17 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             Initialize Peer with routes under loc rib
              */
             if (!this.routeEntries.isEmpty() && table.getDataBefore() == null) {
-                final org.opendaylight.protocol.bgp.rib.spi.Peer peer
+                final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer
                         = this.peerTracker.getPeer(peerKIid.getKey().getPeerId());
-                if (peer != null && peer.supportsTable(this.entryDep.getLocalTablesKey())) {
-                    LOG.debug("Peer {} table has been created, inserting existent routes", peer.getPeerId());
-                    this.routeEntries.forEach((key, value) -> value.initializeBestPaths(this.entryDep,
-                            new RouteEntryInfoImpl(peer, key), tx));
+                if (toPeer != null && toPeer.supportsTable(this.entryDep.getLocalTablesKey())) {
+                    LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
+                    final List<ActualBestPathRoutes<C,S,R,I>> routesToStore = new ArrayList<>();
+                    for (final Map.Entry<String, RouteEntry<C,S,R,I>> entry:this.routeEntries.entrySet()) {
+                        final List<ActualBestPathRoutes<C,S,R,I>> filteredRoute = entry.getValue()
+                                .actualBestPaths(this.ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
+                        routesToStore.addAll(filteredRoute);
+                    }
+                    toPeer.initializeRibOut(this.entryDep, routesToStore);
                 }
             }
             /*
@@ -247,7 +264,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             final DataObjectModification<Tables> table,
             final UnsignedInteger peerUuid,
             final WriteTransaction tx,
-            final Map<RouteUpdateKey, RouteEntry> routes
+            final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> routes
     ) {
 
         final DataObjectModification<Attributes> attUpdate = table.getModifiedChildContainer(Attributes.class);
@@ -258,8 +275,8 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
             tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTableIID.child(Attributes.class), newAttValue);
         }
 
-        final DataObjectModification routesChangesContainer =
-                table.getModifiedChildContainer(this.ribSupport.routesContainerClass());
+        final DataObjectModification routesChangesContainer
+                = table.getModifiedChildContainer((Class) this.ribSupport.routesContainerClass());
         if (routesChangesContainer == null) {
             return;
         }
@@ -269,13 +286,13 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     private void updateRoutesEntries(
             final Collection<DataObjectModification<? extends DataObject>> routeChanges,
             final UnsignedInteger routerId,
-            final Map<RouteUpdateKey, RouteEntry> routes
+            final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> routes
     ) {
         for (final DataObjectModification<? extends DataObject> route : routeChanges) {
-            final Route newRoute = (Route) route.getDataAfter();
-            final Route oldRoute = (Route) route.getDataBefore();
+            final R newRoute = (R) route.getDataAfter();
+            final R oldRoute = (R) route.getDataBefore();
             String routeKey;
-            RouteEntry entry;
+            RouteEntry<C,S,R,I> entry;
             if (newRoute != null) {
                 routeKey = newRoute.getRouteKey();
                 entry = this.routeEntries.get(routeKey);
@@ -307,16 +324,45 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
     }
 
     private void walkThrough(final WriteTransaction tx,
-            final Set<Map.Entry<RouteUpdateKey, RouteEntry>> toUpdate) {
-        for (final Map.Entry<RouteUpdateKey, RouteEntry> e : toUpdate) {
+            final Set<Map.Entry<RouteUpdateKey, RouteEntry<C,S,R,I>>> toUpdate) {
+        final List<StaleBestPathRoute<C,S,R,I>> staleRoutes = new ArrayList<>();
+        final List<AdvertizedRoute<C,S,R,I>> newRoutes = new ArrayList<>();
+        for (final Map.Entry<RouteUpdateKey, RouteEntry<C,S,R,I>> e : toUpdate) {
             LOG.trace("Walking through {}", e);
-            final RouteEntry entry = e.getValue();
+            final RouteEntry<C,S,R,I> entry = e.getValue();
 
             if (!entry.selectBest(this.ourAs)) {
                 LOG.trace("Best path has not changed, continuing");
                 continue;
             }
-            entry.updateBestPaths(entryDep, e.getKey().getRouteId(), tx);
+             entry.removeStalePaths(this.ribSupport, e.getKey().getRouteId()).ifPresent(staleRoutes::add);
+            newRoutes.addAll(entry.newBestPaths(this.ribSupport, e.getKey().getRouteId()));
+        }
+        updateLocRib(newRoutes, staleRoutes, tx);
+        this.peerTracker.getNonInternalPeers().parallelStream()
+                .forEach(toPeer->toPeer.refreshRibOut(this.entryDep, staleRoutes, newRoutes));
+    }
+
+    private void updateLocRib(final List<AdvertizedRoute<C, S, R, I>> newRoutes,
+            final List<StaleBestPathRoute<C, S, R, I>> staleRoutes,
+            final WriteTransaction tx) {
+        final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget = this.entryDep.getLocRibTableTarget();
+
+        for (final StaleBestPathRoute<C, S, R, I> staleContainer:staleRoutes) {
+            for (final I routeId: staleContainer.getStaleRouteKeyIdentifiers()) {
+                final InstanceIdentifier<R> routeTarget = ribSupport.createRouteIdentifier(locRibTarget, routeId);
+                LOG.debug("Delete route from LocRib {}", routeTarget);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
+            }
+        }
+
+        for (final AdvertizedRoute<C,S,R,I> advRoute : newRoutes) {
+            final R route = advRoute.getRoute();
+            final I iid = advRoute.getAddPathRouteKeyIdentifier();
+            final InstanceIdentifier<R> locRibRouteTarget
+                    = this.ribSupport.createRouteIdentifier(locRibTarget, iid);
+            LOG.debug("Write route to LocRib {}", route);
+            tx.put(LogicalDatastoreType.OPERATIONAL, locRibRouteTarget, route);
         }
     }
 
@@ -330,7 +376,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         return this.totalPathsCounter.longValue();
     }
 
-    public TablesKey getTableKey() {
+    TablesKey getTableKey() {
         return this.tk;
     }
 }

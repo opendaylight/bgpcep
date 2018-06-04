@@ -11,21 +11,27 @@ import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 
 public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @GuardedBy("this")
     private final Map<PeerId, Peer> peers = new HashMap<>();
     private ImmutableList<Peer> peersList;
+    private ImmutableList<Peer> peersFilteredList;
 
     @Override
     public synchronized AbstractRegistration registerPeer(final Peer peer) {
         this.peers.put(peer.getPeerId(), peer);
         this.peersList = ImmutableList.copyOf(this.peers.values());
+        this.peersFilteredList = ImmutableList.copyOf(this.peers.values().stream()
+                .filter(p1->p1.getRole() != PeerRole.Internal)
+                .collect(Collectors.toList()));
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
@@ -44,5 +50,10 @@ public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @Override
     public synchronized List<Peer> getPeers() {
         return this.peersList;
+    }
+
+    @Override
+    public synchronized List<Peer> getNonInternalPeers() {
+        return this.peersFilteredList;
     }
 }

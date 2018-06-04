@@ -136,8 +136,6 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
-    private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
-
     private static ModuleInfoBackedContext createClassLoadingStrategy() {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
         try {
@@ -183,9 +181,9 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(this.tableRegistry, new RibId("test"), new AsNumber(5L), RIB_ID, context,
-                this.dispatcher, codecsRegistry, this.dom, getDataBroker(), this.policies, this.peerTracker,
+                this.dispatcher, codecsRegistry, this.dom, getDataBroker(), this.policies,
                 localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker)));
+                BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupport(KEY);
     }

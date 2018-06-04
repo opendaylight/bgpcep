@@ -221,7 +221,7 @@ public final class OpenConfigMappingUtil {
     }
 
     public static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis,
-            final BGPTableTypeRegistryConsumer tableTypeRegistry, final BGPPeerTracker peerTracker) {
+            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
         for (final AfiSafi afiSafi : afiSafis) {
             final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.augmentation(GlobalAddPathsConfig.class);
@@ -231,9 +231,9 @@ public final class OpenConfigMappingUtil {
                     final Short sendMax = afiSafi2.getSendMax();
                     final PathSelectionMode selectionMode;
                     if (sendMax > 1) {
-                        selectionMode = new AddPathBestNPathSelection(sendMax.longValue(), peerTracker);
+                        selectionMode = new AddPathBestNPathSelection(sendMax.longValue());
                     } else {
-                        selectionMode = new AllPathSelection(peerTracker);
+                        selectionMode = new AllPathSelection();
                     }
                     pathSelectionModes.put(bgpTableType.get(), selectionMode);
                 }

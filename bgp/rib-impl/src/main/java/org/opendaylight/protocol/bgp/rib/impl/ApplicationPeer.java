@@ -28,7 +28,6 @@ import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeList
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -86,8 +85,6 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     private final InstanceIdentifier<AdjRibOut> peerRibOutIId;
     private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
-    private DOMTransactionChain chain;
-    private DOMTransactionChain writerChain;
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter adjRibInWriter;
     private ListenerRegistration<ApplicationPeer> registration;
@@ -132,18 +129,15 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
             final DOMDataTreeIdentifier appPeerDOMId) {
         setActive(true);
-        this.chain = this.rib.createPeerDOMChain(this);
-        this.writerChain = this.rib.createPeerDOMChain(this);
-
         final Set<TablesKey> localTables = this.rib.getLocalTablesKeys();
         localTables.forEach(tablesKey -> this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey)));
         setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
 
-        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, this.writerChain);
+        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, this);
         final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
         final RegisterAppPeerListener registerAppPeerListener = () -> {
             synchronized (this) {
-                if (this.chain != null) {
+                if (getDomChain() != null) {
                     this.registration = dataTreeChangeService.registerDataTreeChangeListener(appPeerDOMId, this);
                 }
             }
@@ -167,11 +161,11 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
      */
     @Override
     public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-        if (this.chain == null) {
+        if (getDomChain() == null) {
             LOG.trace("Skipping data changed called to Application Peer. Change : {}", changes);
             return;
         }
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = getDomChain().newWriteOnlyTransaction();
         LOG.debug("Received data change to ApplicationRib {}", changes);
         for (final DataTreeCandidate tc : changes) {
             LOG.debug("Modification Type {}", tc.getRootNode().getModificationType());
@@ -267,21 +261,15 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
             this.registration.close();
             this.registration = null;
         }
+        if (this.adjRibInWriter != null) {
+            this.adjRibInWriter.releaseChain();
+        }
         if (this.effectiveRibInWriter != null) {
             this.effectiveRibInWriter.close();
         }
         final FluentFuture<? extends CommitInfo> future;
-        if (this.chain != null) {
-            future = removePeer(this.chain, this.peerPath);
-            this.chain.close();
-            this.chain = null;
-        } else {
-            future = CommitInfo.emptyFluentFuture();
-        }
-        if (this.writerChain != null) {
-            this.writerChain.close();
-            this.writerChain = null;
-        }
+        future = removePeer(this.peerPath);
+        closeDomChain();
         if (this.trackerRegistration != null) {
             this.trackerRegistration.close();
             this.trackerRegistration = null;

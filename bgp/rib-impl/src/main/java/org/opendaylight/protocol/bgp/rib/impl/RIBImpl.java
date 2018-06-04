@@ -43,7 +43,6 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
@@ -61,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -99,15 +99,14 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistryImpl codecsRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
-    @GuardedBy("this")
-    private ClusterSingletonServiceRegistration registration;
     private final DOMDataBrokerExtension domService;
     private final Map<TransactionChain<?, ?>, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final RibId ribId;
-    private final BGPPeerTracker peerTracker;
+    private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
     private final BGPRibRoutingPolicy ribPolicies;
-
+    @GuardedBy("this")
+    private ClusterSingletonServiceRegistration registration;
     @GuardedBy("this")
     private DOMTransactionChain domChain;
     @GuardedBy("this")
@@ -124,7 +123,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             final DOMDataBroker domDataBroker,
             final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
-            final BGPPeerTracker bgpPeerTracker,
             final List<BgpTableType> localTables,
             final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies
     ) {
@@ -141,7 +139,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.domService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
         this.ribPolicies = requireNonNull(ribPolicies);
-        this.peerTracker = requireNonNull(bgpPeerTracker);
         this.codecsRegistry = codecsRegistry;
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
@@ -172,9 +169,9 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             table.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
 
-        final RIBSupportContext supportContext = this.ribContextRegistry.getRIBSupportContext(key);
-        if (supportContext != null) {
-            final ChoiceNode routes = supportContext.getRibSupport().emptyRoutes();
+        final RIBSupport<? extends Routes, ?, ?, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        if (ribSupport != null) {
+            final ChoiceNode routes = ribSupport.emptyRoutes();
             table.withChild(routes);
 
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), table.build());
@@ -197,7 +194,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         final BindingTransactionChain txChain = createPeerChain(this);
         PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
-            pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy(this.peerTracker);
+            pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
         final LocRibWriter locRibWriter = LocRibWriter.create(
