@@ -48,7 +48,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -106,9 +109,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.peerImportParameters = peer;
     }
 
-    @SuppressWarnings("unchecked")
     public void init() {
-        final DataTreeIdentifier treeId = new DataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
+        final DataTreeIdentifier<Tables> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
                 this.peerIId.child(AdjRibIn.class).child(Tables.class));
         LOG.debug("Registered Effective RIB on {}", this.peerIId);
         this.reg = requireNonNull(this.databroker).registerDataTreeChangeListener(treeId, this);
@@ -195,32 +197,34 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @SuppressWarnings("unchecked")
-    private void updateRoutes(
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void updateRoutes(
             final WriteTransaction tx,
-            final TablesKey tableKey, final RIBSupport ribSupport,
+            final TablesKey tableKey, final RIBSupport<C, S, R, I> ribSupport,
             final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
             final Collection<DataObjectModification<? extends DataObject>> routeChanges) {
         for (final DataObjectModification<? extends DataObject> routeChanged : routeChanges) {
-            final Identifier routeKey
-                    = ((InstanceIdentifier.IdentifiableItem) routeChanged.getIdentifier()).getKey();
+            final I routeKey
+                    = ((InstanceIdentifier.IdentifiableItem<R, I>) routeChanged.getIdentifier()).getKey();
             switch (routeChanged.getModificationType()) {
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, (Route) routeChanged.getDataAfter());
+                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, (R) routeChanged.getDataAfter());
                     break;
                 case DELETE:
-                    final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
+                    final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
                     tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
                     break;
             }
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void writeRoutes(final WriteTransaction tx, final TablesKey tk, final RIBSupport ribSupport,
-            final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Identifier routeKey,
-            final Route route) {
-        final InstanceIdentifier routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeRoutes(
+                final WriteTransaction tx, final TablesKey tk, final RIBSupport<C, S, R, I> ribSupport,
+            final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final I routeKey,
+            final R route) {
+        final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
         CountersUtil.increment(this.prefixesReceived.get(tk), tk);
         final Optional<Attributes> effAtt = this.ribPolicies
                 .applyImportPolicies(this.peerImportParameters, route.getAttributes(),
