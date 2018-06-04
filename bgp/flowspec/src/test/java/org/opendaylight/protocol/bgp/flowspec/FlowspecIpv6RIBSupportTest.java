@@ -50,7 +50,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecRoute> {
+public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecIpv6RoutesCase, FlowspecIpv6Routes,
+        FlowspecRoute, FlowspecRouteKey> {
 
     private static final PathId PATH_ID = new PathId(1L);
     private static final DestinationIpv6PrefixCase DEST_PREFIX = new DestinationIpv6PrefixCaseBuilder()

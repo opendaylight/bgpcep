@@ -52,7 +52,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public final class EvpnRibSupportTest extends AbstractRIBSupportTest<EvpnRoute> {
+public final class EvpnRibSupportTest extends AbstractRIBSupportTest<EvpnRoutesCase, EvpnRoutes, EvpnRoute,
+        EvpnRouteKey> {
     private EvpnRibSupport ribSupport;
     private static final EvpnRoute ROUTE;
     private static final EvpnRouteKey ROUTE_KEY;
