@@ -120,7 +120,11 @@ public class RibImplTest extends AbstractConfig {
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getSupportedExtensions();
         verify(this.domSchemaService).registerSchemaContextListener(any(RIBImpl.class));
-        assertEquals("RIBImpl{}", ribImpl.toString());
+        assertEquals("RIBImpl{bgpId=Ipv4Address{_value=127.0.0.1}, localTables=[BgpTableTypeImpl ["
+                + "getAfi()=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types."
+                + "rev180329.Ipv4AddressFamily, "
+                + "getSafi()=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types."
+                + "rev180329.UnicastSubsequentAddressFamily]]}", ribImpl.toString());
         assertEquals(Collections.singleton(new TablesKey(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class)), ribImpl.getLocalTablesKeys());
         assertNotNull(ribImpl.getService());
