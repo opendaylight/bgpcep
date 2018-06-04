@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -219,11 +218,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
     @Override
     public String toString() {
-        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
-    }
-
-    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        return toStringHelper;
+        return MoreObjects.toStringHelper(this).add("bgpId", bgpIdentifier).add("localTables", localTables).toString();
     }
 
     @Override
