@@ -20,7 +20,14 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -43,8 +50,8 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public void writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final MpReachNlri nlri,
-            final Attributes attributes) {
+    public void writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
+            final MpReachNlri nlri, final Attributes attributes) {
         final ContainerNode domNlri = this.codecs.serializeReachNlri(nlri);
         final ContainerNode routeAttributes = this.codecs.serializeAttributes(attributes);
         this.ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
@@ -64,18 +71,23 @@ class RIBSupportContextImpl extends RIBSupportContext {
 
         final ChoiceNode routes = this.ribSupport.emptyRoutes();
         Verify.verifyNotNull(routes, "Null empty routes in %s", this.ribSupport);
-        Verify.verify(Routes.QNAME.equals(routes.getNodeType()), "Empty routes have unexpected identifier %s, expected %s", routes.getNodeType(), Routes.QNAME);
+        Verify.verify(Routes.QNAME.equals(routes.getNodeType()),
+            "Empty routes have unexpected identifier %s, expected %s", routes.getNodeType(), Routes.QNAME);
 
         tx.put(LogicalDatastoreType.OPERATIONAL, tableId, tb.withChild(routes).build());
     }
 
     @Override
-    public void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final MpUnreachNlri nlri) {
+    public void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
+            final MpUnreachNlri nlri) {
         this.ribSupport.deleteRoutes(tx, tableId, this.codecs.serializeUnreachNlri(nlri));
     }
 
     @Override
-    public RIBSupport getRibSupport() {
-        return this.ribSupport;
+    @SuppressWarnings("unchecked")
+    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+            RIBSupport<C, S, R, I> getRibSupport() {
+        return (RIBSupport<C, S, R, I>) this.ribSupport;
     }
 }

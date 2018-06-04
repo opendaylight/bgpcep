@@ -167,7 +167,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         return this.bgpPeerRegistry;
     }
 
-    private synchronized ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
+    private synchronized ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer<?> initializer) {
         final ServerBootstrap serverBootstrap = new ServerBootstrap();
         if (Epoll.isAvailable()) {
             serverBootstrap.channel(EpollServerSocketChannel.class);
@@ -217,13 +217,12 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             };
         }
 
-        static ChannelHandler createServerChannelHandler(final ChannelPipelineInitializer initializer) {
+        static <S extends BGPSession> ChannelHandler createServerChannelHandler(
+                final ChannelPipelineInitializer<S> initializer) {
             return new ChannelInitializer<SocketChannel>() {
                 @Override
-                @SuppressWarnings("unchecked")
                 protected void initChannel(final SocketChannel channel) {
-                    initializer.initializeChannel(channel,
-                            new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
+                    initializer.initializeChannel(channel, new DefaultPromise<>(GlobalEventExecutor.INSTANCE));
                 }
             };
         }
