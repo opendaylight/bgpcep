@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
@@ -95,12 +96,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
     }
 
-    private IpAddress getFullIp(final IpAddress ip) {
-        requireNonNull(ip);
-        if (ip.getIpv6Address() != null) {
-            return new IpAddress(Ipv6Util.getFullForm(ip.getIpv6Address()));
-        }
-        return ip;
+    private static IpAddress getFullIp(final IpAddress ip) {
+        final Ipv6Address addr = ip.getIpv6Address();
+        return addr == null ? ip : new IpAddress(Ipv6Util.getFullForm(addr));
     }
 
     @Override

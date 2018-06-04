@@ -276,11 +276,12 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("Peer instance created {}", bgpPeer);
     }
 
-    private String getPeerGroupName(final Config config) {
-        if (config != null && config.getAugmentation(NeighborPeerGroupConfig.class) != null) {
-            return config.getAugmentation(NeighborPeerGroupConfig.class).getPeerGroup();
+    private static String getPeerGroupName(final Config config) {
+        if (config == null) {
+            return null;
         }
-        return null;
+        final NeighborPeerGroupConfig aug = config.getAugmentation(NeighborPeerGroupConfig.class);
+        return aug == null ? null : aug.getPeerGroup();
     }
 
     private synchronized void onNeighborUpdated(final PeerBean bgpPeer, final Neighbor neighbor) {
@@ -293,7 +294,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("Peer instance updated {}", bgpPeer);
     }
 
-    private void closePeer(final PeerBean bgpPeer) {
+    private static void closePeer(final PeerBean bgpPeer) {
         if (bgpPeer != null) {
             try {
                 bgpPeer.closeServiceInstance().get();

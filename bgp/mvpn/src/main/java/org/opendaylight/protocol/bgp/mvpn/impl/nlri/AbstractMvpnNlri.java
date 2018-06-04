@@ -52,7 +52,7 @@ abstract class AbstractMvpnNlri<T extends MvpnChoice> implements MvpnSerializer<
     protected abstract ByteBuf serializeBody(T mvpn);
 
 
-    final MulticastSourceRdGrouping parseRDMulticastSource(final ByteBuf buffer) {
+    static final MulticastSourceRdGrouping parseRDMulticastSource(final ByteBuf buffer) {
         final SPmsiADBuilder builder = new SPmsiADBuilder();
         builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(buffer));
         final IpAddress address = IpAddressUtil.addressForByteBuf(buffer);
@@ -60,7 +60,7 @@ abstract class AbstractMvpnNlri<T extends MvpnChoice> implements MvpnSerializer<
         return builder.build();
     }
 
-    final void serializeRDMulticastSource(final MulticastSourceRdGrouping route, final ByteBuf output) {
+    static final void serializeRDMulticastSource(final MulticastSourceRdGrouping route, final ByteBuf output) {
         RouteDistinguisherUtil.serializeRouteDistinquisher(route.getRouteDistinguisher(), output);
         output.writeBytes(IpAddressUtil.bytesFor(route.getMulticastSource()));
     }
