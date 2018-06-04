@@ -164,11 +164,6 @@
             <artifactId>mdsal-binding-dom-adapter</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-dom-broker-config</artifactId>
-            <scope>test</scope>
-        </dependency>
         <!-- junit/mockito default -->
         <dependency>
             <groupId>org.mockito</groupId>
