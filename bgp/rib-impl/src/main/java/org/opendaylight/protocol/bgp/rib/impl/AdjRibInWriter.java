@@ -172,9 +172,10 @@ final class AdjRibInWriter {
     /**
      * Create new table instances, potentially creating their empty entries
      */
-    private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath,
-            final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
-            final Map<TablesKey, SendReceive> addPathTablesType, final DOMDataWriteTransaction tx) {
+    private static ImmutableMap<TablesKey, TableContext> createNewTableInstances(
+            final YangInstanceIdentifier newPeerPath, final RIBSupportContextRegistry registry,
+            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
+            final DOMDataWriteTransaction tx) {
 
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey tableKey : tableTypes) {
@@ -208,7 +209,7 @@ final class AdjRibInWriter {
         tb.put(tableKey, ctx);
     }
 
-    private void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
+    private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
             final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey,
             final SendReceive sendReceive, final DOMDataWriteTransaction tx) {
         final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);

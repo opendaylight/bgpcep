@@ -72,8 +72,8 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
         assertEquals(expected, actualAttr);
     }
 
-    private Attributes buildPEDistinguisherLabelsAttributAttribute() {
-        final List<PeDistinguisherLabelAttribute> peAtt = new ArrayList<>();
+    private static Attributes buildPEDistinguisherLabelsAttributAttribute() {
+        final List<PeDistinguisherLabelAttribute> peAtt = new ArrayList<>(2);
 
         peAtt.add(new PeDistinguisherLabelAttributeBuilder()
                 .setPeAddress(new IpAddress(new Ipv4Address("127.0.0.1")))

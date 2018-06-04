@@ -114,7 +114,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.reg = requireNonNull(this.databroker).registerDataTreeChangeListener(treeId, this);
     }
 
-    private Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
+    private static Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
         final ImmutableMap.Builder<TablesKey, LongAdder> b = ImmutableMap.builder();
         tables.forEach(table -> b.put(table, new LongAdder()));
         return b.build();
