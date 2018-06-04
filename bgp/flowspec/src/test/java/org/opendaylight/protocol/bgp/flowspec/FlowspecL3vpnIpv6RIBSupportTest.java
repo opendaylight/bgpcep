@@ -50,7 +50,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecL3vpnRoute> {
+public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecL3vpnIpv6RoutesCase,
+        FlowspecL3vpnIpv6Routes, FlowspecL3vpnRoute, FlowspecL3vpnRouteKey> {
 
     private static final FlowspecL3vpnRoute ROUTE;
     private static final FlowspecL3vpnRouteKey ROUTE_KEY;

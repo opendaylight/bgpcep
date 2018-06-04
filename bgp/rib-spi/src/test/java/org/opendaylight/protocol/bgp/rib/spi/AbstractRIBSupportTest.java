@@ -49,7 +49,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -62,7 +66,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractConcurrentDataBrokerTest {
+public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & ChoiceIn<Tables>,
+        S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>,
+        I extends Identifier<R>> extends AbstractConcurrentDataBrokerTest {
     protected static final PathId PATH_ID = new PathId(1L);
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
@@ -79,10 +86,10 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
     protected List<Map.Entry<InstanceIdentifier<?>, DataObject>> insertedRoutes;
 
     protected BindingNormalizedNodeSerializer mappingService;
-    private AbstractRIBSupport abstractRIBSupport;
+    private AbstractRIBSupport<C, S, R, I> abstractRIBSupport;
     private ModuleInfoBackedContext moduleInfoBackedContext;
 
-    protected final void setUpTestCustomizer(final AbstractRIBSupport<?, ?, ?, ?> ribSupport) throws Exception {
+    protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R, I> ribSupport) throws Exception {
         this.abstractRIBSupport = ribSupport;
         this.moduleInfoBackedContext
                 .registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesContainerClass()));
@@ -147,10 +154,10 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
             .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
     }
 
-    protected final Collection<MapEntryNode> createRoutes(final DataObject routes) {
+    protected final Collection<MapEntryNode> createRoutes(final S routes) {
         Preconditions.checkArgument(routes.getImplementedInterface()
                 .equals(this.abstractRIBSupport.routesContainerClass()));
-        final InstanceIdentifier<DataObject> routesIId = routesIId();
+        final InstanceIdentifier<S> routesIId = routesIId();
         final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService
                 .toNormalizedNode(routesIId, routes);
         final ContainerNode container = (ContainerNode) normalizedNode.getValue();
@@ -166,9 +173,9 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
         return RIB.child(Tables.class, getTablesKey());
     }
 
-    private InstanceIdentifier<DataObject> routesIId() {
+    private InstanceIdentifier<S> routesIId() {
         final InstanceIdentifier<Tables> tables = tablesIId();
-        return tables.child(this.abstractRIBSupport.routesContainerClass());
+        return tables.child(this.abstractRIBSupport.routesCaseClass(), this.abstractRIBSupport.routesContainerClass());
     }
 
     protected final YangInstanceIdentifier getTablePath() {
@@ -177,7 +184,7 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
     }
 
     protected final YangInstanceIdentifier getRoutePath() {
-        final InstanceIdentifier<DataObject> routesIId = routesIId();
+        final InstanceIdentifier<S> routesIId = routesIId();
         return this.mappingService.toYangInstanceIdentifier(routesIId).node(getRouteListQname());
     }
 
@@ -186,7 +193,7 @@ public abstract class AbstractRIBSupportTest<R extends Route> extends AbstractCo
                 .withModule(BindingReflections.getQNameModule(this.abstractRIBSupport.routesCaseClass()));
     }
 
-    protected final NodeIdentifierWithPredicates createRouteNIWP(final DataObject routes) {
+    protected final NodeIdentifierWithPredicates createRouteNIWP(final S routes) {
         final Collection<MapEntryNode> map = createRoutes(routes);
         return Iterables.getOnlyElement(map).getIdentifier();
     }

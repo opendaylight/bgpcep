@@ -55,7 +55,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<LabeledUnicastRoute> {
+public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<LabeledUnicastRoutesCase,
+        LabeledUnicastRoutes, LabeledUnicastRoute, LabeledUnicastRouteKey> {
 
     private static final IpPrefix IPv4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     private static final LabeledUnicastRoute ROUTE;

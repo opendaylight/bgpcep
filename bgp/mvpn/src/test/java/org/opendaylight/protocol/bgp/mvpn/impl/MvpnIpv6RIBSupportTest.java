@@ -55,7 +55,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRoute> {
+public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv6Case, MvpnRoutesIpv6, MvpnRoute,
+        MvpnRouteKey> {
     private static final PathId PATH_ID = new PathId(0L);
     private static final MvpnChoice MVPN = new InterAsIPmsiADCaseBuilder().setInterAsIPmsiAD(
             new InterAsIPmsiADBuilder()

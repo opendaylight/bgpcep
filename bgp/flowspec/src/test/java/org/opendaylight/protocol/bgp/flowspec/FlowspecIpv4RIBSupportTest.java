@@ -50,7 +50,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecRoute> {
+public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecRoutesCase, FlowspecRoutes,
+        FlowspecRoute, FlowspecRouteKey> {
 
     private FlowspecIpv4RIBSupport ribSupport;
     private FlowspecRoute route;
@@ -64,7 +65,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
             = Collections.singletonList(new FlowspecBuilder().setFlowspecType(DEST_PREFIX).build());
     private static final DestinationFlowspec DEST_FLOW = new DestinationFlowspecBuilder()
             .setFlowspec(FLOW_LIST).setPathId(PATH_ID).build();
-    private static final DestinationFlowspecCase REACH_NLRI 
+    private static final DestinationFlowspecCase REACH_NLRI
             = new DestinationFlowspecCaseBuilder().setDestinationFlowspec(DEST_FLOW).build();
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update
         .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCase UNREACH_NLRI
@@ -83,7 +84,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
         this.ribSupport = FlowspecIpv4RIBSupport.getInstance(fsContext, this.mappingService);
 
         final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-                fsContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, 
+                fsContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
                         SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
 
         this.routeKey = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
@@ -179,11 +180,11 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
     @Test
     public void testChangedRoutes() {
         final Routes emptyCase = new FlowspecRoutesCaseBuilder().build();
-        DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), 
+        DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
         Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
 
-        final Routes emptyRoutes 
+        final Routes emptyRoutes
                 = new FlowspecRoutesCaseBuilder().setFlowspecRoutes(new FlowspecRoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
         Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());

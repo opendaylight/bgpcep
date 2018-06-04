@@ -55,7 +55,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest<LabeledUnicastRoute> {
+public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest<LabeledUnicastIpv6RoutesCase,
+        LabeledUnicastIpv6Routes, LabeledUnicastRoute, LabeledUnicastRouteKey> {
 
     private static final IpPrefix IPv6_PREFIX = new IpPrefix(new Ipv6Prefix("102:304:500::/40"));
     private static final LabeledUnicastRoute ROUTE;
