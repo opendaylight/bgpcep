@@ -57,18 +57,12 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
             RIBSupport<C, S, R, I> getRIBSupport(final TablesKey key) {
         final RIBSupportContext ribSupport = getRIBSupportContext(key);
-        if (ribSupport != null) {
-            return ribSupport.getRibSupport();
-        }
-        return null;
+        return ribSupport == null ? null : ribSupport.getRibSupport();
     }
 
     @Override
     public RIBSupportContext getRIBSupportContext(final TablesKey key) {
         final RIBSupport<?, ?, ?, ?> ribSupport = this.extensionContext.getRIBSupport(key);
-        if (ribSupport != null) {
-            return this.contexts.getUnchecked(ribSupport);
-        }
-        return null;
+        return ribSupport == null ? null : this.contexts.getUnchecked(ribSupport);
     }
 }

@@ -119,7 +119,6 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
                 peerTracker, tablesKey, afiSafiType, pathSelectionStrategy);
     }
 
-    @SuppressWarnings("unchecked")
     private synchronized void init() {
         final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL,
@@ -140,7 +139,7 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         final InstanceIdentifier<Tables> tableId = this.ribIId.builder().child(Peer.class)
                 .child(EffectiveRibIn.class).child(Tables.class, this.tk).build();
         this.reg = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
+                new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
 
     /**
