@@ -143,18 +143,20 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                     final CParameters cParam = optCapa.getCParameters();
-                    if (cParam.augmentation(CParameters1.class) == null) {
-                        continue;
-                    }
-                    if (cParam.augmentation(CParameters1.class).getMultiprotocolCapability() != null) {
-                        final MultiprotocolCapability multi = cParam.augmentation(CParameters1.class).getMultiprotocolCapability();
-                        final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
-                        LOG.trace("Added table type to sync {}", tt);
-                        tts.add(tt);
-                        tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
-                    } else if (cParam.augmentation(CParameters1.class).getAddPathCapability() != null) {
-                        final AddPathCapability addPathCap = cParam.augmentation(CParameters1.class).getAddPathCapability();
-                        addPathCapabilitiesList.addAll(addPathCap.getAddressFamilies());
+                    final CParameters1 cParam1 = cParam.augmentation(CParameters1.class);
+                    if (cParam1 != null) {
+                        final MultiprotocolCapability multi = cParam1.getMultiprotocolCapability();
+                        if (multi != null) {
+                            final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
+                            LOG.trace("Added table type to sync {}", tt);
+                            tts.add(tt);
+                            tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
+                        } else {
+                            final AddPathCapability addPathCap = cParam1.getAddPathCapability();
+                            if (addPathCap != null) {
+                                addPathCapabilitiesList.addAll(addPathCap.getAddressFamilies());
+                            }
+                        }
                     }
                 }
             }
