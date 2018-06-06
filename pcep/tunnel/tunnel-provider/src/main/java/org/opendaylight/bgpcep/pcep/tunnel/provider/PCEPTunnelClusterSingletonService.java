@@ -9,14 +9,15 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
-import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
@@ -29,7 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,12 +61,24 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
         this.tunnelTopologyId = requireNonNull(tunnelTopologyId);
         final TopologyId pcepTopologyId = pcepTopology.firstKeyOf(Topology.class).getTopologyId();
 
-        final WaitingServiceTracker<InstructionScheduler> schedulerTracker =
-                WaitingServiceTracker.create(InstructionScheduler.class,
-                        dependencies.getBundleContext(), "(" + InstructionScheduler.class.getName()
-                                + "=" + pcepTopologyId.getValue() + ")");
-        final InstructionScheduler scheduler = schedulerTracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-        schedulerTracker.close();
+        final InstructionScheduler scheduler;
+        ServiceTracker<InstructionScheduler, ?> tracker = null;
+        try {
+            tracker = new ServiceTracker<>(dependencies.getBundleContext(),
+                    dependencies.getBundleContext().createFilter(String.format("(&(%s=%s)%s)", Constants.OBJECTCLASS,
+                            InstructionScheduler.class.getName(), "(" + InstructionScheduler.class.getName()
+                            + "=" + pcepTopologyId.getValue() + ")")), null);
+            tracker.open();
+            scheduler = (InstructionScheduler) tracker.waitForService(
+                    TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+            Preconditions.checkState(scheduler != null, "InstructionScheduler service not found");
+        } catch (InvalidSyntaxException | InterruptedException e) {
+            throw new IllegalStateException("Error retrieving InstructionScheduler service", e);
+        } finally {
+            if (tracker != null) {
+                tracker.close();
+            }
+        }
 
         final InstanceIdentifier<Topology> tunnelTopology = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(tunnelTopologyId)).build();
