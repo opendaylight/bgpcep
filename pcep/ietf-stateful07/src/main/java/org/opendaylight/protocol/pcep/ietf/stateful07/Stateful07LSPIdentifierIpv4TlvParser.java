@@ -48,11 +48,11 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
         }
         Preconditions.checkArgument(buffer.readableBytes() == V4_LENGTH, "Length %s does not match LSP Identifiers Ipv4 tlv length.", buffer.readableBytes());
         final Ipv4Builder builder = new Ipv4Builder();
-        builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(buffer));
+        builder.setIpv4TunnelSenderAddress(Ipv4Util.noZoneAddressForByteBuf(buffer));
         final LspId lspId = new LspId((long) buffer.readUnsignedShort());
         final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.noZoneAddressForByteBuf(buffer)));
-        builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(buffer));
+        builder.setIpv4TunnelEndpointAddress(Ipv4Util.noZoneAddressForByteBuf(buffer));
         final AddressFamily afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
         return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();
     }

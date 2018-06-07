@@ -36,8 +36,8 @@ import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
@@ -261,8 +261,8 @@ public class PCEPValidatorTest {
         this.of = ofBuilder.build();
 
         final Ipv4Builder afi = new Ipv4Builder();
-        afi.setSourceIpv4Address(new Ipv4Address("255.255.255.255"));
-        afi.setDestinationIpv4Address(new Ipv4Address("255.255.255.255"));
+        afi.setSourceIpv4Address(new Ipv4AddressNoZone("255.255.255.255"));
+        afi.setDestinationIpv4Address(new Ipv4AddressNoZone("255.255.255.255"));
 
         final EndpointsObjBuilder epBuilder = new EndpointsObjBuilder();
         epBuilder.setIgnore(false);
@@ -289,8 +289,8 @@ public class PCEPValidatorTest {
                 .setMonitoringId(100L)
                 .setFlags(new Flags(false, false, false, false, false))
                 .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.monitoring.TlvsBuilder().build()).build();
-        this.pccIdReq = new PccIdReqBuilder().setIpAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
-        this.pceId = new PceIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("127.0.0.2"))).build();
+        this.pccIdReq = new PccIdReqBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1"))).build();
+        this.pceId = new PceIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.2"))).build();
 
         final ProcTimeBuilder procTimeBuilder = new ProcTimeBuilder();
         procTimeBuilder.setEstimated(false);
