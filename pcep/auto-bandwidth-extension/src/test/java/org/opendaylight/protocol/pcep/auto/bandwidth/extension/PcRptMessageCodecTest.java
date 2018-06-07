@@ -28,6 +28,7 @@ import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev171025.Bandwidth1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev171025.Bandwidth1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev171025.bandwidth.usage.object.BandwidthUsage;
@@ -85,7 +86,7 @@ public class PcRptMessageCodecTest {
         final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(BW).build();
         final Ipv4Builder builder = new Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(new Ipv4Address("127.0.1.1"));
-        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4Address("127.0.1.2")));
+        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4AddressNoZone("127.0.1.2")));
         builder.setIpv4TunnelEndpointAddress(new Ipv4Address("127.0.1.3"));
         final AddressFamily afiLsp = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
         final LspId lspId = new LspId(1L);
@@ -107,7 +108,7 @@ public class PcRptMessageCodecTest {
         final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(BW).build();
         final Ipv4Builder builder = new Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(new Ipv4Address("127.0.1.1"));
-        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4Address("127.0.1.2")));
+        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4AddressNoZone("127.0.1.2")));
         builder.setIpv4TunnelEndpointAddress(new Ipv4Address("127.0.1.3"));
         final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L)).build();
         final Ero ero = new EroBuilder().build();
