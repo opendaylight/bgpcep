@@ -33,6 +33,7 @@ import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContex
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev171025.Lsp1;
@@ -272,7 +273,7 @@ public class PCEPValidatorTest {
         builder.setIpv4TunnelSenderAddress(new Ipv4Address("127.0.1.1"));
         final LspId lspId = new LspId(1L);
         final TunnelId tunnelId = new TunnelId(1);
-        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4Address("127.0.1.2")));
+        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4AddressNoZone("127.0.1.2")));
         builder.setIpv4TunnelEndpointAddress(new Ipv4Address("127.0.1.3"));
         final AddressFamily afiLsp = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
         final LspIdentifiers identifier = new LspIdentifiersBuilder().setAddressFamily(afiLsp).setLspId(lspId).setTunnelId(tunnelId).build();

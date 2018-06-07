@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
@@ -31,7 +32,7 @@ import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsLspObj
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsOpenObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs3;
@@ -190,13 +191,13 @@ public class PCEPObjectParserTest {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.SymbolicPathName("Med".getBytes())).build();
         final Ipv4Builder afi = new Ipv4Builder();
         afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
-        afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
+        afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
             (byte) 0x78 }))));
         afi.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
         final LspIdentifiers tlv3 = new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(afi.build()).build()).setLspId(
             new LspId(65535L)).setTunnelId(new TunnelId(4660)).build();
         final RsvpErrorBuilder rsvpBuilder = new RsvpErrorBuilder();
-        rsvpBuilder.setNode(new IpAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))));
+        rsvpBuilder.setNode(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))));
         rsvpBuilder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ErrorSpec.Flags(false, true));
         rsvpBuilder.setCode((short) 146);
         rsvpBuilder.setValue(5634);

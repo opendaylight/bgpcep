@@ -105,12 +105,12 @@ module rsvp {
     }
 
     typedef ipv4-extended-tunnel-id {
-        type inet:ipv4-address;
+        type inet:ipv4-address-no-zone;
         reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.1";
     }
 
     typedef ipv6-extended-tunnel-id {
-        type inet:ipv6-address;
+        type inet:ipv6-address-no-zone;
         reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.2";
     }
 
@@ -172,7 +172,7 @@ module rsvp {
         reference "https://tools.ietf.org/html/rfc2205#page-81";
 
         leaf node {
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
             mandatory true;
         }
 
@@ -737,7 +737,7 @@ module rsvp {
                 type uint16;
             }
             leaf ip-address {
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
                 mandatory true;
             }
         }
@@ -787,11 +787,11 @@ module rsvp {
                 uses rsvp-te-object;
                 list plr {
                     leaf plr-id {
-                        type inet:ipv4-address;
+                        type inet:ipv4-address-no-zone;
                         mandatory true;
                     }
                     leaf avoid-node {
-                        type inet:ipv4-address;
+                        type inet:ipv4-address-no-zone;
                         mandatory true;
                     }
                 }
@@ -800,13 +800,13 @@ module rsvp {
                 uses rsvp-te-object;
                 list plr-id {
                     leaf plr-id {
-                        type inet:ipv6-address;
+                        type inet:ipv6-address-no-zone;
                         mandatory true;
                     }
                 }
                 list avoid-node {
                     leaf avoid-node {
-                        type inet:ipv6-address;
+                        type inet:ipv6-address-no-zone;
                         mandatory true;
                     }
                 }
