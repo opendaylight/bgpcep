@@ -31,13 +31,13 @@ public abstract class AbstractPceIdObjectParser implements ObjectParser, ObjectS
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof PceId, "Wrong instance of PCEPObject. Passed %s. Needed PccIdReqObject.", object.getClass());
         final PceId pceId = (PceId) object;
-        if (pceId.getIpAddress().getIpv4Address() != null) {
+        if (pceId.getIpAddress().getIpv4AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH);
-            ByteBufWriteUtil.writeIpv4Address(pceId.getIpAddress().getIpv4Address(), body);
+            ByteBufWriteUtil.writeIpv4Address(pceId.getIpAddress().getIpv4AddressNoZone(), body);
             ObjectUtil.formatSubobject(IPV4_TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
-        } else if (pceId.getIpAddress().getIpv6Address() != null) {
+        } else if (pceId.getIpAddress().getIpv6AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv6Util.IPV6_LENGTH);
-            ByteBufWriteUtil.writeIpv6Address(pceId.getIpAddress().getIpv6Address(), body);
+            ByteBufWriteUtil.writeIpv6Address(pceId.getIpAddress().getIpv6AddressNoZone(), body);
             ObjectUtil.formatSubobject(IPV6_TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
         }
     }

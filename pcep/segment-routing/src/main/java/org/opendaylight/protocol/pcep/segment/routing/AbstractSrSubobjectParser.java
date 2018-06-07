@@ -21,7 +21,7 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev171025.SidType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev171025.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev171025.sr.subobject.Nai;
@@ -129,18 +129,18 @@ public abstract class AbstractSrSubobjectParser   {
     private static void serializeNai(final Nai nai, final SidType sidType, final ByteBuf buffer) {
         switch (sidType) {
         case Ipv4NodeId:
-            writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4Address(), buffer);
+            writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4AddressNoZone(), buffer);
             break;
         case Ipv6NodeId:
-            writeIpv6Address(((IpNodeId) nai).getIpAddress().getIpv6Address(), buffer);
+            writeIpv6Address(((IpNodeId) nai).getIpAddress().getIpv6AddressNoZone(), buffer);
             break;
         case Ipv4Adjacency:
-            writeIpv4Address(((IpAdjacency) nai).getLocalIpAddress().getIpv4Address(), buffer);
-            writeIpv4Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv4Address(), buffer);
+            writeIpv4Address(((IpAdjacency) nai).getLocalIpAddress().getIpv4AddressNoZone(), buffer);
+            writeIpv4Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv4AddressNoZone(), buffer);
             break;
         case Ipv6Adjacency:
-            writeIpv6Address(((IpAdjacency) nai).getLocalIpAddress().getIpv6Address(), buffer);
-            writeIpv6Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv6Address(), buffer);
+            writeIpv6Address(((IpAdjacency) nai).getLocalIpAddress().getIpv6AddressNoZone(), buffer);
+            writeIpv6Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv6AddressNoZone(), buffer);
             break;
         case Unnumbered:
             final UnnumberedAdjacency unnumbered = (UnnumberedAdjacency) nai;
@@ -158,18 +158,18 @@ public abstract class AbstractSrSubobjectParser   {
         switch (sidType) {
         case Ipv4NodeId:
             return new IpNodeIdBuilder().setIpAddress(
-                    new IpAddress(Ipv4Util.addressForByteBuf(buffer))).build();
+                    new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer))).build();
         case Ipv6NodeId:
             return new IpNodeIdBuilder().setIpAddress(
-                    new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build();
+                    new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
         case Ipv4Adjacency:
             return new IpAdjacencyBuilder()
-                    .setLocalIpAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer)))
-                    .setRemoteIpAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer))).build();
+                    .setLocalIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer)))
+                    .setRemoteIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer))).build();
         case Ipv6Adjacency:
             return new IpAdjacencyBuilder()
-                    .setLocalIpAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer)))
-                    .setRemoteIpAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build();
+                    .setLocalIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)))
+                    .setRemoteIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
         case Unnumbered:
             return new UnnumberedAdjacencyBuilder().setLocalNodeId(buffer.readUnsignedInt())
                     .setLocalInterfaceId(buffer.readUnsignedInt()).setRemoteNodeId(buffer.readUnsignedInt())

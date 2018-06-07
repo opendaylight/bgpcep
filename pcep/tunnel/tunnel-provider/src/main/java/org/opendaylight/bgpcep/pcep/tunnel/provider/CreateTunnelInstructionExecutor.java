@@ -24,6 +24,8 @@ import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Arguments2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Arguments2Builder;
@@ -121,8 +123,9 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
                 for (final IpAddress dc : dsts) {
                     if (dc.getIpv4Address() != null) {
                         return Optional.of(new Ipv4CaseBuilder().setIpv4(new Ipv4Builder()
-                                .setSourceIpv4Address(sc.getIpv4Address())
-                                .setDestinationIpv4Address(dc.getIpv4Address()).build()).build());
+                                .setSourceIpv4Address(new Ipv4AddressNoZone(sc.getIpv4Address()))
+                                .setDestinationIpv4Address(new Ipv4AddressNoZone(dc.getIpv4Address()))
+                                .build()).build());
                     }
                 }
             }
@@ -137,8 +140,9 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
                 for (final IpAddress dc : dsts) {
                     if (dc.getIpv6Address() != null) {
                         return Optional.of(new Ipv6CaseBuilder().setIpv6(new Ipv6Builder()
-                                .setSourceIpv6Address(sc.getIpv6Address())
-                                .setDestinationIpv6Address(dc.getIpv6Address()).build()).build());
+                                .setSourceIpv6Address(new Ipv6AddressNoZone(sc.getIpv6Address()))
+                                .setDestinationIpv6Address(new Ipv6AddressNoZone(dc.getIpv6Address()))
+                                .build()).build());
                     }
                 }
             }

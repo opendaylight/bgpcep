@@ -22,8 +22,8 @@ import org.opendaylight.bgpcep.pcep.topology.provider.AbstractTopologySessionLis
 import org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionListenerFactory;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.PcrptBuilder;
@@ -83,7 +83,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
             final List<Subobject> subobjects = lsp.getPath().get(0).getEro().getSubobject();
             assertEquals(1, subobjects.size());
             assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType())
-                .getNai()).getIpAddress().getIpv4Address().getValue());
+                .getNai()).getIpAddress().getIpv4AddressNoZone().getValue());
             return pcc;
         });
 
@@ -110,7 +110,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
                     final List<Subobject> subobjects = rlsp.getPath().get(0).getEro().getSubobject();
                     assertEquals(1, subobjects.size());
                     assertEquals("1.1.1.2", ((IpNodeId)((SrEroType)subobjects.get(0)
-                        .getSubobjectType()).getNai()).getIpAddress().getIpv4Address().getValue());
+                        .getSubobjectType()).getNai()).getIpAddress().getIpv4AddressNoZone().getValue());
                 }
             }
             return pcc;
@@ -139,7 +139,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         srEroBuilder.setMFlag(false);
         srEroBuilder.setSidType(SidType.Ipv4NodeId);
         srEroBuilder.setSid(123456L);
-        srEroBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address(nai))).build());
+        srEroBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(nai))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroBuilder.build()).setLoose(false);
 
         final List<Subobject> subobjects = Lists.newArrayList(subobjBuilder.build());

@@ -372,12 +372,12 @@ module pcep-types {
             case ipv4-case {
                 container ipv4 {
                     leaf source-ipv4-address {
-                        type inet:ipv4-address;
+                        type inet:ipv4-address-no-zone;
                         mandatory true;
                     }
 
                     leaf destination-ipv4-address {
-                        type inet:ipv4-address;
+                        type inet:ipv4-address-no-zone;
                         mandatory true;
                     }
                 }
@@ -385,12 +385,12 @@ module pcep-types {
             case ipv6-case {
                 container ipv6 {
                     leaf source-ipv6-address {
-                        type inet:ipv6-address;
+                        type inet:ipv6-address-no-zone;
                         mandatory true;
                     }
 
                     leaf destination-ipv6-address {
-                        type inet:ipv6-address;
+                        type inet:ipv6-address-no-zone;
                         mandatory true;
                     }
                 }
@@ -762,7 +762,7 @@ module pcep-types {
         container pcc-id-req {
             uses object;
             leaf ip-address {
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
             }
         }
     }
@@ -773,7 +773,7 @@ module pcep-types {
         container pce-id {
             uses object;
             leaf ip-address {
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
             }
         }
     }

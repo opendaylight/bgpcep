@@ -10,17 +10,17 @@ package org.opendaylight.protocol.pcep.segment.routing;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev171025.SidType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev171025.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev171025.sr.subobject.nai.IpAdjacencyBuilder;
@@ -76,7 +76,7 @@ public class SrRroSubobjectParserTest {
 
     private static final byte[] srRroSubobjectWithoutNAI  = {
         0x06,0x08, (byte) 0x10,0xb,
-        0x1e,0x24,(byte) (byte)-32, 0x00,
+        0x1e,0x24,(byte)-32, 0x00,
     };
 
     private static final byte[] srRroSubobjectWithoutSID  = {
@@ -105,7 +105,7 @@ public class SrRroSubobjectParserTest {
         builder.setSid(123456L);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
+        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithIpv4NodeID, 2))));
@@ -121,7 +121,7 @@ public class SrRroSubobjectParserTest {
         builder.setCFlag(false);
         builder.setMFlag(false);
         builder.setSid(123456L);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729c"))).build());
+        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("fe80:cd00::211e:729c"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithIpv6NodeID, 2))));
@@ -137,8 +137,8 @@ public class SrRroSubobjectParserTest {
         builder.setSid(123456L);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddress(new Ipv4Address("74.125.43.99")))
-                .setRemoteIpAddress(new IpAddress(new Ipv4Address("74.125.43.100"))).build());
+        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
+                .setRemoteIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.100"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithIpv4Adjacency, 2))));
@@ -154,8 +154,8 @@ public class SrRroSubobjectParserTest {
         builder.setSid(123456L);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729c")))
-                .setRemoteIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729d"))).build());
+        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("fe80:cd00::211e:729c")))
+                .setRemoteIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("fe80:cd00::211e:729d"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithIpv6Adjacency, 2))));
@@ -201,7 +201,7 @@ public class SrRroSubobjectParserTest {
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
+        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithoutSID, 2))));

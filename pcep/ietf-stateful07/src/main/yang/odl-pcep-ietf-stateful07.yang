@@ -124,7 +124,7 @@ module odl-pcep-ietf-stateful07 {
                 case ipv4-case {
                     container ipv4 {
                         leaf ipv4-tunnel-sender-address {
-                            type inet:ipv4-address;
+                            type inet:ipv4-address-no-zone;
                             mandatory true;
                         }
                         leaf ipv4-extended-tunnel-id {
@@ -132,7 +132,7 @@ module odl-pcep-ietf-stateful07 {
                             mandatory true;
                         }
                         leaf ipv4-tunnel-endpoint-address {
-                            type inet:ipv4-address;
+                            type inet:ipv4-address-no-zone;
                             mandatory true;
                         }
                     }
@@ -140,7 +140,7 @@ module odl-pcep-ietf-stateful07 {
                 case ipv6-case {
                     container ipv6 {
                         leaf ipv6-tunnel-sender-address {
-                            type inet:ipv6-address;
+                            type inet:ipv6-address-no-zone;
                             mandatory true;
                         }
                         leaf ipv6-extended-tunnel-id {
@@ -148,7 +148,7 @@ module odl-pcep-ietf-stateful07 {
                             mandatory true;
                         }
                         leaf ipv6-tunnel-endpoint-address {
-                            type inet:ipv6-address;
+                            type inet:ipv6-address-no-zone;
                             mandatory true;
                         }
                     }
