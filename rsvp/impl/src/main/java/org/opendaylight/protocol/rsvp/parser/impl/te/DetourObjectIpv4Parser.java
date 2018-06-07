@@ -32,8 +32,8 @@ public final class DetourObjectIpv4Parser extends AbstractRSVPObjectParser {
         final List<Plr> plrList = new ArrayList<>();
         while (byteBuf.isReadable()) {
             final PlrBuilder plr = new PlrBuilder();
-            plr.setPlrId(Ipv4Util.addressForByteBuf(byteBuf));
-            plr.setAvoidNode(Ipv4Util.addressForByteBuf(byteBuf));
+            plr.setPlrId(Ipv4Util.noZoneAddressForByteBuf(byteBuf));
+            plr.setAvoidNode(Ipv4Util.noZoneAddressForByteBuf(byteBuf));
             plrList.add(plr.build());
         }
         return ipv4Case.setPlr(plrList).build();
