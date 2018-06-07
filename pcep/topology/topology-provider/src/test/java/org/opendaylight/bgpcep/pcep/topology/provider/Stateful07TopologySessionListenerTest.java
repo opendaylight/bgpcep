@@ -39,7 +39,7 @@ import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.util.CheckUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev171025.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev171025.Stateful1;
@@ -648,8 +648,8 @@ public class Stateful07TopologySessionListenerTest
     private AddLspInput createAddLspInput() {
         final ArgumentsBuilder argsBuilder = new ArgumentsBuilder();
         final Ipv4CaseBuilder ipv4Builder = new Ipv4CaseBuilder();
-        ipv4Builder.setIpv4(new Ipv4Builder().setSourceIpv4Address(new Ipv4Address(this.testAddress))
-                .setDestinationIpv4Address(new Ipv4Address(this.testAddress)).build());
+        ipv4Builder.setIpv4(new Ipv4Builder().setSourceIpv4Address(new Ipv4AddressNoZone(this.testAddress))
+                .setDestinationIpv4Address(new Ipv4AddressNoZone(this.testAddress)).build());
         argsBuilder.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(ipv4Builder.build()).build());
         argsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(this.eroIpPrefix)));
         argsBuilder.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder()

@@ -12,8 +12,10 @@ import io.netty.buffer.ByteBuf;
 import java.math.BigInteger;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 
@@ -221,6 +223,23 @@ public final class ByteBufWriteUtil {
     }
 
     /**
+     * Writes IPv4 address if not null, otherwise writes zeros to the
+     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 4.
+     *
+     * @param ipv4Address
+     *            IPv4 address to be written to the output.
+     * @param output
+     *            ByteBuf, where ipv4Address or zeros are written.
+     */
+    public static void writeIpv4Address(final Ipv4AddressNoZone ipv4Address, final ByteBuf output) {
+        if (ipv4Address != null) {
+            output.writeBytes(IetfInetUtil.INSTANCE.ipv4AddressNoZoneBytes(ipv4Address));
+        } else {
+            output.writeZero(Ipv4Util.IP4_LENGTH);
+        }
+    }
+
+    /**
      * Writes IPv4 prefix if not null, otherwise writes zeros to the
      * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 5.
      *
@@ -250,6 +269,23 @@ public final class ByteBufWriteUtil {
     public static void writeIpv6Address(final Ipv6Address ipv6Address, final ByteBuf output) {
         if (ipv6Address != null) {
             output.writeBytes(Ipv6Util.bytesForAddress(ipv6Address));
+        } else {
+            output.writeZero(Ipv6Util.IPV6_LENGTH);
+        }
+    }
+
+    /**
+     * Writes IPv6 address if not null, otherwise writes zeros to the
+     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 16.
+     *
+     * @param ipv6Address
+     *            IPv6 address to be written to the output.
+     * @param output
+     *            ByteBuf, where ipv6Address or zeros are written.
+     */
+    public static void writeIpv6Address(final Ipv6AddressNoZone ipv6Address, final ByteBuf output) {
+        if (ipv6Address != null) {
+            output.writeBytes(IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(ipv6Address));
         } else {
             output.writeZero(Ipv6Util.IPV6_LENGTH);
         }

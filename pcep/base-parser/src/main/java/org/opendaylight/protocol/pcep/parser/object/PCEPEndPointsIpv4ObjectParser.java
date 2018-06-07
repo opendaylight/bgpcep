@@ -57,8 +57,8 @@ public class PCEPEndPointsIpv4ObjectParser implements ObjectParser, ObjectSerial
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         final Ipv4Builder b = new Ipv4Builder();
-        b.setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes));
-        b.setDestinationIpv4Address((Ipv4Util.addressForByteBuf(bytes)));
+        b.setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
+        b.setDestinationIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
         builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(b.build()).build());
         return builder.build();
     }
