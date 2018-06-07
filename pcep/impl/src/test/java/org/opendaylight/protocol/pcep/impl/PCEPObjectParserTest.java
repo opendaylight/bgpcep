@@ -64,11 +64,11 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
@@ -448,8 +448,8 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(
-                new Ipv4Builder().setSourceIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv4Address(
-                        Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
+                new Ipv4Builder().setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv4Address(
+                        Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -484,8 +484,8 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setAddressFamily(new Ipv6CaseBuilder().setIpv6(
-                new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv6Address(
-                        Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
+                new Ipv6Builder().setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv6Address(
+                        Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -1142,7 +1142,7 @@ public class PCEPObjectParserTest {
             0x7f, 0x00, 0x00, 0x01
         };
         final PCEPPccIdReqIPv4ObjectParser parser = new PCEPPccIdReqIPv4ObjectParser();
-        final PccIdReq pccIdReq = new PccIdReqBuilder().setIpAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
+        final PccIdReq pccIdReq = new PccIdReqBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1"))).build();
         final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
         assertEquals(pccIdReq, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
 
@@ -1163,7 +1163,7 @@ public class PCEPObjectParserTest {
             0x00, 0x00, 0x00, 0x01
         };
         final PCEPPccIdReqIPv6ObjectParser parser = new PCEPPccIdReqIPv6ObjectParser();
-        final PccIdReq pccIdReq = new PccIdReqBuilder().setIpAddress(new IpAddress(new Ipv6Address("::1"))).build();
+        final PccIdReq pccIdReq = new PccIdReqBuilder().setIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("::1"))).build();
         final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
         assertEquals(pccIdReq, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
 
@@ -1181,8 +1181,8 @@ public class PCEPObjectParserTest {
             0x7f, 0x00, 0x00, 0x01
         };
         final PCEPPceIdIPv4ObjectParser parser = new PCEPPceIdIPv4ObjectParser();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId pceId = new PceIdBuilder().setIpAddress(new IpAddress(
-                new Ipv4Address("127.0.0.1"))).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId pceId = new PceIdBuilder().setIpAddress(new IpAddressNoZone(
+                new Ipv4AddressNoZone("127.0.0.1"))).build();
         final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
         assertEquals(pceId, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
 
@@ -1203,8 +1203,8 @@ public class PCEPObjectParserTest {
             0x00, 0x00, 0x00, 0x01
         };
         final PCEPPceIdIPv6ObjectParser parser = new PCEPPceIdIPv6ObjectParser();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId pccIdReq = new PceIdBuilder().setIpAddress(new IpAddress(
-                new Ipv6Address("::1"))).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId pccIdReq = new PceIdBuilder().setIpAddress(new IpAddressNoZone(
+                new Ipv6AddressNoZone("::1"))).build();
         final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
         assertEquals(pccIdReq, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
 
