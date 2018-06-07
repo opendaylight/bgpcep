@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.lsp.db.version.tlv.LspDbVersionBuilder;
@@ -138,8 +138,8 @@ public final class MsgBuilderUtil {
                 .setAddressFamily(
                         new Ipv4CaseBuilder().setIpv4(
                                 new Ipv4Builder()
-                                        .setIpv4TunnelEndpointAddress(new Ipv4Address(tunnelEndpoint))
-                                        .setIpv4TunnelSenderAddress(new Ipv4Address(tunnelSender))
+                                        .setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone(tunnelEndpoint))
+                                        .setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(tunnelSender))
                                         .setIpv4ExtendedTunnelId(
                                                 new Ipv4ExtendedTunnelId(extendedTunnelAddress))
                                         .build()).build()).setTunnelId(new TunnelId((int) lspId)).build());
