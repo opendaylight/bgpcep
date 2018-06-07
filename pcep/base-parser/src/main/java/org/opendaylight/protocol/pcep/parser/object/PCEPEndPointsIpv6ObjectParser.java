@@ -55,8 +55,8 @@ public class PCEPEndPointsIpv6ObjectParser implements ObjectParser {
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         final Ipv6Builder b = new Ipv6Builder();
-        b.setSourceIpv6Address(Ipv6Util.addressForByteBuf(bytes));
-        b.setDestinationIpv6Address(Ipv6Util.addressForByteBuf(bytes));
+        b.setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
+        b.setDestinationIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
         builder.setAddressFamily(new Ipv6CaseBuilder().setIpv6(b.build()).build());
         return builder.build();
     }
