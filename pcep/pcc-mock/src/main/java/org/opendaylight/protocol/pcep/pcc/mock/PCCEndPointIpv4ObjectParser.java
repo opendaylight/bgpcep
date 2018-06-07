@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public class PCCEndPointIpv4ObjectParser extends PCEPEndPointsIpv4ObjectParser {
 
     @Override
-    public Object parseObject(ObjectHeader header, ByteBuf bytes) throws PCEPDeserializerException {
+    public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
                 "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
@@ -32,8 +32,8 @@ public class PCCEndPointIpv4ObjectParser extends PCEPEndPointsIpv4ObjectParser {
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         final Ipv4Builder b = new Ipv4Builder();
-        b.setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes));
-        b.setDestinationIpv4Address((Ipv4Util.addressForByteBuf(bytes)));
+        b.setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
+        b.setDestinationIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
         builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(b.build()).build());
         return builder.build();
     }
