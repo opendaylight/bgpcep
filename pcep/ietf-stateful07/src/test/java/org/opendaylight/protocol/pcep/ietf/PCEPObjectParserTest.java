@@ -190,10 +190,10 @@ public class PCEPObjectParserTest {
         final SymbolicPathName tlv2 = new SymbolicPathNameBuilder().setPathName(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.SymbolicPathName("Med".getBytes())).build();
         final Ipv4Builder afi = new Ipv4Builder();
-        afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
+        afi.setIpv4TunnelSenderAddress(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
         afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
             (byte) 0x78 }))));
-        afi.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
+        afi.setIpv4TunnelEndpointAddress(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
         final LspIdentifiers tlv3 = new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(afi.build()).build()).setLspId(
             new LspId(65535L)).setTunnelId(new TunnelId(4660)).build();
         final RsvpErrorBuilder rsvpBuilder = new RsvpErrorBuilder();
