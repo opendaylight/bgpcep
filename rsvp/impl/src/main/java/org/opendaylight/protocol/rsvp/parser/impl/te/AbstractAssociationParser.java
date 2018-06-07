@@ -14,7 +14,7 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
@@ -27,23 +27,23 @@ public abstract class AbstractAssociationParser extends AbstractRSVPObjectParser
     private static final Integer BODY_SIZE_IPV4 = 8;
     private static final Integer BODY_SIZE_IPV6 = 20;
 
-    protected abstract IpAddress parseAssociationIpAddress(ByteBuf byteBuf);
+    protected abstract IpAddressNoZone parseAssociationIpAddress(ByteBuf byteBuf);
 
     @Override
     protected final void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
         Preconditions.checkArgument(teLspObject instanceof AssociationObject, "AssociationObject is mandatory.");
         final AssociationObject assObject = (AssociationObject) teLspObject;
 
-        if (assObject.getIpAddress().getIpv4Address() != null) {
+        if (assObject.getIpAddress().getIpv4AddressNoZone() != null) {
             serializeAttributeHeader(BODY_SIZE_IPV4, CLASS_NUM, CTYPE_IPV4, output);
             output.writeShort(assObject.getAssociationType().getIntValue());
             output.writeShort(assObject.getAssociationId());
-            output.writeBytes(Ipv4Util.byteBufForAddress(assObject.getIpAddress().getIpv4Address()));
+            output.writeBytes(Ipv4Util.byteBufForAddress(assObject.getIpAddress().getIpv4AddressNoZone()));
         } else {
             serializeAttributeHeader(BODY_SIZE_IPV6, CLASS_NUM, CTYPE_IPV6, output);
             output.writeShort(assObject.getAssociationType().getIntValue());
             output.writeShort(assObject.getAssociationId());
-            output.writeBytes(Ipv6Util.byteBufForAddress(assObject.getIpAddress().getIpv6Address()));
+            output.writeBytes(Ipv6Util.byteBufForAddress(assObject.getIpAddress().getIpv6AddressNoZone()));
         }
     }
 
