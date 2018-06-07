@@ -32,7 +32,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
@@ -270,19 +269,19 @@ public class PCEPValidatorTest {
         lspBuilder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(false).build());
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder builder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder();
-        builder.setIpv4TunnelSenderAddress(new Ipv4Address("127.0.1.1"));
+        builder.setIpv4TunnelSenderAddress(new Ipv4AddressNoZone("127.0.1.1"));
         final LspId lspId = new LspId(1L);
         final TunnelId tunnelId = new TunnelId(1);
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4AddressNoZone("127.0.1.2")));
-        builder.setIpv4TunnelEndpointAddress(new Ipv4Address("127.0.1.3"));
+        builder.setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone("127.0.1.3"));
         final AddressFamily afiLsp = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
         final LspIdentifiers identifier = new LspIdentifiersBuilder().setAddressFamily(afiLsp).setLspId(lspId).setTunnelId(tunnelId).build();
         this.lspSrp = lspBuilder.build();
         this.lsp = lspBuilder.setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
 
         final Ipv4Builder afi = new Ipv4Builder();
-        afi.setSourceIpv4Address(new Ipv4Address("255.255.255.255"));
-        afi.setDestinationIpv4Address(new Ipv4Address("255.255.255.255"));
+        afi.setSourceIpv4Address(new Ipv4AddressNoZone("255.255.255.255"));
+        afi.setDestinationIpv4Address(new Ipv4AddressNoZone("255.255.255.255"));
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder bandwidthBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder();
         bandwidthBuilder.setIgnore(false);
