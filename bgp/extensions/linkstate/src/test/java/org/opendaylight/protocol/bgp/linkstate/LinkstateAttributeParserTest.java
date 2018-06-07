@@ -319,7 +319,7 @@ public class LinkstateAttributeParserTest {
 
         final AssociationObject associationObject = teLspAttributes.getAssociationObject();
         assertEquals(AssociationType.Recovery, associationObject.getAssociationType());
-        final IpAddress ipv4 = new IpAddress(Ipv4Util.addressForByteBuf(Unpooled.copiedBuffer(new byte[]{0x01, 0x02, 0x03, 0x04})));
+        final IpAddress ipv4 = new IpAddress(Ipv4Util.noZoneAddressForByteBuf(Unpooled.copiedBuffer(new byte[]{0x01, 0x02, 0x03, 0x04})));
         assertEquals(ipv4, associationObject.getIpAddress());
         final short associationId = 2;
         assertEquals(associationId, associationObject.getAssociationId().shortValue());

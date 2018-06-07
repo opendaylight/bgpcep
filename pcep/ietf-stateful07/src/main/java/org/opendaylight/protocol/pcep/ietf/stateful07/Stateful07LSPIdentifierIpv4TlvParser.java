@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -50,7 +51,7 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
         builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(buffer));
         final LspId lspId = new LspId((long) buffer.readUnsignedShort());
         final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
-        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForByteBuf(buffer)));
+        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.noZoneAddressForByteBuf(buffer)));
         builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(buffer));
         final AddressFamily afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
         return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();

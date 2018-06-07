@@ -22,6 +22,7 @@ import java.util.Map;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 
@@ -48,6 +49,16 @@ public final class Ipv4Util {
     }
 
     /**
+     * Reads from ByteBuf buffer and converts bytes to Ipv4Address.
+     *
+     * @param buffer containing Ipv4 address, starting at reader index
+     * @return Ipv4AddressNoZone
+     */
+    public static Ipv4AddressNoZone noZoneAddressForByteBuf(final ByteBuf buffer) {
+        return IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(ByteArray.readBytes(buffer, IP4_LENGTH));
+    }
+
+    /**
      * From string ipAddress creates an InetAddress and puts it into ByteBuf.
      *
      * @param ipAddress Ipv4 address
@@ -69,7 +80,7 @@ public final class Ipv4Util {
 
     public static int prefixBitsToBytes(final int bits) {
         if (bits % Byte.SIZE != 0) {
-            return (bits / Byte.SIZE) + 1;
+            return bits / Byte.SIZE + 1;
         }
         return bits / Byte.SIZE;
     }
@@ -120,7 +131,7 @@ public final class Ipv4Util {
      */
     public static Ipv4Prefix prefixForByteBuf(final ByteBuf buf) {
         final int prefixLength = UnsignedBytes.toInt(buf.readByte());
-        final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
+        final int size = prefixLength / Byte.SIZE + (prefixLength % Byte.SIZE == 0 ? 0 : 1);
         final int readable = buf.readableBytes();
         Preconditions.checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
 
