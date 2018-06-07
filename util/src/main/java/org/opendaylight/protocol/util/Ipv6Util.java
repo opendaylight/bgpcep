@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 
 /**
@@ -50,6 +51,16 @@ public final class Ipv6Util {
      */
     public static Ipv6Address addressForByteBuf(final ByteBuf buffer) {
         return IetfInetUtil.INSTANCE.ipv6AddressFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
+    }
+
+    /**
+     * Reads from ByteBuf buffer and converts bytes to Ipv6AddressNoZone.
+     *
+     * @param buffer containing Ipv6 address, starting at reader index
+     * @return Ipv6AddressNoZone
+     */
+    public static Ipv6AddressNoZone noZoneAddressForByteBuf(final ByteBuf buffer) {
+        return IetfInetUtil.INSTANCE.ipv6AddressNoZoneFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
     }
 
     /**
@@ -110,7 +121,7 @@ public final class Ipv6Util {
      */
     public static Ipv6Prefix prefixForByteBuf(final ByteBuf buf) {
         final int prefixLength = UnsignedBytes.toInt(buf.readByte());
-        final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
+        final int size = prefixLength / Byte.SIZE + (prefixLength % Byte.SIZE == 0 ? 0 : 1);
         final int readable = buf.readableBytes();
         Preconditions.checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
 
