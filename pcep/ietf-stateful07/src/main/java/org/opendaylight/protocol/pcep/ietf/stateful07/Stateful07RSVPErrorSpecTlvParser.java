@@ -25,7 +25,7 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
@@ -123,9 +123,9 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     private static RsvpCase parseRsvp(final int classType, final ByteBuf buffer) {
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
         if (classType == RSVP_IPV4_ERROR_CLASS_TYPE) {
-            builder.setNode(new IpAddress(Ipv4Util.addressForByteBuf(buffer)));
+            builder.setNode(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer)));
         } else if (classType == RSVP_IPV6_ERROR_CLASS_TYPE) {
-            builder.setNode(new IpAddress(Ipv6Util.addressForByteBuf(buffer)));
+            builder.setNode(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)));
         }
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setFlags(new Flags(flags.get(IN_PLACE), flags.get(NOT_GUILTY)));
@@ -140,16 +140,16 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(IN_PLACE, rsvp.getFlags().isInPlace());
         flags.set(NOT_GUILTY, rsvp.getFlags().isNotGuilty());
-        final IpAddress node = rsvp.getNode();
+        final IpAddressNoZone node = rsvp.getNode();
         Preconditions.checkArgument(node != null, "Node is mandatory.");
         final ByteBuf rsvpObjBuf = Unpooled.buffer();
         int type = 0;
-        if (node.getIpv4Address() != null) {
+        if (node.getIpv4AddressNoZone() != null) {
             type = RSVP_IPV4_ERROR_CLASS_TYPE;
-            writeIpv4Address(node.getIpv4Address(), rsvpObjBuf);
+            writeIpv4Address(node.getIpv4AddressNoZone(), rsvpObjBuf);
         } else {
             type = RSVP_IPV6_ERROR_CLASS_TYPE;
-            writeIpv6Address(node.getIpv6Address(), rsvpObjBuf);
+            writeIpv6Address(node.getIpv6AddressNoZone(), rsvpObjBuf);
         }
         flags.toByteBuf(rsvpObjBuf);
         Preconditions.checkArgument(rsvp.getCode() != null, "Code is mandatory.");

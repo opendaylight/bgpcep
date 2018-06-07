@@ -36,14 +36,14 @@ public final class DetourObjectIpv6Parser extends AbstractRSVPObjectParser {
 
         while (plrId.isReadable()) {
             final PlrIdBuilder plr = new PlrIdBuilder();
-            plr.setPlrId(Ipv6Util.addressForByteBuf(plrId));
+            plr.setPlrId(Ipv6Util.noZoneAddressForByteBuf(plrId));
             plrIdList.add(plr.build());
         }
 
         final List<AvoidNode> avoidNodeList = new ArrayList<>();
         while (byteBuf.isReadable()) {
             final AvoidNodeBuilder plr = new AvoidNodeBuilder();
-            plr.setAvoidNode(Ipv6Util.addressForByteBuf(byteBuf));
+            plr.setAvoidNode(Ipv6Util.noZoneAddressForByteBuf(byteBuf));
             avoidNodeList.add(plr.build());
         }
 
@@ -57,7 +57,7 @@ public final class DetourObjectIpv6Parser extends AbstractRSVPObjectParser {
 
         final List<PlrId> pList = detourObject.getPlrId();
         final List<AvoidNode> aList = detourObject.getAvoidNode();
-        serializeAttributeHeader((pList.size() * Ipv6Util.IPV6_LENGTH) + (aList.size() * Ipv6Util.IPV6_LENGTH),
+        serializeAttributeHeader(pList.size() * Ipv6Util.IPV6_LENGTH + aList.size() * Ipv6Util.IPV6_LENGTH,
             CLASS_NUM,
             CTYPE, byteAggregator);
 
