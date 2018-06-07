@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Path1Builder;
@@ -208,9 +209,9 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
                 new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff})).build());
         pathBuilder.addAugmentation(Path1.class, new Path1Builder().setLsp(new LspBuilder().setTlvs(new TlvsBuilder()
                 .setLspIdentifiers(new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(
-                        new Ipv4Builder().setIpv4TunnelSenderAddress(new Ipv4Address(ipv4Address))
+                        new Ipv4Builder().setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(ipv4Address))
                                 .setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(ipv4Address))
-                                .setIpv4TunnelEndpointAddress(new Ipv4Address(dstIpv4Address))
+                                .setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone(dstIpv4Address))
                                 .build()).build()).build()).build()).setAdministrative(true)
                 .setDelegate(true).build()).build());
         final ReportedLsp reportedLps = new ReportedLspBuilder().withKey(new ReportedLspKey(lspName)).setPath(
