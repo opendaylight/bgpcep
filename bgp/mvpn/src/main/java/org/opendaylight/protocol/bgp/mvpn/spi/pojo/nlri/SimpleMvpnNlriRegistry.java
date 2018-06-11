@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mvpn.spi.pojo.nlri;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.mvpn.spi.nlri.MvpnParser;
 import org.opendaylight.protocol.bgp.mvpn.spi.nlri.MvpnRegistry;
 import org.opendaylight.protocol.bgp.mvpn.spi.nlri.MvpnSerializer;
@@ -54,11 +55,11 @@ public final class SimpleMvpnNlriRegistry implements MvpnRegistry {
         return parser.parseMvpn(nlriBuf);
     }
 
-    public ByteBuf serializeMvpn(final MvpnChoice mvpn, final ByteBuf nlriBuf) {
+    public ByteBuf serializeMvpn(final MvpnChoice mvpn) {
         final MvpnSerializer serializer = this.handlers.getSerializer(mvpn.getImplementedInterface());
         if (serializer == null) {
-            return nlriBuf;
+            return Unpooled.buffer();
         }
-        return serializer.serializeMvpn(mvpn, nlriBuf);
+        return serializer.serializeMvpn(mvpn);
     }
 }

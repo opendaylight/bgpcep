@@ -68,7 +68,7 @@ public final class LeafADHandler extends AbstractMvpnNlri<LeafADCase> {
             keyCase = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn
                     .mvpn.choice.SPmsiADCaseBuilder((SPmsiADCase) key).build();
         }
-        nlriByteBuf.writeBytes(SimpleMvpnNlriRegistry.getInstance().serializeMvpn(keyCase, nlriByteBuf));
+        nlriByteBuf.writeBytes(SimpleMvpnNlriRegistry.getInstance().serializeMvpn(keyCase));
         final ByteBuf orig = IpAddressUtil.bytesWOLengthFor(leaf.getOrigRouteIp());
         Preconditions.checkArgument(orig.readableBytes() > 0);
         nlriByteBuf.writeBytes(orig);

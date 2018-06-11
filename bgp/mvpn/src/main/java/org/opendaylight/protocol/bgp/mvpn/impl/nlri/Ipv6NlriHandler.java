@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.mvpn.spi.pojo.nlri.SimpleMvpnNlriRegistry;
@@ -22,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationMvpnIpv6WithdrawnCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationMvpnIpv6WithdrawnCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
 
 /**
  * Handles Ipv6 Family nlri.
@@ -34,9 +34,9 @@ public final class Ipv6NlriHandler {
     }
 
     static DestinationMvpnIpv6AdvertizedCase parseIpv6ReachNlri(
-            final ByteBuf nlri,
-            final boolean addPathSupported) {
-        List<MvpnDestination> dests = new ArrayList<>();
+        final ByteBuf nlri,
+        final boolean addPathSupported) {
+        final List<MvpnDestination> dests = new ArrayList<>();
 
         while (nlri.isReadable()) {
             final MvpnDestinationBuilder builder = new MvpnDestinationBuilder();
@@ -51,13 +51,13 @@ public final class Ipv6NlriHandler {
         }
 
         return new DestinationMvpnIpv6AdvertizedCaseBuilder().setDestinationMvpn(
-                new DestinationMvpnBuilder().setMvpnDestination(dests).build()).build();
+            new DestinationMvpnBuilder().setMvpnDestination(dests).build()).build();
     }
 
     static DestinationMvpnIpv6WithdrawnCase parseIpv6UnreachNlri(
-            final ByteBuf nlri,
-            final boolean addPathSupported) {
-        List<MvpnDestination> dests = new ArrayList<>();
+        final ByteBuf nlri,
+        final boolean addPathSupported) {
+        final List<MvpnDestination> dests = new ArrayList<>();
 
         while (nlri.isReadable()) {
             final MvpnDestinationBuilder builder = new MvpnDestinationBuilder();
@@ -72,17 +72,15 @@ public final class Ipv6NlriHandler {
         }
 
         return new DestinationMvpnIpv6WithdrawnCaseBuilder().setDestinationMvpn(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update
-                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.mvpn.ipv6.withdrawn
-                        ._case.DestinationMvpnBuilder().setMvpnDestination(dests).build()).build();
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update
+                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.mvpn.ipv6.withdrawn
+                ._case.DestinationMvpnBuilder().setMvpnDestination(dests).build()).build();
     }
 
     public static void serializeNlri(final List<MvpnDestination> destinationList, final ByteBuf output) {
-        ByteBuf nlriOutput = null;
         for (final MvpnDestination dest : destinationList) {
-            final ByteBuf nlriCommon = Unpooled.buffer();
-            nlriOutput = SimpleMvpnNlriRegistry.getInstance().serializeMvpn(dest.getMvpnChoice(), nlriCommon);
+            final MvpnChoice choice = dest.getMvpnChoice();
+            output.writeBytes(SimpleMvpnNlriRegistry.getInstance().serializeMvpn(choice));
         }
-        output.writeBytes(nlriOutput);
     }
 }

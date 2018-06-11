@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
@@ -57,8 +56,7 @@ public final class SPmsiADHandlerTest {
 
     @Test
     public void testIntraASIPmsiADSerializer() {
-        final ByteBuf buffer = Unpooled.buffer(SP_MSI_AD_LENGTH.length);
-        assertArrayEquals(SP_MSI_AD_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected, buffer)));
+        assertArrayEquals(SP_MSI_AD_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected)));
     }
 
     @Test

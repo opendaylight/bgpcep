@@ -37,11 +37,11 @@ public class VrfRouteImportHandlerTest {
                         .build())
                 .build();
 
-        final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
-        Assert.assertEquals(expected, exComm);
+        final ExtendedCommunity exComm = this.handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
+        assertEquals(expected, exComm);
 
         final ByteBuf output = Unpooled.buffer(INPUT.length);
-        handler.serializeExtendedCommunity(expected, output);
+        this.handler.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(INPUT, output.array());
 
         assertEquals(11, this.handler.getSubType());

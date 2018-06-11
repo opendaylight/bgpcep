@@ -114,13 +114,13 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
             final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination
-                    .getChild(nlriRoutesList);
+                    .getChild(this.nlriRoutesList);
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
                     for (final UnkeyedListEntryNode mvpnDest : ((UnkeyedListNode) routes).getValue()) {
-                        final YangInstanceIdentifier.NodeIdentifierWithPredicates routeKey = createRouteKey(mvpnDest);
+                        final NodeIdentifierWithPredicates routeKey = createRouteKey(mvpnDest);
                         function.apply(tx, base, routeKey, mvpnDest, attributes);
                     }
                 } else {

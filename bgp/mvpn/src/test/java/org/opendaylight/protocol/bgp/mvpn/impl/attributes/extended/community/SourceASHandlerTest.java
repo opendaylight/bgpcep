@@ -33,11 +33,11 @@ public class SourceASHandlerTest {
                         .setGlobalAdministrator(new ShortAsNumber(1L))
                         .build()).build();
 
-        final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
+        final ExtendedCommunity exComm = this.handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
         Assert.assertEquals(expected, exComm);
 
         final ByteBuf output = Unpooled.buffer(INPUT.length);
-        handler.serializeExtendedCommunity(expected, output);
+        this.handler.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(INPUT, output.array());
 
         assertEquals(9, this.handler.getSubType());

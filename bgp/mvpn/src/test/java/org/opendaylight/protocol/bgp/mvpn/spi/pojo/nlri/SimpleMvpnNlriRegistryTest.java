@@ -34,7 +34,7 @@ public final class SimpleMvpnNlriRegistryTest {
     @Test
     public void registryNullTest() {
         final ByteBuf body = Unpooled.buffer();
-        SimpleMvpnNlriRegistry.getInstance().serializeMvpn(new NotRegistered(), body);
+        SimpleMvpnNlriRegistry.getInstance().serializeMvpn(new NotRegistered());
         assertEquals(0, body.readableBytes());
     }
 
