@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
@@ -90,8 +91,9 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        ribSupport = MvpnIpv6RIBSupport.getInstance(this.mappingService);
-        setUpTestCustomizer(ribSupport);
+        this.ribSupport = MvpnIpv6RIBSupport.getInstance(this.mappingService);
+        setUpTestCustomizer(this.ribSupport);
+        NlriActivator.registerNlriParsers(new ArrayList<>());
     }
 
     @Test

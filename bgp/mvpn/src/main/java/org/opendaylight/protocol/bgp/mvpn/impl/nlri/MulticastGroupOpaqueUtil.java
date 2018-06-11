@@ -34,12 +34,15 @@ final class MulticastGroupOpaqueUtil {
 
     static MulticastGroup multicastGroupForByteBuf(final ByteBuf buffer) {
         final short multicastGroupLength = buffer.readUnsignedByte();
-        if (multicastGroupLength == Ipv4Util.IP4_BITS_LENGTH) {
-            return new CGAddressCaseBuilder().setCGAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer))).build();
-        } else if (multicastGroupLength == Ipv6Util.IPV6_BITS_LENGTH) {
-            return new CGAddressCaseBuilder().setCGAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build();
-        } else {
-            return new LdpMpOpaqueValueCaseBuilder()
+        switch (multicastGroupLength) {
+            case Ipv4Util.IP4_BITS_LENGTH:
+                return new CGAddressCaseBuilder()
+                    .setCGAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer))).build();
+            case Ipv6Util.IPV6_BITS_LENGTH:
+                return new CGAddressCaseBuilder()
+                    .setCGAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build();
+            default:
+                return new LdpMpOpaqueValueCaseBuilder()
                     .setLdpMpOpaqueValue(new LdpMpOpaqueValueBuilder(OpaqueUtil.parseOpaque(buffer)).build()).build();
         }
     }

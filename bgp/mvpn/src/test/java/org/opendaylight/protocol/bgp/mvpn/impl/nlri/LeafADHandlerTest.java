@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import org.junit.Before;
@@ -71,8 +70,7 @@ public class LeafADHandlerTest {
 
     @Test
     public void testSerializer() {
-        final ByteBuf buffer = Unpooled.buffer(LEAF_AD_LENGTH.length);
-        assertArrayEquals(LEAF_AD_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected, buffer)));
+        assertArrayEquals(LEAF_AD_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected)));
     }
 
     @Test

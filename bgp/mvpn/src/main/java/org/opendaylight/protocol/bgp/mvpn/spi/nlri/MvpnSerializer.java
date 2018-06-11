@@ -17,11 +17,10 @@ public interface MvpnSerializer<T extends MvpnChoice> {
      * Serialize mvpn.
      *
      * @param mvpn   mvpn
-     * @param buffer Encode common mvpn parts to output buffer
      * @return Encode mvpn to output buffer
      */
     @Nonnull
-    ByteBuf serializeMvpn(@Nonnull T mvpn, @Nonnull ByteBuf buffer);
+    ByteBuf serializeMvpn(@Nonnull T mvpn);
 
     /**
      * returns class of MvpnChoice handled by serializer.

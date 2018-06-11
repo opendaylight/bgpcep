@@ -28,9 +28,8 @@ public interface MvpnRegistry {
      * Encode input BGP mvpn to output buffer.
      *
      * @param mvpn   MvpnChoice
-     * @param common encoded common mvpn
      * @return encoded MvpnChoice body in Bytebuf
      */
     @Nonnull
-    ByteBuf serializeMvpn(@Nonnull MvpnChoice mvpn, @Nonnull ByteBuf common);
+    ByteBuf serializeMvpn(@Nonnull MvpnChoice mvpn);
 }

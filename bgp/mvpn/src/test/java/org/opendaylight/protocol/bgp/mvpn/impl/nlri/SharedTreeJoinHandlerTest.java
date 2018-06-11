@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
@@ -60,8 +59,7 @@ public final class SharedTreeJoinHandlerTest {
 
     @Test
     public void testSerializer() {
-        final ByteBuf buffer = Unpooled.buffer(SHARED_TREE_LENGTH.length);
-        assertArrayEquals(SHARED_TREE_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected, buffer)));
+        assertArrayEquals(SHARED_TREE_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected)));
     }
 
     @Test
