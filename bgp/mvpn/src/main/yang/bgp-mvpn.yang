@@ -6,7 +6,6 @@ module bgp-mvpn {
     import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import pmsi-tunnel { prefix pmsi; revision-date 2018-03-29; }
-    import bgp-message { prefix bgp-msg; revision-date 2018-03-29; }
     import bgp-rib { prefix bgp-rib; revision-date 2018-03-29; }
     import yang-ext { prefix ext; revision-date "2013-07-09"; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
@@ -220,44 +219,6 @@ module bgp-mvpn {
             augment "attributes" {
                 ext:augment-identifier pe-distinguisher-labels-attribute-augmentation;
                 uses pe-distinguisher-labels-attribute;
-            }
-            augment "attributes/extended-communities/extended-community" {
-                ext:augment-identifier vrf-route-import-extended-community-augmentation;
-
-                case vrf-route-import-extended-community-case {
-                    reference "https://tools.ietf.org/html/rfc6514#section-7";
-                    container vrf-route-import-extended-community {
-                        uses bgp-t:inet4-specific-extended-community-common;
-                    }
-                }
-            }
-            augment "attributes/extended-communities/extended-community" {
-                ext:augment-identifier source-as-4-extended-augmentation;
-
-                case source-as-4-extended-community-case {
-                    container source-as-4-extended-community {
-                        reference "https://tools.ietf.org/html/rfc6514#section-6";
-                        leaf global-administrator {
-                            description "Carries a 4-octet Autonomous System (AS) number";
-                            reference "https://tools.ietf.org/html/rfc5668#section-2";
-
-                            mandatory true;
-                            type inet:as-number;
-                        }
-                    }
-                }
-            }
-            augment "attributes/extended-communities/extended-community" {
-                ext:augment-identifier source-as-extended-augmentation;
-
-                case source-as-extended-community-case {
-                    container source-as-extended-community {
-                        reference "https://tools.ietf.org/html/rfc6514#section-6";
-                        leaf global-administrator {
-                            type bgp-t:short-as-number;
-                        }
-                    }
-                }
             }
         }
     }

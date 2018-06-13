@@ -282,6 +282,25 @@ module bgp-types {
             }
         }
     }
+
+    grouping source-as-4-extended-community-grouping {
+        reference "https://tools.ietf.org/html/rfc6514#section-6";
+        leaf global-administrator {
+            description "Carries a 4-octet Autonomous System (AS) number";
+            reference "https://tools.ietf.org/html/rfc5668#section-2";
+
+            mandatory true;
+            type inet:as-number;
+        }
+    }
+
+    grouping source-as-extended-community-grouping {
+        reference "https://tools.ietf.org/html/rfc6514#section-6";
+        leaf global-administrator {
+            type bgp-t:short-as-number;
+        }
+    }
+
     grouping extended-community {
         leaf transitive {
             type boolean;
@@ -385,6 +404,22 @@ module bgp-types {
             case encapsulation-case {
                 container encapsulation-extended-community {
                     uses encapsulation-extended-community;
+                }
+            }
+            case vrf-route-import-extended-community-case {
+                reference "https://tools.ietf.org/html/rfc6514#section-7";
+                container vrf-route-import-extended-community {
+                    uses inet4-specific-extended-community-common;
+                }
+            }
+            case source-as-4-extended-community-case {
+                container source-as-4-extended-community {
+                    uses source-as-4-extended-community-grouping;
+                }
+            }
+            case source-as-extended-community-case {
+                container source-as-extended-community {
+                    uses source-as-extended-community-grouping;
                 }
             }
         }

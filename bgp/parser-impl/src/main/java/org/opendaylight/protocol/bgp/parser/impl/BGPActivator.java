@@ -48,6 +48,9 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communi
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteOriginIpv4EcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteTargetAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteTargetIpv4EcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.SourceAS4OctectHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.SourceASHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.VrfRouteImportHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.Generic4OctASEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteOrigin4OctectASEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteTarget4OctectASEcHandler;
@@ -100,6 +103,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteTargetExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteTargetIpv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.SourceAs4ExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.SourceAsExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.VrfRouteImportExtendedCommunityCase;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
@@ -324,5 +330,21 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerExtendedCommunityParser(encapsulationECHandler.getType(true), encapsulationECHandler.getSubType(),
                 encapsulationECHandler));
         regs.add(context.registerExtendedCommunitySerializer(EncapsulationCase.class, encapsulationECHandler));
+
+        final VrfRouteImportHandler vrfRouteImportHandler = new VrfRouteImportHandler();
+        regs.add(context.registerExtendedCommunityParser(vrfRouteImportHandler.getType(true),
+                vrfRouteImportHandler.getSubType(), vrfRouteImportHandler));
+        regs.add(context.registerExtendedCommunitySerializer(VrfRouteImportExtendedCommunityCase.class,
+                vrfRouteImportHandler));
+
+        final SourceAS4OctectHandler source4ASHandler = new SourceAS4OctectHandler();
+        regs.add(context.registerExtendedCommunityParser(source4ASHandler.getType(true),
+                source4ASHandler.getSubType(), source4ASHandler));
+        regs.add(context.registerExtendedCommunitySerializer(SourceAs4ExtendedCommunityCase.class, source4ASHandler));
+
+        final SourceASHandler sourceASHandler = new SourceASHandler();
+        regs.add(context.registerExtendedCommunityParser(sourceASHandler.getType(true),
+                sourceASHandler.getSubType(), sourceASHandler));
+        regs.add(context.registerExtendedCommunitySerializer(SourceAsExtendedCommunityCase.class, sourceASHandler));
     }
 }
