@@ -15,9 +15,6 @@ import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSeriali
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PEDistinguisherLabelsAttributeHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandler;
-import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.SourceAS4OctectHandler;
-import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.SourceASHandler;
-import org.opendaylight.protocol.bgp.mvpn.impl.attributes.extended.community.VrfRouteImportHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnIpv4NlriHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnIpv6NlriHandler;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
@@ -25,9 +22,6 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.routes.ipv4.MvpnRoutesIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.McastVpnSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.SourceAs4ExtendedCommunityCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.SourceAsExtendedCommunityCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.attributes.extended.communities.extended.community.VrfRouteImportExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
@@ -72,26 +66,6 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriSerializer(MvpnRoutesIpv6.class, mvpnIpv6NlriHandler));
     }
 
-    private static void registerExtendedCommunities(final BGPExtensionProviderContext context,
-            final List<AutoCloseable> regs) {
-
-        final VrfRouteImportHandler vrfRouteImportHandler = new VrfRouteImportHandler();
-        regs.add(context.registerExtendedCommunityParser(vrfRouteImportHandler.getType(true),
-                vrfRouteImportHandler.getSubType(), vrfRouteImportHandler));
-        regs.add(context.registerExtendedCommunitySerializer(VrfRouteImportExtendedCommunityCase.class,
-                vrfRouteImportHandler));
-
-        final SourceAS4OctectHandler source4ASHandler = new SourceAS4OctectHandler();
-        regs.add(context.registerExtendedCommunityParser(source4ASHandler.getType(true),
-                source4ASHandler.getSubType(), source4ASHandler));
-        regs.add(context.registerExtendedCommunitySerializer(SourceAs4ExtendedCommunityCase.class, source4ASHandler));
-
-        final SourceASHandler sourceASHandler = new SourceASHandler();
-        regs.add(context.registerExtendedCommunityParser(sourceASHandler.getType(true),
-                sourceASHandler.getSubType(), sourceASHandler));
-        regs.add(context.registerExtendedCommunitySerializer(SourceAsExtendedCommunityCase.class, sourceASHandler));
-    }
-
     private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
         regs.add(context.registerSubsequentAddressFamily(McastVpnSubsequentAddressFamily.class, MVPN_SAFI));
     }
@@ -102,7 +76,6 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         TunnelIdentifierActivator.registerTunnelIdentifierHandlers(context, regs);
         registerAfiSafi(context, regs);
         registerNlri(context, regs);
-        registerExtendedCommunities(context, regs);
         registerAttributesHandler(context, regs);
         NlriActivator.registerNlriParsers(regs);
         return regs;
