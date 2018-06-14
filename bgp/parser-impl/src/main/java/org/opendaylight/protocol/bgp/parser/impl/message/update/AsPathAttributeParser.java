@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.SegmentsBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,10 +93,7 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final Attributes pathAttributes = (Attributes) attribute;
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final AsPath asPath = pathAttributes.getAsPath();
         if (asPath == null) {
             return;

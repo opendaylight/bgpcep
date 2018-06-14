@@ -18,9 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.OriginatorIdBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class OriginatorIdAttributeParser implements AttributeParser,AttributeSerializer {
+public final class OriginatorIdAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 9;
 
@@ -33,10 +32,8 @@ public final class OriginatorIdAttributeParser implements AttributeParser,Attrib
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final OriginatorId originator = ((Attributes) attribute).getOriginatorId();
+    public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
+        final OriginatorId originator = attribute.getOriginatorId();
         if (originator == null) {
             return;
         }

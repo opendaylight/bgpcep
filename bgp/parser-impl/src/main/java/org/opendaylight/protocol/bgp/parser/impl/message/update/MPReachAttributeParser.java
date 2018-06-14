@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -24,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class MPReachAttributeParser extends ReachAttributeParser{
 
@@ -52,10 +50,7 @@ public final class MPReachAttributeParser extends ReachAttributeParser{
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final Attributes pathAttributes = (Attributes) attribute;
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
         if (pathAttributes1 == null) {
             return;
@@ -65,7 +60,7 @@ public final class MPReachAttributeParser extends ReachAttributeParser{
         this.reg.serializeMpReach(mpReachNlri, reachBuffer);
 
         for (final NlriSerializer nlriSerializer : this.reg.getSerializers()) {
-            nlriSerializer.serializeAttribute(attribute, reachBuffer);
+            nlriSerializer.serializeAttribute(pathAttributes, reachBuffer);
         }
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, reachBuffer, byteAggregator);
     }

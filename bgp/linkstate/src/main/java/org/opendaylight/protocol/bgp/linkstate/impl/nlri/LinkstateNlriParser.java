@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.nlri;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -47,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -140,10 +138,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final Attributes pathAttributes = (Attributes) attribute;
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
         final Attributes2 pathAttributes2 = pathAttributes.augmentation(Attributes2.class);
         if (pathAttributes1 != null) {

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
@@ -17,7 +16,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDiscBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class MultiExitDiscriminatorAttributeParser implements AttributeParser, AttributeSerializer {
 
@@ -29,10 +27,8 @@ public final class MultiExitDiscriminatorAttributeParser implements AttributePar
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final MultiExitDisc multiExitDisc = ((Attributes) attribute).getMultiExitDisc();
+    public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
+        final MultiExitDisc multiExitDisc = attribute.getMultiExitDisc();
         if (multiExitDisc == null) {
             return;
         }

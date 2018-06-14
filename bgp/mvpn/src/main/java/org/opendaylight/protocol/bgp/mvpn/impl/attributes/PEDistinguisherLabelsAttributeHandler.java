@@ -74,11 +74,9 @@ public final class PEDistinguisherLabelsAttributeHandler implements AttributePar
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
+    public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
         final PeDistinguisherLabelsAttributeAugmentation att =
-                ((Attributes) attribute).augmentation(PeDistinguisherLabelsAttributeAugmentation.class);
+                attribute.augmentation(PeDistinguisherLabelsAttributeAugmentation.class);
 
         if (att == null) {
             return;

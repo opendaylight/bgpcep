@@ -97,8 +97,8 @@ public abstract class AbstractRIBSupport<
     private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath = CacheBuilder.newBuilder()
             .weakValues().build(new CacheLoader<YangInstanceIdentifier, YangInstanceIdentifier>() {
                 @Override
-                public YangInstanceIdentifier load(@Nonnull final YangInstanceIdentifier routesPath) {
-                    return routesPath.node(routesContainerIdentifier()).node(routeQName());
+                public YangInstanceIdentifier load(@Nonnull final YangInstanceIdentifier routesTablePaths) {
+                    return routesTablePaths.node(routesContainerIdentifier()).node(routeQName());
                 }
             });
     private final NodeIdentifier routesContainerIdentifier;
@@ -377,8 +377,9 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final YangInstanceIdentifier routePath(final YangInstanceIdentifier routesPath, final PathArgument routeId) {
-        return routesPath.node(this.routesContainerIdentifier).node(routeNid()).node(routeId);
+    public final YangInstanceIdentifier routePath(
+            final YangInstanceIdentifier routesTablePaths, final PathArgument routeId) {
+        return routesYangInstanceIdentifier(routesTablePaths).node(routeId);
     }
 
     @Override
@@ -508,7 +509,7 @@ public abstract class AbstractRIBSupport<
         return null;
     }
 
-    protected YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesPath) {
-        return this.routesPath.getUnchecked(routesPath);
+    protected YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesTablePaths) {
+        return this.routesPath.getUnchecked(routesTablePaths);
     }
 }

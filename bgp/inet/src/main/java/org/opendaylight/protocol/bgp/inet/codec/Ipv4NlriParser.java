@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bgp.inet.codec;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
 
@@ -74,10 +72,7 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final Attributes pathAttributes = (Attributes) attribute;
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
         final Attributes2 pathAttributes2 = pathAttributes.augmentation(Attributes2.class);
         if (pathAttributes1 != null) {

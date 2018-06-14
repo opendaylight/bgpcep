@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -21,7 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class OriginAttributeParser implements AttributeParser, AttributeSerializer {
 
@@ -37,33 +35,31 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
         final BgpOrigin borigin = BgpOrigin.forValue(UnsignedBytes.toInt(rawOrigin));
         if (borigin == null) {
             throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID,
-                    new byte[] { (byte) 0x01, (byte) 0x01, rawOrigin} );
+                    new byte[]{(byte) 0x01, (byte) 0x01, rawOrigin});
         }
         switch (borigin) {
-        case Egp:
-            builder.setOrigin(EGP);
-            return;
-        case Igp:
-            builder.setOrigin(IGP);
-            return;
-        case Incomplete:
-            builder.setOrigin(INC);
-            return;
-        default:
-            return;
+            case Egp:
+                builder.setOrigin(EGP);
+                return;
+            case Igp:
+                builder.setOrigin(IGP);
+                return;
+            case Incomplete:
+                builder.setOrigin(INC);
+                return;
+            default:
+                return;
         }
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final Origin origin = ((Attributes) attribute).getOrigin();
+    public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
+        final Origin origin = attribute.getOrigin();
         if (origin == null) {
             return;
         }
         AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE,
-                Unpooled.wrappedBuffer(new byte[] {UnsignedBytes.checkedCast(origin.getValue().getIntValue())}),
+                Unpooled.wrappedBuffer(new byte[]{UnsignedBytes.checkedCast(origin.getValue().getIntValue())}),
                 byteAggregator);
     }
 }

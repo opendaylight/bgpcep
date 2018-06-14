@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommu
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunities;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class ExtendedCommunitiesAttributeParser implements AttributeParser, AttributeSerializer {
 
@@ -50,10 +48,8 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final List<ExtendedCommunities> communitiesList = ((Attributes) attribute).getExtendedCommunities();
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
+        final List<ExtendedCommunities> communitiesList = pathAttributes.getExtendedCommunities();
         if (communitiesList == null || communitiesList.isEmpty()) {
             return;
         }

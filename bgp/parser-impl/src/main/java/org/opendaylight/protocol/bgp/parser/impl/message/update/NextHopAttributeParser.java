@@ -18,7 +18,6 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class NextHopAttributeParser implements AttributeParser, AttributeSerializer {
 
@@ -33,10 +32,8 @@ public final class NextHopAttributeParser implements AttributeParser, AttributeS
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final CNextHop cNextHop = ((Attributes) attribute).getCNextHop();
+    public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
+        final CNextHop cNextHop = attribute.getCNextHop();
         if (cNextHop == null) {
             return;
         }

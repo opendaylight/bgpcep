@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.mvpn.spi.pojo.attributes.tunnel.identifier.SimpleTunnelIdentifierRegistry;
@@ -79,10 +78,8 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final PmsiTunnelAugmentation pmsiTunnelAugmentation = ((Attributes) attribute)
+    public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
+        final PmsiTunnelAugmentation pmsiTunnelAugmentation = attribute
                 .augmentation(PmsiTunnelAugmentation.class);
         if (pmsiTunnelAugmentation == null) {
             return;

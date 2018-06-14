@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -21,7 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class ClusterIdAttributeParser implements AttributeParser, AttributeSerializer {
 
@@ -37,15 +35,13 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final ClusterId cid = ((Attributes) attribute).getClusterId();
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
+        final ClusterId cid = pathAttributes.getClusterId();
         if (cid == null) {
             return;
         }
         final List<ClusterIdentifier> cluster = cid.getCluster();
-        if (cluster == null  || cluster.isEmpty()) {
+        if (cluster == null || cluster.isEmpty()) {
             return;
         }
         final ByteBuf clusterIdBuffer = Unpooled.buffer();

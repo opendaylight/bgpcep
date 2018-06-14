@@ -46,7 +46,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         private final AttributeParser parser;
         private final ByteBuf buffer;
 
-        public RawAttribute(final AttributeParser parser, final ByteBuf buffer) {
+        RawAttribute(final AttributeParser parser, final ByteBuf buffer) {
             this.parser = requireNonNull(parser);
             this.buffer = requireNonNull(buffer);
         }
@@ -102,7 +102,8 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         }
     }
 
-    private void processUnrecognized(final BitArray flags, final int type, final ByteBuf buffer, final int len) throws BGPDocumentedException {
+    private void processUnrecognized(final BitArray flags, final int type, final ByteBuf buffer, final int len)
+            throws BGPDocumentedException {
         if (!flags.get(OPTIONAL_BIT)) {
             throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
         }
@@ -139,7 +140,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute,final ByteBuf byteAggregator) {
+    public void serializeAttribute(final Attributes attribute,final ByteBuf byteAggregator) {
         for (final AttributeSerializer serializer : this.roSerializers.get()) {
             serializer.serializeAttribute(attribute, byteAggregator);
         }

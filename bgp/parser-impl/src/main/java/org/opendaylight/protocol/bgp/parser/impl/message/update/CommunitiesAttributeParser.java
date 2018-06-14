@@ -9,8 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -27,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Community;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class CommunitiesAttributeParser implements AttributeParser, AttributeSerializer {
 
@@ -64,8 +61,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     * @return new Community
     * @throws BGPDocumentedException
     */
-    @VisibleForTesting
-    public static Community parseCommunity(final ReferenceCache refCache, final ByteBuf buffer)
+    private static Community parseCommunity(final ReferenceCache refCache, final ByteBuf buffer)
             throws BGPDocumentedException {
         if (buffer.readableBytes() != COMMUNITY_LENGTH) {
             throw new BGPDocumentedException("Community with wrong length: "
@@ -83,9 +79,8 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
-        final List<Communities> communities = ((Attributes) attribute).getCommunities();
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
+        final List<Communities> communities = pathAttributes.getCommunities();
         if (communities == null || communities.isEmpty()) {
             return;
         }

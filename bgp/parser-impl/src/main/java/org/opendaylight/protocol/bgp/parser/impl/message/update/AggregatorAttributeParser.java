@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Aggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ShortAsNumber;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class AggregatorAttributeParser implements AttributeParser, AttributeSerializer {
 
@@ -39,7 +38,7 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
     /**
      * Parse {@link Aggregator} from bytes
      *
-     * @param buffer byte buffer to be parsed
+     * @param buffer  byte buffer to be parsed
      * @param builder AttributesBuilder into which parsed {@link Aggregator} will be set
      */
     @Override
@@ -50,10 +49,7 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final Attributes pathAttributes = (Attributes) attribute;
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final Aggregator aggregator = pathAttributes.getAggregator();
         if (aggregator == null) {
             return;

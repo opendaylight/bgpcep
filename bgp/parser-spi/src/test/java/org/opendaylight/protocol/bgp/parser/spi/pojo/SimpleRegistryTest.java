@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -37,6 +38,7 @@ import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
@@ -84,17 +86,17 @@ public class SimpleRegistryTest {
             0x00, 0x00, 0x00
         };
         final ByteBuf byteAggregator = Unpooled.buffer(attributeBytes.length);
-        attrReg.serializeAttribute(Mockito.mock(DataObject.class), byteAggregator);
+        attrReg.serializeAttribute(mock(Attributes.class), byteAggregator);
         attrReg.parseAttributes(Unpooled.wrappedBuffer(attributeBytes), CONSTRAINT);
-        verify(this.activator.attrParser, times(1)).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(AttributesBuilder.class),
-            Mockito.any(PeerSpecificParserConstraint.class));
-        verify(this.activator.attrSerializer, times(1)).serializeAttribute(Mockito.any(DataObject.class), Mockito.any(ByteBuf.class));
+        verify(this.activator.attrParser, times(1)).parseAttribute(any(ByteBuf.class), any(AttributesBuilder.class),
+            any(PeerSpecificParserConstraint.class));
+        verify(this.activator.attrSerializer, times(1)).serializeAttribute(any(Attributes.class), any(ByteBuf.class));
     }
 
     @Test
     public void testSimpleParameter() throws Exception {
         final ParameterRegistry paramReg = this.ctx.getParameterRegistry();
-        final BgpParameters param = Mockito.mock(BgpParameters.class);
+        final BgpParameters param = mock(BgpParameters.class);
         Mockito.doReturn(BgpParameters.class).when(param).getImplementedInterface();
         final byte[] paramBytes = {
             0x00, 0x00
@@ -102,8 +104,8 @@ public class SimpleRegistryTest {
         final ByteBuf buffer = Unpooled.buffer(paramBytes.length);
         paramReg.serializeParameter(param, buffer);
         paramReg.parseParameter(0, Unpooled.wrappedBuffer(paramBytes));
-        verify(this.activator.paramParser, times(1)).parseParameter(Mockito.any(ByteBuf.class));
-        verify(this.activator.paramSerializer, times(1)).serializeParameter(Mockito.any(BgpParameters.class), Mockito.any(ByteBuf.class));
+        verify(this.activator.paramParser, times(1)).parseParameter(any(ByteBuf.class));
+        verify(this.activator.paramSerializer, times(1)).serializeParameter(any(BgpParameters.class), any(ByteBuf.class));
     }
 
     @Test
@@ -113,7 +115,7 @@ public class SimpleRegistryTest {
             0x0, 0x00
         };
         capaRegistry.parseCapability(BgpTestActivator.TYPE, Unpooled.wrappedBuffer(capabilityBytes));
-        verify(this.activator.capaParser, times(1)).parseCapability(Mockito.any(ByteBuf.class));
+        verify(this.activator.capaParser, times(1)).parseCapability(any(ByteBuf.class));
     }
 
     @Test
@@ -128,10 +130,10 @@ public class SimpleRegistryTest {
 
         final ByteBuf buffer = Unpooled.buffer(tlvBytes.length);
         sidTlvReg.serializeBgpPrefixSidTlv(tlv, buffer);
-        verify(this.activator.sidTlvSerializer, times(1)).serializeBgpPrefixSidTlv(Mockito.any(BgpPrefixSidTlv.class), Mockito.any(ByteBuf.class));
+        verify(this.activator.sidTlvSerializer, times(1)).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class), any(ByteBuf.class));
 
         sidTlvReg.parseBgpPrefixSidTlv(BgpTestActivator.TYPE, Unpooled.wrappedBuffer(tlvBytes));
-        verify(this.activator.sidTlvParser, times(1)).parseBgpPrefixSidTlv(Mockito.any(ByteBuf.class));
+        verify(this.activator.sidTlvParser, times(1)).parseBgpPrefixSidTlv(any(ByteBuf.class));
     }
 
     @Test
@@ -151,9 +153,9 @@ public class SimpleRegistryTest {
         final ByteBuf buffer = Unpooled.buffer(msgBytes.length);
         msgRegistry.serializeMessage(msg, buffer);
         msgRegistry.parseMessage(Unpooled.wrappedBuffer(msgBytes), CONSTRAINT);
-        verify(this.activator.msgParser, times(1)).parseMessageBody(Mockito.any(ByteBuf.class), Mockito.anyInt(),
-            Mockito.any(PeerSpecificParserConstraint.class));
-        verify(this.activator.msgSerializer, times(1)).serializeMessage(Mockito.any(Notification.class), Mockito.any(ByteBuf.class));
+        verify(this.activator.msgParser, times(1)).parseMessageBody(any(ByteBuf.class), Mockito.anyInt(),
+            any(PeerSpecificParserConstraint.class));
+        verify(this.activator.msgSerializer, times(1)).serializeMessage(any(Notification.class), any(ByteBuf.class));
     }
 
     @Test
@@ -185,7 +187,7 @@ public class SimpleRegistryTest {
         nlriReg.serializeMpReach(mpReach, buffer);
         assertArrayEquals(mpReachBytes, buffer.array());
         assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes), CONSTRAINT));
-        verify(this.activator.nlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class), Mockito.any());
+        verify(this.activator.nlriParser, times(1)).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class), any());
     }
 
     @Test
@@ -231,6 +233,6 @@ public class SimpleRegistryTest {
         nlriReg.serializeMpUnReach(mpUnreach, buffer);
         assertArrayEquals(mpUnreachBytes, buffer.array());
         assertEquals(mpUnreach, nlriReg.parseMpUnreach(Unpooled.wrappedBuffer(mpUnreachBytes), CONSTRAINT));
-        verify(this.activator.nlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class), Mockito.any());
+        verify(this.activator.nlriParser, times(1)).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
     }
 }

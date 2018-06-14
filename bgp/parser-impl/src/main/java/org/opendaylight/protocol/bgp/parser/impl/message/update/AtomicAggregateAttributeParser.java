@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
@@ -16,9 +15,8 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AtomicAggregateBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class AtomicAggregateAttributeParser implements AttributeParser,AttributeSerializer {
+public final class AtomicAggregateAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 6;
 
@@ -28,10 +26,7 @@ public final class AtomicAggregateAttributeParser implements AttributeParser,Att
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final Attributes pathAttributes = (Attributes) attribute;
+    public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         if (pathAttributes.getAtomicAggregate() == null) {
             return;
         }

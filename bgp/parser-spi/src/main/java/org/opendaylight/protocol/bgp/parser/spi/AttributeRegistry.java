@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 /**
  *
@@ -35,5 +34,5 @@ public interface AttributeRegistry {
      * @param attribute Input BGP Attribute.
      * @param byteAggregator Output buffer.
      */
-    void serializeAttribute(@Nonnull DataObject attribute, @Nonnull ByteBuf byteAggregator);
+    void serializeAttribute(@Nonnull Attributes attribute, @Nonnull ByteBuf byteAggregator);
 }

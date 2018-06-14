@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
@@ -36,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,9 +138,8 @@ public final class LinkstateAttributeParser implements AttributeParser, Attribut
      */
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
-        final Attributes1 pathAttributes1 = ((Attributes) attribute).augmentation(Attributes1.class);
+    public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
+        final Attributes1 pathAttributes1 = attribute.augmentation(Attributes1.class);
         if (pathAttributes1 == null) {
             return;
         }

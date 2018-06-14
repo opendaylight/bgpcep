@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -24,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class MPUnreachAttributeParser extends ReachAttributeParser {
     public static final int TYPE = 15;
@@ -51,10 +49,8 @@ public final class MPUnreachAttributeParser extends ReachAttributeParser {
     }
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes,
-                "Attribute parameter is not a PathAttribute object.");
-        final Attributes pathAttributes = (Attributes) attribute;
+    public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
+        final Attributes pathAttributes = attribute;
         final Attributes2 pathAttributes2 = pathAttributes.augmentation(Attributes2.class);
         if (pathAttributes2 == null) {
             return;
@@ -62,8 +58,8 @@ public final class MPUnreachAttributeParser extends ReachAttributeParser {
         final MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
         final ByteBuf unreachBuffer = Unpooled.buffer();
         this.reg.serializeMpUnReach(mpUnreachNlri, unreachBuffer);
-        for (final NlriSerializer nlriSerializer : this.reg.getSerializers()){
-            nlriSerializer.serializeAttribute(attribute,unreachBuffer);
+        for (final NlriSerializer nlriSerializer : this.reg.getSerializers()) {
+            nlriSerializer.serializeAttribute(attribute, unreachBuffer);
         }
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, unreachBuffer, byteAggregator);
     }
