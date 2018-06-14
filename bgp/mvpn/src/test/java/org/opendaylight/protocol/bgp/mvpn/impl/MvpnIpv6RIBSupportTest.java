@@ -50,7 +50,6 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -116,8 +115,7 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
     public void testEmptyRoute() {
         final Routes empty = new MvpnRoutesIpv6CaseBuilder().setMvpnRoutesIpv6(new MvpnRoutesIpv6Builder()
                 .setMvpnRoute(Collections.emptyList()).build()).build();
-        final ChoiceNode expected = createRoutes(empty);
-        assertEquals(expected, this.ribSupport.emptyRoutes());
+        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
     }
 
     @Test

@@ -32,7 +32,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -49,14 +48,14 @@ public interface RIBSupport<
         R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> {
     /**
-     * Return the table-type-specific empty routes container, as augmented into the
+     * Return the table-type-specific empty table with routes empty container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
      * the skeleton nodes under which the individual routes will be stored.
      *
      * @return Protocol-specific case in the routes choice, may not be null.
      */
     @Nonnull
-    ChoiceNode emptyRoutes();
+    MapEntryNode emptyTable();
 
     /**
      * Return the localized identifier of the attributes route member, as expanded

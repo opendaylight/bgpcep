@@ -14,6 +14,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Shorts;
 import java.util.ArrayList;
@@ -42,14 +43,16 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.osgi.framework.ServiceRegistration;
 
 public class RibImplTest extends AbstractConfig {
@@ -90,10 +93,12 @@ public class RibImplTest extends AbstractConfig {
         final NodeIdentifier nii = new NodeIdentifier(QName.create("", "test").intern());
         Mockito.doReturn(nii).when(this.ribSupport).routeAttributesIdentifier();
         Mockito.doReturn(ImmutableSet.of()).when(this.ribSupport).cacheableAttributeObjects();
-        final ChoiceNode choiceNode = mock(ChoiceNode.class);
-        Mockito.doReturn(choiceNode).when(this.ribSupport).emptyRoutes();
-        Mockito.doReturn(nii).when(choiceNode).getIdentifier();
-        Mockito.doReturn(QName.create("", "test").intern()).when(choiceNode).getNodeType();
+        final MapEntryNode emptyTable = mock(MapEntryNode.class);
+        Mockito.doReturn(emptyTable).when(this.ribSupport).emptyTable();
+        final NodeIdentifierWithPredicates niie = new NodeIdentifierWithPredicates(Rib.QNAME,
+                ImmutableMap.of(QName.create("", "test").intern(), "t"));
+        Mockito.doReturn(niie).when(emptyTable).getIdentifier();
+        Mockito.doReturn(QName.create("", "test").intern()).when(emptyTable).getNodeType();
         Mockito.doReturn(this.domTx).when(this.domDataBroker).createTransactionChain(any());
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
         Mockito.doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))

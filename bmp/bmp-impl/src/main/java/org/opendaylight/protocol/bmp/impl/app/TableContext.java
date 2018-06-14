@@ -13,7 +13,6 @@ import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ATTRIBUTES_Q
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ROUTES_QNAME;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Verify;
 import java.util.Map;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -54,7 +53,8 @@ final class TableContext {
     private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_NLRI_II = InstanceIdentifier.create(Update.class)
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path
                     .attributes.Attributes.class).augmentation(Attributes2.class).child(MpUnreachNlri.class);
-    private static final NodeIdentifier ROUTES_NODE_ID = new NodeIdentifier(BMP_ROUTES_QNAME);
+    private static final NodeIdentifier BGP_ROUTES_NODE_ID = new NodeIdentifier(BMP_ROUTES_QNAME);
+    private static final NodeIdentifier ROUTES_NODE_ID = new NodeIdentifier(Routes.QNAME);
 
     private final YangInstanceIdentifier tableId;
     private final RIBSupport tableSupport;
@@ -97,9 +97,8 @@ final class TableContext {
         for (final Map.Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
             tb.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
-
-        final ChoiceNode routes = this.tableSupport.emptyRoutes();
-        Verify.verifyNotNull(routes, "Null empty routes in %s", this.tableSupport);
+        final ChoiceNode routes
+                = (ChoiceNode) this.tableSupport.emptyTable().getChild(ROUTES_NODE_ID).get();
 
         tx.put(LogicalDatastoreType.OPERATIONAL, this.tableId,
                 tb.withChild(ImmutableChoiceNodeBuilder.create(routes).withNodeIdentifier(
@@ -109,11 +108,11 @@ final class TableContext {
     void writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {
         final ContainerNode domNlri = serializeReachNlri(nlri);
         final ContainerNode routeAttributes = serializeAttributes(attributes);
-        this.tableSupport.putRoutes(tx, this.tableId, domNlri, routeAttributes, ROUTES_NODE_ID);
+        this.tableSupport.putRoutes(tx, this.tableId, domNlri, routeAttributes, BGP_ROUTES_NODE_ID);
     }
 
     void removeRoutes(final DOMDataWriteTransaction tx, final MpUnreachNlri nlri) {
-        this.tableSupport.deleteRoutes(tx, this.tableId, serializeUnreachNlri(nlri), ROUTES_NODE_ID);
+        this.tableSupport.deleteRoutes(tx, this.tableId, serializeUnreachNlri(nlri), BGP_ROUTES_NODE_ID);
     }
 
     private ContainerNode serializeUnreachNlri(final MpUnreachNlri nlri) {

@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
@@ -48,7 +47,6 @@ import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -68,12 +66,10 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.slf4j.Logger;
@@ -84,8 +80,6 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         SchemaContextListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
-    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang
-            .gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes.QNAME);
 
     private final BGPDispatcher dispatcher;
     private final AsNumber localAs;
@@ -157,24 +151,13 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         // create locRibWriter for each table
         final DOMDataWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
 
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> table = ImmutableNodes.mapEntryBuilder();
-        table.withNodeIdentifier(RibSupportUtils.toYangTablesKey(key));
-        table.withChild(EMPTY_TABLE_ATTRIBUTES);
-
-        final NodeIdentifierWithPredicates tableKey = RibSupportUtils.toYangTablesKey(key);
-        final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
-                .builder(this.yangRibId.node(LocRib.QNAME).node(Tables.QNAME));
-        tableId.nodeWithKey(tableKey.getNodeType(), tableKey.getKeyValues());
-        for (final Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
-            table.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
-        }
-
         final RIBSupport<? extends Routes, ?, ?, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
         if (ribSupport != null) {
-            final ChoiceNode routes = ribSupport.emptyRoutes();
-            table.withChild(routes);
+            final MapEntryNode emptyTable = ribSupport.emptyTable();
+            final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
+                    .builder(this.yangRibId.node(LocRib.QNAME).node(Tables.QNAME)).node(emptyTable.getIdentifier());
 
-            tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), table.build());
+            tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), emptyTable);
             try {
                 tx.commit().get();
             } catch (final InterruptedException | ExecutionException e1) {

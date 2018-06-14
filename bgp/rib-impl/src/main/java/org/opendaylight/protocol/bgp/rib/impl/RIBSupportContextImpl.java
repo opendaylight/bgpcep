@@ -9,9 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Verify;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Map.Entry;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
@@ -29,19 +27,10 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 class RIBSupportContextImpl extends RIBSupportContext {
-
-    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes.QNAME);
-
     private final RIBSupport<?, ?, ?, ?> ribSupport;
     private final Codecs codecs;
 
@@ -60,22 +49,7 @@ class RIBSupportContextImpl extends RIBSupportContext {
 
     @Override
     public void createEmptyTableStructure(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId) {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tb = ImmutableNodes.mapEntryBuilder();
-        tb.withNodeIdentifier((NodeIdentifierWithPredicates)tableId.getLastPathArgument());
-        tb.withChild(EMPTY_TABLE_ATTRIBUTES);
-
-        // tableId is keyed, but that fact is not directly visible from YangInstanceIdentifier, see BUG-2796
-        final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) tableId.getLastPathArgument();
-        for (final Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
-            tb.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
-        }
-
-        final ChoiceNode routes = this.ribSupport.emptyRoutes();
-        Verify.verifyNotNull(routes, "Null empty routes in %s", this.ribSupport);
-        Verify.verify(Routes.QNAME.equals(routes.getNodeType()),
-            "Empty routes have unexpected identifier %s, expected %s", routes.getNodeType(), Routes.QNAME);
-
-        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, tb.withChild(routes).build());
+        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, this.ribSupport.emptyTable());
     }
 
     @Override

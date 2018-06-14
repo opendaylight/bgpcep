@@ -72,8 +72,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
 
 public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
@@ -184,15 +182,6 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     @Test
     public void routeQName() {
         assertEquals(Ipv4Route.QNAME,this.ribSupportTestImp.routeQName());
-    }
-
-    @Test
-    public void emptyRoutes() {
-        final ChoiceNode emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES_IDENTIFIER)
-                .addChild(Builders.containerBuilder().withNodeIdentifier(IPV4_ROUTES_IDENTIFIER)
-                        .withChild(ImmutableNodes.mapNodeBuilder(ribSupportTestImp.routeQName())
-                                .build()).build()).build();
-        assertEquals(emptyRoutes,this.ribSupportTestImp.emptyRoutes());
     }
 
     @Test

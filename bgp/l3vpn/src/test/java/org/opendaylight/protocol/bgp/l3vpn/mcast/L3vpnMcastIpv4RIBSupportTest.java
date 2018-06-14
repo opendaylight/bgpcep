@@ -46,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -115,8 +114,7 @@ public class L3vpnMcastIpv4RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
         final Routes empty = new L3vpnMcastRoutesIpv4CaseBuilder()
                 .setL3vpnMcastRoutesIpv4(new L3vpnMcastRoutesIpv4Builder()
                         .setL3vpnMcastRoute(Collections.emptyList()).build()).build();
-        final ChoiceNode expected = createRoutes(empty);
-        Assert.assertEquals(expected, this.ribSupport.emptyRoutes());
+        Assert.assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
     }
 
     @Test

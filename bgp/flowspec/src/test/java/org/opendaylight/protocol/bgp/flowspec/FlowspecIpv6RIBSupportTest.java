@@ -46,7 +46,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
@@ -110,8 +109,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
     public void testEmptyRoute() {
         final Routes empty = new FlowspecIpv6RoutesCaseBuilder().setFlowspecIpv6Routes(
             new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Collections.emptyList()).build()).build();
-        final ChoiceNode emptyRoutes = this.ribSupport.emptyRoutes();
-        assertEquals(createRoutes(empty), emptyRoutes);
+        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
     }
 
     @Test

@@ -18,14 +18,15 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 
 public final class TablesUtil {
 
-    public static final QName BMP_TABLES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(),
-            BmpMonitor.QNAME.getRevision(), "tables").intern();
-    public static final QName BMP_ATTRIBUTES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(),
-            BmpMonitor.QNAME.getRevision(), "attributes").intern();
-    public static final QName BMP_ROUTES_QNAME = QName.create(BmpMonitor.QNAME.getNamespace(),
-            BmpMonitor.QNAME.getRevision(), "routes").intern();
-    public static final QName BMP_AFI_QNAME = QName.create(BMP_TABLES_QNAME, "afi").intern();
-    public static final QName BMP_SAFI_QNAME = QName.create(BMP_TABLES_QNAME, "safi").intern();
+    public static final QName BMP_TABLES_QNAME
+            = QName.create(BmpMonitor.QNAME.getModule(), "tables");
+    public static final QName BMP_ATTRIBUTES_QNAME =
+            QName.create(BmpMonitor.QNAME.getModule(), "attributes");
+    public static final QName BMP_ROUTES_QNAME = QName.create(BmpMonitor.QNAME.getModule(), "routes");
+    public static final QName BMP_AFI_QNAME = QName.create(BMP_TABLES_QNAME.getModule(), "afi");
+    public static final QName BMP_SAFI_QNAME = QName.create(BMP_TABLES_QNAME.getModule(), "safi");
+    private static final String AFI = "afi";
+    private static final String SAFI = "safi";
 
     private TablesUtil() {
         throw new UnsupportedOperationException("Utility class");
@@ -57,8 +58,8 @@ public final class TablesUtil {
     public static NodeIdentifierWithPredicates toYangTablesKey(final QName nodeName,
             final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
-        final QName afiQname = QName.create(nodeName, "afi").intern();
-        final QName safiQname = QName.create(nodeName, "safi").intern();
+        final QName afiQname = QName.create(nodeName, AFI).intern();
+        final QName safiQname = QName.create(nodeName, SAFI).intern();
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(
                         afiQname, BindingReflections.findQName(afi),
                         safiQname, BindingReflections.findQName(safi));

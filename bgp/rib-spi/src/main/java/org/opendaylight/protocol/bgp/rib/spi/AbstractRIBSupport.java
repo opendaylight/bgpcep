@@ -108,7 +108,7 @@ public abstract class AbstractRIBSupport<
     private final Class<S> containerClass;
     private final Class<R> listClass;
     private final ApplyRoute putRoute = new PutRoute();
-    private final ChoiceNode emptyRoutes;
+    private final MapEntryNode emptyTable;
     private final QName routeQname;
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
@@ -155,11 +155,11 @@ public abstract class AbstractRIBSupport<
         this.routeQname = BindingReflections.findQName(listClass).withModule(module);
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
-        //FIXME Use Route Case IId instead of Tables IId.
-        this.emptyRoutes = (ChoiceNode) ((MapEntryNode) this.mappingService
+        this.emptyTable = (MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
-                        .setRoutes(emptyRoutesCase()).build()).getValue())
-                .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
+                        .setRoutes(emptyRoutesCase())
+                        .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+                                .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = new NodeIdentifier(destContainerQname);
@@ -203,8 +203,8 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final ChoiceNode emptyRoutes() {
-        return this.emptyRoutes;
+    public final MapEntryNode emptyTable() {
+        return this.emptyTable;
     }
 
     public final QName routeQName() {
@@ -385,6 +385,7 @@ public abstract class AbstractRIBSupport<
     @Override
     public final InstanceIdentifier<R> createRouteIdentifier(
             final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final I key) {
+        //FIXME Cache
         return tableIId.child(routesCaseClass(), routesContainerClass()).child(routesListClass(), key);
     }
 
@@ -509,7 +510,7 @@ public abstract class AbstractRIBSupport<
         return null;
     }
 
-    protected YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesTablePaths) {
+    protected final YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesTablePaths) {
         return this.routesPath.getUnchecked(routesTablePaths);
     }
 }
