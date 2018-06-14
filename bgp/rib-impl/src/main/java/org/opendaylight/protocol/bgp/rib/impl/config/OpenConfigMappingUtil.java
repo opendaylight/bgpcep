@@ -25,7 +25,6 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
@@ -59,9 +58,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupTransportConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.TransportConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
+import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class OpenConfigMappingUtil {
@@ -151,17 +152,14 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nullable
-    private static PortNumber getPort(@Nullable final Transport transport) {
+    private static <T extends TransportConfig & Augmentation<Config>> PortNumber getPort(
+            @Nullable final Transport transport, final Class<T> augment) {
         if (transport != null) {
             final Config config = transport.getConfig();
             if (config != null) {
-                final NeighborTransportConfig peerTc = config.augmentation(NeighborTransportConfig.class);
+                final T peerTc = config.augmentation(augment);
                 if (peerTc != null) {
                     return peerTc.getRemotePort();
-                }
-                final PeerGroupTransportConfig peerGroupTc = config.augmentation(PeerGroupTransportConfig.class);
-                if (peerGroupTc != null) {
-                    return peerGroupTc.getRemotePort();
                 }
             }
         }
@@ -423,11 +421,11 @@ public final class OpenConfigMappingUtil {
     public static PortNumber getPort(final Neighbor neighbor, final PeerGroup peerGroup) {
         PortNumber port = null;
         if (peerGroup != null) {
-            port = getPort(peerGroup.getTransport());
+            port = getPort(peerGroup.getTransport(), PeerGroupTransportConfig.class);
         }
 
         if (port == null) {
-            port = getPort(neighbor.getTransport());
+            port = getPort(neighbor.getTransport(), NeighborTransportConfig.class);
         }
 
         if (port == null) {
