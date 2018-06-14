@@ -10,9 +10,15 @@ package org.opendaylight.protocol.bgp.flowspec;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.UnsignedInteger;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -88,7 +94,8 @@ public abstract class AbstractFlowspecRIBSupport<
         final ApplyRoute function
     ) {
         if (destination != null) {
-            final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeQName());
+            final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf
                     = destination.getChild(routePathIdNid());
             final String routeKeyValue = this.nlriParser.stringNlri(destination);

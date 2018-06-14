@@ -118,7 +118,7 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
+                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
                     for (final UnkeyedListEntryNode mvpnDest : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(mvpnDest);
                         function.apply(tx, base, routeKey, mvpnDest, attributes);

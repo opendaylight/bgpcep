@@ -119,7 +119,7 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
 
     @Override
     protected final void processDestination(
-            DOMDataWriteTransaction tx,
+            final DOMDataWriteTransaction tx,
             final YangInstanceIdentifier routesPath,
             final ContainerNode destination,
             final ContainerNode attributes,
@@ -130,7 +130,7 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
+                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
                     for (final UnkeyedListEntryNode l3vpnDest : ((UnkeyedListNode) routes).getValue()) {
                         final YangInstanceIdentifier.NodeIdentifierWithPredicates routeKey = createRouteKey(l3vpnDest);
                         function.apply(tx, base, routeKey, l3vpnDest, attributes);

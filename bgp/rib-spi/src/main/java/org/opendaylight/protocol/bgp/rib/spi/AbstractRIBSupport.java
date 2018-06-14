@@ -10,9 +10,13 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -89,6 +93,14 @@ public abstract class AbstractRIBSupport<
             .child(Rib.class).child(LocRib.class).child(Tables.class);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
+    // Instance identifier to table/(choice routes)/(map of route)
+    private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath = CacheBuilder.newBuilder()
+            .weakValues().build(new CacheLoader<YangInstanceIdentifier, YangInstanceIdentifier>() {
+                @Override
+                public YangInstanceIdentifier load(@Nonnull final YangInstanceIdentifier routesPath) {
+                    return routesPath.node(routesContainerIdentifier()).node(routeQName());
+                }
+            });
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
@@ -494,5 +506,9 @@ public abstract class AbstractRIBSupport<
             return RouteDistinguisherBuilder.getDefaultInstance((String) route.getChild(this.rdNid).get().getValue());
         }
         return null;
+    }
+
+    protected YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesPath) {
+        return this.routesPath.getUnchecked(routesPath);
     }
 }

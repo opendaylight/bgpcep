@@ -85,8 +85,7 @@ abstract class AbstractIPRibSupport<
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     // Instance identifier to table/(choice routes)/(map of route)
-                    // FIXME: cache on per-table basis (in TableContext, for example)
-                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
+                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                         function.apply(tx, base, routeKey, e, attributes);

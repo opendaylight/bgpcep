@@ -109,7 +109,7 @@ public final class LinkstateRIBSupport
         if (maybeRoutes.isPresent()) {
             final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
             if (routes instanceof UnkeyedListNode) {
-                final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
+                final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
                 for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                     final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                     function.apply(tx, base, routeKey, e, attributes);

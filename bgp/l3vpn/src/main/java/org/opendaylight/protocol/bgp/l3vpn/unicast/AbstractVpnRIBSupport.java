@@ -124,7 +124,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
                 if (routes instanceof UnkeyedListNode) {
                     final UnkeyedListNode routeListNode = (UnkeyedListNode) routes;
                     LOG.debug("{} routes are found", routeListNode.getSize());
-                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
+                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
                     for (final UnkeyedListEntryNode e : routeListNode.getValue()) {
                         final NodeIdentifierWithPredicates key = createRouteKey(e);
                         LOG.debug("Route {} is processed.", key);
