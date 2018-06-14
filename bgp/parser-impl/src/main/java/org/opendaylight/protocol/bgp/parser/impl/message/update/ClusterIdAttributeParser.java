@@ -38,7 +38,8 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final ClusterId cid = ((Attributes) attribute).getClusterId();
         if (cid == null) {
             return;

@@ -29,7 +29,8 @@ public final class AtomicAggregateAttributeParser implements AttributeParser,Att
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         if (pathAttributes.getAtomicAggregate() == null) {
             return;

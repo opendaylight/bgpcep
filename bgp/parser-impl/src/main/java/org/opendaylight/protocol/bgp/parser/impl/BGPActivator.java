@@ -132,7 +132,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 
-    private static void registerCapabilityParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
+    private static void registerCapabilityParsers(final List<AutoCloseable> regs,
+            final BGPExtensionProviderContext context) {
         final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
         final SubsequentAddressFamilyRegistry safiReg = context.getSubsequentAddressFamilyRegistry();
 
@@ -165,8 +166,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerCapabilitySerializer(BgpExtendedMessageCapability.class, bgpextmessage));
     }
 
-    private static void registerAttributeParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
-        final BgpPrefixSidAttributeParser prefixSidAttributeParser = new BgpPrefixSidAttributeParser(context.getBgpPrefixSidTlvRegistry());
+    private static void registerAttributeParsers(final List<AutoCloseable> regs,
+            final BGPExtensionProviderContext context) {
+        final BgpPrefixSidAttributeParser prefixSidAttributeParser
+                = new BgpPrefixSidAttributeParser(context.getBgpPrefixSidTlvRegistry());
         regs.add(context.registerAttributeSerializer(BgpPrefixSid.class, prefixSidAttributeParser));
         regs.add(context.registerAttributeParser(BgpPrefixSidAttributeParser.TYPE, prefixSidAttributeParser));
 
@@ -186,9 +189,11 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerAttributeSerializer(NextHop.class, nextHopAttributeParser));
         regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, nextHopAttributeParser));
 
-        final MultiExitDiscriminatorAttributeParser multiExitDiscriminatorAttributeParser = new MultiExitDiscriminatorAttributeParser();
+        final MultiExitDiscriminatorAttributeParser multiExitDiscriminatorAttributeParser
+                = new MultiExitDiscriminatorAttributeParser();
         regs.add(context.registerAttributeSerializer(MultiExitDisc.class, multiExitDiscriminatorAttributeParser));
-        regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE, multiExitDiscriminatorAttributeParser));
+        regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE,
+                multiExitDiscriminatorAttributeParser));
 
         final LocalPreferenceAttributeParser localPreferenceAttributeParser = new LocalPreferenceAttributeParser();
         regs.add(context.registerAttributeSerializer(LocalPref.class, localPreferenceAttributeParser));
@@ -198,11 +203,13 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerAttributeSerializer(AtomicAggregate.class, atomicAggregateAttributeParser));
         regs.add(context.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, atomicAggregateAttributeParser));
 
-        final AggregatorAttributeParser as4AggregatorAttributeParser = new AggregatorAttributeParser(context.getReferenceCache());
+        final AggregatorAttributeParser as4AggregatorAttributeParser
+                = new AggregatorAttributeParser(context.getReferenceCache());
         regs.add(context.registerAttributeSerializer(Aggregator.class, as4AggregatorAttributeParser));
         regs.add(context.registerAttributeParser(AggregatorAttributeParser.TYPE, as4AggregatorAttributeParser));
 
-        final CommunitiesAttributeParser communitiesAttributeParser = new CommunitiesAttributeParser(context.getReferenceCache());
+        final CommunitiesAttributeParser communitiesAttributeParser
+                = new CommunitiesAttributeParser(context.getReferenceCache());
         regs.add(context.registerAttributeSerializer(Communities.class, communitiesAttributeParser));
         regs.add(context.registerAttributeParser(CommunitiesAttributeParser.TYPE, communitiesAttributeParser));
 
@@ -224,17 +231,22 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerAttributeSerializer(MpUnreachNlri.class, mpUnreachAttributeParser));
         regs.add(context.registerAttributeParser(MPUnreachAttributeParser.TYPE, mpUnreachAttributeParser));
 
-        final ExtendedCommunitiesAttributeParser extendedCommunitiesAttributeParser = new ExtendedCommunitiesAttributeParser(context.getExtendedCommunityRegistry());
+        final ExtendedCommunitiesAttributeParser extendedCommunitiesAttributeParser
+                = new ExtendedCommunitiesAttributeParser(context.getExtendedCommunityRegistry());
         regs.add(context.registerAttributeSerializer(ExtendedCommunities.class, extendedCommunitiesAttributeParser));
-        regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, extendedCommunitiesAttributeParser));
+        regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE,
+                extendedCommunitiesAttributeParser));
 
-        regs.add(context.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser()));
+        regs.add(context.registerAttributeParser(AS4AggregatorAttributeParser.TYPE,
+                new AS4AggregatorAttributeParser()));
         regs.add(context.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser()));
 
-        regs.add(context.registerAttributeSerializer(UnrecognizedAttributes.class, new UnrecognizedAttributesSerializer()));
+        regs.add(context.registerAttributeSerializer(UnrecognizedAttributes.class,
+                new UnrecognizedAttributesSerializer()));
     }
 
-    private static void registerMessageParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
+    private static void registerMessageParsers(final List<AutoCloseable> regs,
+            final BGPExtensionProviderContext context) {
         final BGPOpenMessageParser omp = new BGPOpenMessageParser(context.getParameterRegistry());
         regs.add(context.registerMessageParser(BGPOpenMessageParser.TYPE, omp));
         regs.add(context.registerMessageSerializer(Open.class, omp));
@@ -258,77 +270,86 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerMessageSerializer(RouteRefresh.class, rrmp));
     }
 
-    private static void registerExtendedCommunities(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
+    private static void registerExtendedCommunities(final List<AutoCloseable> regs,
+            final BGPExtensionProviderContext context) {
         final AsTwoOctetSpecificEcHandler twoOctetSpecificEcHandler = new AsTwoOctetSpecificEcHandler();
-        regs.add(context.registerExtendedCommunityParser(twoOctetSpecificEcHandler.getType(true), twoOctetSpecificEcHandler.getSubType(),
-                twoOctetSpecificEcHandler));
-        regs.add(context.registerExtendedCommunityParser(twoOctetSpecificEcHandler.getType(false), twoOctetSpecificEcHandler.getSubType(),
-                twoOctetSpecificEcHandler));
+        regs.add(context.registerExtendedCommunityParser(twoOctetSpecificEcHandler.getType(true),
+                twoOctetSpecificEcHandler.getSubType(), twoOctetSpecificEcHandler));
+        regs.add(context.registerExtendedCommunityParser(twoOctetSpecificEcHandler.getType(false),
+                twoOctetSpecificEcHandler.getSubType(), twoOctetSpecificEcHandler));
         regs.add(context.registerExtendedCommunitySerializer(AsSpecificExtendedCommunityCase.class, twoOctetSpecificEcHandler));
 
         final Ipv4SpecificEcHandler ipv4SpecificEcHandler = new Ipv4SpecificEcHandler();
-        regs.add(context.registerExtendedCommunityParser(ipv4SpecificEcHandler.getType(true), ipv4SpecificEcHandler.getSubType(),
+        regs.add(context.registerExtendedCommunityParser(ipv4SpecificEcHandler.getType(true),
+                ipv4SpecificEcHandler.getSubType(), ipv4SpecificEcHandler));
+        regs.add(context.registerExtendedCommunityParser(ipv4SpecificEcHandler.getType(false),
+                ipv4SpecificEcHandler.getSubType(), ipv4SpecificEcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(Inet4SpecificExtendedCommunityCase.class,
                 ipv4SpecificEcHandler));
-        regs.add(context.registerExtendedCommunityParser(ipv4SpecificEcHandler.getType(false), ipv4SpecificEcHandler.getSubType(),
-                ipv4SpecificEcHandler));
-        regs.add(context.registerExtendedCommunitySerializer(Inet4SpecificExtendedCommunityCase.class, ipv4SpecificEcHandler));
 
         final OpaqueEcHandler opaqueEcHandler = new OpaqueEcHandler();
-        regs.add(context.registerExtendedCommunityParser(opaqueEcHandler.getType(true), opaqueEcHandler.getSubType(),
-                opaqueEcHandler));
-        regs.add(context.registerExtendedCommunityParser(opaqueEcHandler.getType(false), opaqueEcHandler.getSubType(),
-                opaqueEcHandler));
+        regs.add(context.registerExtendedCommunityParser(opaqueEcHandler.getType(true),
+                opaqueEcHandler.getSubType(), opaqueEcHandler));
+        regs.add(context.registerExtendedCommunityParser(opaqueEcHandler.getType(false),
+                opaqueEcHandler.getSubType(), opaqueEcHandler));
         regs.add(context.registerExtendedCommunitySerializer(OpaqueExtendedCommunityCase.class, opaqueEcHandler));
 
         final RouteOriginAsTwoOctetEcHandler routeOriginAS2bEcHandler = new RouteOriginAsTwoOctetEcHandler();
-        regs.add(context.registerExtendedCommunityParser(routeOriginAS2bEcHandler.getType(true), routeOriginAS2bEcHandler.getSubType(),
+        regs.add(context.registerExtendedCommunityParser(routeOriginAS2bEcHandler.getType(true),
+                routeOriginAS2bEcHandler.getSubType(), routeOriginAS2bEcHandler));
+        regs.add(context.registerExtendedCommunityParser(routeOriginAS2bEcHandler.getType(false),
+                routeOriginAS2bEcHandler.getSubType(), routeOriginAS2bEcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(RouteOriginExtendedCommunityCase.class,
                 routeOriginAS2bEcHandler));
-        regs.add(context.registerExtendedCommunityParser(routeOriginAS2bEcHandler.getType(false), routeOriginAS2bEcHandler.getSubType(),
-                routeOriginAS2bEcHandler));
-        regs.add(context.registerExtendedCommunitySerializer(RouteOriginExtendedCommunityCase.class, routeOriginAS2bEcHandler));
 
         final RouteTargetAsTwoOctetEcHandler routeTargetAS2bEcHandler = new RouteTargetAsTwoOctetEcHandler();
-        regs.add(context.registerExtendedCommunityParser(routeTargetAS2bEcHandler.getType(true), routeTargetAS2bEcHandler.getSubType(),
+        regs.add(context.registerExtendedCommunityParser(routeTargetAS2bEcHandler.getType(true),
+                routeTargetAS2bEcHandler.getSubType(), routeTargetAS2bEcHandler));
+        regs.add(context.registerExtendedCommunityParser(routeTargetAS2bEcHandler.getType(false),
+                routeTargetAS2bEcHandler.getSubType(), routeTargetAS2bEcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(RouteTargetExtendedCommunityCase.class,
                 routeTargetAS2bEcHandler));
-        regs.add(context.registerExtendedCommunityParser(routeTargetAS2bEcHandler.getType(false), routeTargetAS2bEcHandler.getSubType(),
-                routeTargetAS2bEcHandler));
-        regs.add(context.registerExtendedCommunitySerializer(RouteTargetExtendedCommunityCase.class, routeTargetAS2bEcHandler));
 
         final RouteOriginIpv4EcHandler routeOriginIpv4EcHandler = new RouteOriginIpv4EcHandler();
-        regs.add(context.registerExtendedCommunityParser(routeOriginIpv4EcHandler.getType(true), routeOriginIpv4EcHandler.getSubType(),
-                routeOriginIpv4EcHandler));
-        regs.add(context.registerExtendedCommunityParser(routeOriginIpv4EcHandler.getType(false), routeOriginIpv4EcHandler.getSubType(),
-                routeOriginIpv4EcHandler));
+        regs.add(context.registerExtendedCommunityParser(routeOriginIpv4EcHandler.getType(true),
+                routeOriginIpv4EcHandler.getSubType(), routeOriginIpv4EcHandler));
+        regs.add(context.registerExtendedCommunityParser(routeOriginIpv4EcHandler.getType(false),
+                routeOriginIpv4EcHandler.getSubType(), routeOriginIpv4EcHandler));
         regs.add(context.registerExtendedCommunitySerializer(RouteOriginIpv4Case.class, routeOriginIpv4EcHandler));
 
         final RouteTargetIpv4EcHandler routeTargetIpv4EcHandler = new RouteTargetIpv4EcHandler();
-        regs.add(context.registerExtendedCommunityParser(routeTargetIpv4EcHandler.getType(true), routeTargetIpv4EcHandler.getSubType(),
-                routeTargetIpv4EcHandler));
-        regs.add(context.registerExtendedCommunityParser(routeTargetIpv4EcHandler.getType(false), routeTargetIpv4EcHandler.getSubType(),
-                routeTargetIpv4EcHandler));
+        regs.add(context.registerExtendedCommunityParser(routeTargetIpv4EcHandler.getType(true),
+                routeTargetIpv4EcHandler.getSubType(), routeTargetIpv4EcHandler));
+        regs.add(context.registerExtendedCommunityParser(routeTargetIpv4EcHandler.getType(false),
+                routeTargetIpv4EcHandler.getSubType(), routeTargetIpv4EcHandler));
         regs.add(context.registerExtendedCommunitySerializer(RouteTargetIpv4Case.class, routeTargetIpv4EcHandler));
 
         final LinkBandwidthEC linkBandwidthECHandler = new LinkBandwidthEC();
-        regs.add(context.registerExtendedCommunityParser(linkBandwidthECHandler.getType(false), linkBandwidthECHandler.getSubType(),
-                linkBandwidthECHandler));
+        regs.add(context.registerExtendedCommunityParser(linkBandwidthECHandler.getType(false),
+                linkBandwidthECHandler.getSubType(), linkBandwidthECHandler));
         regs.add(context.registerExtendedCommunitySerializer(LinkBandwidthCase.class, linkBandwidthECHandler));
 
         final Generic4OctASEcHandler gen4OctASEcHandler = new Generic4OctASEcHandler();
-        regs.add(context.registerExtendedCommunityParser(gen4OctASEcHandler.getType(true), gen4OctASEcHandler.getSubType(), gen4OctASEcHandler));
-        regs.add(context.registerExtendedCommunityParser(gen4OctASEcHandler.getType(false), gen4OctASEcHandler.getSubType(), gen4OctASEcHandler));
-        regs.add(context.registerExtendedCommunitySerializer(As4GenericSpecExtendedCommunityCase.class, gen4OctASEcHandler));
+        regs.add(context.registerExtendedCommunityParser(gen4OctASEcHandler.getType(true),
+                gen4OctASEcHandler.getSubType(), gen4OctASEcHandler));
+        regs.add(context.registerExtendedCommunityParser(gen4OctASEcHandler.getType(false),
+                gen4OctASEcHandler.getSubType(), gen4OctASEcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(As4GenericSpecExtendedCommunityCase.class,
+                gen4OctASEcHandler));
 
         final RouteTarget4OctectASEcHandler rt4ASHandler = new RouteTarget4OctectASEcHandler();
-        regs.add(context.registerExtendedCommunityParser(rt4ASHandler.getType(true), rt4ASHandler.getSubType(), rt4ASHandler));
+        regs.add(context.registerExtendedCommunityParser(rt4ASHandler.getType(true),
+                rt4ASHandler.getSubType(), rt4ASHandler));
         regs.add(context.registerExtendedCommunitySerializer(As4RouteTargetExtendedCommunityCase.class, rt4ASHandler));
 
         final RouteOrigin4OctectASEcHandler rOrig4Oct = new RouteOrigin4OctectASEcHandler();
-        regs.add(context.registerExtendedCommunityParser(rOrig4Oct.getType(true), rOrig4Oct.getSubType(), rOrig4Oct));
+        regs.add(context.registerExtendedCommunityParser(rOrig4Oct.getType(true)
+                , rOrig4Oct.getSubType(), rOrig4Oct));
         regs.add(context.registerExtendedCommunitySerializer(As4RouteOriginExtendedCommunityCase.class, rOrig4Oct));
 
         final EncapsulationEC encapsulationECHandler = new EncapsulationEC();
-        regs.add(context.registerExtendedCommunityParser(encapsulationECHandler.getType(true), encapsulationECHandler.getSubType(),
-                encapsulationECHandler));
+        regs.add(context.registerExtendedCommunityParser(encapsulationECHandler.getType(true),
+                encapsulationECHandler.getSubType(), encapsulationECHandler));
         regs.add(context.registerExtendedCommunitySerializer(EncapsulationCase.class, encapsulationECHandler));
 
         final VrfRouteImportHandler vrfRouteImportHandler = new VrfRouteImportHandler();

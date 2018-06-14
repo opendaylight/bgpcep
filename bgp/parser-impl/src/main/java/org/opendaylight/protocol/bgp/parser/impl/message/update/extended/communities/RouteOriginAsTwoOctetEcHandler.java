@@ -28,7 +28,8 @@ public final class RouteOriginAsTwoOctetEcHandler extends AbstractTwoOctetAsExte
     private static final int SUBTYPE = 3;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
         final RouteOriginExtendedCommunity targetOrigin = new RouteOriginExtendedCommunityBuilder()
             .setGlobalAdministrator(new ShortAsNumber((long) buffer.readUnsignedShort()))
             .setLocalAdministrator(ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH))
@@ -39,9 +40,12 @@ public final class RouteOriginAsTwoOctetEcHandler extends AbstractTwoOctetAsExte
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(extendedCommunity instanceof RouteOriginExtendedCommunityCase,
-                "The extended community %s is not RouteOriginExtendedCommunity type.", extendedCommunity);
-        final RouteOriginExtendedCommunity routeOrigin = ((RouteOriginExtendedCommunityCase) extendedCommunity).getRouteOriginExtendedCommunity();
-        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(routeOrigin.getGlobalAdministrator().getValue()), byteAggregator);
+                "The extended community %s is not RouteOriginExtendedCommunity type.",
+                extendedCommunity);
+        final RouteOriginExtendedCommunity routeOrigin
+                = ((RouteOriginExtendedCommunityCase) extendedCommunity).getRouteOriginExtendedCommunity();
+        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(routeOrigin.getGlobalAdministrator().getValue()),
+                byteAggregator);
         byteAggregator.writeBytes(routeOrigin.getLocalAdministrator());
     }
 

@@ -32,7 +32,8 @@ public class LinkBandwidthEC implements ExtendedCommunityParser, ExtendedCommuni
     private static final int AS_TRANS_LENGTH = 2;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
         buffer.skipBytes(AS_TRANS_LENGTH);
         final LinkBandwidthExtendedCommunity lb = new LinkBandwidthExtendedCommunityBuilder()
             .setBandwidth(new Bandwidth(ByteArray.readBytes(buffer, BANDWIDTH_SIZE)))
@@ -44,7 +45,8 @@ public class LinkBandwidthEC implements ExtendedCommunityParser, ExtendedCommuni
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf body) {
         Preconditions.checkArgument(extendedCommunity instanceof LinkBandwidthCase,
             "The extended community %s is not LinkBandwidthCase type.", extendedCommunity);
-        final LinkBandwidthExtendedCommunity lb = ((LinkBandwidthCase) extendedCommunity).getLinkBandwidthExtendedCommunity();
+        final LinkBandwidthExtendedCommunity lb
+                = ((LinkBandwidthCase) extendedCommunity).getLinkBandwidthExtendedCommunity();
         body.writeShort(AS_TRANS);
         ByteBufWriteUtil.writeFloat32(lb.getBandwidth(), body);
     }

@@ -35,7 +35,8 @@ public final class RouteOriginIpv4EcHandler extends AbstractIpv4ExtendedCommunit
     }
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
         final RouteOriginIpv4 routeTarget = new RouteOriginIpv4Builder()
             .setGlobalAdministrator(Ipv4Util.addressForByteBuf(buffer))
             .setLocalAdministrator(buffer.readUnsignedShort())

@@ -54,9 +54,9 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
      * @param buffer bytes to be parsed
      * @return new ASPath object
      * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
-     * @throws BGPParsingException
      */
-    private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
         if (!buffer.isReadable()) {
             return EMPTY;
         }
@@ -70,7 +70,8 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
             }
             final int count = buffer.readUnsignedByte();
 
-            final List<AsNumber> asList = AsPathSegmentParser.parseAsSegment(refCache, count, buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));
+            final List<AsNumber> asList = AsPathSegmentParser.parseAsSegment(refCache, count,
+                    buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));
             if (segmentType == SegmentType.AS_SEQUENCE) {
                 ases.add(new SegmentsBuilder().setAsSequence(asList).build());
                 isSequence = true;
@@ -79,7 +80,8 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
             }
         }
         if (!isSequence) {
-            throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
+            throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.",
+                    BGPError.AS_PATH_MALFORMED);
         }
 
         ases.trimToSize();
@@ -87,13 +89,15 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException, BGPParsingException {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder)
+            throws BGPDocumentedException, BGPParsingException {
         builder.setAsPath(parseAsPath(this.refCache, buffer));
     }
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         final AsPath asPath = pathAttributes.getAsPath();
         if (asPath == null) {

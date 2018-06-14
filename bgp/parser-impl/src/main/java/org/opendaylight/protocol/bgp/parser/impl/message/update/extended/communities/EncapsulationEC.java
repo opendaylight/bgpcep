@@ -34,9 +34,12 @@ public class EncapsulationEC extends AbstractOpaqueExtendedCommunity {
     private static final int CONTENT_SIZE = 6;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_SIZE, "Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ".");
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_SIZE,
+                "Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ".");
         buffer.skipBytes(RESERVED_SIZE);
         final EncapsulationExtendedCommunity encap = new EncapsulationExtendedCommunityBuilder()
             .setTunnelType(EncapsulationTunnelType.forValue(buffer.readUnsignedShort()))
@@ -48,7 +51,8 @@ public class EncapsulationEC extends AbstractOpaqueExtendedCommunity {
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf body) {
         Preconditions.checkArgument(extendedCommunity instanceof EncapsulationCase,
             "The extended community %s is not EncapsulationCase type.", extendedCommunity);
-        final EncapsulationExtendedCommunity encap = ((EncapsulationCase) extendedCommunity).getEncapsulationExtendedCommunity();
+        final EncapsulationExtendedCommunity encap
+                = ((EncapsulationCase) extendedCommunity).getEncapsulationExtendedCommunity();
         body.writeZero(RESERVED_SIZE);
         body.writeShort(encap.getTunnelType().getIntValue());
     }

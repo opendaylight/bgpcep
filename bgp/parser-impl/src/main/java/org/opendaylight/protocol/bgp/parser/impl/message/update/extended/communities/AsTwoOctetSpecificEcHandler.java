@@ -28,7 +28,8 @@ public class AsTwoOctetSpecificEcHandler extends AbstractTwoOctetAsExtendedCommu
     private static final int SUBTYPE = 0;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
         final AsSpecificExtendedCommunity asSpecific = new AsSpecificExtendedCommunityBuilder()
             .setGlobalAdministrator(new ShortAsNumber((long) buffer.readUnsignedShort()))
             .setLocalAdministrator(ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH))
@@ -39,9 +40,12 @@ public class AsTwoOctetSpecificEcHandler extends AbstractTwoOctetAsExtendedCommu
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(extendedCommunity instanceof AsSpecificExtendedCommunityCase,
-                "The extended community %s is not AsSpecificExtendedCommunity type.", extendedCommunity);
-        final AsSpecificExtendedCommunity asSpecific = ((AsSpecificExtendedCommunityCase) extendedCommunity).getAsSpecificExtendedCommunity();
-        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(asSpecific.getGlobalAdministrator().getValue()), byteAggregator);
+                "The extended community %s is not AsSpecificExtendedCommunity type.",
+                extendedCommunity);
+        final AsSpecificExtendedCommunity asSpecific = ((AsSpecificExtendedCommunityCase) extendedCommunity)
+                .getAsSpecificExtendedCommunity();
+        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(asSpecific.getGlobalAdministrator().getValue()),
+                byteAggregator);
         byteAggregator.writeBytes(asSpecific.getLocalAdministrator());
     }
 

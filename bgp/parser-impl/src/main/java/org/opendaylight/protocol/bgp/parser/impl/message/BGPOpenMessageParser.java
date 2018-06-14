@@ -48,7 +48,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
     private static final int BGP_ID_SIZE = 4;
     private static final int OPT_PARAM_LENGTH_SIZE = 1;
 
-    private static final int MIN_MSG_LENGTH = VERSION_SIZE + AS_SIZE + HOLD_TIME_SIZE + BGP_ID_SIZE + OPT_PARAM_LENGTH_SIZE;
+    private static final int MIN_MSG_LENGTH = VERSION_SIZE + AS_SIZE
+            + HOLD_TIME_SIZE + BGP_ID_SIZE + OPT_PARAM_LENGTH_SIZE;
 
     private static final int BGP_VERSION = 4;
 
@@ -112,14 +113,15 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         }
         final int version = body.readUnsignedByte();
         if (version != BGP_VERSION) {
-            throw new BGPDocumentedException("BGP Protocol version " + version + " not supported.", BGPError.VERSION_NOT_SUPPORTED);
+            throw new BGPDocumentedException("BGP Protocol version " + version + " not supported.",
+                    BGPError.VERSION_NOT_SUPPORTED);
         }
         final AsNumber as = new AsNumber((long) body.readUnsignedShort());
         final int holdTime = body.readUnsignedShort();
         if (holdTime == 1 || holdTime == 2) {
             throw new BGPDocumentedException("Hold time value not acceptable.", BGPError.HOLD_TIME_NOT_ACC);
         }
-        Ipv4Address bgpId = null;
+        Ipv4Address bgpId;
         try {
             bgpId = Ipv4Util.addressForByteBuf(body);
         } catch (final IllegalArgumentException e) {
@@ -131,19 +133,22 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         if (optLength > 0) {
             fillParams(body.slice(), optParams);
         }
-        LOG.debug("BGP Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
-        return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer(holdTime).setBgpIdentifier(bgpId).setBgpParameters(
-            optParams).build();
+        LOG.debug("BGP Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as,
+                holdTime, bgpId, optParams);
+        return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer(holdTime)
+                .setBgpIdentifier(bgpId).setBgpParameters(optParams).build();
     }
 
     private void fillParams(final ByteBuf buffer, final List<BgpParameters> params) throws BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "BUffer cannot be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Buffer cannot be null or empty.");
         if (LOG.isTraceEnabled()) {
             LOG.trace("Started parsing of BGP parameter: {}", ByteBufUtil.hexDump(buffer));
         }
         while (buffer.isReadable()) {
             if (buffer.readableBytes() <= 2) {
-                throw new BGPDocumentedException("Malformed parameter encountered (" + buffer.readableBytes() + " bytes left)", BGPError.OPT_PARAM_NOT_SUPPORTED);
+                throw new BGPDocumentedException("Malformed parameter encountered (" + buffer.readableBytes()
+                        + " bytes left)", BGPError.OPT_PARAM_NOT_SUPPORTED);
             }
             final int paramType = buffer.readUnsignedByte();
             final int paramLength = buffer.readUnsignedByte();

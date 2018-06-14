@@ -26,13 +26,16 @@ public final class OriginatorIdAttributeParser implements AttributeParser,Attrib
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
-        Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH, "Length of byte array for ORIGINATOR_ID should be %s, but is %s", Ipv4Util.IP4_LENGTH, buffer.readableBytes());
+        Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH,
+                "Length of byte array for ORIGINATOR_ID should be %s, but is %s",
+                Ipv4Util.IP4_LENGTH, buffer.readableBytes());
         builder.setOriginatorId(new OriginatorIdBuilder().setOriginator(Ipv4Util.addressForByteBuf(buffer)).build());
     }
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final OriginatorId originator = ((Attributes) attribute).getOriginatorId();
         if (originator == null) {
             return;

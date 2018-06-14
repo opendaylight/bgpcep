@@ -65,9 +65,11 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     * @throws BGPDocumentedException
     */
     @VisibleForTesting
-    public static Community parseCommunity(final ReferenceCache refCache, final ByteBuf buffer) throws BGPDocumentedException {
+    public static Community parseCommunity(final ReferenceCache refCache, final ByteBuf buffer)
+            throws BGPDocumentedException {
         if (buffer.readableBytes() != COMMUNITY_LENGTH) {
-            throw new BGPDocumentedException("Community with wrong length: " + buffer.readableBytes(), BGPError.OPT_ATTR_ERROR);
+            throw new BGPDocumentedException("Community with wrong length: "
+                    + buffer.readableBytes(), BGPError.OPT_ATTR_ERROR);
         }
         final byte[] body = ByteArray.getBytes(buffer, COMMUNITY_LENGTH);
         if (Arrays.equals(body, NO_EXPORT)) {
@@ -92,6 +94,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
             communitiesBuffer.writeShort(community.getAsNumber().getValue().shortValue());
             communitiesBuffer.writeShort(community.getSemantics().shortValue());
         }
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, communitiesBuffer, byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE,
+                TYPE, communitiesBuffer, byteAggregator);
     }
 }

@@ -28,7 +28,8 @@ public class BgpExtendedMessageCapabilityHandlerTest {
         final ByteBuf buffer = Unpooled.buffer(bgpExeBytes.length);
         handler.serializeCapability(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY, buffer);
         Assert.assertArrayEquals(bgpExeBytes, buffer.array());
-        Assert.assertEquals(handler.parseCapability(Unpooled.wrappedBuffer(bgpExeBytes)), BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY);
+        Assert.assertEquals(handler.parseCapability(Unpooled.wrappedBuffer(bgpExeBytes)),
+                BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY);
 
         final byte[] bgpExeBytes2 = {(byte) 0x40, (byte) 0x06};
         buffer.clear();

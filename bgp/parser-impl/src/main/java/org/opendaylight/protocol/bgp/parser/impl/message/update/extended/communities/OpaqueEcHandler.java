@@ -25,7 +25,8 @@ public final class OpaqueEcHandler extends AbstractOpaqueExtendedCommunity {
     private static final int SUBTYPE = 0;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
         return new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(
                 new OpaqueExtendedCommunityBuilder()
                     .setValue(ByteArray.readAllBytes(buffer))
@@ -35,8 +36,10 @@ public final class OpaqueEcHandler extends AbstractOpaqueExtendedCommunity {
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(extendedCommunity instanceof OpaqueExtendedCommunityCase,
-                "The extended community %s is not OpaqueExtendedCommunityCase type.", extendedCommunity);
-        final OpaqueExtendedCommunity opaqueExtendedCommunity = ((OpaqueExtendedCommunityCase) extendedCommunity).getOpaqueExtendedCommunity();
+                "The extended community %s is not OpaqueExtendedCommunityCase type.",
+                extendedCommunity);
+        final OpaqueExtendedCommunity opaqueExtendedCommunity
+                = ((OpaqueExtendedCommunityCase) extendedCommunity).getOpaqueExtendedCommunity();
         byteAggregator.writeBytes(opaqueExtendedCommunity.getValue());
     }
 

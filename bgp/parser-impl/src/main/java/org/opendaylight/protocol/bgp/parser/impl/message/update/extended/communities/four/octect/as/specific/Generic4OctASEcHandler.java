@@ -23,17 +23,21 @@ public final class Generic4OctASEcHandler extends Abstract4OctetAsExtendedCommun
     private static final int SUBTYPE = 4;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf body) throws BGPDocumentedException, BGPParsingException {
-        return new As4GenericSpecExtendedCommunityCaseBuilder().setAs4GenericSpecExtendedCommunity(new As4GenericSpecExtendedCommunityBuilder()
-            .setAs4SpecificCommon(FourOctAsCommonECUtil.parseCommon(body)).build()).build();
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf body)
+            throws BGPDocumentedException, BGPParsingException {
+        return new As4GenericSpecExtendedCommunityCaseBuilder()
+                .setAs4GenericSpecExtendedCommunity(new As4GenericSpecExtendedCommunityBuilder()
+                        .setAs4SpecificCommon(FourOctAsCommonECUtil.parseCommon(body)).build()).build();
     }
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf body) {
         Preconditions.checkArgument(extendedCommunity instanceof As4GenericSpecExtendedCommunityCase,
-            "The extended community %s is not As4GenericSpecExtendedCommunityCase type.", extendedCommunity);
-        FourOctAsCommonECUtil.serializeCommon(((As4GenericSpecExtendedCommunityCase) extendedCommunity).getAs4GenericSpecExtendedCommunity()
-            .getAs4SpecificCommon(), body);
+                "The extended community %s is not As4GenericSpecExtendedCommunityCase type.",
+                extendedCommunity);
+        FourOctAsCommonECUtil.serializeCommon(((As4GenericSpecExtendedCommunityCase) extendedCommunity)
+                .getAs4GenericSpecExtendedCommunity()
+                .getAs4SpecificCommon(), body);
     }
 
     @Override

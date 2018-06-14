@@ -26,13 +26,16 @@ public final class NextHopAttributeParser implements AttributeParser, AttributeS
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
-        Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH, "Length of byte array for NEXT_HOP should be %s, but is %s", buffer.readableBytes(), Ipv4Util.IP4_LENGTH);
+        Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH,
+                "Length of byte array for NEXT_HOP should be %s, but is %s",
+                buffer.readableBytes(), Ipv4Util.IP4_LENGTH);
         builder.setCNextHop(NextHopUtil.parseNextHop(buffer));
     }
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final CNextHop cNextHop = ((Attributes) attribute).getCNextHop();
         if (cNextHop == null) {
             return;

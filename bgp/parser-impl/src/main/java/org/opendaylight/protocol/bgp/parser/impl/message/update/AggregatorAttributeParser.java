@@ -51,17 +51,20 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         final Aggregator aggregator = pathAttributes.getAggregator();
         if (aggregator == null) {
             return;
         }
-        Preconditions.checkArgument(aggregator.getAsNumber() != null, "Missing AS number that formed the aggregate route (encoded as 2 octets).");
+        Preconditions.checkArgument(aggregator.getAsNumber() != null,
+                "Missing AS number that formed the aggregate route (encoded as 2 octets).");
         final ShortAsNumber shortAsNumber = new ShortAsNumber(aggregator.getAsNumber());
         final ByteBuf buffer = Unpooled.buffer();
         buffer.writeInt(shortAsNumber.getValue().intValue());
         buffer.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, buffer, byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE,
+                TYPE, buffer, byteAggregator);
     }
 }

@@ -36,11 +36,13 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
 
     public static final int TYPE = 5;
     private static final int TRIPLET_BYTE_SIZE = 4;
+    private static final String ARGUMENT_ERROR = "Message is not of type RouteRefresh.";
 
     private final AddressFamilyRegistry afiReg;
     private final SubsequentAddressFamilyRegistry safiReg;
 
-    public BGPRouteRefreshMessageParser(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+    public BGPRouteRefreshMessageParser(final AddressFamilyRegistry afiReg,
+            final SubsequentAddressFamilyRegistry safiReg) {
         this.afiReg = requireNonNull(afiReg);
         this.safiReg = requireNonNull(safiReg);
     }
@@ -53,11 +55,12 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
      */
     @Override
     public void serializeMessage(final Notification message, final ByteBuf bytes) {
-        Preconditions.checkArgument(message instanceof RouteRefresh, "Message is not of type RouteRefresh.");
+        Preconditions.checkArgument(message instanceof RouteRefresh, ARGUMENT_ERROR);
         final RouteRefresh msg = (RouteRefresh) message;
 
         final ByteBuf msgBuf = Unpooled.buffer(TRIPLET_BYTE_SIZE);
-        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, msg.getAfi(), msg.getSafi(), msgBuf);
+        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg,
+                msg.getAfi(), msg.getSafi(), msgBuf);
 
         LOG.trace("RouteRefresh message serialized to: {}", ByteBufUtil.hexDump(msgBuf));
         MessageUtil.formatMessage(TYPE, msgBuf, bytes);
@@ -77,9 +80,11 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
         if (body.readableBytes() < TRIPLET_BYTE_SIZE) {
             throw BGPDocumentedException.badMessageLength("RouteRefresh message is too small.", messageLength);
         }
-        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(body, this.afiReg, this.safiReg);
+        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(body, this.afiReg,
+                this.safiReg);
         if (!parsedAfiSafi.isPresent()) {
-            throw new BGPDocumentedException("Unsupported afi/safi in Route Refresh message.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
+            throw new BGPDocumentedException("Unsupported afi/safi in Route Refresh message.",
+                    BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
         }
         return new RouteRefreshBuilder(parsedAfiSafi.get()).build();
     }

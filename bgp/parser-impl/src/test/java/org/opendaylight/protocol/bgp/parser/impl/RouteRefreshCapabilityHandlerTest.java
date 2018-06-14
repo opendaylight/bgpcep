@@ -31,7 +31,8 @@ public class RouteRefreshCapabilityHandlerTest {
 
     @Test
     public void testRRCapHandler() throws BGPDocumentedException, BGPParsingException {
-        final CParameters expectedParams = new CParametersBuilder().addAugmentation(CParameters1.class,new CParameters1Builder().setRouteRefreshCapability(
+        final CParameters expectedParams = new CParametersBuilder().addAugmentation(CParameters1.class,
+                new CParameters1Builder().setRouteRefreshCapability(
             new RouteRefreshCapabilityBuilder().build()).build()).build();
         assertEquals(expectedParams, HANDLER.parseCapability(Unpooled.copiedBuffer(OK_BYTES)));
         assertEquals(expectedParams, HANDLER.parseCapability(Unpooled.copiedBuffer(WRONG_BYTES)));
@@ -40,7 +41,8 @@ public class RouteRefreshCapabilityHandlerTest {
         HANDLER.serializeCapability(expectedParams, byteAggregator);
         assertEquals(Unpooled.copiedBuffer(CAP_BYTES), byteAggregator);
 
-        final CParameters missingCap = new CParametersBuilder().addAugmentation(CParameters1.class,new CParameters1Builder().setRouteRefreshCapability(
+        final CParameters missingCap = new CParametersBuilder().addAugmentation(CParameters1.class,
+                new CParameters1Builder().setRouteRefreshCapability(
             null).build()).build();
         final ByteBuf byteAggregator2 = Unpooled.buffer(0);
         HANDLER.serializeCapability(missingCap, byteAggregator2);

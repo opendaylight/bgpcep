@@ -25,18 +25,21 @@ public final class CommunityUtil {
      * advertised outside a BGP confederation boundary (a stand-alone autonomous system that is not part of a
      * confederation should be considered a confederation itself).
      */
-    public static final Community NO_EXPORT = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF01);
+    public static final Community NO_EXPORT
+            = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF01);
     /**
      * NO_ADVERTISE community. All routes received carrying a communities attribute containing this value MUST NOT be
      * advertised to other BGP peers.
      */
-    public static final Community NO_ADVERTISE = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF02);
+    public static final Community NO_ADVERTISE
+            = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF02);
     /**
      * NO_EXPORT_SUBCONFED community. All routes received carrying a communities attribute containing this value MUST
      * NOT be advertised to external BGP peers (this includes peers in other members autonomous systems inside a BGP
      * confederation).
      */
-    public static final Community NO_EXPORT_SUBCONFED = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF03);
+    public static final Community NO_EXPORT_SUBCONFED
+            = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF03);
 
     private final ReferenceCache refCache;
 

@@ -73,12 +73,13 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
         }
         final int errorCode = body.readUnsignedByte();
         final int errorSubcode = body.readUnsignedByte();
-        final NotifyBuilder builder = new NotifyBuilder().setErrorCode((short) errorCode).setErrorSubcode((short) errorSubcode);
+        final NotifyBuilder builder = new NotifyBuilder()
+                .setErrorCode((short) errorCode).setErrorSubcode((short) errorSubcode);
         if (body.isReadable()) {
             builder.setData(ByteArray.readAllBytes(body));
         }
-        LOG.debug("BGP Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
-            Arrays.toString(builder.getData()));
+        LOG.debug("BGP Notification message was parsed: err = {}, data = {}.",
+                BGPError.forValue(errorCode, errorSubcode), Arrays.toString(builder.getData()));
         return builder.build();
     }
 }

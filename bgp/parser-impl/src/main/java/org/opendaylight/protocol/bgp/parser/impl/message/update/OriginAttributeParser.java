@@ -36,7 +36,8 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
         final byte rawOrigin = buffer.readByte();
         final BgpOrigin borigin = BgpOrigin.forValue(UnsignedBytes.toInt(rawOrigin));
         if (borigin == null) {
-            throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID, new byte[] { (byte) 0x01, (byte) 0x01, rawOrigin} );
+            throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID,
+                    new byte[] { (byte) 0x01, (byte) 0x01, rawOrigin} );
         }
         switch (borigin) {
         case Egp:
@@ -55,11 +56,14 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Origin origin = ((Attributes) attribute).getOrigin();
         if (origin == null) {
             return;
         }
-        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE, Unpooled.wrappedBuffer(new byte[] {UnsignedBytes.checkedCast(origin.getValue().getIntValue())}), byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE,
+                Unpooled.wrappedBuffer(new byte[] {UnsignedBytes.checkedCast(origin.getValue().getIntValue())}),
+                byteAggregator);
     }
 }

@@ -39,7 +39,8 @@ public final class BgpPrefixSidAttributeParser implements AttributeParser, Attri
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         final BgpPrefixSid prefixSid = pathAttributes.getBgpPrefixSid();
         if (prefixSid == null) {
@@ -51,7 +52,8 @@ public final class BgpPrefixSidAttributeParser implements AttributeParser, Attri
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException, BGPParsingException {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder)
+            throws BGPDocumentedException, BGPParsingException {
         final BgpPrefixSidBuilder sid = new BgpPrefixSidBuilder();
         final List<BgpPrefixSidTlvs> tlvList = new ArrayList<>();
         while (buffer.isReadable()) {

@@ -37,7 +37,8 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException, BGPParsingException {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder)
+            throws BGPDocumentedException, BGPParsingException {
         final List<ExtendedCommunities> set = new ArrayList<>();
         while (buffer.isReadable()) {
             final ExtendedCommunities exComm = this.ecReg.parseExtendedCommunity(buffer);
@@ -50,7 +51,8 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final List<ExtendedCommunities> communitiesList = ((Attributes) attribute).getExtendedCommunities();
         if (communitiesList == null || communitiesList.isEmpty()) {
             return;
@@ -60,7 +62,8 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
             this.ecReg.serializeExtendedCommunity(extendedCommunities, extendedCommunitiesBuffer);
         }
         if (extendedCommunitiesBuffer.readableBytes() > 0) {
-            AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, extendedCommunitiesBuffer, byteAggregator);
+            AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE,
+                    extendedCommunitiesBuffer, byteAggregator);
         }
     }
 }

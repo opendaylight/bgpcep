@@ -25,7 +25,8 @@ public class UnrecognizedAttributesSerializer implements AttributeSerializer {
 
     @Override
     public void serializeAttribute(final DataObject attributes, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attributes instanceof Attributes, "Attributes parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attributes instanceof Attributes,
+                "Attributes parameter is not a PathAttribute object.");
         final List<UnrecognizedAttributes> unrecognizedAttrs = ((Attributes) attributes).getUnrecognizedAttributes();
         if (unrecognizedAttrs == null) {
             return;
@@ -39,7 +40,8 @@ public class UnrecognizedAttributesSerializer implements AttributeSerializer {
             if (unrecognizedAttr.isTransitive()) {
                 flags |= AttributeUtil.TRANSITIVE;
             }
-            AttributeUtil.formatAttribute(flags, unrecognizedAttr.getType(), Unpooled.wrappedBuffer(unrecognizedAttr.getValue()), byteAggregator);
+            AttributeUtil.formatAttribute(flags, unrecognizedAttr.getType(),
+                    Unpooled.wrappedBuffer(unrecognizedAttr.getValue()), byteAggregator);
         }
     }
 

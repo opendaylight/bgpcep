@@ -30,7 +30,8 @@ public final class BGPKeepAliveMessageParser implements MessageParser, MessageSe
     @Override
     public Keepalive parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
         if (body.isReadable()) {
-            throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
+            throw BGPDocumentedException.badMessageLength("Message length field not within valid range.",
+                    messageLength);
         }
         return KEEPALIVE_MSG;
     }

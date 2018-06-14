@@ -30,11 +30,13 @@ public final class LocalPreferenceAttributeParser implements AttributeParser,Att
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        Preconditions.checkArgument(attribute instanceof Attributes,
+                "Attribute parameter is not a PathAttribute object.");
         final LocalPref lp = ((Attributes) attribute).getLocalPref();
         if (lp == null) {
             return;
         }
-        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE, Unpooled.copyInt(lp.getPref().intValue()), byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE,
+                Unpooled.copyInt(lp.getPref().intValue()), byteAggregator);
     }
 }
