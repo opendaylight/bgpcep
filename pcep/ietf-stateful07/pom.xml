@@ -60,7 +60,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-base-parser</artifactId>
         </dependency>
-
         <!--
             FIXME: this is in support of the generated code. This should not
                    be here, but the plugin should bring it in.
@@ -100,10 +99,6 @@
             <artifactId>netty-buffer</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -114,10 +109,6 @@
         </dependency>
 
         <!--test dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
