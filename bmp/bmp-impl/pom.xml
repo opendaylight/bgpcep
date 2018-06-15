@@ -31,10 +31,6 @@
             <artifactId>bgp-bmp-parser-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-broker-impl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-bmp-spi</artifactId>
         </dependency>
@@ -56,6 +52,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-parser-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-api</artifactId>
         </dependency>
         <dependency>
@@ -69,6 +69,10 @@
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>yang-binding</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-common-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
@@ -92,15 +96,19 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-generator-impl</artifactId>
+            <artifactId>mdsal-binding-dom-codec</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-codec</artifactId>
+            <artifactId>mdsal-singleton-common-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -124,10 +132,6 @@
             <classifier>linux-x86_64</classifier>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -138,6 +142,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-parser-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-parser-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -159,19 +167,7 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-model-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>config-loader-spi</artifactId>
-        </dependency>
         <!-- test dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>

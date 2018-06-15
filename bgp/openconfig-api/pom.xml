@@ -59,14 +59,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-rib-api</artifactId>
+            <artifactId>bgp-concepts</artifactId>
         </dependency>
-
-        <!-- test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-api</artifactId>
         </dependency>
     </dependencies>
 
