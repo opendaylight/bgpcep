@@ -147,7 +147,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     private void scheduleFailTimer() {
-        this.failTimer = this.channel.eventLoop().schedule((Runnable) () -> {
+        this.failTimer = this.channel.eventLoop().schedule(() -> {
             switch (AbstractPCEPSessionNegotiator.this.state) {
             case FINISHED:
             case IDLE:

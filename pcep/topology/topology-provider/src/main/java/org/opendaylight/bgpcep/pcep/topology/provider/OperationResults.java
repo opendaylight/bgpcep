@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
@@ -50,13 +49,13 @@ final class OperationResults implements OperationResult {
 
     public static OperationResults createFailed(final List<Errors> errors) {
         final List<Errors> e = errors != null ? errors : Collections.emptyList();
-        return new OperationResults(FailureType.Failed, Lists.transform(e, CONVERT_ERRORS));
+        return new OperationResults(FailureType.Failed, e.stream().map(CONVERT_ERRORS).collect(Collectors.toList()));
     }
 
     public static OperationResults createUnsent(final PCEPErrors error) {
         final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error))
                 : Collections.emptyList();
-        return new OperationResults(FailureType.Unsent, e.stream().map(CONVERT_ERRORS::apply)
+        return new OperationResults(FailureType.Unsent, e.stream().map(CONVERT_ERRORS)
                 .collect(Collectors.toList()));
     }
 

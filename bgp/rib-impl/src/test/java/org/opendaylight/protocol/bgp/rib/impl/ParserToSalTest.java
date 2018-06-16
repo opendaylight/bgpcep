@@ -162,7 +162,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
                 for (final Tables table : tables) {
                     if (table.getAfi().equals(tableType.getAfi()) && table.getSafi().equals(tableType.getSafi())) {
                         found = true;
-                        assertEquals(Boolean.valueOf(true), table.getAttributes().isUptodate());
+                        assertEquals(Boolean.TRUE, table.getAttributes().isUptodate());
                     }
                 }
                 assertTrue(found);

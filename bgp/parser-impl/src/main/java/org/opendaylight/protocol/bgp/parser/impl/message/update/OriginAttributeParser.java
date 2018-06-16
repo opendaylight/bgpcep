@@ -48,7 +48,6 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
                 builder.setOrigin(INC);
                 return;
             default:
-                return;
         }
     }
 

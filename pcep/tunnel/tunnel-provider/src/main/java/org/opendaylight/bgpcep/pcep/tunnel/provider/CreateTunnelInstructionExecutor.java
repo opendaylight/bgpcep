@@ -40,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.add.lsp.args.Arguments;
@@ -154,7 +153,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             AddLspInput addLspInput = createAddLspInput(transaction);
 
             return Futures.transform(
-                    (ListenableFuture<RpcResult<AddLspOutput>>) this.topologyService.addLsp(addLspInput),
+                    this.topologyService.addLsp(addLspInput),
                     RpcResult::getResult, MoreExecutors.directExecutor());
         }
     }

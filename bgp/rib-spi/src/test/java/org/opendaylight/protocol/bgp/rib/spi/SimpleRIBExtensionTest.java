@@ -53,7 +53,7 @@ public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
             Mockito.doReturn(Route.class).when(support).routesListClass();
             Mockito.doReturn(DataObject.class).when(support).routesContainerClass();
             Mockito.doReturn(DataObject.class).when(support).routesCaseClass();
-            return Collections.singletonList((AutoCloseable) context.registerRIBSupport(Ipv4AddressFamily.class,
+            return Collections.singletonList(context.registerRIBSupport(Ipv4AddressFamily.class,
                     UnicastSubsequentAddressFamily.class, support));
         }
     }

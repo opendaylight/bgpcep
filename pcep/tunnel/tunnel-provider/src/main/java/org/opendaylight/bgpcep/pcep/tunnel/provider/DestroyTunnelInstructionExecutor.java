@@ -21,7 +21,6 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RemoveLspInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepDestroyTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -39,7 +38,7 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
     private final NetworkTopologyPcepService topologyService;
 
     DestroyTunnelInstructionExecutor(final PcepDestroyTunnelInput pcepDestroyTunnelInput, final DataBroker dataProvider,
-        final NetworkTopologyPcepService topologyService) {
+            final NetworkTopologyPcepService topologyService) {
         super(pcepDestroyTunnelInput);
         this.pcepDestroyTunnelInput = pcepDestroyTunnelInput;
         this.dataProvider = dataProvider;
@@ -66,8 +65,8 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
             ab.setName(link.augmentation(Link1.class).getSymbolicPathName());
             ab.setNode(node.getSupportingNode().get(0).key().getNodeRef());
             return Futures.transform(
-                (ListenableFuture<RpcResult<RemoveLspOutput>>) this.topologyService.removeLsp(ab.build()),
-                RpcResult::getResult, MoreExecutors.directExecutor());
+                    this.topologyService.removeLsp(ab.build()),
+                    RpcResult::getResult, MoreExecutors.directExecutor());
         }
     }
 }
