@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 import io.netty.buffer.Unpooled;
@@ -47,7 +48,7 @@ public class BandwidthTest {
         assertThat(this.b1, equalTo(this.b1));
         assertThat(this.b1, not(equalTo(this.b2)));
         assertEquals(this.b2, this.b3);
-        assertFalse(this.b1.equals(new Object()));
+        assertNotEquals(this.b1, new Object());
     }
 
     @Test

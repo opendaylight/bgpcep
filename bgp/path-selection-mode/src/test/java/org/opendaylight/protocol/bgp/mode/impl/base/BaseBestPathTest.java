@@ -56,6 +56,6 @@ public class BaseBestPathTest {
 
     @Test
     public void testToString() {
-        assertTrue(this.baseBestPath.toString().equals(this.baseBestPathCopy.toString()));
+        assertEquals(this.baseBestPath.toString(), this.baseBestPathCopy.toString());
     }
 }
