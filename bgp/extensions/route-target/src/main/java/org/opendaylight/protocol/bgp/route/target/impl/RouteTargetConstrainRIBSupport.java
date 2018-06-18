@@ -1,0 +1,209 @@
+/*
+ * Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.protocol.bgp.route.target.impl;
+
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
+import org.opendaylight.protocol.bgp.route.target.impl.nlri.RouteTargetConstrainNlriHandler;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.bgp.rib.rib.loc.rib.tables.routes.RouteTargetConstrainRoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.bgp.rib.rib.loc.rib.tables.routes.RouteTargetConstrainRoutesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.destination.RouteTargetConstrainDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.destination.RouteTargetConstrainDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.RouteTargetConstrainRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.RouteTargetConstrainRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationRouteTargetConstrainAdvertizedCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.route.target.constrain.advertized._case.DestinationRouteTargetConstrain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.route.target.constrain.advertized._case.DestinationRouteTargetConstrainBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationRouteTargetConstrainWithdrawnCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Route Target Constrains RIBSupport.
+ *
+ * @author Claudio D. Gasparini
+ */
+public final class RouteTargetConstrainRIBSupport
+        extends AbstractRIBSupport<RouteTargetConstrainRoutesCase, RouteTargetConstrainRoutes,
+        RouteTargetConstrainRoute, RouteTargetConstrainRouteKey> {
+    private static final Logger LOG = LoggerFactory.getLogger(RouteTargetConstrainRIBSupport.class);
+
+    private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(RouteTargetConstrainDestination.QNAME);
+    private static final RouteTargetConstrainRoutes EMPTY_CONTAINER
+            = new RouteTargetConstrainRoutesBuilder().setRouteTargetConstrainRoute(Collections.emptyList()).build();
+    private static final RouteTargetConstrainRoutesCase EMPTY_CASE =
+            new RouteTargetConstrainRoutesCaseBuilder().setRouteTargetConstrainRoutes(EMPTY_CONTAINER).build();
+    private static RouteTargetConstrainRIBSupport SINGLETON;
+    private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects
+            = ImmutableSet.of(RouteTargetConstrainRoutesCase.class);
+
+    /**
+     * Default constructor. Requires the QName of the container augmented under the routes choice
+     * node in instantiations of the rib grouping. It is assumed that this container is defined by
+     * the same model which populates it with route grouping instantiation, and by extension with
+     * the route attributes container.
+     *
+     * @param mappingService Serialization service
+     */
+    private RouteTargetConstrainRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+        super(mappingService,
+                RouteTargetConstrainRoutesCase.class,
+                RouteTargetConstrainRoutes.class,
+                RouteTargetConstrainRoute.class,
+                Ipv4AddressFamily.class,
+                RouteTargetConstrainSubsequentAddressFamily.class,
+                DestinationRouteTargetConstrain.QNAME);
+    }
+
+    public static synchronized RouteTargetConstrainRIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
+        if (SINGLETON == null) {
+            SINGLETON = new RouteTargetConstrainRIBSupport(mappingService);
+        }
+        return SINGLETON;
+    }
+
+    @Override
+    public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+        return this.cacheableNlriObjects;
+    }
+
+    @Override
+    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
+        return new DestinationRouteTargetConstrainAdvertizedCaseBuilder().setDestinationRouteTargetConstrain(
+                new DestinationRouteTargetConstrainBuilder()
+                        .setRouteTargetConstrainDestination(extractRoutes(routes)).build()).build();
+    }
+
+    @Override
+    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
+        return new DestinationRouteTargetConstrainWithdrawnCaseBuilder()
+                .setDestinationRouteTargetConstrain(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                        .yang.bgp.route.target.constrain.rev180618.update.attributes.mp.unreach.nlri.withdrawn.routes.destination
+                        .type.destination.route.target.constrain.withdrawn._case
+                        .DestinationRouteTargetConstrainBuilder()
+                        .setRouteTargetConstrainDestination(extractRoutes(routes)).build()).build();
+    }
+
+    private List<RouteTargetConstrainDestination> extractRoutes(final Collection<MapEntryNode> routes) {
+        return routes.stream().map(this::extractDestination).collect(Collectors.toList());
+    }
+
+    private RouteTargetConstrainDestination extractDestination(final DataContainerNode<? extends PathArgument> rtDest) {
+        return new RouteTargetConstrainDestinationBuilder()
+                .setPathId(PathIdUtil.buildPathId(rtDest, routePathIdNid()))
+                .setRouteTargetConstrainChoice(extractRouteTargetChoice(rtDest))
+                .build();
+    }
+
+    private RouteTargetConstrainChoice extractRouteTargetChoice(final DataContainerNode<? extends PathArgument> route) {
+        final DataObject nn = this.mappingService.fromNormalizedNode(this.routeDefaultYii, route).getValue();
+        return ((RouteTargetConstrainRoute) nn).getRouteTargetConstrainChoice();
+    }
+
+
+    @Override
+    protected final void processDestination(
+            final DOMDataWriteTransaction tx,
+            final YangInstanceIdentifier routesPath,
+            final ContainerNode destination,
+            final ContainerNode attributes,
+            final ApplyRoute function) {
+        if (destination != null) {
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination
+                    .getChild(NLRI_ROUTES_LIST);
+            if (maybeRoutes.isPresent()) {
+                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+                if (routes instanceof UnkeyedListNode) {
+                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                    for (final UnkeyedListEntryNode rtDest : ((UnkeyedListNode) routes).getValue()) {
+                        final NodeIdentifierWithPredicates routeKey = createRouteKey(rtDest);
+                        function.apply(tx, base, routeKey, rtDest, attributes);
+                    }
+                } else {
+                    LOG.warn("Routes {} are not a map", routes);
+                }
+            }
+        }
+    }
+
+    private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode routeTarget) {
+        final ByteBuf buffer = Unpooled.buffer();
+        final RouteTargetConstrainDestination dest = extractDestination(routeTarget);
+        RouteTargetConstrainNlriHandler.serializeNlri(Collections.singletonList(dest), buffer);
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
+                routeTarget.getChild(routePathIdNid());
+        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
+                pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+    }
+
+    @Override
+    public RouteTargetConstrainRoute createRoute(
+            final RouteTargetConstrainRoute route,
+            final String routeKey,
+            final long pathId,
+            final Attributes attributes) {
+        final RouteTargetConstrainRouteBuilder builder;
+        if (route != null) {
+            builder = new RouteTargetConstrainRouteBuilder(route);
+        } else {
+            builder = new RouteTargetConstrainRouteBuilder();
+        }
+        return builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+    }
+
+
+    @Override
+    public RouteTargetConstrainRoutesCase emptyRoutesCase() {
+        return EMPTY_CASE;
+    }
+
+
+    @Override
+    public RouteTargetConstrainRoutes emptyRoutesContainer() {
+        return EMPTY_CONTAINER;
+    }
+
+
+    @Override
+    public RouteTargetConstrainRouteKey createRouteListKey(final long pathId, final String routeKey) {
+        return new RouteTargetConstrainRouteKey(new PathId(pathId), routeKey);
+    }
+}
