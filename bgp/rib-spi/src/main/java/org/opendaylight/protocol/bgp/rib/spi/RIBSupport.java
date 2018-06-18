@@ -180,18 +180,6 @@ public interface RIBSupport<
             @Nonnull PathArgument routeId);
 
     /**
-     * Indicate whether this AFI/SAFI combination is a complex route. Simple routes are those which
-     * only have their key and attributes, complex routes are those which include more structured data.
-     *
-     * @return True if this is a complex route, false otherwise.
-     * @deprecated All routes are complex.
-     */
-    @Deprecated
-    default boolean isComplexRoute() {
-        return true;
-    }
-
-    /**
      * To send routes out, we'd need to transform the DOM representation of route to
      * binding-aware format. This needs to be done per each AFI/SAFI.
      *
