@@ -79,6 +79,9 @@
                     <afi-safi>
                         <afi-safi-name>IPV6-MCAST-VPN</afi-safi-name>
                     </afi-safi>
+                    <afi-safi>
+                        <afi-safi-name>ROUTE-TARGET</afi-safi-name>
+                    </afi-safi>
                 </afi-safis>
             </global>
             <neighbors>
@@ -178,6 +181,9 @@
                         <afi-safi>
                             <afi-safi-name>IPV6-MCAST-VPN</afi-safi-name>
                         </afi-safi>
+                        <afi-safi>
+                            <afi-safi-name>ROUTE-TARGET</afi-safi-name>
+                        </afi-safi>
                     </afi-safis>
                 </peer-group>
                 <peer-group>
@@ -240,6 +246,9 @@
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV6-MCAST-VPN</afi-safi-name>
+                        </afi-safi>
+                        <afi-safi>
+                            <afi-safi-name>ROUTE-TARGET</afi-safi-name>
                         </afi-safi>
                     </afi-safis>
                 </peer-group>
