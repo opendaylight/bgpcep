@@ -32,6 +32,7 @@
         <module>labeled-unicast</module>
         <module>evpn</module>
         <module>mvpn</module>
+        <module>route-target</module>
     </modules>
 
     <dependencies>
