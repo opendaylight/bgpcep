@@ -58,12 +58,6 @@
         <module>openconfig-rp-impl</module>
         <module>openconfig-rp-statement</module>
         <!--Extensions-->
-        <module>inet</module>
-        <module>linkstate</module>
-        <module>flowspec</module>
-        <module>l3vpn</module>
-        <module>labeled-unicast</module>
-        <module>evpn</module>
-        <module>mvpn</module>
+        <module>extensions</module>
     </modules>
 </project>
