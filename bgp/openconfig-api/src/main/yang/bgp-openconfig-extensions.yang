@@ -95,6 +95,13 @@ module bgp-openconfig-extensions {
         reference "RFC6514";
     }
 
+    identity ROUTE-TARGET-CONSTRAIN {
+        base bgp-types:afi-safi-type;
+        description
+            "Route Target constrains (AFI,SAFI = 1,132)";
+        reference "RFC4684";
+    }
+
     grouping transport-config {
         leaf remote-port {
             type inet:port-number;
