@@ -46,14 +46,14 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communi
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.OpaqueEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteOriginAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteOriginIpv4EcHandler;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteTargetAsTwoOctetEcHandler;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteTargetIpv4EcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.SourceAS4OctectHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.SourceASHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.VrfRouteImportHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.Generic4OctASEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteOrigin4OctectASEcHandler;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteTarget4OctectASEcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.rt.RouteTarget4OctectASEcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.rt.RouteTargetAsTwoOctetEcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.rt.RouteTargetIpv4EcHandler;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;

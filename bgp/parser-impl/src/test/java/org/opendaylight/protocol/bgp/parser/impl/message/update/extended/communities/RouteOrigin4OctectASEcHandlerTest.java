@@ -27,10 +27,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class RouteOrigin4OctectASEcHandlerTest {
 
-    static final byte[] INPUT = {
+    public static final byte[] INPUT = {
         0, 0, 0, 20, 0, 100
     };
-    static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder().setAsNumber(new AsNumber(20L))
+    public static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder().setAsNumber(new AsNumber(20L))
         .setLocalAdministrator(100).build();
     RouteOrigin4OctectASEcHandler handler;
 
