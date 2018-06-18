@@ -17,21 +17,15 @@
         <relativePath>../../../single-feature-parent</relativePath>
     </parent>
 
-    <artifactId>odl-bgpcep-bgp-mvpn</artifactId>
+    <artifactId>odl-bgpcep-bgp-route-target</artifactId>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: BGP :: Mvpn</name>
+    <name>OpenDaylight :: BGP :: Route Target Constrains</name>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-mvpn</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-extensions-api</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
+            <artifactId>bgp-route-target</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
