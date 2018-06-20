@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
+package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.route.target;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteTargetExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteTargetExtendedCommunityCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.route.target.extended.community._case.RouteTargetExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.extended.community.grouping.RouteTargetExtendedCommunityBuilder;
 
 public class RouteTargetAsTwoOctetEcHandlerTest {
 
@@ -29,9 +29,11 @@ public class RouteTargetAsTwoOctetEcHandlerTest {
     @Test
     public void testHandler() throws BGPDocumentedException, BGPParsingException {
         final RouteTargetAsTwoOctetEcHandler handler = new RouteTargetAsTwoOctetEcHandler();
-        final RouteTargetExtendedCommunityCase expected = new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
-                new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(new ShortAsNumber(35L)).setLocalAdministrator(
-                        new byte[] { 4, 2, 8, 7 }).build()).build();
+        final RouteTargetExtendedCommunityCase expected = new RouteTargetExtendedCommunityCaseBuilder()
+                .setRouteTargetExtendedCommunity(new RouteTargetExtendedCommunityBuilder()
+                        .setGlobalAdministrator(new ShortAsNumber(35L))
+                        .setLocalAdministrator(new byte[]{4, 2, 8, 7})
+                        .build()).build();
 
         final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
         Assert.assertEquals(expected, exComm);

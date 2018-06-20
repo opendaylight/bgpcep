@@ -301,6 +301,38 @@ module bgp-types {
         }
     }
 
+    grouping route-target-extended-community-grouping {
+        container route-target-extended-community {
+            description "Type 0x00 / Subtype 0x02";
+            reference "http://tools.ietf.org/html/rfc4360#section-4";
+
+            leaf global-administrator {
+                type short-as-number;
+            }
+            leaf local-administrator {
+                type binary {
+                    length "4";
+                }
+            }
+        }
+    }
+
+    grouping route-target-ipv4-grouping {
+        container route-target-ipv4 {
+            description "Type 0x01 / Subtype 0x02";
+            reference "http://tools.ietf.org/html/rfc4360#section-4";
+            uses route-ipv4-extended-community;
+        }
+    }
+
+    grouping as-4-route-target-extended-community-grouping {
+        container as-4-route-target-extended-community {
+            description "Type 0x02 / Subtype 0x02";
+            reference "https://tools.ietf.org/html/rfc5668";
+            uses as-4-spec-common;
+        }
+    }
+
     grouping extended-community {
         leaf transitive {
             type boolean;
@@ -343,16 +375,13 @@ module bgp-types {
                 }
             }
             case route-target-extended-community-case {
-                container route-target-extended-community {
-                    leaf global-administrator {
-                        type short-as-number;
-                    }
-                    leaf local-administrator {
-                        type binary {
-                            length "4";
-                        }
-                    }
-                }
+                uses route-target-extended-community-grouping;
+            }
+            case route-target-ipv4-case {
+                uses route-target-ipv4-grouping;
+            }
+            case as-4-route-target-extended-community-case {
+                uses as-4-route-target-extended-community-grouping;
             }
             case route-origin-extended-community-case {
                 container route-origin-extended-community {
@@ -364,12 +393,6 @@ module bgp-types {
                             length "4";
                         }
                     }
-                }
-            }
-            case route-target-ipv4-case {
-                container route-target-ipv4 {
-                    reference "http://tools.ietf.org/html/rfc4360#section-4";
-                    uses route-ipv4-extended-community;
                 }
             }
             case route-origin-ipv4-case {
@@ -386,12 +409,6 @@ module bgp-types {
             case as-4-generic-spec-extended-community-case {
                 container as-4-generic-spec-extended-community {
                     reference "https://www.ietf.org/archive/id/draft-ietf-idr-as4octet-extcomm-generic-subtype-08.txt";
-                    uses as-4-spec-common;
-                }
-            }
-            case as-4-route-target-extended-community-case {
-                container as-4-route-target-extended-community {
-                    reference "https://tools.ietf.org/html/rfc5668";
                     uses as-4-spec-common;
                 }
             }
