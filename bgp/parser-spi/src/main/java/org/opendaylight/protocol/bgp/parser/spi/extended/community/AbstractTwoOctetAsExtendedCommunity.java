@@ -13,7 +13,7 @@ public abstract class AbstractTwoOctetAsExtendedCommunity implements ExtendedCom
 
     private static final int TYPE = 0;
 
-    protected static final int AS_LOCAL_ADMIN_LENGTH = 4;
+    public static final int AS_LOCAL_ADMIN_LENGTH = 4;
 
     @Override
     public final int getType(final boolean isTransitive) {

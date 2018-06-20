@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
+package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.route.target;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
@@ -28,21 +28,20 @@ public final class RouteTargetAsTwoOctetEcHandler extends AbstractTwoOctetAsExte
     private static final int SUBTYPE = 2;
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        final RouteTargetExtendedCommunity targetTarget = new RouteTargetExtendedCommunityBuilder()
-            .setGlobalAdministrator(new ShortAsNumber((long) buffer.readUnsignedShort()))
-            .setLocalAdministrator(ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH))
-            .build();
-        return new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(targetTarget).build();
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
+            throws BGPDocumentedException, BGPParsingException {
+        return new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
+                RouteTargetExtendedCommunityHandler.parse(buffer)).build();
     }
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(extendedCommunity instanceof RouteTargetExtendedCommunityCase,
-                "The extended community %s is not RouteTargetExtendedCommunityCase type.", extendedCommunity);
-        final RouteTargetExtendedCommunity routeTarget = ((RouteTargetExtendedCommunityCase) extendedCommunity).getRouteTargetExtendedCommunity();
-        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(routeTarget.getGlobalAdministrator().getValue()), byteAggregator);
-        byteAggregator.writeBytes(routeTarget.getLocalAdministrator());
+                "The extended community %s is not RouteTargetExtendedCommunityCase type.",
+                extendedCommunity);
+        final RouteTargetExtendedCommunity routeTarget = ((RouteTargetExtendedCommunityCase) extendedCommunity)
+                .getRouteTargetExtendedCommunity();
+        RouteTargetExtendedCommunityHandler.serialize(routeTarget, byteAggregator);
     }
 
     @Override
