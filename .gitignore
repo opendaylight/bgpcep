@@ -36,3 +36,4 @@ maven-eclipse.xml
 .checkstyle
 .factorypath
 .fbExcludeFilterFile
+!**/route/target
