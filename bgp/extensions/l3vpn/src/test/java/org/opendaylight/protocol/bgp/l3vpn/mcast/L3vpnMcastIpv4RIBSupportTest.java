@@ -57,7 +57,7 @@ public class L3vpnMcastIpv4RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
     private static final IpPrefix IPV4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     private static final RouteDistinguisher RD = new RouteDistinguisher(new RdIpv4("1.2.3.4:258"));
     private static final L3vpnMcastRouteKey ROUTE_KEY
-            = new L3vpnMcastRouteKey(PATH_ID, "IAABAQIDBAECIgEWABgAAAA=");
+            = new L3vpnMcastRouteKey(PATH_ID, "IAABAQIDBAECGCIBFgAAAAA=");
     private static final L3vpnMcastRoute ROUTE = new L3vpnMcastRouteBuilder()
             .setRouteKey(ROUTE_KEY.getRouteKey())
             .setPathId(ROUTE_KEY.getPathId())
