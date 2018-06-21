@@ -271,17 +271,18 @@ public class BgpDeployerImplTest {
         verify(spyDeployer, times(3)).onDataTreeChanged(any(Collection.class));
 
         //Delete for existing rib
+        doReturn(createNeighborExpected(IPV4UNICAST.class)).when(this.dObject).getDataBefore();
         doReturn(DELETE).when(this.dObject).getModificationType();
 
         spyDeployer.onDataTreeChanged(this.collection);
-        verifyPrivate(spyDeployer, times(4)).invoke("onGlobalChanged",
+        verifyPrivate(spyDeployer, times(3)).invoke("onGlobalChanged",
                 any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
         verify(this.bundleContext, times(2))
                 .registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
         verify(spyDeployer, times(4)).onDataTreeChanged(any(Collection.class));
-        verify(this.dataTreeRegistration, times(2)).close();
-        verify(this.registration, times(2)).unregister();
+        verify(this.dataTreeRegistration, times(1)).close();
+        verify(this.registration, times(1)).unregister();
         verify(spyDeployer, times(4)).onDataTreeChanged(any(Collection.class));
 
         deployer.close();
@@ -366,8 +367,8 @@ public class BgpDeployerImplTest {
 
         spyDeployer.onDataTreeChanged(this.collection);
         verify(spyDeployer, times(5)).onDataTreeChanged(any(Collection.class));
-        verify(this.dObject).getDataBefore();
-        verifyPrivate(spyDeployer, times(4)).invoke("onNeighborsChanged",
+       // verify(this.dObject).getDataBefore();
+        verifyPrivate(spyDeployer, times(3)).invoke("onNeighborsChanged",
                 any(DataObjectModification.class), any(InstanceIdentifier.class));
         verify(this.bundleContext, times(2))
                 .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
