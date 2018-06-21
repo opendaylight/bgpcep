@@ -17,7 +17,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -105,14 +107,62 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
             final InstanceIdentifier<Bgp> rootIdentifier = dataTreeModification.getRootPath().getRootIdentifier();
             final DataObjectModification<Bgp> rootNode = dataTreeModification.getRootNode();
             LOG.trace("BGP configuration has changed: {}", rootNode);
-            for (final DataObjectModification<? extends DataObject> dataObjectModification :
-                    rootNode.getModifiedChildren()) {
-                if (dataObjectModification.getDataType().equals(Global.class)) {
-                    onGlobalChanged((DataObjectModification<Global>) dataObjectModification, rootIdentifier);
-                } else if (dataObjectModification.getDataType().equals(Neighbors.class)) {
-                    onNeighborsChanged((DataObjectModification<Neighbors>) dataObjectModification, rootIdentifier);
-                }
-            }
+            final List<DataObjectModification<? extends DataObject>> deletedConfig
+                    = rootNode.getModifiedChildren().stream()
+                    .filter(mod -> mod.getModificationType() == DataObjectModification.ModificationType.DELETE)
+                    .collect(Collectors.toList());
+            final List<DataObjectModification<? extends DataObject>> changedConfig = rootNode.getModifiedChildren().stream()
+                    .filter(mod -> mod.getModificationType() != DataObjectModification.ModificationType.DELETE)
+                    .collect(Collectors.toList());
+            handleDeletions(deletedConfig, rootIdentifier);
+            handleModifications(changedConfig, rootIdentifier);
+        }
+    }
+
+    private void handleModifications(final List<DataObjectModification<? extends DataObject>> changedConfig,
+            final InstanceIdentifier<Bgp> rootIdentifier) {
+        final List<DataObjectModification<? extends DataObject>> globalMod = changedConfig.stream()
+                .filter(mod -> mod.getDataType().equals(Global.class))
+                .collect(Collectors.toList());
+        final List<DataObjectModification<? extends DataObject>> peerMod = changedConfig.stream()
+                .filter(mod -> !mod.getDataType().equals(Global.class))
+                .collect(Collectors.toList());
+        if (!globalMod.isEmpty()) {
+            handleGlobalChange(globalMod, rootIdentifier);
+        }
+        if (!peerMod.isEmpty()) {
+            handlePeersChange(peerMod, rootIdentifier);
+        }
+    }
+
+    private void handleDeletions(final List<DataObjectModification<? extends DataObject>> deletedConfig,
+            final InstanceIdentifier<Bgp> rootIdentifier) {
+        final List<DataObjectModification<? extends DataObject>> globalMod = deletedConfig.stream()
+                .filter(mod -> mod.getDataType().equals(Global.class))
+                .collect(Collectors.toList());
+        final List<DataObjectModification<? extends DataObject>> peerMod = deletedConfig.stream()
+                .filter(mod -> !mod.getDataType().equals(Global.class))
+                .collect(Collectors.toList());
+        if (!peerMod.isEmpty()) {
+            handleGlobalChange(peerMod, rootIdentifier);
+        }
+        if (!globalMod.isEmpty()) {
+            handlePeersChange(globalMod, rootIdentifier);
+        }
+    }
+    private void handleGlobalChange(
+            final List<DataObjectModification<? extends DataObject>> config,
+            final InstanceIdentifier<Bgp> rootIdentifier) {
+        for (final DataObjectModification<? extends DataObject> dataObjectModification : config) {
+            onGlobalChanged((DataObjectModification<Global>) dataObjectModification, rootIdentifier);
+        }
+    }
+
+    private void handlePeersChange(
+            final List<DataObjectModification<? extends DataObject>> config,
+            final InstanceIdentifier<Bgp> rootIdentifier) {
+        for (final DataObjectModification<? extends DataObject> dataObjectModification : config) {
+            onNeighborsChanged((DataObjectModification<Neighbors>) dataObjectModification, rootIdentifier);
         }
     }
 
