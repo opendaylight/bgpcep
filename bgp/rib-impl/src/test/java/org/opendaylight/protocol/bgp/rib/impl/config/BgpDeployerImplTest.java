@@ -161,8 +161,8 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
         verify(this.bundleContext, times(2))
                 .registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
-        verify(this.dataTreeRegistration, times(2)).close();
-        verify(this.registration, times(2)).unregister();
+        verify(this.dataTreeRegistration, times(1)).close();
+        verify(this.registration, times(1)).unregister();
 
         deployer.close();
     }
@@ -199,7 +199,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         //Delete existing Peer
         verify(this.bundleContext, times(2))
                 .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
-        verify(this.registration, times(2)).unregister();
+        verify(this.registration, times(3)).unregister();
 
         deployer.close();
     }

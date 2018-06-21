@@ -137,6 +137,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
                     LOG.debug("RIB instance removed {}", this.ribImpl);
                     closeAllBindedPeers();
                     closeRibService();
+                    this.ribImpl = null;
                 }
                 break;
             case SUBTREE_MODIFIED:
