@@ -47,11 +47,7 @@ module bgp-route-target-constrain {
 
         choice route-target-constrain-choice {
             case route-target-constrain-default-case {
-                container route-target-constrain-default-route {
-                    presence
-                        "The presence of this container indicates that the routes
-                        is a default route target";
-                }
+                uses bgp-t:route-target-constrain-default-route-grouping;
             }
             case route-target-constrain-route-case {
                 uses bgp-t:route-target-extended-community-grouping;

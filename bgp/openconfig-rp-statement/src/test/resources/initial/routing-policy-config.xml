@@ -816,6 +816,87 @@
                 </statement>
             </statements>
         </policy-definition>
+        <policy-definition>
+            <name>match-afi-safi-not-in-test</name>
+            <statements>
+                <statement>
+                    <name>match-afi-safi-not-in-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <afi-safi-not-in xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"
+                                             xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-not-in>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>set-originator-id-to-advertizer-router-id</name>
+            <statements>
+                <statement>
+                    <name>set-originator-id-to-advertizer-router-id</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <from-role>
+                                    <role-set>
+                                        /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"]
+                                    </role-set>
+                                </from-role>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-originator-id-to-advertizer-router-id xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>set-local-address-as-next-hop</name>
+            <statements>
+                <statement>
+                    <name>set-local-address-as-next-hop</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <from-role>
+                                    <role-set>
+                                        /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"]
+                                    </role-set>
+                                </from-role>
+                            </match-role-set>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-local-address-as-next-hop xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
+        <policy-definition>
+            <name>vpn-non-member-test</name>
+            <statements>
+                <statement>
+                    <name>vpn-non-member-test</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <vpn-non-member xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <reject-route/>
+                    </actions>
+                </statement>
+            </statements>
+        </policy-definition>
     </policy-definitions>
     <defined-sets>
         <bgp-defined-sets xmlns="http://openconfig.net/yang/bgp-policy">

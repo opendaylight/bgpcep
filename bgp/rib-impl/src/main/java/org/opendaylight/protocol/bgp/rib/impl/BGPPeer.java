@@ -82,6 +82,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -101,6 +102,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private Set<TablesKey> tables = Collections.emptySet();
     private final RIB rib;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
+    private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderRegistry rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private InstanceIdentifier<AdjRibOut> peerRibOutIId;
@@ -499,5 +501,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             return ((BGPSessionStateProvider) this.session).getBGPTransportState();
         }
         return null;
+    }
+
+    @Override
+    public List<RouteTarget> getMemberships() {
+        return this.rtMemberships;
     }
 }

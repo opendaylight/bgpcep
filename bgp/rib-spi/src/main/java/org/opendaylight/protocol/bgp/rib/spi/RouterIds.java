@@ -71,4 +71,9 @@ public final class RouterIds {
         final String inet4Address = InetAddresses.fromInteger(intAddress.intValue()).getHostAddress();
         return new PeerId(BGP_PREFIX.concat(inet4Address));
     }
+
+    public static Ipv4Address inetFromPeerId(@Nonnull final PeerId peerId) {
+        final String inet4Address = peerId.getValue().replace(BGP_PREFIX, "");
+        return new Ipv4Address(inet4Address);
+    }
 }
