@@ -230,6 +230,17 @@ module odl-bgp-policy {
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
+        ext:augment-identifier match-afi-safi-not-in-condition;
+        leaf-list afi-safi-not-in {
+            type identityref {
+              base "bgp-types:afi-safi-type";
+            }
+            description
+              "List of address families which the NLRI must not be within";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
         ext:augment-identifier match-bgp-neighbor-condition;
         uses match-bgp-neighbor-grouping;
     }
@@ -276,6 +287,24 @@ module odl-bgp-policy {
 
         presence "node is present in the config data to use the Cluster Id prepend action";
         description "action to prepend local Cluster Id to the Cluster Id List";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+        ext:augment-identifier set-originator-id-to-advertizer-router-id;
+        container set-originator-id-to-advertizer-router-id {
+
+        presence "node is present in the config data to apply the set-originator-id-to-advertizer-router-id action";
+        description "action to set router-id of the advertiser as Originator attribute";
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+        ext:augment-identifier set-local-address-as-next-hop;
+        container set-local-address-as-next-hop {
+
+        presence "node is present in the config data to apply set-local-address-as-next-hop action";
+        description "action to set local address as next hop";
         }
     }
 

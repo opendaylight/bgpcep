@@ -29,6 +29,7 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condit
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsRestrictedType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.generic.defined.sets.NeighborSets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.neighbor.set.NeighborSet;
@@ -78,6 +79,7 @@ public final class MatchBgpNeighborSetHandler
 
     @Override
     public boolean matchImportCondition(
+            final Class<? extends AfiSafiType> afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters importParameters,
             final Void nonAttributres,
@@ -88,6 +90,7 @@ public final class MatchBgpNeighborSetHandler
 
     @Override
     public boolean matchExportCondition(
+            final Class<? extends AfiSafiType> afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters exportParameters,
             final Void nonAttributres,
