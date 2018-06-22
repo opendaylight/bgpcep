@@ -98,12 +98,12 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
 
     @Override
     public Optional<Attributes> applyImportPolicies(final BGPRouteEntryImportParameters policyParameters,
-            final Attributes attributes, final Class<? extends AfiSafiType> afiSafi) {
+            final Attributes attributes, final Class<? extends AfiSafiType> afiSafiType) {
         RouteAttributeContainer currentAttributes = routeAttributeContainerFalse(attributes);
         for (final String policyName : this.importPolicy) {
             for (final Statement statement : this.statements.getUnchecked(policyName)) {
                 currentAttributes = this.policyRegistry
-                        .applyImportStatement(this.ribBaseParameters, afiSafi, policyParameters, currentAttributes,
+                        .applyImportStatement(this.ribBaseParameters, afiSafiType, policyParameters, currentAttributes,
                                 statement);
             }
         }

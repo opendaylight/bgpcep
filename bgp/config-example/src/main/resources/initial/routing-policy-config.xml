@@ -190,10 +190,14 @@
                         <accept-route/>
                     </actions>
                 </statement>
+                <!--Default -->
                 <statement>
                     <name>from-internal-or-rr-client-to-route-reflector</name>
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <afi-safi-not-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions"
+                                             xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">x:ROUTE-TARGET-CONSTRAIN
+                            </afi-safi-not-in>
                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
                                 <from-role>
                                     <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
@@ -208,6 +212,29 @@
                         <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
                             <set-cluster-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
                             <set-originator-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                        </bgp-actions>
+                    </actions>
+                </statement>
+                <!--Route Target AFI / SAFI specific -->
+                <statement>
+                    <name>from-internal-or-rr-client-to-route-reflector-rt-family</name>
+                    <conditions>
+                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
+                                </from-role>
+                                <to-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
+                                </to-role>
+                            </match-role-set>
+                            <afi-safi-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">x:ROUTE-TARGET-CONSTRAIN</afi-safi-in>
+                        </bgp-conditions>
+                    </conditions>
+                    <actions>
+                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                            <set-originator-id-to-advertizer-router-id xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                            <set-local-address-as-next-hop xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
                         </bgp-actions>
                     </actions>
                 </statement>
