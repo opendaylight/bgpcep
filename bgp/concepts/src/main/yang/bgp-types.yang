@@ -301,10 +301,24 @@ module bgp-types {
         }
     }
 
+    grouping route-target {
+        description "Marker grouping for Route Target extended communities.";
+    }
+
+    grouping route-target-constrain-default-route-grouping {
+        container route-target-constrain-default-route {
+            uses route-target;
+            presence
+                "The presence of this container indicates that the routes
+                is a default route target";
+        }
+    }
+
     grouping route-target-extended-community-grouping {
         container route-target-extended-community {
             description "Type 0x00 / Subtype 0x02";
             reference "http://tools.ietf.org/html/rfc4360#section-4";
+            uses route-target;
 
             leaf global-administrator {
                 type short-as-number;
@@ -321,6 +335,7 @@ module bgp-types {
         container route-target-ipv4 {
             description "Type 0x01 / Subtype 0x02";
             reference "http://tools.ietf.org/html/rfc4360#section-4";
+            uses route-target;
             uses route-ipv4-extended-community;
         }
     }
@@ -329,6 +344,7 @@ module bgp-types {
         container as-4-route-target-extended-community {
             description "Type 0x02 / Subtype 0x02";
             reference "https://tools.ietf.org/html/rfc5668";
+            uses route-target;
             uses as-4-spec-common;
         }
     }

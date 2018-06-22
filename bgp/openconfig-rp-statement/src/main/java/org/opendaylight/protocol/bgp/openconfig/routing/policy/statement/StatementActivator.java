@@ -22,6 +22,8 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetCommunityHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetExtCommunityHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetOriginatorIdPrependHandler;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetOriginatorIdToAdvertizerRouterIdHandler;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchAfiSafiNotInHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchAsPathSetHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchBgpNeighborSetHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchClusterIdSetHandler;
@@ -29,6 +31,7 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditi
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchExtCommunitySetHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchOriginatorIdSetHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchRoleSetHandler;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.VpnNonMemberHandler;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchAsPathSet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchCommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchExtCommunitySet;
@@ -36,13 +39,17 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetCommunity;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetExtCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.LocalAsPathPrepend;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchAfiSafiNotInCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchBgpNeighborCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchClusterIdSetCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchOriginatorIdSetCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchRoleSetCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.NonTransitiveAttributesFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetClusterIdPrepend;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetLocalAddressAsNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetOriginatorIdPrepend;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetOriginatorIdToAdvertizerRouterId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.VpnNonMemberCondition;
 
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
     private final DataBroker dataBroker;
@@ -80,6 +87,12 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
         registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
                 new MatchBgpNeighborSetHandler(this.dataBroker)));
+
+        registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchAfiSafiNotInCondition.class,
+                MatchAfiSafiNotInHandler.getInstance()));
+
+        registration.add(provider.registerBgpConditionsAugmentationPolicy(VpnNonMemberCondition.class,
+                VpnNonMemberHandler.getInstance()));
     }
 
     private void registerActions(final StatementRegistryProvider provider, final List<AutoCloseable> registration) {
@@ -102,5 +115,11 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
         registration.add(provider.registerBgpActionAugmentationPolicy(SetClusterIdPrepend.class,
                 new SetClusterIdPrependHandler()));
+
+        registration.add(provider.registerBgpActionAugmentationPolicy(SetOriginatorIdToAdvertizerRouterId.class,
+                SetOriginatorIdToAdvertizerRouterIdHandler.getInstance()));
+
+        registration.add(provider.registerBgpActionAugmentationPolicy(SetLocalAddressAsNextHop.class,
+                SetLocalAddressAsNextHopHandler.getInstance()));
     }
 }

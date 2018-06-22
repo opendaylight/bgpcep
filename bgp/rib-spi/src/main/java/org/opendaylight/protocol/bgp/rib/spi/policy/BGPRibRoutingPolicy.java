@@ -21,14 +21,14 @@ public interface BGPRibRoutingPolicy {
      *
      * @param policyParameters containing attributes and sender peer information
      * @param attributes       Route attributes
-     * @param afiSafType       Afi Safi Type
+     * @param afiSafiType       Afi Safi Type
      * @return modified route attributes after apply policies
      */
     @Nonnull
     Optional<Attributes> applyImportPolicies(
             @Nonnull BGPRouteEntryImportParameters policyParameters,
             @Nonnull Attributes attributes,
-            @Nonnull Class<? extends AfiSafiType> afiSafType
+            @Nonnull Class<? extends AfiSafiType> afiSafiType
     );
 
     /**
