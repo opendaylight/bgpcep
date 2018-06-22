@@ -92,7 +92,7 @@ final class ConditionsRegistryImpl {
                 if (handler == null) {
                     continue;
                 }
-                if (!handler.matchExportCondition(entryInfo, routeEntryExportParameters,
+                if (!handler.matchExportCondition(afiSafi, entryInfo, routeEntryExportParameters,
                         handler.getConditionParameter(attributes), entry.getValue())) {
                     return false;
                 }
@@ -121,7 +121,7 @@ final class ConditionsRegistryImpl {
                 final ConditionsAugPolicy handler = this.conditionsRegistry.get(entry.getKey());
                 if (handler != null) {
                     final Augmentation<Conditions> conditionConfig = (Augmentation<Conditions>) entry.getValue();
-                    if (!handler.matchImportCondition(entryInfo, routeEntryImportParameters,
+                    if (!handler.matchImportCondition(afiSafi, entryInfo, routeEntryImportParameters,
                             handler.getConditionParameter(attributes), conditionConfig)) {
                         return false;
                     }

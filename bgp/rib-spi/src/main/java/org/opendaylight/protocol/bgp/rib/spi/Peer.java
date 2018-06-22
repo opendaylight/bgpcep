@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
+import org.opendaylight.protocol.bgp.rib.spi.policy.RouteTargetMembershipRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -26,7 +27,7 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 /**
  * Marker interface identifying a BGP peer.
  */
-public interface Peer extends PeerTrackerInformation {
+public interface Peer extends PeerTrackerInformation, RouteTargetMembershipRegistry {
     /**
      * Return peer's symbolic name.
      *
@@ -74,5 +75,5 @@ public interface Peer extends PeerTrackerInformation {
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void initializeRibOut(
             @Nonnull RouteEntryDependenciesContainer entryDep,
-            List<ActualBestPathRoutes<C, S, R, I>> routes);
+            @Nonnull List<ActualBestPathRoutes<C, S, R, I>> routes);
 }
