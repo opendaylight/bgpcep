@@ -1,0 +1,47 @@
+/*
+ * Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.protocol.bgp.rib.impl;
+
+import java.util.Optional;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainAs4ExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainDefaultCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainIpv4RouteCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainRouteCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
+
+/**
+ * @author Claudio D. Gasparini
+ */
+public final class RouteTargetMembeshipUtil {
+    private RouteTargetMembeshipUtil() {
+        throw new UnsupportedOperationException();
+    }
+
+    public static <R extends Route> Optional<RouteTarget> getRT(final R route) {
+        if (!(route instanceof RouteTargetConstrainRoute)) {
+            return Optional.empty();
+        }
+
+        final RouteTargetConstrainChoice rtc = ((RouteTargetConstrainRoute) route).getRouteTargetConstrainChoice();
+        RouteTarget rt;
+        if (rtc instanceof RouteTargetConstrainDefaultCase) {
+            rt = ((RouteTargetConstrainDefaultCase) rtc).getRouteTargetConstrainDefaultRoute();
+        } else if (rtc instanceof RouteTargetConstrainAs4ExtendedCommunityCase) {
+            rt = ((RouteTargetConstrainAs4ExtendedCommunityCase) rtc).getAs4RouteTargetExtendedCommunity();
+        } else if (rtc instanceof RouteTargetConstrainIpv4RouteCase) {
+            rt = ((RouteTargetConstrainIpv4RouteCase) rtc).getRouteTargetIpv4();
+        } else {
+            rt = ((RouteTargetConstrainRouteCase) rtc).getRouteTargetExtendedCommunity();
+        }
+        return Optional.of(rt);
+    }
+}

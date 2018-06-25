@@ -33,6 +33,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
@@ -44,6 +45,7 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
@@ -70,7 +72,7 @@ import org.slf4j.LoggerFactory;
 @NotThreadSafe
 final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
-        implements AutoCloseable, TotalPrefixesCounter, TotalPathsCounter,
+        implements AutoCloseable, RibOutRefresh, TotalPrefixesCounter, TotalPathsCounter,
         ClusteredDataTreeChangeListener<Tables> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
@@ -225,9 +227,9 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     @SuppressWarnings("unchecked")
-    private Map<RouteUpdateKey, RouteEntry<C,S,R,I>> update(final WriteTransaction tx,
+    private Map<RouteUpdateKey, RouteEntry<C, S, R, I>> update(final WriteTransaction tx,
             final Collection<DataTreeModification<Tables>> changes) {
-        final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> ret = new HashMap<>();
+        final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> ret = new HashMap<>();
         for (final DataTreeModification<Tables> tc : changes) {
             final DataObjectModification<Tables> table = tc.getRootNode();
             final DataTreeIdentifier<Tables> rootPath = tc.getRootPath();
@@ -242,9 +244,9 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                         = this.peerTracker.getPeer(peerKIid.getKey().getPeerId());
                 if (toPeer != null && toPeer.supportsTable(this.entryDep.getLocalTablesKey())) {
                     LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
-                    final List<ActualBestPathRoutes<C,S,R,I>> routesToStore = new ArrayList<>();
-                    for (final Map.Entry<String, RouteEntry<C,S,R,I>> entry:this.routeEntries.entrySet()) {
-                        final List<ActualBestPathRoutes<C,S,R,I>> filteredRoute = entry.getValue()
+                    final List<ActualBestPathRoutes<C, S, R, I>> routesToStore = new ArrayList<>();
+                    for (final Map.Entry<String, RouteEntry<C, S, R, I>> entry : this.routeEntries.entrySet()) {
+                        final List<ActualBestPathRoutes<C, S, R, I>> filteredRoute = entry.getValue()
                                 .actualBestPaths(this.ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
                         routesToStore.addAll(filteredRoute);
                     }
@@ -378,5 +380,20 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     TablesKey getTableKey() {
         return this.tk;
+    }
+
+    @Override
+    public synchronized void refreshTable(final TablesKey tk, final PeerId peerId) {
+        final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer = this.peerTracker.getPeer(peerId);
+        if (toPeer != null && toPeer.supportsTable(this.entryDep.getLocalTablesKey())) {
+            LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
+            final List<ActualBestPathRoutes<C, S, R, I>> routesToStore = new ArrayList<>();
+            for (final Map.Entry<String, RouteEntry<C, S, R, I>> entry : this.routeEntries.entrySet()) {
+                final List<ActualBestPathRoutes<C, S, R, I>> filteredRoute = entry.getValue()
+                        .actualBestPaths(this.ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
+                routesToStore.addAll(filteredRoute);
+            }
+            toPeer.reEvaluateAdvertizement(this.entryDep, routesToStore);
+        }
     }
 }
