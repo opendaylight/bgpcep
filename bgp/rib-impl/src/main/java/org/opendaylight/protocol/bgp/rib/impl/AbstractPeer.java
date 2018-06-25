@@ -295,6 +295,64 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }, MoreExecutors.directExecutor());
     }
 
+    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>,
+            I extends Identifier<R>> void reEvaluateAdvertizement(
+            final RouteEntryDependenciesContainer entryDep,
+            List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
+        if (this.bindingChain == null) {
+            LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
+            return;
+        }
+
+        final RIBSupport<C,S,R,I> ribSupport = entryDep.getRIBSupport();
+        final TablesKey tk = entryDep.getRIBSupport().getTablesKey();
+        final boolean addPathSupported = supportsAddPathSupported(tk);
+
+        final WriteTransaction tx = this.bindingChain.newWriteOnlyTransaction();
+        for(final ActualBestPathRoutes<C,S,R,I> actualBestRoute :routesToStore) {
+            final PeerId fromPeerId = actualBestRoute.getFromPeerId();
+            final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
+            if (!filterRoutes(fromPeerId, ribSupport.getTablesKey())) {
+                continue;
+            }
+            final R route = actualBestRoute.getRoute();
+
+            final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer, this);
+            final Optional<Attributes> effAttr = entryDep.getRoutingPolicies()
+                    .applyExportPolicies(routeEntry, actualBestRoute.getAttributes(), entryDep.getAfiSafType());
+            final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
+            if (effAttr.isPresent()) {
+                storeRoute(ribSupport, addPathSupported, tableRibout, actualBestRoute, route, effAttr.get(), tx);
+            } else {
+                final InstanceIdentifier<R> ribOut;
+                if (!addPathSupported) {
+                    ribOut = ribSupport.createRouteIdentifier(tableRibout,
+                            actualBestRoute.getNonAddPathRouteKeyIdentifier());
+                } else {
+                    ribOut = ribSupport.createRouteIdentifier(tableRibout,
+                            actualBestRoute.getAddPathRouteKeyIdentifier());
+                }
+                LOG.debug("Write advRoute {} to peer AdjRibsOut {}", actualBestRoute, getPeerId());
+                tx.delete(LogicalDatastoreType.OPERATIONAL, ribOut);
+            }
+        }
+
+        final FluentFuture<? extends CommitInfo> future = tx.commit();
+        this.submitted = future;
+        future.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful update commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed update commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
     void installRouteRibOut(final RouteEntryDependenciesContainer entryDep,

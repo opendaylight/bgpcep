@@ -27,7 +27,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 /**
  * Internal reference to a RIB instance.
  */
-public interface RIB extends RibReference {
+public interface RIB extends RibReference, RibOutRefresh {
     /**
      * RIB AS.
      *

@@ -336,7 +336,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.tables = ImmutableSet.copyOf(setTables);
         this.effRibInWriter = new EffectiveRibInWriter(this, this.rib,
                 this.rib.createPeerChain(this),
-                peerIId, this.tables, this.tableTypeRegistry);
+                peerIId, this.tables, this.tableTypeRegistry, rtMemberships);
         registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
         this.peerRibOutIId = peerIId.child(AdjRibOut.class);
         this.effRibInWriter.init();

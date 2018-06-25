@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -35,6 +36,7 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesReceivedCounters;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -50,6 +52,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
@@ -79,11 +85,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
-
+    private static final TablesKey IVP4_VPN_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
+            MplsLabeledVpnSubsequentAddressFamily.class);
+    private static final TablesKey IVP6_VPN_TABLE_KEY = new TablesKey(Ipv6AddressFamily.class,
+            MplsLabeledVpnSubsequentAddressFamily.class);
     private final RIBSupportContextRegistry registry;
     private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
     private final InstanceIdentifier<EffectiveRibIn> effRibTables;
     private final DataBroker databroker;
+    private final List<RouteTarget> rtMemberships;
+    private final RibOutRefresh vpnTableRefresher;
     private ListenerRegistration<?> reg;
     private BindingTransactionChain chain;
     private final Map<TablesKey, LongAdder> prefixesReceived;
@@ -93,6 +104,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
+    private boolean rtMembershipsUpdated;
 
     EffectiveRibInWriter(
             final BGPRouteEntryImportParameters peer,
@@ -100,8 +112,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final BindingTransactionChain chain,
             final KeyedInstanceIdentifier<Peer, PeerKey> peerIId,
             final Set<TablesKey> tables,
-            final BGPTableTypeRegistryConsumer tableTypeRegistry
-    ) {
+            final BGPTableTypeRegistryConsumer tableTypeRegistry,
+            final List<RouteTarget> rtMemberships) {
         this.registry = requireNonNull(rib.getRibSupportContext());
         this.chain = requireNonNull(chain);
         this.peerIId = requireNonNull(peerIId);
@@ -112,6 +124,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.databroker = requireNonNull(rib.getDataBroker());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.peerImportParameters = peer;
+        this.rtMemberships = rtMemberships;
+        this.vpnTableRefresher = rib;
     }
 
     public void init() {
@@ -201,6 +215,13 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 }
             }, MoreExecutors.directExecutor());
         }
+
+        //Refresh VPN Table if RT Memberships were updated
+        if (this.rtMembershipsUpdated) {
+            this.vpnTableRefresher.refreshTable(IVP4_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
+            this.vpnTableRefresher.refreshTable(IVP6_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
+            this.rtMembershipsUpdated = false;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -237,10 +258,20 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 .applyImportPolicies(this.peerImportParameters, route.getAttributes(),
                         tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get());
         if (effAtt.isPresent()) {
+            final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
+            if (rtMembership.isPresent()) {
+                this.rtMemberships.add(rtMembership.get());
+                this.rtMembershipsUpdated = true;
+            }
             CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
             tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
             tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), effAtt.get());
         } else {
+            final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
+            if (rtMembership.isPresent()) {
+                this.rtMemberships.remove(rtMembership.get());
+                this.rtMembershipsUpdated = true;
+            }
             tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
         }
     }

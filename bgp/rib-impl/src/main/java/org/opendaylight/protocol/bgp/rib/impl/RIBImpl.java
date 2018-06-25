@@ -43,6 +43,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRIBStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -51,6 +52,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
@@ -105,6 +107,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     private boolean isServiceInstantiated;
+    private Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
 
     public RIBImpl(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
@@ -191,6 +194,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
                 this.ribPolicies,
                 this.peerTracker,
                 pathSelectionStrategy);
+        this.vpnTableRefresher.put(key, locRibWriter);
         registerTotalPathCounter(key, locRibWriter);
         registerTotalPrefixesCounter(key, locRibWriter);
         this.txChainToLocRibWriter.put(txChain, locRibWriter);
@@ -267,6 +271,11 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     @Override
     public BGPPeerTracker getPeerTracker() {
         return this.peerTracker;
+    }
+
+    @Override
+    public void refreshTable(final TablesKey tk, final PeerId peerId) {
+        this.vpnTableRefresher.get(tk).refreshTable(tk, peerId);
     }
 
     @Override

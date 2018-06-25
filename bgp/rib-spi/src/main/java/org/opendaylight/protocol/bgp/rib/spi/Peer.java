@@ -76,4 +76,16 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
             I extends Identifier<R>> void initializeRibOut(
             @Nonnull RouteEntryDependenciesContainer entryDep,
             @Nonnull List<ActualBestPathRoutes<C, S, R, I>> routes);
+
+    /**
+     * Applies all policies through all present routes, and advertize/withdraws based on new results.
+     * Scenario would be for example a removal of RT membership. And reprocess VPN routes.
+     *
+     * @param entryDep RouteEntryDependenciesContainer
+     * @param routes   routes to be updated.
+     */
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>,
+            I extends Identifier<R>> void reEvaluateAdvertizement(@Nonnull RouteEntryDependenciesContainer entryDep,
+            @Nonnull List<ActualBestPathRoutes<C, S, R, I>> routes);
 }
