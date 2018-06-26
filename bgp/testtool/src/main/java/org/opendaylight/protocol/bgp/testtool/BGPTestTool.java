@@ -105,6 +105,10 @@ final class BGPTestTool {
                 = new org.opendaylight.protocol.bgp.l3vpn.BGPActivator();
         l3vpnBGPActivator.start(ctx);
 
+        final org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator rtBGPActivator
+                = new org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator();
+        rtBGPActivator.start(ctx);
+
         return new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup(),
             new StrictBGPPeerRegistry());
     }
