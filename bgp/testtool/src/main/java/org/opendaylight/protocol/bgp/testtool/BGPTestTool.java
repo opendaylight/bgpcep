@@ -29,6 +29,9 @@ import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EvpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.L2vpnAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
@@ -43,8 +46,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 
@@ -57,6 +63,12 @@ final class BGPTestTool {
         final ArrayList<OptionalCapabilities> optCap = Lists.newArrayList(createMPCapability(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class),
             createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
+            createMPCapability(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class),
+            createMPCapability(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class),
+            createMPCapability(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class),
+            createMPCapability(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class),
+            createMPCapability(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class),
+            createMPCapability(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class),
                 createAs4BytesMPCapability(arguments.getAs()));
         if (arguments.getMultiPathSupport()) {
             optCap.add(createAddPathCapability());
@@ -104,6 +116,10 @@ final class BGPTestTool {
         final org.opendaylight.protocol.bgp.l3vpn.BGPActivator l3vpnBGPActivator
                 = new org.opendaylight.protocol.bgp.l3vpn.BGPActivator();
         l3vpnBGPActivator.start(ctx);
+
+        final org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator rtBGPActivator
+                = new org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator();
+        rtBGPActivator.start(ctx);
 
         return new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup(),
             new StrictBGPPeerRegistry());
