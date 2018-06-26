@@ -153,8 +153,8 @@ def parse_arguments():
     str_help = "How many play utilities are to be started."
     parser.add_argument("--multiplicity", default="1", type=int, help=str_help)
     str_help = "Open message includes multiprotocol extension capability l2vpn-evpn.\
-Enabling this flag makes the script not decoding the update mesage, because of not\
-supported decoding for these elements."
+    Enabling this flag makes the script not decoding the update mesage, because of not\
+    supported decoding for these elements."
     parser.add_argument("--evpn", default=False, action="store_true", help=str_help)
     str_help = "Open message includes Multicast in MPLS/BGP IP VPNs arguments.\
     Enabling this flag makes the script not decoding the update mesage, because of not\
@@ -164,6 +164,12 @@ supported decoding for these elements."
     Enabling this flag makes the script not decoding the update mesage, because of not\
     supported decoding for these elements."
     parser.add_argument("--l3vpn_mcast", default=False, action="store_true", help=str_help)
+    str_help = "Open message includes L3VPN-UNICAST arguments, without message decoding."
+    parser.add_argument("--l3vpn", default=False, action="store_true", help=str_help)
+    str_help = "Open message includes ROUTE-TARGET-CONSTRAIN arguments, without message decoding."
+    parser.add_argument("--rt_constrain", default=False, action="store_true", help=str_help)
+    str_help = "Add all supported families without message decoding."
+    parser.add_argument("--allf", default=False, action="store_true", help=str_help)
     parser.add_argument("--wfr", default=10, type=int, help="Wait for read timeout")
     str_help = "Skipping well known attributes for update message"
     parser.add_argument("--skipattr", default=False, action="store_true", help=str_help)
@@ -365,6 +371,9 @@ class MessageGenerator(object):
         self.evpn = args.evpn
         self.mvpn = args.mvpn
         self.l3vpn_mcast = args.l3vpn_mcast
+        self.l3vpn = args.l3vpn
+        self.rt_constrain = args.rt_constrain
+        self.allf = args.allf
         self.skipattr = args.skipattr
         # Default values when BGP-LS Attributes are used
         if self.bgpls:
@@ -795,7 +804,7 @@ class MessageGenerator(object):
 
         # Optional Parameters
         optional_parameters_hex = ""
-        if self.rfc4760:
+        if self.rfc4760 or self.allf:
             optional_parameter_hex = (
                 "\x02"  # Param type ("Capability Ad")
                 "\x06"  # Length (6 bytes)
@@ -808,7 +817,7 @@ class MessageGenerator(object):
             )
             optional_parameters_hex += optional_parameter_hex
 
-        if self.bgpls:
+        if self.bgpls or self.allf:
             optional_parameter_hex = (
                 "\x02"  # Param type ("Capability Ad")
                 "\x06"  # Length (6 bytes)
@@ -821,7 +830,7 @@ class MessageGenerator(object):
             )
             optional_parameters_hex += optional_parameter_hex
 
-        if self.evpn:
+        if self.evpn or self.allf:
             optional_parameter_hex = (
                 "\x02"  # Param type ("Capability Ad")
                 "\x06"  # Length (6 bytes)
@@ -833,7 +842,7 @@ class MessageGenerator(object):
             )
             optional_parameters_hex += optional_parameter_hex
 
-        if self.mvpn:
+        if self.mvpn or self.allf:
             optional_parameter_hex = (
                 "\x02"  # Param type ("Capability Ad")
                 "\x06"  # Length (6 bytes)
@@ -855,7 +864,7 @@ class MessageGenerator(object):
             )
             optional_parameters_hex += optional_parameter_hex
 
-        if self.l3vpn_mcast:
+        if self.l3vpn_mcast or self.allf:
             optional_parameter_hex = (
                 "\x02"  # Param type ("Capability Ad")
                 "\x06"  # Length (6 bytes)
@@ -874,6 +883,40 @@ class MessageGenerator(object):
                 "\x00\x02"  # AFI (IPV6)
                 "\x00"  # (reserved)
                 "\x81"  # SAFI (L3VPN-MCAST)
+            )
+            optional_parameters_hex += optional_parameter_hex
+
+        if self.l3vpn or self.allf:
+            optional_parameter_hex = (
+                "\x02"  # Param type ("Capability Ad")
+                "\x06"  # Length (6 bytes)
+                "\x01"  # Multiprotocol extetension capability,
+                "\x04"  # Capability value length
+                "\x00\x01"  # AFI (IPV4)
+                "\x00"  # (reserved)
+                "\x80"  # SAFI (L3VPN-UNICAST)
+            )
+            optional_parameters_hex += optional_parameter_hex
+            optional_parameter_hex = (
+                "\x02"  # Param type ("Capability Ad")
+                "\x06"  # Length (6 bytes)
+                "\x01"  # Multiprotocol extetension capability,
+                "\x04"  # Capability value length
+                "\x00\x02"  # AFI (IPV6)
+                "\x00"  # (reserved)
+                "\x80"  # SAFI (L3VPN-UNICAST)
+            )
+            optional_parameters_hex += optional_parameter_hex
+
+        if self.rt_constrain or self.allf:
+            optional_parameter_hex = (
+                "\x02"  # Param type ("Capability Ad")
+                "\x06"  # Length (6 bytes)
+                "\x01"  # Multiprotocol extetension capability,
+                "\x04"  # Capability value length
+                "\x00\x01"  # AFI (IPV4)
+                "\x00"  # (reserved)
+                "\x84"  # SAFI (ROUTE-TARGET-CONSTRAIN)
             )
             optional_parameters_hex += optional_parameter_hex
 
@@ -1333,7 +1376,8 @@ class ReadTracker(object):
     """
 
     def __init__(self, bgp_socket, timer, storage, evpn=False, mvpn=False,
-                 l3vpn_mcast=False, wait_for_read=10):
+                 l3vpn_mcast=False, allf=False, l3vpn=False, rt_constrain=False,
+                 wait_for_read=10):
         """The reader initialisation.
 
         Arguments:
@@ -1343,6 +1387,9 @@ class ReadTracker(object):
             evpn: flag that evpn functionality is tested
             mvpn: flag that mvpn functionality is tested
             l3vpn_mcast: flag that l3vpn_mcast functionality is tested
+            l3vpn: flag that l3vpn unicast functionality is tested
+            rt_constrain: flag that rt-constrain functionality is tested
+            allf: flag for all family testing.
         """
         # References to outside objects.
         self.socket = bgp_socket
@@ -1367,6 +1414,9 @@ class ReadTracker(object):
         self.evpn = evpn
         self.mvpn = mvpn
         self.l3vpn_mcast = l3vpn_mcast
+        self.l3vpn = l3vpn
+        self.rt_constrain = rt_constrain
+        self.allf = allf
         self.wfr = wait_for_read
 
     def read_message_chunk(self):
@@ -1585,6 +1635,21 @@ class ReadTracker(object):
             logger.debug("Skipping update decoding due to l3vpn_mcast data expected")
             return
 
+        logger.debug("L3vpn-unicast {}".format(self.l3vpn))
+        if self.l3vpn_mcast:
+            logger.debug("Skipping update decoding due to l3vpn-unicast data expected")
+            return
+
+        logger.debug("Route-Target-Constrain {}".format(self.l3vpn_mcast))
+        if self.l3vpn_mcast:
+            logger.debug("Skipping update decoding due to Route-Target-Constrain data expected")
+            return
+
+        logger.debug("Allf {}".format(self.allf))
+        if self.allf:
+            logger.debug("Skipping update decoding")
+            return
+
         if msg_type == 2:
             logger.debug("Message type: 0x%s (update)",
                          binascii.b2a_hex(msg_type_hex))
@@ -1749,9 +1814,9 @@ class StateTracker(object):
         self.generator = generator
         self.timer = timer
         # Sub-trackers.
-        self.reader = ReadTracker(bgp_socket, timer, storage, evpn=cliargs.evpn,
-                                  mvpn=cliargs.mvpn, l3vpn_mcast=cliargs.l3vpn_mcast,
-                                  wait_for_read=cliargs.wfr)
+        self.reader = ReadTracker(bgp_socket, timer, storage, evpn=cliargs.evpn, mvpn=cliargs.mvpn,
+                                  l3vpn_mcast=cliargs.l3vpn_mcast, l3vpn=cliargs.l3vpn, allf=cliargs.allf,
+                                  rt_constrain=cliargs.rt_constrain, wait_for_read=cliargs.wfr)
         self.writer = WriteTracker(bgp_socket, generator, timer)
         # Prioritization state.
         self.prioritize_writing = False
