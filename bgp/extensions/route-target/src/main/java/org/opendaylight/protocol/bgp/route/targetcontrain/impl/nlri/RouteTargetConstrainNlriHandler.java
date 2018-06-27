@@ -31,8 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.destination.RouteTargetConstrainDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.destination.RouteTargetConstrainDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainDefaultCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationRouteTargetConstrainAdvertizedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationRouteTargetConstrainAdvertizedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.route.target.constrain.advertized._case.DestinationRouteTargetConstrainBuilder;
@@ -75,13 +77,18 @@ public final class RouteTargetConstrainNlriHandler implements NlriParser, NlriSe
     public static ByteBuf serializeNlriDestinations(final List<RouteTargetConstrainDestination> destinationList) {
         final ByteBuf nlri = Unpooled.buffer();
         for (final RouteTargetConstrainDestination dest : destinationList) {
-            nlri.writeByte(RT_BITS_LENGTH);
-            final AsNumber originAs = dest.getOriginAs();
-            if (originAs != null) {
-                writeUnsignedInt(originAs.getValue(), nlri);
+            final RouteTargetConstrainChoice rtcChoice = dest.getRouteTargetConstrainChoice();
+            if (rtcChoice instanceof RouteTargetConstrainDefaultCase) {
+                nlri.writeByte(0);
+            } else {
+                nlri.writeByte(RT_BITS_LENGTH);
+                final AsNumber originAs = dest.getOriginAs();
+                if (originAs != null) {
+                    writeUnsignedInt(originAs.getValue(), nlri);
+                }
+                nlri.writeBytes(SimpleRouteTargetConstrainNlriRegistry.getInstance()
+                        .serializeRouteTargetConstrain(rtcChoice));
             }
-            nlri.writeBytes(SimpleRouteTargetConstrainNlriRegistry.getInstance()
-                    .serializeRouteTargetConstrain(dest.getRouteTargetConstrainChoice()));
         }
         return nlri;
     }
