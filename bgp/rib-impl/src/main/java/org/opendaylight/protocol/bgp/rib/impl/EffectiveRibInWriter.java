@@ -268,7 +268,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
             if (rtMembership.isPresent()) {
                 final RouteTarget rt = rtMembership.get();
-                if(PeerRole.Ibgp != this.peerImportParameters.getFromPeerRole()) {
+                if(PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
                     this.rtCache.cacheRoute(route);
                 }
                 this.rtMemberships.add(rt);
@@ -280,7 +280,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         } else {
             final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
             if (rtMembership.isPresent()) {
-                if(PeerRole.Ibgp != this.peerImportParameters.getFromPeerRole()) {
+                if(PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
                     this.rtCache.uncacheRoute(route);
                 }
                 this.rtMemberships.remove(rtMembership.get());
