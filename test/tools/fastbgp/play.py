@@ -1640,8 +1640,8 @@ class ReadTracker(object):
             logger.debug("Skipping update decoding due to l3vpn-unicast data expected")
             return
 
-        logger.debug("Route-Target-Constrain {}".format(self.l3vpn_mcast))
-        if self.l3vpn_mcast:
+        logger.debug("Route-Target-Constrain {}".format(self.rt_constrain))
+        if self.rt_constrain:
             logger.debug("Skipping update decoding due to Route-Target-Constrain data expected")
             return
 

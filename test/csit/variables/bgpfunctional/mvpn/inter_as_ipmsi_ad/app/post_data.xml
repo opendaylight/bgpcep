@@ -3,22 +3,22 @@
     <path-id>0</path-id>
     <route-key>AgwAAQECAwQBAgAA+/A=</route-key>
     <attributes>
-      <ipv4-next-hop>
-        <global>127.1.1.1</global>
-      </ipv4-next-hop>
-      <multi-exit-disc>
-        <med>0</med>
-      </multi-exit-disc>
-      <as-path/>
-      <origin>
-        <value>egp</value>
-      </origin>
-      <local-pref>
-        <pref>100</pref>
-      </local-pref>
+        <ipv4-next-hop>
+            <global>127.1.1.1</global>
+        </ipv4-next-hop>
+        <multi-exit-disc>
+            <med>0</med>
+        </multi-exit-disc>
+        <as-path/>
+        <origin>
+            <value>egp</value>
+        </origin>
+        <local-pref>
+            <pref>100</pref>
+        </local-pref>
     </attributes>
     <inter-as-i-pmsi-a-d>
-      <route-distinguisher>1.2.3.4:258</route-distinguisher>
-      <source-as>64496</source-as>
+        <route-distinguisher>1.2.3.4:258</route-distinguisher>
+        <source-as>64496</source-as>
     </inter-as-i-pmsi-a-d>
-  </mvpn-route>
+</mvpn-route>
