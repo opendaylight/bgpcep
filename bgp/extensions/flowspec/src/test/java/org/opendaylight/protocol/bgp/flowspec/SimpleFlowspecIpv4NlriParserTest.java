@@ -75,7 +75,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv4.flowspec.flowspec.type.SourcePrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIpsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv4.DestinationFlowspecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv4.DestinationFlowspecIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv4.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
@@ -197,8 +197,8 @@ public class SimpleFlowspecIpv4NlriParserTest {
         mp.setAdvertizedRoutes(
             new AdvertizedRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCaseBuilder()
-                    .setDestinationFlowspec(
-                        new DestinationFlowspecBuilder()
+                    .setDestinationFlowspecIpv4(
+                        new DestinationFlowspecIpv4Builder()
                             .setFlowspec(fs)
                             .build()
                     ).build()
@@ -213,7 +213,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result, null);
 
         final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) result.getAdvertizedRoutes().getDestinationType())
-            .getDestinationFlowspec()
+            .getDestinationFlowspecIpv4()
             .getFlowspec();
         testFlows(flows, destinationPrefix, sourcePrefix, prots, ps, dps, sps);
 
@@ -283,8 +283,8 @@ public class SimpleFlowspecIpv4NlriParserTest {
 
         mp.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCaseBuilder()
-                .setDestinationFlowspec(
-                    new DestinationFlowspecBuilder()
+                .setDestinationFlowspecIpv4(
+                    new DestinationFlowspecIpv4Builder()
                         .setPathId(PATH_ID)
                         .setFlowspec(fs)
                         .build()
@@ -300,7 +300,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI_ADD_PATH), result, this.constraint);
 
         final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) result.getAdvertizedRoutes().getDestinationType())
-            .getDestinationFlowspec()
+            .getDestinationFlowspecIpv4()
             .getFlowspec();
         testFlows(flows, destinationPrefix, sourcePrefix, prots, ps, dps, sps);
 
@@ -352,8 +352,8 @@ public class SimpleFlowspecIpv4NlriParserTest {
 
         mp.setAfi(Ipv4AddressFamily.class).setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder()
-                .setDestinationFlowspec(
-                    new DestinationFlowspecBuilder()
+                .setDestinationFlowspecIpv4(
+                    new DestinationFlowspecIpv4Builder()
                         .setFlowspec(fs)
                         .build()
                 ).build()
@@ -368,7 +368,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI), result, null);
 
         final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCase) result.getWithdrawnRoutes().getDestinationType())
-            .getDestinationFlowspec()
+            .getDestinationFlowspecIpv4()
             .getFlowspec();
         checkUnreachFlows(flows, icmpType, icmpCode, tcp, packet, dscp, fragment);
 
@@ -462,8 +462,8 @@ public class SimpleFlowspecIpv4NlriParserTest {
 
         mp.setAfi(Ipv4AddressFamily.class).setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder()
-                .setDestinationFlowspec(
-                    new DestinationFlowspecBuilder()
+                .setDestinationFlowspecIpv4(
+                    new DestinationFlowspecIpv4Builder()
                         .setPathId(PATH_ID)
                         .setFlowspec(fs)
                         .build()
@@ -479,7 +479,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI_ADD_PATH), result, this.constraint);
 
         final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCase) result.getWithdrawnRoutes().getDestinationType())
-            .getDestinationFlowspec()
+            .getDestinationFlowspecIpv4()
             .getFlowspec();
         checkUnreachFlows(flows, icmpType, icmpCode, tcp, packet, dscp, fragment);
 
@@ -776,7 +776,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         final MpReachNlri nlri = result.build();
 
         final List<Flowspec> flowspecList = ((DestinationFlowspecCase) nlri.getAdvertizedRoutes().getDestinationType())
-                .getDestinationFlowspec().getFlowspec();
+                .getDestinationFlowspecIpv4().getFlowspec();
         assertEquals(3, flowspecList.size());
         assertEquals("216.58.245.101/32", ((DestinationPrefixCase) flowspecList.get(0).getFlowspecType()).getDestinationPrefix().getValue());
         assertEquals("216.58.218.196/32", ((DestinationPrefixCase) flowspecList.get(1).getFlowspecType()).getDestinationPrefix().getValue());

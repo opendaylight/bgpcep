@@ -12,7 +12,7 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv6.DestinationFlowspec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv6.DestinationFlowspecIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.route.FlowspecRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.route.FlowspecRouteKey;
@@ -28,14 +28,13 @@ public final class FlowspecIpv6RIBSupport
         FlowspecIpv6Routes,
         FlowspecRoute,
         FlowspecRouteKey> {
-    private static final FlowspecIpv6Routes EMPTY_CONTAINER
-            = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Collections.emptyList()).build();
+    private static final FlowspecIpv6Routes EMPTY_CONTAINER = new FlowspecIpv6RoutesBuilder()
+            .setFlowspecRoute(Collections.emptyList()).build();
     private static final FlowspecIpv6RoutesCase EMPTY_CASE = new FlowspecIpv6RoutesCaseBuilder()
             .setFlowspecIpv6Routes(EMPTY_CONTAINER).build();
     private static FlowspecIpv6RIBSupport SINGLETON;
 
-    private FlowspecIpv6RIBSupport(
-            SimpleFlowspecExtensionProviderContext context,
+    private FlowspecIpv6RIBSupport(final SimpleFlowspecExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
@@ -44,7 +43,7 @@ public final class FlowspecIpv6RIBSupport
                 FlowspecRoute.class,
                 Ipv6AddressFamily.class,
                 FlowspecSubsequentAddressFamily.class,
-                DestinationFlowspec.QNAME,
+                DestinationFlowspecIpv6.QNAME,
                 new SimpleFlowspecIpv6NlriParser(context
                         .getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6,
                                 SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC))
@@ -52,7 +51,7 @@ public final class FlowspecIpv6RIBSupport
     }
 
     static synchronized FlowspecIpv6RIBSupport getInstance(
-            SimpleFlowspecExtensionProviderContext context,
+            final SimpleFlowspecExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         if (SINGLETON == null) {
             SINGLETON = new FlowspecIpv6RIBSupport(context, mappingService);

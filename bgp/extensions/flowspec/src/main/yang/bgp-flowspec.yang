@@ -288,14 +288,14 @@ module bgp-flowspec {
     }
 
     grouping flowspec-destination-ipv4 {
-        container destination-flowspec {
+        container destination-flowspec-ipv4 {
             uses flowspec-destination-group-ipv4;
             uses bgp-msg:path-id-grouping;
         }
     }
 
     grouping flowspec-destination-ipv6 {
-        container destination-flowspec {
+        container destination-flowspec-ipv6 {
             uses flowspec-destination-group-ipv6;
             uses bgp-msg:path-id-grouping;
         }

@@ -12,7 +12,7 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecRoutesCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv4.DestinationFlowspec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv4.DestinationFlowspecIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv4.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv4.route.FlowspecRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv4.route.FlowspecRouteKey;
@@ -34,8 +34,7 @@ public final class FlowspecIpv4RIBSupport
             = new FlowspecRoutesCaseBuilder().setFlowspecRoutes(EMPTY_CONTAINER).build();
     private static FlowspecIpv4RIBSupport SINGLETON;
 
-    private FlowspecIpv4RIBSupport(
-            SimpleFlowspecExtensionProviderContext context,
+    private FlowspecIpv4RIBSupport(final SimpleFlowspecExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
@@ -44,7 +43,7 @@ public final class FlowspecIpv4RIBSupport
                 FlowspecRoute.class,
                 Ipv4AddressFamily.class,
                 FlowspecSubsequentAddressFamily.class,
-                DestinationFlowspec.QNAME,
+                DestinationFlowspecIpv4.QNAME,
                 new SimpleFlowspecIpv4NlriParser(context
                         .getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
                                 SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC))
@@ -52,7 +51,7 @@ public final class FlowspecIpv4RIBSupport
     }
 
     static synchronized FlowspecIpv4RIBSupport getInstance(
-            SimpleFlowspecExtensionProviderContext context,
+            final SimpleFlowspecExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         if (SINGLETON == null){
             SINGLETON = new FlowspecIpv4RIBSupport(context, mappingService);
