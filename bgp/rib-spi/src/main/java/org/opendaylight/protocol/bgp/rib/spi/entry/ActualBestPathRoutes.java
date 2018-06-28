@@ -30,7 +30,7 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 public final class ActualBestPathRoutes<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> {
+        I extends Identifier<R>> implements RouteKeyIdentifier<R,I> {
     private final PeerId fromPeerId;
     private final R route;
     private final Attributes attributes;
