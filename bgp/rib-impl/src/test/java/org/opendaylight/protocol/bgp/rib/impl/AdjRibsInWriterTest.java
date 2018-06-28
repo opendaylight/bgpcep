@@ -51,7 +51,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 public class AdjRibsInWriterTest {
 
     private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS = Collections.singletonMap(K4, SendReceive.Both);
+    private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS
+            = Collections.singletonMap(K4, SendReceive.Both);
     private final Set<TablesKey> tableTypes = Sets.newHashSet(K4);
     private final String peerIp = "12.34.56.78";
     @Mock
@@ -102,8 +103,8 @@ public class AdjRibsInWriterTest {
         final YangInstanceIdentifier path = peerPath.node(AdjRibIn.QNAME)
                 .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(K4))
                 .node(Attributes.QNAME).node(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE.getNodeType());
-        verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(path)
-                , eq(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE));
+        verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(path),
+                eq(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE));
     }
 
     private void verifyPeerSkeletonInsertedCorrectly(final YangInstanceIdentifier peerPath) {

@@ -79,8 +79,8 @@ public class BgpPeerTest extends AbstractConfig {
     }
 
     static Transport createTransport() {
-        return new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.
-                rev151009.bgp.neighbor.group.transport.ConfigBuilder().setMtuDiscovery(false)
+        return new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+                .rev151009.bgp.neighbor.group.transport.ConfigBuilder().setMtuDiscovery(false)
                 .setPassiveMode(false).addAugmentation(NeighborTransportConfig.class,
                         new NeighborTransportConfigBuilder().setRemotePort(PORT).build()).build()).build();
     }
@@ -102,10 +102,10 @@ public class BgpPeerTest extends AbstractConfig {
     }
 
     static Config createConfig() {
-        return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.
-                ConfigBuilder()
+        return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
+                .ConfigBuilder()
                 .setPeerAs(AS)
-                .setLocalAs(lOCAL_AS)
+                .setLocalAs(LOCAL_AS)
                 .setPeerType(PeerType.INTERNAL)
                 .setAuthPassword(MD5_PASSWORD)
                 .setRouteFlapDamping(false)

@@ -14,6 +14,10 @@ import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 
 public final class CheckUtil {
+    private CheckUtil() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void checkIdleState(final SimpleSessionListener listener) {
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {

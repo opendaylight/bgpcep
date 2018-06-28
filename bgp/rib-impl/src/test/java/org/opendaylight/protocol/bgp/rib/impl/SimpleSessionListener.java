@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -15,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
-import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -34,7 +35,7 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
     @GuardedBy("this")
     private final List<Notification> listMsg = Lists.newArrayList();
-    private BGPSession session;
+    private BGPSession bgpSession;
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
     public SimpleSessionListener() {
@@ -52,13 +53,13 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     @Override
     public void onSessionUp(final BGPSession session) {
         LOG.info("Session Up");
-        this.session = session;
+        this.bgpSession = session;
         this.sessionLatch.countDown();
     }
 
     @Override
-    public void onSessionDown(final BGPSession session, final Exception e) {
-        LOG.debug("Session Down", e);
+    public void onSessionDown(final BGPSession session, final Exception exception) {
+        LOG.debug("Session Down", exception);
     }
 
     @Override
@@ -73,11 +74,12 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public ListenableFuture<Void> releaseConnection() {
         LOG.debug("Releasing connection");
-        if (this.session != null) {
+        if (this.bgpSession != null) {
             try {
-                this.session.close();
+                this.bgpSession.close();
             } catch (final Exception e) {
                 LOG.warn("Error closing session", e);
             }
@@ -90,8 +92,9 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     }
 
     BGPSessionImpl getSession() {
-        Assert.assertTrue("Session up", Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
-        return (BGPSessionImpl) this.session;
+        assertTrue("Session up",
+                Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
+        return (BGPSessionImpl) this.bgpSession;
     }
 
     @Override

@@ -167,9 +167,6 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         deployer.close();
     }
 
-    /**
-     * Test create Rib
-     */
     @Test
     public void testDeployerCreateNeighbor() throws Exception {
         deployer.init();

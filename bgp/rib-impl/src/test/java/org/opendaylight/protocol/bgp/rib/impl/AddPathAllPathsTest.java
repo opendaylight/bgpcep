@@ -80,13 +80,17 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
      * [peer://127.0.0.4; p1, lp50] --(iBGP)-->  |                   | --(RR-client, add-path) --> [Peer://127.0.0.6; (p1, path-id1, lp100), (p1, path-id2, pl50), (p1, path-id3, pl200), (p1, path-id4, pl20)]
      * [peer://127.0.0.2; p1, lp20] --(iBGP)-->  |___________________|
      * p1 = 1.1.1.1/32
+     *
+     *
+     *
      */
     @Test
     public void testUseCase1() throws Exception {
         final BgpParameters nonAddPathParams = createParameter(false);
         final BgpParameters addPathParams = createParameter(true);
 
-        final BGPPeer peer1 = configurePeer(this.tableRegistry, PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
+        final BGPPeer peer1 = configurePeer(this.tableRegistry, PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp,
+                this.serverRegistry);
         final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
 
         configurePeer(this.tableRegistry, PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
@@ -96,7 +100,8 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
 
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        final BGPPeer peer4 = configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient, this.serverRegistry);
+        final BGPPeer peer4 = configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams,
+                PeerRole.RrClient, this.serverRegistry);
 
         BGPPeerState peer4State = peer4.getPeerState();
         assertNull(peer4State.getGroupId());
@@ -157,8 +162,10 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(new IpAddress(PEER1), transportStatePeer1.getRemoteAddress());
 
         assertEquals(State.UP, peer1State.getBGPSessionState().getSessionState());
-        checkEquals(()-> assertEquals(1L, peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
-        checkEquals(()-> assertEquals(0L, peer1State.getBGPPeerMessagesState().getUpdateMessagesSentCount()));
+        checkEquals(()-> assertEquals(1L,
+                peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
+        checkEquals(()-> assertEquals(0L,
+                peer1State.getBGPPeerMessagesState().getUpdateMessagesSentCount()));
 
         final BGPSessionState sessionStatePeer1 = peer1State.getBGPSessionState();
         assertFalse(sessionStatePeer1.isAddPathCapabilitySupported());
@@ -191,13 +198,15 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(1L, ribState.getTotalPrefixesCount());
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        final BGPPeer peer6 = configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient, this.serverRegistry);
+        final BGPPeer peer6 = configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams,
+                PeerRole.RrClient, this.serverRegistry);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 1);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
         causeBGPError(session6);
-        checkEquals(()-> assertEquals(1L, peer6.getPeerState().getBGPPeerMessagesState().getNotificationMessagesSentCount()));
+        checkEquals(()-> assertEquals(1L,
+                peer6.getPeerState().getBGPPeerMessagesState().getNotificationMessagesSentCount()));
 
         checkPeersPresentOnDataStore(5);
 
@@ -268,7 +277,8 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 20, 3);
         checkReceivedMessages(listener4, 2);
         checkReceivedMessages(listener5, 4);
-        assertEquals(UPD_200.getAttributes().getLocalPref(), ((Update) listener4.getListMsg().get(1)).getAttributes().getLocalPref());
+        assertEquals(UPD_200.getAttributes().getLocalPref(),
+                ((Update) listener4.getListMsg().get(1)).getAttributes().getLocalPref());
         assertEquals(UPD_20, listener5.getListMsg().get(3));
 
         //withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, none for non add path
@@ -288,7 +298,8 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener5, 7);
 
         sendNotification(session1);
-        checkEquals(()-> assertEquals(1L, peer1.getPeerState().getBGPPeerMessagesState().getNotificationMessagesReceivedCount()));
+        checkEquals(()-> assertEquals(1L,
+                peer1.getPeerState().getBGPPeerMessagesState().getNotificationMessagesReceivedCount()));
         session1.close();
         session2.close();
         session3.close();

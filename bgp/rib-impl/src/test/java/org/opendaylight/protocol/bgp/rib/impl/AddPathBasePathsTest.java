@@ -82,7 +82,8 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         final BGPSessionImpl session3 = createPeerSession(PEER3,nonAddPathParams, new SimpleSessionListener());
 
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient, this.serverRegistry);
+        configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
+                this.serverRegistry);
         final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
 
         final SimpleSessionListener listener5 = new SimpleSessionListener();
@@ -110,7 +111,8 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         assertEquals(UPD_NA_200_EBGP, listener5.getListMsg().get(1));
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient, this.serverRegistry);
+        configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
+                this.serverRegistry);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
 
         checkPeersPresentOnDataStore(6);

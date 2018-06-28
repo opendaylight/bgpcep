@@ -83,7 +83,8 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
 
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient, this.serverRegistry);
+        configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
+                this.serverRegistry);
         final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
 
         final SimpleSessionListener listener5 = new SimpleSessionListener();
@@ -98,7 +99,8 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         assertEquals(UPD_100, listener5.getListMsg().get(0));
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient, this.serverRegistry);
+        configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
+                this.serverRegistry);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 1);
@@ -133,7 +135,8 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener4, 2);
         checkReceivedMessages(listener5, 6);
 
-        //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported, 1 withdrawal for non add path
+        //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported,
+        // 1 withdrawal for non add path
         sendWithdrawalRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
         checkReceivedMessages(listener4, 3);
         checkReceivedMessages(listener5, 8);

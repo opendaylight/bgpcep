@@ -13,6 +13,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.AFI_SAFI;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.AFI_SAFI_IPV4;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.MD5_PASSWORD;
@@ -36,8 +38,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
@@ -159,19 +159,19 @@ public class OpenConfigMappingUtilTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV4))
+        initMocks(this);
+        doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV4))
             .when(this.tableTypeRegistry).getTableType(IPV4UNICAST.class);
-        Mockito.doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV6))
+        doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV6))
             .when(this.tableTypeRegistry).getTableType(IPV6UNICAST.class);
-        Mockito.doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv6AddressFamily.class,
+        doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv6AddressFamily.class,
                 MplsLabeledVpnSubsequentAddressFamily.class)))
             .when(this.tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.class);
-        Mockito.doReturn(java.util.Optional.of(IPV4UNICAST.class))
+        doReturn(java.util.Optional.of(IPV4UNICAST.class))
             .when(this.tableTypeRegistry).getAfiSafiType(BGP_TABLE_TYPE_IPV4);
-        Mockito.doReturn(java.util.Optional.of(IPV6UNICAST.class))
+        doReturn(java.util.Optional.of(IPV6UNICAST.class))
             .when(this.tableTypeRegistry).getAfiSafiType(BGP_TABLE_TYPE_IPV6);
-        Mockito.doReturn(AS).when(this.rib).getLocalAs();
+        doReturn(AS).when(this.rib).getLocalAs();
     }
 
     @Test
@@ -181,9 +181,6 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void testGetHoldTimer() {
-        TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
-                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(BigDecimal.TEN).build());
-
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
                 OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, null));
         assertEquals(HOLDTIMER,
@@ -191,6 +188,8 @@ public class OpenConfigMappingUtilTest {
 
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
                 OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, new PeerGroupBuilder().build()));
+        TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
+                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(BigDecimal.TEN).build());
         assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, new PeerGroupBuilder()
                 .setTimers(builder.build()).build()));
     }

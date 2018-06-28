@@ -151,8 +151,8 @@ public class PeerTest extends AbstractRIBTestSetup {
                 this.classic.toString());
 
         final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
-        final Nlri n2 = new NlriBuilder().setPrefix( new Ipv4Prefix("127.0.0.1/32")).build();
-        final Nlri n3 = new NlriBuilder().setPrefix( new Ipv4Prefix("2.2.2.2/24")).build();
+        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
+        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
         final List<Nlri> nlris = Lists.newArrayList(n1, n2, n3);
         final UpdateBuilder ub = new UpdateBuilder();
         ub.setNlri(nlris);
@@ -186,11 +186,11 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(3, this.routes.size());
 
         final Nlri n11 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
-        final Nlri n22 = new NlriBuilder().setPrefix( new Ipv4Prefix("8.0.1.16/28")).build();
+        final Nlri n22 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.16/28")).build();
         final List<Nlri> nlris2 = Lists.newArrayList(n11, n22);
         ub.setNlri(nlris2);
-        final WithdrawnRoutes w1 =new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
-        final WithdrawnRoutes w2 =new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
+        final WithdrawnRoutes w1 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
+        final WithdrawnRoutes w2 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
         final WithdrawnRoutes w3 = new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
         final List<WithdrawnRoutes> wrs = Lists.newArrayList(w1, w2, w3);
         ub.setWithdrawnRoutes(wrs);
