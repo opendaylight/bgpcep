@@ -928,13 +928,17 @@ module rsvp {
             reference "http://tools.ietf.org/html/rfc4873#section-6.1"
             + " http://tools.ietf.org/html/rfc4872#section-14";
 
-            case basic-protection-object {
-                uses rsvp-te-object;
-                uses protection-subobject;
+            case basic-protection-object-case {
+                container basic-protection-object {
+                    uses rsvp-te-object;
+                    uses protection-subobject;
+                }
             }
-            case dynamic-control-protection-object {
-                uses rsvp-te-object;
-                uses protection-subobject;
+            case dynamic-control-protection-object-case {
+                container dynamic-control-protection-object {
+                    uses rsvp-te-object;
+                    uses protection-subobject;
+                }
             }
         }
     }
