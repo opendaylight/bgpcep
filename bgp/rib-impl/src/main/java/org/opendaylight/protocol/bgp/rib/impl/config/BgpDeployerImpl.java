@@ -131,8 +131,6 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         for (final DataTreeModification<Bgp> dataTreeModification : changes) {
             final InstanceIdentifier<Bgp> rootIdentifier = dataTreeModification.getRootPath().getRootIdentifier();
             final DataObjectModification<Bgp> rootNode = dataTreeModification.getRootNode();
-            LOG.trace("BGP configuration has changed: {}", rootNode);
-
             final List<DataObjectModification<? extends DataObject>> deletedConfig
                     = rootNode.getModifiedChildren().stream()
                     .filter(mod -> mod.getModificationType() == DataObjectModification.ModificationType.DELETE)

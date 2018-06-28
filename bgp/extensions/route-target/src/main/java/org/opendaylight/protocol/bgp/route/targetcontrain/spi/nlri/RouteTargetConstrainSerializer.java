@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.route.targetcontrain.spi.nlri;
 
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
 
 public interface RouteTargetConstrainSerializer<T extends RouteTargetConstrainChoice> {
@@ -27,6 +28,7 @@ public interface RouteTargetConstrainSerializer<T extends RouteTargetConstrainCh
      *
      * @return RouteTargetChoice Class
      */
+    @Nonnull
     Class<T> getClazz();
 
     /**
@@ -34,5 +36,6 @@ public interface RouteTargetConstrainSerializer<T extends RouteTargetConstrainCh
      *
      * @return NlriType
      */
+    @Nullable
     Integer getType();
 }

@@ -30,7 +30,7 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 public final class AdvertizedRoute<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> {
+        I extends Identifier<R>> implements RouteKeyIdentifier<R,I> {
     private final R route;
     private final PeerId peerId;
     private final Attributes attributes;

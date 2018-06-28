@@ -75,6 +75,7 @@ public final class RouteTargetConstrainRIBSupport
             = new RouteTargetConstrainRoutesBuilder().setRouteTargetConstrainRoute(Collections.emptyList()).build();
     private static final RouteTargetConstrainRoutesCase EMPTY_CASE =
             new RouteTargetConstrainRoutesCaseBuilder().setRouteTargetConstrainRoutes(EMPTY_CONTAINER).build();
+    private static final String ORIGIN_AS = "origin-as";
     private static RouteTargetConstrainRIBSupport SINGLETON;
     private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects
             = ImmutableSet.of(RouteTargetConstrainRoutesCase.class);
@@ -96,8 +97,7 @@ public final class RouteTargetConstrainRIBSupport
                 Ipv4AddressFamily.class,
                 RouteTargetConstrainSubsequentAddressFamily.class,
                 DestinationRouteTargetConstrain.QNAME);
-        this.originAsNid = new NodeIdentifier(QName.create(routeQName(), "origin-as")
-                .intern());
+        this.originAsNid = new NodeIdentifier(QName.create(routeQName(), ORIGIN_AS).intern());
     }
 
     public static synchronized RouteTargetConstrainRIBSupport getInstance(
@@ -138,11 +138,9 @@ public final class RouteTargetConstrainRIBSupport
         final RouteTargetConstrainDestinationBuilder builder = new RouteTargetConstrainDestinationBuilder()
                 .setPathId(PathIdUtil.buildPathId(rtDest, routePathIdNid()))
                 .setRouteTargetConstrainChoice(extractRouteTargetChoice(rtDest));
-        final Long originAs = (Long) NormalizedNodes.findNode(rtDest, this.originAsNid).map(NormalizedNode::getValue)
-                .orElse(null);
-        if (originAs != null) {
-            builder.setOriginAs(new AsNumber(originAs));
-        }
+        final Optional<Object> originAs = NormalizedNodes
+                .findNode(rtDest, this.originAsNid).map(NormalizedNode::getValue);
+        originAs.ifPresent(o -> builder.setOriginAs(new AsNumber((Long) o)));
         return builder.build();
     }
 
