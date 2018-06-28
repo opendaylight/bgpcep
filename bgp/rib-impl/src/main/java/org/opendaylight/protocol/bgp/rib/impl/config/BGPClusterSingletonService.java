@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME_OPT;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
@@ -23,6 +25,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -251,7 +254,6 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
     }
 
-
     private synchronized void onNeighborCreated(final Neighbor neighbor) {
         LOG.debug("Creating Peer instance with configuration: {}", neighbor);
         final PeerBean bgpPeer;
@@ -265,24 +267,24 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
         this.peers.put(neighborInstanceIdentifier, bgpPeer);
 
-        final String groupName= getPeerGroupName(neighbor.getConfig());
-        String peerGroupName = null;
-        if (groupName != null) {
-            peerGroupName = StringUtils.substringBetween(groupName, "=\"", "\"");
-        }
-
-        if (peerGroupName != null) {
-            this.peersGroups.computeIfAbsent(peerGroupName, k -> new ArrayList<>()).add(bgpPeer);
-        }
+        final Optional<String> peerGroupName= getPeerGroupName(neighbor.getConfig());
+        peerGroupName.ifPresent(s -> this.peersGroups.computeIfAbsent(s, k -> new ArrayList<>()).add(bgpPeer));
         LOG.debug("Peer instance created {}", bgpPeer);
     }
 
-    private static String getPeerGroupName(final Config config) {
+    private static Optional<String> getPeerGroupName(final Config config) {
         if (config == null) {
-            return null;
+            return Optional.empty();
         }
         final NeighborPeerGroupConfig aug = config.augmentation(NeighborPeerGroupConfig.class);
-        return aug == null ? null : aug.getPeerGroup();
+        if(aug == null || aug.getPeerGroup() == null) {
+            return Optional.empty();
+        }
+        final String peerGroupName =  aug.getPeerGroup();
+        if (peerGroupName.equals(APPLICATION_PEER_GROUP_NAME)) {
+            return APPLICATION_PEER_GROUP_NAME_OPT;
+        }
+        return Optional.of(StringUtils.substringBetween(peerGroupName, "=\"", "\""));
     }
 
     private synchronized void onNeighborUpdated(final PeerBean bgpPeer, final Neighbor neighbor) {
@@ -311,13 +313,11 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("Removing Peer instance: {}", neighbor);
         final PeerBean bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(this.bgpIid, neighbor.key()));
 
-        final String groupName = getPeerGroupName(neighbor.getConfig());
-        if (groupName != null) {
-            this.peersGroups.computeIfPresent(groupName, (k, peers) -> {
-                peers.remove(bgpPeer);
-                return peers.isEmpty() ? null : peers;
-            });
-        }
+        final Optional<String> groupName = getPeerGroupName(neighbor.getConfig());
+        groupName.ifPresent(s -> this.peersGroups.computeIfPresent(s, (k, peers) -> {
+            peers.remove(bgpPeer);
+            return peers.isEmpty() ? null : peers;
+        }));
         closePeer(bgpPeer);
     }
 
@@ -353,7 +353,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
     }
 
-    public synchronized void restartNeighbors(final String peerGroupName) {
+    synchronized void restartNeighbors(final String peerGroupName) {
         final List<PeerBean> peerGroup = this.peersGroups.get(peerGroupName);
         if (peerGroup == null) {
             return;

@@ -67,7 +67,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class OpenConfigMappingUtil {
 
-    static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
+    public static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
+    public static final Optional<String> APPLICATION_PEER_GROUP_NAME_OPT = Optional.of(APPLICATION_PEER_GROUP_NAME);
     static final int HOLDTIMER = 90;
     private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
     private static final List<AfiSafi> DEFAULT_AFISAFI = ImmutableList.of(IPV4_AFISAFI);
