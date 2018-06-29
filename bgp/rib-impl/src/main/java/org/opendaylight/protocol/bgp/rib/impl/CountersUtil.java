@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.ZeroBasedCounter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +27,9 @@ public final class CountersUtil {
     }
 
     /**
-     * Increments counter by 1 if supported, otherwise produce a warn
+     * Increments counter by 1 if supported, otherwise produce a warn.
      *
-     * @param counter counter
+     * @param counter   counter
      * @param tablesKey tablesKey Type
      */
     static void increment(@Nullable final LongAdder counter, @Nonnull TablesKey tablesKey) {
@@ -42,8 +41,9 @@ public final class CountersUtil {
     }
 
     /**
-     * Increments counter by 1 if supported, otherwise produce a warn
-     *  @param counter counter
+     * Increments counter by 1 if supported, otherwise produce a warn.
+     *
+     * @param counter   counter
      * @param tablesKey tablesKey Type
      */
     static void decrement(@Nullable final LongAdder counter, @Nonnull TablesKey tablesKey) {
@@ -52,9 +52,5 @@ public final class CountersUtil {
             return;
         }
         LOG.warn("Family {} not supported", tablesKey);
-    }
-
-    public static ZeroBasedCounter32 toZeroBasedCounter32(final LongAdder longAdder){
-        return new ZeroBasedCounter32(longAdder.longValue());
     }
 }

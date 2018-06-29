@@ -64,7 +64,8 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @throws BGPDocumentedException if session establishment cannot be finished successfully
      * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
      */
-    BGPSessionListener getPeer(IpAddress ip, Ipv4Address sourceId, Ipv4Address remoteId, Open open) throws BGPDocumentedException;
+    BGPSessionListener getPeer(IpAddress ip, Ipv4Address sourceId, Ipv4Address remoteId, Open open)
+            throws BGPDocumentedException;
 
     /**
      * @param ip address of remote peer

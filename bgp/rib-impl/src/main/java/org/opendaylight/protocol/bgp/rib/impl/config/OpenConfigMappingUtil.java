@@ -65,10 +65,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public final class OpenConfigMappingUtil {
+final class OpenConfigMappingUtil {
 
-    public static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
-    public static final Optional<String> APPLICATION_PEER_GROUP_NAME_OPT = Optional.of(APPLICATION_PEER_GROUP_NAME);
+    static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
+    static final Optional<String> APPLICATION_PEER_GROUP_NAME_OPT = Optional.of(APPLICATION_PEER_GROUP_NAME);
     static final int HOLDTIMER = 90;
     private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
     private static final List<AfiSafi> DEFAULT_AFISAFI = ImmutableList.of(IPV4_AFISAFI);
@@ -79,7 +79,7 @@ public final class OpenConfigMappingUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static String getRibInstanceName(final InstanceIdentifier<?> rootIdentifier) {
+    static String getRibInstanceName(final InstanceIdentifier<?> rootIdentifier) {
         return rootIdentifier.firstKeyOf(Protocol.class).getName();
     }
 
@@ -132,7 +132,7 @@ public final class OpenConfigMappingUtil {
         return null;
     }
 
-    public static KeyMapping getNeighborKey(final Neighbor neighbor) {
+    static KeyMapping getNeighborKey(final Neighbor neighbor) {
         if (neighbor.getConfig() != null) {
             final String authPassword = neighbor.getConfig().getAuthPassword();
             if (authPassword != null) {
@@ -142,13 +142,13 @@ public final class OpenConfigMappingUtil {
         return null;
     }
 
-    public static InstanceIdentifier<Neighbor> getNeighborInstanceIdentifier(
+    static InstanceIdentifier<Neighbor> getNeighborInstanceIdentifier(
             final InstanceIdentifier<Bgp> rootIdentifier,
             final NeighborKey neighborKey) {
         return rootIdentifier.child(Neighbors.class).child(Neighbor.class, neighborKey);
     }
 
-    public static String getNeighborInstanceName(final InstanceIdentifier<?> rootIdentifier) {
+    static String getNeighborInstanceName(final InstanceIdentifier<?> rootIdentifier) {
         return Ipv4Util.toStringIP(rootIdentifier.firstKeyOf(Neighbor.class).getNeighborAddress());
     }
 
@@ -168,7 +168,7 @@ public final class OpenConfigMappingUtil {
     }
 
     //make sure IPv4 Unicast (RFC 4271) when required
-    public static List<AfiSafi> getAfiSafiWithDefault(
+    static List<AfiSafi> getAfiSafiWithDefault(
             final BgpCommonAfiSafiList afiSAfis, final boolean setDeafultIPv4) {
         if (afiSAfis == null || afiSAfis.getAfiSafi() == null) {
             return setDeafultIPv4 ? DEFAULT_AFISAFI : Collections.emptyList();
@@ -184,7 +184,7 @@ public final class OpenConfigMappingUtil {
         return afiSafi;
     }
 
-    public static ClusterIdentifier getGlobalClusterIdentifier(final org.opendaylight.yang.gen.v1.http.openconfig.net
+    static ClusterIdentifier getGlobalClusterIdentifier(final org.opendaylight.yang.gen.v1.http.openconfig.net
             .yang.bgp.rev151009.bgp.global.base.Config globalConfig) {
         final GlobalConfigAugmentation globalConfigAugmentation
                 = globalConfig.augmentation(GlobalConfigAugmentation.class);
@@ -195,7 +195,7 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nullable
-    public static ClusterIdentifier getNeighborClusterIdentifier(
+    static ClusterIdentifier getNeighborClusterIdentifier(
             @Nullable final RouteReflector routeReflector,
             @Nullable final PeerGroup peerGroup) {
         if (peerGroup != null) {
@@ -219,7 +219,7 @@ public final class OpenConfigMappingUtil {
         return null;
     }
 
-    public static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis,
+    static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
         for (final AfiSafi afiSafi : afiSafis) {
@@ -241,7 +241,7 @@ public final class OpenConfigMappingUtil {
         return pathSelectionModes;
     }
 
-    public static boolean isApplicationPeer(final Neighbor neighbor) {
+    static boolean isApplicationPeer(final Neighbor neighbor) {
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
                 .Config config = neighbor.getConfig();
         if (config != null) {
@@ -254,7 +254,7 @@ public final class OpenConfigMappingUtil {
         return false;
     }
 
-    public static List<AddressFamilies> toAddPathCapability(final List<AfiSafi> afiSafis,
+    static List<AddressFamilies> toAddPathCapability(final List<AfiSafi> afiSafis,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<AddressFamilies> addPathCapability = new ArrayList<>();
         for (final AfiSafi afiSafi : afiSafis) {
@@ -279,7 +279,7 @@ public final class OpenConfigMappingUtil {
         return SendReceive.Receive;
     }
 
-    public static PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
+    static PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
         if (isRrClient(neighbor)) {
             return PeerRole.RrClient;
         }
@@ -303,7 +303,7 @@ public final class OpenConfigMappingUtil {
         return false;
     }
 
-    public static List<BgpTableType> toTableTypes(final List<AfiSafi> afiSafis,
+    static List<BgpTableType> toTableTypes(final List<AfiSafi> afiSafis,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         return afiSafis.stream()
                 .map(afiSafi -> tableTypeRegistry.getTableType(afiSafi.getAfiSafiName()))
@@ -312,7 +312,7 @@ public final class OpenConfigMappingUtil {
                 .collect(Collectors.toList());
     }
 
-    public static Set<TablesKey> toTableKey(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer
+    static Set<TablesKey> toTableKey(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer
             tableTypeRegistry) {
         return afiSafis.stream()
                 .map(afiSafi -> tableTypeRegistry.getTableKey(afiSafi.getAfiSafiName()))
@@ -321,8 +321,7 @@ public final class OpenConfigMappingUtil {
                 .collect(Collectors.toSet());
     }
 
-    @Nonnull
-    public static boolean isActive(final Neighbor neighbor, final PeerGroup peerGroup) {
+    static boolean isActive(final Neighbor neighbor, final PeerGroup peerGroup) {
         Boolean activeConnection = null;
         if (peerGroup != null) {
             activeConnection = isActive(peerGroup.getTransport());
@@ -338,7 +337,7 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nonnull
-    public static PeerRole toPeerRole(final Neighbor neighbor, final PeerGroup peerGroup) {
+    static PeerRole toPeerRole(final Neighbor neighbor, final PeerGroup peerGroup) {
         PeerRole role = null;
         if (peerGroup != null) {
             role = toPeerRole(peerGroup);
@@ -354,7 +353,7 @@ public final class OpenConfigMappingUtil {
         return role;
     }
 
-    public static int getHoldTimer(final Neighbor neighbor, final PeerGroup peerGroup) {
+    static int getHoldTimer(final Neighbor neighbor, final PeerGroup peerGroup) {
         Integer hold = null;
         if (peerGroup != null) {
             hold = getHoldTimer(peerGroup.getTimers());
@@ -372,7 +371,7 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nonnull
-    public static AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
+    static AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
             .bgp.neighbor.group.Config config, final PeerGroup peerGroup, final AsNumber localAs) {
         AsNumber neighborAs = null;
         if (peerGroup != null) {
@@ -390,7 +389,7 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nonnull
-    public static AsNumber getLocalPeerAs(@Nullable final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+    static AsNumber getLocalPeerAs(@Nullable final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
             .rev151009.bgp.neighbor.group.Config config, @Nonnull final AsNumber globalAs) {
         if (config != null) {
             final AsNumber peerAs = config.getLocalAs();
@@ -401,7 +400,7 @@ public final class OpenConfigMappingUtil {
         return globalAs;
     }
 
-    public static int getRetryTimer(final Neighbor neighbor, final PeerGroup peerGroup) {
+    static int getRetryTimer(final Neighbor neighbor, final PeerGroup peerGroup) {
         Integer retryTimer = null;
         if (peerGroup != null) {
             retryTimer = getRetryTimer(peerGroup.getTimers());
@@ -419,7 +418,7 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nonnull
-    public static PortNumber getPort(final Neighbor neighbor, final PeerGroup peerGroup) {
+    static PortNumber getPort(final Neighbor neighbor, final PeerGroup peerGroup) {
         PortNumber port = null;
         if (peerGroup != null) {
             port = getPort(peerGroup.getTransport(), PeerGroupTransportConfig.class);
@@ -437,7 +436,7 @@ public final class OpenConfigMappingUtil {
     }
 
     @Nullable
-    public static IpAddress getLocalAddress(@Nullable final Transport transport) {
+    static IpAddress getLocalAddress(@Nullable final Transport transport) {
         if (transport != null && transport.getConfig() != null) {
             final BgpNeighborTransportConfig.LocalAddress localAddress = transport.getConfig().getLocalAddress();
             if (localAddress != null ) {

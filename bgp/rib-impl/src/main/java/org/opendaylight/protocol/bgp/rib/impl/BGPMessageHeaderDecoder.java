@@ -12,7 +12,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 /**
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.1">BGP Message Header</a>
  */
-public final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
+final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
 
     private static final int MARKER_SIZE = 16;
 
@@ -48,11 +48,11 @@ public final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder 
         super(maxFrameSize, MARKER_SIZE, LENGTH_SIZE, -MARKER_SIZE - LENGTH_SIZE, 0);
     }
 
-    public static BGPMessageHeaderDecoder getBGPMessageHeaderDecoder() {
+    static BGPMessageHeaderDecoder getBGPMessageHeaderDecoder() {
         return new BGPMessageHeaderDecoder(MAX_FRAME_SIZE);
     }
 
-    public static BGPMessageHeaderDecoder getExtendedBGPMessageHeaderDecoder() {
+    static BGPMessageHeaderDecoder getExtendedBGPMessageHeaderDecoder() {
         return new BGPMessageHeaderDecoder(EXTENDED_MAX_FRAME_SIZE);
     }
 

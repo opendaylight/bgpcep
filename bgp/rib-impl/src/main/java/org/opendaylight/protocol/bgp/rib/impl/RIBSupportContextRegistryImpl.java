@@ -44,7 +44,8 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
         this.codecs = requireNonNull(codecs);
     }
 
-    static RIBSupportContextRegistryImpl create(final RIBExtensionConsumerContext extensions, final CodecsRegistry codecs) {
+    static RIBSupportContextRegistryImpl create(final RIBExtensionConsumerContext extensions,
+            final CodecsRegistry codecs) {
         return new RIBSupportContextRegistryImpl(extensions, codecs);
     }
 

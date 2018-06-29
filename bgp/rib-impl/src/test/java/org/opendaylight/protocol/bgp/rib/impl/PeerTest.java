@@ -144,8 +144,8 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(this.neighborAddress.getIpv4Address().getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
-        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=interface org.opendaylight.yang.gen.v1.urn"
-                        + ".opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily,"
+        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=interface org.opendaylight.yang.gen.v1"
+                        + ".urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily,"
                         + " _safi=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types"
                         + ".rev180329.UnicastSubsequentAddressFamily}]}",
                 this.classic.toString());
@@ -158,8 +158,8 @@ public class PeerTest extends AbstractRIBTestSetup {
         ub.setNlri(nlris);
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
-        final CNextHop nextHop = new Ipv4NextHopCaseBuilder()
-                .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+        final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                .setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
         final AttributesBuilder ab = new AttributesBuilder();
         ub.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
         try {
@@ -179,8 +179,8 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(3, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
-        final BGPPeer testingPeer = new BGPPeer(this.tableRegistry, this.neighborAddress, getRib(), PeerRole.Ibgp, null,
-                Collections.emptySet(), Collections.emptySet());
+        final BGPPeer testingPeer = new BGPPeer(this.tableRegistry, this.neighborAddress, getRib(), PeerRole.Ibgp,
+                null, Collections.emptySet(), Collections.emptySet());
         testingPeer.instantiateServiceInstance();
         testingPeer.onSessionUp(this.session);
         assertEquals(3, this.routes.size());

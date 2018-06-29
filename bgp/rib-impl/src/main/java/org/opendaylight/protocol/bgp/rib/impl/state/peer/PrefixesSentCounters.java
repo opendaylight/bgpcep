@@ -9,11 +9,12 @@
 package org.opendaylight.protocol.bgp.rib.impl.state.peer;
 
 /**
- * Expose Prefixes Sent Count
+ * Expose Prefixes Sent Count.
  */
 public interface PrefixesSentCounters {
     /**
-     * Prefixes sent to peer
+     * Prefixes sent to peer.
+     *
      * @return count
      */
     long getPrefixesSentCount();

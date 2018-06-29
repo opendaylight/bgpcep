@@ -44,7 +44,8 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
         this.classContext = requireNonNull(strategy);
     }
 
-    public static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy classStrategy) {
+    public static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory,
+            final GeneratedClassLoadingStrategy classStrategy) {
         return new CodecsRegistryImpl(codecFactory, classStrategy);
     }
 

@@ -12,18 +12,20 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
 /**
- * Expose Prefixes Installed Count
+ * Expose Prefixes Installed Count.
  */
 public interface PrefixesInstalledCounters {
     /**
-     * Prefixes received and installed from Peer count (EffRibIn Count) pet Table
+     * Prefixes received and installed from Peer count (EffRibIn Count) pet Table.
+     *
      * @param tablesKey table
      * @return count
      */
-    long getPrefixedInstalledCount(@Nonnull final TablesKey tablesKey);
+    long getPrefixedInstalledCount(@Nonnull TablesKey tablesKey);
 
     /**
-     * total Prefixes received and installed from Peer count (EffRibIn Count)
+     * total Prefixes received and installed from Peer count (EffRibIn Count).
+     *
      * @return count
      */
     long getTotalPrefixesInstalled();

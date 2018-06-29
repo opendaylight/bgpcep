@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Common interface for BgpPeer and AppPeer beans
+ * Common interface for BgpPeer and AppPeer beans.
  */
 public interface PeerBean extends AutoCloseable {
 

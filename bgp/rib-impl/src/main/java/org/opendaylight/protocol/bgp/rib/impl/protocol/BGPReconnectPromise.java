@@ -51,15 +51,19 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
             this.pending.cancel(true);
         }
 
-        // Set up a client with pre-configured bootstrap, but add a closed channel handler into the pipeline to support reconnect attempts
-        this.pending = connectSessionPromise(this.address, this.retryTimer, this.bootstrap, this.peerRegistry, (channel, promise) -> {
-            this.initializer.initializeChannel(channel, promise);
-            // add closed channel handler
-            // This handler has to be added as last channel handler and the channel inactive event has to be caught by it
-            // Handlers in front of it can react to channelInactive event, but have to forward the event or the reconnect will not work
-            // This handler is last so all handlers in front of it can handle channel inactive (to e.g. resource cleanup) before a new connection is started
-            channel.pipeline().addLast(new ClosedChannelHandler(this));
-        });
+        // Set up a client with pre-configured bootstrap, but add a closed channel handler
+        // into the pipeline to support reconnect attempts
+        this.pending = connectSessionPromise(this.address, this.retryTimer, this.bootstrap, this.peerRegistry,
+                (channel, promise) -> {
+                    this.initializer.initializeChannel(channel, promise);
+                    // add closed channel handler
+                    // This handler has to be added as last channel handler and the channel inactive event has to be
+                    // caught by it
+                    // Handlers in front of it can react to channelInactive event, but have to forward the event or
+                    // the reconnect will not work. This handler is last so all handlers in front of it can handle
+                    // channel inactive (to e.g. resource cleanup) before a new connection is started
+                    channel.pipeline().addLast(new ClosedChannelHandler(this));
+                });
 
         this.pending.addListener(future -> {
             if (!future.isSuccess() && !this.isDone()) {

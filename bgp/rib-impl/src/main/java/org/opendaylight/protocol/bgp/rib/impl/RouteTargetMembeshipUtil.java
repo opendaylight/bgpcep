@@ -18,15 +18,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
 
-/**
- * @author Claudio D. Gasparini
- */
-public final class RouteTargetMembeshipUtil {
+final class RouteTargetMembeshipUtil {
     private RouteTargetMembeshipUtil() {
         throw new UnsupportedOperationException();
     }
 
-    public static <R extends Route> Optional<RouteTarget> getRT(final R route) {
+    static <R extends Route> Optional<RouteTarget> getRT(final R route) {
         if (!(route instanceof RouteTargetConstrainRoute)) {
             return Optional.empty();
         }

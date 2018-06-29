@@ -97,10 +97,10 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
-    protected static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
-    protected static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
-    protected static final TablesKey KEY = new TablesKey(AFI, SAFI);
-    protected static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
+    static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
+    static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
+    static final TablesKey KEY = new TablesKey(AFI, SAFI);
+    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
     private RIBImpl rib;
     private BindingCodecTreeFactory codecFactory;

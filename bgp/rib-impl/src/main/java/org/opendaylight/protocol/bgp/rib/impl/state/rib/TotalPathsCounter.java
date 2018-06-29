@@ -9,11 +9,12 @@
 package org.opendaylight.protocol.bgp.rib.impl.state.rib;
 
 /**
- * Expose Total Paths Count per RIB
+ * Expose Total Paths Count per RIB.
  */
 public interface TotalPathsCounter {
     /**
-     * Total Paths installed on RIB
+     * Total Paths installed on RIB.
+     *
      * @return count
      */
     long getPathsCount();

@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
 
 /**
- * Client negotiator. Validates established connections using BGPClientSessionValidator
+ * Client negotiator. Validates established connections using BGPClientSessionValidator.
  */
 public final class BGPClientSessionNegotiator extends AbstractBGPSessionNegotiator {
 

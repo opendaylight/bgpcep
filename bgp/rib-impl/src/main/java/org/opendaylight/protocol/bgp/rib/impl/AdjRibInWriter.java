@@ -191,7 +191,8 @@ final class AdjRibInWriter {
                 LOG.warn("No support for table type {}, skipping it", tableKey);
                 continue;
             }
-            installAdjRibsOutTables(newPeerPath, rs, instanceIdentifierKey, tableKey, addPathTablesType.get(tableKey), tx);
+            installAdjRibsOutTables(newPeerPath, rs, instanceIdentifierKey, tableKey,
+                    addPathTablesType.get(tableKey), tx);
             installAdjRibInTables(newPeerPath, tableKey, rs, instanceIdentifierKey, tx, tb);
         }
         return tb.build();

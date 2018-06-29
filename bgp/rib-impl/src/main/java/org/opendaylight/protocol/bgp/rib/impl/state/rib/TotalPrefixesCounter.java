@@ -9,11 +9,12 @@
 package org.opendaylight.protocol.bgp.rib.impl.state.rib;
 
 /**
- * Expose Total Prefixes Count per RIB
+ * Expose Total Prefixes Count per RIB.
  */
 public interface TotalPrefixesCounter {
     /**
-     * Total Prefixes installed on RIB
+     * Total Prefixes installed on RIB.
+     *
      * @return count
      */
     long getPrefixesCount();

@@ -58,13 +58,13 @@ public final class CodecsImpl implements Codecs {
             .child(Tables.class)
             .build();
     private static final InstanceIdentifier<MpReachNlri> MP_REACH_NLRI_II = InstanceIdentifier.create(Update.class)
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path
+                        .attributes.Attributes.class)
                 .augmentation(Attributes1.class)
                 .child(MpReachNlri.class);
     private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_NLRI_II = InstanceIdentifier.create(Update.class)
-            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes.class)
-            .augmentation(Attributes2.class)
-            .child(MpUnreachNlri.class);
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path
+                    .attributes.Attributes.class).augmentation(Attributes2.class).child(MpUnreachNlri.class);
 
     static {
         final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
@@ -111,9 +111,12 @@ public final class CodecsImpl implements Codecs {
             .streamChild(this.ribSupport.routesContainerClass())
             .streamChild(this.ribSupport.routesListClass());
 
-        this.attributesCodec = routeListCodec.streamChild(Attributes.class).createCachingCodec(this.cacheableAttributes);
-        this.reachNlriCodec = tree.getSubtreeCodec(MP_REACH_NLRI_II).createCachingCodec(this.ribSupport.cacheableNlriObjects());
-        this.unreachNlriCodec = tree.getSubtreeCodec(MP_UNREACH_NLRI_II).createCachingCodec(this.ribSupport.cacheableNlriObjects());
+        this.attributesCodec = routeListCodec.streamChild(Attributes.class)
+                .createCachingCodec(this.cacheableAttributes);
+        this.reachNlriCodec = tree.getSubtreeCodec(MP_REACH_NLRI_II)
+                .createCachingCodec(this.ribSupport.cacheableNlriObjects());
+        this.unreachNlriCodec = tree.getSubtreeCodec(MP_UNREACH_NLRI_II)
+                .createCachingCodec(this.ribSupport.cacheableNlriObjects());
     }
 
     @Override
