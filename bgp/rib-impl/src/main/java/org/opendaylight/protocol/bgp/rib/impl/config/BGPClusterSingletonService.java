@@ -269,7 +269,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
 
         final Optional<String> peerGroupName= getPeerGroupName(neighbor.getConfig());
         peerGroupName.ifPresent(s -> this.peersGroups.computeIfAbsent(s, k -> new ArrayList<>()).add(bgpPeer));
-        LOG.debug("Peer instance created {}", bgpPeer);
+        LOG.debug("Peer instance created {}", neighbor.key().getNeighborAddress());
     }
 
     private static Optional<String> getPeerGroupName(final Config config) {
