@@ -313,7 +313,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             return;
         }
         LOG.info("Closing session: {}", this);
-        this.channel.close().addListener((ChannelFutureListener) future -> Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause()));
+        this.channel.close().addListener((ChannelFutureListener) future
+                -> Preconditions.checkArgument(future.isSuccess(),
+                "Channel failed to close: %s", future.cause()));
         this.state = State.IDLE;
         removePeerSession();
         this.sessionState.setSessionState(this.state);
@@ -329,7 +331,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     synchronized void terminate(final BGPDocumentedException e) {
         final BGPError error = e.getError();
         final byte[] data = e.getData();
-        final NotifyBuilder builder = new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode());
+        final NotifyBuilder builder = new NotifyBuilder().setErrorCode(error.getCode())
+                .setErrorSubcode(error.getSubcode());
         if (data != null && data.length != 0) {
             builder.setData(data);
         }

@@ -66,11 +66,10 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     private static final TablesKey TABLE_KEY
             = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
+    private final IpAddress localAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
-    private final IpAddress localAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
-
     @Mock
     private BGPDispatcher dispatcher;
     private CodecsRegistryImpl codecsRegistry;
@@ -113,7 +112,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext2,
                 this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies,
                 tables, Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
-                        .createBestPathSelectionStrategy()));
+                .createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());

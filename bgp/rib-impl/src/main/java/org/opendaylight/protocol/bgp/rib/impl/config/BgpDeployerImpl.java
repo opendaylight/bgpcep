@@ -66,7 +66,11 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     private final BundleContext bundleContext;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final ClusterSingletonServiceProvider provider;
-    private final LoadingCache<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>> peerGroups = CacheBuilder.newBuilder()
+    @GuardedBy("this")
+    private final Map<InstanceIdentifier<Bgp>, BGPClusterSingletonService> bgpCss = new HashMap<>();
+    private final DataBroker dataBroker;
+    private final LoadingCache<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>> peerGroups
+            = CacheBuilder.newBuilder()
             .build(new CacheLoader<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>>() {
                 @Override
                 public Optional<PeerGroup> load(final InstanceIdentifier<PeerGroup> key)
@@ -74,11 +78,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
                     return loadPeerGroup(key);
                 }
             });
-    private ListenerRegistration<BgpDeployerImpl> registration;
-    @GuardedBy("this")
-    private final Map<InstanceIdentifier<Bgp>, BGPClusterSingletonService> bgpCss = new HashMap<>();
-    private final DataBroker dataBroker;
     private final String networkInstanceName;
+    private ListenerRegistration<BgpDeployerImpl> registration;
     @GuardedBy("this")
     private boolean closed;
 
@@ -135,7 +136,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
                     = rootNode.getModifiedChildren().stream()
                     .filter(mod -> mod.getModificationType() == DataObjectModification.ModificationType.DELETE)
                     .collect(Collectors.toList());
-            final List<DataObjectModification<? extends DataObject>> changedConfig = rootNode.getModifiedChildren().stream()
+            final List<DataObjectModification<? extends DataObject>> changedConfig
+                    = rootNode.getModifiedChildren().stream()
                     .filter(mod -> mod.getModificationType() != DataObjectModification.ModificationType.DELETE)
                     .collect(Collectors.toList());
             handleDeletions(deletedConfig, rootIdentifier);

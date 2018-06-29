@@ -32,8 +32,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class SynchronizationTest {
 
-    private final TablesKey ipv4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    private final TablesKey linkstate = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+    private final TablesKey ipv4
+            = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private final TablesKey linkstate
+            = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
     private BGPSynchronization bs;
 
@@ -68,8 +70,8 @@ public class SynchronizationTest {
         mpBuilder.setAfi(LinkstateAddressFamily.class);
         mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
 
-        paBuilder = new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(
-                mpBuilder.build()).build());
+        paBuilder = new AttributesBuilder().addAugmentation(Attributes1.class,
+                new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
 
         this.lsm = new UpdateBuilder().setAttributes(paBuilder.build()).build();
 

@@ -13,26 +13,29 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
 /**
- * Expose Prefixes Received Count
+ * Expose Prefixes Received Count.
  */
 public interface PrefixesReceivedCounters {
     /**
-     * Prefixes received from Peer count (AdjRinIn Count) pet Table
+     * Prefixes received from Peer count (AdjRinIn Count) pet Table.
+     *
      * @param tablesKey table
      * @return count
      */
-    long getPrefixedReceivedCount(@Nonnull final TablesKey tablesKey);
+    long getPrefixedReceivedCount(@Nonnull TablesKey tablesKey);
 
     /**
-     * list of supported tables per Peer
+     * list of supported tables per Peer.
+     *
      * @return tables list
      */
     Set<TablesKey> getTableKeys();
 
     /**
-     * table supported per Peer
+     * table supported per Peer.
+     *
      * @param tablesKey table type
      * @return true if supported
      */
-    boolean isSupported(TablesKey tablesKey);
+    boolean isSupported(@Nonnull TablesKey tablesKey);
 }

@@ -14,29 +14,33 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 
 /**
- * Serves to expose BGP Session, Timers, Transport, BGPErrorHandlingState Operational State
+ * Serves to expose BGP Session, Timers, Transport, BGPErrorHandlingState Operational State.
  */
 public interface BGPSessionStateProvider {
     /**
-     * BGP Operational Session State
+     * BGP Operational Session State.
+     *
      * @return BGPSessionState
      */
     BGPSessionState getBGPSessionState();
 
     /**
-     * BGP Operational Timers State
+     * BGP Operational Timers State.
+     *
      * @return BGPTimersState
      */
     BGPTimersState getBGPTimersState();
 
     /**
-     * BGP Operational Transport State
+     * BGP Operational Transport State.
+     *
      * @return BGPTransportState
      */
     BGPTransportState getBGPTransportState();
 
     /**
-     * Register BGP Operational Messages State Listener
+     * Register BGP Operational Messages State Listener.
+     *
      * @param bgpMessagesListener BGPMessagesListener
      */
     void registerMessagesCounter(BGPMessagesListener bgpMessagesListener);

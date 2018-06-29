@@ -93,11 +93,13 @@ public class AbstractBGPDispatcherTest {
         final List<BgpParameters> tlvs = Lists.newArrayList();
         final List<OptionalCapabilities> capas = Lists.newArrayList();
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(IPV_4_TT.getAfi()).setSafi(IPV_4_TT.getSafi()).build()).build())
-            .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build())
-            .build()).build());
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
+                CParameters1.class, new CParameters1Builder()
+                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                                .setAfi(IPV_4_TT.getAfi()).setSafi(IPV_4_TT.getSafi()).build()).build())
+                .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build())
+                .build()).build());
+        capas.add(new OptionalCapabilitiesBuilder()
+                .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final BgpId bgpId = new BgpId(new Ipv4Address(socketAddress.getAddress().getHostAddress()));
         return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs);
@@ -105,7 +107,7 @@ public class AbstractBGPDispatcherTest {
 
     Channel createServer(final InetSocketAddress serverAddress) {
         this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())),
-            this.serverListener, createPreferences(serverAddress));
+                this.serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(AbstractBGPDispatcherTest.class).info("createServer");
         final ChannelFuture future = this.serverDispatcher.createServer(serverAddress);
         future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(),

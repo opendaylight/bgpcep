@@ -64,8 +64,8 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
-    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
-    static final QName PATHID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
+    private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
+    private static final QName PATHID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
     private final YangInstanceIdentifier.NodeIdentifier routeKeyPrefixLeaf = new YangInstanceIdentifier
             .NodeIdentifier(PREFIX_QNAME);
     private final YangInstanceIdentifier.NodeIdentifier routeKeyPathIdLeaf = new YangInstanceIdentifier

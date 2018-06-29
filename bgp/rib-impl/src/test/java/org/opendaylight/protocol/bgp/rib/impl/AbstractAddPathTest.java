@@ -232,34 +232,37 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         return connectPeer(peer, clientDispatcher);
     }
 
-    protected static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4Address peerAddress, final RIBImpl ribImpl,
-            final BgpParameters bgpParameters, final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry) {
+    static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
+            final Ipv4Address peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
+            final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
-        final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), ribImpl, peerRole, null,
-            AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+        final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), ribImpl, peerRole,
+                null, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
-            new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));
+                new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));
         bgpPeer.instantiateServiceInstance();
         return bgpPeer;
     }
 
     private static BGPSessionImpl connectPeer(final Ipv4Address localAddress, final BGPDispatcherImpl dispatcherImpl)
-        throws InterruptedException {
-        final Future<BGPSessionImpl> future = dispatcherImpl.createClient(new InetSocketAddress(localAddress.getValue(), PORT),
-            new InetSocketAddress(RIB_ID, PORT), RETRY_TIMER, true);
+            throws InterruptedException {
+        final Future<BGPSessionImpl> future = dispatcherImpl
+                .createClient(new InetSocketAddress(localAddress.getValue(), PORT),
+                        new InetSocketAddress(RIB_ID, PORT), RETRY_TIMER, true);
         Thread.sleep(200);
         waitFutureSuccess(future);
         Thread.sleep(100);
         return future.getNow();
     }
 
-    protected static BgpParameters createParameter(final boolean addPath) {
+    static BgpParameters createParameter(final boolean addPath) {
         final OptionalCapabilities mp = new OptionalCapabilitiesBuilder().setCParameters(
             new CParametersBuilder().addAugmentation(CParameters1.class,
                 new CParameters1Builder().setMultiprotocolCapability(
-                    new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                    new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
+                            .setSafi(UnicastSubsequentAddressFamily.class)
                         .build()).build()).build()).build();
         final List<OptionalCapabilities> capabilities = Lists.newArrayList(mp);
         if (addPath) {
@@ -278,8 +281,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         return new BgpParametersBuilder().setOptionalCapabilities(capabilities).build();
     }
 
-    private static Update createSimpleUpdate(final Ipv4Prefix prefix, final PathId pathId, final ClusterIdentifier clusterId,
-        final long localPreference) {
+    private static Update createSimpleUpdate(final Ipv4Prefix prefix, final PathId pathId,
+            final ClusterIdentifier clusterId, final long localPreference) {
         final AttributesBuilder attBuilder = new AttributesBuilder();
         attBuilder.setLocalPref(new LocalPrefBuilder().setPref(localPreference).build());
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());

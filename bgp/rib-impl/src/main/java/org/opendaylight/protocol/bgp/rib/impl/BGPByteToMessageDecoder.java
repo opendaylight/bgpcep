@@ -23,26 +23,23 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.PeerSpecificParserConstrain
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
     private static final Logger LOG = LoggerFactory.getLogger(BGPByteToMessageDecoder.class);
     private final MessageRegistry registry;
     private final PeerSpecificParserConstraintProvider constraints;
 
-    public BGPByteToMessageDecoder(final MessageRegistry registry) {
+    BGPByteToMessageDecoder(final MessageRegistry registry) {
         this.constraints = new PeerSpecificParserConstraintImpl();
         this.registry = requireNonNull(registry);
     }
 
-    public <T extends PeerConstraint> boolean addDecoderConstraint(final Class<T> classType, final T peerConstraint) {
+    <T extends PeerConstraint> boolean addDecoderConstraint(final Class<T> classType, final T peerConstraint) {
         return this.constraints.addPeerConstraint(classType, peerConstraint);
     }
 
     @Override
-    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws BGPDocumentedException,
-            BGPParsingException {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out)
+            throws BGPDocumentedException, BGPParsingException {
         if (in.isReadable()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
