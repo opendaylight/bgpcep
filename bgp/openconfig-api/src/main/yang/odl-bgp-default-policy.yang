@@ -297,14 +297,6 @@ module odl-bgp-policy {
         }
     }
 
-    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
-        ext:augment-identifier set-originator-id-to-advertizer-router-id;
-        container set-originator-id-to-advertizer-router-id {
-
-        presence "node is present in the config data to apply the set-originator-id-to-advertizer-router-id action";
-        description "action to set router-id of the advertiser as Originator attribute";
-        }
-    }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
         ext:augment-identifier set-local-address-as-next-hop;
