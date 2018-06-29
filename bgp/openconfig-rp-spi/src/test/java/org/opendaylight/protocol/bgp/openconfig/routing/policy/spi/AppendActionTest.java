@@ -48,7 +48,7 @@ public class AppendActionTest extends AbstractStatementRegistryTest {
 
 
     @Test
-    public void testAppend() {
+    public void testMultipleAppend() {
         Statement statement = this.basicStatements.stream()
                 .filter(st -> st.getName().equals("multiple-append-test")).findFirst().get();
         final RouteAttributeContainer attributeContainer
@@ -66,6 +66,26 @@ public class AppendActionTest extends AbstractStatementRegistryTest {
                         .setGlobal(new Ipv4Address("4.5.6.7")).build()).build())
                 .setLocalPref(new LocalPrefBuilder().setPref(100L).build())
                 .setMultiExitDisc(new MultiExitDiscBuilder().setMed(15L).build())
+                .build();
+        assertEquals(expected, result.getAttributes());
+    }
+
+    @Test
+    public void testNextHopSelf() {
+        Statement statement = this.basicStatements.stream()
+                .filter(st -> st.getName().equals("next-hop-self-append-test")).findFirst().get();
+        final RouteAttributeContainer attributeContainer
+                = routeAttributeContainerFalse(new AttributesBuilder().build());
+        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
+                this.baseAttributes,
+                IPV4UNICAST.class,
+                this.exportParameters,
+                attributeContainer,
+                statement);
+
+        final Attributes expected = new AttributesBuilder()
+                .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                        .setGlobal(IPV4).build()).build())
                 .build();
         assertEquals(expected, result.getAttributes());
     }
