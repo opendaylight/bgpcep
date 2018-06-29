@@ -185,8 +185,8 @@ final class ActionsRegistryImpl {
 
                 if (nhAction != null) {
                     final IpAddress address = nhAction.getIpAddress();
+                    CNextHop nhNew;
                     if (address != null) {
-                        CNextHop nhNew;
                         if (address.getIpv4Address() != null) {
                             nhNew = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
                                     .setGlobal(address.getIpv4Address()).build()).build();
@@ -195,6 +195,11 @@ final class ActionsRegistryImpl {
                                     .setGlobal(address.getIpv6Address()).build()).build();
                         }
 
+                        attributesUpdatedBuilder.setCNextHop(nhNew);
+                    } else if (nhAction.getEnumeration() != null
+                            && BgpNextHopType.Enumeration.SELF == nhAction.getEnumeration()) {
+                        nhNew = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                                .setGlobal(routeEntryInfo.getOriginatorId()).build()).build();
                         attributesUpdatedBuilder.setCNextHop(nhNew);
                     }
                 }

@@ -22,7 +22,6 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetCommunityHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetExtCommunityHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetOriginatorIdPrependHandler;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.SetOriginatorIdToAdvertizerRouterIdHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchAfiSafiNotInHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchAsPathSetHandler;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions.MatchBgpNeighborSetHandler;
@@ -46,9 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchRoleSetCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.NonTransitiveAttributesFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetClusterIdPrepend;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetLocalAddressAsNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetOriginatorIdPrepend;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetOriginatorIdToAdvertizerRouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.VpnNonMemberCondition;
 
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
@@ -115,11 +112,5 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
         registration.add(provider.registerBgpActionAugmentationPolicy(SetClusterIdPrepend.class,
                 new SetClusterIdPrependHandler()));
-
-        registration.add(provider.registerBgpActionAugmentationPolicy(SetOriginatorIdToAdvertizerRouterId.class,
-                SetOriginatorIdToAdvertizerRouterIdHandler.getInstance()));
-
-        registration.add(provider.registerBgpActionAugmentationPolicy(SetLocalAddressAsNextHop.class,
-                SetLocalAddressAsNextHopHandler.getInstance()));
     }
 }

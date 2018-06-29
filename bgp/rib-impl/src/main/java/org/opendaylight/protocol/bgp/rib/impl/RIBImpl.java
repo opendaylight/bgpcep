@@ -275,7 +275,10 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
 
     @Override
     public void refreshTable(final TablesKey tk, final PeerId peerId) {
-        this.vpnTableRefresher.get(tk).refreshTable(tk, peerId);
+        final RibOutRefresh table = this.vpnTableRefresher.get(tk);
+        if (table != null) {
+            table.refreshTable(tk, peerId);
+        }
     }
 
     @Override
