@@ -21,4 +21,12 @@
   <bean id="RIBActivator" class="org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.RIBActivator"/>
   <service ref="RIBActivator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
            odl:type="org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.RIBActivator"/>
+
+  <bean id="StatementActivator"
+        class="org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.StatementActivator">
+  </bean>
+
+  <service ref="StatementActivator"
+           interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementProviderActivator"
+           odl:type="org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.StatementActivator"/>
 </blueprint>

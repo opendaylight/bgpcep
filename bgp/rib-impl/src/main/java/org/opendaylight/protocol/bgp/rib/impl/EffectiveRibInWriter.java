@@ -42,7 +42,10 @@ import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesReceivedCounter
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
+import org.opendaylight.protocol.bgp.route.targetcontrain.spi.ClientRouteTargetContrainCache;
+import org.opendaylight.protocol.bgp.route.targetcontrain.spi.RouteTargetMembeshipUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
@@ -52,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
@@ -95,6 +99,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final DataBroker databroker;
     private final List<RouteTarget> rtMemberships;
     private final RibOutRefresh vpnTableRefresher;
+    private final ClientRouteTargetContrainCache rtCache;
     private ListenerRegistration<?> reg;
     private BindingTransactionChain chain;
     private final Map<TablesKey, LongAdder> prefixesReceived;
@@ -113,7 +118,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final KeyedInstanceIdentifier<Peer, PeerKey> peerIId,
             final Set<TablesKey> tables,
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final List<RouteTarget> rtMemberships) {
+            final List<RouteTarget> rtMemberships,
+            final ClientRouteTargetContrainCache rtCache) {
         this.registry = requireNonNull(rib.getRibSupportContext());
         this.chain = requireNonNull(chain);
         this.peerIId = requireNonNull(peerIId);
@@ -125,6 +131,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.peerImportParameters = peer;
         this.rtMemberships = rtMemberships;
+        this.rtCache = rtCache;
         this.vpnTableRefresher = rib;
     }
 
@@ -230,14 +237,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final WriteTransaction tx,
             final TablesKey tableKey, final RIBSupport<C, S, R, I> ribSupport,
             final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
-            final Collection<DataObjectModification<? extends DataObject>> routeChanges) {
-        for (final DataObjectModification<? extends DataObject> routeChanged : routeChanges) {
+            final Collection<DataObjectModification<R>> routeChanges) {
+        for (final DataObjectModification<R> routeChanged : routeChanges) {
             final I routeKey
                     = ((InstanceIdentifier.IdentifiableItem<R, I>) routeChanged.getIdentifier()).getKey();
             switch (routeChanged.getModificationType()) {
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, (R) routeChanged.getDataAfter());
+                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, routeChanged.getDataAfter());
                     break;
                 case DELETE:
                     final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
@@ -260,7 +267,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         if (effAtt.isPresent()) {
             final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
             if (rtMembership.isPresent()) {
-                this.rtMemberships.add(rtMembership.get());
+                final RouteTarget rt = rtMembership.get();
+                if(PeerRole.Ibgp != this.peerImportParameters.getFromPeerRole()) {
+                    this.rtCache.cacheRoute(route);
+                }
+                this.rtMemberships.add(rt);
                 this.rtMembershipsUpdated = true;
             }
             CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
@@ -269,6 +280,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         } else {
             final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
             if (rtMembership.isPresent()) {
+                if(PeerRole.Ibgp != this.peerImportParameters.getFromPeerRole()) {
+                    this.rtCache.uncacheRoute(route);
+                }
                 this.rtMemberships.remove(rtMembership.get());
                 this.rtMembershipsUpdated = true;
             }

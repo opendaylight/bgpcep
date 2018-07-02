@@ -68,7 +68,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
                     .setAs4SpecificCommon(AS_COMMON).build())
             .build();
     private static final RouteTargetConstrainRouteKey ROUTE_KEY
-            = new RouteTargetConstrainRouteKey(PATH_ID, "YAAAAEgCAgAAABQAZA==");
+            = new RouteTargetConstrainRouteKey(PATH_ID, "AgIAAAAUAGQ=");
     private static final RouteTargetConstrainRoute ROUTE = new RouteTargetConstrainRouteBuilder()
             .setRouteKey(ROUTE_KEY.getRouteKey())
             .setPathId(ROUTE_KEY.getPathId())

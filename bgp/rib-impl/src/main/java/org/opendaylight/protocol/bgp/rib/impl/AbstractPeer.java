@@ -82,6 +82,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     @GuardedBy("this")
     PeerId peerId;
     private FluentFuture<? extends CommitInfo> submitted;
+    RTCClientRouteCache rtCache = new RTCClientRouteCache();
 
     AbstractPeer(
             final RIB rib,
@@ -242,7 +243,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             }
             final R route = initializingRoute.getRoute();
 
-            final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer, this);
+            final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer,
+                    this, route.getRouteKey(), this.rtCache);
             final Optional<Attributes> effAttr = entryDep.getRoutingPolicies()
                     .applyExportPolicies(routeEntry, initializingRoute.getAttributes(), entryDep.getAfiSafType());
             final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
@@ -318,7 +320,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             }
             final R route = actualBestRoute.getRoute();
 
-            final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer, this);
+            final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer,
+                    this, route.getRouteKey(), this.rtCache);
             final Optional<Attributes> effAttr = entryDep.getRoutingPolicies()
                     .applyExportPolicies(routeEntry, actualBestRoute.getAttributes(), entryDep.getAfiSafType());
             final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
@@ -373,8 +376,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             Optional<Attributes> effAttr = Optional.empty();
             final Peer fromPeer = peerTracker.getPeer(fromPeerId);
             if (fromPeer != null && attributes != null) {
-                final BGPRouteEntryExportParameters routeEntry
-                        = new BGPRouteEntryExportParametersImpl(fromPeer, this);
+                final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer,
+                        this, route.getRouteKey(), this.rtCache);
                 effAttr = routingPolicies.applyExportPolicies(routeEntry, attributes, entryDep.getAfiSafType());
             }
             final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);

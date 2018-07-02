@@ -267,28 +267,28 @@ module odl-bgp-policy {
         }
     }
 
-    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
         ext:augment-identifier reflect-attributes-actions;
         container reflect-attributes-actions {
             presence "Modify attributes so they are updated as per RFC4456 route reflection";
         }
     }
 
-    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
         ext:augment-identifier non-transitive-attributes-filter;
         container non-transitive-attributes-filter {
             presence "Filters attributes, removing non transitive attributes";
         }
     }
 
-    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
         ext:augment-identifier local-as-path-prepend;
         container local-as-path-prepend {
             presence "Prepends local AS Path";
         }
     }
 
-    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
         ext:augment-identifier set-cluster-id-prepend;
         container set-cluster-id-prepend {
 
@@ -297,7 +297,7 @@ module odl-bgp-policy {
         }
     }
 
-    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
         ext:augment-identifier set-originator-id-prepend;
         container set-originator-id-prepend {
             presence "node is present in the config data to use the Originator Id prepend action";

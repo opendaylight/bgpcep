@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.route.targetcontrain.spi;
 
 import java.util.Optional;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -18,12 +18,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
 
-final class RouteTargetMembeshipUtil {
+public final class RouteTargetMembeshipUtil {
     private RouteTargetMembeshipUtil() {
         throw new UnsupportedOperationException();
     }
 
-    static <R extends Route> Optional<RouteTarget> getRT(final R route) {
+    public static <R extends Route> Optional<RouteTarget> getRT(final R route) {
         if (!(route instanceof RouteTargetConstrainRoute)) {
             return Optional.empty();
         }

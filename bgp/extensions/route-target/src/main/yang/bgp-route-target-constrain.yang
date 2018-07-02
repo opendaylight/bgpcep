@@ -8,6 +8,9 @@ module bgp-route-target-constrain {
     import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
     import bgp-message { prefix bgp-msg; revision-date 2018-03-29; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import openconfig-routing-policy { prefix rpol; }
+    import openconfig-bgp-policy { prefix bgp-pol; }
+    import yang-ext { prefix ext; revision-date "2013-07-09"; }
 
     organization "AT&T Services, Inc.";
 
@@ -134,6 +137,15 @@ module bgp-route-target-constrain {
     augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
         case route-target-constrain-routes-case {
             uses route-target-constrain-routes;
+        }
+    }
+
+    augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
+        ext:augment-identifier client-attribute-prepend;
+        container client-attribute-prepend {
+
+        presence "node is present in the config data to use the client attributes prepend action";
+        description "action to use attribute from advertized from a client(rfc4684)";
         }
     }
 }

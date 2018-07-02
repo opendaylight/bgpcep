@@ -16,7 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 /**
  * Contains Peer destiny information for export route entry.
  */
-public interface BGPRouteEntryExportParameters extends RouteTargetMembershipConsumer, BGPRouteEntryImportParameters {
+public interface BGPRouteEntryExportParameters extends RouteTargetMembershipConsumer,
+        BGPRouteEntryImportParameters, RTCCache {
 
     /**
      * Peer id of Peer route entry destiny.
@@ -41,4 +42,11 @@ public interface BGPRouteEntryExportParameters extends RouteTargetMembershipCons
      */
     @Nullable
     AsNumber getToPeerLocalAs();
+
+    /**
+     * Destination Route Key.
+     *
+     * @return routeKey
+     */
+    String getRouteKey();
 }
