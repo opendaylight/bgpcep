@@ -23,6 +23,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  * Prepend Cluster Id.
  */
 public final class SetClusterIdPrependHandler implements BgpActionAugPolicy<SetClusterIdPrepend> {
+    private static final SetClusterIdPrependHandler INSTANCE = new SetClusterIdPrependHandler();
+
+    private SetClusterIdPrependHandler() {
+
+    }
+
+    public static SetClusterIdPrependHandler getInstance() {
+        return INSTANCE;
+    }
     @Override
     public Attributes applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,

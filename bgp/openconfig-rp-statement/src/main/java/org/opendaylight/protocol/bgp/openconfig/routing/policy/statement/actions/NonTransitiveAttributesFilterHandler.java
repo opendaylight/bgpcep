@@ -25,6 +25,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  * Removes non transitive attributes.
  */
 public final class NonTransitiveAttributesFilterHandler implements BgpActionAugPolicy<NonTransitiveAttributesFilter> {
+    private static final NonTransitiveAttributesFilterHandler INSTANCE = new NonTransitiveAttributesFilterHandler();
+
+    private NonTransitiveAttributesFilterHandler() {
+
+    }
+
+    public static NonTransitiveAttributesFilterHandler getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Attributes applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,

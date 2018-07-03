@@ -20,6 +20,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * Prepend local AS, one time(n times not supported yet).
  */
 public final class AsPathPrepend extends AbstractPrependAsPath implements BgpActionPolicy<SetAsPathPrepend> {
+    private static final AsPathPrepend INSTANCE = new AsPathPrepend();
+
+    private AsPathPrepend() {
+
+    }
+
+    public static AsPathPrepend getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Attributes applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
