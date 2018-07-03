@@ -17,6 +17,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 
 public final class LocalAsPathPrependHandler extends AbstractPrependAsPath
         implements BgpActionAugPolicy<LocalAsPathPrepend> {
+    private static final LocalAsPathPrependHandler INSTANCE = new LocalAsPathPrependHandler();
+
+    private LocalAsPathPrependHandler() {
+
+    }
+
+    public static LocalAsPathPrependHandler getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Attributes applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,

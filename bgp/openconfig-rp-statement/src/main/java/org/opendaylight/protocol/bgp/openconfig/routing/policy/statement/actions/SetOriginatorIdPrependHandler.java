@@ -22,6 +22,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  * Prepend Originator Id.
  */
 public final class SetOriginatorIdPrependHandler implements BgpActionAugPolicy<SetOriginatorIdPrepend> {
+    private static final SetOriginatorIdPrependHandler INSTANCE = new SetOriginatorIdPrependHandler();
+
+    private SetOriginatorIdPrependHandler() {
+
+    }
+
+    public static SetOriginatorIdPrependHandler getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Attributes applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,

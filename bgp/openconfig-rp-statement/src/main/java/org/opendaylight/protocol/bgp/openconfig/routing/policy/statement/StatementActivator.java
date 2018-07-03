@@ -93,10 +93,10 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
     }
 
     private void registerActions(final StatementRegistryProvider provider, final List<AutoCloseable> registration) {
-        registration.add(provider.registerBgpActionPolicy(SetAsPathPrepend.class, new AsPathPrepend()));
+        registration.add(provider.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.getInstance()));
 
         registration.add(provider.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,
-                new LocalAsPathPrependHandler()));
+                LocalAsPathPrependHandler.getInstance()));
 
         registration.add(provider.registerBgpActionPolicy(SetCommunity.class,
                 new SetCommunityHandler(this.dataBroker)));
@@ -105,12 +105,12 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
                 new SetExtCommunityHandler(this.dataBroker)));
 
         registration.add(provider.registerBgpActionAugmentationPolicy(SetOriginatorIdPrepend.class,
-                new SetOriginatorIdPrependHandler()));
+                SetOriginatorIdPrependHandler.getInstance()));
 
         registration.add(provider.registerBgpActionAugmentationPolicy(NonTransitiveAttributesFilter.class,
-                new NonTransitiveAttributesFilterHandler()));
+                NonTransitiveAttributesFilterHandler.getInstance()));
 
         registration.add(provider.registerBgpActionAugmentationPolicy(SetClusterIdPrepend.class,
-                new SetClusterIdPrependHandler()));
+                SetClusterIdPrependHandler.getInstance()));
     }
 }
