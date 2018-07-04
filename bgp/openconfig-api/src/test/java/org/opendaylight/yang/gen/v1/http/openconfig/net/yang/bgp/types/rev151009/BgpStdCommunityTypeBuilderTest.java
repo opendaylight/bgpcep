@@ -21,8 +21,8 @@ public class BgpStdCommunityTypeBuilderTest {
 
     @Test
     public void testUint32() {
-        final BgpStdCommunityType commType = BgpStdCommunityTypeBuilder.getDefaultInstance("123");
-        Assert.assertEquals(123L, commType.getUint32().longValue());
+        final BgpStdCommunityType commType = BgpStdCommunityTypeBuilder.getDefaultInstance("123456");
+        Assert.assertEquals(123456L, commType.getUint32().longValue());
     }
 
     @Test(expected=IllegalArgumentException.class)
