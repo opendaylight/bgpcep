@@ -64,14 +64,15 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
             .subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        if (pk.getPceId().getBinary().length == RROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
+
+        final byte[] pceId = pk.getPceId().getValue();
+        if (pceId.length == RROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
             RROPathKey128SubobjectParser.serializeSubobject(subobject, buffer);
         }
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
-        Preconditions.checkArgument(pk.getPceId().getBinary().length == PCE_ID_F_LENGTH,
-            "PathKey 32Bit is mandatory.");
+        Preconditions.checkArgument(pceId.length == PCE_ID_F_LENGTH, "PathKey 32Bit is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);
-        body.writeBytes(pk.getPceId().getBinary());
+        body.writeBytes(pceId);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

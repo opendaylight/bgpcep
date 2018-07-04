@@ -375,13 +375,8 @@ module rsvp {
     }
 
     typedef pce-id {
-        type union {
-            type binary {
-                length 4;
-            }
-            type binary {
-                length 16;
-            }
+        type binary {
+            length 4|16;
         }
     }
 

@@ -55,9 +55,10 @@ public class XROPathKey32SubobjectParser extends CommonPathKeyParser implements 
             .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType())
             .getPathKey();
         final ByteBuf body = serializePathKey(pk);
-        if (pk.getPceId().getBinary().length == PCE_ID_F_LENGTH) {
+        final byte[] pceId = pk.getPceId().getValue();
+        if (pceId.length == PCE_ID_F_LENGTH) {
             XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
-        } else if (pk.getPceId().getBinary().length == XROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
+        } else if (pceId.length == XROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
             XROSubobjectUtil.formatSubobject(XROPathKey128SubobjectParser.TYPE, subobject.isMandatory(), body, buffer);
         }
     }

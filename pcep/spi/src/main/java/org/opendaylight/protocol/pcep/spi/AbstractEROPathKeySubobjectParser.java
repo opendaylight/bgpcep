@@ -60,7 +60,7 @@ public abstract class AbstractEROPathKeySubobjectParser implements EROSubobjectP
             .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
-        final byte[] pceID = pk.getPceId().getBinary();
+        final byte[] pceID = pk.getPceId().getValue();
         Preconditions.checkArgument(pceID.length == PCE_ID_F_LENGTH || pceID.length == PCE128_ID_F_LENGTH, "PceId 32/128 Bit required.");
         final ByteBuf body = Unpooled.buffer();
         writeUnsignedShort(pk.getPathKey().getValue(), body);

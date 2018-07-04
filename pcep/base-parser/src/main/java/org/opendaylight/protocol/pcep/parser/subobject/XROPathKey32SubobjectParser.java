@@ -61,13 +61,15 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
             .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        if(pk.getPceId().getBinary().length == XROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
+
+        final byte[] pceId = pk.getPceId().getValue();
+        if (pceId.length == XROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
             XROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
         }
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);
-        Preconditions.checkArgument(pk.getPceId().getBinary().length == PCE_ID_F_LENGTH, "PceId 32 Bit required.");
-        body.writeBytes(pk.getPceId().getBinary());
+        Preconditions.checkArgument(pceId.length == PCE_ID_F_LENGTH, "PceId 32 Bit required.");
+        body.writeBytes(pceId);
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }

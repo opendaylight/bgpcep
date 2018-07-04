@@ -61,7 +61,7 @@ public class XROPathKey128SubobjectParser implements XROSubobjectParser {
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        body.writeBytes(pk.getPceId().getBinary());
+        body.writeBytes(pk.getPceId().getValue());
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }
