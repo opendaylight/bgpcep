@@ -6,6 +6,7 @@ module odl-bgp-policy {
     import yang-ext { prefix ext; revision-date 2013-07-09; }
     import openconfig-network-instance { prefix netinst; }
     import openconfig-bgp { prefix openconfig-bgp; }
+    import openconfig-bgp-types { prefix oc-bgp-t; }
     import bgp-rib { prefix rib; revision-date 2018-03-29; }
     import openconfig-routing-policy { prefix rpol; }
     import openconfig-bgp-policy { prefix bgppol; }
@@ -233,7 +234,7 @@ module odl-bgp-policy {
         ext:augment-identifier match-afi-safi-not-in-condition;
         leaf-list afi-safi-not-in {
             type identityref {
-              base "bgp-types:afi-safi-type";
+              base "oc-bgp-t:afi-safi-type";
             }
             description
               "List of address families which the NLRI must not be within";
