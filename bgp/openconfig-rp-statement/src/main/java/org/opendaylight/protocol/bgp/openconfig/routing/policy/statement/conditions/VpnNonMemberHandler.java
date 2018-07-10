@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.condit
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
@@ -64,11 +65,12 @@ public final class VpnNonMemberHandler implements
             final List<ExtendedCommunities> attributes,
             final VpnNonMemberCondition conditions) {
         final List<RouteTarget> allowedRouteTarget = routeEntryExportParameters.getMemberships();
-        if (allowedRouteTarget.contains(DEFAULT)) {
+        if (allowedRouteTarget.contains(DEFAULT) || attributes == null) {
             return false;
         }
         final List<RouteTarget> toRT = attributes.stream()
                 .map(ext -> ext.getExtendedCommunity())
+                .filter(Objects::nonNull)
                 .filter(this::filterRTExtComm)
                 .map(this::extendedCommunityToRouteTarget)
                 .collect(Collectors.toList());
