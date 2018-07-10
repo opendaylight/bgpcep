@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.condit
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
@@ -69,6 +70,7 @@ public final class VpnNonMemberHandler implements
         }
         final List<RouteTarget> toRT = attributes.stream()
                 .map(ext -> ext.getExtendedCommunity())
+                .filter(Objects::nonNull)
                 .filter(this::filterRTExtComm)
                 .map(this::extendedCommunityToRouteTarget)
                 .collect(Collectors.toList());
@@ -91,6 +93,7 @@ public final class VpnNonMemberHandler implements
 
     @Override
     public List<ExtendedCommunities> getConditionParameter(final Attributes attributes) {
-        return attributes.getExtendedCommunities();
+        final List<ExtendedCommunities> ext = attributes.getExtendedCommunities();
+        return ext == null ? Collections.emptyList() : ext;
     }
 }
