@@ -10,9 +10,9 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelFuture;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -66,13 +66,14 @@ public class BgpPeerRpc implements BgpPeerRpcService {
             final RouteRefreshRequestInput input) {
         final ChannelFuture f = sendRRMessage(input);
         if (f != null) {
-            return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), input1 -> {
-                if (f.isSuccess()) {
-                    return RpcResultBuilder.success(new RouteRefreshRequestOutputBuilder().build()).build();
-                }
-                return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG)
-                        .build();
-            }, MoreExecutors.directExecutor());
+            final SettableFuture<RpcResult<RouteRefreshRequestOutput>> ret = SettableFuture.create();
+            f.addListener(unused -> {
+                final RpcResultBuilder<RouteRefreshRequestOutput> builder = f.isSuccess()
+                        ? RpcResultBuilder.success(new RouteRefreshRequestOutputBuilder().build())
+                        : RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG);
+                ret.set(builder.build());
+            });
+            return ret;
         }
         return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG +
                 " due to unsupported address families.").buildFuture();
