@@ -68,10 +68,6 @@
             <artifactId>mdsal-common-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-dom-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-yang-types-20130715</artifactId>
         </dependency>
