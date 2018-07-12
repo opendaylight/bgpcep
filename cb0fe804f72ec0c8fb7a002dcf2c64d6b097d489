@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78fef53a_f6eda4d3",
+        "filename": "bgp/openconfig-state/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-07-12T13:47:26Z",
+      "side": 1,
+      "message": "this should be removed then",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 21
+      },
+      "revId": "cb0fe804f72ec0c8fb7a002dcf2c64d6b097d489",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
