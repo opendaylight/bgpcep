@@ -245,7 +245,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         final FlowspecType sps
     ) {
         assertEquals(6, flows.size());
-        assertEquals(ROUTE_DISTINGUISHER, new String(rd.getValue()));
+        assertEquals(ROUTE_DISTINGUISHER, rd.stringValue());
         assertEquals(destinationPrefix, flows.get(0).getFlowspecType());
         assertEquals(sourcePrefix, flows.get(1).getFlowspecType());
         assertEquals(prots, flows.get(2).getFlowspecType());

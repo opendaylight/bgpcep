@@ -39,7 +39,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
         final StringBuilder buffer = new StringBuilder();
         final RouteDistinguisher rd = extractRouteDistinguisher(flowspec, RD_NID);
         if (rd != null) {
-            buffer.append("[l3vpn with route-distinguisher ").append(rd.getValue()).append("] ");
+            buffer.append("[l3vpn with route-distinguisher ").append(rd.stringValue()).append("] ");
         }
         buffer.append(super.stringNlri(flowspec));
         return buffer.toString();

@@ -112,7 +112,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            AbstractRIBSupportTest.this.deletedRoutes.add((InstanceIdentifier<R>)
+            AbstractRIBSupportTest.this.deletedRoutes.add((InstanceIdentifier)
                     this.mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
             return args[1];
         }).when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
