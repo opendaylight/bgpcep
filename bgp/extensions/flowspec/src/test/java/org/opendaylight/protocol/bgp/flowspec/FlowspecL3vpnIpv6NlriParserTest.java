@@ -156,7 +156,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
 
         assertEquals(3, flows.size());
-        assertEquals(ROUTE_DISTINGUISHER, new String(rd.getValue()));
+        assertEquals(ROUTE_DISTINGUISHER, rd.stringValue());
         assertEquals(destinationPrefix, flows.get(0).getFlowspecType());
         assertEquals(sourcePrefix, flows.get(1).getFlowspecType());
         assertEquals(headersCase, flows.get(2).getFlowspecType());
@@ -210,7 +210,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
 
         assertEquals(3, flows.size());
-        assertEquals(ROUTE_DISTINGUISHER, new String(rd.getValue()));
+        assertEquals(ROUTE_DISTINGUISHER, rd.stringValue());
         assertEquals(destinationPrefix, flows.get(0).getFlowspecType());
         assertEquals(sourcePrefix, flows.get(1).getFlowspecType());
         assertEquals(headersCase, flows.get(2).getFlowspecType());
@@ -260,7 +260,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
 
         assertEquals(2, flows.size());
-        assertEquals(ROUTE_DISTINGUISHER, new String(rd.getValue()));
+        assertEquals(ROUTE_DISTINGUISHER, rd.stringValue());
         assertEquals(fragment, flows.get(0).getFlowspecType());
         assertEquals(label, flows.get(1).getFlowspecType());
 
@@ -321,7 +321,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
 
         assertEquals(2, flows.size());
-        assertEquals(ROUTE_DISTINGUISHER, new String(rd.getValue()));
+        assertEquals(ROUTE_DISTINGUISHER, rd.stringValue());
         assertEquals(fragment, flows.get(0).getFlowspecType());
         assertEquals(label, flows.get(1).getFlowspecType());
 
