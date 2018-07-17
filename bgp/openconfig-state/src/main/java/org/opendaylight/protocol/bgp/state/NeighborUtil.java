@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.state;
 
+import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedLong;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -84,6 +85,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
  * Util for create OpenConfig Neighbor with corresponding openConfig state.
  */
 public final class NeighborUtil {
+    private static final long TIMETICK_ROLLOVER_VALUE = (UnsignedInteger.MAX_VALUE.longValue() + 1);
+
     private NeighborUtil() {
         throw new UnsupportedOperationException();
     }
@@ -162,9 +165,12 @@ public final class NeighborUtil {
         if (neighbor == null) {
             return null;
         }
+        // convert neighbor uptime which is in milliseconds to time-ticks which is
+        // hundredth of a second, and handle roll-over scenario
+        final long uptimeTicks = ((neighbor.getUpTime() / 10) % TIMETICK_ROLLOVER_VALUE);
         final NeighborTimersStateAugmentation timerState = new NeighborTimersStateAugmentationBuilder()
                 .setNegotiatedHoldTime(BigDecimal.valueOf(neighbor.getNegotiatedHoldTime()))
-                .setUptime(new Timeticks(neighbor.getUpTime())).build();
+                .setUptime(new Timeticks(uptimeTicks)).build();
 
         return new TimersBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp
                 .neighbor.group.timers.StateBuilder()
