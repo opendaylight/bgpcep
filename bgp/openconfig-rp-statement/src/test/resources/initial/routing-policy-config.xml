@@ -823,8 +823,7 @@
                     <name>match-afi-safi-not-in-test</name>
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                            <afi-safi-not-in xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"
-                                             xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-not-in>
+                            <afi-safi-not-in xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy" xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-not-in>
                         </bgp-conditions>
                     </conditions>
                     <actions>
