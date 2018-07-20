@@ -11,6 +11,7 @@ package org.opendaylight.protocol.util;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import java.util.List;
  */
 public final class InetSocketAddressUtil {
     private static final String SEPARATOR = ",";
+    private static final List<String> ASSIGNED_IPS = new ArrayList<>();
+    private static final List<Integer> ASSIGNED_PORTS = new ArrayList<>();
 
     private InetSocketAddressUtil() {
         throw new UnsupportedOperationException();
@@ -45,7 +48,12 @@ public final class InetSocketAddressUtil {
         return new InetSocketAddress(hostAndPort.getHost(), hostAndPort.getPort());
     }
 
-    public static InetSocketAddress getRandomLoopbackInetSocketAddress(final int port) {
+    public static synchronized InetSocketAddress getRandomLoopbackInetSocketAddress(final int port) {
+        String newIp;
+        do {
+            newIp = getRandomLoopbackIpAddress();
+        } while (ASSIGNED_IPS.contains(newIp));
+        ASSIGNED_IPS.add(newIp);
         return new InetSocketAddress(getRandomLoopbackIpAddress(), port);
     }
 
@@ -58,8 +66,13 @@ public final class InetSocketAddressUtil {
      *
      * @return A port number range from 20000 to 60000
      */
-    public static int getRandomPort() {
-        return 20000 + (int) Math.round(40000 * Math.random());
+    public static synchronized int getRandomPort() {
+        int port;
+        do {
+            port = 20000 + (int) Math.round(40000 * Math.random());
+        } while (ASSIGNED_PORTS.contains(port));
+        ASSIGNED_PORTS.add(port);
+        return port;
     }
 
     /**
