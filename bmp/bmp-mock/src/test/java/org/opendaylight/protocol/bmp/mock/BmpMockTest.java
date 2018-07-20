@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bmp.mock;
 
 import static org.mockito.Mockito.verify;
-import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -58,7 +57,7 @@ public class BmpMockTest {
         this.bmpDispatcher.close();
     }
 
-    @Test
+    @Test(timeout = 20000)
     public void testMain() throws Exception {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
@@ -95,7 +94,7 @@ public class BmpMockTest {
         }
     }
 
-    @Test
+    @Test(timeout = 20000)
     public void testMainInPassiveMode() throws Exception {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
@@ -105,7 +104,7 @@ public class BmpMockTest {
             "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
         final ChannelFuture futureServer = this.bmpDispatcher.createClient(serverAddr,
                 bmpSessionListenerFactory, KeyMapping.getKeyMapping());
-        waitFutureSuccess(futureServer);
+        futureServer.sync();
         final Channel serverChannel;
         final int sessionUpWait;
         if (futureServer.isSuccess()) {
