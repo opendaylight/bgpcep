@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
-import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -86,7 +85,7 @@ public class PCCDispatcherImplTest {
         this.bossGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
     }
 
-    @Test
+    @Test(timeout = 20000)
     public void testClientReconnect() throws Exception {
         final Future<PCEPSession> futureSession = this.dispatcher
                 .createClient(this.serverAddress, 1, new TestingSessionListenerFactory(), this.nf,
@@ -95,7 +94,7 @@ public class PCCDispatcherImplTest {
         doReturn(slf).when(this.dispatcherDependencies).getListenerFactory();
 
         final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.dispatcherDependencies);
-        waitFutureSuccess(futureServer);
+        futureServer.sync();
         final Channel channel = futureServer.channel();
         Assert.assertNotNull(futureSession.get());
         checkSessionListenerNotNull(slf, this.clientAddress.getHostString());
@@ -115,7 +114,7 @@ public class PCCDispatcherImplTest {
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
         doReturn(slf2).when(this.dispatcherDependencies).getListenerFactory();
         final ChannelFuture future2 = this.pcepDispatcher.createServer(this.dispatcherDependencies);
-        waitFutureSuccess(future2);
+        future2.sync();
         final Channel channel2 = future2.channel();
         final TestingSessionListener sl2
                 = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
