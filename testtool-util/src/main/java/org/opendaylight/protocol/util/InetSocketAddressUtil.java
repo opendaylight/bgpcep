@@ -11,6 +11,7 @@ package org.opendaylight.protocol.util;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
  */
 public final class InetSocketAddressUtil {
     private static final String SEPARATOR = ",";
+    private static final List<String> ASSIGNED_IPS = new ArrayList<>();
 
     private InetSocketAddressUtil() {
         throw new UnsupportedOperationException();
@@ -47,6 +49,10 @@ public final class InetSocketAddressUtil {
     }
 
     public static InetSocketAddress getRandomLoopbackInetSocketAddress(final int port) {
+        String newIp;
+        do {
+            newIp = getRandomLoopbackIpAddress();
+        } while (ASSIGNED_IPS.contains(newIp));
         return new InetSocketAddress(getRandomLoopbackIpAddress(), port);
     }
 
