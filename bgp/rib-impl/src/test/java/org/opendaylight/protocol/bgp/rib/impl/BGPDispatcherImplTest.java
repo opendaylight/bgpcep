@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
-import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
@@ -23,13 +22,13 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
-    @Test
+    @Test(timeout = 20000)
     public void testCreateClient() throws InterruptedException, ExecutionException {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Channel serverChannel = createServer(serverAddress);
         final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(this.clientAddress,
             serverAddress, 2, true);
-        waitFutureSuccess(futureClient);
+        futureClient.sync();
         final BGPSessionImpl session = futureClient.get();
         Assert.assertEquals(State.UP, this.clientListener.getState());
         Assert.assertEquals(State.UP, this.serverListener.getState());

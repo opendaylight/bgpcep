@@ -18,7 +18,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonMsgWithEndOfRibMarker;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonitMsg;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
-import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.net.InetAddresses;
 import io.netty.bootstrap.Bootstrap;
@@ -238,7 +237,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         });
     }
 
-    @Test
+    @Test(timeout = 20000)
     public void testRouterMonitoring() throws Exception {
         // first test if a single router monitoring is working
         final Channel channel1 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
@@ -263,7 +262,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         CheckUtil.checkEquals(() -> assertFalse(channel3.isOpen()));
 
         // now if we close the channel 1 and try it again, it should succeed
-        waitFutureSuccess(channel1.close());
+        channel1.close().sync();
 
         // channel 2 is still open
         readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
@@ -278,11 +277,11 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         });
 
         // close all channel altogether
-        waitFutureSuccess(channel2.close());
+        channel2.close().sync();
         Thread.sleep(100);
 
         // sleep for a while to avoid intermittent InMemoryDataTree modification conflict
-        waitFutureSuccess(channel4.close());
+        channel4.close().sync();
 
         readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
             assertEquals(0, monitor.getRouter().size());
@@ -290,8 +289,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         });
     }
 
-    private static void waitWriteAndFlushSuccess(final ChannelFuture channelFuture) {
-        waitFutureSuccess(channelFuture);
+    private static void waitWriteAndFlushSuccess(final ChannelFuture channelFuture) throws InterruptedException {
+        channelFuture.sync();
     }
 
     private Channel testMonitoringStation(final String remoteRouterIpAddr) throws InterruptedException,
@@ -495,7 +494,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         b.localAddress(new InetSocketAddress(routerIp, 0));
         b.option(ChannelOption.SO_REUSEADDR, true);
         final ChannelFuture future = b.connect(new InetSocketAddress(MONITOR_LOCAL_ADDRESS, MONITOR_LOCAL_PORT)).sync();
-        waitFutureSuccess(future);
+        future.sync();
         return future.channel();
     }
 
