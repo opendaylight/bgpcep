@@ -48,7 +48,7 @@ public class BmpMockDispatcherTest {
         this.bmpMockDispatcher = new BmpMockDispatcher(this.registry, this.sessionFactory);
     }
 
-    @Test
+    @Test(timeout = 20000)
     public void testCreateClient() throws Exception {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
@@ -61,7 +61,6 @@ public class BmpMockDispatcherTest {
 
         final ChannelFuture channelFuture = this.bmpMockDispatcher.createClient(InetSocketAddressUtil
                 .getRandomLoopbackInetSocketAddress(0), serverAddr);
-        waitFutureSuccess(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
         assertTrue(channel.isActive());
@@ -74,7 +73,7 @@ public class BmpMockDispatcherTest {
                 new NioEventLoopGroup(), new NioEventLoopGroup(), this.registry, this.sessionFactory);
         final ChannelFuture futureServer2 = bmpDispatcher2
                 .createServer(serverAddr, this.slf, KeyMapping.getKeyMapping());
-        waitFutureSuccess(futureServer2);
+        futureServer2.sync();
         checkEquals(() -> assertTrue(this.sl.getStatus()));
 
         bmpDispatcher2.close();
@@ -82,17 +81,16 @@ public class BmpMockDispatcherTest {
         checkEquals(() -> assertFalse(this.sl.getStatus()));
     }
 
-    @Test
+    @Test(timeout = 20000)
     public void testCreateServer() throws Exception {
         final int port = InetSocketAddressUtil.getRandomPort();
         final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(
                 new NioEventLoopGroup(), new NioEventLoopGroup(), this.registry, this.sessionFactory);
         final ChannelFuture futureServer = this.bmpMockDispatcher.createServer(
                 new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
-        waitFutureSuccess(futureServer);
+        futureServer.sync();
         final ChannelFuture channelFuture = bmpDispatcher.createClient(
                 InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port), this.slf, KeyMapping.getKeyMapping());
-        waitFutureSuccess(channelFuture);
         final Channel channel = channelFuture.sync().channel();
 
         assertTrue(channel.isActive());
