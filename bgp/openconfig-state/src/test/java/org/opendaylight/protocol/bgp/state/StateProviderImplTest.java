@@ -211,7 +211,7 @@ public class StateProviderImplTest extends AbstractConcurrentDataBrokerTest {
 
         doReturn(this.timersState).when(this.bgpPeerState).getBGPTimersState();
         doReturn(10L).when(this.timersState).getNegotiatedHoldTime();
-        doReturn(1L).when(this.timersState).getUpTime();
+        doReturn(10L).when(this.timersState).getUpTime();
 
         doReturn(this.bgpTransportState).when(this.bgpPeerState).getBGPTransportState();
         doReturn(this.localPort).when(this.bgpTransportState).getLocalPort();
