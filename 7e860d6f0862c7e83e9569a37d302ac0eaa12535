@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8f94201_29c0b519",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2018-07-20T14:07:24Z",
+      "side": 1,
+      "message": "Should not have a space between the JIRA line and the Change-Id line. The footer block is usually parsed by some stats collection software and the JIRA: line would be ignored if it\u0027s not actually attached to the footer.",
+      "revId": "7e860d6f0862c7e83e9569a37d302ac0eaa12535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
