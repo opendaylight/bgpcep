@@ -14,8 +14,10 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -100,15 +102,18 @@ public class BmpMockTest {
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
 
         // create a local server in passive mode instead
-        BmpMock.main(new String[]{"--local_address", InetSocketAddressUtil.toHostAndPort(serverAddr).toString(),
+        final List<ChannelFuture> futureServers = BmpMock.deploy(new String[]
+            {"--local_address", InetSocketAddressUtil.toHostAndPort(serverAddr).toString(),
             "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
-        final ChannelFuture futureServer = this.bmpDispatcher.createClient(serverAddr,
+        Assert.assertEquals(1, futureServers.size());
+        futureServers.get(0).sync();
+        final ChannelFuture futureClient = this.bmpDispatcher.createClient(serverAddr,
                 bmpSessionListenerFactory, KeyMapping.getKeyMapping());
-        futureServer.sync();
+        futureClient.sync();
         final Channel serverChannel;
         final int sessionUpWait;
-        if (futureServer.isSuccess()) {
-            serverChannel = futureServer.channel();
+        if (futureClient.isSuccess()) {
+            serverChannel = futureClient.channel();
             sessionUpWait = 10;
         } else {
             serverChannel = null;

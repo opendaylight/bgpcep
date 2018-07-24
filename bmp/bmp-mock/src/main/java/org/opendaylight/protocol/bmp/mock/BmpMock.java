@@ -9,8 +9,11 @@
 package org.opendaylight.protocol.bmp.mock;
 
 import com.google.common.net.InetAddresses;
+import io.netty.channel.ChannelFuture;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
@@ -31,17 +34,7 @@ public final class BmpMock {
     }
 
     public static void main(final String[] args) {
-        LOG.info("Starting BMP test tool.");
-        final BmpMockArguments arguments = BmpMockArguments.parseArguments(args);
-        LoggerUtil.initiateLogger(arguments);
-
-        final BmpMockDispatcher dispatcher = initiateMock(arguments);
-        // now start the server / client
-        if (arguments.isOnPassiveMode()) {
-            deployServers(dispatcher, arguments);
-        } else {
-            deployClients(dispatcher, arguments);
-        }
+        deploy(args);
     }
 
 
@@ -56,26 +49,46 @@ public final class BmpMock {
         return new BmpMockDispatcher(ctx.getBmpMessageRegistry(), new BmpMockSessionFactory(arguments));
     }
 
-    private static void deployClients(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments) {
+    private static List<ChannelFuture> deployClients(final BmpMockDispatcher dispatcher,
+                                                     final BmpMockArguments arguments) {
         final InetSocketAddress localAddress = arguments.getLocalAddress();
         InetAddress currentLocal = localAddress.getAddress();
         final int port = localAddress.getPort();
+        final List<ChannelFuture> futureClients = new ArrayList<>();
         for (int i = 0; i < arguments.getRoutersCount(); i++) {
             for (final InetSocketAddress remoteAddress : arguments.getRemoteAddress()) {
-                dispatcher.createClient(new InetSocketAddress(currentLocal, port), remoteAddress);
+                futureClients.add(dispatcher.createClient(new InetSocketAddress(currentLocal, port), remoteAddress));
             }
             currentLocal = InetAddresses.increment(currentLocal);
-
         }
+        return futureClients;
     }
 
-    private static void deployServers(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments) {
+    private static List<ChannelFuture> deployServers(final BmpMockDispatcher dispatcher,
+                                                     final BmpMockArguments arguments) {
         final InetSocketAddress localAddress = arguments.getLocalAddress();
         InetAddress currentLocal = localAddress.getAddress();
         final int port = localAddress.getPort();
+        final List<ChannelFuture> futureServers = new ArrayList<>();
         for (int i = 0; i < arguments.getRoutersCount(); i++) {
-            dispatcher.createServer(new InetSocketAddress(currentLocal, port));
+            futureServers.add(dispatcher.createServer(new InetSocketAddress(currentLocal, port)));
             currentLocal = InetAddresses.increment(currentLocal);
         }
+        return futureServers;
     }
+
+    public static List<ChannelFuture> deploy(String [] args) {
+        LOG.info("Starting BMP test tool.");
+        final BmpMockArguments arguments = BmpMockArguments.parseArguments(args);
+        LoggerUtil.initiateLogger(arguments);
+
+        final BmpMockDispatcher dispatcher = initiateMock(arguments);
+        // now start the server / client
+        if (arguments.isOnPassiveMode()) {
+            return deployServers(dispatcher, arguments);
+        } else {
+            return deployClients(dispatcher, arguments);
+        }
+    }
+
 }
