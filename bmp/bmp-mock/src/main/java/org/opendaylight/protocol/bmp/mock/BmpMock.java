@@ -30,7 +30,7 @@ public final class BmpMock {
         throw new UnsupportedOperationException();
     }
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws InterruptedException {
         LOG.info("Starting BMP test tool.");
         final BmpMockArguments arguments = BmpMockArguments.parseArguments(args);
         LoggerUtil.initiateLogger(arguments);
@@ -56,25 +56,27 @@ public final class BmpMock {
         return new BmpMockDispatcher(ctx.getBmpMessageRegistry(), new BmpMockSessionFactory(arguments));
     }
 
-    private static void deployClients(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments) {
+    private static void deployClients(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments)
+            throws InterruptedException {
         final InetSocketAddress localAddress = arguments.getLocalAddress();
         InetAddress currentLocal = localAddress.getAddress();
         final int port = localAddress.getPort();
         for (int i = 0; i < arguments.getRoutersCount(); i++) {
             for (final InetSocketAddress remoteAddress : arguments.getRemoteAddress()) {
-                dispatcher.createClient(new InetSocketAddress(currentLocal, port), remoteAddress);
+                dispatcher.createClient(new InetSocketAddress(currentLocal, port), remoteAddress).sync();
             }
             currentLocal = InetAddresses.increment(currentLocal);
 
         }
     }
 
-    private static void deployServers(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments) {
+    private static void deployServers(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments)
+            throws InterruptedException {
         final InetSocketAddress localAddress = arguments.getLocalAddress();
         InetAddress currentLocal = localAddress.getAddress();
         final int port = localAddress.getPort();
         for (int i = 0; i < arguments.getRoutersCount(); i++) {
-            dispatcher.createServer(new InetSocketAddress(currentLocal, port));
+            dispatcher.createServer(new InetSocketAddress(currentLocal, port)).sync();
             currentLocal = InetAddresses.increment(currentLocal);
         }
     }
