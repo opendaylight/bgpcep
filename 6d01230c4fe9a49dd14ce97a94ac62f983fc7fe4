@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "307c42f9_7c959d00",
+        "filename": "bmp/bmp-mock/src/main/java/org/opendaylight/protocol/bmp/mock/BmpMock.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-07-25T06:08:26Z",
+      "side": 1,
+      "message": "move to other method which will return List\u003cChannelFuture\u003e, then use that method under test, and do the sync there. So we avoid do blocking mode when no required.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 9
+      },
+      "revId": "6d01230c4fe9a49dd14ce97a94ac62f983fc7fe4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
