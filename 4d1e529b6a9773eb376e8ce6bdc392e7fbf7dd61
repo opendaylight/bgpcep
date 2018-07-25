@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baaf2f24_c6febda8",
+        "filename": "bmp/bmp-mock/src/main/java/org/opendaylight/protocol/bmp/mock/BmpMock.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-07-25T10:12:27Z",
+      "side": 1,
+      "message": "final",
+      "revId": "4d1e529b6a9773eb376e8ce6bdc392e7fbf7dd61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07fbb05a_85189460",
+        "filename": "bmp/bmp-mock/src/main/java/org/opendaylight/protocol/bmp/mock/BmpMock.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-07-25T10:12:27Z",
+      "side": 1,
+      "message": "final",
+      "revId": "4d1e529b6a9773eb376e8ce6bdc392e7fbf7dd61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d1951bf_cab2102e",
+        "filename": "bmp/bmp-mock/src/test/java/org/opendaylight/protocol/bmp/mock/BmpMockTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-07-25T10:12:27Z",
+      "side": 1,
+      "message": "final",
+      "revId": "4d1e529b6a9773eb376e8ce6bdc392e7fbf7dd61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
