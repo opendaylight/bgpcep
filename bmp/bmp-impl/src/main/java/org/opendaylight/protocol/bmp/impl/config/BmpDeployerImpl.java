@@ -91,7 +91,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     @Override
     public synchronized void onDataTreeChanged(final Collection<DataTreeModification<OdlBmpMonitors>> changes) {
         final DataTreeModification<OdlBmpMonitors> dataTreeModification = Iterables.getOnlyElement(changes);
-        final Collection<DataObjectModification<? extends DataObject>> rootNode = dataTreeModification.getRootNode()
+        final Collection<? extends DataObjectModification<? extends DataObject>> rootNode = dataTreeModification.getRootNode()
                 .getModifiedChildren();
         if (rootNode.isEmpty()) {
             return;
