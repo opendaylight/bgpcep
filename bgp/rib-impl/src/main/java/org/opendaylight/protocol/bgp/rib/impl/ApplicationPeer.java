@@ -17,6 +17,7 @@ import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -154,7 +155,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 Collections.emptyMap(), registerAppPeerListener);
         this.effectiveRibInWriter = new EffectiveRibInWriter(this, this.rib,
                 this.rib.createPeerChain(this), this.peerIId, localTables, this.tableTypeRegistry,
-                Collections.emptyList(), this.rtCache);
+                new ArrayList<>(), this.rtCache);
         this.effectiveRibInWriter.init();
         this.bgpSessionState.registerMessagesCounter(this);
         this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
