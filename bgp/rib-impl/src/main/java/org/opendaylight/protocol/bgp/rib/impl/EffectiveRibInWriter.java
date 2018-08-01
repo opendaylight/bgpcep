@@ -190,8 +190,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                             tablePath.child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                                     .rib.rev180329.rib.tables.Attributes.class), after.getAttributes());
 
-                    final DataObjectModification routesChangesContainer =
-                            table.getModifiedChildContainer(ribSupport.routesContainerClass());
+                    final DataObjectModification routesChangesContainer = table.getModifiedChildContainer(
+                        ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
 
                     if (routesChangesContainer == null) {
                         break;
@@ -315,7 +315,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         final DataObjectModification routesChangesContainer =
-                table.getModifiedChildContainer(ribSupport.routesContainerClass());
+                table.getModifiedChildContainer(ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
 
         if (routesChangesContainer == null) {
             return;
