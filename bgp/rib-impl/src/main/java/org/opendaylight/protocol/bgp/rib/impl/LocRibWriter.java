@@ -261,7 +261,6 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
     private void updateNodes(
             final DataObjectModification<Tables> table,
             final UnsignedInteger peerUuid,
@@ -277,8 +276,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTableIID.child(Attributes.class), newAttValue);
         }
 
-        final DataObjectModification routesChangesContainer
-                = table.getModifiedChildContainer((Class) this.ribSupport.routesContainerClass());
+        final DataObjectModification<S> routesChangesContainer
+                = table.getModifiedChildContainer(ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
         if (routesChangesContainer == null) {
             return;
         }
@@ -286,11 +285,11 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     private void updateRoutesEntries(
-            final Collection<DataObjectModification<? extends DataObject>> routeChanges,
+            final Collection<? extends DataObjectModification<? extends DataObject>> collection,
             final UnsignedInteger routerId,
             final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> routes
     ) {
-        for (final DataObjectModification<? extends DataObject> route : routeChanges) {
+        for (final DataObjectModification<? extends DataObject> route : collection) {
             final R newRoute = (R) route.getDataAfter();
             final R oldRoute = (R) route.getDataBefore();
             String routeKey;

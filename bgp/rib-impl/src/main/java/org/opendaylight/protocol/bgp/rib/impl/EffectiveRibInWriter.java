@@ -55,7 +55,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
@@ -191,8 +190,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                             tablePath.child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                                     .rib.rev180329.rib.tables.Attributes.class), after.getAttributes());
 
-                    final DataObjectModification routesChangesContainer =
-                            table.getModifiedChildContainer(ribSupport.routesContainerClass());
+                    final DataObjectModification routesChangesContainer = table.getModifiedChildContainer(
+                        ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
 
                     if (routesChangesContainer == null) {
                         break;
@@ -316,7 +315,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         final DataObjectModification routesChangesContainer =
-                table.getModifiedChildContainer(ribSupport.routesContainerClass());
+                table.getModifiedChildContainer(ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
 
         if (routesChangesContainer == null) {
             return;
