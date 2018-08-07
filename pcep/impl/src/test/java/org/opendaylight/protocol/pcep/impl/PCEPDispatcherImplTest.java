@@ -127,6 +127,7 @@ public class PCEPDispatcherImplTest {
         session1.close();
         session2.close();
         Assert.assertTrue(futureChannel.channel().isActive());
+        futureChannel.channel().close();
     }
 
     @Test(timeout = 20000)
@@ -139,7 +140,9 @@ public class PCEPDispatcherImplTest {
         doReturn(this.listenerFactory).when(this.dispatcherDependencies).getListenerFactory();
         doReturn(new SimpleSessionListener()).when(this.listenerFactory).getSessionListener();
 
-        this.dispatcher.createServer(this.dispatcherDependencies).sync();
+        ChannelFuture servSession = this.dispatcher.createServer(this.dispatcherDependencies);
+        servSession.sync();
+
         final Future<PCEPSessionImpl> futureClient = this.pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
                 SimpleSessionListener::new);
         futureClient.sync();
@@ -153,6 +156,7 @@ public class PCEPDispatcherImplTest {
             Assert.assertTrue(e.getMessage().contains("A conflicting session for address"));
         } finally {
             session1.close();
+            servSession.channel().close();
         }
     }
 
@@ -164,7 +168,8 @@ public class PCEPDispatcherImplTest {
         doReturn(new InetSocketAddress("0.0.0.0", port)).when(this.dispatcherDependencies).getAddress();
         doReturn(this.listenerFactory).when(this.dispatcherDependencies).getListenerFactory();
         doReturn(new SimpleSessionListener()).when(this.listenerFactory).getSessionListener();
-        this.dispatcher.createServer(this.dispatcherDependencies).sync();
+        ChannelFuture servSession = this.dispatcher.createServer(this.dispatcherDependencies);
+        servSession.sync();
         final PCEPSessionImpl session1 = this.pccMock.createClient(clientAddr,
                 RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
@@ -181,6 +186,7 @@ public class PCEPDispatcherImplTest {
         assertEquals(KEEP_ALIVE, session2.getKeepAliveTimerValue().shortValue());
 
         session2.close();
+        servSession.channel().close();
     }
 
     @Test(timeout = 20000)
@@ -198,6 +204,7 @@ public class PCEPDispatcherImplTest {
         final ChannelFuture futureChannel = this.disp2Spy.createServer(this.dispatcherDependencies);
         futureChannel.sync();
         Mockito.verify(this.disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class));
+        futureChannel.channel().close();
     }
 
     @After
