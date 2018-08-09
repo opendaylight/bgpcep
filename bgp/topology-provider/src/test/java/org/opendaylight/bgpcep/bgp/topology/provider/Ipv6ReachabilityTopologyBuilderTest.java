@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilderTest.PATH_ID;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
@@ -98,7 +99,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv6RouteIID);
         wTx.commit();
         readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
-            assertEquals(0, topology.getNode().size());
+            assertNull(topology.getNode());
             return topology;
         });
 

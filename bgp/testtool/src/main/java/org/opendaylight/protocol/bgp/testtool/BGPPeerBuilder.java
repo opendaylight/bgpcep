@@ -55,7 +55,7 @@ final class BGPPeerBuilder {
             }
             addFutureListener(localAddress, dispatcher.createServer(localAddress));
         }
-        LOG.debug("{} {}", sessionListener, proposal);
+        LOG.debug("Listener {} received proposal {}", sessionListener, proposal);
     }
 
     private static <T> void addFutureListener(final InetSocketAddress localAddress, final Future<T> future) {

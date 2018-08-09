@@ -71,7 +71,7 @@ public final class CheckUtil {
             throws ReadFailedException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= timeout) {
+        do {
             try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
                 final Optional<T> data = tx.read(ldt, iid).checkedGet();
                 if (data.isPresent()) {
@@ -83,7 +83,7 @@ public final class CheckUtil {
                     }
                 }
             }
-        }
+        } while (sw.elapsed(TimeUnit.SECONDS) <= timeout);
         throw lastError;
     }
 
