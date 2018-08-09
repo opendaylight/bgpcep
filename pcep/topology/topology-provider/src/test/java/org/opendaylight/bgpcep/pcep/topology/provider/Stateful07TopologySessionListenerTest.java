@@ -270,7 +270,7 @@ public class Stateful07TopologySessionListenerTest
 
         // check if lsp was removed
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            assertEquals(0, pcc.getReportedLsp().size());
+            assertNull(pcc.getReportedLsp());
             return pcc;
         });
         // check stats

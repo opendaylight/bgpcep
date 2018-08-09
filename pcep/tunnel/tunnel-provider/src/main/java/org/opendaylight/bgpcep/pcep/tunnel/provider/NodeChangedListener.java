@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -109,7 +110,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     private static void enumerateLsps(final InstanceIdentifier<Node> id, final Node node,
             final Set<InstanceIdentifier<ReportedLsp>> lsps) {
         if (node == null) {
-            LOG.trace("Skipping null node", id);
+            LOG.trace("Skipping null node {}", id);
             return;
         }
         final Node1 pccnode = node.augmentation(Node1.class);
@@ -326,7 +327,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         boolean orphDstNode = true;
         boolean orphDstTp = true;
         boolean orphSrcTp = true;
-        for (final Link lw : topology.getLink()) {
+        for (final Link lw : nonNullList(topology.getLink())) {
             LOG.trace("Checking link {}", lw);
 
             final NodeId sn = lw.getSource().getSourceNode();
@@ -512,5 +513,9 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
 
     DataBroker getDataProvider() {
         return dataProvider;
+    }
+
+    private static <T> List<T> nonNullList(final List<T> nullable) {
+        return nullable != null ? nullable : ImmutableList.of();
     }
 }

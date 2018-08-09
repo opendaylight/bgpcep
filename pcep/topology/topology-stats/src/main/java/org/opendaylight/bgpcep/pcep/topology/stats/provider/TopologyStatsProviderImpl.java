@@ -62,7 +62,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     }
 
     public synchronized void init() {
-        LOG.info("Initializing TopologyStatsProvider service.", this);
+        LOG.info("Initializing TopologyStatsProvider service.");
         this.transactionChain = this.dataBroker.createTransactionChain(this);
         final TimerTask task = new TimerTask() {
             @Override
@@ -89,12 +89,12 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
             }
             tx.commit().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(CommitInfo result) {
+                public void onSuccess(final CommitInfo result) {
                     LOG.debug("Successfully committed Topology stats update");
                 }
 
                 @Override
-                public void onFailure(Throwable ex) {
+                public void onFailure(final Throwable ex) {
                     LOG.error("Failed to commit Topology stats update", ex);
                 }
             }, MoreExecutors.directExecutor());
@@ -107,7 +107,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     @Override
     public synchronized void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
-            LOG.info("Closing TopologyStatsProvider service.", this);
+            LOG.info("Closing TopologyStatsProvider service.");
             this.scheduleTask.cancel(true);
             final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
             for (final KeyedInstanceIdentifier<Node, NodeKey> statId : this.statsMap.keySet()) {

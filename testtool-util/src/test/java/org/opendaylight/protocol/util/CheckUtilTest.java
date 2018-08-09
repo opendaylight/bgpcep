@@ -9,7 +9,7 @@ package org.opendaylight.protocol.util;
 
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -71,7 +71,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     public void testWaitFutureSuccess() {
         when(this.future.isSuccess()).thenReturn(true);
         doAnswer(invocation -> {
-            invocation.getArgumentAt(0, GenericFutureListener.class).operationComplete(CheckUtilTest.this.future);
+            invocation.<GenericFutureListener>getArgument(0).operationComplete(CheckUtilTest.this.future);
             return CheckUtilTest.this.future;
         }).when(this.future).addListener(any());
         waitFutureSuccess(this.future);

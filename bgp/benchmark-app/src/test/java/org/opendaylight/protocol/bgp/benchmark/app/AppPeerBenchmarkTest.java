@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.benchmark.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
@@ -86,9 +86,9 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
         final Result deleteResult = deleteRpcResult.getResult().getResult();
         checkEquals(() -> assertEquals(1, deleteResult.getCount().intValue()));
         checkEquals(() -> assertEquals(1, deleteResult.getRate().intValue()));
-        readDataConfiguration(getDataBroker(), routesIID, routes -> {
-            assertNotNull(routes.getIpv4Route());
-            assertTrue(routes.getIpv4Route().isEmpty());
+        // FIXME: this actually will return null, hence the callback is never invoked
+        readDataConfiguration(getDataBroker(), appPeerBenchmark.getIpv4RoutesIID(), routes -> {
+            assertNull(routes.getIpv4Route());
             return routes;
         });
 
