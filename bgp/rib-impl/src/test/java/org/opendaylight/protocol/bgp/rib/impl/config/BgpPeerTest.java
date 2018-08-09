@@ -12,8 +12,8 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -142,7 +142,7 @@ public class BgpPeerTest extends AbstractConfig {
         this.bgpPeer.instantiateServiceInstance();
         verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
         verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
-                any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
+                any(), anyInt(), any(KeyMapping.class));
 
         try {
             this.bgpPeer.start(this.rib, neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
