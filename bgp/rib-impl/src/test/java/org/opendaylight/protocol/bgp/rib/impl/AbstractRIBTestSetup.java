@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -211,7 +211,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
                 eq(YangInstanceIdentifier.of(BgpRib.QNAME)), any(NormalizedNode.class));
         doReturn(map).when(this.dom).getSupportedExtensions();
-        doReturn(this.domChain).when(this.dom).createTransactionChain(any(BGPPeer.class));
+        doReturn(this.domChain).when(this.dom).createTransactionChain(any(AbstractPeer.class));
         doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
         doReturn(false).when(this.o).isPresent();
         doReturn(this.o).when(this.future).get();

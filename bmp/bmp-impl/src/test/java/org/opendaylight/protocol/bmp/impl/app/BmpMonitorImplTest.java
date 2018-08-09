@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.app;
 
 import static org.junit.Assert.assertEquals;
@@ -13,10 +12,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonMsgWithEndOfRibMarker;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonitMsg;
+import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.net.InetAddresses;
@@ -213,10 +213,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         this.bmpApp.close();
         this.mappingService.close();
 
-        readDataOperational(getDataBroker(), BMP_II, monitor -> {
-            assertTrue(monitor.getMonitor().isEmpty());
-            return monitor;
-        });
+        checkNotPresentOperational(getDataBroker(), BMP_II);
     }
 
     @Test(timeout = 20000)
@@ -266,7 +263,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         channel4.close().sync();
 
         readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
-            assertEquals(0, monitor.getRouter().size());
+            assertNull(monitor.getRouter());
             return monitor;
         });
     }
@@ -281,7 +278,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         final RouterId routerId = getRouterId(remoteRouterIpAddr);
 
         readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
-            assertFalse(monitor.getRouter().isEmpty());
+            assertNotNull(monitor.getRouter());
             // now find the current router instance
             Router router = null;
             for (final Router r : monitor.getRouter()) {
@@ -300,7 +297,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 .createInitMsg("description", "name", "some info")));
 
         readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
-            assertFalse(monitor.getRouter().isEmpty());
+            assertNotNull(monitor.getRouter());
             Router retRouter = null;
             for (final Router r : monitor.getRouter()) {
                 if (routerId.equals(r.getRouterId())) {
@@ -427,8 +424,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerDownNotification(PEER1)));
 
         readDataOperational(getDataBroker(), routerIId, router -> {
-            final List<Peer> peersAfterDown = router.getPeer();
-            assertTrue(peersAfterDown.isEmpty());
+            assertNull(router.getPeer());
             return router;
         });
 

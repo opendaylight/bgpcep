@@ -7,7 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -38,18 +38,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev171025.SubmitTriggerSyncInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev171025.SubmitUpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.AddLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.EnsureLspOperationalOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RemoveLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TriggerSyncArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TriggerSyncInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.TriggerSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.UpdateLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.ensure.lsp.operational.args.ArgumentsBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -124,19 +120,19 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
         doAnswer(invocation -> {
             TopologyProgrammingTest.this.addLspArgs = (AddLspArgs) invocation.getArguments()[0];
             return TopologyProgrammingTest.this.futureAddLspOutput;
-        }).when(listener).addLsp(any(AddLspInput.class));
+        }).when(listener).addLsp(any());
         doAnswer(invocation -> {
             TopologyProgrammingTest.this.updateLspArgs = (UpdateLspArgs) invocation.getArguments()[0];
             return TopologyProgrammingTest.this.futureUpdateLspOutput;
-        }).when(listener).updateLsp(any(UpdateLspInput.class));
+        }).when(listener).updateLsp(any());
         doAnswer(invocation -> {
             TopologyProgrammingTest.this.removeLspArgs = (RemoveLspArgs) invocation.getArguments()[0];
             return TopologyProgrammingTest.this.futureRemoveLspOutput;
-        }).when(listener).removeLsp(any(RemoveLspInput.class));
+        }).when(listener).removeLsp(any());
         doAnswer(invocation -> {
             TopologyProgrammingTest.this.triggerSyncArgs = (TriggerSyncArgs) invocation.getArguments()[0];
             return TopologyProgrammingTest.this.futureTriggerSyncOutput;
-        }).when(listener).triggerSync(any(TriggerSyncInput.class));
+        }).when(listener).triggerSync(any());
         doAnswer(invocation -> {
             TopologyProgrammingTest.this.ensureLspInput = (EnsureLspOperationalInput) invocation.getArguments()[0];
             return TopologyProgrammingTest.this.futureEnsureLspOutput;
