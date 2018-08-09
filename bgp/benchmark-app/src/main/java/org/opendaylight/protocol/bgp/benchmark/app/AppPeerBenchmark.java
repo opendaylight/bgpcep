@@ -137,8 +137,8 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
             final Throwable cause) {
-        LOG.error("Broken chain {} in DatastoreBaAbstractWrite, transaction {}, cause {}", chain,
-                transaction.getIdentifier(), cause);
+        LOG.error("Broken chain {} in DatastoreBaAbstractWrite, transaction {}", chain, transaction.getIdentifier(),
+            cause);
         close();
     }
 

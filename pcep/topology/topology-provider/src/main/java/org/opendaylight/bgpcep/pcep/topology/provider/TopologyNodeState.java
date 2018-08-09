@@ -179,7 +179,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.trace("Put topology Node failed {}, value {}, {}", TopologyNodeState.this.nodeId, node, throwable);
+                LOG.trace("Put topology Node failed {}, value {}", TopologyNodeState.this.nodeId, node, throwable);
             }
         }, MoreExecutors.directExecutor());
     }

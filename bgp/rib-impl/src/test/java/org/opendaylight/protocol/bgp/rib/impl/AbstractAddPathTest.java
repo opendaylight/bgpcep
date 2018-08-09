@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyBuilder;
@@ -138,6 +139,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     protected StrictBGPPeerRegistry serverRegistry;
     protected CodecsRegistryImpl codecsRegistry;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -165,6 +167,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
                 this.ribExtension.getClassLoadingStrategy());
     }
 
+    @Override
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         this.serverDispatcher.close();
@@ -203,12 +206,25 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     }
 
     private void checkLocRib(final int expectedRoutesOnDS) throws Exception {
+        // FIXME: remove this sleep
         Thread.sleep(100);
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             final Ipv4RoutesCase routes = (Ipv4RoutesCase) bgpRib.getRib().get(0).getLocRib().getTables().get(0)
                 .getRoutes();
-            final List<Ipv4Route> routeList = routes.getIpv4Routes().getIpv4Route();
-            Assert.assertEquals(expectedRoutesOnDS, routeList.size());
+            final int size;
+            if (routes != null) {
+                final Ipv4Routes routesCase = routes.getIpv4Routes();
+                if (routesCase != null) {
+                    final List<Ipv4Route> routeList = routesCase.getIpv4Route();
+                    size = routeList == null ? 0 : routeList.size();
+                } else {
+                    size = 0;
+                }
+            } else {
+                size = 0;
+            }
+
+            Assert.assertEquals(expectedRoutesOnDS, size);
             return bgpRib;
         });
     }

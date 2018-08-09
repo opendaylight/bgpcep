@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.collect.Lists;
@@ -187,8 +188,8 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         removeNode(NODE1_ID);
         removeNode(NODE2_ID);
         readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, removedNodeTopo -> {
-            assertEquals(0, removedNodeTopo.getNode().size());
-            assertEquals(0, removedNodeTopo.getLink().size());
+            assertNull(removedNodeTopo.getNode());
+            assertNull(removedNodeTopo.getLink());
             return removedNodeTopo;
         });
     }

@@ -13,6 +13,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -171,11 +172,14 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         if (present.useCount == 0) {
             final IgpNodeAttributes attrs = read(trans, present.attrId);
             if (attrs != null) {
-                present.useCount = attrs.getPrefix().size();
-                if (present.useCount == 0) {
-                    trans.delete(LogicalDatastoreType.OPERATIONAL, nodeInstanceId(ni));
-                    this.nodes.remove(ni);
-                }
+                final List<Prefix> prefix = attrs.getPrefix();
+                present.useCount = prefix == null ? 0 : prefix.size();
+            } else {
+                present.useCount = 0;
+            }
+            if (present.useCount == 0) {
+                trans.delete(LogicalDatastoreType.OPERATIONAL, nodeInstanceId(ni));
+                this.nodes.remove(ni);
             }
         }
     }

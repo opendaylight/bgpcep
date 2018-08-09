@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -41,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 public final class TunnelProviderDeployer implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TunnelProviderDeployer.class);
 
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
     private final TunnelProviderDependencies dependencies;

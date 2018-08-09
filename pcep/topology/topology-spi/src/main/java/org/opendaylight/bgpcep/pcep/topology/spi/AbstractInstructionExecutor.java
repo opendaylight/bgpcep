@@ -36,11 +36,12 @@ public abstract class AbstractInstructionExecutor implements FutureCallback<Inst
     }
 
     public static FailureCase schedule(final InstructionScheduler scheduler, final AbstractInstructionExecutor fwd) {
+        final SubmitInstructionInput input = fwd.getInput();
         final ListenableFuture<Instruction> listenableFuture;
         try {
-            listenableFuture = scheduler.scheduleInstruction(fwd.getInput());
+            listenableFuture = scheduler.scheduleInstruction(input);
         } catch (final SchedulerException e) {
-            LOG.info("Instuction {} failed to schedule", e.getMessage(), e);
+            LOG.info("Instuction {} failed to schedule", input, e);
             return new FailureCaseBuilder().setFailure(e.getFailure()).build();
         }
         Futures.addCallback(listenableFuture, fwd, MoreExecutors.directExecutor());

@@ -9,6 +9,8 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
@@ -95,7 +97,9 @@ public class PCEPTriggeredReSynchronizationProcedureTest
 
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            assertEquals(1, pcc.getReportedLsp().size());
+            final List<?> lsp = pcc.getReportedLsp();
+            assertNotNull(lsp);
+            assertEquals(1, lsp.size());
             return pcc;
         });
 
@@ -162,7 +166,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP
-            assertEquals(0, pcc.getReportedLsp().size());
+            assertNull(pcc.getReportedLsp());
             return pcc;
         });
     }

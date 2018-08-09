@@ -8,9 +8,9 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -88,6 +88,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     private DOMDataTreeChangeService dataTreeChangeService;
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -128,7 +129,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
         doReturn(new BgpId("127.0.0.1")).when(this.rib).getBgpIdentifier();
         doReturn(true).when(this.future).cancel(true);
         doReturn(this.future).when(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
-                any(InetSocketAddress.class), anyInt(), any(KeyMapping.class));
+                any(), anyInt(), any(KeyMapping.class));
         doReturn(this.dispatcher).when(this.rib).getDispatcher();
 
         doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,

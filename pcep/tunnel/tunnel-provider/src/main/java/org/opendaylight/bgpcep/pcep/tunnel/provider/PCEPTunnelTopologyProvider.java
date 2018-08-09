@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference implements AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPTunnelTopologyProvider.class);
 
     private final NodeChangedListener ncl;
     private final InstanceIdentifier<Node> src;
