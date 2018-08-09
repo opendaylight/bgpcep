@@ -109,7 +109,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     private static void enumerateLsps(final InstanceIdentifier<Node> id, final Node node,
             final Set<InstanceIdentifier<ReportedLsp>> lsps) {
         if (node == null) {
-            LOG.trace("Skipping null node", id);
+            LOG.trace("Skipping null node {}", id);
             return;
         }
         final Node1 pccnode = node.augmentation(Node1.class);
