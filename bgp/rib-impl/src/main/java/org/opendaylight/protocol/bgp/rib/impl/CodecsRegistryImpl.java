@@ -66,7 +66,7 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
             try {
                 codecs.onCodecTreeUpdated(this.latestCodecTree);
             } catch (final Exception e) {
-                LOG.error("Codec creation threw {}", e.getMessage(), e);
+                LOG.error("Codec creation threw {}", e);
             }
         }
     }

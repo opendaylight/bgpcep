@@ -300,7 +300,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 = this.effRibTables.child(Tables.class, tableKey);
 
         // Create an empty table
-        LOG.trace("Create Empty table", tablePath);
+        LOG.trace("Create Empty table at {}", tablePath);
         if (table.getDataBefore() == null) {
             tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
                     .setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
