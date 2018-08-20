@@ -78,7 +78,7 @@ public final class OffsetMap {
         final Builder<RouteKey> builder = ImmutableSet.builder();
         final int index = indexOfRouterId(key);
         if (index < 0) {
-            LOG.trace("Router key not found", key);
+            LOG.trace("Router key {} not found", key);
         } else {
             builder.add(removeValue(this.routeKeys, index, EMPTY_KEYS));
         }
