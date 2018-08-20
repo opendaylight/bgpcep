@@ -73,4 +73,11 @@ module bgp-peer-rpc {
             uses peer-reference;
         }
     }
+
+    rpc graceful-restart {
+        description "Perform graceful restart with peer";
+        input {
+            uses peer-reference;
+        }
+    }
 }
