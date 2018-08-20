@@ -56,7 +56,7 @@ public final class ClusterSingletonServiceRegistrationHelper {
                     throw e;
                 }
                 attempts--;
-                LOG.warn("Failed to register {} service to ClusterSingletonServiceProvider. Try again in {} ms. {}",
+                LOG.warn("Failed to register {} service to ClusterSingletonServiceProvider. Try again in {} ms.",
                     clusterSingletonService, sleepTime, e);
                 Uninterruptibles.sleepUninterruptibly(sleepTime, TimeUnit.MILLISECONDS);
             }

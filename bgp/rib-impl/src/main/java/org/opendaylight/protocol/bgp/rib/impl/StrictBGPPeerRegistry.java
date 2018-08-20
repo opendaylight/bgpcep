@@ -179,7 +179,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                 return this.peers.get(ip);
                 // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
-                LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present",
+                LOG.warn("BGP session with {} initiated from {} to {} has to be dropped. Same session already present",
                         ip, sourceId, remoteId);
                 throw new BGPDocumentedException(
                         String.format("BGP session with %s initiated %s has to be dropped. "
