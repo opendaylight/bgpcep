@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -273,7 +274,7 @@ public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest 
     }
 
     @Override
-    protected Iterable<YangModuleInfo> getModuleInfos() throws Exception {
+    protected Set<YangModuleInfo> getModuleInfos() throws Exception {
         return ImmutableSet.of(BindingReflections.getModuleInfo(NetworkInstances.class),
                 BindingReflections.getModuleInfo(NetworkInstanceProtocol.class));
     }
