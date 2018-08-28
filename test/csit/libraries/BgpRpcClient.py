@@ -12,9 +12,9 @@ import xmlrpclib
 class BgpRpcClient(object):
     """The client for SimpleXMLRPCServer."""
 
-    def __init__(self, peer_addr):
+    def __init__(self, peer_addr, port=8000):
         """Setup destination point of the rpc server"""
-        self.proxy = xmlrpclib.ServerProxy("http://{}:8000".format(peer_addr))
+        self.proxy = xmlrpclib.ServerProxy("http://{}:{}".format(peer_addr, port))
 
     def exa_announce(self, full_exabgp_cmd):
         """The full command to be passed to exabgp."""

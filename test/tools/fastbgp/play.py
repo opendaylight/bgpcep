@@ -65,6 +65,8 @@ def parse_arguments():
     # we should mirror AS number from peer's open message.
     str_help = "Amount of IP prefixes to generate. (negative means ""infinite"")."
     parser.add_argument("--amount", default="1", type=int, help=str_help)
+    str_help = "Rpc server port."
+    parser.add_argument("--port", default="8000", type=int, help=str_help)
     str_help = "Maximum number of IP prefixes to be announced in one iteration"
     parser.add_argument("--insert", default="1", type=int, help=str_help)
     str_help = "Maximum number of IP prefixes to be withdrawn in one iteration"
@@ -126,6 +128,8 @@ def parse_arguments():
     parser.add_argument("--threshold", default="1000", type=int, help=str_help)
     str_help = "RFC 4760 Multiprotocol Extensions for BGP-4 supported"
     parser.add_argument("--rfc4760", default=True, type=bool, help=str_help)
+    str_help = "Using peerip instead of myip for xmlrpc server"
+    parser.add_argument("--usepeerip", default=False, action="store_true", help=str_help)
     str_help = "Link-State NLRI supported"
     parser.add_argument("--bgpls", default=False, type=bool, help=str_help)
     str_help = "Link-State NLRI: Identifier"
@@ -185,7 +189,7 @@ def establish_connection(arguments):
     """Establish connection to BGP peer.
 
     Arguments:
-        :arguments: following command-line argumets are used
+        :arguments: following command-line arguments are used
             - arguments.myip: local IP address
             - arguments.myport: local port
             - arguments.peerip: remote IP address
@@ -334,13 +338,14 @@ class MessageGenerator(object):
                 options for MesageGenerator initialisation
         Notes:
             Calculates and stores default values used later on for
-            message geeration.
+            message generation.
         """
         self.total_prefix_amount = args.amount
         # Number of update messages left to be sent.
         self.remaining_prefixes = self.total_prefix_amount
 
         # New parameters initialisation
+        self.port = args.port
         self.iteration = 0
         self.prefix_base_default = args.firstprefix
         self.prefix_length_default = args.prefixlen
@@ -2046,6 +2051,7 @@ def threaded_job(arguments):
     utils_left = arguments.multiplicity
     prefix_current = arguments.firstprefix
     myip_current = arguments.myip
+    port = arguments.port
     thread_args = []
     rpcqueue = Queue.Queue()
     storage = SafeDict()
@@ -2074,7 +2080,11 @@ def threaded_job(arguments):
         print "Error: unable to start thread."
         raise SystemExit(2)
 
-    rpcserver = SimpleXMLRPCServer((arguments.myip.compressed, 8000), allow_none=True)
+    if arguments.usepeerip:
+        ip = arguments.peerip
+    else:
+        ip = arguments.myip
+    rpcserver = SimpleXMLRPCServer((ip.compressed, port), allow_none=True)
     rpcserver.register_instance(Rpcs(rpcqueue, storage))
     rpcserver.serve_forever()
 
