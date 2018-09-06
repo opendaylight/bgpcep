@@ -100,7 +100,7 @@ module bgp-multiprotocol {
                     range 0..4095;
                 }
                 units seconds;
-                mandatory true;
+                default 0;
             }
 
             list tables {

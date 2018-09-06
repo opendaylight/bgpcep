@@ -232,6 +232,5 @@ public class SimpleRegistryTest {
         nlriReg.serializeMpUnReach(mpUnreach, buffer);
         assertArrayEquals(mpUnreachBytes, buffer.array());
         assertEquals(mpUnreach, nlriReg.parseMpUnreach(Unpooled.wrappedBuffer(mpUnreachBytes), CONSTRAINT));
-        verify(this.activator.nlriParser, times(1)).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
     }
 }
