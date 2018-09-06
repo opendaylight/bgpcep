@@ -84,7 +84,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     private static List<BgpParameters> getBgpParameters(final AfiSafis afiSafis, final RIB rib,
-            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+                                                        final int gracefulRestartTime,
+                                                        final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> caps = new ArrayList<>();
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
@@ -105,6 +106,10 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                                     new AddPathCapabilityBuilder()
                                             .setAddressFamilies(addPathCapability).build()).build()).build()).build());
         }
+
+        caps.add(new OptionalCapabilitiesBuilder()
+                .setCParameters(GracefulCapabilityUtil.getGracefulCapability(afiSafis, gracefulRestartTime,
+                        tableTypeRegistry)).build());
 
         final List<BgpTableType> tableTypes = OpenConfigMappingUtil.toTableTypes(afiSafi, tableTypeRegistry);
         for (final BgpTableType tableType : tableTypes) {
@@ -254,7 +259,9 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
             final ClusterIdentifier clusterId = OpenConfigMappingUtil
                     .getNeighborClusterIdentifier(neighbor.getRouteReflector(), peerGroup);
-            final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, tableTypeRegistry);
+            int gracefulRestartTimer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, peerGroup);
+            final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, gracefulRestartTimer,
+                    tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final IpAddress neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
             int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
