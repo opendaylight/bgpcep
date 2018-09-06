@@ -71,7 +71,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     public void testWaitFutureSuccess() {
         when(this.future.isSuccess()).thenReturn(true);
         doAnswer(invocation -> {
-            invocation.<GenericFutureListener>getArgument(0).operationComplete(CheckUtilTest.this.future);
+            ((GenericFutureListener)invocation.getArguments()[0]).operationComplete(CheckUtilTest.this.future);
             return CheckUtilTest.this.future;
         }).when(this.future).addListener(any());
         waitFutureSuccess(this.future);
