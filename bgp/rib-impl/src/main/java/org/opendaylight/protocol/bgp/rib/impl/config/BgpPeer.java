@@ -17,7 +17,9 @@ import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -50,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -83,9 +86,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         this.rpcRegistry = rpcRegistry;
     }
 
-    private static List<BgpParameters> getBgpParameters(final AfiSafis afiSafis, final RIB rib,
-            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        final List<BgpParameters> tlvs = new ArrayList<>();
+    private static List<OptionalCapabilities> getBgpCapabilities(final AfiSafis afiSafis, final RIB rib,
+                                                          final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<OptionalCapabilities> caps = new ArrayList<>();
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
                 new As4BytesCapabilityBuilder().setAsNumber(rib.getLocalAs()).build()).build()).build());
@@ -118,8 +120,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                             new CParameters1Builder().setMultiprotocolCapability(
                                     new MultiprotocolCapabilityBuilder(tableType).build()).build()).build()).build());
         }
-        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(caps).build());
-        return tlvs;
+        return caps;
     }
 
     private static Optional<byte[]> getPassword(final KeyMapping key) {
@@ -227,6 +228,10 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         private final BGPSessionPreferences prefs;
         private Future<Void> connection;
         private boolean isServiceInstantiated;
+        private final List<OptionalCapabilities> bgpFixedCapabilities;
+        private final List<TablesKey> gracefulTables;
+        private final Optional<Integer> gracefulRestartTimer;
+
 
         private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
                 final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
@@ -242,22 +247,28 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                     peerGroup = peerGroupLoader.getPeerGroup(bgpIid, peerGroupName);
                 }
             }
-            final AfiSafis afisSAfis;
+            final AfiSafis afisSafis;
             if (peerGroup != null && peerGroup.getAfiSafis() != null) {
-                afisSAfis = peerGroup.getAfiSafis();
+                afisSafis = peerGroup.getAfiSafis();
             } else {
-                afisSAfis = requireNonNull(neighbor.getAfiSafis(), "Missing mandatory AFIs/SAFIs");
+                afisSafis = requireNonNull(neighbor.getAfiSafis(), "Missing mandatory AFIs/SAFIs");
             }
 
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
-                    .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
+                    .toTableKey(afisSafis.getAfiSafi(), tableTypeRegistry);
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
             final ClusterIdentifier clusterId = OpenConfigMappingUtil
                     .getNeighborClusterIdentifier(neighbor.getRouteReflector(), peerGroup);
-            final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, tableTypeRegistry);
+            final int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
+            this.gracefulRestartTimer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor,
+                    peerGroup, hold);
+            this.gracefulTables = GracefulRestartUtil.getGracefulTables(afisSafis.getAfiSafi(),
+                    tableTypeRegistry);
+            this.bgpFixedCapabilities = getBgpCapabilities(afisSafis, rib, tableTypeRegistry);
+            final List<BgpParameters> bgpParameters = Collections.singletonList(
+                    getUpdatedGracefulParameters(Collections.emptySet(), false));
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final IpAddress neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
-            int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
             final AsNumber globalAs = rib.getLocalAs();
             final AsNumber neighborRemoteAs = OpenConfigMappingUtil
                     .getRemotePeerAs(neighbor.getConfig(), peerGroup, globalAs);
@@ -316,6 +327,20 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         @Override
         public BGPPeerState getPeerState() {
             return this.bgpPeer.getPeerState();
+        }
+
+        private synchronized BgpParameters getUpdatedGracefulParameters(final Set<TablesKey> preservedTables,
+                                                           final boolean localRestarting) {
+            final List<OptionalCapabilities> capabilities = new ArrayList<>(this.bgpFixedCapabilities);
+            final Map<TablesKey, Boolean> gracefulMap = new HashMap<>();
+            this.gracefulTables.forEach(table -> gracefulMap.put(table, preservedTables.contains(table)));
+            final Optional<CParameters> gracefulCapability = GracefulRestartUtil.getGracefulCapability(gracefulMap,
+                    this.gracefulRestartTimer, localRestarting);
+            gracefulCapability.ifPresent(capability -> capabilities.add(new OptionalCapabilitiesBuilder()
+                    .setCParameters(capability)
+                    .build()));
+
+            return new BgpParametersBuilder().setOptionalCapabilities(capabilities).build();
         }
     }
 }
