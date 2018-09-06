@@ -14,8 +14,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -150,7 +152,7 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
-    protected void processDestination(
+    protected Set<NodeIdentifierWithPredicates> processDestination(
             final DOMDataWriteTransaction tx,
             final YangInstanceIdentifier routesPath,
             final ContainerNode destination,
@@ -163,15 +165,19 @@ public final class RouteTargetConstrainRIBSupport
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                    final Set<NodeIdentifierWithPredicates> keys = new HashSet<>();
                     for (final UnkeyedListEntryNode rtDest : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(rtDest);
                         function.apply(tx, base, routeKey, rtDest, attributes);
+                        keys.add(routeKey);
                     }
+                    return keys;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return Collections.emptySet();
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode routeTarget) {
