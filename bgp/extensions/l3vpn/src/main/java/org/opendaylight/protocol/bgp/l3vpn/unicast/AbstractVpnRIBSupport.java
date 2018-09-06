@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.l3vpn.unicast;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -114,8 +115,11 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataWriteTransaction tx,
+                                                                          final YangInstanceIdentifier routesPath,
+                                                                          final ContainerNode destination,
+                                                                          final ContainerNode attributes,
+                                                                          final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes =
                     destination.getChild(this.nlriRoutesListNid);
@@ -125,11 +129,15 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
                     final UnkeyedListNode routeListNode = (UnkeyedListNode) routes;
                     LOG.debug("{} routes are found", routeListNode.getSize());
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    for (final UnkeyedListEntryNode e : routeListNode.getValue()) {
-                        final NodeIdentifierWithPredicates key = createRouteKey(e);
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
+                    for (final UnkeyedListEntryNode vpnDest : routesList) {
+                        final NodeIdentifierWithPredicates key = createRouteKey(vpnDest);
                         LOG.debug("Route {} is processed.", key);
-                        function.apply(tx, base, key, e, attributes);
+                        function.apply(tx, base, key, vpnDest, attributes);
+                        keys.add(key);
                     }
+                    return keys;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
@@ -137,6 +145,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
         } else {
             LOG.debug("Destination is null.");
         }
+        return Collections.emptyList();
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode l3vpn) {

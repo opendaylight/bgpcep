@@ -10,22 +10,34 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
@@ -56,6 +68,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
@@ -102,6 +116,8 @@ final class AdjRibInWriter {
     private final YangInstanceIdentifier ribPath;
     private final PeerTransactionChain chain;
     private final PeerRole role;
+    @GuardedBy("this")
+    private final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
@@ -271,8 +287,8 @@ final class AdjRibInWriter {
         }, MoreExecutors.directExecutor());
     }
 
-    void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .bgp.message.rev180329.path.attributes.Attributes attributes) {
+    void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params
+            .xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {
@@ -281,7 +297,11 @@ final class AdjRibInWriter {
         }
 
         final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
-        ctx.writeRoutes(tx, nlri, attributes);
+        final Collection<NodeIdentifierWithPredicates> routeKeys = ctx.writeRoutes(tx, nlri, attributes);
+        final Collection<NodeIdentifierWithPredicates> staleRoutes = this.staleRoutesRegistry.get(key);
+        if (staleRoutes != null) {
+            staleRoutes.removeAll(routeKeys);
+        }
         LOG.trace("Write routes {}", nlri);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
         this.submitted = future;
@@ -331,5 +351,98 @@ final class AdjRibInWriter {
                 LOG.error("Write routes failed", throwable);
             }
         }
+    }
+
+    final void storeStaleRoutes(final Set<TablesKey> gracefulTables) {
+        try (final DOMDataReadOnlyTransaction tx = this.chain.getDomChain().newReadOnlyTransaction()) {
+            final Map<TablesKey, Future> readFutures = new HashMap<>();
+            final ExecutorService threadPool = Executors.newCachedThreadPool();
+            gracefulTables.forEach(tablesKey -> {
+                final TableContext ctx = this.tables.get(tablesKey);
+                if (ctx == null) {
+                    LOG.warn("Missing table for address family {}", tablesKey);
+                    return;
+                }
+                final YangInstanceIdentifier iid = ctx.routesPath();
+                final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> readFuture =
+                        tx.read(LogicalDatastoreType.OPERATIONAL, iid);
+                readFutures.put(tablesKey, readFuture);
+                Futures.addCallback(readFuture, new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
+                    @Override
+                    public void onSuccess(final Optional<NormalizedNode<?, ?>> routesOptional) {
+                        synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
+                            if (routesOptional.isPresent()) {
+                                final MapNode routesNode = (MapNode) routesOptional.get();
+                                final List<NodeIdentifierWithPredicates> routes = routesNode.getValue().stream()
+                                        .map(MapEntryNode::getIdentifier)
+                                        .collect(Collectors.toList());
+                                if (!routes.isEmpty()) {
+                                    AdjRibInWriter.this.staleRoutesRegistry.put(tablesKey, routes);
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(final Throwable throwable) {
+                        LOG.warn("Failed to store stale routes for table {}", tablesKey, throwable);
+                    }
+                }, threadPool);
+            });
+            readFutures.entrySet().stream().forEach(entry -> {
+                try {
+                    entry.getValue().get();
+                } catch (final InterruptedException | ExecutionException e) {
+                    LOG.warn("Failed to store stale routes for table {}", entry.getKey(), e);
+                }
+            });
+        }
+    }
+
+    final void removeStaleRoutes(final TablesKey tableKey) {
+        final TableContext ctx = this.tables.get(tableKey);
+        if (ctx == null) {
+            LOG.debug("No table for {}, not removing any stale routes", tableKey);
+            return;
+        }
+        final Collection<NodeIdentifierWithPredicates> routeKeys = this.staleRoutesRegistry.get(tableKey);
+        if (routeKeys == null || routeKeys.isEmpty()) {
+            LOG.debug("No stale routes present in table {}", tableKey);
+            return;
+        }
+        LOG.trace("Removing routes {}", routeKeys);
+        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        routeKeys.forEach(routeKey -> {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, ctx.routePath(routeKey));
+        });
+        final FluentFuture<? extends CommitInfo> future = tx.commit();
+        this.submitted = future;
+        future.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Removing routes {}, succeed", routeKeys);
+                synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
+                    staleRoutesRegistry.remove(tableKey);
+                }
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.warn("Removing routes {}, failed", routeKeys, throwable);
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
+    final FluentFuture<? extends CommitInfo> clearTables(final Set<TablesKey> tablesToClear) {
+        if (tablesToClear == null || tablesToClear.isEmpty()) {
+            return CommitInfo.emptyFluentFuture();
+        }
+
+        final DOMDataWriteTransaction wtx = this.chain.getDomChain().newWriteOnlyTransaction();
+        tablesToClear.forEach(tableKey -> {
+            final TableContext ctx = this.tables.get(tableKey);
+            wtx.delete(LogicalDatastoreType.OPERATIONAL, ctx.routesPath().getParent());
+        });
+        return wtx.commit();
     }
 }

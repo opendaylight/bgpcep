@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.evpn.impl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -95,8 +96,11 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataWriteTransaction tx,
+                                                                          final YangInstanceIdentifier routesPath,
+                                                                          final ContainerNode destination,
+                                                                          final ContainerNode attributes,
+                                                                          final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination
                     .getChild(NLRI_ROUTES_LIST);
@@ -104,15 +108,20 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
-                        final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
-                        function.apply(tx, base, routeKey, e, attributes);
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
+                    for (final UnkeyedListEntryNode evpnDest : routesList) {
+                        final NodeIdentifierWithPredicates routeKey = createRouteKey(evpnDest);
+                        function.apply(tx, base, routeKey, evpnDest, attributes);
+                        keys.add(routeKey);
                     }
+                    return keys;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return Collections.emptyList();
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode evpn) {
