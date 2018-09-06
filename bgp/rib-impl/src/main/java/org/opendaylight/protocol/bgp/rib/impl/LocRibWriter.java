@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -341,7 +343,18 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         }
         updateLocRib(newRoutes, staleRoutes, tx);
         this.peerTracker.getNonInternalPeers().parallelStream()
-                .forEach(toPeer->toPeer.refreshRibOut(this.entryDep, staleRoutes, newRoutes));
+                /* Change in DS from BGPPeer (e.g. delete in synchronized onSessionUp) leads here to call synchronized
+                   refreshRibOut back from BGPPeer. However if original method is making changes to DS again
+                   (e.g. register listener) it causes deadlock. Original method is waiting for DataTree lock,
+                   which is here and here we are waiting for original synchronized method to finish.
+                   We are avoiding deadlock by releasing DataTree lock here by calling refreshRibOut
+                   in stand-alone thread.
+                 */
+                .forEach(toPeer -> {
+                    final ExecutorService executor = Executors.newSingleThreadExecutor();
+                    executor.submit(() -> toPeer.refreshRibOut(this.entryDep, staleRoutes, newRoutes));
+                    executor.shutdown();
+                });
     }
 
     private void updateLocRib(final List<AdvertizedRoute<C, S, R, I>> newRoutes,
