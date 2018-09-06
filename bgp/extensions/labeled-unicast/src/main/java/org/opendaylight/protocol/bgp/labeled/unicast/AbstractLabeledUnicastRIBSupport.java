@@ -90,8 +90,11 @@ abstract class AbstractLabeledUnicastRIBSupport<
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataWriteTransaction tx,
+                                                                          final YangInstanceIdentifier routesPath,
+                                                                          final ContainerNode destination,
+                                                                          final ContainerNode attributes,
+                                                                          final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
                     = destination.getChild(NLRI_ROUTES_LIST);
@@ -99,15 +102,20 @@ abstract class AbstractLabeledUnicastRIBSupport<
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
+                    for (final UnkeyedListEntryNode e : routesList) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                         function.apply(tx, base, routeKey, e, attributes);
+                        keys.add(routeKey);
                     }
+                    return keys;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return Collections.emptyList();
     }
 
 
