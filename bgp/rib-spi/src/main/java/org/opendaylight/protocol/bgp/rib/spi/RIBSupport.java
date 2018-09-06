@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -137,9 +138,10 @@ public interface RIBSupport<
      * @param tablePath  YangInstanceIdentifier
      * @param nlri       ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode
+     * @return Set of processed route Identifiers
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
-            @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
+    Set<NodeIdentifierWithPredicates> putRoutes(@Nonnull DOMDataWriteTransaction tx,
+            @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
@@ -155,9 +157,11 @@ public interface RIBSupport<
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param attributes   ContainerNode
      * @param routesNodeId NodeIdentifier of "routes" data node
+     * @return Set of processed routes identifiers
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
-            @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes, @Nonnull NodeIdentifier routesNodeId);
+    Set<NodeIdentifierWithPredicates> putRoutes(@Nonnull DOMDataWriteTransaction tx,
+            @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes,
+            @Nonnull NodeIdentifier routesNodeId);
 
     /**
      * Returns routes that were modified within this RIB support instance.
@@ -176,8 +180,16 @@ public interface RIBSupport<
      * @return YangInstanceIdentifier with routesPath + specific RIB support routes path + routeId
      */
     @Nonnull
-    YangInstanceIdentifier routePath(@Nonnull YangInstanceIdentifier routesPath,
-            @Nonnull PathArgument routeId);
+    YangInstanceIdentifier routePath(@Nonnull YangInstanceIdentifier routesPath, @Nonnull PathArgument routeId);
+
+    /**
+     * Constructs an instance identifier path to routes list.
+     *
+     * @param routesPath YangInstanceIdentifier base path
+     * @return YangInstanceIdentifier with routesPath + specific RIB support routes path
+     */
+    @Nonnull
+    YangInstanceIdentifier routesPath(@Nonnull YangInstanceIdentifier routesPath);
 
     /**
      * To send routes out, we'd need to transform the DOM representation of route to
@@ -235,8 +247,8 @@ public interface RIBSupport<
 
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
-                @Nonnull NodeIdentifierWithPredicates routeKey,
-                @Nonnull DataContainerNode<?> route, ContainerNode attributes);
+                   @Nonnull NodeIdentifierWithPredicates routeKey,
+                   @Nonnull DataContainerNode<?> route, ContainerNode attributes);
     }
 
     /**
