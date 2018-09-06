@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -130,6 +132,20 @@ public interface RIBSupport<
             @Nonnull ContainerNode nlri, @Nonnull NodeIdentifier routesNodeId);
 
     /**
+     * Given the NLRI as ContainerNode, this method should extract withdrawn routes
+     * from the DOM model and delete them from RIBs.
+     * <p>
+     * Use this method when removing routes identified by routeKey and pathId.
+     * </p>
+     *
+     * @param tx           DOMDataWriteTransaction
+     * @param tablePath    YangInstanceIdentifier
+     * @param routeKeys    Set of route identifiers
+     */
+    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
+                      @Nonnull Set<NodeIdentifierWithPredicates> routeKeys);
+
+    /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
      * from the DOM model and put them into RIBs.
      *
@@ -137,9 +153,10 @@ public interface RIBSupport<
      * @param tablePath  YangInstanceIdentifier
      * @param nlri       ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode
+     * @return Set of processed route Identifiers
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
-            @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
+    Set<NodeIdentifierWithPredicates> putRoutes(@Nonnull DOMDataWriteTransaction tx,
+            @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
@@ -155,9 +172,11 @@ public interface RIBSupport<
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param attributes   ContainerNode
      * @param routesNodeId NodeIdentifier of "routes" data node
+     * @return Set of processed routes identifiers
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
-            @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes, @Nonnull NodeIdentifier routesNodeId);
+    Set<NodeIdentifierWithPredicates> putRoutes(@Nonnull DOMDataWriteTransaction tx,
+            @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes,
+            @Nonnull NodeIdentifier routesNodeId);
 
     /**
      * Returns routes that were modified within this RIB support instance.
@@ -270,4 +289,13 @@ public interface RIBSupport<
      */
     @Nonnull
     I createRouteListKey(@Nonnull long pathId, @Nonnull String routeKey);
+
+    /**
+     * Create list of route keys identifiers for current routes.
+     *
+     * @return Set of route identifiers
+     */
+    @Nonnull
+    Set<NodeIdentifierWithPredicates> getRouteKeys(DOMDataReadTransaction rtx,
+                                                      YangInstanceIdentifier tableId);
 }

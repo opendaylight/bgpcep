@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -102,11 +103,14 @@ final class AdjRibInWriter {
     private final YangInstanceIdentifier ribPath;
     private final PeerTransactionChain chain;
     private final PeerRole role;
+    private final Map<TablesKey, Set<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
+    private PeerId peerId;
 
-    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final PeerTransactionChain chain, final PeerRole role,
-            final Map<TablesKey, TableContext> tables) {
+    private AdjRibInWriter(final PeerId peerId, final YangInstanceIdentifier ribPath, final PeerTransactionChain chain,
+            final PeerRole role, final Map<TablesKey, TableContext> tables) {
+        this.peerId = peerId;
         this.ribPath = requireNonNull(ribPath);
         this.chain = requireNonNull(chain);
         this.tables = requireNonNull(tables);
@@ -119,9 +123,9 @@ final class AdjRibInWriter {
      * @param role                peer's role
      * @param chain               transaction chain  @return A fresh writer instance
      */
-    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role,
-            @Nonnull final PeerTransactionChain chain) {
-        return new AdjRibInWriter(ribId, chain, role, Collections.emptyMap());
+    static AdjRibInWriter create(@Nullable final PeerId peerId, @Nonnull final YangInstanceIdentifier ribId,
+            @Nonnull final PeerRole role, @Nonnull final PeerTransactionChain chain) {
+        return new AdjRibInWriter(peerId, ribId, chain, role, Collections.emptyMap());
     }
 
     /**
@@ -171,7 +175,7 @@ final class AdjRibInWriter {
                 }
             }
         }, MoreExecutors.directExecutor());
-        return new AdjRibInWriter(this.ribPath, this.chain, this.role, tb);
+        return new AdjRibInWriter(newPeerId, this.ribPath, this.chain, this.role, tb);
     }
 
     /**
@@ -281,7 +285,7 @@ final class AdjRibInWriter {
         }
 
         final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
-        ctx.writeRoutes(tx, nlri, attributes);
+        Set<NodeIdentifierWithPredicates> routeKeys = ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
         this.submitted = future;
@@ -296,9 +300,14 @@ final class AdjRibInWriter {
                 LOG.error("Write routes failed", throwable);
             }
         }, MoreExecutors.directExecutor());
+
+        Set<NodeIdentifierWithPredicates> staleRoutes = staleRoutesRegistry.get(key);
+        if (staleRoutes != null && !staleRoutes.isEmpty()) {
+            routeKeys.forEach(staleRoutes::remove);
+        }
     }
 
-    void removeRoutes(final MpUnreachNlri nlri) {
+    public void removeRoutes(final MpUnreachNlri nlri) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {
@@ -323,6 +332,47 @@ final class AdjRibInWriter {
         }, MoreExecutors.directExecutor());
     }
 
+    public void removeRoutes(final Set<NodeIdentifierWithPredicates> routeKeys, TablesKey key) {
+        final TableContext ctx = this.tables.get(key);
+        if (ctx == null) {
+            LOG.debug("No table for {}, not accepting prefixes {}", key, routeKeys);
+            return;
+        }
+        LOG.trace("Removing routes {}", routeKeys);
+        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        ctx.removeRoutes(tx, routeKeys);
+        final FluentFuture<? extends CommitInfo> future = tx.commit();
+        this.submitted = future;
+        future.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Removing routes {}, succeed", routeKeys);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Removing routes failed", throwable);
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
+    FluentFuture<? extends CommitInfo> clearTables(final Set<TablesKey> tablesToClear,
+                                                        final RIBSupportContextRegistry registry,
+                                                        final YangInstanceIdentifier peerPath) {
+        if (tablesToClear == null || tablesToClear.isEmpty()) {
+            return CommitInfo.emptyFluentFuture();
+        }
+
+        DOMDataWriteTransaction wtx = this.chain.getDomChain().newWriteOnlyTransaction();
+        for (final TablesKey tableKey : tablesToClear) {
+            final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
+            final NodeIdentifierWithPredicates instanceIdentifierKey = RibSupportUtils.toYangTablesKey(tableKey);
+            installAdjRibInTables(peerPath, tableKey, rs, instanceIdentifierKey,
+                    wtx, ImmutableMap.builder());
+        }
+        return wtx.commit();
+    }
+
     void releaseChain() {
         if (this.submitted != null) {
             try {
@@ -330,6 +380,27 @@ final class AdjRibInWriter {
             } catch (final InterruptedException | ExecutionException throwable) {
                 LOG.error("Write routes failed", throwable);
             }
+        }
+    }
+
+    public void saveStaleRoutes(Set<TablesKey> gracefulTables) {
+        gracefulTables.forEach(tablesKey -> staleRoutesRegistry.put(tablesKey, this.tables.get(tablesKey).getRouteKeys(
+                this.chain.getDomChain().newReadOnlyTransaction(), createTableId())));
+    }
+
+    private YangInstanceIdentifier createTableId() {
+        return YangInstanceIdentifier.builder(this.ribPath)
+                .node(Peer.QNAME)
+                .nodeWithKey(Peer.QNAME, PEER_ID_QNAME, this.peerId.getValue())
+                .node(AdjRibIn.QNAME)
+                .build();
+    }
+
+    public void removeStaleRoutes(TablesKey tableKey) {
+        Set<NodeIdentifierWithPredicates> staleRoutes = this.staleRoutesRegistry.get(tableKey);
+        if (staleRoutes != null && !staleRoutes.isEmpty()) {
+            removeRoutes(staleRoutes, tableKey);
+            staleRoutes.clear();
         }
     }
 }

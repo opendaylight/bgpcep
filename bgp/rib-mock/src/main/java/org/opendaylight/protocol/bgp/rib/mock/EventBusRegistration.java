@@ -31,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yangtools.concepts.AbstractListenerRegistration;
@@ -193,8 +195,17 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
         }
 
         @Override
-        public List<BgpTableType> getAdvertisedGracefulRestartTableTypes() {
-            return Collections.emptyList();
+        public GracefulRestartCapability getAdvertisedGracefulRestartCapability() {
+            return new GracefulRestartCapabilityBuilder()
+                    .setRestartTime(0)
+                    .setTables(Collections.EMPTY_LIST)
+                    .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
+                    .build();
+        }
+
+        @Override
+        public void closeWithoutMessage() {
+            close();
         }
 
     }

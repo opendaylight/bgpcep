@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkState;
 
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
@@ -190,13 +190,13 @@ public class BGPSessionImplTest {
         this.bgpSession.sessionUp();
         Assert.assertEquals(State.UP, this.listener.getState());
         this.bgpSession.endOfInput();
-        checkIdleState(this.listener);
+        checkState(this.listener, State.IDLE, listener -> ((SimpleSessionListener) listener).getState());
     }
 
     @Test
     public void testHoldTimerExpire() throws InterruptedException {
         this.bgpSession.sessionUp();
-        checkIdleState(this.listener);
+        checkState(this.listener, State.IDLE, listener -> ((SimpleSessionListener) listener).getState());
         Assert.assertEquals(3, this.receivedMsgs.size());
         Assert.assertTrue(this.receivedMsgs.get(2) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(2);
