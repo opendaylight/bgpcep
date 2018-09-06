@@ -84,7 +84,8 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     private static List<BgpParameters> getBgpParameters(final AfiSafis afiSafis, final RIB rib,
-            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+                                                        final Optional<Integer> gracefulRestartTime,
+                                                        final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> caps = new ArrayList<>();
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
@@ -105,6 +106,12 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                                     new AddPathCapabilityBuilder()
                                             .setAddressFamilies(addPathCapability).build()).build()).build()).build());
         }
+
+        // TODO change localRestarting flag and preserved tables on graceful restart call
+        gracefulRestartTime.ifPresent(timer -> caps.add(new OptionalCapabilitiesBuilder()
+                .setCParameters(GracefulCapabilityUtil.getGracefulCapability(afiSafis.getAfiSafi(),
+                        timer, false, Collections.emptyList(), tableTypeRegistry))
+                .build()));
 
         final List<BgpTableType> tableTypes = OpenConfigMappingUtil.toTableTypes(afiSafi, tableTypeRegistry);
         for (final BgpTableType tableType : tableTypes) {
@@ -242,22 +249,24 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                     peerGroup = peerGroupLoader.getPeerGroup(bgpIid, peerGroupName);
                 }
             }
-            final AfiSafis afisSAfis;
+            final AfiSafis afisSafis;
             if (peerGroup != null && peerGroup.getAfiSafis() != null) {
-                afisSAfis = peerGroup.getAfiSafis();
+                afisSafis = peerGroup.getAfiSafis();
             } else {
-                afisSAfis = requireNonNull(neighbor.getAfiSafis(), "Missing mandatory AFIs/SAFIs");
+                afisSafis = requireNonNull(neighbor.getAfiSafis(), "Missing mandatory AFIs/SAFIs");
             }
 
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
-                    .toTableKey(afisSAfis.getAfiSafi(), tableTypeRegistry);
+                    .toTableKey(afisSafis.getAfiSafi(), tableTypeRegistry);
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
             final ClusterIdentifier clusterId = OpenConfigMappingUtil
                     .getNeighborClusterIdentifier(neighbor.getRouteReflector(), peerGroup);
-            final List<BgpParameters> bgpParameters = getBgpParameters(afisSAfis, rib, tableTypeRegistry);
+            final int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
+            final Optional<Integer> gracefulRestartTimer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, peerGroup, hold);
+            final List<BgpParameters> bgpParameters = getBgpParameters(afisSafis, rib, gracefulRestartTimer,
+                    tableTypeRegistry);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final IpAddress neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
-            int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
             final AsNumber globalAs = rib.getLocalAs();
             final AsNumber neighborRemoteAs = OpenConfigMappingUtil
                     .getRemotePeerAs(neighbor.getConfig(), peerGroup, globalAs);

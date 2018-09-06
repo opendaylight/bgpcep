@@ -47,6 +47,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestartBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafis;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
@@ -58,6 +59,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
@@ -450,5 +452,62 @@ public class OpenConfigMappingUtilTest {
         final List<AddressFamilies> result = OpenConfigMappingUtil
                 .toAddPathCapability(families, this.tableTypeRegistry);
         assertEquals(FAMILIES, result);
+    }
+
+    @Test
+    public void getGracefulRestartTimerTest() {
+        final int neighborTimer = 5;
+        final int peerGroupTimer = 10;
+        final Neighbor emptyNeighbor = new NeighborBuilder().build();
+        final PeerGroup emptyPeer = new PeerGroupBuilder().build();
+        Neighbor neighbor = new NeighborBuilder()
+                .setGracefulRestart(new GracefulRestartBuilder()
+                        .setConfig(createGracefulConfig(true, neighborTimer))
+                        .build()).build();
+        PeerGroup peerGroup = new PeerGroupBuilder()
+                .setGracefulRestart(new GracefulRestartBuilder()
+                        .setConfig(createGracefulConfig(true, peerGroupTimer))
+                        .build()).build();
+        // bot timers present, pick peer group one
+        int timer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, peerGroup, HOLDTIMER).get();
+        assertEquals(peerGroupTimer, timer);
+
+        // peer group missing graceful restart, use neighbor timer
+        timer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, emptyPeer, HOLDTIMER).get();
+        assertEquals(neighborTimer, timer);
+
+        // graceful restart enabled but timer not set, use 3 * hold time
+        peerGroup = new PeerGroupBuilder()
+                .setGracefulRestart(new GracefulRestartBuilder()
+                        .setConfig(createGracefulConfig(true, null))
+                        .build()).build();
+        timer = OpenConfigMappingUtil.getGracefulRestartTimer(emptyNeighbor, peerGroup, HOLDTIMER).get();
+        assertEquals(HOLDTIMER * 3, timer);
+
+        // graceful restart not enabled, verify Optional.empty()
+        assertFalse(OpenConfigMappingUtil.getGracefulRestartTimer(emptyNeighbor, emptyPeer, HOLDTIMER).isPresent());
+
+        // graceful restart disabled in peer group, ignore neighbor setting and verify Optional.empty()
+        peerGroup = new PeerGroupBuilder()
+                .setGracefulRestart(new GracefulRestartBuilder()
+                        .setConfig(createGracefulConfig(false, peerGroupTimer))
+                        .build()).build();
+        assertFalse(OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, peerGroup, HOLDTIMER).isPresent());
+
+        // graceful restart not set in peer group and disabled in neighbor, verify Optional.empty()
+        neighbor = new NeighborBuilder()
+                .setGracefulRestart(new GracefulRestartBuilder()
+                        .setConfig(createGracefulConfig(false, neighborTimer))
+                        .build()).build();
+        assertFalse(OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, emptyPeer,
+                HOLDTIMER).isPresent());
+    }
+
+    private org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart.Config createGracefulConfig(
+            final boolean enabled, final Integer restartTimer) {
+        return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart.ConfigBuilder()
+                .setEnabled(enabled)
+                .setRestartTime(restartTimer)
+                .build();
     }
 }
