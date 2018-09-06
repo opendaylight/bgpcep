@@ -129,6 +129,12 @@
                             <route-reflector-client>false</route-reflector-client>
                         </config>
                     </route-reflector>
+                    <graceful-restart>
+                        <config>
+                            <enabled>true</enabled>
+                            <restart-time>60</restart-time>
+                        </config>
+                    </graceful-restart>
                     <afi-safis>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
@@ -138,51 +144,131 @@
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-LABELLED-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-MULTICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-MULTICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>LINKSTATE</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV4-FLOW</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV6-FLOW</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV4-L3VPN-FLOW</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV6-L3VPN-FLOW</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV4-MCAST-VPN</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV6-MCAST-VPN</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>ROUTE-TARGET-CONSTRAIN</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                     </afi-safis>
                 </peer-group>
@@ -198,57 +284,146 @@
                             <passive-mode>true</passive-mode>
                         </config>
                     </transport>
+                    <graceful-restart>
+                        <enabled>true</enabled>
+                        <restart-time>60</restart-time>
+                    </graceful-restart>
                     <afi-safis>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-LABELLED-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-MULTICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-MULTICAST</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>LINKSTATE</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV4-FLOW</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV6-FLOW</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV4-L3VPN-FLOW</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV6-L3VPN-FLOW</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV4-MCAST-VPN</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>IPV6-MCAST-VPN</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                         <afi-safi>
                             <afi-safi-name>ROUTE-TARGET-CONSTRAIN</afi-safi-name>
+                            <graceful-restart>
+                                <config>
+                                    <enabled>true</enabled>
+                                </config>
+                            </graceful-restart>
                         </afi-safi>
                     </afi-safis>
                 </peer-group>

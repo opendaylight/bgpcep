@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
@@ -368,6 +369,50 @@ final class OpenConfigMappingUtil {
         }
 
         return hold;
+    }
+
+    static int getGracefulRestartTimer(final Neighbor neighbor, final PeerGroup peerGroup, final int holdTimer) {
+        if(!isGracefulEnabled(neighbor, peerGroup)) {
+            return 0;
+        }
+
+        Integer timer = null;
+        if (peerGroup != null) {
+            timer = getGracefulRestartTimer(peerGroup.getGracefulRestart());
+        }
+
+        if (timer == null) {
+            timer = getGracefulRestartTimer(neighbor.getGracefulRestart());
+        }
+
+        if (timer == null) {
+            return holdTimer*3;
+        }
+
+        return timer;
+    }
+
+    private static boolean isGracefulEnabled(final Neighbor neighbor, final PeerGroup peerGroup) {
+        if (peerGroup != null && peerGroup.getGracefulRestart() != null) {
+            final GracefulRestart gracefulRestart = peerGroup.getGracefulRestart();
+            return gracefulRestart.getConfig() != null && gracefulRestart.getConfig().isEnabled();
+        } else {
+            return neighbor != null && neighbor.getGracefulRestart() != null &&
+                    neighbor.getGracefulRestart().getConfig() != null &&
+                    neighbor.getGracefulRestart().getConfig().isEnabled();
+        }
+    }
+
+    @Nullable
+    private static Integer getGracefulRestartTimer(final GracefulRestart gracefulRestart) {
+        if (gracefulRestart != null) {
+            final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart
+                    .Config config = gracefulRestart.getConfig();
+            if (config != null && config.getRestartTime() != null) {
+                return config.getRestartTime();
+            }
+        }
+        return null;
     }
 
     @Nonnull

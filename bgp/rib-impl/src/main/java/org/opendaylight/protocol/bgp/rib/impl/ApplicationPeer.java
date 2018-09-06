@@ -141,7 +141,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         localTables.forEach(tablesKey -> this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey)));
         setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
 
-        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, this);
+        this.adjRibInWriter = AdjRibInWriter.create(this.peerId, this.rib.getYangRibId(), PeerRole.Internal, this);
         final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
         final RegisterAppPeerListener registerAppPeerListener = () -> {
             synchronized (this) {

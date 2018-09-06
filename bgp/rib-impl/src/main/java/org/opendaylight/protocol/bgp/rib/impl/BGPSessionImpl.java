@@ -24,9 +24,10 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
@@ -37,6 +38,7 @@ import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
+import org.opendaylight.protocol.bgp.rib.impl.config.GracefulCapabilityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPMessagesListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -62,8 +64,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.MpCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -116,6 +120,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
     private final BGPSessionStateImpl sessionState;
+    private final GracefulRestartCapability gracefulCapability;
     private boolean terminationReasonNotified;
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
@@ -135,12 +140,14 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
         this.sessionState = new BGPSessionStateImpl();
+        final List<BgpParameters> bgpParameters = remoteOpen.getBgpParameters();
+        this.gracefulCapability = findAdvertisedGracefulCapability(bgpParameters);
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
         final List<AddressFamilies> addPathCapabilitiesList = Lists.newArrayList();
-        if (remoteOpen.getBgpParameters() != null) {
-            for (final BgpParameters param : remoteOpen.getBgpParameters()) {
+        if (bgpParameters != null) {
+            for (final BgpParameters param : bgpParameters) {
                 for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                     final CParameters cParam = optCapa.getCParameters();
                     final CParameters1 cParam1 = cParam.augmentation(CParameters1.class);
@@ -179,7 +186,31 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
         this.bgpId = remoteOpen.getBgpIdentifier();
         this.sessionState.advertizeCapabilities(this.holdTimerValue, channel.remoteAddress(), channel.localAddress(),
-                this.tableTypes, remoteOpen.getBgpParameters());
+                this.tableTypes, bgpParameters);
+    }
+
+    private GracefulRestartCapability findAdvertisedGracefulCapability(final List<BgpParameters> bgpParameters) {
+        if (bgpParameters != null) {
+            final List<GracefulRestartCapability> gracefulCapabilities = new ArrayList<>();
+            bgpParameters.forEach(param -> param.getOptionalCapabilities().stream()
+                    .map(OptionalCapabilities::getCParameters)
+                    .filter(Objects::nonNull)
+                    .map(cParam -> cParam.augmentation(CParameters1.class))
+                    .filter(Objects::nonNull)
+                    .map(MpCapabilities::getGracefulRestartCapability)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .forEach(gracefulCapabilities::add));
+
+            if (gracefulCapabilities.size() > 1) {
+                LOG.error("Multiple graceful capabilities advertised, ignoring.");
+            } else if (gracefulCapabilities.isEmpty()) {
+                LOG.debug("Graceful Restart capability not advertised.");
+            } else {
+                return gracefulCapabilities.get(0);
+            }
+        }
+        return GracefulCapabilityUtil.EMPTY_GRACEFUL_CAPABILITY;
     }
 
     /**
@@ -308,7 +339,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         return this.channel.newFailedFuture(new NonWritableChannelException());
     }
 
-    private synchronized void closeWithoutMessage() {
+    @Override
+    public synchronized void closeWithoutMessage() {
         if (this.state == State.IDLE) {
             return;
         }
@@ -411,8 +443,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
-    public List<BgpTableType> getAdvertisedGracefulRestartTableTypes() {
-        return Collections.emptyList();
+    public GracefulRestartCapability getAdvertisedGracefulRestartCapability() {
+        return this.gracefulCapability;
     }
 
     @VisibleForTesting

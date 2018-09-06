@@ -16,6 +16,7 @@ import com.google.common.cache.LoadingCache;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -93,6 +94,8 @@ public abstract class AbstractRIBSupport<
             .child(Rib.class).child(LocRib.class).child(Tables.class);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
+    private static final QName TABLES_KEY_AFI = QName.create(Tables.QNAME, "afi").intern();
+    private static final QName TABLES_KEY_SAFI = QName.create(Tables.QNAME, "safi").intern();
     // Instance identifier to table/(choice routes)/(map of route)
     private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath = CacheBuilder.newBuilder()
             .weakValues().build(new CacheLoader<YangInstanceIdentifier, YangInstanceIdentifier>() {
@@ -121,6 +124,8 @@ public abstract class AbstractRIBSupport<
     protected final BindingNormalizedNodeSerializer mappingService;
     protected final YangInstanceIdentifier routeDefaultYii;
     private final TablesKey tk;
+    private final QName afiQname;
+    private final QName safiQname;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -155,6 +160,10 @@ public abstract class AbstractRIBSupport<
         this.routeQname = BindingReflections.findQName(listClass).withModule(module);
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
+        final QNameModule afiModule = BindingReflections.getQNameModule(afiClass);
+        final QNameModule safiModule = BindingReflections.getQNameModule(safiClass);
+        this.afiQname = BindingReflections.findQName(afiClass).withModule(afiModule);
+        this.safiQname = BindingReflections.findQName(safiClass).withModule(safiModule);
         this.emptyTable = (MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
                         .setRoutes(emptyRoutesCase())
@@ -313,14 +322,17 @@ public abstract class AbstractRIBSupport<
      * @param destination  ContainerNode DOM representation of NLRI in Update message
      * @param attributes   ContainerNode to be passed into implementation
      * @param routesNodeId NodeIdentifier
+     * @return Set of processed route identifiers
      */
-    private void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
+    private Set<NodeIdentifierWithPredicates> putDestinationRoutes(final DOMDataWriteTransaction tx,
+            final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes,
+            final NodeIdentifier routesNodeId) {
+        return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
-    protected abstract void processDestination(DOMDataWriteTransaction tx, YangInstanceIdentifier routesPath,
-            ContainerNode destination, ContainerNode attributes, ApplyRoute applyFunction);
+    protected abstract Set<NodeIdentifierWithPredicates> processDestination(DOMDataWriteTransaction tx,
+            YangInstanceIdentifier routesPath, ContainerNode destination, ContainerNode attributes,
+            ApplyRoute applyFunction);
 
     private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes,
             final NodeIdentifier destinationId) {
@@ -383,6 +395,11 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
+    public final YangInstanceIdentifier routesPath(final YangInstanceIdentifier routesTablePaths) {
+        return routesYangInstanceIdentifier(routesTablePaths.node(Routes.QNAME));
+    }
+
+    @Override
     public final InstanceIdentifier<R> createRouteIdentifier(
             final KeyedInstanceIdentifier<Tables, TablesKey> tableIId, final I key) {
         //FIXME Cache
@@ -396,9 +413,29 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode nlri, final ContainerNode attributes) {
-        putRoutes(tx, tablePath, nlri, attributes, ROUTES);
+    public final Set<NodeIdentifierWithPredicates> putRoutes(final DOMDataWriteTransaction tx,
+                                                      final YangInstanceIdentifier tablePath,
+                                                      final ContainerNode nlri,
+                                                      final ContainerNode attributes) {
+        return putRoutes(tx, tablePath, nlri, attributes, ROUTES);
+    }
+
+    @Override
+    public final Set<NodeIdentifierWithPredicates> putRoutes(final DOMDataWriteTransaction tx,
+                                                      final YangInstanceIdentifier tablePath,
+                                                      final ContainerNode nlri,
+                                                      final ContainerNode attributes,
+                                                      final NodeIdentifier routesNodeId) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
+        if (maybeRoutes.isPresent()) {
+            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
+            if (destination != null) {
+                return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
+            }
+        } else {
+            LOG.debug("Advertized routes are not present in NLRI {}", nlri);
+        }
+        return Collections.EMPTY_SET;
     }
 
     @Override
@@ -440,20 +477,6 @@ public abstract class AbstractRIBSupport<
             }
         } else {
             LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
-        }
-    }
-
-    @Override
-    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode nlri, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
-        if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
-            if (destination != null) {
-                putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
-            }
-        } else {
-            LOG.debug("Advertized routes are not present in NLRI {}", nlri);
         }
     }
 

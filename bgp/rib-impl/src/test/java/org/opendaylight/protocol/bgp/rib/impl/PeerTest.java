@@ -202,10 +202,10 @@ public class PeerTest extends AbstractRIBTestSetup {
                         Attributes2.class,
                         new Attributes2Builder().setMpUnreachNlri(
                                 new MpUnreachNlriBuilder()
-                                        .setAfi(AFI)
+                                        .setAfi(IPV4_AFI)
                                         .setSafi(SAFI)
                                         .build()).build()).build()).build());
-        this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(AFI).setSafi(SAFI).build());
+        this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(IPV4_AFI).setSafi(SAFI).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder()
                 .setAfi(Ipv6AddressFamily.class)
                 .setSafi(SAFI).build());

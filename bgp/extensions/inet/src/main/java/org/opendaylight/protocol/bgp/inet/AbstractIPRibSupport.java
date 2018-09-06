@@ -10,7 +10,10 @@ package org.opendaylight.protocol.bgp.inet;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -76,8 +79,11 @@ abstract class AbstractIPRibSupport<
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+    protected Set<NodeIdentifierWithPredicates> processDestination(final DOMDataWriteTransaction tx,
+                                                                   final YangInstanceIdentifier routesPath,
+                                                                   final ContainerNode destination,
+                                                                   final ContainerNode attributes,
+                                                                   final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes =
                     destination.getChild(this.nlriRoutesList);
@@ -86,15 +92,19 @@ abstract class AbstractIPRibSupport<
                 if (routes instanceof UnkeyedListNode) {
                     // Instance identifier to table/(choice routes)/(map of route)
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                    final Set<NodeIdentifierWithPredicates> keys = new HashSet<>();
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                         function.apply(tx, base, routeKey, e, attributes);
+                        keys.add(routeKey);
                     }
+                    return keys;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return Collections.EMPTY_SET;
     }
 
     /**

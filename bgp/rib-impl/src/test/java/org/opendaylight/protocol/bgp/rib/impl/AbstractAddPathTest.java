@@ -125,7 +125,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         TABLES_KEY.getSafi()));
     static final Set<TablesKey> AFI_SAFIS_ADVERTIZED = Collections.singleton(TABLES_KEY);
     private BGPExtensionProviderContext context;
-    private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
+    static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     @Mock
     protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     BGPDispatcherImpl serverDispatcher;
