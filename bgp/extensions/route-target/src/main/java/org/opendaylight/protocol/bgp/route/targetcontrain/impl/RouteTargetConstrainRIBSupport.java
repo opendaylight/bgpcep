@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -150,7 +151,7 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
-    protected void processDestination(
+    protected Collection<NodeIdentifierWithPredicates> processDestination(
             final DOMDataWriteTransaction tx,
             final YangInstanceIdentifier routesPath,
             final ContainerNode destination,
@@ -163,15 +164,20 @@ public final class RouteTargetConstrainRIBSupport
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    for (final UnkeyedListEntryNode rtDest : ((UnkeyedListNode) routes).getValue()) {
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
+                    for (final UnkeyedListEntryNode rtDest : routesList) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(rtDest);
                         function.apply(tx, base, routeKey, rtDest, attributes);
+                        keys.add(routeKey);
                     }
+                    return keys;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return Collections.emptyList();
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode routeTarget) {

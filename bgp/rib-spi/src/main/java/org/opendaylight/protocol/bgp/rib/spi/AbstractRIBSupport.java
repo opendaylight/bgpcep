@@ -312,14 +312,17 @@ public abstract class AbstractRIBSupport<
      * @param destination  ContainerNode DOM representation of NLRI in Update message
      * @param attributes   ContainerNode to be passed into implementation
      * @param routesNodeId NodeIdentifier
+     * @return List of processed route identifiers
      */
-    private void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
+    private Collection<NodeIdentifierWithPredicates> putDestinationRoutes(final DOMDataWriteTransaction tx,
+            final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes,
+            final NodeIdentifier routesNodeId) {
+        return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
-    protected abstract void processDestination(DOMDataWriteTransaction tx, YangInstanceIdentifier routesPath,
-            ContainerNode destination, ContainerNode attributes, ApplyRoute applyFunction);
+    protected abstract Collection<NodeIdentifierWithPredicates> processDestination(DOMDataWriteTransaction tx,
+            YangInstanceIdentifier routesPath, ContainerNode destination, ContainerNode attributes,
+            ApplyRoute applyFunction);
 
     private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes,
             final NodeIdentifier destinationId) {
@@ -378,7 +381,12 @@ public abstract class AbstractRIBSupport<
     @Override
     public final YangInstanceIdentifier routePath(
             final YangInstanceIdentifier routesTablePaths, final PathArgument routeId) {
-        return routesYangInstanceIdentifier(routesTablePaths.node(Routes.QNAME)).node(routeId);
+        return routesPath(routesTablePaths).node(routeId);
+    }
+
+    @Override
+    public final YangInstanceIdentifier routesPath(final YangInstanceIdentifier routesTablePaths) {
+        return routesYangInstanceIdentifier(routesTablePaths.node(Routes.QNAME));
     }
 
     @Override
@@ -395,9 +403,11 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode nlri, final ContainerNode attributes) {
-        putRoutes(tx, tablePath, nlri, attributes, ROUTES);
+    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataWriteTransaction tx,
+                                                                    final YangInstanceIdentifier tablePath,
+                                                                    final ContainerNode nlri,
+                                                                    final ContainerNode attributes) {
+        return putRoutes(tx, tablePath, nlri, attributes, ROUTES);
     }
 
     @Override
@@ -443,17 +453,21 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode nlri, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
+    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataWriteTransaction tx,
+                                                             final YangInstanceIdentifier tablePath,
+                                                             final ContainerNode nlri,
+                                                             final ContainerNode attributes,
+                                                             final NodeIdentifier routesNodeId) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
         if (maybeRoutes.isPresent()) {
             final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
             if (destination != null) {
-                putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
+                return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
             }
         } else {
             LOG.debug("Advertized routes are not present in NLRI {}", nlri);
         }
+        return Collections.emptyList();
     }
 
     private static final class DeleteRoute implements ApplyRoute {

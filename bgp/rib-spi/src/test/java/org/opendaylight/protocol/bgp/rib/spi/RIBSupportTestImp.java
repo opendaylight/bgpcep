@@ -54,9 +54,13 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-            final ContainerNode destination, final ContainerNode attributes, final ApplyRoute applyFunction) {
+    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataWriteTransaction tx,
+                                                                          final YangInstanceIdentifier routesPath,
+                                                                          final ContainerNode destination,
+                                                                          final ContainerNode attributes,
+                                                                          final ApplyRoute applyFunction) {
         applyFunction.apply(tx, routesPath.node(Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
+        return Collections.emptySet();
     }
 
     @Override
