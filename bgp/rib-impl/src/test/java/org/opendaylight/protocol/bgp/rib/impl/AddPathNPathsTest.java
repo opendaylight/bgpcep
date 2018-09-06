@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
@@ -70,25 +71,29 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
      */
     @Test
     public void testUseCase1() throws Exception {
-        final BgpParameters nonAddPathParams = createParameter(false);
-        final BgpParameters addPathParams = createParameter(true);
+        final BgpParameters nonAddPathParams = createParameter(false, null);
+        final BgpParameters addPathParams = createParameter(true, null);
 
-        configurePeer(this.tableRegistry, PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
+        configurePeer(this.tableRegistry, PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry,
+                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(this.tableRegistry, PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
+        configurePeer(this.tableRegistry, PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry,
+                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
        final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(this.tableRegistry, PEER3, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
+        configurePeer(this.tableRegistry, PEER3, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry,
+                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
 
         final SimpleSessionListener listener4 = new SimpleSessionListener();
         configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
-                this.serverRegistry);
+                this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
 
         final SimpleSessionListener listener5 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER5, this.ribImpl, addPathParams, PeerRole.RrClient, this.serverRegistry);
+        configurePeer(this.tableRegistry, PEER5, this.ribImpl, addPathParams, PeerRole.RrClient, this.serverRegistry,
+                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final BGPSessionImpl session5 = createPeerSession(PEER5, addPathParams, listener5);
         checkPeersPresentOnDataStore(5);
 
@@ -100,7 +105,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
         configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
-                this.serverRegistry);
+                this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 1);

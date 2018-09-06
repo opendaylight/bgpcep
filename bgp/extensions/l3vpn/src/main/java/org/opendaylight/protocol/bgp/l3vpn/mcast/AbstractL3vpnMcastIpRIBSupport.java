@@ -10,8 +10,11 @@ package org.opendaylight.protocol.bgp.l3vpn.mcast;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -117,7 +120,7 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
     }
 
     @Override
-    protected final void processDestination(
+    protected final Set<NodeIdentifierWithPredicates> processDestination(
             final DOMDataWriteTransaction tx,
             final YangInstanceIdentifier routesPath,
             final ContainerNode destination,
@@ -130,15 +133,19 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                    final Set<NodeIdentifierWithPredicates> keys = new HashSet<>();
                     for (final UnkeyedListEntryNode l3vpnDest : ((UnkeyedListNode) routes).getValue()) {
                         final YangInstanceIdentifier.NodeIdentifierWithPredicates routeKey = createRouteKey(l3vpnDest);
                         function.apply(tx, base, routeKey, l3vpnDest, attributes);
+                        keys.add(routeKey);
                     }
+                    return keys;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return Collections.emptySet();
     }
 
 

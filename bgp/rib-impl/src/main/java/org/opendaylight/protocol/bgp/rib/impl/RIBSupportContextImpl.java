@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Set;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
@@ -28,6 +29,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 class RIBSupportContextImpl extends RIBSupportContext {
@@ -40,11 +42,13 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public void writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
-            final MpReachNlri nlri, final Attributes attributes) {
+    public Set<NodeIdentifierWithPredicates> writeRoutes(final DOMDataWriteTransaction tx,
+                                                         final YangInstanceIdentifier tableId,
+                                                         final MpReachNlri nlri,
+                                                         final Attributes attributes) {
         final ContainerNode domNlri = this.codecs.serializeReachNlri(nlri);
         final ContainerNode routeAttributes = this.codecs.serializeAttributes(attributes);
-        this.ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
+        return this.ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
     }
 
     @Override

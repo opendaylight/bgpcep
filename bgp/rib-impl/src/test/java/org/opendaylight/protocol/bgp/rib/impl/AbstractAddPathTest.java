@@ -20,6 +20,7 @@ import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -59,10 +60,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParametersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ClusterIdBuilder;
@@ -75,12 +72,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
@@ -90,6 +81,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
@@ -125,7 +117,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         TABLES_KEY.getSafi()));
     static final Set<TablesKey> AFI_SAFIS_ADVERTIZED = Collections.singleton(TABLES_KEY);
     private BGPExtensionProviderContext context;
-    private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
+    static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
+    static final int GRACEFUL_RESTART_TIME = 5;
     @Mock
     protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     BGPDispatcherImpl serverDispatcher;
@@ -234,11 +227,12 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
             final Ipv4Address peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
-            final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry) {
+            final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
+            final Set<TablesKey> gracefulAfiSafiAdvertised) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), ribImpl, peerRole,
-                null, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+                null, afiSafiAdvertised, gracefulAfiSafiAdvertised);
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));
@@ -257,28 +251,16 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         return future.getNow();
     }
 
-    static BgpParameters createParameter(final boolean addPath) {
-        final OptionalCapabilities mp = new OptionalCapabilitiesBuilder().setCParameters(
-            new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setMultiprotocolCapability(
-                    new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
-                            .setSafi(UnicastSubsequentAddressFamily.class)
-                        .build()).build()).build()).build();
-        final List<OptionalCapabilities> capabilities = Lists.newArrayList(mp);
+    static BgpParameters createParameter(final boolean addPath,
+                                         final Map<TablesKey, Boolean> gracefulTables) {
+        final TablesKey ipv4Key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        final TablesKey ipv6Key = new TablesKey(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        final List<TablesKey> advertisedTables = Lists.newArrayList(ipv4Key, ipv6Key);
+        final List<TablesKey> addPathTables = Lists.newArrayList();
         if (addPath) {
-            final OptionalCapabilities addPathCapa = new OptionalCapabilitiesBuilder().setCParameters(
-                new CParametersBuilder().addAugmentation(CParameters1.class,
-                    new CParameters1Builder().setAddPathCapability(
-                        new AddPathCapabilityBuilder().setAddressFamilies(Lists.newArrayList(
-                            new AddressFamiliesBuilder()
-                                .setAfi(Ipv4AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
-                                .setSendReceive(SendReceive.Both)
-                                .build()))
-                            .build()).build()).build()).build();
-            capabilities.add(addPathCapa);
+            addPathTables.add(ipv4Key);
         }
-        return new BgpParametersBuilder().setOptionalCapabilities(capabilities).build();
+        return PeerUtil.createBgpParameters(advertisedTables, addPathTables, gracefulTables, GRACEFUL_RESTART_TIME);
     }
 
     private static Update createSimpleUpdate(final Ipv4Prefix prefix, final PathId pathId,

@@ -75,6 +75,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -97,9 +98,10 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
-    static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
+    static final Class<? extends AddressFamily> IPV4_AFI = Ipv4AddressFamily.class;
+    private static final Class<? extends AddressFamily> IPV6_AFI = Ipv6AddressFamily.class;
     static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
-    static final TablesKey KEY = new TablesKey(AFI, SAFI);
+    static final TablesKey KEY = new TablesKey(IPV4_AFI, SAFI);
     static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
     private RIBImpl rib;
@@ -168,7 +170,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
         this.codecFactory = createCodecFactory(strategy, schemaContext);
         final List<BgpTableType> localTables = new ArrayList<>();
-        localTables.add(new BgpTableTypeImpl(AFI, SAFI));
+        localTables.add(new BgpTableTypeImpl(IPV4_AFI, SAFI));
+        localTables.add(new BgpTableTypeImpl(IPV6_AFI, SAFI));
 
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context, this.mappingService);
@@ -181,7 +184,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(this.tableRegistry, new RibId("test"), new AsNumber(5L), RIB_ID, context,
                 this.dispatcher, codecsRegistry, this.dom, getDataBroker(), this.policies,
-                localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
+                localTables, Collections.singletonMap(KEY,
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupport(KEY);
