@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.peer.acceptor;
 
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkState;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.collect.Sets;
@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.impl.AbstractBGPDispatcherTest;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
+import org.opendaylight.protocol.bgp.rib.impl.SimpleSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -44,7 +45,7 @@ public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
         Assert.assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
         session.close();
-        checkIdleState(this.clientListener);
+        checkState(this.clientListener, State.IDLE, listener -> ((SimpleSessionListener) listener).getState());
 
         bgpPeerAcceptor.close();
     }

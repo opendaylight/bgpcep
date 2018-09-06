@@ -9,14 +9,17 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
  * A context for a single RIB table instance. It is always bound to a particular {@link AdjRibInWriter}.
@@ -46,11 +49,21 @@ final class TableContext {
         tx.delete(LogicalDatastoreType.OPERATIONAL, this.tableId);
     }
 
-    void writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {
-        this.tableSupport.writeRoutes(tx, this.tableId, nlri, attributes);
+    Set<NodeIdentifierWithPredicates> writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri,
+                                                  final Attributes attributes) {
+        return this.tableSupport.writeRoutes(tx, this.tableId, nlri, attributes);
     }
 
     void removeRoutes(final DOMDataWriteTransaction tx, final MpUnreachNlri nlri) {
         this.tableSupport.deleteRoutes(tx, this.tableId, nlri);
+    }
+
+    void removeRoutes(final DOMDataWriteTransaction tx, final Set<NodeIdentifierWithPredicates> routeKeys) {
+        this.tableSupport.deleteRoutes(tx, this.tableId, routeKeys);
+    }
+
+    Set<NodeIdentifierWithPredicates> getRouteKeys(final DOMDataReadTransaction tx,
+                                                   final YangInstanceIdentifier tableId) {
+        return this.tableSupport.getRibSupport().getRouteKeys(tx, tableId);
     }
 }

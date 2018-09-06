@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 
-import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
+import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkState;
 
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
@@ -37,8 +37,8 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
         Assert.assertTrue(serverChannel.isWritable());
         session.close();
         this.serverListener.releaseConnection();
-        checkIdleState(this.clientListener);
-        checkIdleState(this.serverListener);
+        checkState(this.clientListener, State.IDLE, listener -> ((SimpleSessionListener) listener).getState());
+        checkState(this.serverListener, State.IDLE, listener -> ((SimpleSessionListener) listener).getState());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
         Assert.assertTrue(serverChannel.isWritable());
         future.cancel(true);
         this.serverListener.releaseConnection();
-        checkIdleState(this.serverListener);
+        checkState(this.serverListener, State.IDLE, listener -> ((SimpleSessionListener) listener).getState());
     }
 
 }

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import java.util.Set;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -21,6 +22,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
  *
@@ -50,6 +52,16 @@ public abstract class RIBSupportContext {
     public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpUnreachNlri nlri);
 
     /**
+     * Removes route identified by supplied route keys from RIB table using supplied transaction.
+     *
+     * @param tx Transaction to be used
+     * @param tableId Instance Identifier of table to be updated
+     * @param routeKeys routeKeys that identify routes to be removed.
+     */
+    public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId,
+                                      Set<NodeIdentifierWithPredicates> routeKeys);
+
+    /**
      *
      * Writes supplied routes and attributes to RIB table using supplied transaction.
      *
@@ -58,9 +70,12 @@ public abstract class RIBSupportContext {
      * @param tableId Instance Identifier of table to be updated
      * @param nlri ReachNlri which contains routes to be written.
      * @param attributes Attributes which should be written.
+     * @return Set of processed route key identifiers
      */
-    public abstract void writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
-            Attributes attributes);
+    public abstract Set<NodeIdentifierWithPredicates> writeRoutes(DOMDataWriteTransaction tx,
+                                                                  YangInstanceIdentifier tableId,
+                                                                  MpReachNlri nlri,
+                                                                  Attributes attributes);
 
     /**
      * Returns backing RIB support.

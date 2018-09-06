@@ -86,7 +86,8 @@ public class AdjRibsInWriterTest {
 
     @Test
     public void testTransform() {
-        this.writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, this.ptc);
+        this.writer = AdjRibInWriter.create(new PeerId(this.peerIp),YangInstanceIdentifier.of(Rib.QNAME),
+                PeerRole.Ebgp, this.ptc);
         assertNotNull(this.writer);
         final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(Rib.QNAME)
                 .node(Peer.QNAME).nodeWithKey(Peer.QNAME,
