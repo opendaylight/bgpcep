@@ -13,8 +13,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Optional;
@@ -222,7 +224,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testMpUnReachParser() throws BGPParsingException {
+    public void testEOTMpUnReachParser() throws BGPParsingException {
         final NlriRegistry nlriReg = this.ctx.getNlriRegistry();
         final byte[] mpUnreachBytes = {
             0x00, 0x01, 0x01
@@ -232,6 +234,6 @@ public class SimpleRegistryTest {
         nlriReg.serializeMpUnReach(mpUnreach, buffer);
         assertArrayEquals(mpUnreachBytes, buffer.array());
         assertEquals(mpUnreach, nlriReg.parseMpUnreach(Unpooled.wrappedBuffer(mpUnreachBytes), CONSTRAINT));
-        verify(this.activator.nlriParser, times(1)).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
+        verify(this.activator.nlriParser, never()).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
     }
 }
