@@ -152,13 +152,15 @@ final class SimpleNlriRegistry implements NlriRegistry {
         builder.setAfi(getAfi(buffer));
         builder.setSafi(getSafi(buffer));
 
-        final ByteBuf nlri = buffer.slice();
-        final BgpTableType key = createKey(builder.getAfi(), builder.getSafi());
-        final NlriParser parser = this.handlers.get(key);
-        if (parser == null) {
-            LOG.warn(PARSER_NOT_FOUND, key);
-        } else {
-            parser.parseNlri(nlri, builder, constraint);
+        if (buffer.isReadable()) {
+            final ByteBuf nlri = buffer.slice();
+            final BgpTableType key = createKey(builder.getAfi(), builder.getSafi());
+            final NlriParser parser = this.handlers.get(key);
+            if (parser == null) {
+                LOG.warn(PARSER_NOT_FOUND, key);
+            } else {
+                parser.parseNlri(nlri, builder, constraint);
+            }
         }
         return builder.build();
     }
