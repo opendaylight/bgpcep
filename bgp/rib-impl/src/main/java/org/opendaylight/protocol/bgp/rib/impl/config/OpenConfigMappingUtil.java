@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
@@ -368,6 +369,39 @@ final class OpenConfigMappingUtil {
         }
 
         return hold;
+    }
+
+    static int getGracefulRestartTimer(final Neighbor neighbor, final PeerGroup peerGroup, final int holdTimer) {
+        Integer timer = null;
+        if (peerGroup != null) {
+            timer = getGracefulRestartTimer(peerGroup.getGracefulRestart());
+        }
+
+        if (timer == null) {
+            timer = getGracefulRestartTimer(neighbor.getGracefulRestart());
+        }
+
+        /*
+         * RFC4724: "A suggested default for the Restart Time is a value less than or
+         * equal to the HOLDTIME carried in the OPEN."
+         */
+        if (timer == null) {
+            timer = holdTimer;
+        }
+
+        return timer;
+    }
+
+    @Nullable
+    private static Integer getGracefulRestartTimer(final GracefulRestart gracefulRestart) {
+        if (gracefulRestart != null) {
+            final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful
+                    .restart.Config config = gracefulRestart.getConfig();
+            if (config != null) {
+                return config.getRestartTime();
+            }
+        }
+        return null;
     }
 
     @Nonnull
