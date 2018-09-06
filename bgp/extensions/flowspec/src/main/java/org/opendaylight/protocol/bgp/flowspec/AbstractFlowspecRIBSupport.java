@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -80,22 +81,25 @@ public abstract class AbstractFlowspecRIBSupport<
     }
 
     @Override
-    protected final void processDestination(
+    protected final Collection<NodeIdentifierWithPredicates> processDestination(
         final DOMDataWriteTransaction tx,
         final YangInstanceIdentifier routesPath,
         final ContainerNode destination,
         final ContainerNode attributes,
         final ApplyRoute function
     ) {
-        if (destination != null) {
-            final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf
-                    = destination.getChild(routePathIdNid());
-            final String routeKeyValue = this.nlriParser.stringNlri(destination);
-            final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
-                    pathIdQName(), routeKeyValue, maybePathIdLeaf);
-            function.apply(tx, base, routeKey, destination, attributes);
+        if (destination == null) {
+            return Collections.emptyList();
         }
+        final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf
+                = destination.getChild(routePathIdNid());
+        final String routeKeyValue = this.nlriParser.stringNlri(destination);
+        final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
+                pathIdQName(), routeKeyValue, maybePathIdLeaf);
+        function.apply(tx, base, routeKey, destination, attributes);
+
+        return Collections.singletonList(routeKey);
     }
 }
