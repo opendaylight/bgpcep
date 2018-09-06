@@ -10,19 +10,71 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 
 public final class CheckUtil {
+
+    private static final int SLEEP_FOR_MILLIS = 50;
+    private static final int TIMEOUT_SECONDS = 10;
+
     private CheckUtil() {
         throw new UnsupportedOperationException();
     }
 
-    public static void checkIdleState(final SimpleSessionListener listener) {
+    public static void checkIdleState(final SimpleSessionListener sessionListener) {
+        checkInLoop(State.IDLE, sessionListener, SimpleSessionListener::getState, SLEEP_FOR_MILLIS, TIMEOUT_SECONDS);
+    }
+
+    public static void checkIdleState(final BGPPeer bgpPeer) {
+        checkInLoop(State.IDLE, bgpPeer, peer -> {
+            synchronized (bgpPeer) {
+                if (peer.getBGPSessionState() == null) {
+                    return State.IDLE;
+                } else {
+                    return peer.getBGPSessionState().getSessionState();
+                }
+            }
+        }, SLEEP_FOR_MILLIS, TIMEOUT_SECONDS);
+    }
+
+    public static void checkUpState(final SimpleSessionListener sessionListener) {
+        checkInLoop(State.UP, sessionListener, SimpleSessionListener::getState, SLEEP_FOR_MILLIS, TIMEOUT_SECONDS);
+    }
+
+    public static void checkUpState(final BGPPeer bgpPeer) {
+        checkInLoop(State.UP, bgpPeer, peer -> {
+            synchronized (bgpPeer) {
+                if (peer.getBGPSessionState() == null) {
+                    return State.IDLE;
+                } else {
+                    return peer.getBGPSessionState().getSessionState();
+                }
+            }
+        }, SLEEP_FOR_MILLIS, TIMEOUT_SECONDS);
+    }
+
+    private static <T> void checkInLoop(final State state, final T object, final Function<T, State> function,
+                                    final int sleepForMillis, final int timeoutSeconds) {
+        final long timeoutNanos = TimeUnit.SECONDS.toNanos(timeoutSeconds);
         final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            if (State.IDLE != listener.getState()) {
-                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
+        while (sw.elapsed(TimeUnit.NANOSECONDS) <= timeoutNanos) {
+            if (state != function.apply(object)) {
+                Uninterruptibles.sleepUninterruptibly(sleepForMillis, TimeUnit.MILLISECONDS);
+            } else {
+                return;
+            }
+        }
+        Assert.fail();
+    }
+
+    public static void checkStateIsNotRestarting(final BGPPeer peer, final int restartTimeSeconds) {
+        final long restartTimeNanos = TimeUnit.SECONDS.toNanos(restartTimeSeconds + 1);
+        final Stopwatch sw = Stopwatch.createStarted();
+        while (sw.elapsed(TimeUnit.NANOSECONDS) <= restartTimeNanos) {
+            if (peer.getPeerState().getBGPGracelfulRestart().isPeerRestarting()) {
+                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR_MILLIS, TimeUnit.MILLISECONDS);
             } else {
                 return;
             }
