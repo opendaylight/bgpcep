@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
@@ -92,6 +93,19 @@ final class OpenConfigMappingUtil {
                 .Config config = timers.getConfig();
         if (config != null && config.getHoldTime() != null) {
             return config.getHoldTime().intValue();
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Integer getGracefulRestartTimer(GracefulRestart gracefulRestart) {
+        if (gracefulRestart == null) {
+            return null;
+        }
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart
+                .Config config = gracefulRestart.getConfig();
+        if (config != null && config.isEnabled() && config.getRestartTime() != null) {
+            return config.getRestartTime();
         }
         return null;
     }
@@ -368,6 +382,23 @@ final class OpenConfigMappingUtil {
         }
 
         return hold;
+    }
+
+    static int getGracefulRestartTimer(final Neighbor neighbor, final PeerGroup peerGroup, final int holdTimer) {
+        Integer timer = null;
+        if (peerGroup != null) {
+            timer = getGracefulRestartTimer(peerGroup.getGracefulRestart());
+        }
+
+        if (timer == null) {
+            timer = getGracefulRestartTimer(neighbor.getGracefulRestart());
+        }
+
+        if (timer == null) {
+            return holdTimer*3;
+        }
+
+        return timer;
     }
 
     @Nonnull
