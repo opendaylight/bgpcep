@@ -37,3 +37,8 @@ maven-eclipse.xml
 .factorypath
 .fbExcludeFilterFile
 !**/route/target
+
+# Sphinx documentation
+.tox/
+docs/_build/
+
