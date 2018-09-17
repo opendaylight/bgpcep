@@ -181,7 +181,6 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         return this.peerRestarting;
     }
 
-    //FIXME BUG-196
     public synchronized final void setAfiSafiGracefulRestartState(final int peerRestartTime,
             final boolean peerRestarting, final boolean localRestarting) {
         this.peerRestartTime = peerRestartTime;
@@ -190,6 +189,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     protected final synchronized void setAdvertizedGracefulRestartTableTypes(final List<TablesKey> receivedGraceful) {
+        this.afiSafisGracefulReceived.clear();
         this.afiSafisGracefulReceived.addAll(receivedGraceful);
     }
 
@@ -208,6 +208,10 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         this.localRestarting = false;
         this.peerRestartTime = 0;
         this.peerRestarting = false;
+    }
+
+    protected final synchronized void setRestartingState(boolean restarting) {
+        this.peerRestarting = restarting;
     }
 
     @Override

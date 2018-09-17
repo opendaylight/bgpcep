@@ -10,12 +10,15 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -40,11 +43,11 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public void writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
+    public List<Pair<String, PathId>> writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
             final MpReachNlri nlri, final Attributes attributes) {
         final ContainerNode domNlri = this.codecs.serializeReachNlri(nlri);
         final ContainerNode routeAttributes = this.codecs.serializeAttributes(attributes);
-        this.ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
+        return this.ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
     }
 
     @Override
@@ -56,6 +59,12 @@ class RIBSupportContextImpl extends RIBSupportContext {
     public void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
             final MpUnreachNlri nlri) {
         this.ribSupport.deleteRoutes(tx, tableId, this.codecs.serializeUnreachNlri(nlri));
+    }
+
+    @Override
+    public void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
+                             final List<Pair<String, PathId>> routeKeys) {
+        this.ribSupport.deleteRoutes(tx, tableId, routeKeys);
     }
 
     @Override

@@ -67,16 +67,14 @@ import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.*;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -97,10 +95,12 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
-    static final Class<? extends AddressFamily> AFI = Ipv4AddressFamily.class;
+    static final Class<? extends AddressFamily> AFI4 = Ipv4AddressFamily.class;
+    static final Class<? extends AddressFamily> AFI6 = Ipv6AddressFamily.class;
     static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
-    static final TablesKey KEY = new TablesKey(AFI, SAFI);
-    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
+    static final TablesKey KEY4 = new TablesKey(AFI4, SAFI);
+    static final QName PREFIX_QNAME_4 = QName.create(Ipv4Route.QNAME, "prefix").intern();
+    static final QName PREFIX_QNAME_6 = QName.create(Ipv6Route.QNAME, "prefix").intern();
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
     private RIBImpl rib;
     private BindingCodecTreeFactory codecFactory;
@@ -139,6 +139,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
         try {
             ctx.registerModuleInfo(BindingReflections.getModuleInfo(Ipv4Route.class));
+            ctx.registerModuleInfo(BindingReflections.getModuleInfo(DestinationIpv4Case.class));
         } catch (final RuntimeException e) {
             throw e;
         } catch (final Exception e) {
@@ -168,7 +169,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
         this.codecFactory = createCodecFactory(strategy, schemaContext);
         final List<BgpTableType> localTables = new ArrayList<>();
-        localTables.add(new BgpTableTypeImpl(AFI, SAFI));
+        localTables.add(new BgpTableTypeImpl(AFI4, SAFI));
+        localTables.add(new BgpTableTypeImpl(AFI6, SAFI));
 
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context, this.mappingService);
@@ -181,10 +183,10 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(this.tableRegistry, new RibId("test"), new AsNumber(5L), RIB_ID, context,
                 this.dispatcher, codecsRegistry, this.dom, getDataBroker(), this.policies,
-                localTables, Collections.singletonMap(new TablesKey(AFI, SAFI),
+                localTables, Collections.singletonMap(new TablesKey(AFI4, SAFI),
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         this.rib.onGlobalContextUpdated(schemaContext);
-        this.ribSupport = getRib().getRibSupportContext().getRIBSupport(KEY);
+        this.ribSupport = getRib().getRibSupportContext().getRIBSupport(KEY4);
     }
 
     @SuppressWarnings("unchecked")
@@ -237,12 +239,12 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         final Collection<DataTreeCandidateNode> children = new HashSet<>();
         for (final Ipv4Prefix p : prefix) {
             final NodeIdentifierWithPredicates routekey =
-                    new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, p);
+                    new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME_4, p);
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b =
                     ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routekey);
             b.addChild(Builders.leafBuilder()
-                    .withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
+                    .withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME_4)).withValue(p).build());
 
             final DataTreeCandidateNode child = mock(DataTreeCandidateNode.class);
             doReturn(createIdentifier(p)).when(child).getIdentifier();
@@ -257,8 +259,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
     public PathArgument createIdentifier(final Ipv4Prefix prefix) {
         final NodeIdentifierWithPredicates routekey =
-                new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
-        return YangInstanceIdentifier.of(PREFIX_QNAME).node(routekey).getLastPathArgument();
+                new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME_4, prefix);
+        return YangInstanceIdentifier.of(PREFIX_QNAME_4).node(routekey).getLastPathArgument();
     }
 
     public RIBImpl getRib() {

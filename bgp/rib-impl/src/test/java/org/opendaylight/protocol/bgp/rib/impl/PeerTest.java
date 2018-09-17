@@ -103,7 +103,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
-            if (node.getIdentifier().getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME)) {
+            if (node.getIdentifier().getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME_4)) {
                 this.routes.put((YangInstanceIdentifier) args[1], node);
             }
             return args[1];
@@ -127,7 +127,7 @@ public class PeerTest extends AbstractRIBTestSetup {
                 this.neighborAddress.getIpv4Address(), getRib());
         this.peer.instantiateServiceInstance(null, null);
         final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME)
-                .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
+                .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY4));
         this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.WRITE, first, second, third));
         assertEquals(3, this.routes.size());
 
@@ -202,10 +202,10 @@ public class PeerTest extends AbstractRIBTestSetup {
                         Attributes2.class,
                         new Attributes2Builder().setMpUnreachNlri(
                                 new MpUnreachNlriBuilder()
-                                        .setAfi(AFI)
+                                        .setAfi(AFI4)
                                         .setSafi(SAFI)
                                         .build()).build()).build()).build());
-        this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(AFI).setSafi(SAFI).build());
+        this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(AFI4).setSafi(SAFI).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder()
                 .setAfi(Ipv6AddressFamily.class)
                 .setSafi(SAFI).build());
