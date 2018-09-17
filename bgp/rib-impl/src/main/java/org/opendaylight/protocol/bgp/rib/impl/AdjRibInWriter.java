@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -35,6 +37,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -271,17 +274,17 @@ final class AdjRibInWriter {
         }, MoreExecutors.directExecutor());
     }
 
-    void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+    List<Pair<String, PathId>> updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
             .bgp.message.rev180329.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
-            return;
+            return Collections.EMPTY_LIST;
         }
 
         final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
-        ctx.writeRoutes(tx, nlri, attributes);
+        List<Pair<String, PathId>> routeKeys = ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
         this.submitted = future;
@@ -296,9 +299,10 @@ final class AdjRibInWriter {
                 LOG.error("Write routes failed", throwable);
             }
         }, MoreExecutors.directExecutor());
+        return routeKeys;
     }
 
-    void removeRoutes(final MpUnreachNlri nlri) {
+    public void removeRoutes(final MpUnreachNlri nlri) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {
@@ -321,6 +325,47 @@ final class AdjRibInWriter {
                 LOG.error("Removing routes failed", throwable);
             }
         }, MoreExecutors.directExecutor());
+    }
+
+    public void removeRoutes(final List<Pair<String, PathId>> routeKeys, TablesKey key) {
+        final TableContext ctx = this.tables.get(key);
+        if (ctx == null) {
+            LOG.debug("No table for {}, not accepting prefixes {}", key, routeKeys);
+            return;
+        }
+        LOG.trace("Removing routes {}", routeKeys);
+        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        ctx.removeRoutes(tx, routeKeys);
+        final FluentFuture<? extends CommitInfo> future = tx.commit();
+        this.submitted = future;
+        future.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Removing routes {}, succeed", routeKeys);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Removing routes failed", throwable);
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
+    FluentFuture<? extends CommitInfo> clearTables(final List<TablesKey> tablesToClear,
+                                                        final RIBSupportContextRegistry registry,
+                                                        final YangInstanceIdentifier peerPath) {
+        if (tablesToClear == null || tablesToClear.isEmpty()) {
+            return CommitInfo.emptyFluentFuture();
+        }
+
+        DOMDataWriteTransaction wtx = this.chain.getDomChain().newWriteOnlyTransaction();
+        for (final TablesKey tableKey : tablesToClear) {
+            final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
+            final NodeIdentifierWithPredicates instanceIdentifierKey = RibSupportUtils.toYangTablesKey(tableKey);
+            installAdjRibInTables(peerPath, tableKey, rs, instanceIdentifierKey,
+                    wtx, ImmutableMap.builder());
+        }
+        return wtx.commit();
     }
 
     void releaseChain() {

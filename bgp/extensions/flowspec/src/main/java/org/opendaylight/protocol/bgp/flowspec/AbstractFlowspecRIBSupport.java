@@ -12,7 +12,11 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -80,7 +84,7 @@ public abstract class AbstractFlowspecRIBSupport<
     }
 
     @Override
-    protected final void processDestination(
+    protected final List<Pair<String, PathId>> processDestination(
         final DOMDataWriteTransaction tx,
         final YangInstanceIdentifier routesPath,
         final ContainerNode destination,
@@ -96,6 +100,10 @@ public abstract class AbstractFlowspecRIBSupport<
             final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
                     pathIdQName(), routeKeyValue, maybePathIdLeaf);
             function.apply(tx, base, routeKey, destination, attributes);
+            return Collections.singletonList(new ImmutablePair<>(routeKeyValue,
+                    new PathId((Long) routeKey.getKeyValues().get(pathIdQName()))));
+        } else {
+            return Collections.EMPTY_LIST;
         }
     }
 }

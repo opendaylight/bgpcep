@@ -10,11 +10,14 @@ package org.opendaylight.protocol.bgp.l3vpn.unicast;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -114,8 +117,11 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+    protected List<Pair<String, PathId>> processDestination(final DOMDataWriteTransaction tx,
+                                                            final YangInstanceIdentifier routesPath,
+                                                            final ContainerNode destination,
+                                                            final ContainerNode attributes,
+                                                            final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes =
                     destination.getChild(this.nlriRoutesListNid);
@@ -125,11 +131,15 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
                     final UnkeyedListNode routeListNode = (UnkeyedListNode) routes;
                     LOG.debug("{} routes are found", routeListNode.getSize());
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                    List<Pair<String, PathId>> keyList = new ArrayList<>();
                     for (final UnkeyedListEntryNode e : routeListNode.getValue()) {
                         final NodeIdentifierWithPredicates key = createRouteKey(e);
                         LOG.debug("Route {} is processed.", key);
                         function.apply(tx, base, key, e, attributes);
+                        keyList.add(new ImmutablePair<>((String) key.getKeyValues().get(routeKeyQName()),
+                                new PathId((Long) key.getKeyValues().get(pathIdQName()))));
                     }
+                    return keyList;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
@@ -137,6 +147,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
         } else {
             LOG.debug("Destination is null.");
         }
+        return Collections.EMPTY_LIST;
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode l3vpn) {

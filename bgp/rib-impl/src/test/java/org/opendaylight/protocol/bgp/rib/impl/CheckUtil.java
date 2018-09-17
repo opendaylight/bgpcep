@@ -29,4 +29,41 @@ public final class CheckUtil {
         }
         Assert.fail();
     }
+
+    public static void checkIdleState(final BGPPeer peer) {
+        final Stopwatch sw = Stopwatch.createStarted();
+        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
+            if (peer.getBGPSessionState() != null && State.IDLE != peer.getBGPSessionState().getSessionState()) {
+                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
+            } else {
+                return;
+            }
+        }
+        Assert.fail();
+    }
+
+    public static void checkRestartState(final BGPPeer peer, int restartTime) {
+        final Stopwatch sw = Stopwatch.createStarted();
+        while (sw.elapsed(TimeUnit.SECONDS) <= restartTime + 1) {
+            if (peer.getPeerState().getBGPGracelfulRestart().isPeerRestarting()) {
+                Uninterruptibles.sleepUninterruptibly((restartTime * 1000) - sw.elapsed(TimeUnit.MILLISECONDS),
+                        TimeUnit.MILLISECONDS);
+            } else {
+                return;
+            }
+        }
+        Assert.fail();
+    }
+
+    public static void checkUpState(final SimpleSessionListener listener) {
+        final Stopwatch sw = Stopwatch.createStarted();
+        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
+            if (State.UP != listener.getState()) {
+                Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
+            } else {
+                return;
+            }
+        }
+        Assert.fail();
+    }
 }

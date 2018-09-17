@@ -10,7 +10,12 @@ package org.opendaylight.protocol.bgp.mvpn.impl;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -106,7 +111,7 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
     }
 
     @Override
-    protected final void processDestination(
+    protected final List<Pair<String, PathId>> processDestination(
             final DOMDataWriteTransaction tx,
             final YangInstanceIdentifier routesPath,
             final ContainerNode destination,
@@ -119,15 +124,20 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                    List<Pair<String, PathId>> keyList = new ArrayList<>();
                     for (final UnkeyedListEntryNode mvpnDest : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(mvpnDest);
                         function.apply(tx, base, routeKey, mvpnDest, attributes);
+                        keyList.add(new ImmutablePair<>((String) routeKey.getKeyValues().get(routeKeyQName()),
+                                new PathId((Long) routeKey.getKeyValues().get(pathIdQName()))));
                     }
+                    return keyList;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return Collections.EMPTY_LIST;
     }
 
     abstract NodeIdentifierWithPredicates createRouteKey(UnkeyedListEntryNode mvpn);
