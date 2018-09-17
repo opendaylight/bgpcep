@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 
 /**
@@ -61,7 +62,5 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      *
      * @return Set of tables which it supports.
      */
-    @Nonnull
-    List<BgpTableType> getAdvertisedGracefulRestartTableTypes();
-
+    GracefulRestartCapability getAdvertisedGracefulRestartCapability();
 }
