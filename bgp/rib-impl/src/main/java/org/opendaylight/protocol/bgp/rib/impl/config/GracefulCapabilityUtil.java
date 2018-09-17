@@ -17,10 +17,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesBuilder;
+
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class GracefulCapabilityUtil {
+
+    public static final GracefulRestartCapability EMPTY_GRACEFUL_CAPABILITY = new GracefulRestartCapabilityBuilder()
+            .setRestartTime(0)
+            .setTables(Collections.EMPTY_LIST)
+            .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
+            .build();
 
     public static CParameters getGracefulCapability(final AfiSafis afiSafis,
                                                     final int restartTime,

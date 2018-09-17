@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -321,6 +322,18 @@ final class AdjRibInWriter {
                 LOG.error("Removing routes failed", throwable);
             }
         }, MoreExecutors.directExecutor());
+    }
+
+    void removeTables(final List<TablesKey> tablesToRemove){
+        if (tablesToRemove== null || tablesToRemove.isEmpty()) {
+            return;
+        }
+
+        for (TablesKey tablesKey : tablesToRemove) {
+            DOMDataWriteTransaction wtx = this.chain.getDomChain().newWriteOnlyTransaction();
+            wtx.delete(LogicalDatastoreType.OPERATIONAL, this.tables.get(tablesKey).getTableId());
+            wtx.commit();
+        }
     }
 
     void releaseChain() {
