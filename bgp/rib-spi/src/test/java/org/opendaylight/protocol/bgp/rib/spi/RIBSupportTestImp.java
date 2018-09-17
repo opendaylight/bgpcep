@@ -11,6 +11,9 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
@@ -54,9 +57,13 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-            final ContainerNode destination, final ContainerNode attributes, final ApplyRoute applyFunction) {
+    protected List<Pair<String, PathId>> processDestination(final DOMDataWriteTransaction tx,
+                                                            final YangInstanceIdentifier routesPath,
+                                                            final ContainerNode destination,
+                                                            final ContainerNode attributes,
+                                                            final ApplyRoute applyFunction) {
         applyFunction.apply(tx, routesPath.node(Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
+        return Collections.singletonList(new ImmutablePair<>(PREFIX, new PathId(0L)));
     }
 
     @Override

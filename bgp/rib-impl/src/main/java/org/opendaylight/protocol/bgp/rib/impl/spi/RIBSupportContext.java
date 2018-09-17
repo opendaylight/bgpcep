@@ -7,8 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -50,6 +53,16 @@ public abstract class RIBSupportContext {
     public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpUnreachNlri nlri);
 
     /**
+     * Removes route identified by supplied route keys from RIB table using supplied transaction.
+     *
+     * @param tx Transaction to be used
+     * @param tableId Instance Identifier of table to be updated
+     * @param routeKeys routeKeys that identify routes to be removed.
+     */
+    public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId,
+                                      List<Pair<String, PathId>> routeKeys);
+
+    /**
      *
      * Writes supplied routes and attributes to RIB table using supplied transaction.
      *
@@ -58,8 +71,9 @@ public abstract class RIBSupportContext {
      * @param tableId Instance Identifier of table to be updated
      * @param nlri ReachNlri which contains routes to be written.
      * @param attributes Attributes which should be written.
+     * @return List of routeIdentifiers consisting of routeKey and pathId
      */
-    public abstract void writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
+    public abstract List<Pair<String, PathId>> writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
             Attributes attributes);
 
     /**

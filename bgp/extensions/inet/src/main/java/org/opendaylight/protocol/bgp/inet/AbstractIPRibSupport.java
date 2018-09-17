@@ -10,11 +10,17 @@ package org.opendaylight.protocol.bgp.inet;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -76,8 +82,11 @@ abstract class AbstractIPRibSupport<
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+    protected List<Pair<String, PathId>> processDestination(final DOMDataWriteTransaction tx,
+                                                            final YangInstanceIdentifier routesPath,
+                                                            final ContainerNode destination,
+                                                            final ContainerNode attributes,
+                                                            final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes =
                     destination.getChild(this.nlriRoutesList);
@@ -86,15 +95,20 @@ abstract class AbstractIPRibSupport<
                 if (routes instanceof UnkeyedListNode) {
                     // Instance identifier to table/(choice routes)/(map of route)
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                    List<Pair<String, PathId>> keyList = new ArrayList<>();
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                         function.apply(tx, base, routeKey, e, attributes);
+                        keyList.add(new ImmutablePair<>((String) routeKey.getKeyValues().get(routeKeyQName()),
+                                new PathId((Long) routeKey.getKeyValues().get(pathIdQName()))));
                     }
+                    return keyList;
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
+        return Collections.EMPTY_LIST;
     }
 
     /**

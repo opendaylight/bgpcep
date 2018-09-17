@@ -25,6 +25,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 
 public final class GracefulCapabilityUtil {
 
+    public static final GracefulRestartCapability EMPTY_GRACEFUL_CAPABILITY = new GracefulRestartCapabilityBuilder()
+            .setRestartTime(0)
+            .setTables(Collections.EMPTY_LIST)
+            .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
+            .build();
+
     private GracefulCapabilityUtil() {
         throw new UnsupportedOperationException();
     }

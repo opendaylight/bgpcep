@@ -9,12 +9,12 @@ package org.opendaylight.protocol.bgp.linkstate.impl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
@@ -94,30 +94,40 @@ public final class LinkstateRIBSupport
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-            final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+    protected List<Pair<String, PathId>> processDestination(final DOMDataWriteTransaction tx,
+                                                            final YangInstanceIdentifier routesPath,
+                                                            final ContainerNode destination,
+                                                            final ContainerNode attributes,
+                                                            final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
                     = destination.getChild(this.nlriRoutesList);
-            processRoute(maybeRoutes, routesPath, attributes, function, tx);
+            return processRoute(maybeRoutes, routesPath, attributes, function, tx);
         }
+        return Collections.EMPTY_LIST;
     }
 
-    private void processRoute(final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes,
+    private List<Pair<String, PathId>> processRoute(
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes,
             final YangInstanceIdentifier routesPath,
             final ContainerNode attributes, final ApplyRoute function, final DOMDataWriteTransaction tx) {
         if (maybeRoutes.isPresent()) {
             final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
             if (routes instanceof UnkeyedListNode) {
                 final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                List<Pair<String, PathId>> keyList = new ArrayList<>();
                 for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                     final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                     function.apply(tx, base, routeKey, e, attributes);
+                    keyList.add(new ImmutablePair<>((String) routeKey.getKeyValues().get(routeKeyQName()),
+                            new PathId((Long) routeKey.getKeyValues().get(pathIdQName()))));
                 }
+                return keyList;
             } else {
                 LOG.warn("Routes {} are not a map", routes);
             }
         }
+        return Collections.EMPTY_LIST;
     }
 
     @Override
