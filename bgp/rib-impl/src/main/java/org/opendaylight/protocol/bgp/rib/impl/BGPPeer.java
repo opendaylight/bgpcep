@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
@@ -65,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
@@ -127,6 +130,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
     private YangInstanceIdentifier peerPath;
     private boolean sessionUp;
+    private long peerRestartStart;
 
     public BGPPeer(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
@@ -319,52 +323,57 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (this.session instanceof BGPSessionStateProvider) {
             ((BGPSessionStateProvider) this.session).registerMessagesCounter(this);
         }
+        final GracefulRestartCapability advertizedGracefulRestartCapability =
+                session.getAdvertisedGracefulRestartCapability();
+        if (!advertizedGracefulRestartCapability.getRestartFlags().isRestartState() || !isPeerRestarting()) {
 
-        final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
-        final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
-        final List<BgpTableType> advertizedGracefulRestartTableTypes = session.getAdvertisedGracefulRestartTableTypes();
-        LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name,
-                advertizedTableTypes, addPathTablesType);
-        this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
-        this.peerId = RouterIds.createPeerId(session.getBgpId());
-        final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId =
-                getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-                .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
-        final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
-                .collect(Collectors.toSet());
-        this.tables = ImmutableSet.copyOf(setTables);
-        this.effRibInWriter = new EffectiveRibInWriter(this, this.rib,
-                this.rib.createPeerChain(this),
-                peerIId, this.tables, this.tableTypeRegistry,
-                this.rtMemberships,
-                this.rtCache);
-        registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
-        this.peerRibOutIId = peerIId.child(AdjRibOut.class);
-        this.effRibInWriter.init();
-        setAdvertizedGracefulRestartTableTypes(advertizedGracefulRestartTableTypes.stream()
-                .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
-        this.addPathTableMaps = ImmutableMap.copyOf(mapTableTypesFamilies(addPathTablesType));
-        this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
+            final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
+            final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
+            LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name,
+                    advertizedTableTypes, addPathTablesType);
+            this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
+            this.peerId = RouterIds.createPeerId(session.getBgpId());
+            final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+                    .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId =
+                    getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                            .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
+            final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
+                    .collect(Collectors.toSet());
+            this.tables = ImmutableSet.copyOf(setTables);
+            this.effRibInWriter = new EffectiveRibInWriter(this, this.rib,
+                    this.rib.createPeerChain(this),
+                    peerIId, this.tables, this.tableTypeRegistry,
+                    this.rtMemberships,
+                    this.rtCache);
+            registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
+            this.peerRibOutIId = peerIId.child(AdjRibOut.class);
+            this.effRibInWriter.init();
+            setAdvertizedGracefulRestartTableTypes(advertizedGracefulRestartCapability.getTables().stream()
+                    .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
+            setAfiSafiGracefulRestartState(advertizedGracefulRestartCapability.getRestartTime(),
+                    advertizedGracefulRestartCapability.getRestartFlags().isRestartState(),
+                    false);
+            this.addPathTableMaps = ImmutableMap.copyOf(mapTableTypesFamilies(addPathTablesType));
+            this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
 
+            addBgp4Support();
+
+            this.peerPath = createPeerPath();
+            this.ribWriter = this.ribWriter.transform(this.peerId, this.peerPath, this.rib.getRibSupportContext(),
+                    this.tables, this.addPathTableMaps);
+
+            if (this.rpcRegistry != null) {
+                this.rpcRegistration = this.rpcRegistry.addRoutedRpcImplementation(BgpPeerRpcService.class,
+                        new BgpPeerRpc(this, session, this.tables));
+                final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+                        .rev180329.bgp.rib.rib.Peer, PeerKey> path = this.rib.getInstanceIdentifier()
+                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib
+                                .rib.Peer.class, new PeerKey(this.peerId));
+                this.rpcRegistration.registerPath(PeerContext.class, path);
+            }
+        }
         for (final TablesKey key : this.tables) {
             createAdjRibOutListener(key, true);
-        }
-
-        addBgp4Support();
-
-        this.peerPath = createPeerPath();
-        this.ribWriter = this.ribWriter.transform(this.peerId, this.peerPath, this.rib.getRibSupportContext(),
-                this.tables, this.addPathTableMaps);
-
-        if (this.rpcRegistry != null) {
-            this.rpcRegistration = this.rpcRegistry.addRoutedRpcImplementation(BgpPeerRpcService.class,
-                    new BgpPeerRpc(this, session, this.tables));
-            final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                    .rev180329.bgp.rib.rib.Peer, PeerKey> path = this.rib.getInstanceIdentifier()
-                    .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib
-                             .rib.Peer.class, new PeerKey(this.peerId));
-            this.rpcRegistration.registerPath(PeerContext.class, path);
         }
     }
 
@@ -423,24 +432,18 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.sessionUp = false;
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
-        if (this.trackerRegistration != null) {
-            this.trackerRegistration.close();
-            this.trackerRegistration = null;
-        }
-        if (this.rpcRegistration != null) {
-            this.rpcRegistration.close();
+        final FluentFuture<? extends CommitInfo> future;
+        int restartTime = getPeerRestartTime();
+        if (restartTime == 0) {
+            future = terminateConnection();
+        } else {
+            setRestartingState(true);
+            this.peerRestartStart = System.nanoTime();
+            handleRestartTimer();
+            future = CommitInfo.emptyFluentFuture();
         }
         releaseBindingChain();
 
-        this.ribWriter.releaseChain();
-        // FIXME: BUG-196: support graceful
-
-        if (this.effRibInWriter != null) {
-            this.effRibInWriter.close();
-        }
-        this.tables = Collections.emptySet();
-        this.addPathTableMaps = Collections.emptyMap();
-        final FluentFuture<? extends CommitInfo> future = removePeer(this.peerPath);
         if (this.session != null) {
             try {
                 this.session.close();
@@ -449,8 +452,47 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             }
             this.session = null;
         }
-        resetState();
         return future;
+    }
+
+    private synchronized FluentFuture<? extends CommitInfo> terminateConnection() {
+        final FluentFuture<? extends CommitInfo> future;
+        if (this.trackerRegistration != null) {
+            this.trackerRegistration.close();
+            this.trackerRegistration = null;
+        }
+        if (this.rpcRegistration != null) {
+            this.rpcRegistration.close();
+        }
+        this.ribWriter.releaseChain();
+
+        if (this.effRibInWriter != null) {
+            this.effRibInWriter.close();
+        }
+        this.tables = Collections.emptySet();
+        this.addPathTableMaps = Collections.emptyMap();
+        future = removePeer(this.peerPath);
+        resetState();
+
+        return future;
+    }
+
+    /**
+     * If Graceful Restart Timer expires, remove all routes advertized by peer.
+     */
+    private synchronized void handleRestartTimer() {
+        if (!isPeerRestarting()) {
+            return;
+        }
+
+        final long ct = System.nanoTime();
+        long restartExpire = this.peerRestartStart + TimeUnit.SECONDS.toNanos(getPeerRestartTime());
+
+        if (ct >= restartExpire) {
+            onSessionTerminated(this.session, new BGPTerminationReason(BGPError.HOLD_TIMER_EXPIRED));
+        }
+        new ScheduledThreadPoolExecutor(1)
+                .schedule(this::handleRestartTimer, restartExpire - ct, TimeUnit.NANOSECONDS);
     }
 
     @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
