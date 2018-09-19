@@ -87,6 +87,12 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
         return Futures.immediateFuture(null);
     }
 
+    @Override
+    public ListenableFuture<?> gracefulRestart(final long selectionDeferralTimer) {
+        return Futures.immediateFailedFuture(
+                new UnsupportedOperationException("SimpleSessionListener doesn't support graceful restart"));
+    }
+
     public State getState() {
         return getSession().getState();
     }
