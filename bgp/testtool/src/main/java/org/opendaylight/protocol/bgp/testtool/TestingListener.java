@@ -8,8 +8,11 @@
 package org.opendaylight.protocol.bgp.testtool;
 
 import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
+import javax.annotation.Nonnull;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -18,6 +21,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +83,12 @@ final class TestingListener implements BGPSessionListener {
     public FluentFuture<? extends CommitInfo> releaseConnection() {
         LOG.info("Client Listener: Connection released.");
         return CommitInfo.emptyFluentFuture();
+    }
+
+    @Nonnull
+    @Override
+    public ListenableFuture<?> gracefulRestart() {
+        return Futures.transform(CommitInfo.emptyFluentFuture(), input -> RpcResultBuilder.success());
     }
 
     void printCount(final String localAddress) {

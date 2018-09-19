@@ -16,7 +16,10 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
+
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -24,6 +27,7 @@ import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.util.CheckUtil.ListenerCheck;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +89,12 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
             }
         }
         return Futures.immediateFuture(null);
+    }
+
+    @Nonnull
+    @Override
+    public ListenableFuture<?> gracefulRestart() {
+        return Futures.transform(CommitInfo.emptyFluentFuture(), input -> RpcResultBuilder.success());
     }
 
     public State getState() {

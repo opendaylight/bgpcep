@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.GracefulRestartInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.GracefulRestartOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.GracefulRestartOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutputBuilder;
@@ -40,6 +41,7 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeerRpc.class);
     private static final String FAILURE_MSG = "Failed to send Route Refresh message";
     private static final String FAILURE_RESET_SESSION_MSG = "Failed to reset session";
+    private static final String FAILURE_GRACEFUL_RESTART_MSG = "Failed to perform graceful restart";
 
     private final BGPSession session;
     private final Set<TablesKey> supportedFamilies;
@@ -64,6 +66,18 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     }
 
     @Override
+    public ListenableFuture<RpcResult<GracefulRestartOutput>> gracefulRestart(GracefulRestartInput input) {
+        final ListenableFuture<?> f = this.peerRPCs.gracefulRestart();
+        return Futures.transform(f, input1 -> {
+            if (f.isDone()) {
+                return RpcResultBuilder.success(new GracefulRestartOutputBuilder().build()).build();
+            }
+            return RpcResultBuilder.<GracefulRestartOutput>failed().withError(ErrorType.RPC, FAILURE_GRACEFUL_RESTART_MSG)
+                    .build();
+        }, MoreExecutors.directExecutor());
+    }
+
+    @Override
     public ListenableFuture<RpcResult<RouteRefreshRequestOutput>> routeRefreshRequest(
             final RouteRefreshRequestInput input) {
         final ChannelFuture f = sendRRMessage(input);
@@ -78,11 +92,6 @@ public class BgpPeerRpc implements BgpPeerRpcService {
         }
         return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG +
                 " due to unsupported address families.").buildFuture();
-    }
-
-    @Override
-    public ListenableFuture<RpcResult<GracefulRestartOutput>> gracefulRestart(GracefulRestartInput input) {
-        return null;
     }
 
     private ChannelFuture sendRRMessage(final RouteRefreshRequestInput input) {

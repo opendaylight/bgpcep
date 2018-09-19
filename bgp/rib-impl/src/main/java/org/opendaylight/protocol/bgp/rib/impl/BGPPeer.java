@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -431,6 +433,13 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 .add("tables", this.tables).toString();
         }
 
+    @Nonnull
+    @Override
+    public ListenableFuture<?> gracefulRestart() {
+        setLocalRestartingState(true);
+        return releaseConnection();
+    }
+
     @Override
     public synchronized FluentFuture<? extends CommitInfo> releaseConnection() {
         LOG.info("Closing session with peer");
@@ -438,10 +447,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
         final FluentFuture<? extends CommitInfo> future;
-        if (!isPeerRestarting()) {
+        if (!isLocalRestarting() && !isPeerRestarting()) {
             future = terminateConnection();
         } else {
-            setRestartingState(true);
             this.peerRestartStart = System.nanoTime();
             handleRestartTimer();
             future = CommitInfo.emptyFluentFuture();

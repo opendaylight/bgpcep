@@ -19,4 +19,10 @@ public interface PeerRPCs {
      */
     @Nonnull
     ListenableFuture<?> releaseConnection();
+
+    /**
+     * Perform graceful restart.
+     */
+    @Nonnull
+    ListenableFuture<?> gracefulRestart();
 }
