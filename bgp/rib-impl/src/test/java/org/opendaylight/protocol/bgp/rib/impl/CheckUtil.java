@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.State;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
 
 public final class CheckUtil {
 
@@ -67,7 +68,8 @@ public final class CheckUtil {
     public static void checkRestartState(final BGPPeer peer, final int restartTime) {
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= restartTime + 1) {
-            if (peer.getPeerState().getBGPGracelfulRestart().isPeerRestarting()) {
+            final BGPGracelfulRestartState restartState = peer.getPeerState().getBGPGracelfulRestart();
+            if (restartState.isPeerRestarting() || restartState.isLocalRestarting()) {
                 Uninterruptibles.sleepUninterruptibly((TimeUnit.SECONDS.toMillis(restartTime))
                                 - sw.elapsed(TimeUnit.MILLISECONDS),
                         TimeUnit.MILLISECONDS);
