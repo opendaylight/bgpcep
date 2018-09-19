@@ -66,7 +66,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
+public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
@@ -274,7 +274,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             }
 
             this.bgpPeer = new BGPPeer(tableTypeRegistry, this.neighborAddress, peerGroupName, rib, role, clusterId,
-                    neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, gracefulTables);
+                    neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, gracefulTables, BgpPeer.this);
             this.prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
                     neighborRemoteAs, bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
@@ -328,5 +328,12 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         public BGPPeerState getPeerState() {
             return this.bgpPeer.getPeerState();
         }
+    }
+    public synchronized List<OptionalCapabilities> getBgpFixedCapabilities() {
+        return this.bgpPeerSingletonService.finalCapabilities;
+    }
+
+    public synchronized int getGracefulRestartTimer() {
+        return this.bgpPeerSingletonService.gracefulRestartTimer;
     }
 }

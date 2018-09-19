@@ -9,8 +9,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.ChannelFuture;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -25,6 +27,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutput;
@@ -54,7 +59,7 @@ public final class BgpPeerRpcTest {
         final ChannelOutputLimiter limiter = new ChannelOutputLimiter(this.session);
 
         Mockito.doReturn(limiter).when(this.session).getLimiter();
-        Mockito.doReturn(this.future).when(this.session).writeAndFlush(Mockito.any(Notification.class));
+        Mockito.doReturn(this.future).when(this.session).writeAndFlush(any(Notification.class));
         Mockito.doReturn(true).when(this.future).isDone();
         Mockito.doReturn(null).when(this.future).get();
         Mockito.doReturn(true).when(this.future).isSuccess();
@@ -89,5 +94,17 @@ public final class BgpPeerRpcTest {
                 .setPeerRef(this.peer).build();
         final Future<RpcResult<ResetSessionOutput>> result = this.rpc.resetSession(input);
         assertTrue(result.get().getErrors().isEmpty());
+    }
+
+    @Test
+    public void testRestartGracefullyRequestFailedRequest() throws ExecutionException, InterruptedException {
+        final long referraltimerSeconds = 10L;
+        Mockito.doReturn(new SimpleSessionListener().restartGracefully(referraltimerSeconds))
+                .when(this.peerRpcs).restartGracefully(referraltimerSeconds);
+        final RestartGracefullyInput input = new RestartGracefullyInputBuilder()
+                .setSelectionDeferralTime(referraltimerSeconds)
+                .build();
+        final ListenableFuture<RpcResult<RestartGracefullyOutput>> result = this.rpc.restartGracefully(input);
+        assertTrue(!result.get().getErrors().isEmpty());
     }
 }
