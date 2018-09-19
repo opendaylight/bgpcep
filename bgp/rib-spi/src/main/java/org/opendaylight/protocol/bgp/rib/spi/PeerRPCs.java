@@ -19,4 +19,13 @@ public interface PeerRPCs {
      */
     @Nonnull
     ListenableFuture<?> releaseConnection();
+
+    /**
+     * Perform graceful restart. Wait with route selection until EOR is received or
+     * selection-deferral-timer expires.
+     *
+     * @param selectionDeferralTimerSeconds time to wait in seconds
+     */
+    @Nonnull
+    ListenableFuture<?> restartGracefully(long selectionDeferralTimerSeconds);
 }

@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkStateIsNotRestarting;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkUpState;
@@ -33,11 +32,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -67,15 +69,21 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class GracefulRestartTest extends AbstractAddPathTest {
 
     private BGPSessionImpl session;
+    private BGPSessionImpl session2;
     private BGPPeer peer;
+    private BgpPeer bgpPeer;
+    private BgpParameters parameters;
     private final Set<TablesKey> afiSafiAdvertised = new HashSet<>();
     private final Set<TablesKey> gracefulAfiSafiAdvertised = new HashSet<>();
     private RIBImpl ribImpl;
     private Channel serverChannel;
     private SimpleSessionListener listener = new SimpleSessionListener();
+    private SimpleSessionListener listener2 = new SimpleSessionListener();
+    private static final int DEFERRAL_TIMER = 5;
     private static final RibId RIBID = new RibId("test-rib");
     private final Ipv4Prefix PREFIX2 = new Ipv4Prefix("2.2.2.2/32");
     private final Ipv6Prefix PREFIX3 = new Ipv6Prefix("dead:beef::/64");
+    private final Ipv6Address IPV6_NEXT_HOP = new Ipv6Address("dead:beef::1");
     private static final TablesKey IPV6_TABLES_KEY = new TablesKey(Ipv6AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
 
@@ -111,10 +119,18 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         gracefulAfiSafiAdvertised.add(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         afiSafiAdvertised.addAll(gracefulAfiSafiAdvertised);
         afiSafiAdvertised.add(IPV6_TABLES_KEY);
-        final BgpParameters parameters = createParameter(false, true, Collections.singletonMap(TABLES_KEY, true));
+        this.parameters = createParameter(false, true, Collections.singletonMap(TABLES_KEY, true));
+        this.bgpPeer = Mockito.mock(BgpPeer.class);
+        Mockito.doReturn(GRACEFUL_RESTART_TIME).when(this.bgpPeer).getGracefulRestartTimer();
+        Mockito.doReturn(createParameter(false, true, Collections.singletonMap(TABLES_KEY, false))
+                .getOptionalCapabilities()).when(this.bgpPeer).getBgpFixedCapabilities();
         this.peer = configurePeer(this.tableRegistry, PEER1, this.ribImpl, parameters, PeerRole.Ibgp,
-                this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised);
+                this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, bgpPeer);
         this.session = createPeerSession(PEER1, parameters, this.listener);
+        final BgpParameters parameters2 = createParameter(false, true, Collections.singletonMap(TABLES_KEY, true));
+        configurePeer(this.tableRegistry, PEER2, this.ribImpl, parameters2, PeerRole.Ibgp,
+                this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised);
+        this.session2 = createPeerSession(PEER2, parameters2, this.listener2);
     }
 
     @After
@@ -148,7 +164,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     public void retainRoutesOnPeerRestartTest() throws Exception {
         final List<Ipv4Prefix> ipv4Prefixes = Arrays.asList(new Ipv4Prefix(PREFIX1), new Ipv4Prefix(PREFIX2));
         final List<Ipv6Prefix> ipv6Prefixes = Collections.singletonList(new Ipv6Prefix(PREFIX3));
-        insertRoutes(ipv4Prefixes, ipv6Prefixes);
+        insertRoutes(ipv4Prefixes, PEER1, ipv6Prefixes, IPV6_NEXT_HOP, this.session);
         checkLocRibIpv4Routes(2);
         checkLocRibIpv6Routes(1);
 
@@ -169,7 +185,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     public void removeRoutesOnHoldTimeExpireTest() throws Exception {
         retainRoutesOnPeerRestartTest();
         checkStateIsNotRestarting(peer, GRACEFUL_RESTART_TIME);
-        assertNull(getLocalRib().getRib().get(0).getPeer());
+        checkLocRibIpv4Routes(0);
+        checkLocRibIpv6Routes(0);
     }
 
     /**
@@ -221,15 +238,70 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         retainRoutesOnPeerRestartTest();
         this.session = createPeerSession(PEER1, createParameter(false, true,
                 Collections.singletonMap(TABLES_KEY, true)), this.listener);
-        checkUpState(listener);
-        insertRoutes(Collections.singletonList(new Ipv4Prefix(PREFIX1)), null);
-        insertRoutes(null, null);
+        checkUpState(this.listener);
+        insertRoutes(Collections.singletonList(new Ipv4Prefix(PREFIX1)), PEER1, null, null, this.session);
+        insertRoutes(null, null, null, null, this.session);
         checkLocRibIpv4Routes(1);
         checkLocRibIpv6Routes(0);
     }
 
-    private BgpRib getLocalRib() throws Exception {
-        return readDataOperational(getDataBroker(), BGP_IID, bgpRib -> bgpRib);
+    /**
+     * Perform local graceful restart and verify routes are preserved.
+     *
+     * @throws Exception on reading Rib failure
+     */
+    @Test
+    public void performLocalGracefulRestart() throws Exception {
+        final List<Ipv4Prefix> ipv4prefixes = Arrays.asList(new Ipv4Prefix(PREFIX1));
+        final List<Ipv4Prefix> ipv4prefixes2 = Arrays.asList(new Ipv4Prefix(PREFIX2));
+        final List<Ipv6Prefix> ipv6prefixes = Arrays.asList(new Ipv6Prefix(PREFIX3));
+        insertRoutes(ipv4prefixes, PEER1, ipv6prefixes, IPV6_NEXT_HOP, this.session);
+        insertRoutes(ipv4prefixes2, PEER2, null, null, this.session2);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(1);
+
+        this.peer.restartGracefully(DEFERRAL_TIMER).get();
+        this.session = createPeerSession(PEER1, this.parameters, this.listener);
+        checkUpState(this.listener);
+        checkUpState(this.peer);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(0);
+    }
+
+    /**
+     * Wait with route selection until EOT is received.
+     *
+     * @throws Exception on reading Rib failure
+     */
+    @Test
+    public void waitForEORonLocalGracefulRestart() throws Exception {
+        performLocalGracefulRestart();
+        final List<Ipv4Prefix> ipv4prefixes = Arrays.asList(new Ipv4Prefix(PREFIX1));
+        final List<Ipv6Prefix> ipv6prefixes = Arrays.asList(new Ipv6Prefix(PREFIX3));
+        insertRoutes(ipv4prefixes, PEER1, ipv6prefixes, IPV6_NEXT_HOP, this.session);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(0);
+        insertRoutes(null, null,null, null, this.session);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(1);
+    }
+
+    /**
+     * Wait with route selection until deferral time is expired.
+     *
+     * @throws Exception on reading Rib failure
+     */
+    @Test
+    public void waitForDeferralTimerOnLocalGracefulRestart() throws Exception {
+        performLocalGracefulRestart();
+        final List<Ipv4Prefix> ipv4prefixes = Arrays.asList(new Ipv4Prefix(PREFIX1));
+        final List<Ipv6Prefix> ipv6prefixes = Arrays.asList(new Ipv6Prefix(PREFIX3));
+        insertRoutes(ipv4prefixes, PEER1, ipv6prefixes, IPV6_NEXT_HOP, this.session);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(0);
+        checkStateIsNotRestarting(this.peer, DEFERRAL_TIMER);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(1);
     }
 
     private void checkLocRibIpv4Routes(final int expectedRoutesOnDS) throws Exception {
@@ -258,29 +330,30 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         });
     }
 
-    private void insertRoutes(List<Ipv4Prefix> ipv4prefixes, List<Ipv6Prefix> ipv6prefixes) {
+    private void insertRoutes(List<Ipv4Prefix> ipv4prefixes, Ipv4Address ipv4NextHop, List<Ipv6Prefix> ipv6prefixes,
+                              Ipv6Address ipv6NextHop, BGPSessionImpl session) {
         if (ipv4prefixes == null && ipv6prefixes == null) {
-            waitFutureSuccess(this.session.writeAndFlush(PeerUtil.createEndOfRib(TABLES_KEY)));
-            waitFutureSuccess(this.session.writeAndFlush(PeerUtil.createEndOfRib(IPV6_TABLES_KEY)));
+            waitFutureSuccess(session.writeAndFlush(PeerUtil.createEndOfRib(TABLES_KEY)));
+            waitFutureSuccess(session.writeAndFlush(PeerUtil.createEndOfRib(IPV6_TABLES_KEY)));
             return;
         }
 
         if (ipv4prefixes != null && !ipv4prefixes.isEmpty()) {
-            final MpReachNlri reachIpv4 = PeerUtil.createMpReachNlri(new IpAddress(PEER1), 0,
+            final MpReachNlri reachIpv4 = PeerUtil.createMpReachNlri(new IpAddress(ipv4NextHop), 0,
                     ipv4prefixes.stream()
                             .map(IpPrefix::new)
                             .collect(Collectors.toList()));
             final Update update1 = PeerUtil.createUpdate(BgpOrigin.Igp, Collections.emptyList(), 100, reachIpv4, null);
-            waitFutureSuccess(this.session.writeAndFlush(update1));
+            waitFutureSuccess(session.writeAndFlush(update1));
         }
 
         if (ipv6prefixes != null && !ipv4prefixes.isEmpty()) {
-            final MpReachNlri reachIpv6 = PeerUtil.createMpReachNlri(new IpAddress(new Ipv6Address("DEAD:BEEF::1")), 0,
+            final MpReachNlri reachIpv6 = PeerUtil.createMpReachNlri(new IpAddress(ipv6NextHop), 0,
                     ipv6prefixes.stream()
                             .map(IpPrefix::new)
                             .collect(Collectors.toList()));
             final Update update2 = PeerUtil.createUpdate(BgpOrigin.Igp, Collections.emptyList(), 100, reachIpv6, null);
-            waitFutureSuccess(this.session.writeAndFlush(update2));
+            waitFutureSuccess(session.writeAndFlush(update2));
         }
     }
 

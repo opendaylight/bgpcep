@@ -95,4 +95,15 @@ public interface BGPPeerRegistry extends AutoCloseable {
      */
     @Nonnull AutoCloseable registerPeerSessionListener(PeerRegistrySessionListener listener);
 
+    /**
+     * Set new preferences. In case of graceful restart execution we need to send
+     * updated GracefulRestartCapability when sesison re-establish, information
+     * which tables where preserved during restart will change.
+     * Note that this method only updates preferences of already registered peer.
+     * To add new peer to registry use addPeer().
+     *
+     * @param ip of neighbor
+     * @param preferences to send in OPEN message
+     */
+    void updatePeerPreferences(IpAddress ip, BGPSessionPreferences preferences);
 }
