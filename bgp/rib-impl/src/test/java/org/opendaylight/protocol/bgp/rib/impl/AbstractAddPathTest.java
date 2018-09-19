@@ -39,6 +39,7 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -252,10 +253,19 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             final Ipv4Address peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
             final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
             final Set<TablesKey> gracefulAfiSafiAdvertised) {
+        return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
+                afiSafiAdvertised, gracefulAfiSafiAdvertised, null);
+    }
+
+    static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
+                                 final Ipv4Address peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
+                                 final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry,
+                                 final Set<TablesKey> afiSafiAdvertised, final Set<TablesKey> gracefulAfiSafiAdvertised,
+                                 final BgpPeer peer) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
-        final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), ribImpl, peerRole,
-                null, afiSafiAdvertised, gracefulAfiSafiAdvertised);
+        final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), null, ribImpl, peerRole,
+                null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, peer);
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));

@@ -73,4 +73,19 @@ module bgp-peer-rpc {
             uses peer-reference;
         }
     }
+
+    rpc restart-gracefully {
+        description "Perform graceful restart with peer";
+        input {
+            uses peer-reference;
+            leaf selection-deferral-time {
+                description
+                    "Time to wait with route selection in seconds. Route selection is postponed until
+                    End of Rib marker is received or this timer expires.";
+                type uint32;
+                units seconds;
+                mandatory true;
+            }
+        }
+    }
 }
