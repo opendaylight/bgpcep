@@ -95,4 +95,11 @@ public interface BGPPeerRegistry extends AutoCloseable {
      */
     @Nonnull AutoCloseable registerPeerSessionListener(PeerRegistrySessionListener listener);
 
+    /**
+     * Set new preferences.
+     *
+     * @param ip
+     * @param preferences
+     */
+    void setPeerPreferences(IpAddress ip, BGPSessionPreferences preferences);
 }

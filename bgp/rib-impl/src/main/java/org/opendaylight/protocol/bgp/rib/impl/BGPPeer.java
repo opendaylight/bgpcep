@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +44,9 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
+import org.opendaylight.protocol.bgp.rib.impl.config.GracefulRestartUtil;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -62,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.Nlri;
@@ -112,7 +118,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderRegistry rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    private final BgpPeer bgpPeer;
     private InstanceIdentifier<AdjRibOut> peerRibOutIId;
+    private KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+            .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId;
     @GuardedBy("this")
     private AbstractRegistration trackerRegistration;
     private final LoadingCache<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>> tablesIId
@@ -135,6 +144,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private YangInstanceIdentifier peerPath;
     private boolean sessionUp;
     private long peerRestartStart;
+    private long selectionDeferralTimer;
+    private final List<TablesKey> missingEOT = new ArrayList<>();
 
     public BGPPeer(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
@@ -146,12 +157,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final AsNumber localAs,
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
-            final Set<TablesKey> afiSafisGracefulAdvertized) {
+            final Set<TablesKey> afiSafisGracefulAdvertized,
+            final BgpPeer bgpPeer) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId,
                 localAs, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
+        this.bgpPeer = bgpPeer;
     }
 
     BGPPeer(
@@ -163,7 +176,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
         this(tableTypeRegistry, neighborAddress, null, rib, role, null, null, rpcRegistry,
-                afiSafisAdvertized, afiSafisGracefulAdvertized);
+                afiSafisAdvertized, afiSafisGracefulAdvertized, null);
     }
 
 
@@ -319,12 +332,31 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             if (endOfRib) {
                 final TablesKey tablesKey = new TablesKey(mpUnreach.getAfi(), mpUnreach.getSafi());
                 this.ribWriter.removeStaleRoutes(tablesKey);
+                this.missingEOT.remove(tablesKey);
+                handleGracefulEndOfRib();
             } else {
                 this.ribWriter.removeRoutes(mpUnreach);
             }
         } else if (endOfRib) {
             final TablesKey tablesKey = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
             this.ribWriter.removeStaleRoutes(tablesKey);
+            this.missingEOT.remove(tablesKey);
+            handleGracefulEndOfRib();
+        }
+    }
+
+    private synchronized void handleGracefulEndOfRib() {
+        if (isLocalRestarting()) {
+            if (this.missingEOT.isEmpty()) {
+                createEffRibInWriter();
+                this.effRibInWriter.init();
+                registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
+                for (final TablesKey key : this.tables) {
+                    createAdjRibOutListener(key, true);
+                }
+                setLocalRestartingState(false);
+                setGracefulPreferences(false, Collections.emptySet());
+            }
         }
     }
 
@@ -349,24 +381,18 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.tables = ImmutableSet.copyOf(setTables);
         this.addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
 
-        if (!isPeerRestarting()) {
+        if (!isPeerRestarting() && !isLocalRestarting()) {
             this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
             this.peerId = RouterIds.createPeerId(session.getBgpId());
-            final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                    .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId =
-                    getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+            this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                             .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
             this.peerPath = createPeerPath();
             this.peerRibOutIId = peerIId.child(AdjRibOut.class);
             this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
-            this.effRibInWriter = new EffectiveRibInWriter(this, this.rib,
-                    this.rib.createPeerChain(this),
-                    peerIId, this.tables, this.tableTypeRegistry,
-                    this.rtMemberships,
-                    this.rtCache);
+            createEffRibInWriter();
             registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
-            this.effRibInWriter.init();
 
+            this.effRibInWriter.init();
             this.ribWriter = this.ribWriter.transform(this.peerId, this.peerPath, this.rib.getRibSupportContext(),
                     this.tables, this.addPathTableMaps);
 
@@ -391,6 +417,11 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                         .collect(Collectors.toSet());
             }
             this.ribWriter.clearTables(Sets.difference(this.tables, forwardingTables));
+            if (isLocalRestarting()) {
+                this.peerRestartStart = System.nanoTime();
+                handleSelectionReferralTimer();
+                this.missingEOT.addAll(this.tables);
+            }
         }
         if (advertisedTables == null ||
                 advertisedTables.isEmpty()) {
@@ -400,11 +431,21 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         }
         final int restartTime = advertisedGracefulRestartCapability.getRestartTime();
-        setAfiSafiGracefulRestartState(restartTime, false,false);
+        setAfiSafiGracefulRestartState(restartTime, false, isLocalRestarting());
         addBgp4Support();
-        for (final TablesKey key : this.tables) {
-            createAdjRibOutListener(key, true);
+        if (!isLocalRestarting()) {
+            for (final TablesKey key : this.tables) {
+                createAdjRibOutListener(key, true);
+            }
         }
+    }
+
+    private synchronized void createEffRibInWriter() {
+        this.effRibInWriter = new EffectiveRibInWriter(this, this.rib,
+                this.rib.createPeerChain(this),
+                this.peerIId, this.tables, this.tableTypeRegistry,
+                this.rtMemberships,
+                this.rtCache);
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
@@ -463,20 +504,25 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
         final FluentFuture<? extends CommitInfo> future;
-        if (!isPeerRestarting()) {
+        if (!isLocalRestarting() && !isPeerRestarting()) {
             future = terminateConnection();
         } else {
+            if (isLocalRestarting()){
+                this.effRibInWriter.close();
+            }
             final Set<TablesKey> gracefulTables = getGracefulTables();
             this.ribWriter.storeStaleRoutes(gracefulTables);
             future = this.ribWriter.clearTables(Sets.difference(this.tables, gracefulTables));
-            this.peerRestartStart = System.nanoTime();
-            handleRestartTimer();
+            if (isPeerRestarting()) {
+                this.peerRestartStart = System.nanoTime();
+                handleRestartTimer();
+            }
         }
         releaseBindingChain();
 
         if (this.session != null) {
             try {
-                if (isPeerRestarting()) {
+                if (isPeerRestarting() || isLocalRestarting()) {
                     this.session.closeWithoutMessage();
                 } else {
                     this.session.close();
@@ -535,6 +581,22 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         new ScheduledThreadPoolExecutor(1)
                 .schedule(this::handleRestartTimer, restartExpire - ct, TimeUnit.NANOSECONDS);
+    }
+
+    private synchronized void handleSelectionReferralTimer() {
+        if (!isLocalRestarting()) {
+            return;
+        }
+
+        final long ct = System.nanoTime();
+        final long timerExpire = this.peerRestartStart + TimeUnit.SECONDS.toNanos(this.selectionDeferralTimer);
+
+        if (ct >= timerExpire) {
+            this.missingEOT.clear();
+            handleGracefulEndOfRib();
+        }
+        new ScheduledThreadPoolExecutor(1)
+                .schedule(this::handleSelectionReferralTimer, timerExpire - ct, TimeUnit.NANOSECONDS);
     }
 
     private boolean isEndOfRib(final UpdateMessage msg) {
@@ -618,5 +680,40 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @Override
     public List<RouteTarget> getMemberships() {
         return this.rtMemberships;
+    }
+
+    @Override
+    public synchronized ListenableFuture<?> gracefulRestart(final long selectionDeferralTimer) {
+        final Set<TablesKey> tablesToPreserve = getGracefulTables();
+        if (tablesToPreserve == null || tablesToPreserve.isEmpty()) {
+            LOG.info("Peer {} is not capable of graceful restart or have no matching graceful tables.", this.peerId);
+            return Futures.immediateFailedFuture(new UnsupportedOperationException(
+                    "Peer is not capable of graceful restart"));
+        }
+        setGracefulPreferences(true, tablesToPreserve);
+        this.selectionDeferralTimer = selectionDeferralTimer;
+        setLocalRestartingState(true);
+        return releaseConnection();
+    }
+
+    private synchronized void setGracefulPreferences(final boolean localRestarting,
+                                                     final Set<TablesKey> preservedTables) {
+        final Set<TablesKey> gracefulTables = this.tables.stream()
+                .filter(this::isGracefulRestartAdvertized)
+                .collect(Collectors.toSet());
+        final BgpParameters bgpParameters = GracefulRestartUtil.getGracefulBgpParameters(
+                this.bgpPeer.getBgpFixedCapabilities(), gracefulTables, preservedTables,
+                this.bgpPeer.getGracefulRestartTimer(), localRestarting);
+        final BGPSessionPreferences oldPrefs = this.rib.getDispatcher().getBGPPeerRegistry()
+                .getPeerPreferences(getNeighborAddress());
+        final BGPSessionPreferences newPrefs = new BGPSessionPreferences(
+                oldPrefs.getMyAs(),
+                oldPrefs.getHoldTime(),
+                oldPrefs.getBgpId(),
+                oldPrefs.getExpectedRemoteAs(),
+                Collections.singletonList(bgpParameters),
+                oldPrefs.getMd5Password());
+        this.rib.getDispatcher().getBGPPeerRegistry()
+                .setPeerPreferences(getNeighborAddress(), newPrefs);
     }
 }
