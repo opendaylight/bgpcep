@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "247da2a3_fb9e5db3",
+        "filename": "bgp/rib-mock/src/main/java/org/opendaylight/protocol/bgp/rib/mock/EventBusRegistration.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-09-19T11:21:29Z",
+      "side": 1,
+      "message": "? capability is configured per each family whether user want to support it or not",
+      "range": {
+        "startLine": 198,
+        "startChar": 8,
+        "endLine": 200,
+        "endChar": 9
+      },
+      "revId": "b4408069cac52b12d3aac64e4baa40ddadac0a3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
