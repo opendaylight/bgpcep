@@ -388,4 +388,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             }
         };
     }
+
+    @Override
+    public void setPeerPreferences(IpAddress address, BGPSessionPreferences preferences) {
+        this.peerPreferences.put(address, preferences);
+    }
 }

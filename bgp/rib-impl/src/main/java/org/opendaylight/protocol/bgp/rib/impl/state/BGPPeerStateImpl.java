@@ -214,6 +214,10 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         this.peerRestarting = true;
     }
 
+    protected final synchronized void setLocalRestartingState(boolean restarting) {
+        this.localRestarting = restarting;
+    }
+
     @Override
     public final BGPPeerState getPeerState() {
         return this;

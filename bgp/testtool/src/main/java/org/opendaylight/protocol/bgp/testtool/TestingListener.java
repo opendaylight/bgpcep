@@ -8,8 +8,11 @@
 package org.opendaylight.protocol.bgp.testtool;
 
 import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
+import javax.annotation.Nonnull;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -79,6 +82,13 @@ final class TestingListener implements BGPSessionListener {
     public FluentFuture<? extends CommitInfo> releaseConnection() {
         LOG.info("Client Listener: Connection released.");
         return CommitInfo.emptyFluentFuture();
+    }
+
+    @Nonnull
+    @Override
+    public ListenableFuture<?> gracefulRestart(final long selectionDeferralTimer) {
+        return Futures.immediateFailedFuture(
+                new UnsupportedOperationException("Testtool doesn't support graceful restart"));
     }
 
     void printCount(final String localAddress) {

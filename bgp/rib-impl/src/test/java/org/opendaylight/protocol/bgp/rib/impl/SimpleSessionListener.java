@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -85,6 +86,13 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
             }
         }
         return Futures.immediateFuture(null);
+    }
+
+    @Nonnull
+    @Override
+    public ListenableFuture<?> gracefulRestart(final long selectionDeferralTimer) {
+        return Futures.immediateFailedFuture(
+                new UnsupportedOperationException("SimpleSessionListener doesn't support graceful restart"));
     }
 
     public State getState() {

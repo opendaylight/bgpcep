@@ -249,6 +249,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                 afisSafis = requireNonNull(neighbor.getAfiSafis(), "Missing mandatory AFIs/SAFIs");
             }
 
+
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
                     .toTableKey(afisSafis.getAfiSafi(), tableTypeRegistry);
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
@@ -276,7 +277,7 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             }
 
             this.bgpPeer = new BGPPeer(tableTypeRegistry, this.neighborAddress, peerGroupName, rib, role, clusterId,
-                    neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, gracefulTables);
+                    neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, gracefulTables, BgpPeer.this);
             this.prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
                     neighborRemoteAs, bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
@@ -324,5 +325,12 @@ public final class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         public BGPPeerState getPeerState() {
             return this.bgpPeer.getPeerState();
         }
+    }
+    public synchronized List<OptionalCapabilities> getBgpFixedCapabilities() {
+        return this.bgpPeerSingletonService.bgpFixedCapabilities;
+    }
+
+    public synchronized Optional<Integer> getGracefulRestartTimer() {
+        return this.bgpPeerSingletonService.gracefulRestartTimer;
     }
 }
