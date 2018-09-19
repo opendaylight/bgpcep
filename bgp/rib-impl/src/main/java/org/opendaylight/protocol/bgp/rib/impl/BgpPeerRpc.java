@@ -9,12 +9,14 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.channel.ChannelFuture;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
@@ -23,6 +25,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutputBuilder;
@@ -38,6 +43,7 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeerRpc.class);
     private static final String FAILURE_MSG = "Failed to send Route Refresh message";
     private static final String FAILURE_RESET_SESSION_MSG = "Failed to reset session";
+    private static final String FAILURE_GRACEFUL_RESTART_MSG = "Failed to perform graceful restart";
 
     private final BGPSession session;
     private final Set<TablesKey> supportedFamilies;
@@ -59,6 +65,31 @@ public class BgpPeerRpc implements BgpPeerRpcService {
             return RpcResultBuilder.<ResetSessionOutput>failed().withError(ErrorType.RPC, FAILURE_RESET_SESSION_MSG)
                     .build();
         }, MoreExecutors.directExecutor());
+    }
+
+    @Override
+    public ListenableFuture<RpcResult<RestartGracefullyOutput>> restartGracefully(RestartGracefullyInput input) {
+        final ListenableFuture<?> f = this.peerRPCs.restartGracefully(input.getSelectionDeferralTime());
+        final RpcResultBuilder<RestartGracefullyOutput> rpcResult = RpcResultBuilder.failed();
+        Futures.addCallback(f, new FutureCallback<Object>() {
+                    @Override
+                    public void onSuccess(Object result) {
+                        rpcResult.success(new RestartGracefullyOutputBuilder().build()).build();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        rpcResult.withError(ErrorType.RPC, String.format("%s: %s", FAILURE_GRACEFUL_RESTART_MSG,
+                                throwable.getMessage()));
+                    }
+                },
+                MoreExecutors.directExecutor());
+        try {
+            f.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error(FAILURE_GRACEFUL_RESTART_MSG, e);
+        }
+        return Futures.immediateFuture(rpcResult.build());
     }
 
     @Override

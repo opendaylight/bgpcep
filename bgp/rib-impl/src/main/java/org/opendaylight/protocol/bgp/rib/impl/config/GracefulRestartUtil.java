@@ -83,7 +83,7 @@ public final class GracefulRestartUtil {
         return gracefulTables;
     }
 
-    static BgpParameters getGracefulBgpParameters(final List<OptionalCapabilities> fixedCapabilities,
+    public static BgpParameters getGracefulBgpParameters(final List<OptionalCapabilities> fixedCapabilities,
                                                          final Set<TablesKey> gracefulTables,
                                                          final Set<TablesKey> preservedTables,
                                                          final int gracefulRestartTimer,
