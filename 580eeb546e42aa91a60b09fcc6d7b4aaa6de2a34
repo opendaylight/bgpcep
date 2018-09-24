@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8273bb45_2e573e6c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2018-09-24T07:46:33Z",
+      "side": 1,
+      "message": "whitespace ... doesn\u0027t checkstyle check those?",
+      "range": {
+        "startLine": 328,
+        "startChar": 25,
+        "endLine": 328,
+        "endChar": 27
+      },
+      "revId": "580eeb546e42aa91a60b09fcc6d7b4aaa6de2a34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cd66a2a_f271cafa",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2018-09-24T07:46:33Z",
+      "side": 1,
+      "message": "Is it intentional that we commit and create new transaction after each table?",
+      "revId": "580eeb546e42aa91a60b09fcc6d7b4aaa6de2a34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
