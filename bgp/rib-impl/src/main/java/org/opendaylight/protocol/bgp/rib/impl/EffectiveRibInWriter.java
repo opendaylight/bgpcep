@@ -247,7 +247,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     break;
                 case DELETE:
                     final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
+                    deleteRoutes(routeIID, routeChanged.getDataBefore(), tx);
                     break;
             }
         }
@@ -277,16 +277,22 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
             tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), effAtt.get());
         } else {
-            final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
-            if (rtMembership.isPresent()) {
-                if(PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
-                    this.rtCache.uncacheRoute(route);
-                }
-                this.rtMemberships.remove(rtMembership.get());
-                this.rtMembershipsUpdated = true;
-            }
-            tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
+            deleteRoutes(routeIID, route, tx);
+
         }
+    }
+
+    private <R extends Route> void deleteRoutes(final InstanceIdentifier<R> routeIID,
+            final R route, final WriteTransaction tx) {
+        final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
+        if (rtMembership.isPresent()) {
+            if(PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
+                this.rtCache.uncacheRoute(route);
+            }
+            this.rtMemberships.remove(rtMembership.get());
+            this.rtMembershipsUpdated = true;
+        }
+        tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
     }
 
     @SuppressWarnings("unchecked")
