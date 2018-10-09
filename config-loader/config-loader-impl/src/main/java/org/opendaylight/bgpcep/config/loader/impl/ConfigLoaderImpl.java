@@ -81,7 +81,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         LOG.info("Config Loader service initiated");
     }
 
-    private void handleConfigFile(final ConfigFileProcessor config, final String filename) {
+    private synchronized void handleConfigFile(final ConfigFileProcessor config, final String filename) {
         final NormalizedNode<?, ?> dto;
         try {
             dto = parseDefaultConfigFile(config, filename);
