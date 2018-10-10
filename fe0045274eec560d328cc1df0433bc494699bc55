@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "588e8405_b24dd1d0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-10T14:25:18Z",
+      "side": 1,
+      "message": "please follow pattern\n\nDescription\n\nJIRA: TASK..\n\nlike https://git.opendaylight.org/gerrit/#/c/76716/",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 6
+      },
+      "revId": "fe0045274eec560d328cc1df0433bc494699bc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
