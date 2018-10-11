@@ -2,6 +2,69 @@
   "comments": [
     {
       "key": {
+        "uuid": "3c580662_808d6fdf",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T08:08:07Z",
+      "side": 1,
+      "message": "final",
+      "revId": "b4408069cac52b12d3aac64e4baa40ddadac0a3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49eb14be_eb863eb6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T08:08:07Z",
+      "side": 1,
+      "message": "you are doing distinct before, why we need to check duplicates again? Anyway I dont see many posibility it will be configured twice any family, so we just can remove this checks",
+      "range": {
+        "startLine": 199,
+        "startChar": 20,
+        "endLine": 199,
+        "endChar": 77
+      },
+      "revId": "b4408069cac52b12d3aac64e4baa40ddadac0a3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3fdd76fa_50dca4e8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T08:08:07Z",
+      "side": 1,
+      "message": "collect(collectors.tolist..",
+      "range": {
+        "startLine": 200,
+        "startChar": 24,
+        "endLine": 200,
+        "endChar": 69
+      },
+      "revId": "b4408069cac52b12d3aac64e4baa40ddadac0a3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "247da2a3_fb9e5db3",
         "filename": "bgp/rib-mock/src/main/java/org/opendaylight/protocol/bgp/rib/mock/EventBusRegistration.java",
         "patchSetId": 4
