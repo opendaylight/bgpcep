@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81029add_e4787154",
+        "filename": "bgp/extensions/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/impl/EvpnRibSupport.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T09:00:06Z",
+      "side": 1,
+      "message": "final",
+      "revId": "5ca458e2d02861420d56837488bc97911a6d611f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90458d95_6cc3a397",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T09:00:06Z",
+      "side": 1,
+      "message": "seems to be some common pattern, and duplicated code",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 5
+      },
+      "revId": "5ca458e2d02861420d56837488bc97911a6d611f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3074782_527fa636",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/PeerTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T09:00:06Z",
+      "side": 1,
+      "message": "4? improve naming, same for other cases",
+      "range": {
+        "startLine": 106,
+        "startChar": 116,
+        "endLine": 106,
+        "endChar": 118
+      },
+      "revId": "5ca458e2d02861420d56837488bc97911a6d611f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
