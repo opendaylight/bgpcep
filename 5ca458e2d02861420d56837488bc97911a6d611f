@@ -65,6 +65,29 @@
     },
     {
       "key": {
+        "uuid": "346161e5_5f8bc959",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T09:06:06Z",
+      "side": 1,
+      "message": "handling of routes should be done under adjribin, you can pass the eor when calling updateRoutes, and handle it there",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 353,
+        "endChar": 9
+      },
+      "revId": "5ca458e2d02861420d56837488bc97911a6d611f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "90458d95_6cc3a397",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
         "patchSetId": 8
