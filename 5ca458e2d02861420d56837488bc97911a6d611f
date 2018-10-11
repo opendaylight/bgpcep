@@ -42,6 +42,29 @@
     },
     {
       "key": {
+        "uuid": "7e9547fd_3bfa6bc0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T09:03:07Z",
+      "side": 1,
+      "message": "duplicated code",
+      "range": {
+        "startLine": 337,
+        "startChar": 0,
+        "endLine": 353,
+        "endChar": 9
+      },
+      "revId": "5ca458e2d02861420d56837488bc97911a6d611f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "90458d95_6cc3a397",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
         "patchSetId": 8
