@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9e09ddb_10bd0d51",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T08:08:07Z",
+      "side": 1,
+      "message": "why use ctx? you dont need to deserialize antything. You know peer, family and route key, all required to perform the deletion.",
+      "range": {
+        "startLine": 338,
+        "startChar": 8,
+        "endLine": 338,
+        "endChar": 40
+      },
+      "revId": "30a7b68dea6413b0d90ca687f30e1a95f87cf37d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b404e38c_11d82e29",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T08:08:07Z",
+      "side": 1,
+      "message": "why are you using that format instead of NodeIdentifierWithPredicates?",
+      "range": {
+        "startLine": 118,
+        "startChar": 38,
+        "endLine": 118,
+        "endChar": 59
+      },
+      "revId": "30a7b68dea6413b0d90ca687f30e1a95f87cf37d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73ef47cd_b58d2b03",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T08:08:07Z",
+      "side": 1,
+      "message": "???",
+      "range": {
+        "startLine": 528,
+        "startChar": 12,
+        "endLine": 528,
+        "endChar": 48
+      },
+      "revId": "30a7b68dea6413b0d90ca687f30e1a95f87cf37d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
