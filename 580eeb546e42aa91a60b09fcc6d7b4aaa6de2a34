@@ -39,6 +39,23 @@
       "revId": "580eeb546e42aa91a60b09fcc6d7b4aaa6de2a34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe814b8a_c8007fcf",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPPeerStateImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-11T08:08:07Z",
+      "side": 1,
+      "message": "final",
+      "revId": "580eeb546e42aa91a60b09fcc6d7b4aaa6de2a34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
