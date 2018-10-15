@@ -1,0 +1,472 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c533ca0_64303b49",
+        "filename": "bgp/extensions/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/impl/EvpnRibSupport.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e8f244e6_af00e111",
+        "filename": "bgp/extensions/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/unicast/AbstractVpnRIBSupport.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "831384f1_c30dfbc5",
+        "filename": "bgp/extensions/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/AbstractLabeledUnicastRIBSupport.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c9d711d_baa1a9d8",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/LinkstateRIBSupport.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0af50f9_ecba70d7",
+        "filename": "bgp/extensions/mvpn/src/main/java/org/opendaylight/protocol/bgp/mvpn/impl/AbstractMvpnRIBSupport.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6103b5d9_32f29da1",
+        "filename": "bgp/extensions/route-target/src/main/java/org/opendaylight/protocol/bgp/route/targetcontrain/impl/RouteTargetConstrainRIBSupport.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fac76234_e286693f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84c0b2f2_0ed9ac12",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0caedf2e_affb6436",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 305,
+        "startChar": 32,
+        "endLine": 305,
+        "endChar": 56
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57f13834_0029d7e5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "you are removing stale after each mpreach message processed. Shouldn\u0027t this be done only when EOR?",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 9
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64f98e85_ca744315",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "revert change",
+      "range": {
+        "startLine": 310,
+        "startChar": 4,
+        "endLine": 310,
+        "endChar": 10
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20f808d9_f1c71493",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "removeStaleRoutes",
+      "range": {
+        "startLine": 335,
+        "startChar": 16,
+        "endLine": 335,
+        "endChar": 28
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ce3b58e_87d056a2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 335,
+        "startChar": 29,
+        "endLine": 335,
+        "endChar": 80
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7b03ef1_24a6fb22",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "134372ff_6cb1c65d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "here final Set\u003cNodeIdentifierWithPredicates\u003e staleRoutes \u003d this.staleRoutesRegistry.get(tableKey);",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa1b94bc_360b7814",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "generate the path and remove it here, dont do it via ctx.",
+      "range": {
+        "startLine": 343,
+        "startChar": 8,
+        "endLine": 343,
+        "endChar": 40
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0293da4_ec37c690",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "pass here the peer id, and make this cache",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad734ef3_0b2a9d77",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "this can be static value",
+      "range": {
+        "startLine": 392,
+        "startChar": 15,
+        "endLine": 393,
+        "endChar": 33
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "95aba72d_bf9baab8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "dont we have any utility already for this?",
+      "range": {
+        "startLine": 391,
+        "startChar": 0,
+        "endLine": 397,
+        "endChar": 5
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f2f3c65_2c3b6b45",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4826b91_15cbb74e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "final",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12f4b8bc_65307ada",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 399,
+        "startChar": 0,
+        "endLine": 405,
+        "endChar": 5
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d0f1b68_8173476f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "check BGPSessionImpl",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 255,
+        "endChar": 9
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66e6ce12_ed2488d1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-15T07:03:28Z",
+      "side": 1,
+      "message": "?",
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
