@@ -184,6 +184,30 @@
     },
     {
       "key": {
+        "uuid": "262ef70c_af24f185",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-16T11:37:24Z",
+      "side": 1,
+      "message": "No. When you start receiving updates after restart you have all routes for graceful tables stored in staleRoutesRegistry. Goal is to have only non-advertised routes remaining when EOR is received and remove only those.",
+      "parentUuid": "57f13834_0029d7e5",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 9
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "64f98e85_ca744315",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
         "patchSetId": 9
@@ -310,6 +334,30 @@
     },
     {
       "key": {
+        "uuid": "e716a3ac_2d46d730",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-16T11:37:24Z",
+      "side": 1,
+      "message": "can\u0027t generate path here, check reply from PS7",
+      "parentUuid": "aa1b94bc_360b7814",
+      "range": {
+        "startLine": 343,
+        "startChar": 8,
+        "endLine": 343,
+        "endChar": 40
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b0293da4_ec37c690",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
         "patchSetId": 9
@@ -338,6 +386,30 @@
       "writtenOn": "2018-10-15T07:03:28Z",
       "side": 1,
       "message": "this can be static value",
+      "range": {
+        "startLine": 392,
+        "startChar": 15,
+        "endLine": 393,
+        "endChar": 33
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b295066_d8328bec",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-16T11:37:24Z",
+      "side": 1,
+      "message": "can\u0027t, this.ribPath is not static",
+      "parentUuid": "ad734ef3_0b2a9d77",
       "range": {
         "startLine": 392,
         "startChar": 15,
