@@ -139,7 +139,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
         assertEquals(getRoutePath().node(prefixNii),
-                this.ribSupport.routePath(getTablePath().node(Routes.QNAME), prefixNii));
+                this.ribSupport.routePath(getTablePath(), prefixNii));
     }
 
     @Test

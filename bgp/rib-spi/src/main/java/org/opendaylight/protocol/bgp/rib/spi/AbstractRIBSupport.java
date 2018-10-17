@@ -379,7 +379,7 @@ public abstract class AbstractRIBSupport<
     @Override
     public final YangInstanceIdentifier routePath(
             final YangInstanceIdentifier routesTablePaths, final PathArgument routeId) {
-        return routesYangInstanceIdentifier(routesTablePaths).node(routeId);
+        return routesYangInstanceIdentifier(routesTablePaths.node(Routes.QNAME)).node(routeId);
     }
 
     @Override

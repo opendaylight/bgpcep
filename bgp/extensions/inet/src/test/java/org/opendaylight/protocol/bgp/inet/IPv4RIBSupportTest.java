@@ -138,8 +138,7 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesC
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
-        assertEquals(getRoutePath().node(prefixNii), this.ribSupport.routePath(getTablePath()
-                .node(Routes.QNAME), prefixNii));
+        assertEquals(getRoutePath().node(prefixNii), this.ribSupport.routePath(getTablePath(), prefixNii));
     }
 
     @Test

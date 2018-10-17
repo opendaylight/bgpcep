@@ -168,7 +168,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
     public void testRoutePath() {
         final YangInstanceIdentifier.NodeIdentifierWithPredicates prefixNii = createRouteNIWP(RT_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);
-        final YangInstanceIdentifier actual = this.ribSupport.routePath(getTablePath().node(Routes.QNAME), prefixNii);
+        final YangInstanceIdentifier actual = this.ribSupport.routePath(getTablePath(), prefixNii);
         assertEquals(expected, actual);
     }
 
