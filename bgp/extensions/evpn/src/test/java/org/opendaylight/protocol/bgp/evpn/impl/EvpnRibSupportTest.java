@@ -157,7 +157,7 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest<EvpnRoutesC
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(EVPN_ROUTES);
         assertEquals(getRoutePath().node(prefixNii),
-                this.ribSupport.routePath(getTablePath().node(Routes.QNAME), prefixNii));
+                this.ribSupport.routePath(getTablePath(), prefixNii));
     }
 
     @Test
