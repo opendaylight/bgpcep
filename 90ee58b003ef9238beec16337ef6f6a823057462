@@ -502,6 +502,126 @@
     },
     {
       "key": {
+        "uuid": "36fc27f8_49b900ee",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T16:08:52Z",
+      "side": 1,
+      "message": "add gracefulCapabilities",
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "699b3276_c37f692f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulCapabilityUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T16:08:52Z",
+      "side": 1,
+      "message": "missing test for this class",
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83040790_c3006d36",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulCapabilityUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T16:08:52Z",
+      "side": 1,
+      "message": "false, and to be updated later. you can add a  FIXME or TODO note( was the note of BgpPeer intended to be for this?)\n\nThe most significant bit is defined as the Forwarding State (F)\n         bit, which can be used to indicate whether the forwarding state\n         for routes that were advertised with the given AFI and SAFI has\n         indeed been preserved during the previous BGP restart.  When\n         set (value 1), the bit indicates that the forwarding state has\n         been preserved.",
+      "range": {
+        "startLine": 57,
+        "startChar": 61,
+        "endLine": 57,
+        "endChar": 65
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc0e3e8a_8494003f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T16:08:52Z",
+      "side": 1,
+      "message": "Optional",
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b62f96d_681dd63c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T16:08:52Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 400,
+        "startChar": 39,
+        "endLine": 400,
+        "endChar": 68
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3cfbc2c_92642889",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T16:08:52Z",
+      "side": 1,
+      "message": "missing test coverage",
+      "range": {
+        "startLine": 374,
+        "startChar": 0,
+        "endLine": 416,
+        "endChar": 5
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3d189ae_cd261d39",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPPeerStateImpl.java",
         "patchSetId": 11
