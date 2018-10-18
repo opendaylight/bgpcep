@@ -683,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "862a99bf_04f5280f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-18T13:09:12Z",
+      "side": 1,
+      "message": "default value is handled at line 401\nany non-null value is valid restart timer value",
+      "parentUuid": "a5add8dd_116b78ef",
+      "range": {
+        "startLine": 110,
+        "startChar": 15,
+        "endLine": 110,
+        "endChar": 19
+      },
+      "revId": "e47a8823a32730abd95c88939ff5fd1fd47cc6e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d1cba5a_17f3f430",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
         "patchSetId": 9
