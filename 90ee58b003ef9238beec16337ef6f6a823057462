@@ -246,6 +246,144 @@
       "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "932a22bb_94e46cdf",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:17:11Z",
+      "side": 1,
+      "message": "revert",
+      "range": {
+        "startLine": 144,
+        "startChar": 52,
+        "endLine": 144,
+        "endChar": 63
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5dc16676_ede32b9c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:17:11Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 234,
+        "startChar": 47,
+        "endLine": 234,
+        "endChar": 51
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a792b778_3d25554f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:17:11Z",
+      "side": 1,
+      "message": "\u0026\u0026 !endOfRib",
+      "range": {
+        "startLine": 318,
+        "startChar": 29,
+        "endLine": 322,
+        "endChar": 20
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c01bf71b_e30a3bb0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:17:11Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 382,
+        "startChar": 33,
+        "endLine": 382,
+        "endChar": 48
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3d189ae_cd261d39",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPPeerStateImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:17:11Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 213,
+        "startChar": 57,
+        "endLine": 213,
+        "endChar": 81
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c357334_4f0a6372",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPPeerStateImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:17:11Z",
+      "side": 1,
+      "message": "true",
+      "range": {
+        "startLine": 214,
+        "startChar": 30,
+        "endLine": 214,
+        "endChar": 40
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
