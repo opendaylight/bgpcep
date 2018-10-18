@@ -318,6 +318,29 @@
     },
     {
       "key": {
+        "uuid": "2b7e51cd_7d9ae1e2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:40:59Z",
+      "side": 1,
+      "message": "method already returns ImmutableMap.copyOf(\ncreate a independent patch for this, so we can export to other versions",
+      "range": {
+        "startLine": 363,
+        "startChar": 56,
+        "endLine": 363,
+        "endChar": 77
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c01bf71b_e30a3bb0",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 11
@@ -334,6 +357,144 @@
         "startChar": 33,
         "endLine": 382,
         "endChar": 48
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c0bed9a_54393ef8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:40:59Z",
+      "side": 1,
+      "message": "use Collections.emptySet() instead",
+      "range": {
+        "startLine": 384,
+        "startChar": 34,
+        "endLine": 384,
+        "endChar": 55
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16e999f0_6dfdab63",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:40:59Z",
+      "side": 1,
+      "message": "dpc multiple times",
+      "range": {
+        "startLine": 386,
+        "startChar": 34,
+        "endLine": 386,
+        "endChar": 80
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dbdbe0ac_6f38dfd1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:40:59Z",
+      "side": 1,
+      "message": "Collections.emptyList()",
+      "range": {
+        "startLine": 397,
+        "startChar": 51,
+        "endLine": 397,
+        "endChar": 73
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11ded186_0e7ed7ec",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:40:59Z",
+      "side": 1,
+      "message": "duplicate code",
+      "range": {
+        "startLine": 443,
+        "startChar": 8,
+        "endLine": 445,
+        "endChar": 9
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c70d3ff_8211bca7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:40:59Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 551,
+        "startChar": 24,
+        "endLine": 551,
+        "endChar": 75
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e3c3ac7_c11bcd5f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:40:59Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 554,
+        "startChar": 24,
+        "endLine": 554,
+        "endChar": 45
       },
       "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
