@@ -71,6 +71,98 @@
     },
     {
       "key": {
+        "uuid": "2d39a523_c0c6dee2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:08:18Z",
+      "side": 1,
+      "message": "hide under ctx",
+      "range": {
+        "startLine": 365,
+        "startChar": 57,
+        "endLine": 365,
+        "endChar": 94
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4b4542b_5f2ec0c2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:08:18Z",
+      "side": 1,
+      "message": "wtx.delete(LogicalDatastoreType.OPERATIONAL, rs.getRibSupport().routesPath(ctx.getTableId()).getParent());",
+      "range": {
+        "startLine": 394,
+        "startChar": 12,
+        "endLine": 397,
+        "endChar": 49
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc20531f_80205462",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:08:18Z",
+      "side": 1,
+      "message": "move to the bottom",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 400,
+        "endChar": 5
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bcfb7b98_8f6905a2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T15:08:18Z",
+      "side": 1,
+      "message": "store",
+      "range": {
+        "startLine": 412,
+        "startChar": 15,
+        "endLine": 412,
+        "endChar": 19
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9ee87a3_c7bd15db",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
         "patchSetId": 11
