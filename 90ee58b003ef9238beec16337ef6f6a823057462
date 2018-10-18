@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ea2c07c_a04b0adf",
+        "filename": "bgp/peer-acceptor/src/test/java/org/opendaylight/protocol/bgp/peer/acceptor/BGPPeerAcceptorImplTest.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T13:57:00Z",
+      "side": 1,
+      "message": "keep checkIdleState as well, since is the most common case used on many tests. so it will be less verbose",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 18
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d7d229f8_ae6da146",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T13:57:00Z",
+      "side": 1,
+      "message": "never used?",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 15
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2eab7c2_9f33fb1e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T13:57:00Z",
+      "side": 1,
+      "message": "never used?",
+      "range": {
+        "startLine": 125,
+        "startChar": 4,
+        "endLine": 125,
+        "endChar": 26
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9ee87a3_c7bd15db",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T13:57:00Z",
+      "side": 1,
+      "message": "missing return",
+      "range": {
+        "startLine": 415,
+        "startChar": 0,
+        "endLine": 417,
+        "endChar": 13
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "034c5fcb_dc6b44a1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T13:57:00Z",
+      "side": 1,
+      "message": "do the cast here and store it as MapNode",
+      "range": {
+        "startLine": 425,
+        "startChar": 26,
+        "endLine": 425,
+        "endChar": 46
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f56f0e02_0fbbb211",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T13:57:00Z",
+      "side": 1,
+      "message": "final",
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26c2a7e3_9d86a537",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-18T13:57:00Z",
+      "side": 1,
+      "message": "never used",
+      "range": {
+        "startLine": 437,
+        "startChar": 0,
+        "endLine": 443,
+        "endChar": 5
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
