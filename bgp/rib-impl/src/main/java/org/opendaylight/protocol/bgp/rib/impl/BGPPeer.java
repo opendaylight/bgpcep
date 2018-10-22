@@ -344,7 +344,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.effRibInWriter.init();
         setAdvertizedGracefulRestartTableTypes(advertizedGracefulRestartTableTypes.stream()
                 .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
-        this.addPathTableMaps = ImmutableMap.copyOf(mapTableTypesFamilies(addPathTablesType));
+        this.addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
 
         for (final TablesKey key : this.tables) {
