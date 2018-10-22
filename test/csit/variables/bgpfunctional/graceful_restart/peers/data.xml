@@ -1,0 +1,37 @@
+<neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+    <neighbor-address>$IP</neighbor-address>
+    <timers>
+        <config>
+            <hold-time>$HOLDTIME</hold-time>
+            <connect-retry>5</connect-retry>
+        </config>
+    </timers>
+    <transport>
+        <config>
+            <remote-port>$PEER_PORT</remote-port>
+            <passive-mode>true</passive-mode>
+        </config>
+    </transport>
+    <config>
+        <peer-type>EXTERNAL</peer-type>
+        <peer-as>$AS_NUMBER</peer-as>
+    </config>
+    <graceful-restart>
+        <config>
+            <restart-time>5</restart-time>
+        </config>
+    </graceful-restart>
+    <afi-safis>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+            <graceful-restart>
+                <config>
+                    <enabled>true</enabled>
+                </config>
+            </graceful-restart>
+        </afi-safi>
+        <afi-safi>
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-UNICAST</afi-safi-name>
+        </afi-safi>
+    </afi-safis>
+</neighbor>

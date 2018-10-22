@@ -163,6 +163,11 @@ def parse_arguments():
     str_help = "Open message includes Multicast in MPLS/BGP IP VPNs arguments.\
     Enabling this flag makes the script not decoding the update mesage, because of not\
     supported decoding for these elements."
+    parser.add_argument("--grace", default="8", type=int, help=str_help)
+    str_help = "Open message includes Graceful-restart capability, containing AFI/SAFIS:\
+    IPV4-Unicast, IPV6-Unicast, BGP-LS\
+    Enabling this flag makes the script not decoding the update mesage, because of not\
+    supported decoding for these elements."
     parser.add_argument("--mvpn", default=False, action="store_true", help=str_help)
     str_help = "Open message includes L3VPN-MULTICAST arguments.\
     Enabling this flag makes the script not decoding the update mesage, because of not\
@@ -172,6 +177,8 @@ def parse_arguments():
     parser.add_argument("--l3vpn", default=False, action="store_true", help=str_help)
     str_help = "Open message includes ROUTE-TARGET-CONSTRAIN arguments, without message decoding."
     parser.add_argument("--rt_constrain", default=False, action="store_true", help=str_help)
+    str_help = "Open message includes ipv6-unicast family, without message decoding."
+    parser.add_argument("--ipv6", default=False, action="store_true", help=str_help)
     str_help = "Add all supported families without message decoding."
     parser.add_argument("--allf", default=False, action="store_true", help=str_help)
     parser.add_argument("--wfr", default=10, type=int, help="Wait for read timeout")
@@ -378,8 +385,10 @@ class MessageGenerator(object):
         self.l3vpn_mcast = args.l3vpn_mcast
         self.l3vpn = args.l3vpn
         self.rt_constrain = args.rt_constrain
+        self.ipv6 = args.ipv6
         self.allf = args.allf
         self.skipattr = args.skipattr
+        self.grace = args.grace
         # Default values when BGP-LS Attributes are used
         if self.bgpls:
             self.prefix_count_to_add_default = 1
@@ -822,6 +831,18 @@ class MessageGenerator(object):
             )
             optional_parameters_hex += optional_parameter_hex
 
+        if self.ipv6 or self.allf:
+            optional_parameter_hex = (
+                "\x02"  # Param type ("Capability Ad")
+                "\x06"  # Length (6 bytes)
+                "\x01"  # Multiprotocol extetension capability,
+                "\x04"  # Capability value length
+                "\x00\x02"  # AFI (IPV6)
+                "\x00"  # (reserved)
+                "\x01"  # SAFI (UNICAST)
+            )
+            optional_parameters_hex += optional_parameter_hex
+
         if self.bgpls or self.allf:
             optional_parameter_hex = (
                 "\x02"  # Param type ("Capability Ad")
@@ -936,6 +957,39 @@ class MessageGenerator(object):
             struct.pack(">I", my_autonomous_system)  # My AS in 32 bit format
         )
         optional_parameters_hex += optional_parameter_hex
+
+        if self.grace != 8:
+            b = list(bin(self.grace)[2:])
+            b = b + [0] * (3 - len(b))
+            length = "\x08"
+            if b[1] == '1':
+                restart_flag = "\x80\x05"
+            else:
+                restart_flag = "\x00\x05"
+            if b[2] == '1':
+                ipv4_flag = "\x80"
+            else:
+                ipv4_flag = "\x00"
+            if b[0] == '1':
+                ll_gr = "\x47\x07\x00\x01\x01\x00\x00\x00\x1e"
+                length = "\x11"
+            else:
+                ll_gr = ""
+            logger.debug("Grace parameters list: {}".format(b))
+            # "\x02" Param type ("Capability Ad")
+            # :param length: Length of whole message
+            # "\x40" Graceful-restart capability
+            # "\x06" Length (6 bytes)
+            # "\x00" Restart Flag (customizable - turned on when grace == 2,3,6,7)
+            # "\x05" Restart timer (5sec)
+            # "\x00\x01" AFI (IPV4)
+            # "\x01"  SAFI (Unicast)
+            # "\x00"  Ipv4 Flag (customizable - turned on when grace == 1,3,5,7)
+            # "\x47\x07\x00\x01\x01\x00\x00\x00\x1e" ipv4 ll-graceful-restart capability, timer 30sec
+            # ll-gr turned on when grace is between 4-7
+            optional_parameter_hex = "\x02{}\x40\x06{}\x00\x01\x01{}{}".format(
+                length, restart_flag, ipv4_flag, ll_gr)
+            optional_parameters_hex += optional_parameter_hex
 
         # Optional Parameters Length
         optional_parameters_length = len(optional_parameters_hex)
@@ -1156,6 +1210,9 @@ class MessageGenerator(object):
             path_attributes_hex +
             nlri_hex
         )
+
+        if self.grace != 8 and self.grace != 0 and end_of_rib:
+            message_hex = (marker_hex + binascii.unhexlify("00170200000000"))
 
         if self.log_debug:
             logger.debug("UPDATE message encoding")
@@ -1382,7 +1439,7 @@ class ReadTracker(object):
 
     def __init__(self, bgp_socket, timer, storage, evpn=False, mvpn=False,
                  l3vpn_mcast=False, allf=False, l3vpn=False, rt_constrain=False,
-                 wait_for_read=10):
+                 ipv6=False, grace=8, wait_for_read=10):
         """The reader initialisation.
 
         Arguments:
@@ -1391,6 +1448,7 @@ class ReadTracker(object):
             storage: thread safe dict
             evpn: flag that evpn functionality is tested
             mvpn: flag that mvpn functionality is tested
+            grace: flag that grace-restart functionality is tested
             l3vpn_mcast: flag that l3vpn_mcast functionality is tested
             l3vpn: flag that l3vpn unicast functionality is tested
             rt_constrain: flag that rt-constrain functionality is tested
@@ -1421,8 +1479,10 @@ class ReadTracker(object):
         self.l3vpn_mcast = l3vpn_mcast
         self.l3vpn = l3vpn
         self.rt_constrain = rt_constrain
+        self.ipv6 = ipv6
         self.allf = allf
         self.wfr = wait_for_read
+        self.grace = grace
 
     def read_message_chunk(self):
         """Read up to one message
@@ -1630,6 +1690,11 @@ class ReadTracker(object):
             logger.debug("Skipping update decoding due to evpn data expected")
             return
 
+        logger.debug("Graceful-restart {}".format(self.grace))
+        if self.grace != 8:
+            logger.debug("Skipping update decoding due to graceful-restart data expected")
+            return
+
         logger.debug("Mvpn {}".format(self.mvpn))
         if self.mvpn:
             logger.debug("Skipping update decoding due to mvpn data expected")
@@ -1648,6 +1713,11 @@ class ReadTracker(object):
         logger.debug("Route-Target-Constrain {}".format(self.rt_constrain))
         if self.rt_constrain:
             logger.debug("Skipping update decoding due to Route-Target-Constrain data expected")
+            return
+
+        logger.debug("Ipv6-Unicast {}".format(self.ipv6))
+        if self.ipv6:
+            logger.debug("Skipping update decoding due to Ipv6 data expected")
             return
 
         logger.debug("Allf {}".format(self.allf))
@@ -1821,7 +1891,8 @@ class StateTracker(object):
         # Sub-trackers.
         self.reader = ReadTracker(bgp_socket, timer, storage, evpn=cliargs.evpn, mvpn=cliargs.mvpn,
                                   l3vpn_mcast=cliargs.l3vpn_mcast, l3vpn=cliargs.l3vpn, allf=cliargs.allf,
-                                  rt_constrain=cliargs.rt_constrain, wait_for_read=cliargs.wfr)
+                                  rt_constrain=cliargs.rt_constrain, ipv6=cliargs.ipv6, grace=cliargs.grace,
+                                  wait_for_read=cliargs.wfr)
         self.writer = WriteTracker(bgp_socket, generator, timer)
         # Prioritization state.
         self.prioritize_writing = False
@@ -1965,6 +2036,8 @@ def job(arguments, inqueue, storage):
     # FIXME: Add parameter to send default open message first,
     # to work with "you first" peers.
     msg_in = read_open_message(bgp_socket)
+    logger.info(binascii.hexlify(msg_in))
+    storage['open'] = binascii.hexlify(msg_in)
     timer = TimeTracker(msg_in)
     generator = MessageGenerator(arguments)
     msg_out = generator.open_message()
