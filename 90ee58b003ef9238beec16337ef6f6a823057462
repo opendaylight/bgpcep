@@ -318,6 +318,30 @@
     },
     {
       "key": {
+        "uuid": "dae4eaaf_fa015d37",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-22T11:00:45Z",
+      "side": 1,
+      "message": "Wouldn\u0027t that skip stale routes removal for all EndOfRib advertised be MpUnreach?",
+      "parentUuid": "a792b778_3d25554f",
+      "range": {
+        "startLine": 318,
+        "startChar": 29,
+        "endLine": 322,
+        "endChar": 20
+      },
+      "revId": "90ee58b003ef9238beec16337ef6f6a823057462",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b7e51cd_7d9ae1e2",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 11
