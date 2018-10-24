@@ -578,7 +578,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             LOG.debug("Missing attributes in IP {} prefix {} route {}, skipping it", ippfx, prefixCase, value);
             pa = null;
         }
-        if (pa != null) {
+        if (pa != null && pa.getPrefixMetric() != null) {
             pb.setMetric(pa.getPrefixMetric().getValue());
         }
         ProtocolUtil.augmentProtocolId(value, pa, pb);
