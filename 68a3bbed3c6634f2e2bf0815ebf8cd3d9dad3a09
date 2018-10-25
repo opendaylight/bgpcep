@@ -1,0 +1,1199 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "556c8b00_24e5c88d",
+        "filename": "bgp/config-example/src/main/resources/initial/protocols-config.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "remove, always true given that we supports procedures for\n   the Receiving Speaker. And then we can do more specific config by afi/safi.\n\nWhen a sender of this capability does not include any \u003cAFI, SAFI\u003e in\n   the capability, it means that the sender is not capable of preserving\n   its forwarding state during BGP restart, but supports procedures for\n   the Receiving Speaker (as defined in Section 4.2 of this document).\n   In that case, the value of the \"Restart Time\" field advertised by the\n   sender is irrelevant.",
+      "range": {
+        "startLine": 134,
+        "startChar": 28,
+        "endLine": 134,
+        "endChar": 51
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e42d71df_490fabcb",
+        "filename": "bgp/extensions/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecRIBSupport.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "if null {\nreturn Collections.emptySet();\n}\n...",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 92,
+        "endChar": 34
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0b7f025_b030b90a",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/LinkstateRIBSupport.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "if null {\nreturn Collections.emptySet\n}\n..",
+      "range": {
+        "startLine": 109,
+        "startChar": 27,
+        "endLine": 109,
+        "endChar": 36
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7fdfdf67_bba80486",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "@GuardedBy(\"this\")",
+      "range": {
+        "startLine": 111,
+        "startChar": 68,
+        "endLine": 111,
+        "endChar": 87
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23dac0a0_e7262edc",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "this.",
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46359580_777c52ee",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "move it closer to routeKeys",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 310,
+        "endChar": 9
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e892a8b_8d86584e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "hide this under ctx.\nthen you can call ctx.routesPath()",
+      "range": {
+        "startLine": 355,
+        "startChar": 50,
+        "endLine": 355,
+        "endChar": 95
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25a9a4d5_8f320e96",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dont add, just assign it \n\nfinal Set\u003cNodeIdentifierWithPredicates\u003e routes \u003d routesNode.getValue().stream()\n.map(MapEntryNode::getIdentifier)\n.collect(Collectors.toSet());\nthis.staleRoutesRegistry.put(tablesKey, routes);",
+      "range": {
+        "startLine": 362,
+        "startChar": 20,
+        "endLine": 362,
+        "endChar": 33
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec29ce6a_013d4150",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "if empty no need for add it",
+      "range": {
+        "startLine": 369,
+        "startChar": 37,
+        "endLine": 369,
+        "endChar": 58
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7aea4ec_472e58a8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "do it after the null check",
+      "range": {
+        "startLine": 375,
+        "startChar": 8,
+        "endLine": 375,
+        "endChar": 99
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c024854d_5d6eb7d4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "if null then there is no need for create the tx and next steps.",
+      "range": {
+        "startLine": 382,
+        "startChar": 8,
+        "endLine": 382,
+        "endChar": 31
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "853c9d30_e8f5b001",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "use ctx.routesPath",
+      "range": {
+        "startLine": 411,
+        "startChar": 57,
+        "endLine": 411,
+        "endChar": 87
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43ba210b_0343183f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 350,
+        "startChar": 32,
+        "endLine": 350,
+        "endChar": 52
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7fdd5ccd_3a7286e7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "if(isPeerRestarting() {\n..\nreturn;\n}\n...",
+      "range": {
+        "startLine": 354,
+        "startChar": 8,
+        "endLine": 354,
+        "endChar": 34
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "433ef103_3a756e98",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "advertisedTables \u003d\u003d null ? empty .....",
+      "range": {
+        "startLine": 385,
+        "startChar": 33,
+        "endLine": 385,
+        "endChar": 49
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c0c55d6_7ba097b0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "add default value 0 to model",
+      "range": {
+        "startLine": 404,
+        "startChar": 32,
+        "endLine": 404,
+        "endChar": 84
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49fd0223_9c9836dc",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 543,
+        "startChar": 8,
+        "endLine": 543,
+        "endChar": 30
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "176138fb_9f9069f9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "return",
+      "range": {
+        "startLine": 551,
+        "startChar": 24,
+        "endLine": 551,
+        "endChar": 29
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "061bf51e_e46c8b4d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "return",
+      "range": {
+        "startLine": 556,
+        "startChar": 16,
+        "endLine": 556,
+        "endChar": 21
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b0c2402_785dea53",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "false",
+      "range": {
+        "startLine": 559,
+        "startChar": 15,
+        "endLine": 559,
+        "endChar": 20
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ac2b6f6_adf653be",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "if you do it after next bgpParameters !\u003d null, you dont need to check the same under findAdvertisedGracefulCapability",
+      "range": {
+        "startLine": 144,
+        "startChar": 8,
+        "endLine": 144,
+        "endChar": 82
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79af0d49_9ab8b0e4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/TableContext.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "instead of this method expose routesPath and routePath",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 5
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43b4af60_ed6e6e52",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "better naming",
+      "range": {
+        "startLine": 227,
+        "startChar": 49,
+        "endLine": 227,
+        "endChar": 69
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "652d5cc7_779224e0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "add a FIXME note, so we dont forget to pass this variable in next patch. even if you are already doing, we can remove it later.",
+      "range": {
+        "startLine": 265,
+        "startChar": 28,
+        "endLine": 265,
+        "endChar": 50
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aaf6db5a_db17fa5d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "always send GR capability",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 32
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64eac558_e2de3eb4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "no reason for declare it here",
+      "range": {
+        "startLine": 50,
+        "startChar": 8,
+        "endLine": 50,
+        "endChar": 38
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b60ba742_12f5a825",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "no need for else given the previous return",
+      "range": {
+        "startLine": 53,
+        "startChar": 10,
+        "endLine": 53,
+        "endChar": 16
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "36487c38_2d450850",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 84,
+        "startChar": 4,
+        "endLine": 84,
+        "endChar": 10
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e395efb1_c2c72dd1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "final Map\u003cTablesKey, Boolean\u003e gracefulMap \u003d gracefulTables.stream()\n.collect(Collectors.toMap(tk -\u003e tk,preservedTables::contains));",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 97
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a24d8f1_f205d45c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "remove it wont be longer required, see config comment",
+      "range": {
+        "startLine": 395,
+        "startChar": 27,
+        "endLine": 395,
+        "endChar": 44
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "024938f4_8b2d9188",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "why you gracefulRestart !\u003d null is not checked like for neighbor. Also try to remove dpc.",
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "783c3590_07af1fa8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "simplify by return ofnullable",
+      "range": {
+        "startLine": 415,
+        "startChar": 31,
+        "endLine": 417,
+        "endChar": 13
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b86bf23_1f1c97d1",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AbstractAddPathTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "why just dont advertize both?, and remove the ipv6 flag",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 262,
+        "endChar": 9
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af1ea70f_958d1dfb",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AddPathAllPathsTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "why just dont add a method with this variables by default, and we avoid changing many tests lines",
+      "range": {
+        "startLine": 93,
+        "startChar": 35,
+        "endLine": 93,
+        "endChar": 82
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dec78d16_e47062d2",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "can we use something like TimeUnit.SECONDS.toMillis or the corresponding one",
+      "range": {
+        "startLine": 71,
+        "startChar": 55,
+        "endLine": 71,
+        "endChar": 73
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e0f5866_72520544",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 77,
+        "startChar": 63,
+        "endLine": 79,
+        "endChar": 32
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "613149c8_6627f6ca",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 96,
+        "startChar": 55,
+        "endLine": 96,
+        "endChar": 76
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b77becf1_eaf09085",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 106,
+        "startChar": 38,
+        "endLine": 106,
+        "endChar": 114
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b973ca49_af64377e",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 108,
+        "startChar": 30,
+        "endLine": 108,
+        "endChar": 106
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7dee168_ebd89770",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 123,
+        "startChar": 56,
+        "endLine": 123,
+        "endChar": 66
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d884ade3_c7cc642f",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 123,
+        "startChar": 20,
+        "endLine": 123,
+        "endChar": 28
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "230d127d_6ddbbf3b",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 124,
+        "startChar": 8,
+        "endLine": 124,
+        "endChar": 16
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b87fe9d6_2b647652",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "Arrays.asList(..",
+      "range": {
+        "startLine": 144,
+        "startChar": 51,
+        "endLine": 144,
+        "endChar": 69
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2dbc0398_33dc9fa3",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "singletonlist..",
+      "range": {
+        "startLine": 145,
+        "startChar": 51,
+        "endLine": 145,
+        "endChar": 69
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b018fbfc_4920d3fa",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "missing the pre check, showing that routes where there.\nsame comment for other test.\nprecondition validation + post condition validation",
+      "range": {
+        "startLine": 206,
+        "startChar": 8,
+        "endLine": 206,
+        "endChar": 23
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49488229_6d670701",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": ".child(Ipv4RoutesCase.class, Ipv4Routes.class)",
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ca9fbe8_f29577df",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": ".child(Ipv6RoutesCase.class, Ipv6Routes.class)",
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4c65fd0_1797a428",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 261,
+        "startChar": 81,
+        "endLine": 262,
+        "endChar": 57
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11f30545_79dc03b9",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 263,
+        "startChar": 81,
+        "endLine": 264,
+        "endChar": 56
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a206d567_48b67f62",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dpc reuse PEER1",
+      "range": {
+        "startLine": 269,
+        "startChar": 69,
+        "endLine": 269,
+        "endChar": 111
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87c19df0_87d0f57a",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtilTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 471,
+        "startChar": 11,
+        "endLine": 471,
+        "endChar": 14
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd28cb6c_b0cda07a",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtilTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 509,
+        "startChar": 16,
+        "endLine": 509,
+        "endChar": 36
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb60f891_77ca29b5",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-25T11:59:18Z",
+      "side": 1,
+      "message": "dpc",
+      "range": {
+        "startLine": 386,
+        "startChar": 15,
+        "endLine": 386,
+        "endChar": 80
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
