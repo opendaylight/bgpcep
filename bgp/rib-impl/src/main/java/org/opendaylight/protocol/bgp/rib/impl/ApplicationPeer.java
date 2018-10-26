@@ -23,14 +23,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
@@ -173,7 +175,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
             LOG.trace("Skipping data changed called to Application Peer. Change : {}", changes);
             return;
         }
-        final DOMDataWriteTransaction tx = getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = getDomChain().newWriteOnlyTransaction();
         LOG.debug("Received data change to ApplicationRib {}", changes);
         for (final DataTreeCandidate tc : changes) {
             LOG.debug("Modification Type {}", tc.getRootNode().getModificationType());
@@ -229,7 +231,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     }
 
     private synchronized void processRoutesTable(final DataTreeCandidateNode node,
-            final YangInstanceIdentifier identifier, final DOMDataWriteTransaction tx,
+            final YangInstanceIdentifier identifier, final DOMDataTreeWriteTransaction tx,
             final YangInstanceIdentifier routeTableIdentifier) {
         for (final DataTreeCandidateNode child : node.getChildNodes()) {
             final YangInstanceIdentifier childIdentifier = identifier.node(child.getIdentifier());
@@ -306,8 +308,14 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain,
-        final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public void onTransactionChainFailed(final TransactionChain chain,
+        final Transaction transaction, final Throwable cause) {
+        LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
+    }
+
+    @Override
+    public void onTransactionChainFailed(final DOMTransactionChain chain, final DOMDataTreeTransaction transaction,
+        final Throwable cause) {
         LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
     }
 

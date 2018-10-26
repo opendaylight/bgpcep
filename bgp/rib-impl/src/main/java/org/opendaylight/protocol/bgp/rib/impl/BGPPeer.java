@@ -29,11 +29,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -85,6 +86,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -103,7 +105,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final RIB rib;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
-    private final RpcProviderRegistry rpcRegistry;
+    private final RpcProviderService rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private InstanceIdentifier<AdjRibOut> peerRibOutIId;
     @GuardedBy("this")
@@ -123,7 +125,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
-    private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
+    private ObjectRegistration<BgpPeerRpcService> rpcRegistration;
     private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
     private YangInstanceIdentifier peerPath;
     private boolean sessionUp;
@@ -136,7 +138,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final PeerRole role,
             final ClusterIdentifier clusterId,
             final AsNumber localAs,
-            final RpcProviderRegistry rpcRegistry,
+            final RpcProviderService rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId,
@@ -151,7 +153,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final IpAddress neighborAddress,
             final RIB rib,
             final PeerRole role,
-            final RpcProviderRegistry rpcRegistry,
+            final RpcProviderService rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
         this(tableTypeRegistry, neighborAddress, null, rib, role, null, null, rpcRegistry,
@@ -358,13 +360,13 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 this.tables, this.addPathTableMaps);
 
         if (this.rpcRegistry != null) {
-            this.rpcRegistration = this.rpcRegistry.addRoutedRpcImplementation(BgpPeerRpcService.class,
-                    new BgpPeerRpc(this, session, this.tables));
+
             final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
                     .rev180329.bgp.rib.rib.Peer, PeerKey> path = this.rib.getInstanceIdentifier()
                     .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib
                              .rib.Peer.class, new PeerKey(this.peerId));
-            this.rpcRegistration.registerPath(PeerContext.class, path);
+            this.rpcRegistration = this.rpcRegistry.registerRpcImplementation(BgpPeerRpcService.class,
+                new BgpPeerRpc(this, session, this.tables), Collections.singleton(path));
         }
     }
 
@@ -470,8 +472,15 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
-            final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public synchronized void onTransactionChainFailed(final TransactionChain chain, final Transaction transaction,
+        final Throwable cause) {
+        LOG.error("Transaction domChain failed.", cause);
+        releaseConnection();
+    }
+
+    @Override
+    public void onTransactionChainFailed(final DOMTransactionChain chain, final DOMDataTreeTransaction transaction,
+        final Throwable cause) {
         LOG.error("Transaction domChain failed.", cause);
         releaseConnection();
     }

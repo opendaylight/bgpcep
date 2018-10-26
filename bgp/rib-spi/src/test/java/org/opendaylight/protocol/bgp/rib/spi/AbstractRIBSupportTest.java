@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -19,13 +19,13 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -80,7 +80,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     private static final InstanceIdentifier<MpReachNlri> MP_REACH_IID = ATTRIBUTES_IID.augmentation(Attributes1.class)
             .child(MpReachNlri.class);
     @Mock
-    protected DOMDataWriteTransaction tx;
+    protected DOMDataTreeWriteTransaction tx;
     protected List<InstanceIdentifier<R>> deletedRoutes;
     protected List<Map.Entry<InstanceIdentifier<?>, DataObject>> insertedRoutes;
 
@@ -111,8 +111,8 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            AbstractRIBSupportTest.this.deletedRoutes.add((InstanceIdentifier)
-                    this.mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
+            AbstractRIBSupportTest.this.deletedRoutes
+                .add(this.mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
             return args[1];
         }).when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         this.deletedRoutes = new ArrayList<>();

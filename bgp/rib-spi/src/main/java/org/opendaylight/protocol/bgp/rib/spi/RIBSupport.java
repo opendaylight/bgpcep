@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -104,11 +104,11 @@ public interface RIBSupport<
      * Given the NLRI as ContainerNode, this method should extract withdrawn routes
      * from the DOM model and delete them from RIBs.
      *
-     * @param tx        DOMDataWriteTransaction
+     * @param tx        DOMDataTreeWriteTransaction
      * @param tablePath YangInstanceIdentifier
      * @param nlri      ContainerNode DOM representation of NLRI in Update message
      */
-    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
+    void deleteRoutes(@Nonnull DOMDataTreeWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
             @Nonnull ContainerNode nlri);
 
 
@@ -121,24 +121,24 @@ public interface RIBSupport<
      * For default "bgp-rib" RIBs use {@link #deleteRoutes}
      * </p>
      *
-     * @param tx           DOMDataWriteTransaction
+     * @param tx           DOMDataTreeWriteTransaction
      * @param tablePath    YangInstanceIdentifier
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param routesNodeId NodeIdentifier of "routes" data node
      */
-    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
+    void deleteRoutes(@Nonnull DOMDataTreeWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
             @Nonnull ContainerNode nlri, @Nonnull NodeIdentifier routesNodeId);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
      * from the DOM model and put them into RIBs.
      *
-     * @param tx         DOMDataWriteTransaction
+     * @param tx         DOMDataTreeWriteTransaction
      * @param tablePath  YangInstanceIdentifier
      * @param nlri       ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
+    void putRoutes(@Nonnull DOMDataTreeWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
             @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
 
     /**
@@ -150,13 +150,13 @@ public interface RIBSupport<
      * For default "bgp-rib" RIBs use {@link #putRoutes}
      * </p>
      *
-     * @param tx           DOMDataWriteTransaction
+     * @param tx           DOMDataTreeWriteTransaction
      * @param tablePath    YangInstanceIdentifier
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param attributes   ContainerNode
      * @param routesNodeId NodeIdentifier of "routes" data node
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
+    void putRoutes(@Nonnull DOMDataTreeWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
             @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes, @Nonnull NodeIdentifier routesNodeId);
 
     /**
@@ -234,7 +234,7 @@ public interface RIBSupport<
     TablesKey getTablesKey();
 
     interface ApplyRoute {
-        void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
+        void apply(@Nonnull DOMDataTreeWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
                 @Nonnull NodeIdentifierWithPredicates routeKey,
                 @Nonnull DataContainerNode<?> route, ContainerNode attributes);
     }

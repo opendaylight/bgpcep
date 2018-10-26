@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 
 /**
  * Provides access to unique DOMTransactionChain per Peer.

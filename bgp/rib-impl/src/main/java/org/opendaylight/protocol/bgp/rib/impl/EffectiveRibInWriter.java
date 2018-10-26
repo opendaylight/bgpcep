@@ -24,15 +24,15 @@ import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
@@ -100,7 +100,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final RibOutRefresh vpnTableRefresher;
     private final ClientRouteTargetContrainCache rtCache;
     private ListenerRegistration<?> reg;
-    private BindingTransactionChain chain;
+    private TransactionChain chain;
     private final Map<TablesKey, LongAdder> prefixesReceived;
     private final Map<TablesKey, LongAdder> prefixesInstalled;
     private final BGPRibRoutingPolicy ribPolicies;
@@ -113,7 +113,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     EffectiveRibInWriter(
             final BGPRouteEntryImportParameters peer,
             final RIB rib,
-            final BindingTransactionChain chain,
+            final TransactionChain chain,
             final KeyedInstanceIdentifier<Peer, PeerKey> peerIId,
             final Set<TablesKey> tables,
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
@@ -135,7 +135,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     public void init() {
-        final DataTreeIdentifier<Tables> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+        final DataTreeIdentifier<Tables> treeId = DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 this.peerIId.child(AdjRibIn.class).child(Tables.class));
         LOG.debug("Registered Effective RIB on {}", this.peerIId);
         this.reg = requireNonNull(this.databroker).registerDataTreeChangeListener(treeId, this);

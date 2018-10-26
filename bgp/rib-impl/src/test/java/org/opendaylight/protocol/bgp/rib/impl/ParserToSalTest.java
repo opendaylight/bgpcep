@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.AS_NUMBER;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
@@ -25,13 +25,13 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
@@ -105,7 +105,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     }
 
     @Test
-    public void testWithLinkstate() throws ReadFailedException {
+    public void testWithLinkstate() throws ExecutionException, InterruptedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class));
 
@@ -124,7 +124,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     }
 
     @Test
-    public void testWithoutLinkstate() throws ReadFailedException {
+    public void testWithoutLinkstate() throws ExecutionException, InterruptedException {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext1,
@@ -151,7 +151,8 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         });
     }
 
-    private void assertTablesExists(final List<BgpTableType> expectedTables) throws ReadFailedException {
+    private void assertTablesExists(final List<BgpTableType> expectedTables)
+        throws ExecutionException, InterruptedException {
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             final List<Tables> tables = bgpRib.getRib().get(0).getLocRib().getTables();
             assertFalse(tables.isEmpty());

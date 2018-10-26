@@ -25,9 +25,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -146,7 +146,7 @@ final class AdjRibInWriter {
             final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
             final Map<TablesKey, SendReceive> addPathTablesType,
             @Nullable final RegisterAppPeerListener registerAppPeerListener) {
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
 
         createEmptyPeerStructure(newPeerId, peerPath, tx);
         final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(peerPath, registry, tableTypes,
@@ -180,7 +180,7 @@ final class AdjRibInWriter {
     private static ImmutableMap<TablesKey, TableContext> createNewTableInstances(
             final YangInstanceIdentifier newPeerPath, final RIBSupportContextRegistry registry,
             final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
-            final DOMDataWriteTransaction tx) {
+            final DOMDataTreeWriteTransaction tx) {
 
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey tableKey : tableTypes) {
@@ -200,7 +200,7 @@ final class AdjRibInWriter {
 
     private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,
             final RIBSupportContext rs, final NodeIdentifierWithPredicates instanceIdentifierKey,
-            final DOMDataWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
+            final DOMDataTreeWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath
                 .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
@@ -217,7 +217,7 @@ final class AdjRibInWriter {
 
     private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
             final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey,
-            final SendReceive sendReceive, final DOMDataWriteTransaction tx) {
+            final SendReceive sendReceive, final DOMDataTreeWriteTransaction tx) {
         final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt =
                 Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
@@ -233,7 +233,7 @@ final class AdjRibInWriter {
     }
 
     private void createEmptyPeerStructure(final PeerId newPeerId,
-            final YangInstanceIdentifier peerPath, final DOMDataWriteTransaction tx) {
+            final YangInstanceIdentifier peerPath, final DOMDataTreeWriteTransaction tx) {
         final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
 
         tx.put(LogicalDatastoreType.OPERATIONAL, peerPath, peerSkeleton(peerKey, newPeerId.getValue()));
@@ -254,7 +254,7 @@ final class AdjRibInWriter {
     }
 
     void markTableUptodate(final TablesKey tableTypes) {
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         final TableContext ctx = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME)
                 .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
@@ -280,7 +280,7 @@ final class AdjRibInWriter {
             return;
         }
 
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
@@ -306,7 +306,7 @@ final class AdjRibInWriter {
             return;
         }
         LOG.trace("Removing routes {}", nlri);
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
         this.submitted = future;

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
@@ -38,7 +38,7 @@ public abstract class RIBSupportContext {
      * @param tx Transaction to to be used
      * @param tableId Instance Identifier of table to be cleared.
      */
-    public abstract void createEmptyTableStructure(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId);
+    public abstract void createEmptyTableStructure(DOMDataTreeWriteTransaction tx, YangInstanceIdentifier tableId);
 
     /**
      * Removes supplied routes from RIB table using supplied transaction.
@@ -47,7 +47,7 @@ public abstract class RIBSupportContext {
      * @param tableId Instance Identifier of table to be updated
      * @param nlri UnreachNlri which contains routes to be removed.
      */
-    public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpUnreachNlri nlri);
+    public abstract void deleteRoutes(DOMDataTreeWriteTransaction tx, YangInstanceIdentifier tableId, MpUnreachNlri nlri);
 
     /**
      *
@@ -59,7 +59,7 @@ public abstract class RIBSupportContext {
      * @param nlri ReachNlri which contains routes to be written.
      * @param attributes Attributes which should be written.
      */
-    public abstract void writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
+    public abstract void writeRoutes(DOMDataTreeWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
             Attributes attributes);
 
     /**

@@ -79,11 +79,5 @@
             <type>xml</type>
             <classifier>routing-policy-default-config</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>odl-mdsal-broker</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
     </dependencies>
 </project>

@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -94,7 +94,7 @@ public final class LinkstateRIBSupport
     }
 
     @Override
-    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
+    protected void processDestination(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier routesPath,
             final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
@@ -105,7 +105,7 @@ public final class LinkstateRIBSupport
 
     private void processRoute(final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes,
             final YangInstanceIdentifier routesPath,
-            final ContainerNode attributes, final ApplyRoute function, final DOMDataWriteTransaction tx) {
+            final ContainerNode attributes, final ApplyRoute function, final DOMDataTreeWriteTransaction tx) {
         if (maybeRoutes.isPresent()) {
             final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
             if (routes instanceof UnkeyedListNode) {

@@ -10,20 +10,20 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.condit
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -66,7 +66,7 @@ public final class MatchBgpNeighborSetHandler
     }
 
     private List<PeerId> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadOnlyTransaction tr = this.dataBroker.newReadOnlyTransaction();
+        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
         final Optional<NeighborSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
                 NEIGHBOR_SET_IID.child(NeighborSet.class, new NeighborSetKey(key))).get();
         if (!result.isPresent()) {

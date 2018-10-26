@@ -25,15 +25,15 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
@@ -110,7 +110,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
 
     public synchronized void init() {
         this.registration = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
+            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
                         this.networkInstanceIId.child(Protocols.class).child(Protocol.class)
                                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class)), this);
         LOG.info("BGP Deployer {} started.", this.networkInstanceName);
@@ -118,8 +118,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
 
     private Optional<PeerGroup> loadPeerGroup(final InstanceIdentifier<PeerGroup> peerGroupIid)
             throws ExecutionException, InterruptedException {
-        final ReadOnlyTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        return tr.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid).get().toJavaUtil();
+        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
+        return tr.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid).get();
     }
 
     @Override

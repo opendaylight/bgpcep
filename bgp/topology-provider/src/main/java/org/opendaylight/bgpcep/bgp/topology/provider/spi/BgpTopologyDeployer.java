@@ -9,7 +9,7 @@
 package org.opendaylight.bgpcep.bgp.topology.provider.spi;
 
 import com.google.common.annotations.Beta;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 @Beta
