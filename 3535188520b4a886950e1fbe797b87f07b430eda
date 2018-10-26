@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "062b5cc3_ac867a2a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-26T07:44:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 691,
+        "startChar": 4,
+        "endLine": 691,
+        "endChar": 11
+      },
+      "revId": "3535188520b4a886950e1fbe797b87f07b430eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f7156c2_7fd291c1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-26T07:44:49Z",
+      "side": 1,
+      "message": "final final",
+      "revId": "3535188520b4a886950e1fbe797b87f07b430eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e509823_69b056fb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-26T07:44:49Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "3535188520b4a886950e1fbe797b87f07b430eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "293f94d0_290f2abd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPPeerStateImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-26T07:44:49Z",
+      "side": 1,
+      "message": "final",
+      "revId": "3535188520b4a886950e1fbe797b87f07b430eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b1f8778_93be87b1",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SimpleSessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-26T07:44:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 12
+      },
+      "revId": "3535188520b4a886950e1fbe797b87f07b430eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0fd24326_15b8aaeb",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/PeerRPCs.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-26T07:44:49Z",
+      "side": 1,
+      "message": "missing selectionDeferralTimer description",
+      "revId": "3535188520b4a886950e1fbe797b87f07b430eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f2c678c2_671f1eff",
+        "filename": "bgp/testtool/src/main/java/org/opendaylight/protocol/bgp/testtool/TestingListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-26T07:44:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 87,
+        "startChar": 4,
+        "endLine": 87,
+        "endChar": 11
+      },
+      "revId": "3535188520b4a886950e1fbe797b87f07b430eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
