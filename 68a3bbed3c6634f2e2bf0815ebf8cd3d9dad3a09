@@ -318,6 +318,30 @@
     },
     {
       "key": {
+        "uuid": "7b6efd00_373bd42e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-26T15:28:56Z",
+      "side": 1,
+      "message": "there are common steps left, from line 197",
+      "parentUuid": "7fdd5ccd_3a7286e7",
+      "range": {
+        "startLine": 354,
+        "startChar": 8,
+        "endLine": 354,
+        "endChar": 34
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "433ef103_3a756e98",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 16
@@ -548,6 +572,30 @@
     },
     {
       "key": {
+        "uuid": "289687b6_8d9dba78",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-26T15:28:56Z",
+      "side": 1,
+      "message": "this is starting state and since there is no previous state we always says that we didn\u0027t preserved any tables and this will always be empty list\nnon empty list is set either during graceful restart (speaker) or when session is released (listener)",
+      "parentUuid": "652d5cc7_779224e0",
+      "range": {
+        "startLine": 265,
+        "startChar": 28,
+        "endLine": 265,
+        "endChar": 50
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aaf6db5a_db17fa5d",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
         "patchSetId": 16
@@ -737,6 +785,30 @@
       "writtenOn": "2018-10-25T11:59:18Z",
       "side": 1,
       "message": "why just dont advertize both?, and remove the ipv6 flag",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 262,
+        "endChar": 9
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "645fecb3_04b43597",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AbstractAddPathTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-26T15:28:56Z",
+      "side": 1,
+      "message": "there are several tests that fail when receive different number of capabilities, it will leave the original method to not touch unnecessary tests.",
+      "parentUuid": "9b86bf23_1f1c97d1",
       "range": {
         "startLine": 257,
         "startChar": 0,
@@ -1025,6 +1097,30 @@
     },
     {
       "key": {
+        "uuid": "3774abec_81996d40",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-26T15:28:56Z",
+      "side": 1,
+      "message": "precondition is in retainRoutesOnPeerRestartTest()",
+      "parentUuid": "b018fbfc_4920d3fa",
+      "range": {
+        "startLine": 206,
+        "startChar": 8,
+        "endLine": 206,
+        "endChar": 23
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49488229_6d670701",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
         "patchSetId": 16
@@ -1036,6 +1132,24 @@
       "writtenOn": "2018-10-25T11:59:18Z",
       "side": 1,
       "message": ".child(Ipv4RoutesCase.class, Ipv4Routes.class)",
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "736485d5_13b45612",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-10-26T15:28:56Z",
+      "side": 1,
+      "message": "in case that there are no routes in the table last non-empty container is Table, if we try to read empty lists under that we receive Optional.empty() which fail in readData() in CheckUtil line 77 and thorw NullPointerException at 87",
+      "parentUuid": "49488229_6d670701",
       "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
