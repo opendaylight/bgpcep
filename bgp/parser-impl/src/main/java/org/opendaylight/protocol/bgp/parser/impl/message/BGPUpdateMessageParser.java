@@ -139,6 +139,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                 withdrawnRoutesBuilder.setPrefix(Ipv4Util.prefixForByteBuf(withdrawnRoutesBuffer));
                 withdrawnRoutes.add(withdrawnRoutesBuilder.build());
             }
+            withdrawnRoutesBuffer.release();
             builder.setWithdrawnRoutes(withdrawnRoutes);
         }
         final int totalPathAttrLength = buffer.readUnsignedShort();
@@ -164,6 +165,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             nlriBuilder.setPrefix(Ipv4Util.prefixForByteBuf(buffer));
             nlri.add(nlriBuilder.build());
         }
+        buffer.release();
         if (!nlri.isEmpty()) {
             builder.setNlri(nlri);
         }
