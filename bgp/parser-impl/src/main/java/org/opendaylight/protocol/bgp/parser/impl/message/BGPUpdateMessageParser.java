@@ -138,6 +138,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                 withdrawnRoutesBuilder.setPrefix(Ipv4Util.prefixForByteBuf(withdrawnRoutesBuffer));
                 withdrawnRoutes.add(withdrawnRoutesBuilder.build());
             }
+            withdrawnRoutesBuffer.release();
             builder.setWithdrawnRoutes(withdrawnRoutes);
         }
         final int totalPathAttrLength = buffer.readUnsignedShort();
