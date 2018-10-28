@@ -596,6 +596,30 @@
     },
     {
       "key": {
+        "uuid": "dcb8783f_8d7b7124",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-28T19:31:40Z",
+      "side": 1,
+      "message": "hide it under some method with this default value and localRestarting(always false on this state, right?), try to add some doc on it or proper name to understand the intention",
+      "parentUuid": "289687b6_8d9dba78",
+      "range": {
+        "startLine": 265,
+        "startChar": 28,
+        "endLine": 265,
+        "endChar": 50
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aaf6db5a_db17fa5d",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
         "patchSetId": 16
@@ -809,6 +833,30 @@
       "side": 1,
       "message": "there are several tests that fail when receive different number of capabilities, it will leave the original method to not touch unnecessary tests.",
       "parentUuid": "9b86bf23_1f1c97d1",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 262,
+        "endChar": 9
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1cab8cc_0f7ed571",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AbstractAddPathTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-28T19:31:40Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "645fecb3_04b43597",
       "range": {
         "startLine": 257,
         "startChar": 0,
@@ -1109,6 +1157,30 @@
       "side": 1,
       "message": "precondition is in retainRoutesOnPeerRestartTest()",
       "parentUuid": "b018fbfc_4920d3fa",
+      "range": {
+        "startLine": 206,
+        "startChar": 8,
+        "endLine": 206,
+        "endChar": 23
+      },
+      "revId": "68a3bbed3c6634f2e2bf0815ebf8cd3d9dad3a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7069f758_daf6dc58",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-10-28T19:31:40Z",
+      "side": 1,
+      "message": "improve naming",
+      "parentUuid": "3774abec_81996d40",
       "range": {
         "startLine": 206,
         "startChar": 8,
