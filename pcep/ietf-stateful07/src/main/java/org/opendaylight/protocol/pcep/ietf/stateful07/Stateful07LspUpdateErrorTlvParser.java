@@ -30,7 +30,7 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
     private static final int CONTENT_LENGTH = Integer.SIZE / Byte.SIZE;
 
     @Override
-    public LspErrorCode parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+    public LspErrorCode parseTlv(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

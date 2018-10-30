@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
@@ -18,17 +19,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.TopologyTunnelPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -50,7 +50,7 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     @GuardedBy("this")
     private ClusterSingletonServiceRegistration pcepTunnelCssReg;
     @GuardedBy("this")
-    private BindingAwareBroker.RoutedRpcRegistration<TopologyTunnelPcepProgrammingService> reg;
+    private ObjectRegistration<TunnelProgramming> reg;
 
     public PCEPTunnelClusterSingletonService(
             final TunnelProviderDependencies dependencies,
@@ -103,12 +103,12 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     @Override
     public synchronized void instantiateServiceInstance() {
         LOG.info("Instantiate PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getValue());
-        this.reg = this.dependencies.getRpcProviderRegistry()
-                .addRoutedRpcImplementation(TopologyTunnelPcepProgrammingService.class, this.tp);
 
         final InstanceIdentifier<Topology> topology = InstanceIdentifier
                 .builder(NetworkTopology.class).child(Topology.class, new TopologyKey(this.tunnelTopologyId)).build();
-        this.reg.registerPath(NetworkTopologyContext.class, topology);
+        this.reg = this.dependencies.getRpcProviderRegistry()
+                .registerRpcImplementation(TopologyTunnelPcepProgrammingService.class,
+                        this.tp, Collections.singleton(topology));
         this.ttp.init();
     }
 

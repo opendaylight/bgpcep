@@ -189,7 +189,7 @@ public class PCEPValidatorTest {
     };
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new BaseParserExtensionActivator();
         this.act.start(this.ctx);

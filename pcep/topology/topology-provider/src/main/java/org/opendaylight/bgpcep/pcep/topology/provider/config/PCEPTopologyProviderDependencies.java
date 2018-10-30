@@ -11,8 +11,8 @@ import com.google.common.annotations.Beta;
 import javax.annotation.Nonnull;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 
 /**
@@ -34,7 +34,7 @@ public interface PCEPTopologyProviderDependencies {
      * @return RpcProviderRegistry
      */
     @Nonnull
-    RpcProviderRegistry getRpcProviderRegistry();
+    RpcProviderService getRpcProviderRegistry();
 
     /**
      * DataBroker.

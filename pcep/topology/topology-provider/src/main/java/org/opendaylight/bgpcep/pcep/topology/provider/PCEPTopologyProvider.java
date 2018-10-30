@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -21,13 +22,12 @@ import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfigu
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev171025.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.NetworkTopologyPcepService;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 
 public final class PCEPTopologyProvider extends DefaultTopologyReference {
     private static final String STATEFUL_NOT_DEFINED = "Stateful capability not defined, aborting PCEP Topology"
@@ -36,8 +36,8 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     private final PCEPTopologyProviderDependencies dependenciesProvider;
     private final PCEPTopologyConfiguration configDependencies;
     private final InstructionScheduler scheduler;
-    private RoutedRpcRegistration<NetworkTopologyPcepProgrammingService> network;
-    private RoutedRpcRegistration<NetworkTopologyPcepService> element;
+    private ObjectRegistration<NetworkTopologyPcepProgrammingService> network;
+    private ObjectRegistration<NetworkTopologyPcepService> element;
     private Channel channel;
 
     private PCEPTopologyProvider(
@@ -72,16 +72,16 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
     }
 
     public void instantiateServiceInstance() throws ExecutionException, InterruptedException {
-        final RpcProviderRegistry rpcRegistry = this.dependenciesProvider.getRpcProviderRegistry();
+        final RpcProviderService rpcRegistry = this.dependenciesProvider.getRpcProviderRegistry();
 
         this.element = requireNonNull(rpcRegistry
-                .addRoutedRpcImplementation(NetworkTopologyPcepService.class, new TopologyRPCs(this.manager)));
-        this.element.registerPath(NetworkTopologyContext.class, this.configDependencies.getTopology());
+            .registerRpcImplementation(NetworkTopologyPcepService.class, new TopologyRPCs(this.manager),
+                Collections.singleton(this.configDependencies.getTopology())));
 
         this.network = requireNonNull(rpcRegistry
-                .addRoutedRpcImplementation(NetworkTopologyPcepProgrammingService.class,
-                        new TopologyProgramming(this.scheduler, this.manager)));
-        this.network.registerPath(NetworkTopologyContext.class, this.configDependencies.getTopology());
+            .registerRpcImplementation(NetworkTopologyPcepProgrammingService.class,
+                new TopologyProgramming(this.scheduler, this.manager),
+                Collections.singleton(this.configDependencies.getTopology())));
 
         this.manager.instantiateServiceInstance();
         final ChannelFuture channelFuture = this.dependenciesProvider.getPCEPDispatcher()

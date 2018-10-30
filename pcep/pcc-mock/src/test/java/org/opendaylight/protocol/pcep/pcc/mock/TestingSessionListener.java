@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
-import org.opendaylight.protocol.util.CheckUtil.ListenerCheck;
+import org.opendaylight.protocol.util.CheckTestUtil.ListenerCheck;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

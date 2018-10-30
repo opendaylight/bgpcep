@@ -19,7 +19,6 @@ import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
@@ -75,7 +74,7 @@ public class PCCDispatcherImplTest {
     }
 
     @After
-    public void tearDown() throws InterruptedException, ExecutionException {
+    public void tearDown() {
         this.dispatcher.close();
         closeEventLoopGroups();
     }

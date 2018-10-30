@@ -10,12 +10,12 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertNotNull;
 
-import com.google.common.base.Optional;
 import io.netty.channel.Channel;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;

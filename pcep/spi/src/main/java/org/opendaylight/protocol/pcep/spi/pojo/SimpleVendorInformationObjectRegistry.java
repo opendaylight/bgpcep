@@ -8,11 +8,11 @@
 
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
 
 import io.netty.buffer.ByteBuf;
 
+import java.util.Optional;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
@@ -45,7 +45,7 @@ public class SimpleVendorInformationObjectRegistry implements VendorInformationO
         final ObjectParser parser = this.handlers.getParser(Ints.checkedCast(enterpriseNumber.getValue()));
         if (parser == null) {
             if (!header.isProcessingRule()) {
-                return Optional.absent();
+                return Optional.empty();
             }
             return Optional.of(new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS));
         }

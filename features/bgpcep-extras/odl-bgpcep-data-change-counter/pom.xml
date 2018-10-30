@@ -28,7 +28,6 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
-
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>data-change-counter</artifactId>

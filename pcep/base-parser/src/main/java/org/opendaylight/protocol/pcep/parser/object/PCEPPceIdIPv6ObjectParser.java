@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public class PCEPPceIdIPv6ObjectParser extends AbstractPceIdObjectParser {
 
     @Override
-    public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
+    public Object parseObject(final ObjectHeader header, final ByteBuf buffer) {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final PceIdBuilder builder = new PceIdBuilder();
         builder.setIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)));

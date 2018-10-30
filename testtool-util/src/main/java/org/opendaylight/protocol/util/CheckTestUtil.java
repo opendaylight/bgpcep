@@ -128,11 +128,11 @@ public final class CheckTestUtil {
         throw lastError;
     }
 
-    public static void checkEquals(final CheckUtil.CheckEquals function) throws Exception {
+    public static void checkEquals(final CheckEquals function) throws Exception {
         checkEquals(function, TIMEOUT);
     }
 
-    public static void checkEquals(final CheckUtil.CheckEquals function, final int timeout) throws Exception {
+    public static void checkEquals(final CheckEquals function, final int timeout) throws Exception {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= timeout) {
@@ -147,12 +147,12 @@ public final class CheckTestUtil {
         throw lastError;
     }
 
-    public static void checkReceivedMessages(final CheckUtil.ListenerCheck listener, final int numberOfMessages) {
+    public static void checkReceivedMessages(final ListenerCheck listener, final int numberOfMessages) {
         checkReceivedMessages(listener, numberOfMessages, TIMEOUT);
     }
 
     @VisibleForTesting
-    static void checkReceivedMessages(final CheckUtil.ListenerCheck listener, final int numberOfMessages,
+    static void checkReceivedMessages(final ListenerCheck listener, final int numberOfMessages,
         final int timeout) {
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= timeout) {

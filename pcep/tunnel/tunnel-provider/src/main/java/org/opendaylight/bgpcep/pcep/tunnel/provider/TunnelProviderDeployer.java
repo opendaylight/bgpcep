@@ -7,7 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,12 +18,13 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.config.rev171127.PcepTunnelTopologyConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.TopologyTypes1;
@@ -52,12 +53,14 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
 
     public TunnelProviderDeployer(
             final DataBroker dataBroker,
-            final RpcProviderRegistry rpcProviderRegistry,
+            final RpcProviderService rpcProviderRegistry,
+            final RpcConsumerRegistry rpcConsumerRegistry,
             final BundleContext bundleContext,
             final ClusterSingletonServiceProvider cssp
     ) {
         LOG.info("Creating Tunnel Provider Deployer");
-        this.dependencies = new TunnelProviderDependencies(dataBroker, cssp, rpcProviderRegistry, bundleContext);
+        this.dependencies = new TunnelProviderDependencies(dataBroker, cssp, rpcProviderRegistry, rpcConsumerRegistry,
+                bundleContext);
         this.networTopology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).build();
     }
 
@@ -76,7 +79,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
     public synchronized void init() {
         LOG.info("Instantiate tunnel topology deployer");
         this.listenerRegistration = this.dependencies.getDataBroker().registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(CONFIGURATION, this.networTopology), this);
+                DataTreeIdentifier.create(CONFIGURATION, this.networTopology), this);
     }
 
     @Override

@@ -8,15 +8,15 @@
 
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
@@ -95,8 +95,8 @@ final class TunelProgrammingUtil {
     }
 
     public static Optional<Node> sourceNode(final ReadTransaction rt, final InstanceIdentifier<Topology> topology,
-            final Link link) throws ReadFailedException {
+            final Link link) throws InterruptedException, ExecutionException {
         return rt.read(LogicalDatastoreType.OPERATIONAL,
-                topology.child(Node.class, new NodeKey(link.getSource().getSourceNode()))).checkedGet();
+                topology.child(Node.class, new NodeKey(link.getSource().getSourceNode()))).get();
     }
 }

@@ -21,8 +21,8 @@ import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFac
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
@@ -43,7 +43,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     private final PCEPDispatcher pcepDispatcher;
     private final DataBroker dataBroker;
     private final TopologySessionListenerFactory sessionListenerFactory;
-    private final RpcProviderRegistry rpcProviderRegistry;
+    private final RpcProviderService rpcProviderRegistry;
     private final BundleContext bundleContext;
     private final ClusterSingletonServiceProvider cssp;
     private final TopologySessionStatsRegistry stateRegistry;
@@ -55,7 +55,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
             final BundleContext bundleContext,
             final DataBroker dataBroker,
             final PCEPDispatcher pcepDispatcher,
-            final RpcProviderRegistry rpcProviderRegistry,
+            final RpcProviderService rpcProviderRegistry,
             final TopologySessionListenerFactory sessionListenerFactory,
             final TopologySessionStatsRegistry stateRegistry) {
         this.cssp = requireNonNull(cssp);
@@ -107,7 +107,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     }
 
     @Override
-    public RpcProviderRegistry getRpcProviderRegistry() {
+    public RpcProviderService getRpcProviderRegistry() {
         return this.rpcProviderRegistry;
     }
 
