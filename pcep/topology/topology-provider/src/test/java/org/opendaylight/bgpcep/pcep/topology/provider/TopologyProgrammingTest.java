@@ -13,7 +13,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import org.junit.Assert;
 import org.junit.Before;
@@ -148,7 +147,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     }
 
     @Test
-    public void testSubmitAddLsp() throws InterruptedException, ExecutionException {
+    public void testSubmitAddLsp() {
         final SubmitAddLspInputBuilder inputBuilder = new SubmitAddLspInputBuilder();
         inputBuilder.setName(NAME);
         inputBuilder.setNode(this.nodeId);

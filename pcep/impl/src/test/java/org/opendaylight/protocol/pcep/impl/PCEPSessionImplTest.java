@@ -12,7 +12,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
@@ -44,7 +44,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testPcepSessionImpl() throws InterruptedException {
+    public void testPcepSessionImpl() {
         Assert.assertTrue(this.listener.up);
 
         this.session.handleMessage(this.kaMsg);
@@ -150,7 +150,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testExceptionCaught() throws Exception {
+    public void testExceptionCaught() {
         Assert.assertFalse(this.session.isClosed());
         Assert.assertTrue(this.listener.up);
         this.session.exceptionCaught(null, new Throwable("PCEP exception."));
@@ -159,20 +159,20 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testSessionRecoveryOnException() throws Exception {
+    public void testSessionRecoveryOnException() {
         this.listener = new SimpleExceptionSessionListener();
         this.session = Mockito.spy(new PCEPSessionImpl(this.listener, 0, this.channel,
                 this.openMsg.getOpenMessage().getOpen(), this.openMsg.getOpenMessage().getOpen()));
-        Mockito.verify(this.session, Mockito.never()).handleException(Matchers.any());
-        Mockito.verify(this.session, Mockito.never()).sendMessage(Matchers.any());
+        Mockito.verify(this.session, Mockito.never()).handleException(ArgumentMatchers.any());
+        Mockito.verify(this.session, Mockito.never()).sendMessage(ArgumentMatchers.any());
         Mockito.verify(this.session, Mockito.never()).closeChannel();
         try {
             this.session.sessionUp();
             Assert.fail();  // expect the exception to be populated
         } catch (final RuntimeException ignored) {}
         Assert.assertFalse(this.listener.up);
-        Mockito.verify(this.session).handleException(Matchers.any());
-        Mockito.verify(this.session).sendMessage(Matchers.any(CloseMessage.class));
+        Mockito.verify(this.session).handleException(ArgumentMatchers.any());
+        Mockito.verify(this.session).sendMessage(ArgumentMatchers.any(CloseMessage.class));
         Mockito.verify(this.session).closeChannel();
     }
 

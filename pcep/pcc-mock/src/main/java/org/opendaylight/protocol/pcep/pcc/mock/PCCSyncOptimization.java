@@ -10,8 +10,8 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1;
@@ -141,7 +141,7 @@ final class PCCSyncOptimization {
 
     public Optional<BigInteger> incrementLspDBVersion() {
         if (!isSyncAvoidanceEnabled()) {
-            return Optional.absent();
+            return Optional.empty();
         } else if (isSyncNeedIt() && getLocalLspDbVersionValue() != null && !this.resynchronizing) {
             this.lspDBVersion = getLocalLspDbVersionValue();
             return Optional.of(this.lspDBVersion);

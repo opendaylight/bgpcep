@@ -8,12 +8,12 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock.spi;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -66,7 +66,7 @@ public final class MsgBuilderUtil {
         final PcrptMessageBuilder msgBuilder = new PcrptMessageBuilder();
         final ReportsBuilder reportBuilder = new ReportsBuilder();
         reportBuilder.setLsp(lsp);
-        reportBuilder.setSrp(srp.orNull());
+        reportBuilder.setSrp(srp.orElse(null));
         reportBuilder.setPath(path);
         msgBuilder.setReports(Lists.newArrayList(reportBuilder.build()));
         rptBuilder.setPcrptMessage(msgBuilder.build());
@@ -84,7 +84,7 @@ public final class MsgBuilderUtil {
         lspBuilder.setProcessingRule(false);
         lspBuilder.setRemove(remove);
         lspBuilder.setSync(sync);
-        lspBuilder.setTlvs(tlvs.orNull());
+        lspBuilder.setTlvs(tlvs.orElse(null));
         return lspBuilder.build();
     }
 
@@ -127,7 +127,7 @@ public final class MsgBuilderUtil {
     public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
             final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName) {
         return createLspTlvs(lspId, symbolicPathName, tunnelEndpoint, tunnelSender, extendedTunnelAddress, symbolicName,
-                Optional.absent());
+                Optional.empty());
     }
 
     public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,

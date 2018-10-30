@@ -8,9 +8,10 @@
 -->
 <blueprint xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"
                odl:type="pingpong"/>
-    <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
+    <reference id="rpcProviderService" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
+    <reference id="rpcConsumerRegistry" interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
@@ -18,7 +19,8 @@
           init-method="init"
           destroy-method="close">
         <argument ref="dataBroker"/>
-        <argument ref="rpcRegistry"/>
+        <argument ref="rpcProviderService"/>
+        <argument ref="rpcConsumerRegistry"/>
         <argument ref="blueprintBundleContext"/>
         <argument ref="clusterSingletonServiceProvider"/>
     </bean>

@@ -133,7 +133,7 @@ public class SrObjectParserTest {
     }
 
     @Test
-    public void testSrEroSerializerWithUpdateLspAugmentation() throws PCEPDeserializerException {
+    public void testSrEroSerializerWithUpdateLspAugmentation() {
         final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
 
         final EroBuilder builder = new EroBuilder();

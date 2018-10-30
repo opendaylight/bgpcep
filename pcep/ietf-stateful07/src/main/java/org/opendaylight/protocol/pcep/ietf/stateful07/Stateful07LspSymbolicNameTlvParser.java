@@ -27,7 +27,7 @@ public final class Stateful07LspSymbolicNameTlvParser implements TlvParser, TlvS
     public static final int TYPE = 17;
 
     @Override
-    public SymbolicPathName parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+    public SymbolicPathName parseTlv(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

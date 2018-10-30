@@ -10,12 +10,12 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.PathComputationClient1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs3;
@@ -53,8 +53,8 @@ final class PCEPStatefulPeerProposal {
 
     void setPeerProposal(final NodeId nodeId, final TlvsBuilder openTlvsBuilder, final byte[] speakerId) {
         if (isSynOptimizationEnabled(openTlvsBuilder)) {
-            Optional<LspDbVersion> result = Optional.absent();
-            try (ReadOnlyTransaction rTx = this.dataBroker.newReadOnlyTransaction()) {
+            Optional<LspDbVersion> result = Optional.empty();
+            try (ReadTransaction rTx = this.dataBroker.newReadOnlyTransaction()) {
                 final ListenableFuture<Optional<LspDbVersion>> future = rTx.read(
                         LogicalDatastoreType.OPERATIONAL,
                         this.topologyId.child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class)

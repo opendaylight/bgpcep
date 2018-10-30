@@ -12,10 +12,10 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.topology.tunnel.pcep.type.TopologyTunnelPcepBuilder;
@@ -70,7 +70,7 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
             LOG.error("Failed to create Tunnel Topology root", e);
         }
         this.reg = this.ncl.getDataProvider()
-                .registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, this.src),
+                .registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, this.src),
                         this.ncl);
     }
 

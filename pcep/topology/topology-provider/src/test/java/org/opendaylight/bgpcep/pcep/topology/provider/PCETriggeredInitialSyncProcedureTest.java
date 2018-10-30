@@ -13,11 +13,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -121,7 +121,7 @@ public class PCETriggeredInitialSyncProcedureTest
                         .xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs1.class, new org.opendaylight
                         .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025
                         .Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(BigInteger
-                        .valueOf(2L)).build()).build()).build()), true, false), Optional.absent(),
+                        .valueOf(2L)).build()).build()).build()), true, false), Optional.empty(),
                         createPath(Collections.emptyList()));
     }
 
@@ -136,7 +136,7 @@ public class PCETriggeredInitialSyncProcedureTest
                         .pcep.sync.optimizations.rev171025.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
                         .setLspDbVersionValue(BigInteger.valueOf(3L)).build())
                         .build()).build()).setPlspId(new PlspId(1L)).setSync(true).setRemove(false)
-                .setOperational(OperationalStatus.Active).build(), Optional.absent(),
+                .setOperational(OperationalStatus.Active).build(), Optional.empty(),
                 createPath(Collections.emptyList()));
     }
 }

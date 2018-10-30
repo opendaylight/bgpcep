@@ -7,27 +7,26 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.Node1;
@@ -48,7 +47,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
     private final Map<String, Metadata> metadata = new HashMap<>();
     private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
-    private final BindingTransactionChain chain;
+    private final TransactionChain chain;
     private final long holdStateNanos;
     private long lastReleased = 0;
     //cache initial node state, if any node was persisted
@@ -136,19 +135,19 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         return this.initialNodeState;
     }
 
-    synchronized BindingTransactionChain getChain() {
+    synchronized TransactionChain getChain() {
         return this.chain;
     }
 
-    synchronized <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(
+    synchronized <T extends DataObject> FluentFuture<Optional<T>> readOperationalData(
             final InstanceIdentifier<T> id) {
-        try (ReadOnlyTransaction t = this.chain.newReadOnlyTransaction()) {
+        try (ReadTransaction t = this.chain.newReadOnlyTransaction()) {
             return t.read(LogicalDatastoreType.OPERATIONAL, id);
         }
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> pchain, final AsyncTransaction<?, ?> transaction,
+    public void onTransactionChainFailed(final TransactionChain pchain, final Transaction transaction,
             final Throwable cause) {
         // FIXME: flip internal state, so that the next attempt to update fails, triggering node reconnect
         LOG.error("Unexpected transaction failure in node {} transaction {}",
@@ -156,7 +155,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain<?, ?> pchain) {
+    public void onTransactionChainSuccessful(final TransactionChain pchain) {
         LOG.info("Node {} shutdown successfully", this.nodeId);
     }
 

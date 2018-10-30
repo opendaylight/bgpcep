@@ -29,7 +29,7 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
     public static final int CTYPE = 2;
 
     @Override
-    public LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException {
+    public LabelType parseLabel(final ByteBuf buffer) {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         return new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
                 new GeneralizedLabelBuilder().setGeneralizedLabel(ByteArray.readAllBytes(buffer)).build()).build();

@@ -9,7 +9,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderUtil.filterPcepTopologies;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev171025.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -60,7 +60,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
     public synchronized void init() {
         LOG.info("PCEP Topology Deployer initialized");
         this.listenerRegistration = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(CONFIGURATION, this.networTopology.child(Topology.class)), this);
+                DataTreeIdentifier.create(CONFIGURATION, this.networTopology.child(Topology.class)), this);
     }
 
     @Override

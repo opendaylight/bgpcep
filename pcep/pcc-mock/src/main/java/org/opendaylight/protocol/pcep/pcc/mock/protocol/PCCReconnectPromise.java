@@ -92,7 +92,7 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
         }
 
         @Override
-        public void operationComplete(final ChannelFuture cf) throws Exception {
+        public void operationComplete(final ChannelFuture cf) {
             synchronized (this.lock) {
                 if (PCCReconnectPromise.this.isCancelled()) {
                     if (cf.isSuccess()) {

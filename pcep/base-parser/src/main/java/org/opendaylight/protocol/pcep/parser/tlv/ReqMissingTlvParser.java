@@ -29,7 +29,7 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
     public static final int TYPE = 3;
 
     @Override
-    public ReqMissing parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+    public ReqMissing parseTlv(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

@@ -9,9 +9,9 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nonnull;
@@ -171,7 +172,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
-        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        final FluentFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
@@ -559,7 +560,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 }
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     /**

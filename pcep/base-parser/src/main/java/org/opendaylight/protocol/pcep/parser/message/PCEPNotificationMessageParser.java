@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -114,7 +114,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
             if (obj instanceof Rp) {
                 final Rp rp = (Rp) obj;
                 if (rp.isProcessingRule()) {
-                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.absent()));
+                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                     return null;
                 }
                 requestParameters.add(new RpsBuilder().setRp(rp).build());

@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
@@ -17,6 +16,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;

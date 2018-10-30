@@ -1028,7 +1028,7 @@ public class PCEPObjectParserTest {
     }
 
     @Test
-    public void testLspaObjectSerializerDefence() throws IOException, PCEPDeserializerException {
+    public void testLspaObjectSerializerDefence() throws IOException {
         final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
 
@@ -1057,7 +1057,7 @@ public class PCEPObjectParserTest {
     }
 
     @Test
-    public void testCloseObjectWithVendorInformationTlv() throws IOException, PCEPDeserializerException {
+    public void testCloseObjectWithVendorInformationTlv() throws PCEPDeserializerException {
         final byte[] closeBytes = {
             0x0f, 0x10, 0x00, 0x14,
             0x00, 0x00, 0x00, 0x05,

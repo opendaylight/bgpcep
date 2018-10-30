@@ -12,9 +12,9 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev171113.PcepEntityIdStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev171113.StatefulCapabilitiesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev171113.StatefulMessagesStatsAug;
@@ -205,10 +205,10 @@ public final class PcepStateUtils {
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
                 .child(Node.class, new NodeKey(new NodeId(nodeId))).build();
 
-        final ReadOnlyTransaction rot = dataBroker.newReadOnlyTransaction();
+        final ReadTransaction rot = dataBroker.newReadOnlyTransaction();
 
         try {
-            return rot.read(LogicalDatastoreType.OPERATIONAL, topology).get().orNull();
+            return rot.read(LogicalDatastoreType.OPERATIONAL, topology).get().orElse(null);
         } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read node {}", nodeId, e);
         }

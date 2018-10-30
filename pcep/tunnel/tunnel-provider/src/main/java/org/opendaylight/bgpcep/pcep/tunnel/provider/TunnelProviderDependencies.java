@@ -9,8 +9,9 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.NetworkTopologyPcepService;
 import org.osgi.framework.BundleContext;
@@ -19,13 +20,14 @@ final class TunnelProviderDependencies {
     private final DataBroker dataBroker;
     private final ClusterSingletonServiceProvider cssp;
     private final NetworkTopologyPcepService ntps;
-    private final RpcProviderRegistry rpcProviderRegistry;
+    private final RpcProviderService rpcProviderRegistry;
     private final BundleContext bundleContext;
 
     TunnelProviderDependencies(
             final DataBroker dataBroker,
             final ClusterSingletonServiceProvider cssp,
-            final RpcProviderRegistry rpcProviderRegistry,
+            final RpcProviderService rpcProviderRegistry,
+            final RpcConsumerRegistry rpcConsumerRegistry,
             final BundleContext bundleContext
     ) {
 
@@ -33,7 +35,7 @@ final class TunnelProviderDependencies {
         this.cssp = requireNonNull(cssp);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.bundleContext = requireNonNull(bundleContext);
-        this.ntps = this.rpcProviderRegistry.getRpcService(NetworkTopologyPcepService.class);
+        this.ntps = rpcConsumerRegistry.getRpcService(NetworkTopologyPcepService.class);
     }
 
     DataBroker getDataBroker() {
@@ -48,7 +50,7 @@ final class TunnelProviderDependencies {
         return this.ntps;
     }
 
-    RpcProviderRegistry getRpcProviderRegistry() {
+    RpcProviderService getRpcProviderRegistry() {
         return this.rpcProviderRegistry;
     }
 
