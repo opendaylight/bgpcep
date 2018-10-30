@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 
 import com.google.common.base.Ticker;
 import io.netty.util.concurrent.DefaultPromise;
@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.util.CheckUtil;
+import org.opendaylight.protocol.util.CheckTestUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.TlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open;
@@ -54,7 +54,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * @throws Exception exception
      */
     @Test
-    public void testSessionCharsAccBoth() throws Exception {
+    public void testSessionCharsAccBoth() {
         this.serverSession.channelActive(null);
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof Open);
@@ -91,7 +91,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * @throws Exception exception
      */
     @Test
-    public void testFailedToEstablishTLS() throws Exception {
+    public void testFailedToEstablishTLS() {
         this.tlsSessionNegotiator.channelActive(null);
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof Starttls);
@@ -129,7 +129,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * @throws Exception exception
      */
     @Test
-    public void testSessionCharsAccMe() throws Exception {
+    public void testSessionCharsAccMe() {
         this.serverSession.channelActive(null);
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof Open);
@@ -217,32 +217,28 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         PCEPSessionImpl.setTicker(this.ticker);
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         final Queue<Long> qeue = session.getUnknownMessagesTimes();
-        CheckUtil.checkEquals(()-> assertEquals(1, qeue.size()));
+        CheckTestUtil.checkEquals(()-> assertEquals(1, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckUtil.checkEquals(()-> assertEquals(2, qeue.size()));
+        CheckTestUtil.checkEquals(()-> assertEquals(2, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        CheckTestUtil.checkEquals(()-> assertEquals(3, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckUtil.checkEquals(()-> assertEquals(4, qeue.size()));
+        CheckTestUtil.checkEquals(()-> assertEquals(4, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        CheckTestUtil.checkEquals(()-> assertEquals(3, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        CheckTestUtil.checkEquals(()-> assertEquals(3, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckUtil.checkEquals(()-> assertEquals(4, qeue.size()));
+        CheckTestUtil.checkEquals(()-> assertEquals(4, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckUtil.checkEquals(()-> assertEquals(5, qeue.size()));
+        CheckTestUtil.checkEquals(()-> assertEquals(5, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         synchronized (client) {
             while (client.up) {
                 client.wait();
             }
         }
-        CheckUtil.checkEquals(()-> assertTrue(!client.up));
-    }
-
-    @After
-    public void tearDown() {
+        CheckTestUtil.checkEquals(()-> assertTrue(!client.up));
     }
 
     private final class TestTicker extends Ticker {

@@ -8,11 +8,9 @@
 
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
-
 import io.netty.buffer.ByteBuf;
-
+import java.util.Optional;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
@@ -39,7 +37,7 @@ public class SimpleVendorInformationTlvRegistry implements VendorInformationTlvR
     public Optional<VendorInformationTlv> parseVendorInformationTlv(final EnterpriseNumber enterpriseNumber, final ByteBuf buffer) throws PCEPDeserializerException {
         final TlvParser parser = this.handlers.getParser(Ints.checkedCast(enterpriseNumber.getValue()));
         if (parser == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
         return Optional.of((VendorInformationTlv) parser.parseTlv(buffer));
     }

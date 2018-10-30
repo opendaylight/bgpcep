@@ -12,11 +12,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
-import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
-import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkReceivedMessages;
+import static org.opendaylight.protocol.util.CheckTestUtil.waitFutureSuccess;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -29,6 +28,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -117,7 +117,7 @@ public abstract class PCCMockCommon {
     }
 
     Channel createServer(final TestingSessionListenerFactory factory,
-            final InetSocketAddress serverAddress2) throws InterruptedException {
+            final InetSocketAddress serverAddress2) {
         return createServer(factory, serverAddress2, null);
     }
 
@@ -213,7 +213,7 @@ public abstract class PCCMockCommon {
         final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(this.messageRegistry);
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(),
-                0, -1, new HashedWheelTimer(), Optional.absent());
+                0, -1, new HashedWheelTimer(), Optional.empty());
 
         return pccDispatcher.createClient(this.remoteAddress, -1, () -> {
             this.pccSessionListener = new PCCSessionListener(1, tunnelManager, false);

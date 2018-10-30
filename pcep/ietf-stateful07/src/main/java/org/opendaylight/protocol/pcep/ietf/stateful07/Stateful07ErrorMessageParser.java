@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -85,7 +85,7 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
         } else if (obj instanceof Rp) {
             final Rp o = (Rp) obj;
             if (o.isProcessingRule()) {
-                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.absent()));
+                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                 return null;
             }
             requestParameters.add(new RpsBuilder().setRp(o).build());

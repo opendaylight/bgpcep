@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
@@ -19,6 +18,7 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,8 +67,7 @@ public class PCCTunnelManagerImplTest {
     private PCCSession session1;
     @Mock
     private PCCSession session2;
-    @Mock
-    private Optional<TimerHandler> timerHandler;
+    private Optional<TimerHandler> timerHandler = Optional.empty();
 
     @Before
     public void setUp() {
@@ -101,7 +100,7 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testOnSessionDownAndDelegateBack() throws InterruptedException {
+    public void testOnSessionDownAndDelegateBack() {
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 1, 10, TIMER, this.timerHandler);
         checkSessionUp(this.session1, tunnelManager);
         checkSessionUp(this.session2, tunnelManager);
@@ -136,7 +135,7 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testReportToAll() throws InterruptedException {
+    public void testReportToAll() {
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, this.timerHandler);
         tunnelManager.onSessionUp(this.session1);
         tunnelManager.onSessionUp(this.session2);
@@ -297,7 +296,7 @@ public class PCCTunnelManagerImplTest {
     }
 
     private static Updates createUpdate(final long plspId) {
-        return createUpdate(plspId, Optional.absent());
+        return createUpdate(plspId, Optional.empty());
     }
 
     private static Updates createUpdate(final long plspId, final Optional<Boolean> delegate) {
@@ -335,16 +334,16 @@ public class PCCTunnelManagerImplTest {
     }
 
     private static Requests createRequestsRemove(final long plspId) {
-        return createRequests(plspId, Optional.of(Boolean.TRUE), Optional.absent());
+        return createRequests(plspId, Optional.of(Boolean.TRUE), Optional.empty());
     }
 
     private static Requests createRequestsDelegate(final long plspId) {
-        return createRequests(plspId, Optional.absent(), Optional.of(Boolean.TRUE));
+        return createRequests(plspId, Optional.empty(), Optional.of(Boolean.TRUE));
     }
 
     @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     private static Requests createRequests(final long plspId) {
-        return createRequests(plspId, Optional.absent(), Optional.absent());
+        return createRequests(plspId, Optional.empty(), Optional.empty());
     }
 
     private static PCEPErrors getError(final Pcerr errorMessage) {

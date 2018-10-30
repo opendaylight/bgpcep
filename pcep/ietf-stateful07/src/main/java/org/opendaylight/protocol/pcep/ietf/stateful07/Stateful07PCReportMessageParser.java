@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -139,7 +139,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             final Lsp lsp = (Lsp) object;
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
             if (!lspViaSR && lsp.getPlspId().getValue() != 0 && (tlvs == null || tlvs.getLspIdentifiers() == null)) {
-                final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.absent());
+                final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.empty());
                 errors.add(errorMsg);
                 return false;
             }
@@ -148,7 +148,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             return true;
         }
 
-        errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.absent()));
+        errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.empty()));
         return false;
     }
 
@@ -159,7 +159,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         if (object instanceof Ero) {
             pBuilder.setEro((Ero) object);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.absent()));
+            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.empty()));
             return false;
         }
         parsePath(objects, pBuilder);

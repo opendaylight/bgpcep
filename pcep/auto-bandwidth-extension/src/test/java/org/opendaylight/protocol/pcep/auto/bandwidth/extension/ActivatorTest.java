@@ -11,14 +11,13 @@ package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 
 public class ActivatorTest {
 
     @Test
-    public void testStartImplPCEPExtensionProviderContext() throws PCEPDeserializerException {
+    public void testStartImplPCEPExtensionProviderContext() {
         final Activator activator = new Activator(1);
         final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.create();
         final List<AutoCloseable> registrations = activator.startImpl(ctx);

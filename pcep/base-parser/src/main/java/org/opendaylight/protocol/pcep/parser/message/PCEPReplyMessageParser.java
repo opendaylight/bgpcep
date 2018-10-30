@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.protocol.pcep.parser.util.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -167,7 +167,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     protected Replies getValidReply(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         Object object = objects.remove(0);
         if (!(object instanceof Rp)) {
-            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.absent()));
+            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.empty()));
             return null;
         }
         final Rp rp = (Rp) object;

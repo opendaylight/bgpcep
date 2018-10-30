@@ -89,7 +89,7 @@ public class PCEPObjectParserTest {
     private static final byte[] SPEAKER_ID = {0x01, 0x02, 0x03, 0x04};
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new BaseParserExtensionActivator();
         this.act.start(this.ctx);
@@ -244,7 +244,7 @@ public class PCEPObjectParserTest {
     }
 
     @Test
-    public void testSrpObject() throws IOException, PCEPDeserializerException {
+    public void testSrpObject() throws PCEPDeserializerException {
         final CInitiated00SrpObjectParser parser = new CInitiated00SrpObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0,
             (byte) 0x01, 0, 0, 0, (byte) 0x01 });

@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
@@ -18,7 +17,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.Optional;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
@@ -47,7 +46,7 @@ public final class Main {
         throw new UnsupportedOperationException();
     }
 
-    public static void main(final String[] args) throws InterruptedException, ExecutionException {
+    public static void main(final String[] args) {
         InetSocketAddress localAddress = new InetSocketAddress(LOCALHOST, DEFAULT_LOCAL_PORT);
         List<InetSocketAddress> remoteAddress = Collections
                 .singletonList(new InetSocketAddress(LOCALHOST, DEFAULT_REMOTE_PORT));
@@ -141,13 +140,13 @@ public final class Main {
                             + "reconnectes requires to be higher than lsps");
         }
 
-        final Optional<BigInteger> dBVersion = Optional.fromNullable(syncOptDBVersion);
+        final Optional<BigInteger> dBVersion = Optional.ofNullable(syncOptDBVersion);
         final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt,
                 password, reconnectTime, redelegationTimeout,
             stateTimeout, getCapabilities());
         final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, disonnectAfterXSeconds,
                 reconnectAfterXSeconds);
-        pccs.createPCCs(BigInteger.valueOf(lsps), Optional.fromNullable(timerHandler));
+        pccs.createPCCs(BigInteger.valueOf(lsps), Optional.ofNullable(timerHandler));
         if (!triggeredInitSync) {
             timerHandler.createDisconnectTask();
         }

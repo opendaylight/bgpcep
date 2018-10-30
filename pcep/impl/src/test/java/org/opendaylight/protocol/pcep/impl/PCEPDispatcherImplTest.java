@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 import io.netty.bootstrap.Bootstrap;
@@ -130,7 +130,7 @@ public class PCEPDispatcherImplTest {
     }
 
     @Test(timeout = 20000)
-    public void testCreateDuplicateClient() throws InterruptedException, ExecutionException {
+    public void testCreateDuplicateClient() throws InterruptedException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);

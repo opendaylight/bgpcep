@@ -23,11 +23,11 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -128,7 +128,9 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     @Mock
     private ClusterSingletonServiceProvider cssp;
     @Mock
-    private RpcProviderRegistry rpr;
+    private RpcProviderService rpr;
+    @Mock
+    private RpcConsumerRegistry rpcs;
     @Mock
     private BundleContext bundleContext;
 
@@ -176,8 +178,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Before
-    public void setUp() throws SchedulerException, InterruptedException, ExecutionException,
-            TransactionCommitFailedException {
+    public void setUp() throws SchedulerException, InterruptedException, ExecutionException {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn(true).when(this.instruction).checkedExecutionStart();
         Mockito.doNothing().when(this.instruction).executionCompleted(InstructionStatus.Failed, null);
@@ -218,12 +219,12 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         Mockito.doReturn(this.instructionFuture).when(this.scheduler)
                 .scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
 
-        Mockito.doReturn(this.topologyService).when(this.rpr)
+        Mockito.doReturn(this.topologyService).when(this.rpcs)
                 .getRpcService(NetworkTopologyPcepService.class);
 
         createInitialTopology();
         final TunnelProviderDependencies dependencies = new TunnelProviderDependencies(getDataBroker(), this.cssp,
-                this.rpr, this.bundleContext);
+                this.rpr, this.rpcs, this.bundleContext);
         this.tunnelProgramming = new TunnelProgramming(this.scheduler, dependencies);
     }
 

@@ -10,19 +10,18 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
@@ -75,12 +74,12 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     }
 
     private static void checkLinkIsnotExistent(final InstanceIdentifier<Topology> tii,
-            final AddLspInputBuilder addLspInput, final ReadOnlyTransaction rt) {
+            final AddLspInputBuilder addLspInput, final ReadTransaction rt) {
         final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, addLspInput.getNode(),
                 addLspInput.getName());
         try {
-            Preconditions.checkState(!rt.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().isPresent());
-        } catch (final ReadFailedException e) {
+            Preconditions.checkState(!rt.read(LogicalDatastoreType.OPERATIONAL, lii).get().isPresent());
+        } catch (final InterruptedException | ExecutionException e) {
             throw new IllegalStateException("Failed to ensure link existence.", e);
         }
     }
@@ -131,7 +130,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private static Optional<AddressFamily> findIpv6(final List<IpAddress> srcs, final List<IpAddress> dsts) {
@@ -148,12 +147,12 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
     protected ListenableFuture<OperationResult> invokeOperation() {
-        try (ReadOnlyTransaction transaction = this.dataProvider.newReadOnlyTransaction()) {
+        try (ReadTransaction transaction = this.dataProvider.newReadOnlyTransaction()) {
             AddLspInput addLspInput = createAddLspInput(transaction);
 
             return Futures.transform(
@@ -162,7 +161,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         }
     }
 
-    private AddLspInput createAddLspInput(final ReadOnlyTransaction transaction) {
+    private AddLspInput createAddLspInput(final ReadTransaction transaction) {
         final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.p2pTunnelInput);
         final TpReader dr = new TpReader(transaction, tii, this.p2pTunnelInput.getDestination());
         final TerminationPoint dp = requireNonNull(dr.getTp());
@@ -216,8 +215,8 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
         private DataObject read(final InstanceIdentifier<?> id) {
             try {
-                return this.rt.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet().get();
-            } catch (ReadFailedException | IllegalStateException e) {
+                return this.rt.read(LogicalDatastoreType.OPERATIONAL, id).get().get();
+            } catch (final InterruptedException | ExecutionException e) {
                 throw new IllegalStateException("Failed to read data.", e);
             }
         }
