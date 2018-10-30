@@ -211,7 +211,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testPathBindingTlvMplsLabel() throws PCEPDeserializerException {
+    public void testPathBindingTlvMplsLabel() {
         final byte[] pathBindingBytes = {0x00, 0x1f, 0x00, 0x06, 0x00, 0x00, (byte) 0xA8, 0x0F, (byte) 0x60, 0x00, 0x00, 0x00};
         final PathBindingTlvParser parser = new PathBindingTlvParser();
         final PathBindingBuilder builder = new PathBindingBuilder();
@@ -230,7 +230,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testPathBindingTlvMplsLabelEntry() throws PCEPDeserializerException {
+    public void testPathBindingTlvMplsLabelEntry() {
         final byte[] pathBindingBytes = {0x00, 0x1f, 0x00, 0x06, 0x00, 0x01, (byte) 0xA8, (byte) 0x0F, (byte) 0x6D, (byte)0xAD, 0x00, 0x00};
         final PathBindingTlvParser parser = new PathBindingTlvParser();
         final PathBindingBuilder builder = new PathBindingBuilder();

@@ -42,7 +42,7 @@ public class PCEPOverloadObjectParser implements ObjectParser, ObjectSerializer 
     }
 
     @Override
-    public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
+    public Object parseObject(final ObjectHeader header, final ByteBuf buffer) {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final OverloadBuilder builder = new OverloadBuilder();
         buffer.readBytes(RESERVED + FLAGS);

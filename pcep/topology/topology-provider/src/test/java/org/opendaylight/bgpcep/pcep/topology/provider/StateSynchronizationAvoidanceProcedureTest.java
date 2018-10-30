@@ -13,14 +13,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.PathComputationClient1;
@@ -59,7 +59,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
     }
 
     @Test
-    public void testNodePersisted() throws ReadFailedException {
+    public void testNodePersisted() throws ExecutionException, InterruptedException {
         final PCEPSession session = getPCEPSession(getOpen(null), getOpen(null));
         this.listener.onSessionUp(session);
         //report LSP + LSP-DB version number
@@ -119,7 +119,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                         .pcep.sync.optimizations.rev171025.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
                         .setLspDbVersionValue(BigInteger.ONE).build()).build()).build())
                 .setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational(OperationalStatus.Active)
-                .build(), Optional.absent(), createPath(Collections.emptyList()));
+                .build(), Optional.empty(), createPath(Collections.emptyList()));
         this.listener.onMessage(session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertFalse(pcc.getReportedLsp().isEmpty());
@@ -151,7 +151,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
                                 .optimizations.rev171025.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
                                 .setLspDbVersionValue(BigInteger.valueOf(2L)).build()).build()).build()),
-                true, false), Optional.absent(),
+                true, false), Optional.empty(),
                 createPath(Collections.emptyList()));
         this.listener.onMessage(session, syncMsg);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {

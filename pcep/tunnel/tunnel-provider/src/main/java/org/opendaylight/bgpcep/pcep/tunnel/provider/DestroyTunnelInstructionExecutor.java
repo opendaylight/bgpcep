@@ -11,13 +11,13 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev171025.RemoveLspInputBuilder;
@@ -49,15 +49,15 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
     protected ListenableFuture<OperationResult> invokeOperation() {
         final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.pcepDestroyTunnelInput);
         final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, this.pcepDestroyTunnelInput);
-        try (ReadOnlyTransaction t = this.dataProvider.newReadOnlyTransaction()) {
+        try (ReadTransaction t = this.dataProvider.newReadOnlyTransaction()) {
             final Node node;
             final Link link;
             try {
                 // The link has to exist
-                link = t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
+                link = t.read(LogicalDatastoreType.OPERATIONAL, lii).get().get();
                 // The source node has to exist
                 node = TunelProgrammingUtil.sourceNode(t, tii, link).get();
-            } catch (IllegalStateException | ReadFailedException e) {
+            } catch (final InterruptedException | ExecutionException e) {
                 LOG.debug("Link or node does not exist.", e);
                 return TunelProgrammingUtil.RESULT;
             }

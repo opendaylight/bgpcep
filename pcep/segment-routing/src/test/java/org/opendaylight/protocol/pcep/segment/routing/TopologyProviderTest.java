@@ -10,17 +10,17 @@ package org.opendaylight.protocol.pcep.segment.routing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
 import com.google.common.collect.Lists;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractPCEPSessionTest;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractTopologySessionListener;
 import org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionListenerFactory;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -66,7 +66,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
     }
 
     @Test
-    public void testOnReportMessage() throws ReadFailedException {
+    public void testOnReportMessage() throws ExecutionException, InterruptedException {
         this.listener.onSessionUp(this.session);
 
         Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", 1L, true);

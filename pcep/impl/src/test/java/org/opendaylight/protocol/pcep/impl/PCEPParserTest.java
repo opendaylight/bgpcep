@@ -38,7 +38,7 @@ public class PCEPParserTest {
     }
 
     @Test
-    public void testByteToMessageEncoding() throws Exception {
+    public void testByteToMessageEncoding() {
         PCEPByteToMessageDecoder decoder = new PCEPByteToMessageDecoder(this.registry);
         List<Object> out = new ArrayList<>();
         decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { 32, 2, 0, 4 }), out);

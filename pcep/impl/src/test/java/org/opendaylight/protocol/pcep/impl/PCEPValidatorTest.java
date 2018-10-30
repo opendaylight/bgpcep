@@ -166,7 +166,7 @@ public class PCEPValidatorTest {
     private TestVendorInformationActivator viObjAct;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new BaseParserExtensionActivator();
         this.viObjAct = new TestVendorInformationActivator();
@@ -334,7 +334,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testKeepAliveMsg() throws IOException, PCEPDeserializerException {
+    public void testKeepAliveMsg() throws PCEPDeserializerException {
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { 32, 2, 0, 4 });
         final PCEPKeepAliveMessageParser parser = new PCEPKeepAliveMessageParser(this.objectRegistry);
         final KeepaliveBuilder builder = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build());

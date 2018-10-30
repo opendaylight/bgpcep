@@ -13,12 +13,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -209,7 +209,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
                                 .optimizations.rev171025.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
                                 .setLspDbVersionValue(BigInteger.ONE).build()).build()).build())
                 .setPlspId(new PlspId(1L)).setSync(true).setRemove(false)
-                        .setOperational(OperationalStatus.Active).build(), Optional.absent(),
+                        .setOperational(OperationalStatus.Active).build(), Optional.empty(),
             createPath(Collections.emptyList()));
     }
 }

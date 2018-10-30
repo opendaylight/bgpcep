@@ -62,7 +62,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     private static final int NOT_GUILTY = 6;
 
     @Override
-    public RsvpErrorSpec parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+    public RsvpErrorSpec parseTlv(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

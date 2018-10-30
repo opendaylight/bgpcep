@@ -28,7 +28,7 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
     public static final int TYPE = 2;
 
     @Override
-    public OverloadDuration parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+    public OverloadDuration parseTlv(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

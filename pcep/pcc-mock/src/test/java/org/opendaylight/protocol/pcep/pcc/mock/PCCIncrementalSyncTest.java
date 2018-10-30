@@ -8,11 +8,11 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import com.google.common.base.Optional;
 import io.netty.channel.Channel;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
@@ -44,7 +44,7 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
         final int expetecdNumberOfLspAndEndOfSync = 3;
         final BigInteger expectedFinalDBVersion = BigInteger.valueOf(10);
         final TestingSessionListener sessionListenerAfterReconnect = getListener(factory);
-        checkResyncSession(Optional.absent(), expetecdNumberOfLspAndEndOfSync, 3, numberOflspAndDBv,
+        checkResyncSession(Optional.empty(), expetecdNumberOfLspAndEndOfSync, 3, numberOflspAndDBv,
                 expectedFinalDBVersion, sessionListenerAfterReconnect);
         channel.close().get();
     }

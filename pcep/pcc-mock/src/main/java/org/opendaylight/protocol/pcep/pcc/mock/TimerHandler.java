@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import com.google.common.base.Optional;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class TimerHandler {
 
     final class DisconnectTask implements TimerTask {
         @Override
-        public void run(final Timeout timeout) throws Exception {
+        public void run(final Timeout timeout) {
             LOG.debug("Disconnects PCCs, reconnect after {} seconds", TimerHandler.this.reconnectAfter);
             TimerHandler.this.pccDispatcher.close();
             if (TimerHandler.this.reconnectAfter > 0) {
@@ -50,10 +50,10 @@ public class TimerHandler {
 
     final class ReconnectTask implements TimerTask {
         @Override
-        public void run(final Timeout timeout) throws Exception {
+        public void run(final Timeout timeout) {
             LOG.debug("Reconnecting PCCs}");
             TimerHandler.this.pcCsBuilder.createPCCs(TimerHandler.this.syncOptDBVersion.isPresent()
-                    ? TimerHandler.this.syncOptDBVersion.get() : BigInteger.ONE, Optional.absent());
+                    ? TimerHandler.this.syncOptDBVersion.get() : BigInteger.ONE, Optional.empty());
         }
     }
 

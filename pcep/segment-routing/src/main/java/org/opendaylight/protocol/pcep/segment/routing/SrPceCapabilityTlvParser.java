@@ -38,7 +38,7 @@ public class SrPceCapabilityTlvParser implements TlvParser, TlvSerializer {
     }
 
     @Override
-    public Tlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+    public Tlv parseTlv(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }
