@@ -17,7 +17,7 @@ public interface EnterpriseSpecificInformationParser {
 
     void serializeEnterpriseSpecificInformation(final EnterpriseSpecificInformation enterpriseSpecificInformation, final ByteBuf buffer);
 
-    EnterpriseSpecificInformation parseEnterpriseSpecificInformation(final ByteBuf buffer) throws PCEPDeserializerException;
+    EnterpriseSpecificInformation parseEnterpriseSpecificInformation(final ByteBuf buffer);
 
     EnterpriseNumber getEnterpriseNumber();
 }

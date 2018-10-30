@@ -8,12 +8,12 @@
 
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.protocol.pcep.parser.util.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -96,7 +96,7 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
             throw new PCEPDeserializerException("Pcmonrep message cannot be empty.");
         }
         if (!(objects.get(0) instanceof Monitoring)) {
-            errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.absent()));
+            errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.empty()));
             return null;
         }
         final PcmonrepMessageBuilder builder = new PcmonrepMessageBuilder();

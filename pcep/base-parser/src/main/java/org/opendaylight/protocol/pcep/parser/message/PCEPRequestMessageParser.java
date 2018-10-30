@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -167,7 +167,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (requests != null) {
             mBuilder.setRequests(requests);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.absent()));
+            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.empty()));
         }
         if (!objects.isEmpty()) {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
@@ -195,13 +195,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             Rp rpObj = null;
             if (!(objects.get(0) instanceof Rp)) {
                 // if RP obj is missing return error only
-                errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.absent()));
+                errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.empty()));
                 return null;
             }
             rpObj = (Rp) objects.get(0);
             objects.remove(0);
             if (!rpObj.isProcessingRule()) {
-                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.absent()));
+                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
             } else {
                 rBuilder.setRp(rpObj);
             }

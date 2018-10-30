@@ -9,12 +9,12 @@ package org.opendaylight.protocol.pcep.spi;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -55,7 +55,7 @@ public class AbstractMessageParserTest {
         }
 
         @Override
-        protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+        protected Message validate(final List<Object> objects, final List<Message> errors) {
             if (objects.get(0) instanceof VendorInformationObject) {
                 final RepliesBuilder repsBuilder = new RepliesBuilder();
                 repsBuilder.setVendorInformationObject(addVendorInformationObjects(objects));
@@ -65,7 +65,7 @@ public class AbstractMessageParserTest {
             } else if (objects.get(0) instanceof ErrorObject) {
                 final short errorType = ((ErrorObject) objects.get(0)).getType();
                 final short errorValue = ((ErrorObject) objects.get(0)).getValue();
-                return createErrorMsg(PCEPErrors.forValue(errorType, errorValue), Optional.absent());
+                return createErrorMsg(PCEPErrors.forValue(errorType, errorValue), Optional.empty());
             }
             return null;
         }

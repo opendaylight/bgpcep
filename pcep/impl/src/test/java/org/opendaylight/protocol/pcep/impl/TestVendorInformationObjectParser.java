@@ -27,8 +27,7 @@ public class TestVendorInformationObjectParser extends AbstractVendorInformation
     }
 
     @Override
-    public EnterpriseSpecificInformation parseEnterpriseSpecificInformation(final ByteBuf buffer)
-            throws PCEPDeserializerException {
+    public EnterpriseSpecificInformation parseEnterpriseSpecificInformation(final ByteBuf buffer) {
         return new TestEnterpriseSpecificInformation(buffer.readInt());
     }
 

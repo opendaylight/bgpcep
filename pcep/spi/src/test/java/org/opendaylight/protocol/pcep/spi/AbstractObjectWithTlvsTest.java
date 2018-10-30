@@ -9,11 +9,11 @@ package org.opendaylight.protocol.pcep.spi;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -51,7 +51,7 @@ public class AbstractObjectWithTlvsTest {
         }
 
         @Override
-        public Object parseObject(ObjectHeader header, ByteBuf buffer) throws PCEPDeserializerException {
+        public Object parseObject(ObjectHeader header, ByteBuf buffer) {
             return null;
         }
 

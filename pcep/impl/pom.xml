@@ -137,8 +137,7 @@
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.opendaylight.protocol.pcep.impl.*,
-                            org.opendaylight.controller.config.yang.pcep.impl.*
+                            org.opendaylight.protocol.pcep.impl.*
                             ;-split-package:=error
                         </Export-Package>
                     </instructions>

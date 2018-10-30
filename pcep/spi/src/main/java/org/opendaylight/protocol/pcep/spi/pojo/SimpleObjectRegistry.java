@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -25,9 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-/**
- *
- */
 public final class SimpleObjectRegistry implements ObjectRegistry {
     private final HandlerRegistry<DataContainer, ObjectParser, ObjectSerializer> handlers = new HandlerRegistry<>();
 

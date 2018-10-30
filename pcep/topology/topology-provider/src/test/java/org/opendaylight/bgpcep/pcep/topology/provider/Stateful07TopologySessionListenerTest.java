@@ -15,30 +15,27 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvs;
-import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.util.CheckUtil;
+import org.opendaylight.protocol.util.CheckTestUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev171025.Pcinitiate;
@@ -147,7 +144,7 @@ public class Stateful07TopologySessionListenerTest
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp())
                         .setTlvs(tlvs).setPlspId(new PlspId(1L)).setSync(false).setRemove(false)
                         .setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)),
@@ -204,7 +201,7 @@ public class Stateful07TopologySessionListenerTest
         final Updates upd = updateMsg.getPcupdMessage().getUpdates().get(0);
         final long srpId2 = upd.getSrp().getOperationId().getValue();
         final Tlvs tlvs2 = createLspTlvs(upd.getLsp().getPlspId().getValue(), false,
-                this.newDestinationAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.newDestinationAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt2 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(upd.getLsp()).setTlvs(tlvs2)
                         .setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId2)), MsgBuilderUtil.createPath(upd.getPath()
@@ -262,7 +259,7 @@ public class Stateful07TopologySessionListenerTest
         final Requests req2 = pcinitiate2.getPcinitiateMessage().getRequests().get(0);
         final long srpId3 = req2.getSrp().getOperationId().getValue();
         final Tlvs tlvs3 = createLspTlvs(req2.getLsp().getPlspId().getValue(), false,
-                this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt3 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req2.getLsp()).setTlvs(tlvs3)
                         .setRemove(true).setSync(true).setOperational(OperationalStatus.Down).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId3)), MsgBuilderUtil.createPath(Collections.emptyList()));
@@ -288,10 +285,11 @@ public class Stateful07TopologySessionListenerTest
 
     @Test
     public void testOnUnhandledErrorMessage() {
-        final Message errorMsg = AbstractMessageParser.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, Optional.absent());
+        final Message errorMsg = AbstractMessageParser.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, Optional.empty());
         this.listener.onSessionUp(this.session);
-        assertTrue(this.listener.onMessage(Optional.<AbstractTopologySessionListener.MessageContext>absent().orNull(),
-                errorMsg));
+        assertTrue(this.listener.onMessage(Optional.<AbstractTopologySessionListener.MessageContext>empty()
+                .orElse(null),
+            errorMsg));
     }
 
     @Test
@@ -326,8 +324,7 @@ public class Stateful07TopologySessionListenerTest
      * All the pcep session registration should be closed when the session manager is closed.
      */
     @Test
-    public void testOnServerSessionManagerDown() throws InterruptedException, ExecutionException,
-            TransactionCommitFailedException {
+    public void testOnServerSessionManagerDown() throws InterruptedException, ExecutionException {
         this.listener.onSessionUp(this.session);
         // the session should not be closed when session manager is up
         assertFalse(this.session.isClosed());
@@ -346,8 +343,7 @@ public class Stateful07TopologySessionListenerTest
      * otherwise it would be a problem when the session is up while it's not registered with session manager.
      */
     @Test
-    public void testOnServerSessionManagerUnstarted() throws InterruptedException, ExecutionException,
-            TransactionCommitFailedException, ReadFailedException {
+    public void testOnServerSessionManagerUnstarted() throws InterruptedException, ExecutionException {
         stopSessionManager();
         assertFalse(this.session.isClosed());
         this.listener.onSessionUp(this.session);
@@ -398,7 +394,7 @@ public class Stateful07TopologySessionListenerTest
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true)
                         .setRemove(false).setOperational(OperationalStatus.Active).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
@@ -413,7 +409,7 @@ public class Stateful07TopologySessionListenerTest
      * When a session is somehow duplicated in controller, the controller should drop existing session.
      */
     @Test
-    public void testDuplicatedSession() throws ReadFailedException {
+    public void testDuplicatedSession() throws ExecutionException, InterruptedException {
         this.listener.onSessionUp(this.session);
 
         // create node
@@ -422,7 +418,7 @@ public class Stateful07TopologySessionListenerTest
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true)
                         .setRemove(false).setOperational(OperationalStatus.Active).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
@@ -443,7 +439,7 @@ public class Stateful07TopologySessionListenerTest
     }
 
     @Test
-    public void testConflictingListeners() throws Exception {
+    public void testConflictingListeners() {
         this.listener.onSessionUp(this.session);
         assertFalse(this.session.isClosed());
         Stateful07TopologySessionListener conflictingListener =
@@ -461,7 +457,7 @@ public class Stateful07TopologySessionListenerTest
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true)
                         .setRemove(false).setOperational(OperationalStatus.Active).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
@@ -531,7 +527,7 @@ public class Stateful07TopologySessionListenerTest
     }
 
     @Test
-    public void testAddAlreadyExistingLsp() throws UnknownHostException, InterruptedException, ExecutionException {
+    public void testAddAlreadyExistingLsp() throws InterruptedException, ExecutionException {
         this.listener.onSessionUp(this.session);
         this.topologyRpcs.addLsp(createAddLspInput());
         assertEquals(1, this.receivedMsgs.size());
@@ -540,7 +536,7 @@ public class Stateful07TopologySessionListenerTest
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
                 .setPlspId(new PlspId(1L))
                 .setSync(false)
@@ -572,7 +568,7 @@ public class Stateful07TopologySessionListenerTest
             assertTrue(e instanceof TimeoutException);
         }
         Thread.sleep(AbstractPCEPSessionTest.RPC_TIMEOUT);
-        CheckUtil.checkEquals(() -> {
+        CheckTestUtil.checkEquals(() -> {
             final RpcResult<AddLspOutput> rpcResult = addLspResult.get();
             assertNotNull(rpcResult);
             assertEquals(rpcResult.getResult().getFailure(), FailureType.Unsent);
@@ -589,7 +585,7 @@ public class Stateful07TopologySessionListenerTest
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         //delegate set to true
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
                 .setPlspId(new PlspId(1L))
@@ -613,7 +609,7 @@ public class Stateful07TopologySessionListenerTest
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.absent());
+                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         //delegate set to false
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
                         .setPlspId(

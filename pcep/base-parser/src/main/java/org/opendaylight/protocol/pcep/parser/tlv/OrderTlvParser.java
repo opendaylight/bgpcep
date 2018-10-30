@@ -28,7 +28,7 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
     public static final int TYPE = 5;
 
     @Override
-    public Order parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+    public Order parseTlv(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

@@ -10,11 +10,11 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertNotNull;
 
-import com.google.common.base.Optional;
 import io.netty.channel.Channel;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -32,14 +32,16 @@ public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
         assertNotNull(pceSessionListener.getSession());
-        checkResyncSession(Optional.absent(), 11, 11, null, BigInteger.valueOf(10), pceSessionListener);
+        checkResyncSession(Optional.empty(), 11, 11, null,
+            BigInteger.valueOf(10), pceSessionListener);
         channel.close().get();
     }
 
     @Override
     protected List<PCEPCapability> getCapabilities() {
         final List<PCEPCapability> caps = new ArrayList<>();
-        caps.add(new PCEPStatefulCapability(true, true, true, false, false, false, true));
+        caps.add(new PCEPStatefulCapability(true, true, true, false,
+            false, false, true));
         return caps;
     }
 }

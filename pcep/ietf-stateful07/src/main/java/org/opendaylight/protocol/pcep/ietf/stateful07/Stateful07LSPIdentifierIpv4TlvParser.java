@@ -42,7 +42,7 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
     private static final int V4_LENGTH = 16;
 
     @Override
-    public LspIdentifiers parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+    public LspIdentifiers parseTlv(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }

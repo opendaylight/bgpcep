@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
@@ -33,7 +34,8 @@ public final class PCCMock {
         Preconditions.checkArgument(args.length > 0, "Host and port of server must be provided.");
         final List<PCEPCapability> caps = new ArrayList<>();
         final PCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory((short) 120, (short) 30, caps);
-        final PCEPSessionNegotiatorFactory snf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
+        final PCEPSessionNegotiatorFactory<? extends PCEPSession> snf
+            = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
         final HostAndPort serverHostAndPort = HostAndPort.fromString(args[0]);
         final InetSocketAddress serverAddr = new InetSocketAddress(serverHostAndPort.getHost(), serverHostAndPort
                 .getPortOrDefault(12345));

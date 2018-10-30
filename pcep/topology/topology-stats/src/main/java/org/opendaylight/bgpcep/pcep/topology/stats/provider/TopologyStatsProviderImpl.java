@@ -24,14 +24,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.grouping.PcepSessionStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev171113.PcepTopologyNodeStatsAug;
@@ -51,7 +50,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     private final Map<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> statsMap = new HashMap<>();
     private final DataBroker dataBroker;
     private final int timeout;
-    private BindingTransactionChain transactionChain;
+    private TransactionChain transactionChain;
     private ScheduledFuture<?> scheduleTask;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -121,8 +120,8 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
-            final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public synchronized void onTransactionChainFailed(final TransactionChain chain,
+            final Transaction transaction, final Throwable cause) {
         LOG.error("Transaction chain {} failed for tx {}",
                 chain, transaction != null ? transaction.getIdentifier() : null, cause);
 
@@ -133,7 +132,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     }
 
     @Override
-    public synchronized void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+    public synchronized void onTransactionChainSuccessful(final TransactionChain chain) {
         LOG.debug("Transaction chain {} successful.", chain);
     }
 

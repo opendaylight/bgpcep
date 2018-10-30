@@ -84,7 +84,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
 
     private class BootstrapConnectListener implements ChannelFutureListener {
         @Override
-        public void operationComplete(final ChannelFuture cf) throws Exception {
+        public void operationComplete(final ChannelFuture cf) {
             synchronized (PCEPProtocolSessionPromise.this) {
                 PCEPProtocolSessionPromise.LOG.debug("Promise {} connection resolved",
                         PCEPProtocolSessionPromise.this);

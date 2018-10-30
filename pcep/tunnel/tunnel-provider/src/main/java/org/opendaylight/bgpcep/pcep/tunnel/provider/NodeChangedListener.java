@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -21,15 +20,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import java.util.concurrent.ExecutionException;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev171025.Path1;
@@ -177,8 +177,8 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
 
     private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final ReadWriteTransaction trans,
             final IpAddress addr, final InstanceIdentifier<Node> sni, final Boolean inControl)
-            throws ReadFailedException {
-        final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).checkedGet().get();
+            throws ExecutionException, InterruptedException {
+        final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get().get();
         if (topo.getNode() != null) {
             for (final Node n : topo.getNode()) {
                 if (n.getTerminationPoint() != null) {
@@ -231,7 +231,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     }
 
     private void create(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> identifier,
-            final ReportedLsp value) throws ReadFailedException {
+            final ReportedLsp value) throws ExecutionException, InterruptedException {
         final InstanceIdentifier<Node> ni = identifier.firstIdentifierOf(Node.class);
 
         final Path1 rl = value.getPath().get(0).augmentation(Path1.class);
@@ -301,10 +301,10 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     }
 
     private void remove(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> identifier,
-            final ReportedLsp value) throws ReadFailedException {
+            final ReportedLsp value) throws ExecutionException, InterruptedException {
         final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(identifier, value));
 
-        final Optional<Link> ol = trans.read(LogicalDatastoreType.OPERATIONAL, li).checkedGet();
+        final Optional<Link> ol = trans.read(LogicalDatastoreType.OPERATIONAL, li).get();
         if (!ol.isPresent()) {
             return;
         }
@@ -314,7 +314,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         trans.delete(LogicalDatastoreType.OPERATIONAL, li);
 
         LOG.debug("Searching for orphan links/nodes");
-        final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).checkedGet();
+        final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get();
         Preconditions.checkState(ot.isPresent());
 
         final Topology topology = ot.get();
@@ -497,14 +497,14 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             if (oldValue != null) {
                 try {
                     remove(trans, i, oldValue);
-                } catch (final ReadFailedException e) {
+                } catch (final ExecutionException | InterruptedException e) {
                     LOG.warn("Failed to remove LSP {}", i, e);
                 }
             }
             if (newValue != null) {
                 try {
                     create(trans, i, newValue);
-                } catch (final ReadFailedException e) {
+                } catch (final ExecutionException | InterruptedException e) {
                     LOG.warn("Failed to add LSP {}", i, e);
                 }
             }

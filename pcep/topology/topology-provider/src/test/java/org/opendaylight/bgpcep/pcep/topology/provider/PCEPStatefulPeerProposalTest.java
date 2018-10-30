@@ -11,25 +11,24 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev171025.Tlvs3;
@@ -58,14 +57,14 @@ public class PCEPStatefulPeerProposalTest {
     @Mock
     private DataBroker dataBroker;
     @Mock
-    private CheckedFuture<Optional<LspDbVersion>, ReadFailedException> listenableFutureMock;
+    private FluentFuture<Optional<LspDbVersion>> listenableFutureMock;
     @Mock
-    private ReadOnlyTransaction rt;
+    private ReadTransaction rt;
     private TlvsBuilder tlvsBuilder;
 
     @SuppressWarnings("unchecked")
     @Before
-    public void setUp() throws InterruptedException, ExecutionException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         this.tlvsBuilder = new TlvsBuilder().addAugmentation(
                 Tlvs1.class,
@@ -106,7 +105,7 @@ public class PCEPStatefulPeerProposalTest {
 
     @Test
     public void testSetPeerProposalAbsent() throws InterruptedException, ExecutionException {
-        doReturn(Optional.absent()).when(this.listenableFutureMock).get();
+        doReturn(Optional.empty()).when(this.listenableFutureMock).get();
         final PCEPStatefulPeerProposal peerProposal = PCEPStatefulPeerProposal
                 .createStatefulPeerProposal(this.dataBroker, TOPOLOGY_IID);
         peerProposal.setPeerProposal(NODE_ID, this.tlvsBuilder, null);

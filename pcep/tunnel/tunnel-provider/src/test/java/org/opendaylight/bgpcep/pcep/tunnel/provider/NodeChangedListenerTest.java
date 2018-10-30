@@ -11,7 +11,7 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
 import com.google.common.collect.Lists;
 import java.util.Collections;
@@ -20,11 +20,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -97,12 +96,12 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         wTx.commit().get();
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(),
                 PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
-        this.listenerRegistration = getDataBroker().registerDataTreeChangeListener(new DataTreeIdentifier<>(
+        this.listenerRegistration = getDataBroker().registerDataTreeChangeListener(DataTreeIdentifier.create(
                 LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class)), nodeListener);
     }
 
     @Test
-    public void testNodeChangedListener() throws ReadFailedException, InterruptedException, ExecutionException {
+    public void testNodeChangedListener() throws InterruptedException, ExecutionException {
         // add node -> create two nodes with TPs and link
         createNode(NODE1_ID, NODE1_IPV4, LSP1_NAME, LSP1_ID, NODE2_IPV4);
         final Topology tunnelTopo = readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, tunnelTopo1 -> {
