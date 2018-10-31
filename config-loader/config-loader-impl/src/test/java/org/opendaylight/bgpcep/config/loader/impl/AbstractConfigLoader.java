@@ -15,8 +15,8 @@ import static org.mockito.Mockito.doReturn;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.concurrent.GuardedBy;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +31,7 @@ import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
 public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerTest {
     @GuardedBy("this")
-    private final List<WatchEvent<?>> eventList = new ArrayList<>();
+    private final List<WatchEvent<?>> eventList = new CopyOnWriteArrayList<>();
     protected ConfigLoaderImpl configLoader;
     @Mock
     private WatchService watchService;
