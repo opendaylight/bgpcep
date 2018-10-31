@@ -9,12 +9,12 @@
 package org.opendaylight.protocol.data.change.counter;
 
 import static org.junit.Assert.assertEquals;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
-import static org.opendaylight.protocol.util.CheckUtil.checkPresentOperational;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkPresentOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.DataChangeCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.Counter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.CounterKey;
