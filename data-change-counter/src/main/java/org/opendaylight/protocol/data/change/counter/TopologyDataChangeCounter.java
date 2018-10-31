@@ -14,17 +14,16 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.DataChangeCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.Counter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.CounterBuilder;
@@ -39,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener<Topology>,
-        TransactionChainListener, AutoCloseable {
+    TransactionChainListener, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounter.class);
 
@@ -49,7 +48,7 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
     private final LongAdder count = new LongAdder();
     private final ListenerRegistration<TopologyDataChangeCounter> registration;
     private final AtomicBoolean closed = new AtomicBoolean(false);
-    private BindingTransactionChain transactionChain;
+    private TransactionChain transactionChain;
 
     TopologyDataChangeCounter(final DataBroker dataBroker, final String counterId, final String topologyName) {
         this.dataBroker = dataBroker;
@@ -61,7 +60,7 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
         final InstanceIdentifier<Topology> topoIId = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyName))).build();
         this.registration = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, topoIId), this);
+            DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, topoIId), this);
         LOG.debug("Data change counter {} initiated", this.counterId);
     }
 
@@ -105,8 +104,8 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
-            final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public synchronized void onTransactionChainFailed(final TransactionChain chain, final Transaction transaction,
+        final Throwable cause) {
         LOG.warn("Transaction chain failure. Transaction: {}", transaction, cause);
         if (!closed.get()) {
             this.transactionChain.close();
@@ -115,7 +114,7 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
     }
 
     @Override
-    public synchronized void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+    public synchronized void onTransactionChainSuccessful(final TransactionChain chain) {
         LOG.debug("Transaction chain successful. {}", chain);
     }
 }
