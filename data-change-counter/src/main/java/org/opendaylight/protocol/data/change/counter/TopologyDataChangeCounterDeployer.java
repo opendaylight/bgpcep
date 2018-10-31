@@ -13,12 +13,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgpcep.data.change.counter.config.rev170424.DataChangeCounterConfig;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -41,7 +41,7 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
 
     public synchronized void register() {
         this.registration = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, DATA_CHANGE_COUNTER_IID), this);
+            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, DATA_CHANGE_COUNTER_IID), this);
         LOG.info("Data change counter Deployer initiated");
     }
 
