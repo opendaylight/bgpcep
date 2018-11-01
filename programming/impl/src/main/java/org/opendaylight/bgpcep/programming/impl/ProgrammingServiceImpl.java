@@ -33,13 +33,12 @@ import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -67,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.submit.instruction.output.result.failure._case.FailureBuilder;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -87,9 +87,9 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
     private final String instructionId;
     private final ServiceGroupIdentifier sgi;
     private final ClusterSingletonServiceRegistration csspReg;
-    private final RpcProviderRegistry rpcProviderRegistry;
+    private final RpcProviderService rpcProviderRegistry;
     @GuardedBy("this")
-    private RpcRegistration<ProgrammingService> reg;
+    private ObjectRegistration<ProgrammingService> reg;
     @GuardedBy("this")
     private ServiceRegistration<?> serviceRegistration;
 
@@ -157,7 +157,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
     }
 
     ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationPublishService notifs,
-            final ListeningExecutorService executor, final RpcProviderRegistry rpcProviderRegistry,
+            final ListeningExecutorService executor, final RpcProviderService rpcProviderRegistry,
             final ClusterSingletonServiceProvider cssp, final Timer timer, final String instructionId) {
         this.dataProvider = requireNonNull(dataProvider);
         this.instructionId = requireNonNull(instructionId);
@@ -175,7 +175,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
     @Override
     public synchronized void instantiateServiceInstance() {
         LOG.info("Instruction Queue service {} instantiated", this.sgi.getValue());
-        this.reg = this.rpcProviderRegistry.addRpcImplementation(ProgrammingService.class, this);
+        this.reg = this.rpcProviderRegistry.registerRpcImplementation(ProgrammingService.class, this);
 
         final WriteTransaction wt = this.dataProvider.newWriteOnlyTransaction();
         wt.put(LogicalDatastoreType.OPERATIONAL, this.qid, new InstructionsQueueBuilder()

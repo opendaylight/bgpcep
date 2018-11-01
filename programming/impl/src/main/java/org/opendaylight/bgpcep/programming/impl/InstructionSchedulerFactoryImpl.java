@@ -18,9 +18,9 @@ import java.util.Hashtable;
 import java.util.concurrent.Executors;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -34,14 +34,14 @@ public final class InstructionSchedulerFactoryImpl implements InstructionSchedul
     private final DataBroker dataProvider;
     private final NotificationPublishService notifs;
     private final Timer timer;
-    private final RpcProviderRegistry rpcProviderRegistry;
+    private final RpcProviderService rpcProviderRegistry;
     private final BundleContext bundleContext;
     private final ClusterSingletonServiceProvider cssp;
     private final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
     public InstructionSchedulerFactoryImpl(
             final DataBroker dataProvider,
-            final RpcProviderRegistry rpcProviderRegistry,
+            final RpcProviderService rpcProviderRegistry,
             final NotificationPublishService notifs,
             final Timer timer,
             final ClusterSingletonServiceProvider cssp,
