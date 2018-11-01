@@ -11,20 +11,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
-import static org.opendaylight.protocol.util.CheckUtil.readDataConfiguration;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentConfiguration;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataConfiguration;
 
-import javax.management.MalformedObjectNameException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4Routes;
@@ -36,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev160309.DeletePrefixOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev160309.OdlBgpAppPeerBenchmarkService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev160309.output.Result;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
@@ -46,14 +44,14 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
     private static final String PEER_RIB_ID = "app-peer";
 
     @Mock
-    private RpcProviderRegistry rpcRegistry;
+    private RpcProviderService rpcRegistry;
     @Mock
-    private RoutedRpcRegistration<OdlBgpAppPeerBenchmarkService> registration;
+    private ObjectRegistration<OdlBgpAppPeerBenchmarkService> registration;
 
     @Before
-    public void setUp() throws MalformedObjectNameException, TransactionCommitFailedException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
-        doReturn(this.registration).when(this.rpcRegistry).addRpcImplementation(Mockito.any(),
+        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementation(Mockito.any(),
                 Mockito.any(OdlBgpAppPeerBenchmarkService.class));
         doNothing().when(this.registration).close();
     }
