@@ -21,16 +21,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.application.rib.tables.routes.Ipv4RoutesCaseBuilder;
@@ -70,6 +68,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev160309.OdlBgpAppPeerBenchmarkService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev160309.output.Result;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev160309.output.ResultBuilder;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -93,13 +92,13 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     private static final String SLASH = "/";
     private static final String PREFIX = SLASH + "32";
 
-    private final BindingTransactionChain txChain;
-    private final RpcRegistration<OdlBgpAppPeerBenchmarkService> rpcRegistration;
+    private final TransactionChain txChain;
+    private final ObjectRegistration<OdlBgpAppPeerBenchmarkService> rpcRegistration;
     private final InstanceIdentifier<ApplicationRib> appIID;
     private final InstanceIdentifier<Ipv4Routes> routesIId;
     private final String appRibId;
 
-    public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderRegistry rpcProviderRegistry,
+    public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderService rpcProviderRegistry,
             final String appRibId) {
         this.appRibId = requireNonNull(appRibId);
         this.txChain = bindingDataBroker.createTransactionChain(this);
@@ -109,7 +108,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         final InstanceIdentifier tablesIId = this.appIID
                 .child(Tables.class, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         this.routesIId = tablesIId.child(Ipv4Routes.class);
-        this.rpcRegistration = rpcProviderRegistry.addRpcImplementation(OdlBgpAppPeerBenchmarkService.class, this);
+        this.rpcRegistration = rpcProviderRegistry.registerRpcImplementation(OdlBgpAppPeerBenchmarkService.class, this);
         LOG.info("BGP Application Peer Benchmark Application started.");
     }
 
@@ -135,7 +134,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
+    public void onTransactionChainFailed(final TransactionChain chain, final Transaction transaction,
             final Throwable cause) {
         LOG.error("Broken chain {} in DatastoreBaAbstractWrite, transaction {}", chain, transaction.getIdentifier(),
             cause);
@@ -143,7 +142,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+    public void onTransactionChainSuccessful(final TransactionChain chain) {
         LOG.debug("DatastoreBaAbstractWrite closed successfully, chain {}", chain);
     }
 
