@@ -10,11 +10,11 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"
                odl:type="default"/>
-    <reference id="rpcRegistry" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
+    <reference id="rpcRegistry" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
     <reference id="notificationService"
-               interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService"/>
+               interface="org.opendaylight.mdsal.binding.api.NotificationPublishService"/>
     <reference id="timer" interface="io.netty.util.Timer" odl:type="global-timer"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>

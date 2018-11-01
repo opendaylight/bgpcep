@@ -14,8 +14,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
-import static org.opendaylight.protocol.util.CheckUtil.checkPresentOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkPresentOperational;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
