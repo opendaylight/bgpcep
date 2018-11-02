@@ -11,8 +11,8 @@ package org.opendaylight.bgpcep.config.loader.bmp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.opendaylight.bgpcep.config.loader.bmp.BmpMonitorConfigFileProcessor.ODL_BMP_MONITORS_IID;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
-import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentConfiguration;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkPresentConfiguration;
 
 import org.junit.Before;
 import org.junit.Test;
