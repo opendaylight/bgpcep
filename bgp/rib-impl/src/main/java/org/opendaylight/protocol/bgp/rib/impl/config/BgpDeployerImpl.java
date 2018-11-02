@@ -169,11 +169,11 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         final List<DataObjectModification<? extends DataObject>> peerMod = deletedConfig.stream()
                 .filter(mod -> !mod.getDataType().equals(Global.class))
                 .collect(Collectors.toList());
-        if (!peerMod.isEmpty()) {
-            handleGlobalChange(peerMod, rootIdentifier);
-        }
         if (!globalMod.isEmpty()) {
-            handlePeersChange(globalMod, rootIdentifier);
+            handleGlobalChange(globalMod, rootIdentifier);
+        }
+        if (!peerMod.isEmpty()) {
+            handlePeersChange(peerMod, rootIdentifier);
         }
     }
 
