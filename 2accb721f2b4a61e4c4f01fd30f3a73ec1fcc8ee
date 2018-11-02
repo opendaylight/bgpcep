@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ea946cd_1099eeb3",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleRegistryTest.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-02T16:45:12Z",
+      "side": 1,
+      "message": "testEmptyMp.... or EOTMpUn..",
+      "range": {
+        "startLine": 225,
+        "startChar": 16,
+        "endLine": 225,
+        "endChar": 35
+      },
+      "revId": "2accb721f2b4a61e4c4f01fd30f3a73ec1fcc8ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb27fa35_09565f9a",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleRegistryTest.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-02T16:45:12Z",
+      "side": 1,
+      "message": ", never()",
+      "range": {
+        "startLine": 235,
+        "startChar": 40,
+        "endLine": 235,
+        "endChar": 50
+      },
+      "revId": "2accb721f2b4a61e4c4f01fd30f3a73ec1fcc8ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
