@@ -91,7 +91,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
-            <artifactId>rfc8343</artifactId>
+            <artifactId>rfc7223</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
