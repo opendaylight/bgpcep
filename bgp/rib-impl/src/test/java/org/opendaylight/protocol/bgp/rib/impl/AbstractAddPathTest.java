@@ -232,12 +232,18 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
     BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
         final SimpleSessionListener sessionListener) throws InterruptedException {
+        return createPeerSession(peer,bgpParameters, sessionListener, AS_NUMBER);
+    }
+
+    BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
+                                     final SimpleSessionListener sessionListener,
+                                     final AsNumber remoteAsNumber) throws InterruptedException {
         final StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
         final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss,
-            this.worker, clientRegistry);
+                this.worker, clientRegistry);
         clientRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListener,
-            new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(peer),
-                AS_NUMBER, Lists.newArrayList(bgpParameters)));
+                new BGPSessionPreferences(remoteAsNumber, HOLDTIMER, new BgpId(peer),
+                        AS_NUMBER, Lists.newArrayList(bgpParameters)));
 
         return connectPeer(peer, clientDispatcher);
     }
