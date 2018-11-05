@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesSentCounters;
@@ -77,6 +78,8 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
     private final LongAdder prefixesSentCounter = new LongAdder();
+    private final TablesKey tablesKey;
+    private boolean initalState;
 
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
             final CodecsRegistry registry, final RIBSupport<?, ?, ?, ?> support, final DOMDataTreeChangeService service,
@@ -85,8 +88,15 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         this.support = requireNonNull(support);
         this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
+        this.tablesKey = tablesKey;
         final YangInstanceIdentifier adjRibOutId = ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId))
                 .node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+        /*
+         *  After listener registration should always be executed ODTC. Even when empty table is present
+         *  in data store. Within this first ODTC execution we should advertise present routes and than
+         *  send EOR marker. initialState flag is distinguishing between first ODTC execution and the rest.
+         */
+        this.initalState = true;
         this.registerDataTreeChangeListener = service.registerDataTreeChangeListener(
                 new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
@@ -111,6 +121,11 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 processSupportedFamilyRoutes(child);
             }
+        }
+        if (initalState) {
+            final Update endOfRib = BgpPeerUtil.createEndOfRib(this.tablesKey);
+            this.session.write(endOfRib);
+            this.initalState = false;
         }
         this.session.flush();
     }

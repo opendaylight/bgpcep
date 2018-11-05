@@ -94,52 +94,52 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
 
         //new best route so far
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
-        checkReceivedMessages(listener4, 1);
-        checkReceivedMessages(listener5, 1);
-        assertEquals(UPD_100, listener5.getListMsg().get(0));
+        checkReceivedMessages(listener4, 2);
+        checkReceivedMessages(listener5, 2);
+        assertEquals(UPD_100, listener5.getListMsg().get(1));
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
         configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
                 this.serverRegistry);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
-        checkReceivedMessages(listener6, 1);
-        assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
+        checkReceivedMessages(listener6, 2);
+        assertEquals(UPD_NA_100, listener6.getListMsg().get(1));
         session6.close();
         checkPeersPresentOnDataStore(5);
 
         //the second best route
         sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 50, 2);
-        checkReceivedMessages(listener4, 1);
-        checkReceivedMessages(listener5, 2);
-        assertEquals(UPD_50, listener5.getListMsg().get(1));
+        checkReceivedMessages(listener4, 2);
+        checkReceivedMessages(listener5, 3);
+        assertEquals(UPD_50, listener5.getListMsg().get(2));
 
         //new best route
         sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 3);
-        assertEquals(UPD_200, listener5.getListMsg().get(2));
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 4);
+        assertEquals(UPD_200, listener5.getListMsg().get(3));
 
         //the worst prefix, no changes
         sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 20, 2);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 3);
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 4);
 
         //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported, none for non add path
         sendWithdrawalRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 5);
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 6);
 
         //we advertise again to try new test
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 6);
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 7);
 
         //withdraw second best route, 2 advertisement (1 withdrawal) for add-path supported,
         // 1 withdrawal for non add path
         sendWithdrawalRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
-        checkReceivedMessages(listener4, 3);
-        checkReceivedMessages(listener5, 8);
+        checkReceivedMessages(listener4, 4);
+        checkReceivedMessages(listener5, 9);
 
         session1.close();
         session2.close();
