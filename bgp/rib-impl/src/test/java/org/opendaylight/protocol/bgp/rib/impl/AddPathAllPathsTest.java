@@ -143,9 +143,9 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         //the best route
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
-        checkReceivedMessages(listener4, 1);
-        checkReceivedMessages(listener5, 1);
-        assertEquals(UPD_100, listener5.getListMsg().get(0));
+        checkReceivedMessages(listener4, 2);
+        checkReceivedMessages(listener5, 2);
+        assertEquals(UPD_100, listener5.getListMsg().get(1));
 
         final BGPPeerState peer1State = peer1.getPeerState();
         assertNull(peer1State.getGroupId());
@@ -164,7 +164,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(State.UP, peer1State.getBGPSessionState().getSessionState());
         checkEquals(()-> assertEquals(1L,
                 peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
-        checkEquals(()-> assertEquals(0L,
+        checkEquals(()-> assertEquals(1L,
                 peer1State.getBGPPeerMessagesState().getUpdateMessagesSentCount()));
 
         final BGPSessionState sessionStatePeer1 = peer1State.getBGPSessionState();
@@ -202,8 +202,8 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
                 PeerRole.RrClient, this.serverRegistry);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
-        checkReceivedMessages(listener6, 1);
-        assertEquals(UPD_NA_100, listener6.getListMsg().get(0));
+        checkReceivedMessages(listener6, 2);
+        assertEquals(UPD_NA_100, listener6.getListMsg().get(1));
         causeBGPError(session6);
         checkEquals(()-> assertEquals(1L,
                 peer6.getPeerState().getBGPPeerMessagesState().getNotificationMessagesSentCount()));
@@ -212,15 +212,15 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         //the second best route
         sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 50, 2);
-        checkReceivedMessages(listener4, 1);
-        checkReceivedMessages(listener5, 2);
-        assertEquals(UPD_50, listener5.getListMsg().get(1));
+        checkReceivedMessages(listener4, 2);
+        checkReceivedMessages(listener5, 3);
+        assertEquals(UPD_50, listener5.getListMsg().get(2));
 
         //new best route
         sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 3);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 3);
-        assertEquals(UPD_200, listener5.getListMsg().get(2));
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 4);
+        assertEquals(UPD_200, listener5.getListMsg().get(3));
 
         peer4State = peer4.getPeerState();
         assertNull(peer4State.getGroupId());
@@ -240,7 +240,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(0L, peerMessagesState.getNotificationMessagesReceivedCount());
         assertEquals(0L, peerMessagesState.getNotificationMessagesSentCount());
         assertEquals(0L, peerMessagesState.getUpdateMessagesReceivedCount());
-        assertEquals(2L, peerMessagesState.getUpdateMessagesSentCount());
+        assertEquals(3L, peerMessagesState.getUpdateMessagesSentCount());
 
         final BGPSessionState bgpSessionState = peer4State.getBGPSessionState();
         assertEquals(State.UP, bgpSessionState.getSessionState());
@@ -275,27 +275,27 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         //the worst route
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 20, 3);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 4);
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 5);
         assertEquals(UPD_200.getAttributes().getLocalPref(),
-                ((Update) listener4.getListMsg().get(1)).getAttributes().getLocalPref());
-        assertEquals(UPD_20, listener5.getListMsg().get(3));
+                ((Update) listener4.getListMsg().get(2)).getAttributes().getLocalPref());
+        assertEquals(UPD_20, listener5.getListMsg().get(4));
 
         //withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, none for non add path
         sendWithdrawalRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 2);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 5);
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 6);
 
         //we advertise again to try new test
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 3);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 6);
-        assertEquals(UPD_200, listener5.getListMsg().get(2));
+        checkReceivedMessages(listener4, 3);
+        checkReceivedMessages(listener5, 7);
+        assertEquals(UPD_200, listener5.getListMsg().get(3));
 
         //withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, 1 for non add path (withdrawal)
         sendWithdrawalRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
-        checkReceivedMessages(listener4, 3);
-        checkReceivedMessages(listener5, 7);
+        checkReceivedMessages(listener4, 4);
+        checkReceivedMessages(listener5, 8);
 
         sendNotification(session1);
         checkEquals(()-> assertEquals(1L,
