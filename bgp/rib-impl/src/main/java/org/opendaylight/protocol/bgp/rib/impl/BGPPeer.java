@@ -67,13 +67,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.Nlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpAddPathTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
@@ -327,7 +324,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         } else {
             mpUnreach = MessageUtil.getMpUnreachNlri(attrs);
         }
-        final boolean endOfRib = isEndOfRib(message);
+        final boolean endOfRib = BgpPeerUtil.isEndOfRib(message);
         if (mpUnreach != null) {
             if (endOfRib) {
                 final TablesKey tablesKey = new TablesKey(mpUnreach.getAfi(), mpUnreach.getSafi());
@@ -598,26 +595,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         new ScheduledThreadPoolExecutor(1)
                 .schedule(this::handleSelectionReferralTimer, referalTimerNanos - elapsedNanos, TimeUnit.NANOSECONDS);
-    }
-
-    private boolean isEndOfRib(final UpdateMessage msg) {
-        if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
-            final Attributes msgAttributes = msg.getAttributes();
-            if (msgAttributes != null) {
-                final Attributes2 pa = msgAttributes.augmentation(Attributes2.class);
-                if (msgAttributes.augmentation(Attributes1.class) == null && pa != null) {
-                    //only MP_UNREACH_NLRI allowed in EOR
-                    if (pa.getMpUnreachNlri() != null && pa.getMpUnreachNlri().getWithdrawnRoutes() == null) {
-                        // EOR message contains only MPUnreach attribute and no NLRI
-                        return true;
-                    }
-                }
-            } else {
-                // true for empty IPv4 Unicast
-                return true;
-            }
-        }
-        return false;
     }
 
     private void releaseConnectionGracefully() {
