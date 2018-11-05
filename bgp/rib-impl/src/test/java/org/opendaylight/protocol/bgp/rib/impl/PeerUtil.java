@@ -55,7 +55,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
@@ -143,23 +142,6 @@ final class PeerUtil {
                                 .setMpReachNlri(mpReach)
                                 .build())
                 .build()).build();
-    }
-
-    static Update createEndOfRib(final TablesKey key) {
-        final Update update;
-        if (key.getAfi() == Ipv4AddressFamily.class) {
-            update = new UpdateBuilder().build();
-        } else {
-            update = new UpdateBuilder()
-                    .setAttributes(new AttributesBuilder()
-                            .addAugmentation(Attributes2.class, new Attributes2Builder()
-                                    .setMpUnreachNlri(new MpUnreachNlriBuilder()
-                                            .setAfi(key.getAfi())
-                                            .setSafi(key.getSafi())
-                                            .build()).build()).build()).build();
-        }
-
-        return update;
     }
 
     static BgpParameters createBgpParameters(final List<TablesKey> advertisedTables,
