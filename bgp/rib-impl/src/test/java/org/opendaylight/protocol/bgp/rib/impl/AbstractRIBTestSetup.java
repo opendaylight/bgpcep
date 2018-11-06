@@ -31,18 +31,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.dom.codec.gen.impl.DataObjectSerializerGenerator;
 import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
@@ -54,6 +45,15 @@ import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataBrokerExtension;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -115,7 +115,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private DOMDataBroker dom;
 
     @Mock
-    private BindingTransactionChain chain;
+    private TransactionChain chain;
 
     @Mock
     private WriteTransaction transWrite;
@@ -124,7 +124,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private DOMTransactionChain domChain;
 
     @Mock
-    private DOMDataWriteTransaction domTransWrite;
+    private DOMDataTreeWriteTransaction domTransWrite;
 
     @Mock
     private FluentFuture<? extends CommitInfo> future;
@@ -188,7 +188,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     @SuppressWarnings("unchecked")
     private void mockedMethods() throws Exception {
         MockitoAnnotations.initMocks(this);
-        final ReadOnlyTransaction readTx = mock(ReadOnlyTransaction.class);
+        final ReadTransaction readTx = mock(ReadTransaction.class);
         doReturn(new TestListenerRegistration()).when(this.service)
                 .registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class),
                         any(ClusteredDOMDataTreeChangeListener.class));
@@ -208,7 +208,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
         doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
                 eq(YangInstanceIdentifier.of(BgpRib.QNAME)), any(NormalizedNode.class));
-        doReturn(map).when(this.dom).getSupportedExtensions();
+        doReturn(map).when(this.dom).getExtensions();
         doReturn(this.domChain).when(this.dom).createTransactionChain(any(AbstractPeer.class));
         doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
         doReturn(false).when(this.optRib).isPresent();
@@ -263,7 +263,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return this.rib;
     }
 
-    public DOMDataWriteTransaction getTransaction() {
+    public DOMDataTreeWriteTransaction getTransaction() {
         return this.domTransWrite;
     }
 

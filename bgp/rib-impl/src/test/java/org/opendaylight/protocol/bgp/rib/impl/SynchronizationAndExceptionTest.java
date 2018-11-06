@@ -46,12 +46,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -134,7 +134,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Mock
     private DOMTransactionChain domChain;
     @Mock
-    private DOMDataWriteTransaction tx;
+    private DOMDataTreeWriteTransaction tx;
 
     @Override
     @Before
@@ -195,7 +195,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doNothing().when(this.domChain).close();
 
         doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
-                .when(this.domBroker).getSupportedExtensions();
+                .when(this.domBroker).getExtensions();
         doNothing().when(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL),

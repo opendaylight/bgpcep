@@ -21,14 +21,14 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -70,7 +70,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters, TransactionChainListener,
-        Peer, PeerTransactionChain {
+        DOMTransactionChainListener, Peer, PeerTransactionChain {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
     protected final RIB rib;
     final String name;
@@ -80,7 +80,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     @GuardedBy("this")
     private DOMTransactionChain domChain;
     @GuardedBy("this")
-    BindingTransactionChain bindingChain;
+    TransactionChain bindingChain;
     byte[] rawIdentifier;
     @GuardedBy("this")
     PeerId peerId;
@@ -124,7 +124,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             return CommitInfo.emptyFluentFuture();
         }
         LOG.info("Closed per Peer {} removed", peerPath);
-        final DOMDataWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
         tx.delete(LogicalDatastoreType.OPERATIONAL, peerPath);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
@@ -176,7 +176,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @Override
-    public final void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+    public final void onTransactionChainSuccessful(final TransactionChain chain) {
         LOG.debug("Transaction chain {} successful.", chain);
     }
 

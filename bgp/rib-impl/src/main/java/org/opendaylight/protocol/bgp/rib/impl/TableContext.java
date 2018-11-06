@@ -13,6 +13,7 @@ import java.util.Collection;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
@@ -40,7 +41,7 @@ final class TableContext {
     }
 
 
-    void createEmptyTableStructure(final DOMDataWriteTransaction tx) {
+    void createEmptyTableStructure(final DOMDataTreeWriteTransaction tx) {
         this.tableSupport.createEmptyTableStructure(tx, this.tableId);
     }
 
@@ -48,12 +49,12 @@ final class TableContext {
         tx.delete(LogicalDatastoreType.OPERATIONAL, this.tableId);
     }
 
-    Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri,
+    Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri,
                                                          final Attributes attributes) {
         return this.tableSupport.writeRoutes(tx, this.tableId, nlri, attributes);
     }
 
-    void removeRoutes(final DOMDataWriteTransaction tx, final MpUnreachNlri nlri) {
+    void removeRoutes(final DOMDataTreeWriteTransaction tx, final MpUnreachNlri nlri) {
         this.tableSupport.deleteRoutes(tx, this.tableId, nlri);
     }
 

@@ -18,12 +18,12 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Locale;
 import java.util.Set;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.impl.spi.BmpRouterPeer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -145,7 +145,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         this.receivedOpenCodec = tree.getSubtreeCodec(RECEIVED_OPEN_IID);
 
         final Set<TablesKey> peerTables = setPeerTables(peerUp.getReceivedOpen());
-        final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.peerYangIId, createPeerEntry(peerUp));
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -202,7 +202,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
     private synchronized void onStatsReports(final StatsReportsMessage statsReports) {
         if (this.up) {
-            final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
+            final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
             wTx.merge(LogicalDatastoreType.OPERATIONAL, this.peerYangIId.node(Stats.QNAME),
                     createStats(statsReports, statsReports.getPeerHeader().getTimestampSec()));
             wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -220,7 +220,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private synchronized void onRouteMirror(final RouteMirroringMessage mirror) {
-        final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, this.peerYangIId.node(Mirrors.QNAME),
                 createMirrors(mirror, mirror.getPeerHeader().getTimestampSec()));
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -237,7 +237,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private synchronized void onPeerDown() {
-        final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.peerYangIId);
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
