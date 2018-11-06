@@ -8,22 +8,21 @@
 package org.opendaylight.protocol.util;
 
 import static com.google.common.base.Verify.verify;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.util.concurrent.Future;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -48,37 +47,39 @@ public final class CheckUtil {
     }
 
     public static <R, T extends DataObject> R readDataOperational(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid, final Function<T, R> function) throws ReadFailedException {
+            final InstanceIdentifier<T> iid, final Function<T, R> function) throws InterruptedException,
+                ExecutionException {
         return readDataOperational(dataBroker, iid, function, TIMEOUT);
     }
 
     @VisibleForTesting
     static <R, T extends DataObject> R readDataOperational(final DataBroker dataBroker,
             final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout)
-            throws ReadFailedException {
+            throws InterruptedException, ExecutionException {
         return readData(dataBroker, OPERATIONAL, iid, function, timeout);
     }
 
     public static <R, T extends DataObject> R readDataConfiguration(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid, final Function<T, R> function) throws ReadFailedException {
+            final InstanceIdentifier<T> iid, final Function<T, R> function) throws InterruptedException,
+                ExecutionException {
         return readDataConfiguration(dataBroker, iid, function, TIMEOUT);
     }
 
     @VisibleForTesting
     static <R, T extends DataObject> R readDataConfiguration(final DataBroker dataBroker,
             final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout)
-            throws ReadFailedException {
+            throws InterruptedException, ExecutionException {
         return readData(dataBroker, CONFIGURATION, iid, function, timeout);
     }
 
     private static <R, T extends DataObject> R readData(final DataBroker dataBroker, final LogicalDatastoreType ldt,
             final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout)
-            throws ReadFailedException {
+            throws InterruptedException, ExecutionException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         do {
-            try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final Optional<T> data = tx.read(ldt, iid).checkedGet();
+            try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
+                final Optional<T> data = tx.read(ldt, iid).get();
                 if (data.isPresent()) {
                     try {
                         return function.apply(data.get());
@@ -93,32 +94,33 @@ public final class CheckUtil {
     }
 
     public static <T extends DataObject> T checkPresentOperational(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid) throws ReadFailedException {
+            final InstanceIdentifier<T> iid) throws InterruptedException, ExecutionException {
         return readData(dataBroker, OPERATIONAL, iid, bgpRib -> bgpRib, TIMEOUT);
     }
 
     public static <T extends DataObject> T checkPresentConfiguration(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid) throws ReadFailedException {
+            final InstanceIdentifier<T> iid) throws InterruptedException, ExecutionException {
         return readData(dataBroker, CONFIGURATION, iid, bgpRib -> bgpRib, TIMEOUT);
     }
 
     public static <T extends DataObject> void checkNotPresentOperational(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid) throws ReadFailedException {
+            final InstanceIdentifier<T> iid) throws InterruptedException, ExecutionException {
         checkNotPresent(dataBroker, OPERATIONAL, iid);
     }
 
     public static <T extends DataObject> void checkNotPresentConfiguration(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid) throws ReadFailedException {
+            final InstanceIdentifier<T> iid) throws InterruptedException, ExecutionException {
         checkNotPresent(dataBroker, CONFIGURATION, iid);
     }
 
     private static <T extends DataObject> void checkNotPresent(final DataBroker dataBroker,
-            final LogicalDatastoreType ldt, final InstanceIdentifier<T> iid) throws ReadFailedException {
+            final LogicalDatastoreType ldt, final InstanceIdentifier<T> iid) throws InterruptedException,
+                ExecutionException {
         AssertionError lastError = null;
         final Stopwatch sw = Stopwatch.createStarted();
         while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
-            try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final com.google.common.base.Optional<T> data = tx.read(ldt, iid).checkedGet();
+            try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
+                final Optional<T> data = tx.read(ldt, iid).get();
                 try {
                     assert !data.isPresent();
                     return;

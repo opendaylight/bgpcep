@@ -24,6 +24,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -46,12 +47,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -134,7 +135,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Mock
     private DOMTransactionChain domChain;
     @Mock
-    private DOMDataWriteTransaction tx;
+    private DOMDataTreeWriteTransaction tx;
 
     @Override
     @Before
@@ -186,7 +187,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(null).when(futureChannel).addListener(any());
         doReturn(futureChannel).when(this.speakerListener).close();
         doReturn(futureChannel).when(this.speakerListener).writeAndFlush(any(Notify.class));
-        doReturn(this.domChain).when(this.domBroker).createTransactionChain(any());
+        doReturn(this.domChain).when(this.domBroker).createMergingTransactionChain(any());
         doReturn(this.tx).when(this.domChain).newWriteOnlyTransaction();
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
         final ListenerRegistration<?> listener = mock(ListenerRegistration.class);
@@ -194,8 +195,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doNothing().when(listener).close();
         doNothing().when(this.domChain).close();
 
-        doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
-                .when(this.domBroker).getSupportedExtensions();
+        doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
+                .when(this.domBroker).getExtensions();
         doNothing().when(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL),
