@@ -16,8 +16,7 @@
                                     "tables": [
                                         {
                                             "afi": "bgp-types:ipv4-address-family",
-                                            "safi": "bgp-types:unicast-subsequent-address-family",
-                                            "bgp-inet:ipv4-routes": {},
+                                            "safi": "bgp-types:unicast-subsequent-address-family",$ROUTES_LINE
                                             "attributes": {
                                                 "uptodate": false
                                             }
@@ -45,8 +44,7 @@
                                     "tables": [
                                         {
                                             "afi": "bgp-types:ipv4-address-family",
-                                            "safi": "bgp-types:unicast-subsequent-address-family",
-                                            "bgp-inet:ipv4-routes": {},
+                                            "safi": "bgp-types:unicast-subsequent-address-family",$ROUTES_LINE
                                             "attributes": {
                                                 "uptodate": false
                                             }
