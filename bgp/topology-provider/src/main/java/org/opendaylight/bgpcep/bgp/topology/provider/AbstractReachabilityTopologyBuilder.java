@@ -9,17 +9,17 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadOperations;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -92,7 +92,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         return getInstanceIdentifier().child(Node.class, new NodeKey(ni));
     }
 
-    private static <T extends DataObject> T read(final ReadTransaction rt, final InstanceIdentifier<T> id) {
+    private static <T extends DataObject> T read(final ReadOperations rt, final InstanceIdentifier<T> id) {
         final Optional<T> optional;
         try {
             optional = rt.read(LogicalDatastoreType.OPERATIONAL, id).get();
@@ -101,7 +101,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
             return null;
         }
 
-        return optional.orNull();
+        return optional.orElse(null);
     }
 
     private InstanceIdentifier<IgpNodeAttributes> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
