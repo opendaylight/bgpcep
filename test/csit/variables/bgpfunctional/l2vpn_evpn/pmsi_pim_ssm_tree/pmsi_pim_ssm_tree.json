@@ -18,7 +18,6 @@
                     "local-pref": {
                         "pref": 100
                     },
-                    "as-path": {},
                     "pmsi-tunnel": {
                         "leaf-information-required": true,
                         "mpls-label": 20024,
@@ -29,7 +28,7 @@
                     },
                     "ipv4-next-hop": {
                         "global": "199.20.166.41"
-                    }
+                    }$AS_PATH
                 }
             }
         ]

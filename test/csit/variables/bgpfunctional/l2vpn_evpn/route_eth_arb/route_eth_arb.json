@@ -11,8 +11,7 @@
           },
           "local-pref": {
             "pref": 100
-          },
-          "as-path": {}
+          }$AS_PATH
         },
         "path-id": 0,
         "route-key": "ARYAAhmZmZkAAQAAAAAAAAAAAAAAAAAK",
