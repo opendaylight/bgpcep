@@ -18,9 +18,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryConsumer;
@@ -86,8 +86,8 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     }
 
     private List<Statement> loadStatements(final String key) throws ExecutionException, InterruptedException {
-        final ReadOnlyTransaction tr = this.databroker.newReadOnlyTransaction();
-        final com.google.common.base.Optional<Statements> result =
+        final ReadTransaction tr = this.databroker.newReadOnlyTransaction();
+        final Optional<Statements> result =
                 tr.read(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID.child(PolicyDefinitions.class)
                         .child(PolicyDefinition.class, new PolicyDefinitionKey(key)).child(Statements.class)).get();
         if (!result.isPresent()) {
