@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20277456_335225db",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-06T16:29:05Z",
+      "side": 1,
+      "message": "Could you explain why on each case we are adding releaseChain.\nseems to be adding randomly, like just in case additions..\nAnd there is no reason why we should be using blocking changes...",
+      "range": {
+        "startLine": 264,
+        "startChar": 8,
+        "endLine": 264,
+        "endChar": 23
+      },
+      "revId": "a8ac9dde944cd45ef7a0f736e2540d6df1c70bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2eace653_9176c788",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-06T16:29:05Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 411,
+        "startChar": 8,
+        "endLine": 411,
+        "endChar": 65
+      },
+      "revId": "a8ac9dde944cd45ef7a0f736e2540d6df1c70bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
