@@ -11,8 +11,8 @@ package org.opendaylight.bgpcep.config.loader.protocols;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.opendaylight.bgpcep.config.loader.protocols.ProtocolsConfigFileProcessor.BGP_PROTOCOLS_IID;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
-import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentConfiguration;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkPresentConfiguration;
 
 import org.junit.Test;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoader;

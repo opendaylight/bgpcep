@@ -8,7 +8,7 @@
 
 package org.opendaylight.bgpcep.config.loader.impl;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
@@ -23,9 +23,9 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
@@ -66,7 +66,8 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
             clearEvent();
             return null;
         }).when(this.processor).loadConfiguration(any());
-        this.configLoader = new ConfigLoaderImpl(getSchemaContext(), this.mappingService, this.fileWatcher);
+        this.configLoader = new ConfigLoaderImpl(this.schemaService.getGlobalContext(), this.mappingService,
+            this.fileWatcher);
         this.configLoader.init();
     }
 
