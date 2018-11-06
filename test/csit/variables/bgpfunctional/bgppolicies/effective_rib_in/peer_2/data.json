@@ -2,8 +2,7 @@
     "bgp-inet:ipv4-routes": {
         "ipv4-route": [
             {
-                "attributes": {
-                    "as-path": {},
+                "attributes": {$AS_PATH
                     "ipv4-next-hop": {
                         "global": "12.0.255.254"
                     },
@@ -19,8 +18,7 @@
                 "route-key": "2.1.1.0/24"
             },
             {
-                "attributes": {
-                    "as-path": {},
+                "attributes": {$AS_PATH
                     "ipv4-next-hop": {
                         "global": "12.1.255.254"
                     },
@@ -36,8 +34,7 @@
                 "route-key": "2.2.1.0/24"
             },
             {
-                "attributes": {
-                    "as-path": {},
+                "attributes": {$AS_PATH
                     "ipv4-next-hop": {
                         "global": "12.3.255.254"
                     },
