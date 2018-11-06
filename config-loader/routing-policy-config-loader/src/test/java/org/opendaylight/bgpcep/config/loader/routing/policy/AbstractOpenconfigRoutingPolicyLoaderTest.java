@@ -9,8 +9,8 @@ package org.opendaylight.bgpcep.config.loader.routing.policy;
 
 import static org.junit.Assert.assertNotNull;
 import static org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingPolicyLoader.ROUTING_POLICY_IID;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
-import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentConfiguration;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkPresentConfiguration;
 
 import org.junit.After;
 import org.junit.Before;
