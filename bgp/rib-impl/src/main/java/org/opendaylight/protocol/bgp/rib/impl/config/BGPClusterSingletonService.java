@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
@@ -77,7 +77,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     private final DOMDataBroker domBroker;
     private final DataBroker dataBroker;
     private final DOMSchemaService schemaService;
-    private final RpcProviderRegistry rpcRegistry;
+    private final RpcProviderService rpcRegistry;
 
     BGPClusterSingletonService(
             @Nonnull final PeerGroupConfigLoader peerGroupLoader,
@@ -91,7 +91,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             @Nonnull final DOMDataBroker domBroker,
             @Nonnull final DataBroker dataBroker,
             @Nonnull final DOMSchemaService schemaService,
-            @Nonnull final RpcProviderRegistry rpcRegistry) {
+            @Nonnull final RpcProviderService rpcRegistry) {
         this.peerGroupLoader = peerGroupLoader;
         this.tableTypeRegistry = tableTypeRegistry;
         this.bgpIid = bgpIid;
