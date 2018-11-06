@@ -12,6 +12,7 @@ import argparse
 import logging
 import time
 import xml.dom.minidom as md
+import os.path
 
 
 __author__ = "Radovan Sajben"
@@ -59,8 +60,12 @@ def _stream_data(xml_template, prefix_base, prefix_len, count, route_key=False, 
         :yield xml_data: requested data by elements as xml data
     """
     global total_build_data_time_counter
-
-    routes = md.parse(xml_template)
+    if os.path.isfile(xml_template + "." + stream):
+        routes = md.parse(xml_template + "." + stream)
+    elif os.path.isfile(xml_template):
+        routes = md.parse(xml_template)
+    else:
+        logger.error("Template '{}' does not exist.".format(xml_template))
 
     routes_node = routes.getElementsByTagName("ipv4-routes")[0]
     route_node = routes.getElementsByTagName("ipv4-route")[0]
@@ -403,7 +408,7 @@ if __name__ == "__main__":
                         const=logging.DEBUG, default=logging.INFO,
                         help="Set log level to debug (default is info)")
     parser.add_argument("--logfile", default="bgp_app_peer.log", help="Log file name")
-    parser.add_argument("--stream", default="", help="Stream - oxygen, fluorine ...")
+    parser.add_argument("--stream", default="", help="ODL Stream - oxygen, fluorine ...")
 
     args = parser.parse_args()
 
@@ -425,12 +430,13 @@ if __name__ == "__main__":
     prefix_base = args.prefix
     prefix_len = args.prefixlen
     count = args.count
-    auth = (args.user, args.password)
     uri = args.uri
+    stream = args.stream
+    xml_template = args.xml
+
     # From Fluorine onward route-key argument is mandatory for identification.
-    route_key_stream = ["fluorine"]
-    [xml_template, route_key] = ["{}.{}".format(args.xml, args.stream), True] \
-        if args.stream in route_key_stream else [args.xml, False]
+    route_key_stream = ["oxygen"]
+    route_key = True if args.stream not in route_key_stream else False
 
     test_start_time = time.time()
     total_build_data_time_counter = 0
