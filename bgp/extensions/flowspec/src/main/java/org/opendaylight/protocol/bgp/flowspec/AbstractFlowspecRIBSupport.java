@@ -14,8 +14,8 @@ import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
@@ -82,7 +82,7 @@ public abstract class AbstractFlowspecRIBSupport<
 
     @Override
     protected final Collection<NodeIdentifierWithPredicates> processDestination(
-        final DOMDataWriteTransaction tx,
+        final DOMDataTreeWriteTransaction tx,
         final YangInstanceIdentifier routesPath,
         final ContainerNode destination,
         final ContainerNode attributes,

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -24,12 +23,13 @@ import java.util.concurrent.Executor;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
@@ -78,7 +78,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     @Mock
     protected Future<?> future;
     @Mock
-    protected DOMDataWriteTransaction domDW;
+    protected DOMDataTreeWriteTransaction domDW;
     @Mock
     protected PeerGroupConfigLoader peerGroupLoader;
     @Mock
@@ -92,7 +92,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
         doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
                 .params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
                 .getInstanceIdentifier();
-        doReturn(this.domTx).when(this.rib).createPeerDOMChain(any(TransactionChainListener.class));
+        doReturn(this.domTx).when(this.rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             return getDataBroker().createTransactionChain((TransactionChainListener) args[0]);
