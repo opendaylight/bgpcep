@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -303,7 +303,7 @@ public abstract class AbstractRIBSupport<
      * @param destination  ContainerNode DOM representation of NLRI in Update message
      * @param routesNodeId NodeIdentifier
      */
-    private void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    private void deleteDestinationRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode destination, final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
     }
@@ -322,13 +322,13 @@ public abstract class AbstractRIBSupport<
      * @param routesNodeId NodeIdentifier
      * @return List of processed route identifiers
      */
-    private Collection<NodeIdentifierWithPredicates> putDestinationRoutes(final DOMDataWriteTransaction tx,
+    private Collection<NodeIdentifierWithPredicates> putDestinationRoutes(final DOMDataTreeWriteTransaction tx,
             final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes,
             final NodeIdentifier routesNodeId) {
         return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
-    protected abstract Collection<NodeIdentifierWithPredicates> processDestination(DOMDataWriteTransaction tx,
+    protected abstract Collection<NodeIdentifierWithPredicates> processDestination(DOMDataTreeWriteTransaction tx,
             YangInstanceIdentifier routesPath, ContainerNode destination, ContainerNode attributes,
             ApplyRoute applyFunction);
 
@@ -399,13 +399,13 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri) {
         deleteRoutes(tx, tablePath, nlri, ROUTES_NID);
     }
 
     @Override
-    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataWriteTransaction tx,
+    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
                                                                     final YangInstanceIdentifier tablePath,
                                                                     final ContainerNode nlri,
                                                                     final ContainerNode attributes) {
@@ -441,7 +441,7 @@ public abstract class AbstractRIBSupport<
 
     @Override
     @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
-    public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri, final NodeIdentifier routesNodeId) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(WITHDRAWN_ROUTES);
         if (maybeRoutes.isPresent()) {
@@ -455,7 +455,7 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataWriteTransaction tx,
+    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
                                                              final YangInstanceIdentifier tablePath,
                                                              final ContainerNode nlri,
                                                              final ContainerNode attributes,
@@ -474,7 +474,7 @@ public abstract class AbstractRIBSupport<
 
     private static final class DeleteRoute implements ApplyRoute {
         @Override
-        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
+        public void apply(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier base,
                 final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route,
                 final ContainerNode attributes) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
@@ -483,7 +483,7 @@ public abstract class AbstractRIBSupport<
 
     private final class PutRoute implements ApplyRoute {
         @Override
-        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
+        public void apply(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier base,
                 final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route,
                 final ContainerNode attributes) {
             // Build the DataContainer data

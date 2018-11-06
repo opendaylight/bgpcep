@@ -16,12 +16,10 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -37,10 +36,10 @@ import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -147,7 +146,7 @@ final class AdjRibInWriter {
             final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
             final Map<TablesKey, SendReceive> addPathTablesType,
             final @Nullable RegisterAppPeerListener registerAppPeerListener) {
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
 
         createEmptyPeerStructure(newPeerId, peerPath, tx);
         final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(peerPath, registry, tableTypes,
@@ -181,7 +180,7 @@ final class AdjRibInWriter {
     private static ImmutableMap<TablesKey, TableContext> createNewTableInstances(
             final YangInstanceIdentifier newPeerPath, final RIBSupportContextRegistry registry,
             final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
-            final DOMDataWriteTransaction tx) {
+            final DOMDataTreeWriteTransaction tx) {
 
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey tableKey : tableTypes) {
@@ -201,7 +200,7 @@ final class AdjRibInWriter {
 
     private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,
             final RIBSupportContext rs, final NodeIdentifierWithPredicates instanceIdentifierKey,
-            final DOMDataWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
+            final DOMDataTreeWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath
                 .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES_NID));
@@ -218,7 +217,7 @@ final class AdjRibInWriter {
 
     private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
             final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey,
-            final SendReceive sendReceive, final DOMDataWriteTransaction tx) {
+            final SendReceive sendReceive, final DOMDataTreeWriteTransaction tx) {
         final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt =
                 Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
@@ -234,7 +233,7 @@ final class AdjRibInWriter {
     }
 
     private void createEmptyPeerStructure(final PeerId newPeerId,
-            final YangInstanceIdentifier peerPath, final DOMDataWriteTransaction tx) {
+            final YangInstanceIdentifier peerPath, final DOMDataTreeWriteTransaction tx) {
         final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
 
         tx.put(LogicalDatastoreType.OPERATIONAL, peerPath, peerSkeleton(peerKey, newPeerId.getValue()));
@@ -255,7 +254,7 @@ final class AdjRibInWriter {
     }
 
     void markTableUptodate(final TablesKey tableTypes) {
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         final TableContext ctx = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(ATTRIBUTES_NID).node(UPTODATE_NID),
             RIBNormalizedNodes.ATTRIBUTES_UPTODATE_TRUE);
@@ -281,7 +280,7 @@ final class AdjRibInWriter {
             return;
         }
 
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         final Collection<NodeIdentifierWithPredicates> routeKeys = ctx.writeRoutes(tx, nlri, attributes);
         final Collection<NodeIdentifierWithPredicates> staleRoutes = this.staleRoutesRegistry.get(key);
         if (staleRoutes != null) {
@@ -311,7 +310,7 @@ final class AdjRibInWriter {
             return;
         }
         LOG.trace("Removing routes {}", nlri);
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
         this.submitted = future;
@@ -341,7 +340,7 @@ final class AdjRibInWriter {
     void storeStaleRoutes(final Set<TablesKey> gracefulTables) {
         final CountDownLatch latch = new CountDownLatch(gracefulTables.size());
 
-        try (DOMDataReadOnlyTransaction tx = this.chain.getDomChain().newReadOnlyTransaction()) {
+        try (DOMDataTreeReadTransaction tx = this.chain.getDomChain().newReadOnlyTransaction()) {
             for (TablesKey tablesKey : gracefulTables) {
                 final TableContext ctx = this.tables.get(tablesKey);
                 if (ctx == null) {
@@ -350,7 +349,7 @@ final class AdjRibInWriter {
                     continue;
                 }
 
-                Futures.addCallback(tx.read(LogicalDatastoreType.OPERATIONAL, ctx.routesPath()),
+                tx.read(LogicalDatastoreType.OPERATIONAL, ctx.routesPath()).addCallback(
                     new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
                         @Override
                         public void onSuccess(final Optional<NormalizedNode<?, ?>> routesOptional) {
@@ -400,7 +399,7 @@ final class AdjRibInWriter {
             return;
         }
         LOG.trace("Removing routes {}", routeKeys);
-        final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         routeKeys.forEach(routeKey -> {
             tx.delete(LogicalDatastoreType.OPERATIONAL, ctx.routePath(routeKey));
         });
@@ -427,7 +426,7 @@ final class AdjRibInWriter {
             return CommitInfo.emptyFluentFuture();
         }
 
-        final DOMDataWriteTransaction wtx = this.chain.getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wtx = this.chain.getDomChain().newWriteOnlyTransaction();
         tablesToClear.forEach(tableKey -> {
             final TableContext ctx = this.tables.get(tableKey);
             wtx.delete(LogicalDatastoreType.OPERATIONAL, ctx.routesPath().getParent());

@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.SimpleRouteTargetConstrainNlriRegistry;
@@ -156,7 +156,7 @@ public final class RouteTargetConstrainRIBSupport
 
     @Override
     protected Collection<NodeIdentifierWithPredicates> processDestination(
-            final DOMDataWriteTransaction tx,
+            final DOMDataTreeWriteTransaction tx,
             final YangInstanceIdentifier routesPath,
             final ContainerNode destination,
             final ContainerNode attributes,

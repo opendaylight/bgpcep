@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.app;
 
 import static java.util.Objects.requireNonNull;
@@ -21,10 +20,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
@@ -117,7 +116,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
             });
         }
 
-        final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.yangMonitorId);
         LOG.info("BMP monitoring station {} closed.", this.monitorId.getValue());
         return wTx.commit();
@@ -147,7 +146,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     }
 
     private synchronized void createEmptyMonitor() {
-        final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL,
                 YangInstanceIdentifier.builder().node(BmpMonitor.QNAME).node(Monitor.QNAME)
                         .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue()).build(),

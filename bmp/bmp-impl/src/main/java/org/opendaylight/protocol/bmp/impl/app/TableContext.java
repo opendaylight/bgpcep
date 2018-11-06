@@ -13,12 +13,12 @@ import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ROUTES_QNAME
 
 import com.google.common.base.Preconditions;
 import java.util.Map;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeNode;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeCachingCodec;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -82,7 +82,7 @@ final class TableContext {
         return this.tableId;
     }
 
-    void createTable(final DOMDataWriteTransaction tx) {
+    void createTable(final DOMDataTreeWriteTransaction tx) {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tb =
                 ImmutableNodes.mapEntryBuilder();
         tb.withNodeIdentifier((NodeIdentifierWithPredicates) this.tableId.getLastPathArgument());
@@ -100,13 +100,13 @@ final class TableContext {
                         new NodeIdentifier(TablesUtil.BMP_ROUTES_QNAME)).build()).build());
     }
 
-    void writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {
+    void writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {
         final ContainerNode domNlri = serializeReachNlri(nlri);
         final ContainerNode routeAttributes = serializeAttributes(attributes);
         this.tableSupport.putRoutes(tx, this.tableId, domNlri, routeAttributes, BGP_ROUTES_NODE_ID);
     }
 
-    void removeRoutes(final DOMDataWriteTransaction tx, final MpUnreachNlri nlri) {
+    void removeRoutes(final DOMDataTreeWriteTransaction tx, final MpUnreachNlri nlri) {
         this.tableSupport.deleteRoutes(tx, this.tableId, serializeUnreachNlri(nlri), BGP_ROUTES_NODE_ID);
     }
 
