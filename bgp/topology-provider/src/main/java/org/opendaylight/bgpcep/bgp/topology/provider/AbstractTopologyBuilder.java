@@ -19,19 +19,18 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.topology.TopologyReference;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
@@ -69,7 +68,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     @GuardedBy("this")
     private ListenerRegistration<AbstractTopologyBuilder<T>> listenerRegistration = null;
     @GuardedBy("this")
-    private BindingTransactionChain chain = null;
+    private TransactionChain chain = null;
     private final AtomicBoolean closed = new AtomicBoolean(false);
     @GuardedBy("this")
     @VisibleForTesting
@@ -118,7 +117,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
                 this.getInstanceIdentifier());
         final InstanceIdentifier<Tables> tablesId = this.locRibReference.getInstanceIdentifier()
                 .child(LocRib.class).child(Tables.class, new TablesKey(this.afi, this.safi));
-        final DataTreeIdentifier<T> id = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+        final DataTreeIdentifier<T> id = DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 getRouteWildcard(tablesId));
 
         this.listenerRegistration = this.dataProvider.registerDataTreeChangeListener(id, this);
@@ -394,8 +393,8 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     }
 
     @Override
-    public final synchronized void onTransactionChainFailed(final TransactionChain<?, ?> transactionChain,
-            final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+    public final synchronized void onTransactionChainFailed(final TransactionChain transactionChain,
+            final Transaction transaction, final Throwable cause) {
         LOG.error("Topology builder for {} failed in transaction {}.", getInstanceIdentifier(),
                 transaction != null ? transaction.getIdentifier() : null, cause);
         scheduleListenerRestart();
@@ -403,7 +402,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     }
 
     @Override
-    public final void onTransactionChainSuccessful(final TransactionChain<?, ?> transactionChain) {
+    public final void onTransactionChainSuccessful(final TransactionChain transactionChain) {
         LOG.info("Topology builder for {} shut down", getInstanceIdentifier());
     }
 }

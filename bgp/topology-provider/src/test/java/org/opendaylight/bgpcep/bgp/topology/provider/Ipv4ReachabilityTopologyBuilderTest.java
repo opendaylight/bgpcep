@@ -11,14 +11,14 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
@@ -67,7 +67,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     }
 
     @Test
-    public void testIpv4ReachabilityTopologyBuilder() throws ReadFailedException {
+    public void testIpv4ReachabilityTopologyBuilder() throws ExecutionException, InterruptedException {
         // create route
         updateIpv4Route(createIpv4Route(NEXT_HOP));
 
