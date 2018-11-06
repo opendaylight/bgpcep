@@ -16,8 +16,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonMsgWithEndOfRibMarker;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonitMsg;
-import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
-import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
+import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
 import com.google.common.net.InetAddresses;
 import io.netty.bootstrap.Bootstrap;
@@ -34,17 +34,18 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -132,6 +133,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private ClusterSingletonServiceProvider clusterSSProv;
     @Mock
     private ClusterSingletonServiceProvider clusterSSProv2;
+    private DOMSchemaService schemaService;
 
     @Before
     public void setUp() throws Exception {
@@ -157,7 +159,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         doAnswer(invocationOnMock -> BmpMonitorImplTest.this.singletonService2.closeServiceInstance())
             .when(this.singletonServiceRegistration2).close();
 
-        this.mappingService.onGlobalContextUpdated(getSchemaContext());
+        this.mappingService.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
         this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService);
@@ -176,7 +178,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         final InetSocketAddress inetAddress = new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS),
             MONITOR_LOCAL_PORT);
 
-        final DOMDataWriteTransaction wTx = getDomBroker().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = getDomBroker().newWriteOnlyTransaction();
         final ContainerNode parentNode = Builders.containerBuilder().withNodeIdentifier(
                 new NodeIdentifier(BmpMonitor.QNAME))
                 .addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
@@ -184,7 +186,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         wTx.commit().get();
 
         final BmpDeployerDependencies bmpDependecies = new BmpDeployerDependencies(getDataBroker(), getDomBroker(),
-            this.ribExtension, this.mappingService.getCodecFactory(), getSchemaContext(), this.clusterSSProv);
+            this.ribExtension, this.mappingService.getCodecFactory(), this.schemaService.getGlobalContext(), this.clusterSSProv);
         this.bmpApp = new BmpMonitoringStationImpl(bmpDependecies, this.dispatcher, MONITOR_ID, inetAddress, null);
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
             assertEquals(1, monitor.getMonitor().size());
@@ -201,6 +203,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
         this.mappingService = customizer.getBindingToNormalized();
+        this.schemaService = customizer.getSchemaService();
         return customizer;
     }
 
@@ -272,8 +275,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         channelFuture.sync();
     }
 
-    private Channel testMonitoringStation(final String remoteRouterIpAddr) throws InterruptedException,
-            ReadFailedException {
+    private Channel testMonitoringStation(final String remoteRouterIpAddr) throws InterruptedException, ExecutionException {
         final Channel channel = connectTestClient(remoteRouterIpAddr, this.msgRegistry);
         final RouterId routerId = getRouterId(remoteRouterIpAddr);
 
@@ -433,7 +435,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     @Test
     public void deploySecondInstance() throws Exception {
         final BmpDeployerDependencies bmpDependecies = new BmpDeployerDependencies(getDataBroker(), getDomBroker(),
-            this.ribExtension, this.mappingService.getCodecFactory(), getSchemaContext(), this.clusterSSProv2);
+            this.ribExtension, this.mappingService.getCodecFactory(), this.schemaService.getGlobalContext(),
+            this.clusterSSProv2);
 
         final BmpMonitoringStation monitoringStation2 = new BmpMonitoringStationImpl(bmpDependecies,
             this.dispatcher, new MonitorId("monitor2"),

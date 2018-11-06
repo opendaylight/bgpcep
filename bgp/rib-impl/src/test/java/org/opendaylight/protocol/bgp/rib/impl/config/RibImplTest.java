@@ -5,17 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Shorts;
@@ -25,10 +25,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
@@ -99,8 +99,8 @@ public class RibImplTest extends AbstractConfig {
         doReturn(QName.create("", "test").intern()).when(emptyTable).getNodeType();
         doReturn(this.domTx).when(this.domDataBroker).createTransactionChain(any());
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
-        doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
-                .when(this.domDataBroker).getSupportedExtensions();
+        doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
+                .when(this.domDataBroker).getExtensions();
         doReturn(this.dataTreeRegistration).when(this.domSchemaService).registerSchemaContextListener(any());
         doNothing().when(this.dataTreeRegistration).close();
         doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
@@ -119,7 +119,7 @@ public class RibImplTest extends AbstractConfig {
                 this.domSchemaService);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.extension).getClassLoadingStrategy();
-        verify(this.domDataBroker).getSupportedExtensions();
+        verify(this.domDataBroker).getExtensions();
         verify(this.domSchemaService).registerSchemaContextListener(any(RIBImpl.class));
         assertEquals("RIBImpl{bgpId=Ipv4Address{_value=127.0.0.1}, localTables=[BgpTableTypeImpl ["
                 + "getAfi()=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types."
