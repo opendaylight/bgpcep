@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.Collections;
@@ -38,6 +38,7 @@ public class DefaultRibPoliciesMockTest extends AbstractStatementRegistryConsume
     @Mock
     private Config config;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();

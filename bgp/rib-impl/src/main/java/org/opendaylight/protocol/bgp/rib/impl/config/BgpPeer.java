@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -74,13 +74,13 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
-    private final RpcProviderRegistry rpcRegistry;
+    private final RpcProviderService rpcRegistry;
     @GuardedBy("this")
     private Neighbor currentConfiguration;
     @GuardedBy("this")
     private BgpPeerSingletonService bgpPeerSingletonService;
 
-    public BgpPeer(final RpcProviderRegistry rpcRegistry) {
+    public BgpPeer(final RpcProviderService rpcRegistry) {
         this.rpcRegistry = rpcRegistry;
     }
 

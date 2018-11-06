@@ -14,10 +14,10 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -70,8 +70,7 @@ public final class OpenconfigRoutingPolicyLoader implements ConfigFileProcessor,
         final RoutingPolicy routingPolicy = (RoutingPolicy) this.bindingSerializer
                 .fromNormalizedNode(this.routingPolicyYiid, dto).getValue();
         final WriteTransaction wtx = this.dataBroker.newWriteOnlyTransaction();
-        wtx.merge(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID, routingPolicy,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        wtx.merge(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID, routingPolicy);
 
         try {
             wtx.commit().get();
