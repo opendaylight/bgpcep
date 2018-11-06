@@ -21,15 +21,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.impl.spi.BmpRouter;
@@ -54,7 +53,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BmpRouterImpl implements BmpRouter, TransactionChainListener {
+public final class BmpRouterImpl implements BmpRouter, DOMTransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpRouterImpl.class);
 
@@ -171,7 +170,7 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
             if (isDatastoreWritable()) {
                 try {
                     // it means the session was closed before it was written to datastore
-                    final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+                    final DOMDataTreeWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
                     wTx.delete(LogicalDatastoreType.OPERATIONAL, this.routerYangIId);
                     wTx.commit().get();
                 } catch (final InterruptedException | ExecutionException e) {
@@ -183,14 +182,13 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain<?, ?> chain,
-            final AsyncTransaction<?, ?> transaction,
-        final Throwable cause) {
+    public synchronized void onTransactionChainFailed(final DOMTransactionChain chain,
+        final DOMDataTreeTransaction transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+    public void onTransactionChainSuccessful(final DOMTransactionChain chain) {
         LOG.debug("Transaction chain {} successfully.", chain);
     }
 
@@ -200,7 +198,7 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
 
     private synchronized void createRouterEntry() {
         Preconditions.checkState(isDatastoreWritable());
-        final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
                 Builders.mapEntryBuilder()
                 .withNodeIdentifier(new NodeIdentifierWithPredicates(Router.QNAME, ROUTER_ID_QNAME, this.routerIp))
@@ -222,7 +220,7 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
 
     private synchronized void onInitiate(final InitiationMessage initiation) {
         Preconditions.checkState(isDatastoreWritable());
-        final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
                 Builders.mapEntryBuilder()
                 .withNodeIdentifier(new NodeIdentifierWithPredicates(Router.QNAME, ROUTER_ID_QNAME, this.routerIp))

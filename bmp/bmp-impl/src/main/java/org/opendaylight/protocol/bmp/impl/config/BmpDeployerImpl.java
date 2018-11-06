@@ -18,14 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
@@ -71,7 +70,8 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     }
 
     public synchronized void init() {
-        final DOMDataWriteTransaction wTx = this.bmpDeployerDependencies.getDomDataBroker().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.bmpDeployerDependencies
+            .getDomDataBroker().newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, BMP_MONITOR_YII, EMPTY_PARENT_NODE);
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -85,7 +85,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
             }
         }, MoreExecutors.directExecutor());
         this.registration = this.bmpDeployerDependencies.getDataBroker().registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
+            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
     }
 
     @Override
@@ -100,7 +100,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     }
 
     private synchronized void handleModification(final DataObjectModification<BmpMonitorConfig> config) {
-        final ModificationType modificationType = config.getModificationType();
+        final DataObjectModification.ModificationType modificationType = config.getModificationType();
         LOG.trace("Bmp Monitor configuration has changed: {}, type modification {}", config, modificationType);
         switch (modificationType) {
             case DELETE:
