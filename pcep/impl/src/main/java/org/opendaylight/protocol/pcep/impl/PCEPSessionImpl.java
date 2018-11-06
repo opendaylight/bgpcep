@@ -237,7 +237,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * inside the session or from the listener, therefore the parent of this session should be informed.
      */
     @Override
-    public synchronized void close(final TerminationReason reason) {
+    public void close(final TerminationReason reason) {
         if (this.closed.getAndSet(true)) {
             LOG.debug("Session is already closed.");
             return;
