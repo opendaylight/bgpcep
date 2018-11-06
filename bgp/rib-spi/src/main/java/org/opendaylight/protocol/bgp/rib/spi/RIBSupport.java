@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -107,7 +107,7 @@ public interface RIBSupport<
      * @param tablePath YangInstanceIdentifier
      * @param nlri      ContainerNode DOM representation of NLRI in Update message
      */
-    void deleteRoutes(@NonNull DOMDataWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
+    void deleteRoutes(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
             @NonNull ContainerNode nlri);
 
     /**
@@ -124,7 +124,7 @@ public interface RIBSupport<
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param routesNodeId NodeIdentifier of "routes" data node
      */
-    void deleteRoutes(@NonNull DOMDataWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
+    void deleteRoutes(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
             @NonNull ContainerNode nlri, @NonNull NodeIdentifier routesNodeId);
 
     /**
@@ -137,7 +137,7 @@ public interface RIBSupport<
      * @param attributes ContainerNode
      * @return List of processed route Identifiers
      */
-    Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataWriteTransaction tx,
+    Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataTreeWriteTransaction tx,
             @NonNull YangInstanceIdentifier tablePath, @NonNull ContainerNode nlri, @NonNull ContainerNode attributes);
 
     /**
@@ -156,7 +156,7 @@ public interface RIBSupport<
      * @param routesNodeId NodeIdentifier of "routes" data node
      * @return List of processed routes identifiers
      */
-    Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataWriteTransaction tx,
+    Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataTreeWriteTransaction tx,
             @NonNull YangInstanceIdentifier tablePath, @NonNull ContainerNode nlri, @NonNull ContainerNode attributes,
             @NonNull NodeIdentifier routesNodeId);
 
@@ -265,7 +265,7 @@ public interface RIBSupport<
     ContainerNode attributeToContainerNode(YangInstanceIdentifier routePath, Attributes attributes);
 
     interface ApplyRoute {
-        void apply(@NonNull DOMDataWriteTransaction tx, @NonNull YangInstanceIdentifier base,
+        void apply(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier base,
                 @NonNull NodeIdentifierWithPredicates routeKey, @NonNull DataContainerNode<?> route,
                 ContainerNode attributes);
     }

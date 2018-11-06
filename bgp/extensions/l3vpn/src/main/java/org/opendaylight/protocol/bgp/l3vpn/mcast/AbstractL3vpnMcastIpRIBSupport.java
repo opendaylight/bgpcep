@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -121,7 +121,7 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
 
     @Override
     protected final Collection<NodeIdentifierWithPredicates> processDestination(
-            final DOMDataWriteTransaction tx,
+            final DOMDataTreeWriteTransaction tx,
             final YangInstanceIdentifier routesPath,
             final ContainerNode destination,
             final ContainerNode attributes,

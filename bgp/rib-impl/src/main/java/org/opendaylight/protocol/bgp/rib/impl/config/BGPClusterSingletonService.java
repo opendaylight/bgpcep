@@ -29,12 +29,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
@@ -77,7 +77,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     private final DOMDataBroker domBroker;
     private final DataBroker dataBroker;
     private final DOMSchemaService schemaService;
-    private final RpcProviderRegistry rpcRegistry;
+    private final RpcProviderService rpcRegistry;
 
     BGPClusterSingletonService(
             final @NonNull PeerGroupConfigLoader peerGroupLoader,
@@ -91,7 +91,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             final @NonNull DOMDataBroker domBroker,
             final @NonNull DataBroker dataBroker,
             final @NonNull DOMSchemaService schemaService,
-            final @NonNull RpcProviderRegistry rpcRegistry) {
+            final @NonNull RpcProviderService rpcRegistry) {
         this.peerGroupLoader = peerGroupLoader;
         this.tableTypeRegistry = tableTypeRegistry;
         this.bgpIid = bgpIid;

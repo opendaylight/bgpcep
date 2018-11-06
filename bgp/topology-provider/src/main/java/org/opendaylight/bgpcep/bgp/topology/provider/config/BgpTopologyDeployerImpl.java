@@ -19,12 +19,12 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -62,7 +62,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
 
     public void init() {
         this.registration = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, TOPOLOGY_IID), this);
+                DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, TOPOLOGY_IID), this);
         LOG.info("BGP topology deployer started.");
     }
 

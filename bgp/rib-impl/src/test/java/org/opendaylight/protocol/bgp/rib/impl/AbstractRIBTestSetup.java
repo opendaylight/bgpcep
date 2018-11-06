@@ -14,34 +14,23 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EventListener;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -49,6 +38,13 @@ import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -65,7 +61,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
@@ -74,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -110,7 +106,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private DOMDataBroker dom;
 
     @Mock
-    private BindingTransactionChain chain;
+    private TransactionChain chain;
 
     @Mock
     private WriteTransaction transWrite;
@@ -119,13 +115,10 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private DOMTransactionChain domChain;
 
     @Mock
-    private DOMDataWriteTransaction domTransWrite;
+    private DOMDataTreeWriteTransaction domTransWrite;
 
     @Mock
     private FluentFuture<? extends CommitInfo> future;
-
-    @Mock
-    private Optional<Rib> optRib;
 
     @Mock
     private DOMDataTreeChangeService service;
@@ -176,31 +169,28 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     @SuppressWarnings("unchecked")
     private void mockedMethods() throws Exception {
         MockitoAnnotations.initMocks(this);
-        final ReadOnlyTransaction readTx = mock(ReadOnlyTransaction.class);
+        final ReadTransaction readTx = mock(ReadTransaction.class);
         doReturn(new TestListenerRegistration()).when(this.service)
                 .registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class),
                         any(ClusteredDOMDataTreeChangeListener.class));
-        final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> map = new HashMap<>();
-        map.put(DOMDataTreeChangeService.class, this.service);
         doNothing().when(readTx).close();
-        final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = mock(CheckedFuture.class);
         doNothing().when(this.domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class));
         doNothing().when(this.domTransWrite).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doReturn(Optional.absent()).when(readFuture).checkedGet();
-        doReturn(readFuture).when(readTx).read(eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
+        doReturn(FluentFutures.immediateFluentFuture(Optional.empty())).when(readTx)
+            .read(eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
         doNothing().when(this.domChain).close();
         doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
         doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
                 eq(YangInstanceIdentifier.of(BgpRib.QNAME)), any(NormalizedNode.class));
-        doReturn(map).when(this.dom).getSupportedExtensions();
-        doReturn(this.domChain).when(this.dom).createTransactionChain(any(AbstractPeer.class));
+        doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, this.service)).when(this.dom)
+            .getExtensions();
+        doReturn(this.domChain).when(this.dom).createMergingTransactionChain(any(AbstractPeer.class));
         doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
-        doReturn(false).when(this.optRib).isPresent();
-        doReturn(this.optRib).when(this.future).get();
+        doReturn(Optional.empty()).when(this.future).get();
         doReturn(this.future).when(this.domTransWrite).commit();
         doNothing().when(this.future).addListener(any(Runnable.class), any(Executor.class));
         doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
@@ -251,7 +241,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return this.rib;
     }
 
-    public DOMDataWriteTransaction getTransaction() {
+    public DOMDataTreeWriteTransaction getTransaction() {
         return this.domTransWrite;
     }
 

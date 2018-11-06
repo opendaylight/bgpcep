@@ -21,15 +21,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
@@ -89,12 +89,12 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private final KeyedInstanceIdentifier<Rib, RibKey> ribIId;
     private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTableIID;
 
-    private BindingTransactionChain chain;
+    private TransactionChain chain;
     @GuardedBy("this")
     private ListenerRegistration<?> reg;
 
     private LocRibWriter(final RIBSupport<C, S, R, I> ribSupport,
-            final BindingTransactionChain chain,
+            final TransactionChain chain,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             final Long ourAs,
             final DataBroker dataBroker,
@@ -121,7 +121,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                 LocRibWriter<C, S, R, I> create(
             final @NonNull RIBSupport<C, S, R, I> ribSupport,
             final @NonNull Class<? extends AfiSafiType> afiSafiType,
-            final @NonNull BindingTransactionChain chain,
+            final @NonNull TransactionChain chain,
             final @NonNull KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             final @NonNull AsNumber ourAs,
             final @NonNull DataBroker dataBroker,
@@ -152,7 +152,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         final InstanceIdentifier<Tables> tableId = this.ribIId.builder().child(Peer.class)
                 .child(EffectiveRibIn.class).child(Tables.class, getTableKey()).build();
         this.reg = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, tableId), this);
+                DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
 
     /**
@@ -160,7 +160,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
      *
      * @param newChain new transaction chain
      */
-    synchronized void restart(final @NonNull BindingTransactionChain newChain) {
+    synchronized void restart(final @NonNull TransactionChain newChain) {
         requireNonNull(newChain);
         close();
         this.chain = newChain;

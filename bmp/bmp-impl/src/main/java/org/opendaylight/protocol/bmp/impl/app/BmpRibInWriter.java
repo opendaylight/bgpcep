@@ -18,11 +18,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
@@ -67,7 +67,7 @@ final class BmpRibInWriter {
             final RIBExtensionConsumerContext ribExtensions,
             final Set<TablesKey> tableTypes,  final BindingCodecTree tree) {
         this.chain = chain;
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         this.tables = createTableInstance(tableTypes, tablesRoot, tx, ribExtensions, tree).build();
 
         LOG.debug("New RIB table {} structure installed.", tablesRoot.toString());
@@ -126,7 +126,7 @@ final class BmpRibInWriter {
      * Create new table instance.
      */
     private static ImmutableMap.Builder<TablesKey, TableContext> createTableInstance(final Set<TablesKey> tableTypes,
-            final YangInstanceIdentifier yangTableRootIId, final DOMDataWriteTransaction tx,
+            final YangInstanceIdentifier yangTableRootIId, final DOMDataTreeWriteTransaction tx,
             final RIBExtensionConsumerContext ribExtensions, final BindingCodecTree tree) {
 
         final ImmutableMap.Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
@@ -160,7 +160,7 @@ final class BmpRibInWriter {
             return;
         }
 
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -206,7 +206,7 @@ final class BmpRibInWriter {
             return;
         }
         LOG.trace("Removing routes {}", nlri);
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -282,7 +282,7 @@ final class BmpRibInWriter {
     }
 
     private synchronized void markTableUptodated(final TablesKey tableTypes) {
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         final TableContext ctxPre = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctxPre.getTableId().node(BMP_ATTRIBUTES_QNAME)
                 .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);

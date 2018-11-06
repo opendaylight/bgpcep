@@ -15,8 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -81,7 +81,7 @@ abstract class AbstractIPRibSupport<
     }
 
     @Override
-    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataWriteTransaction tx,
+    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
                                                                           final YangInstanceIdentifier routesPath,
                                                                           final ContainerNode destination,
                                                                           final ContainerNode attributes,

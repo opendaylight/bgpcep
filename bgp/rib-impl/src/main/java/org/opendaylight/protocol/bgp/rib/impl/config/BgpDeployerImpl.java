@@ -24,18 +24,18 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
@@ -90,7 +90,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     private final BindingCodecTreeFactory codecFactory;
     private final DOMDataBroker domBroker;
     private final DOMSchemaService schemaService;
-    private final RpcProviderRegistry rpcRegistry;
+    private final RpcProviderService rpcRegistry;
 
     public BgpDeployerImpl(final String networkInstanceName,
                            final ClusterSingletonServiceProvider provider,
@@ -102,7 +102,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
                            final BindingCodecTreeFactory codecFactory,
                            final DOMDataBroker domBroker,
                            final DOMSchemaService schemaService,
-                           final RpcProviderRegistry rpcRegistry) {
+                           final RpcProviderService rpcRegistry) {
         this.dataBroker = requireNonNull(dataBroker);
         this.provider = requireNonNull(provider);
         this.networkInstanceName = requireNonNull(networkInstanceName);
@@ -131,7 +131,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
 
     public synchronized void init() {
         this.registration = this.dataBroker.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
+                DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
                         this.networkInstanceIId.child(Protocols.class).child(Protocol.class)
                                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class)), this);
         LOG.info("BGP Deployer {} started.", this.networkInstanceName);
@@ -139,8 +139,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
 
     private Optional<PeerGroup> loadPeerGroup(final InstanceIdentifier<PeerGroup> peerGroupIid)
             throws ExecutionException, InterruptedException {
-        final ReadOnlyTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        return tr.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid).get().toJavaUtil();
+        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
+        return tr.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid).get();
     }
 
     @Override
