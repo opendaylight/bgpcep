@@ -5,13 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions;
 
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.AbstractCommunityHandler;
@@ -64,8 +63,7 @@ public final class MatchCommunitySetHandler
             final String communitySetName,
             final MatchSetOptionsType matchSetOptions) {
 
-        final String setKey = StringUtils
-                .substringBetween(communitySetName, "=\"", "\"");
+        final String setKey = StringUtils.substringBetween(communitySetName, "=\"", "\"");
         final List<Communities> communityFilter = this.communitySets.getUnchecked(setKey);
 
         if (communityFilter == null || communityFilter.isEmpty()) {
