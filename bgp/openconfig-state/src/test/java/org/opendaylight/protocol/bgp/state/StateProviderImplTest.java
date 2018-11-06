@@ -10,10 +10,10 @@ package org.opendaylight.protocol.bgp.state;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -47,17 +47,18 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.controller.md.sal.binding.test.ConcurrentDataBrokerTestCustomizer;
-import org.opendaylight.controller.md.sal.binding.test.ConstantSchemaAbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStore;
-import org.opendaylight.controller.sal.core.spi.data.DOMStore;
-import org.opendaylight.controller.sal.core.spi.data.DOMStoreThreePhaseCommitCohort;
-import org.opendaylight.controller.sal.core.spi.data.DOMStoreTransactionChain;
-import org.opendaylight.controller.sal.core.spi.data.DOMStoreWriteTransaction;
 import org.opendaylight.infrautils.testutils.LogCapture;
 import org.opendaylight.infrautils.testutils.internal.RememberingLogger;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTest;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.binding.dom.adapter.test.ConcurrentDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
+import org.opendaylight.mdsal.dom.spi.store.DOMStore;
+import org.opendaylight.mdsal.dom.spi.store.DOMStoreReadWriteTransaction;
+import org.opendaylight.mdsal.dom.spi.store.DOMStoreThreePhaseCommitCohort;
+import org.opendaylight.mdsal.dom.spi.store.DOMStoreTransactionChain;
+import org.opendaylight.mdsal.dom.spi.store.DOMStoreWriteTransaction;
+import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStore;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
@@ -149,7 +150,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.slf4j.LoggerFactory;
 
-public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest {
+public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
     private final PortNumber localPort = new PortNumber(1790);
@@ -432,13 +433,13 @@ public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest 
             doReturn(Futures.immediateFuture(null)).when(mockCohort).abort();
 
             doAnswer(notused -> {
-                DOMStoreWriteTransaction mockWriteTx = mock(DOMStoreWriteTransaction .class);
+                DOMStoreWriteTransaction mockWriteTx = mock(DOMStoreReadWriteTransaction .class);
                 doNothing().when(mockWriteTx).write(any(), any());
                 doNothing().when(mockWriteTx).merge(any(), any());
                 doNothing().when(mockWriteTx).delete(any());
                 doReturn(mockCohort).when(mockWriteTx).ready();
                 return mockWriteTx;
-            }).when(mockTxChain).newWriteOnlyTransaction();
+            }).when(mockTxChain).newReadWriteTransaction();
 
             return mockTxChain;
         }).doAnswer(invocation -> realOperStore.createTransactionChain()).when(spiedOperStore).createTransactionChain();

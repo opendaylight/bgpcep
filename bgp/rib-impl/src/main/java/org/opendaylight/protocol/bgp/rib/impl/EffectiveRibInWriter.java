@@ -35,13 +35,13 @@ import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -178,7 +178,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         LOG.trace("Data changed called to effective RIB. Change : {}", changes);
-        DOMDataWriteTransaction tx = null;
+        DOMDataTreeWriteTransaction tx = null;
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode root = tc.getRootNode();
@@ -269,7 +269,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @GuardedBy("this")
-    private void changeDataTree(final DOMDataWriteTransaction tx, final YangInstanceIdentifier rootPath,
+    private void changeDataTree(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier rootPath,
             final DataTreeCandidateNode root, final DataTreeCandidateNode table) {
         final PathArgument lastArg = table.getIdentifier();
         verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(),
@@ -305,14 +305,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void deleteTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
+    private void deleteTable(final DOMDataTreeWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Delete Effective Table {}", effectiveTablePath);
         onDeleteTable(ribContext.getRibSupport(), effectiveTablePath, table.getDataBefore());
         tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
     }
 
-    private void modifyTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
+    private void modifyTable(final DOMDataTreeWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Modify Effective Table {}", effectiveTablePath);
 
@@ -366,7 +366,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         });
     }
 
-    private void writeTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
+    private void writeTable(final DOMDataTreeWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Write Effective Table {}", effectiveTablePath);
         onDeleteTable(ribContext.getRibSupport(), effectiveTablePath, table.getDataBefore());
@@ -403,7 +403,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void deleteRoutesBefore(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
+    private void deleteRoutesBefore(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode modifiedRoutes) {
         final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
             modifiedRoutes.getDataBefore(), ribSupport.relativeRoutesPath());
@@ -412,7 +412,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void writeRoutesAfter(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
+    private void writeRoutesAfter(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier effectiveTablePath, final Optional<NormalizedNode<?, ?>> routesAfter,
             final boolean longLivedStale) {
         final Optional<NormalizedNode<?, ?>> maybeRoutesAfter = NormalizedNodes.findNode(routesAfter,
@@ -440,7 +440,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         CountersUtil.add(prefixesInstalled.get(tablesKey), tablesKey, -deletedRoutes.size());
     }
 
-    private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
+    private void processRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route, final boolean longLivedStale) {
         LOG.debug("Process route {}", route.getIdentifier());
         final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.getIdentifier());
@@ -464,7 +464,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void deleteRoute(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
+    private void deleteRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routeIdPath, final NormalizedNode<?, ?> route) {
         handleRouteTarget(ModificationType.DELETE, ribSupport, routeIdPath, route);
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIdPath);
@@ -473,7 +473,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
     }
 
-    private void writeRoute(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
+    private void writeRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routePath, final Optional<NormalizedNode<?, ?>> routeBefore,
             final NormalizedNode<?, ?> routeAfter, final boolean longLivedStale) {
         final TablesKey tablesKey = ribSupport.getTablesKey();

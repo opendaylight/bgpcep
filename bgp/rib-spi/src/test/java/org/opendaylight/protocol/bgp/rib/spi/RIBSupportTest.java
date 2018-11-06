@@ -27,11 +27,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -91,7 +91,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private DataTreeCandidateNode emptyTree;
     private DataTreeCandidateNode emptySubTree;
     private DataTreeCandidateNode subTree;
-    private DOMDataWriteTransaction tx;
+    private DOMDataTreeWriteTransaction tx;
     private ContainerNode nlri;
     private final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap = new HashMap<>();
     private ContainerNode attributes;
@@ -118,7 +118,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
         final Collection<DataTreeCandidateNode> emptyCollection = new HashSet<>();
         doReturn(emptyCollection).when(node).getChildNodes();
 
-        this.tx = Mockito.mock(DOMDataWriteTransaction.class);
+        this.tx = Mockito.mock(DOMDataTreeWriteTransaction.class);
         this.nlri = Mockito.mock(ContainerNode.class);
         this.attributes = ImmutableContainerNodeBuilder.create()
                 .withNodeIdentifier(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME

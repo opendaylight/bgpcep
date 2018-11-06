@@ -15,9 +15,9 @@ import java.io.PrintStream;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
@@ -87,10 +87,10 @@ public final class BGPOperationalStateUtils {
                 .child(Protocol.class, new ProtocolKey(BGP.class, ribId))
                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
 
-        final ReadOnlyTransaction rot = dataBroker.newReadOnlyTransaction();
+        final ReadTransaction rot = dataBroker.newReadOnlyTransaction();
 
         try {
-            return rot.read(LogicalDatastoreType.OPERATIONAL, bgpIID).get().orNull();
+            return rot.read(LogicalDatastoreType.OPERATIONAL, bgpIID).get().orElse(null);
         } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read rib {}", ribId, e);
         }
