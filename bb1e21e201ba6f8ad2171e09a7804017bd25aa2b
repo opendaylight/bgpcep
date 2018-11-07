@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9d8447d_72f0a6b7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-07T12:56:42Z",
+      "side": 1,
+      "message": "year",
+      "range": {
+        "startLine": 2,
+        "startChar": 20,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "bb1e21e201ba6f8ad2171e09a7804017bd25aa2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "404f20af_5e674e75",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/GracefulRestartTest.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-07T12:56:42Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 20,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "bb1e21e201ba6f8ad2171e09a7804017bd25aa2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2eb9a4e_e1de9cdb",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/PeerUtil.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-07T12:56:42Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "bb1e21e201ba6f8ad2171e09a7804017bd25aa2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab7784d_7df63617",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtilTest.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-07T12:56:42Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "bb1e21e201ba6f8ad2171e09a7804017bd25aa2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
