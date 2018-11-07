@@ -1,7 +1,6 @@
   <ipv4-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
    <prefix>$PREFIX</prefix>
    <path-id>0</path-id>
-   <route-key>$PREFIX</route-key>
    <attributes>
     <ipv4-next-hop>
      <global>199.20.160.41</global>

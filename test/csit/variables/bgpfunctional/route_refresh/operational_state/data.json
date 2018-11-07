@@ -7,7 +7,7 @@
             },
             "sent": {
                 "NOTIFICATION": 0,
-                "UPDATE": 4
+                "UPDATE": $RCV_COUNT
             }
         },
         "session-state": "ESTABLISHED",
