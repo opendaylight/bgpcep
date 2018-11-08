@@ -41,9 +41,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 32;
+    private static final int CLASS = 32;
 
-    public static final int TYPE = 1;
+    private static final int TYPE = 1;
 
     /*
      * 12b extended to 16b so first 4b are restricted (belongs to LSP ID)
@@ -58,17 +58,20 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     protected static final int FLAGS_SIZE = 12;
 
     public Stateful07LspObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override
     public Lsp parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final LspBuilder builder = new LspBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        final int[] plspIdRaw = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
-        builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << FLAGS_SIZE) | (plspIdRaw[1] << FOUR_BITS_SHIFT) | (plspIdRaw[2] >> FOUR_BITS_SHIFT))));
+        final int[] plspIdRaw
+            = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
+        builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << FLAGS_SIZE) | (plspIdRaw[1] << FOUR_BITS_SHIFT)
+            | (plspIdRaw[2] >> FOUR_BITS_SHIFT))));
         parseFlags(builder, bytes);
         final TlvsBuilder b = new TlvsBuilder();
         parseTlvs(b, bytes.slice());

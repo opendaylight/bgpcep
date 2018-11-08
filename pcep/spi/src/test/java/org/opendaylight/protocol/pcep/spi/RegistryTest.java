@@ -68,6 +68,7 @@ public class RegistryTest {
 
     @Mock
     ObjectParser objectParser;
+
     @Mock
     ObjectSerializer objectSerializer;
 
@@ -117,6 +118,8 @@ public class RegistryTest {
         Mockito.doReturn(this.viTlv).when(this.tlvParser).parseTlv(Mockito.any(ByteBuf.class));
         Mockito.doNothing().when(this.tlvSerializer).serializeTlv(Mockito.any(Tlv.class), Mockito.any(ByteBuf.class));
 
+        Mockito.doReturn(5).when(this.objectParser).getObjectClass();
+        Mockito.doReturn(1).when(this.objectParser).getObjectType();
         Mockito.doReturn(new OpenBuilder().build()).when(this.objectParser).parseObject(Mockito.any(ObjectHeader.class), Mockito.any(ByteBuf.class));
         Mockito.doNothing().when(this.objectSerializer).serializeObject(Mockito.any(Object.class), Mockito.any(ByteBuf.class));
 
@@ -149,7 +152,7 @@ public class RegistryTest {
         this.regs.add(this.ctx.registerTlvParser(1, this.tlvParser));
         this.regs.add(this.ctx.registerTlvSerializer(OfList.class, this.tlvSerializer));
 
-        this.regs.add(this.ctx.registerObjectParser(5, 1, this.objectParser));
+        this.regs.add(this.ctx.registerObjectParser(this.objectParser));
         this.regs.add(this.ctx.registerObjectSerializer(Rp.class, this.objectSerializer));
 
         this.regs.add(this.ctx.registerMessageParser(6, this.msgParser));

@@ -12,7 +12,7 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -28,13 +28,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Parser for {@link ClassType}
  */
-public class PCEPClassTypeObjectParser implements ObjectParser, ObjectSerializer {
+public final class PCEPClassTypeObjectParser extends CommonObjectParser implements ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPClassTypeObjectParser.class);
-
-    public static final int CLASS = 22;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 22;
+    private static final int TYPE = 1;
 
     /**
      * Length of Class Type field in bits.
@@ -50,6 +48,10 @@ public class PCEPClassTypeObjectParser implements ObjectParser, ObjectSerializer
      * Size of the object in bytes.
      */
     private static final int SIZE = (RESERVED + CT_F_LENGTH) / Byte.SIZE;
+
+    public PCEPClassTypeObjectParser() {
+        super(CLASS, TYPE);
+    }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {

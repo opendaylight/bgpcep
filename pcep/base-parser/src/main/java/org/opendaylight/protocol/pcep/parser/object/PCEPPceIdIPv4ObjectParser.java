@@ -22,6 +22,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.3">PCE-ID Object</a>
  */
 public class PCEPPceIdIPv4ObjectParser extends AbstractPceIdObjectParser {
+    private static final int IPV4_TYPE = 1;
+
+    public PCEPPceIdIPv4ObjectParser() {
+        super(IPV4_TYPE);
+    }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
@@ -30,5 +35,4 @@ public class PCEPPceIdIPv4ObjectParser extends AbstractPceIdObjectParser {
         builder.setIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer)));
         return builder.build();
     }
-
 }

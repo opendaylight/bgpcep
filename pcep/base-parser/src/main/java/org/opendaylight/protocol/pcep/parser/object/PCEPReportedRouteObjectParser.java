@@ -23,19 +23,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Rro}
  */
-public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsParser {
+public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsParser {
 
     public static final int CLASS = 8;
 
     public static final int TYPE = 1;
 
     public PCEPReportedRouteObjectParser(final RROSubobjectRegistry subobjReg) {
-        super(subobjReg);
+        super(subobjReg, CLASS, TYPE);
     }
 
     @Override
     public Rro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final RroBuilder builder = new RroBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
@@ -45,7 +46,8 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Rro, "Wrong instance of PCEPObject. Passed %s. Needed RroObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof Rro,
+            "Wrong instance of PCEPObject. Passed %s. Needed RroObject.", object.getClass());
         final Rro obj = (Rro) object;
         final ByteBuf body = Unpooled.buffer();
         serializeSubobject(obj.getSubobject(), body);

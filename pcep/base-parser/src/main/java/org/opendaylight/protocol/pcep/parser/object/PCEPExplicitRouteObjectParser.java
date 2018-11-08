@@ -23,14 +23,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Ero}
  */
-public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsParser {
+public final class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsParser {
 
-    public static final int CLASS = 7;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 7;
+    private static final int TYPE = 1;
 
     public PCEPExplicitRouteObjectParser(final EROSubobjectRegistry subobjReg) {
-        super(subobjReg);
+        super(subobjReg, CLASS, TYPE);
     }
 
     @Override
@@ -46,7 +45,8 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Ero, "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof Ero,
+            "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
         final Ero ero = ((Ero) object);
         final ByteBuf body = Unpooled.buffer();
         serializeSubobject(ero.getSubobject(), body);

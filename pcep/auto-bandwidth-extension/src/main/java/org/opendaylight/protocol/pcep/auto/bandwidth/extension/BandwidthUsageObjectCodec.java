@@ -15,7 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -26,16 +26,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 
-public class BandwidthUsageObjectCodec implements ObjectParser, ObjectSerializer {
+public final class BandwidthUsageObjectCodec extends CommonObjectParser implements ObjectSerializer {
 
-    static final int CLASS = 5;
+    private static final int CLASS = 5;
 
     private static final int BW_LENGTH = 4;
 
-    private final int type;
-
     public BandwidthUsageObjectCodec(final int type) {
-        this.type = type;
+        super(CLASS, type);
     }
 
     @Override
@@ -66,10 +64,7 @@ public class BandwidthUsageObjectCodec implements ObjectParser, ObjectSerializer
         for (final Bandwidth bw : bwSample) {
             writeFloat32(bw, body);
         }
-        ObjectUtil.formatSubobject(getType(), CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
-    }
-
-    public int getType() {
-        return this.type;
+        ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
+            body, buffer);
     }
 }

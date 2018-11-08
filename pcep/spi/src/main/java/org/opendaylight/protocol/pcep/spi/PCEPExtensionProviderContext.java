@@ -28,6 +28,9 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
 
     AutoCloseable registerMessageSerializer(Class<? extends Message> msgClass, MessageSerializer serializer);
 
+    AutoCloseable registerObjectParser(ObjectParser parser);
+
+    @Deprecated
     AutoCloseable registerObjectParser(int objectClass, int objectType, ObjectParser parser);
 
     AutoCloseable registerObjectSerializer(Class<? extends Object> objClass, ObjectSerializer serializer);

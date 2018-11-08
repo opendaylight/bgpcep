@@ -1044,7 +1044,8 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testEmptyEroObject() throws PCEPDeserializerException {
-        final Object object = this.ctx.getObjectHandlerRegistry().parseObject(PCEPExplicitRouteObjectParser.CLASS, PCEPExplicitRouteObjectParser.TYPE, new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+        final Object object = this.ctx.getObjectHandlerRegistry().parseObject(7, 1,
+            new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
         assertNotNull(object);
         assertTrue(object instanceof Ero);
         final Ero eroObject = (Ero) object;

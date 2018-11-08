@@ -26,19 +26,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobjectsParser {
 
-    public static final int CLASS = 17;
-
-    public static final int TYPE = 1;
-
+    private static final int CLASS = 17;
+    private static final int TYPE = 1;
     private static final int FLAGS_OFFSET = 3;
 
     public PCEPExcludeRouteObjectParser(final XROSubobjectRegistry registry) {
-        super(registry);
+        super(registry, CLASS, TYPE);
     }
 
     @Override
     public Xro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final XroBuilder builder = new XroBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
@@ -50,7 +49,8 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Xro, "Wrong instance of PCEPObject. Passed %s. Needed XroObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof Xro,
+            "Wrong instance of PCEPObject. Passed %s. Needed XroObject.", object.getClass());
         final Xro obj = (Xro) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_OFFSET);

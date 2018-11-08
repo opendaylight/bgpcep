@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, ObjectSerializer {
+public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser implements ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractObjectWithTlvsParser.class);
 
@@ -29,7 +29,9 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 
     private final VendorInformationTlvRegistry viTlvReg;
 
-    protected AbstractObjectWithTlvsParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+    protected AbstractObjectWithTlvsParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg,
+        final int objectClass, final int objectType) {
+        super(objectClass, objectType);
         this.tlvReg = requireNonNull(tlvReg);
         this.viTlvReg = requireNonNull(viTlvReg);
     }

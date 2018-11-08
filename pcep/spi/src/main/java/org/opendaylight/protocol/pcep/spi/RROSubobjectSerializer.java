@@ -11,7 +11,9 @@ import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 
+/**
+ * Reported Route Object Serializer.
+ */
 public interface RROSubobjectSerializer {
-
     void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
 }

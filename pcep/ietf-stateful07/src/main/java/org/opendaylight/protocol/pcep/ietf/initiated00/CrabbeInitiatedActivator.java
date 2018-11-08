@@ -30,14 +30,13 @@ public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProvide
 
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();
-        regs.add(context.registerObjectParser(CInitiated00LspObjectParser.CLASS, CInitiated00LspObjectParser.TYPE,
-                new CInitiated00LspObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectParser(new CInitiated00LspObjectParser(tlvReg, viTlvReg)));
         regs.add(context.registerObjectSerializer(Lsp.class, new CInitiated00LspObjectParser(tlvReg, viTlvReg)));
-        regs.add(context.registerObjectParser(CInitiated00SrpObjectParser.CLASS, CInitiated00SrpObjectParser.TYPE,
-                new CInitiated00SrpObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectParser(new CInitiated00SrpObjectParser(tlvReg, viTlvReg)));
         regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectParser(tlvReg, viTlvReg)));
 
-        regs.add(context.registerTlvParser(CInitiated00StatefulCapabilityTlvParser.TYPE, new CInitiated00StatefulCapabilityTlvParser()));
+        regs.add(context.registerTlvParser(CInitiated00StatefulCapabilityTlvParser.TYPE,
+            new CInitiated00StatefulCapabilityTlvParser()));
         regs.add(context.registerTlvSerializer(Stateful.class, new CInitiated00StatefulCapabilityTlvParser()));
 
         return regs;

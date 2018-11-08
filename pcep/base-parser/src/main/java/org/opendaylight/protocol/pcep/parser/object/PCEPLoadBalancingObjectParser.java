@@ -13,7 +13,7 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -27,23 +27,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link LoadBalancing}
  */
-public class PCEPLoadBalancingObjectParser implements ObjectParser, ObjectSerializer {
+public final class PCEPLoadBalancingObjectParser extends CommonObjectParser implements ObjectSerializer {
 
-    public static final int CLASS = 14;
-
-    public static final int TYPE = 1;
-
+    private static final int CLASS = 14;
+    private static final int TYPE = 1;
     private static final int RESERVED = 2;
     private static final int FLAGS_F_LENGTH = 1;
-
     private static final int SIZE = 8;
+
+    public PCEPLoadBalancingObjectParser() {
+        super(CLASS, TYPE);
+    }
 
     @Override
     public LoadBalancing parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() != SIZE) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: " + SIZE
-                    + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: "
+                + bytes.readableBytes() + "; Expected: " + SIZE + ".");
         }
         final LoadBalancingBuilder builder = new LoadBalancingBuilder();
         builder.setIgnore(header.isIgnore());
@@ -56,7 +58,9 @@ public class PCEPLoadBalancingObjectParser implements ObjectParser, ObjectSerial
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof LoadBalancing, "Wrong instance of PCEPObject. Passed %s. Needed LoadBalancingObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof LoadBalancing,
+            "Wrong instance of PCEPObject. Passed %s. Needed LoadBalancingObject.",
+            object.getClass());
         final LoadBalancing specObj = (LoadBalancing) object;
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(RESERVED + FLAGS_F_LENGTH);

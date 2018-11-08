@@ -32,23 +32,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link ErrorObject}
  */
-public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObjectBuilder> {
+public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObjectBuilder> {
 
-    public static final int CLASS = 13;
-
-    public static final int TYPE = 1;
-
+    private static final int CLASS = 13;
+    private static final int TYPE = 1;
     private static final int FLAGS_F_LENGTH = 1;
-
     private static final int RESERVED  = 1;
 
     public PCEPErrorObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override
     public ErrorObject parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final ErrorObjectBuilder builder = new ErrorObjectBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
@@ -68,7 +66,8 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof ErrorObject, "Wrong instance of PCEPObject. Passed %s. Needed ErrorObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof ErrorObject,
+            "Wrong instance of PCEPObject. Passed %s. Needed ErrorObject.", object.getClass());
         final ErrorObject errObj = (ErrorObject) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_F_LENGTH + RESERVED);
@@ -91,7 +90,9 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
     }
 
     @Override
-    protected final void addVendorInformationTlvs(final ErrorObjectBuilder builder, final List<VendorInformationTlv> tlvs) {
+    protected final void addVendorInformationTlvs(
+        final ErrorObjectBuilder builder,
+        final List<VendorInformationTlv> tlvs) {
         if (!tlvs.isEmpty()) {
             builder.setTlvs(new TlvsBuilder(builder.getTlvs()).setVendorInformationTlv(tlvs).build());
         }

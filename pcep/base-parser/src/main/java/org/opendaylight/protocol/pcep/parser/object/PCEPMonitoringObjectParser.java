@@ -35,9 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 19;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 19;
+    private static final int TYPE = 1;
 
     private static final int FLAGS_SIZE = 24;
     private static final int RESERVED = 1;
@@ -48,7 +47,7 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
     private static final int I_FLAG_POS = 19;
 
     public PCEPMonitoringObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override

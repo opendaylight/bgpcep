@@ -15,7 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
+public abstract class AbstractXROWithSubobjectsParser extends CommonObjectParser implements ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractXROWithSubobjectsParser.class);
 
@@ -32,16 +32,21 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 
     private final XROSubobjectRegistry subobjReg;
 
-    protected AbstractXROWithSubobjectsParser(final XROSubobjectRegistry subobjReg) {
+    protected AbstractXROWithSubobjectsParser(final XROSubobjectRegistry subobjReg,
+        final int objectClass, final int objectType) {
+        super(objectClass, objectType);
         this.subobjReg = requireNonNull(subobjReg);
     }
 
     protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final boolean mandatory = ((buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
-            final int type = UnsignedBytes.checkedCast((buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET));
+            final boolean mandatory =
+                ((buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
+            final int type = UnsignedBytes.checkedCast((buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES)
+                & ~(1 << Values.FIRST_BIT_OFFSET));
             final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
@@ -60,7 +65,8 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
     }
 
     protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(), "XRO must contain at least one subobject.");
+        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(),
+            "XRO must contain at least one subobject.");
         for (final Subobject subobject : subobjects) {
             this.subobjReg.serializeSubobject(subobject, buffer);
         }

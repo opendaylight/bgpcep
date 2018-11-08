@@ -31,11 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link CNotification}
  */
-public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<CNotificationBuilder> {
+public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<CNotificationBuilder> {
 
-    public static final int CLASS = 12;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 12;
+    private static final int TYPE = 1;
 
     /*
      * offsets of fields
@@ -43,12 +42,13 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
     private static final int NT_F_OFFSET = 2;
 
     public PCEPNotificationObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override
     public CNotification parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final CNotificationBuilder builder = new CNotificationBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
@@ -68,7 +68,9 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof CNotification, "Wrong instance of PCEPObject. Passed %s. Needed CNotificationObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof CNotification,
+            "Wrong instance of PCEPObject. Passed %s. Needed CNotificationObject.",
+            object.getClass());
         final CNotification notObj = (CNotification) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(NT_F_OFFSET);
@@ -91,7 +93,9 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
     }
 
     @Override
-    protected final void addVendorInformationTlvs(final CNotificationBuilder builder, final List<VendorInformationTlv> tlvs) {
+    protected final void addVendorInformationTlvs(
+        final CNotificationBuilder builder,
+        final List<VendorInformationTlv> tlvs) {
         if (!tlvs.isEmpty()) {
             builder.setTlvs(new TlvsBuilder(builder.getTlvs()).setVendorInformationTlv(tlvs).build());
         }

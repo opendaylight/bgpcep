@@ -10,6 +10,9 @@ package org.opendaylight.protocol.pcep.spi;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 
+/**
+ * Reported Route Object Registry.
+ */
 public interface RROSubobjectRegistry {
     /**
      * Finds parser for given subobject type in the registry. Delegates parsing to found parser.

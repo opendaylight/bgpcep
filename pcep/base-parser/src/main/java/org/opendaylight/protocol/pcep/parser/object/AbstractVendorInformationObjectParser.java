@@ -15,8 +15,8 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.EnterpriseSpecificInformationParser;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -26,7 +26,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObjectBuilder;
 
-public abstract class AbstractVendorInformationObjectParser implements ObjectSerializer, ObjectParser, EnterpriseSpecificInformationParser {
+public abstract class AbstractVendorInformationObjectParser extends CommonObjectParser
+    implements ObjectSerializer, EnterpriseSpecificInformationParser {
+
+    public AbstractVendorInformationObjectParser(final int objectClass, final int objectType) {
+        super(objectClass, objectType);
+    }
 
     @Override
     public final Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {

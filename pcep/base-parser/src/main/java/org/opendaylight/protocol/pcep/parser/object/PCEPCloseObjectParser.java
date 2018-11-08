@@ -29,11 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose PCEPCloseObject}
  */
-public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 15;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 15;
+    private static final int TYPE = 1;
 
     /*
      * lengths of fields in bytes
@@ -42,7 +41,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<TlvsBuil
     private static final int FLAGS_F_LENGTH = 1;
 
     public PCEPCloseObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
 
