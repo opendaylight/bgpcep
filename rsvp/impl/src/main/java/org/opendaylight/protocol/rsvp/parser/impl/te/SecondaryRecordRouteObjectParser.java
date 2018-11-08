@@ -11,10 +11,14 @@ package org.opendaylight.protocol.rsvp.parser.impl.te;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.RROSubobjectListParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainerBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.SecondaryRecordRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.SecondaryRecordRouteObjectBuilder;
 
@@ -29,7 +33,18 @@ public final class SecondaryRecordRouteObjectParser extends RROSubobjectListPars
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
         final SecondaryRecordRouteObjectBuilder srro = new SecondaryRecordRouteObjectBuilder();
-        return srro.setSubobjectContainer(parseList(byteBuf)).build();
+
+        final List<SubobjectContainer> sbo = parseList(byteBuf);
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record
+            .route.object.secondary.record.route.object.SubobjectContainer> srroSbo = sbo.stream()
+            .map(so -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary
+                .record.route.object.secondary.record.route.object.SubobjectContainerBuilder()
+                .setProtectionAvailable(so.isProtectionAvailable())
+                .setProtectionInUse(so.isProtectionInUse())
+                .setSubobjectType(so.getSubobjectType())
+                .build()
+            ).collect(Collectors.toList());
+        return srro.setSubobjectContainer(srroSbo).build();
     }
 
     @Override
@@ -38,7 +53,13 @@ public final class SecondaryRecordRouteObjectParser extends RROSubobjectListPars
             "RecordRouteObject is mandatory.");
         final SecondaryRecordRouteObject srro = (SecondaryRecordRouteObject) teLspObject;
         final ByteBuf bufferAux = Unpooled.buffer();
-        serializeList(srro.getSubobjectContainer(), bufferAux);
+        final List<SubobjectContainer> srroSbo = srro.getSubobjectContainer()
+            .stream().map(so -> new SubobjectContainerBuilder()
+                .setProtectionAvailable(so.isProtectionAvailable())
+                .setProtectionInUse(so.isProtectionInUse())
+                .setSubobjectType(so.getSubobjectType())
+                .build()).collect(Collectors.toList());
+        serializeList(srroSbo, bufferAux);
         serializeAttributeHeader(bufferAux.readableBytes(), CLASS_NUM, CTYPE, output);
         output.writeBytes(bufferAux);
     }

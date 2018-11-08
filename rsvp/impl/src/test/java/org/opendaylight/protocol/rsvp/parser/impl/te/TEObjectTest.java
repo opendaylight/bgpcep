@@ -26,7 +26,8 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainerBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.secondary.explicit.route.object.subobject.container.subobject.type.DynamicControlProtectionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.subobjects.subobject.type.DynamicControlProtectionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.subobjects.subobject.type.DynamicControlProtectionCase;
 
 public class TEObjectTest {
     private RSVPActivator act;
@@ -266,11 +267,9 @@ public class TEObjectTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testWrongSerializeSRRO() throws RSVPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route
-            .object.secondary.record.route.object.subobject.container.subobject.type
-            .DynamicControlProtectionCase dynamicProtection = new org.opendaylight.yang.gen.v1.urn
-            .opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.secondary.record.route
-            .object.subobject.container.subobject.type.DynamicControlProtectionCaseBuilder().build();
+        final DynamicControlProtectionCase dynamicProtection = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
+            .xml.ns.yang.rsvp.rev150820.secondary.record.route.subobjects.subobject.type
+            .DynamicControlProtectionCaseBuilder().build();
         final SRROBasicProtectionSubobjectParser parser = new SRROBasicProtectionSubobjectParser();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
             .list.SubobjectContainer subContainer = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
