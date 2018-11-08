@@ -191,6 +191,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(childIdentifier);
                 switch (child.getModificationType()) {
                     case DELETE:
+                    case DISAPPEARED:
                         LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
                         tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
                         break;
@@ -203,6 +204,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                             break;
                         }
                     case WRITE:
+                    case APPEARED:
                         if (child.getDataAfter().isPresent()) {
                             final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
                             LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
