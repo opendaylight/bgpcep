@@ -565,18 +565,30 @@ module rsvp {
             reference "http://tools.ietf.org/html/rfc4873#section-4.1";
 
             uses rsvp-te-object;
-            uses explicit-route-subobjects-list {
-                augment "subobject-container/subobject-type" {
-                    case basic-protection-case {
-                        container basic-protection {
-                            uses protection-subobject;
-                        }
-                    }
+            list subobject-container {
+                leaf loose {
+                    type boolean;
+                    mandatory true;
+                }
 
-                    case dynamic-control-protection-case {
-                        container dynamic-control-protection {
-                            uses protection-subobject;
-                        }
+                uses secondary-explicit-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping secondary-explicit-route-subobjects {
+        uses explicit-route-subobjects {
+            augment "subobject-type" {
+                case basic-protection-case {
+                    container basic-protection {
+                        uses protection-subobject;
+                    }
+                }
+
+                case dynamic-control-protection-case {
+                    container dynamic-control-protection {
+                        uses protection-subobject;
                     }
                 }
             }
@@ -586,18 +598,25 @@ module rsvp {
     grouping secondary-record-route-object {
         container secondary-record-route-object {
             uses rsvp-te-object;
-            uses record-route-subobjects-list {
-                augment "subobject-container/subobject-type" {
-                    case basic-protection-case {
-                        container basic-protection {
-                            uses protection-subobject;
-                        }
-                    }
+            list subobject-container {
+                uses secondary-record-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
 
-                    case dynamic-control-protection-case {
-                        container dynamic-control-protection {
-                            uses protection-subobject;
-                        }
+    grouping secondary-record-route-subobjects {
+        uses record-route-subobjects {
+            augment "subobject-type" {
+                case basic-protection-case {
+                    container basic-protection {
+                        uses protection-subobject;
+                    }
+                }
+
+                case dynamic-control-protection-case {
+                    container dynamic-control-protection {
+                        uses protection-subobject;
                     }
                 }
             }

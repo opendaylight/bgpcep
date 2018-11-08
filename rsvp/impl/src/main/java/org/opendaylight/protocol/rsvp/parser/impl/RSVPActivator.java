@@ -92,8 +92,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.protection.object.protection.object.dynamic.control.protection.object._case.DynamicControlProtectionObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.object.RecordRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.SecondaryExplicitRouteObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.secondary.explicit.route.object.subobject.container.subobject.type.BasicProtectionCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.secondary.explicit.route.object.subobject.container.subobject.type.DynamicControlProtectionCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.subobjects.subobject.type.BasicProtectionCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.subobjects.subobject.type.DynamicControlProtectionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.SecondaryRecordRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.BasicSessionAttributeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.SessionAttributeObjectWithResourcesAffinities;
@@ -279,12 +279,12 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         final SRROBasicProtectionSubobjectParser srroBasicParser = new SRROBasicProtectionSubobjectParser();
         final SRRODynamicProtectionSubobjectParser srroDynamicParser = new SRRODynamicProtectionSubobjectParser();
         regs.add(context.registerRROSubobjectParser(SRROBasicProtectionSubobjectParser.TYPE, srroBasicParser));
-        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.rsvp.rev150820.secondary.record.route.object.secondary.record.route.object.subobject.container
-            .subobject.type.BasicProtectionCase.class, srroBasicParser));
-        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.rsvp.rev150820.secondary.record.route.object.secondary.record.route.object.subobject.container
-            .subobject.type.DynamicControlProtectionCase.class, srroDynamicParser));
+        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .rsvp.rev150820.secondary.record.route.subobjects.subobject.type
+            .BasicProtectionCase.class, srroBasicParser));
+        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .rsvp.rev150820.secondary.record.route.subobjects.subobject.type
+            .DynamicControlProtectionCase.class, srroDynamicParser));
     }
 
     private static void registerXROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context) {

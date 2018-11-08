@@ -15,7 +15,7 @@ import org.opendaylight.protocol.rsvp.parser.impl.te.ProtectionCommonParser;
 import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.protection.subobject.ProtectionSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.secondary.record.route.object.subobject.container.subobject.type.DynamicControlProtectionCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.subobjects.subobject.type.DynamicControlProtectionCase;
 
 public class SRRODynamicProtectionSubobjectParser extends ProtectionCommonParser implements RROSubobjectSerializer {
     public static final int TYPE = 37;
