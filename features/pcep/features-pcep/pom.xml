@@ -65,6 +65,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-pcep-p2mp-te-lsp</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-topology-provider</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
