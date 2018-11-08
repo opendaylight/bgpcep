@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>binding-parent</artifactId>
+        <version>0.11.0-SNAPSHOT</version>
+        <relativePath>../../binding-parent</relativePath>
+    </parent>
+
+    <artifactId>pcep-ietf-p2mp-te-lsp</artifactId>
+    <description>PCE IETF Point-to-Multipoint Traffic Engineering Label Switched Paths</description>
+    <packaging>bundle</packaging>
+    <name>${project.artifactId}</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>concepts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>yang-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+    </dependencies>
+
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
+        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
+        <tag>HEAD</tag>
+    </scm>
+</project>
