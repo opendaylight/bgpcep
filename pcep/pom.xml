@@ -37,6 +37,7 @@
         <module>spi</module>
         <module>base-parser</module>
         <module>ietf-stateful07</module>
+        <module>ietf-p2mp-te-lsp</module>
         <module>testtool</module>
         <module>topology</module>
         <module>segment-routing</module>
