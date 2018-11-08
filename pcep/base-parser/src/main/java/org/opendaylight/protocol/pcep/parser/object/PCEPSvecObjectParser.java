@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -28,11 +28,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Svec}
  */
-public class PCEPSvecObjectParser implements ObjectParser, ObjectSerializer {
+public final class PCEPSvecObjectParser extends CommonObjectParser implements ObjectSerializer {
 
-    public static final int CLASS = 11;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 11;
+    private static final int TYPE = 1;
 
     /*
      * field lengths in bytes
@@ -55,6 +54,10 @@ public class PCEPSvecObjectParser implements ObjectParser, ObjectSerializer {
      * min size in bytes
      */
     private static final int MIN_SIZE = FLAGS_SIZE / Byte.SIZE + FLAGS_F_OFFSET;
+
+    public PCEPSvecObjectParser() {
+        super(CLASS, TYPE);
+    }
 
     @Override
     public Svec parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {

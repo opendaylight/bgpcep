@@ -99,8 +99,7 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
         /* Objects */
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final VendorInformationTlvRegistry viTlvRegistry = context.getVendorInformationTlvRegistry();
-        regs.add(context.registerObjectParser(PcepOpenObjectWithSpcTlvParser.CLASS,
-                PcepOpenObjectWithSpcTlvParser.TYPE, new PcepOpenObjectWithSpcTlvParser(tlvReg, viTlvRegistry)));
+        regs.add(context.registerObjectParser(new PcepOpenObjectWithSpcTlvParser(tlvReg, viTlvRegistry)));
         regs.add(context.registerObjectSerializer(Open.class, new PcepOpenObjectWithSpcTlvParser(tlvReg, viTlvRegistry)));
 
         return regs;

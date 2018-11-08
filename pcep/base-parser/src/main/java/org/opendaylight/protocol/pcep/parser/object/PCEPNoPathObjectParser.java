@@ -34,9 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 3;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 3;
+    private static final int TYPE = 1;
 
     /*
      * lengths of fields in bytes
@@ -50,7 +49,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
     private static final int C_FLAG_OFFSET = 0;
 
     public PCEPNoPathObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override

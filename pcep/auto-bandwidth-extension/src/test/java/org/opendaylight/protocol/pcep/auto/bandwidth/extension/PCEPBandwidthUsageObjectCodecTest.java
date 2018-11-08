@@ -30,7 +30,7 @@ public class PCEPBandwidthUsageObjectCodecTest {
     @Test
     public void testCodec() throws PCEPDeserializerException {
         final BandwidthUsageObjectCodec codec = new BandwidthUsageObjectCodec(5);
-        assertEquals(5, codec.getType());
+        assertEquals(5, codec.getObjectType());
 
         final BandwidthUsageBuilder builder = new BandwidthUsageBuilder();
         builder.setBwSample(Lists.newArrayList(new Bandwidth(new byte[]{0x00, 0x00, 0x10, 0x00}),

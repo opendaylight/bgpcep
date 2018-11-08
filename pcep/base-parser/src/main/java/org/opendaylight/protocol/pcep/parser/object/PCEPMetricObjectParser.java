@@ -13,7 +13,7 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -28,11 +28,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Metric}
  */
-public class PCEPMetricObjectParser implements ObjectParser, ObjectSerializer {
+public final class PCEPMetricObjectParser extends CommonObjectParser implements ObjectSerializer {
 
-    public static final int CLASS = 6;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 6;
+    private static final int TYPE = 1;
 
     /*
      * lengths of fields in bytes
@@ -52,6 +51,10 @@ public class PCEPMetricObjectParser implements ObjectParser, ObjectSerializer {
     private static final int B_FLAG_OFFSET = 7;
 
     private static final int SIZE = METRIC_VALUE_F_LENGTH + METRIC_VALUE_F_LENGTH;
+
+    public PCEPMetricObjectParser() {
+        super(CLASS, TYPE);
+    }
 
     @Override
     public Metric parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {

@@ -47,7 +47,7 @@ public class AbstractObjectWithTlvsTest {
     private class Abs extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
         protected Abs(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
-            super(tlvReg, viTlvReg);
+            super(tlvReg, viTlvReg, 0, 0);
         }
 
         @Override

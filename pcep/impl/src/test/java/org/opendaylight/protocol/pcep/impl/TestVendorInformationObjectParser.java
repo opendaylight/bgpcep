@@ -12,13 +12,16 @@ import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.object.AbstractVendorInformationObjectParser;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.EnterpriseSpecificInformation;
 
 public class TestVendorInformationObjectParser extends AbstractVendorInformationObjectParser {
 
     private static final EnterpriseNumber TEST_ENTERPRISE_NUMBER = new EnterpriseNumber(0L);
+
+    public TestVendorInformationObjectParser() {
+        super(0, 0);
+    }
 
     @Override
     public void serializeEnterpriseSpecificInformation(final EnterpriseSpecificInformation enterpriseSpecificInformation,
@@ -35,5 +38,4 @@ public class TestVendorInformationObjectParser extends AbstractVendorInformation
     public EnterpriseNumber getEnterpriseNumber() {
         return TEST_ENTERPRISE_NUMBER;
     }
-
 }

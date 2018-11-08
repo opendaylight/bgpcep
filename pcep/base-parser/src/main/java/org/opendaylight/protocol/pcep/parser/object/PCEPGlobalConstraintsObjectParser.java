@@ -31,17 +31,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 24;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 24;
+    private static final int TYPE = 1;
 
     public PCEPGlobalConstraintsObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override
     public Gc parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final GcBuilder builder = new GcBuilder();
 
         builder.setIgnore(header.isIgnore());
@@ -59,7 +59,8 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Gc, "Wrong instance of PCEPObject. Passed %s. Needed GcObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof Gc,
+            "Wrong instance of PCEPObject. Passed %s. Needed GcObject.", object.getClass());
         final Gc specObj = (Gc) object;
         final ByteBuf body = Unpooled.buffer();
         writeUnsignedByte(specObj.getMaxHop(), body);

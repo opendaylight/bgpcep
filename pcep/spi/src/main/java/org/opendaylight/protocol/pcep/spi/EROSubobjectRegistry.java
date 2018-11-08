@@ -8,26 +8,29 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 
+/**
+ * Explicit Route Object Registry.
+ */
 public interface EROSubobjectRegistry {
     /**
      * Finds parser for given subobject type in the registry. Delegates parsing to found parser.
      *
      * @param subobjectType subobject type, key in parser registry
-     * @param buffer subobject wrapped in ByteBuf
-     * @param loose ERO specific common field
+     * @param buffer        subobject wrapped in ByteBuf
+     * @param loose         ERO specific common field
      * @return null if the parser for this subobject could not be found
      * @throws PCEPDeserializerException if the parsing did not succeed
      */
-    Subobject parseSubobject(final int subobjectType, final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException;
+    Subobject parseSubobject(final int subobjectType, final ByteBuf buffer, final boolean loose)
+        throws PCEPDeserializerException;
 
     /**
      * Find serializer for given subobject. Delegates parsing to found serializer.
      *
      * @param subobject to be parsed
-     * @param buffer buffer where the serialized subobject will be parsed
+     * @param buffer    buffer where the serialized subobject will be parsed
      */
     void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
 }

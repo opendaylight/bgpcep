@@ -35,8 +35,7 @@ public class Activator extends AbstractPCEPExtensionProviderActivator {
 
         final BandwidthUsageObjectCodec bandwidthUsageObjectCodec =
                 new BandwidthUsageObjectCodec(this.bandwidthUsageObjectType);
-        regs.add(context.registerObjectParser(BandwidthUsageObjectCodec.CLASS, bandwidthUsageObjectCodec.getType(),
-                bandwidthUsageObjectCodec));
+        regs.add(context.registerObjectParser(bandwidthUsageObjectCodec));
         regs.add(context.registerObjectSerializer(BandwidthUsage.class, bandwidthUsageObjectCodec));
 
         final PcRptMessageCodec pcRptMessageCodec = new PcRptMessageCodec(context.getObjectHandlerRegistry());

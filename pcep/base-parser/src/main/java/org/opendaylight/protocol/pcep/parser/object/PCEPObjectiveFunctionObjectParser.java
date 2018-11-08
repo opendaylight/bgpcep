@@ -30,21 +30,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Of}
  */
-public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+public final class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 21;
-
-    public static final int TYPE = 1;
-
+    private static final int CLASS = 21;
+    private static final int TYPE = 1;
     private static final int RESERVED = 2;
 
     public PCEPObjectiveFunctionObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override
     public Of parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final OfBuilder builder = new OfBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
@@ -58,7 +57,8 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Of, "Wrong instance of PCEPObject. Passed %s. Needed OfObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof Of,
+            "Wrong instance of PCEPObject. Passed %s. Needed OfObject.", object.getClass());
         final Of specObj = (Of) object;
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(specObj.getCode() != null, "Code is mandatory");

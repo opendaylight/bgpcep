@@ -12,7 +12,7 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -27,21 +27,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link ProcTime}
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.4">PROC-TIME Object</a>
  */
-public class PCEPProcTimeObjectParser implements ObjectParser, ObjectSerializer {
+public class PCEPProcTimeObjectParser extends CommonObjectParser implements ObjectSerializer {
 
-    public static final int CLASS = 26;
-
-    public static final int TYPE = 1;
-
+    private static final int CLASS = 26;
+    private static final int TYPE = 1;
     private static final int RESERVED = 2;
     private static final int FLAGS = 16;
     private static final int COUNT_FIELDS = 5;
     private static final int BODY_SIZE = RESERVED + FLAGS + COUNT_FIELDS * INT_BYTES_LENGTH;
     private static final int E_FLAG_POSITION = 15;
 
+    public PCEPProcTimeObjectParser() {
+        super(CLASS, TYPE);
+    }
+
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof ProcTime, "Wrong instance of PCEPObject. Passed %s. Needed ProcTimeObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof ProcTime,
+            "Wrong instance of PCEPObject. Passed %s. Needed ProcTimeObject.", object.getClass());
         final ProcTime procTime = (ProcTime) object;
         final ByteBuf body = Unpooled.buffer(BODY_SIZE);
         body.writeZero(RESERVED);
@@ -58,7 +61,8 @@ public class PCEPProcTimeObjectParser implements ObjectParser, ObjectSerializer 
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final ProcTimeBuilder builder = new ProcTimeBuilder();
         buffer.skipBytes(RESERVED);
         final BitArray flagBits = BitArray.valueOf(buffer, FLAGS);
@@ -70,5 +74,4 @@ public class PCEPProcTimeObjectParser implements ObjectParser, ObjectSerializer 
         builder.setVarianceProcTime(buffer.readUnsignedInt());
         return builder.build();
     }
-
 }

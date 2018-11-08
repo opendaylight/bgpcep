@@ -38,9 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 2;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 2;
+    private static final int TYPE = 1;
 
     /*
      * lengths of fields in bytes
@@ -91,7 +90,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
     private static final int E_FLAG_OFFSET = 20;
 
     public PCEPRequestParameterObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override

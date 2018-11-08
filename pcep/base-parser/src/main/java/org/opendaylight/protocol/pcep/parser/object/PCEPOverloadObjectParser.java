@@ -11,7 +11,7 @@ package org.opendaylight.protocol.pcep.parser.object;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -21,19 +21,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.Overload;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.OverloadBuilder;
 
-public class PCEPOverloadObjectParser implements ObjectParser, ObjectSerializer {
+public class PCEPOverloadObjectParser extends CommonObjectParser implements ObjectSerializer {
 
-    public static final int CLASS = 27;
-
-    public static final int TYPE = 1;
-
+    private static final int CLASS = 27;
+    private static final int TYPE = 1;
     private static final int RESERVED = 1;
     private static final int FLAGS = RESERVED;
     private static final int BODY_SIZE = RESERVED + FLAGS + ByteBufWriteUtil.SHORT_BYTES_LENGTH;
 
+    public PCEPOverloadObjectParser() {
+        super(CLASS, TYPE);
+    }
+
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Overload, "Wrong instance of PCEPObject. Passed %s. Needed OverloadObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof Overload,
+            "Wrong instance of PCEPObject. Passed %s. Needed OverloadObject.", object.getClass());
         final Overload overload = (Overload) object;
         final ByteBuf body = Unpooled.buffer(BODY_SIZE);
         body.writeZero(RESERVED + FLAGS);
@@ -43,11 +46,11 @@ public class PCEPOverloadObjectParser implements ObjectParser, ObjectSerializer 
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final OverloadBuilder builder = new OverloadBuilder();
         buffer.readBytes(RESERVED + FLAGS);
         builder.setDuration(buffer.readUnsignedShort());
         return builder.build();
     }
-
 }

@@ -34,9 +34,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
  */
 public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 9;
+    private static final int CLASS = 9;
 
-    public static final int TYPE = 1;
+    private static final int TYPE = 1;
 
     /*
      * lengths of fields in bytes
@@ -51,7 +51,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     private static final int RESERVED = 1;
 
     public PCEPLspaObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override

@@ -41,9 +41,8 @@ import org.slf4j.LoggerFactory;
 public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPOpenObjectParser.class);
 
-    public static final int CLASS = 1;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 1;
+    private static final int TYPE = 1;
 
     /*
      * lengths of subfields inside multi-field in bits
@@ -58,7 +57,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     private static final int PCEP_VERSION = 1;
 
     public PCEPOpenObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override

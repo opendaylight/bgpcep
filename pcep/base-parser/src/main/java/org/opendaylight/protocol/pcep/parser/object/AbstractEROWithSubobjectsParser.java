@@ -14,8 +14,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Values;
@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
+public abstract class AbstractEROWithSubobjectsParser extends CommonObjectParser implements ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractEROWithSubobjectsParser.class);
 
@@ -31,7 +31,9 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 
     private final EROSubobjectRegistry subobjReg;
 
-    protected AbstractEROWithSubobjectsParser(final EROSubobjectRegistry subobjReg) {
+    protected AbstractEROWithSubobjectsParser(final EROSubobjectRegistry subobjReg, final int objectClass,
+        final int objectType) {
+        super(objectClass, objectType);
         this.subobjReg = requireNonNull(subobjReg);
     }
 

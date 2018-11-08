@@ -21,7 +21,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReq} with IPv6 address
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.2">PCC-ID-REQ Object</a>
  */
-public class PCEPPccIdReqIPv6ObjectParser extends AbstractPccIdReqObjectParser {
+public final class PCEPPccIdReqIPv6ObjectParser extends AbstractPccIdReqObjectParser {
+    private static final int IPV6_TYPE = 2;
+
+    public PCEPPccIdReqIPv6ObjectParser() {
+        super(IPV6_TYPE);
+    }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
@@ -30,5 +35,4 @@ public class PCEPPccIdReqIPv6ObjectParser extends AbstractPccIdReqObjectParser {
         builder.setIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)));
         return builder.build();
     }
-
 }

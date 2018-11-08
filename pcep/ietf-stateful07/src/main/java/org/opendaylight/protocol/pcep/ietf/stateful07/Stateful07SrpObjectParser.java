@@ -35,9 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-    public static final int CLASS = 33;
-
-    public static final int TYPE = 1;
+    private static final int CLASS = 33;
+    private static final int TYPE = 1;
 
     protected static final int FLAGS_SIZE = 32;
 
@@ -46,7 +45,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     protected static final int MIN_SIZE = FLAGS_SIZE / Byte.SIZE + SRP_ID_SIZE;
 
     protected Stateful07SrpObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
-        super(tlvReg, viTlvReg);
+        super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
     @Override

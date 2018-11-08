@@ -27,12 +27,10 @@ public class SyncOptimizationsActivator extends AbstractPCEPExtensionProviderAct
 
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();
-        regs.add(context.registerObjectParser(SyncOptimizationsLspObjectParser.CLASS, SyncOptimizationsLspObjectParser.TYPE,
-            new SyncOptimizationsLspObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectParser(new SyncOptimizationsLspObjectParser(tlvReg, viTlvReg)));
         regs.add(context.registerObjectSerializer(Lsp.class, new SyncOptimizationsLspObjectParser(tlvReg, viTlvReg)));
 
-        regs.add(context.registerObjectParser(SyncOptimizationsOpenObjectParser.CLASS, SyncOptimizationsOpenObjectParser.TYPE,
-            new SyncOptimizationsOpenObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectParser(new SyncOptimizationsOpenObjectParser(tlvReg, viTlvReg)));
         regs.add(context.registerObjectSerializer(Open.class, new SyncOptimizationsOpenObjectParser(tlvReg, viTlvReg)));
 
         regs.add(context.registerTlvParser(LspDbVersionTlvParser.TYPE, new LspDbVersionTlvParser()));
@@ -41,7 +39,8 @@ public class SyncOptimizationsActivator extends AbstractPCEPExtensionProviderAct
         regs.add(context.registerTlvParser(SpeakerEntityIdTlvParser.TYPE, new SpeakerEntityIdTlvParser()));
         regs.add(context.registerTlvSerializer(SpeakerEntityId.class, new SpeakerEntityIdTlvParser()));
 
-        regs.add(context.registerTlvParser(SyncOptimizationsCapabilityTlvParser.TYPE, new SyncOptimizationsCapabilityTlvParser()));
+        regs.add(context.registerTlvParser(SyncOptimizationsCapabilityTlvParser.TYPE,
+            new SyncOptimizationsCapabilityTlvParser()));
         regs.add(context.registerTlvSerializer(Stateful.class, new SyncOptimizationsCapabilityTlvParser()));
 
         return regs;

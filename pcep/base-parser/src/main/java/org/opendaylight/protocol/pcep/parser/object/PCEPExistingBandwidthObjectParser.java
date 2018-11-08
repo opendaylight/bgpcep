@@ -12,7 +12,7 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -24,11 +24,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for Bandwidth
  */
-public class PCEPExistingBandwidthObjectParser implements ObjectParser, ObjectSerializer {
+public class PCEPExistingBandwidthObjectParser extends CommonObjectParser implements ObjectSerializer {
 
-    public static final int CLASS = 5;
+    private static final int CLASS = 5;
 
-    public static final int TYPE = 2;
+    private static final int TYPE = 2;
+
+    public PCEPExistingBandwidthObjectParser() {
+        super(CLASS, TYPE);
+    }
 
     @Override
     public ReoptimizationBandwidth parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {

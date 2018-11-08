@@ -12,7 +12,7 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -33,13 +33,16 @@ import org.slf4j.LoggerFactory;
 /**
  * Parser for IPv6 {@link EndpointsObj}
  */
-public class PCEPEndPointsIpv6ObjectParser implements ObjectParser {
+public class PCEPEndPointsIpv6ObjectParser extends CommonObjectParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPEndPointsIpv6ObjectParser.class);
 
-    public static final int CLASS = 4;
+    private static final int CLASS = 4;
+    private static final int TYPE = 2;
 
-    public static final int TYPE = 2;
+    public PCEPEndPointsIpv6ObjectParser() {
+        super(CLASS, TYPE);
+    }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {

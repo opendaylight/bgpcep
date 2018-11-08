@@ -133,6 +133,11 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     }
 
     @Override
+    public final AutoCloseable registerObjectParser(final ObjectParser parser) {
+        return this.objReg.registerObjectParser(parser.getObjectClass(), parser.getObjectType(), parser);
+    }
+
+    @Override
     public final AutoCloseable registerObjectSerializer(final Class<? extends Object> objClass, final ObjectSerializer serializer) {
         return this.objReg.registerObjectSerializer(objClass, serializer);
     }
