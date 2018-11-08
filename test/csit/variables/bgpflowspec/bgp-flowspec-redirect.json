@@ -19,8 +19,7 @@
                     },
                     "origin": {
                         "value": "igp"
-                    },
-                    "as-path": {},
+                    },$AS_PATH
                     "local-pref": {
                         "pref": 100
                     }
@@ -49,8 +48,7 @@
                     ],
                     "origin": {
                         "value": "igp"
-                    },
-                    "as-path": {},
+                    },$AS_PATH
                     "local-pref": {
                         "pref": 100
                     }
@@ -82,8 +80,7 @@
                     },
                     "origin": {
                         "value": "igp"
-                    },
-                    "as-path": {},
+                    },$AS_PATH
                     "local-pref": {
                         "pref": 100
                     }
