@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018 AT&T Intellectual Property.
+  ~ All rights reserved.
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+<blueprint xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <odl:clustered-app-config id="p2mpTeLspConfig"
+        binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.p2mp.te.lsp.config.rev181109.PcepP2mpTeLspConfig"/>
+
+    <!-- Capabilities -->
+    <bean id="p2mpTeLspCapability" class="org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability">
+        <argument>
+            <bean factory-ref="p2mpTeLspConfig" factory-method="isPathComputationCapable"/>
+        </argument>
+    </bean>
+
+    <service ref="p2mpTeLspCapability" interface="org.opendaylight.protocol.pcep.PCEPCapability"
+             odl:type="org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability"/>
+
+    <bean id="p2mpTeLspActivator" class="org.opendaylight.protocol.pcep.p2mp.te.lsp.Activator"/>
+
+    <service ref="p2mpTeLspActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
+             odl:type="org.opendaylight.protocol.pcep.p2mp.te.lsp.Activator"/>
+</blueprint>

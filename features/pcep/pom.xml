@@ -38,5 +38,6 @@
         <module>odl-bgpcep-pcep-config-example</module>
         <module>odl-bgpcep-pcep-cli</module>
         <module>odl-bgpcep-pcep-base-parser</module>
+        <module>odl-bgpcep-pcep-p2mp-te-lsp</module>
     </modules>
 </project>
