@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.parser.object;
+package org.opendaylight.protocol.pcep.parser.object.end.points;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 
@@ -13,7 +13,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
-import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -21,10 +20,7 @@ import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.ipv4._case.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.ipv4._case.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.object.EndpointsObj;
@@ -35,20 +31,35 @@ import org.slf4j.LoggerFactory;
 /**
  * Parser for IPv4 {@link EndpointsObj}
  */
-public class PCEPEndPointsIpv4ObjectParser extends CommonObjectParser implements ObjectSerializer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPEndPointsIpv4ObjectParser.class);
+public class PCEPEndPointsIpv4ObjectParser extends CommonObjectParser {
 
     private static final int CLASS = 4;
     private static final int TYPE = 1;
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPEndPointsIpv4ObjectParser.class);
 
     public PCEPEndPointsIpv4ObjectParser() {
         super(CLASS, TYPE);
     }
 
+    public static void serializeObject(
+        final Boolean processing,
+        final Boolean ignore,
+        final Ipv4 ipv4,
+        final ByteBuf buffer) {
+        final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH + Ipv4Util.IP4_LENGTH);
+        Preconditions.checkArgument(ipv4.getSourceIpv4Address() != null,
+            "SourceIpv4Address is mandatory.");
+        writeIpv4Address(ipv4.getSourceIpv4Address(), body);
+        Preconditions.checkArgument(ipv4.getDestinationIpv4Address() != null,
+            "DestinationIpv4Address is mandatory.");
+        writeIpv4Address(ipv4.getDestinationIpv4Address(), body);
+        ObjectUtil.formatSubobject(TYPE, CLASS, processing, ignore, body, buffer);
+    }
+
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
         if (!header.isProcessingRule()) {
             LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");
@@ -64,23 +75,5 @@ public class PCEPEndPointsIpv4ObjectParser extends CommonObjectParser implements
         b.setDestinationIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
         builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(b.build()).build());
         return builder.build();
-    }
-
-    @Override
-    public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof EndpointsObj, "Wrong instance of PCEPObject. Passed %s. Needed EndpointsObject.", object.getClass());
-        final EndpointsObj ePObj = (EndpointsObj) object;
-        final AddressFamily afi = ePObj.getAddressFamily();
-        if(afi instanceof Ipv6Case) {
-            PCEPEndPointsIpv6ObjectParser.serializeObject(object,buffer);
-        }
-        Preconditions.checkArgument(afi instanceof Ipv4Case, "Wrong instance of NetworkAddress. Passed %s. Needed IPv4", afi.getClass());
-        final Ipv4 ipv4 = ((Ipv4Case) afi).getIpv4();
-        final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH + Ipv4Util.IP4_LENGTH);
-        Preconditions.checkArgument(ipv4.getSourceIpv4Address() != null, "SourceIpv4Address is mandatory.");
-        writeIpv4Address(ipv4.getSourceIpv4Address(), body);
-        Preconditions.checkArgument(ipv4.getDestinationIpv4Address() != null, "DestinationIpv4Address is mandatory.");
-        writeIpv4Address(ipv4.getDestinationIpv4Address(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

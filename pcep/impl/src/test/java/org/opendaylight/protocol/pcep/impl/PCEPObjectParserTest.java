@@ -19,6 +19,7 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,8 +28,6 @@ import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPCloseObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.PCEPEndPointsIpv4ObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.PCEPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExcludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExistingBandwidthObjectParser;
@@ -53,6 +52,11 @@ import org.opendaylight.protocol.pcep.parser.object.PCEPProcTimeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSvecObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv4ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv6ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsObjectSerializer;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv4ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -74,6 +78,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.OfId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.P2mpLeaves;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
@@ -81,8 +86,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv6CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.P2mpIpv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.P2mpIpv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.ipv4._case.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.ipv6._case.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.p2mp.ipv4._case.P2mpIpv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.p2mp.ipv6._case.P2mpIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.object.EndpointsObjBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.XroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.xro.Subobject;
@@ -230,7 +239,7 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setMaxLsp((short) UnsignedBytes.toInt((byte) 0xf1));
-        builder.setMinBandwidth(new Bandwidth(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}));
+        builder.setMinBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -261,16 +270,16 @@ public class PCEPObjectParserTest {
         builder.setIgnore(false);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject> subs = Lists.newArrayList();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder().setLoose(
-            true).setSubobjectType(
-            new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0xffffL)).build()).build()).build());
+                true).setSubobjectType(
+                        new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0xffffL)).build()).build()).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder().setLoose(
-            true).setSubobjectType(
-            new IpPrefixCaseBuilder().setIpPrefix(
-                new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).build()).build());
+                true).setSubobjectType(
+                        new IpPrefixCaseBuilder().setIpPrefix(
+                                new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).build()).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder().setLoose(
-            true).setSubobjectType(
-            new UnnumberedCaseBuilder().setUnnumbered(
-                new UnnumberedBuilder().setRouterId(0xffffffffL).setInterfaceId(0xffffffffL).build()).build()).build());
+                true).setSubobjectType(
+                        new UnnumberedCaseBuilder().setUnnumbered(
+                                new UnnumberedBuilder().setRouterId(0xffffffffL).setInterfaceId(0xffffffffL).build()).build()).build());
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
@@ -290,24 +299,24 @@ public class PCEPObjectParserTest {
     public void testIRObject() throws Exception {
         final PCEPIncludeRouteObjectParser parser = new PCEPIncludeRouteObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPIncludeRouteObject1PackOfSubobjects.bin"));
-        final byte[] ip6PrefixBytes = {(byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        final byte[] ip6PrefixBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
 
         final IroBuilder builder = new IroBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.Subobject> subs = Lists.newArrayList();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.SubobjectBuilder().setSubobjectType(
-            new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x10L)).build()).build()).setLoose(true).build());
+                new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x10L)).build()).build()).setLoose(true).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.SubobjectBuilder().setSubobjectType(
-            new IpPrefixCaseBuilder().setIpPrefix(
-                new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("18.52.80.0/21"))).build()).build()).setLoose(true).build());
+                new IpPrefixCaseBuilder().setIpPrefix(
+                        new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("18.52.80.0/21"))).build()).build()).setLoose(true).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.SubobjectBuilder().setSubobjectType(
-            new IpPrefixCaseBuilder().setIpPrefix(
-                new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).build()).setLoose(true).build());
+                new IpPrefixCaseBuilder().setIpPrefix(
+                        new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).build()).setLoose(true).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.SubobjectBuilder().setSubobjectType(
-            new UnnumberedCaseBuilder().setUnnumbered(
-                new UnnumberedBuilder().setRouterId(0x1245678L).setInterfaceId(0x9abcdef0L).build()).build()).setLoose(true).build());
+                new UnnumberedCaseBuilder().setUnnumbered(
+                        new UnnumberedBuilder().setRouterId(0x1245678L).setInterfaceId(0x9abcdef0L).build()).build()).setLoose(true).build());
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
@@ -333,28 +342,28 @@ public class PCEPObjectParserTest {
     public void testRRObject() throws Exception {
         final PCEPReportedRouteObjectParser parser = new PCEPReportedRouteObjectParser(this.ctx.getRROSubobjectHandlerRegistry());
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPReportedRouteObject1PackOfSubobjects.bin"));
-        final byte[] ip6PrefixBytes = {(byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        final byte[] ip6PrefixBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
 
         final RroBuilder builder = new RroBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.Subobject> subs = Lists.newArrayList();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.SubobjectBuilder().setSubobjectType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder().setIpPrefix(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder().setIpPrefix(
-                    new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).build()).setProtectionAvailable(false).setProtectionInUse(
-            false).build());
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder().setIpPrefix(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder().setIpPrefix(
+                                new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).build()).setProtectionAvailable(false).setProtectionInUse(
+                                        false).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.SubobjectBuilder().setSubobjectType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder().setIpPrefix(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder().setIpPrefix(
-                    new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).build()).setProtectionAvailable(false).setProtectionInUse(
-            false).build());
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder().setIpPrefix(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder().setIpPrefix(
+                                new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).build()).setProtectionAvailable(false).setProtectionInUse(
+                                        false).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.SubobjectBuilder().setSubobjectType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.UnnumberedCaseBuilder().setUnnumbered(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder().setRouterId(
-                    0x1245678L).setInterfaceId(0x9abcdef0L).build()).build()).setProtectionAvailable(false).setProtectionInUse(
-            false).build());
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.UnnumberedCaseBuilder().setUnnumbered(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder().setRouterId(
+                                0x1245678L).setInterfaceId(0x9abcdef0L).build()).build()).setProtectionAvailable(false).setProtectionInUse(
+                                        false).build());
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
@@ -384,7 +393,7 @@ public class PCEPObjectParserTest {
         final BandwidthBuilder builder = new BandwidthBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(true);
-        builder.setBandwidth(new Bandwidth(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}));
+        builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -415,7 +424,7 @@ public class PCEPObjectParserTest {
             .ns.yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidthBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(true);
-        builder.setBandwidth(new Bandwidth(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}));
+        builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -438,22 +447,70 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testEndPointsObjectIPv4() throws IOException, PCEPDeserializerException {
-        final byte[] srcIPBytes = {(byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E};
-        final byte[] destIPBytes = {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+        final byte[] srcIPBytes = { (byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E };
+        final byte[] destIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
         final PCEPEndPointsIpv4ObjectParser parser = new PCEPEndPointsIpv4ObjectParser();
-        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject1IPv4.bin"));
+        final ByteBuf result
+            = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject1IPv4.bin"));
 
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(
-            new Ipv4Builder().setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv4Address(
+            new Ipv4Builder().setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+                .setDestinationIpv4Address(
                 Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
 
-        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
+            result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
-        parser.serializeObject(builder.build(), buf);
+        final PCEPEndPointsObjectSerializer serializer = new PCEPEndPointsObjectSerializer();
+        serializer.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testEndPointsObjectP2MPIPv4() throws PCEPDeserializerException {
+        final byte[] srcIPBytes = { (byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E };
+        final byte[] destIPBytes = {
+            (byte) 0x04, (byte) 0x32, (byte) 0x00, (byte) 0x14,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
+            (byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFC};
+
+        final PCEPP2MPEndPointsIpv4ObjectParser parser = new PCEPP2MPEndPointsIpv4ObjectParser();
+        final ByteBuf result = Unpooled.wrappedBuffer(destIPBytes);
+
+        final EndpointsObjBuilder builder = new EndpointsObjBuilder();
+        builder.setProcessingRule(true);
+        builder.setIgnore(false);
+        builder.setAddressFamily(new P2mpIpv4CaseBuilder().setP2mpIpv4(new P2mpIpv4Builder()
+                .setP2mpLeaves(P2mpLeaves.NewLeavesToAdd)
+                .setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+                .setDestinationIpv4Address(Arrays.asList(new Ipv4AddressNoZone("255.255.255.255"),
+                        new Ipv4AddressNoZone("255.255.255.252"))).build()).build());
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
+            result.slice(4, result.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        final PCEPEndPointsObjectSerializer serializer = new PCEPEndPointsObjectSerializer();
+        serializer.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
         try {
@@ -472,10 +529,10 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testEndPointsObjectIPv6() throws IOException, PCEPDeserializerException {
-        final byte[] destIPBytes = {(byte) 0x00, (byte) 0x02, (byte) 0x5D, (byte) 0xD2, (byte) 0xFF, (byte) 0xEC, (byte) 0xA1,
-            (byte) 0xB6, (byte) 0x58, (byte) 0x1E, (byte) 0x9F, (byte) 0x50, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,};
-        final byte[] srcIPBytes = {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+        final byte[] destIPBytes = { (byte) 0x00, (byte) 0x02, (byte) 0x5D, (byte) 0xD2, (byte) 0xFF, (byte) 0xEC, (byte) 0xA1,
+            (byte) 0xB6, (byte) 0x58, (byte) 0x1E, (byte) 0x9F, (byte) 0x50, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, };
+        final byte[] srcIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
         final PCEPEndPointsIpv6ObjectParser parser = new PCEPEndPointsIpv6ObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject2IPv6.bin"));
@@ -484,12 +541,67 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setAddressFamily(new Ipv6CaseBuilder().setIpv6(
-            new Ipv6Builder().setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv6Address(
-                Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
+                new Ipv6Builder().setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv6Address(
+                        Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
-        PCEPEndPointsIpv6ObjectParser.serializeObject(builder.build(), buf);
+        final PCEPEndPointsObjectSerializer serializer = new PCEPEndPointsObjectSerializer();
+        serializer.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testEndPointsObjectP2MPIPv6() throws IOException, PCEPDeserializerException {
+        final byte[] destIPBytes = {
+            (byte) 0x04, (byte) 0x42, (byte) 0x00, (byte) 0x38,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0x00, (byte) 0x02, (byte) 0x5D, (byte) 0xD2,
+            (byte) 0xFF, (byte) 0xEC, (byte) 0xA1, (byte) 0xB6,
+            (byte) 0x58, (byte) 0x1E, (byte) 0x9F, (byte) 0x50,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x03, (byte) 0x5D, (byte) 0xD2,
+            (byte) 0xFF, (byte) 0xEC, (byte) 0xA1, (byte) 0xB6,
+            (byte) 0x58, (byte) 0x1E, (byte) 0x9F, (byte) 0x50,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        };
+        final byte[] srcIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+
+        final PCEPP2MPEndPointsIpv6ObjectParser parser = new PCEPP2MPEndPointsIpv6ObjectParser();
+        final ByteBuf result = Unpooled.wrappedBuffer(destIPBytes);
+
+        final EndpointsObjBuilder builder = new EndpointsObjBuilder();
+        builder.setProcessingRule(true);
+        builder.setIgnore(false);
+        builder.setAddressFamily(new P2mpIpv6CaseBuilder().setP2mpIpv6(new P2mpIpv6Builder()
+                .setP2mpLeaves(P2mpLeaves.NewLeavesToAdd)
+                .setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+                .setDestinationIpv6Address(Arrays.asList(
+                        new Ipv6AddressNoZone("2:5dd2:ffec:a1b6:581e:9f50::"),
+                        new Ipv6AddressNoZone("3:5dd2:ffec:a1b6:581e:9f50::")
+                )).build()).build());
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
+            result.slice(4, result.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        final PCEPEndPointsObjectSerializer serializer = new PCEPEndPointsObjectSerializer();
+        serializer.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
         try {
@@ -607,7 +719,7 @@ public class PCEPObjectParserTest {
         builder.setComputed(false);
         builder.setBound(false);
         builder.setMetricType((short) 1);
-        builder.setValue(new Float32(new byte[]{0, 0, 0, 0}));
+        builder.setValue(new Float32(new byte[] { 0, 0, 0, 0 }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
@@ -619,7 +731,7 @@ public class PCEPObjectParserTest {
         builder.setComputed(true);
         builder.setBound(false);
         builder.setMetricType((short) 2);
-        builder.setValue(new Float32(new byte[]{(byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00}));
+        builder.setValue(new Float32(new byte[] { (byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00 }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
@@ -665,7 +777,7 @@ public class PCEPObjectParserTest {
         final NoPathVectorBuilder b = new NoPathVectorBuilder();
         b.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.NoPathVectorTlv.Flags(false, true, false, true, false, true, true, true));
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder().setNoPathVector(
-            b.build()).build());
+                b.build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
@@ -700,14 +812,14 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNotificationObject1WithTlv.bin"));
 
         builder.setType((short) 2);
         builder.setValue((short) 1);
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.notification.object.c.notification.TlvsBuilder().setOverloadDuration(
-            new OverloadDurationBuilder().setDuration(0xff0000a2L).build()).build());
+                new OverloadDurationBuilder().setDuration(0xff0000a2L).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
@@ -753,7 +865,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPRPObject2.bin"));
 
@@ -766,7 +878,7 @@ public class PCEPObjectParserTest {
         b.setSetup(1L);
 
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.rp.TlvsBuilder().setOrder(
-            b.build()).build());
+                b.build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
@@ -847,7 +959,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testClassTypeObject() throws PCEPDeserializerException {
         final PCEPClassTypeObjectParser parser = new PCEPClassTypeObjectParser();
-        final ByteBuf result = Unpooled.wrappedBuffer(new byte[]{(byte) 0x16, (byte) 0x12, (byte) 0x00, (byte) 0x08, 0, 0, 0, (byte) 0x04});
+        final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { (byte) 0x16, (byte) 0x12, (byte) 0x00, (byte) 0x08, 0, 0, 0, (byte) 0x04 });
 
         final ClassTypeBuilder builder = new ClassTypeBuilder();
         builder.setProcessingRule(true);
@@ -884,11 +996,11 @@ public class PCEPObjectParserTest {
         builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.Xro.Flags(true));
         final List<Subobject> subs = Lists.newArrayList();
         subs.add(new SubobjectBuilder().setMandatory(true).setSubobjectType(
-            new IpPrefixCaseBuilder().setIpPrefix(
-                new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("192.168.0.0/16"))).build()).build()).setAttribute(
-            Attribute.Node).build());
+                new IpPrefixCaseBuilder().setIpPrefix(
+                        new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("192.168.0.0/16"))).build()).build()).setAttribute(
+                                Attribute.Node).build());
         subs.add(new SubobjectBuilder().setMandatory(false).setSubobjectType(
-            new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x1234L)).build()).build()).build());
+                new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x1234L)).build()).build()).build());
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
@@ -920,7 +1032,7 @@ public class PCEPObjectParserTest {
         builder.setIgnore(false);
         final List<PathKeys> list = Lists.newArrayList();
         list.add(new PathKeysBuilder().setLoose(true).setPathKey(new PathKey(0x1234)).setPceId(
-            new PceId(new byte[]{(byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00})).build());
+                new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 })).build());
         builder.setPathKeys(list);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
@@ -1074,7 +1186,7 @@ public class PCEPObjectParserTest {
 
         final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
         final VendorInformationTlv viTlv = new VendorInformationTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(0L))
-            .setEnterpriseSpecificInformation(esInfo).build();
+                .setEnterpriseSpecificInformation(esInfo).build();
         final CCloseBuilder builder = new CCloseBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
@@ -1102,7 +1214,7 @@ public class PCEPObjectParserTest {
         final TestVendorInformationObjectParser parser = new TestVendorInformationObjectParser();
         final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
         final VendorInformationObject viObj = new VendorInformationObjectBuilder().setEnterpriseNumber(new EnterpriseNumber(0L))
-            .setEnterpriseSpecificInformation(esInfo).build();
+                .setEnterpriseSpecificInformation(esInfo).build();
         final ByteBuf result = Unpooled.wrappedBuffer(viObjBytes);
         result.readerIndex(8);
         final VendorInformationObject o = (VendorInformationObject) parser.parseObject(new ObjectHeaderImpl(false, false), result.readSlice(result.readableBytes()));
@@ -1183,7 +1295,7 @@ public class PCEPObjectParserTest {
         };
         final PCEPPceIdIPv4ObjectParser parser = new PCEPPceIdIPv4ObjectParser();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pce.id.object.PceId pceId = new PceIdBuilder().setIpAddress(new IpAddressNoZone(
-            new Ipv4AddressNoZone("127.0.0.1"))).build();
+                new Ipv4AddressNoZone("127.0.0.1"))).build();
         final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
         assertEquals(pceId, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
 
@@ -1205,7 +1317,7 @@ public class PCEPObjectParserTest {
         };
         final PCEPPceIdIPv6ObjectParser parser = new PCEPPceIdIPv6ObjectParser();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pce.id.object.PceId pccIdReq = new PceIdBuilder().setIpAddress(new IpAddressNoZone(
-            new Ipv6AddressNoZone("::1"))).build();
+                new Ipv6AddressNoZone("::1"))).build();
         final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
         assertEquals(pccIdReq, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
 
@@ -1269,10 +1381,10 @@ public class PCEPObjectParserTest {
     @Test
     public void testRpObjectWithPstTlvParser() throws PCEPDeserializerException {
 
-        final byte[] rpObjectWithPstTlvBytes = {0x2, 0x10, 0x0, 0x14, 0x0, 0x0, 0x4, 0x2d, (byte) 0xde,
+        final byte[] rpObjectWithPstTlvBytes = { 0x2, 0x10, 0x0, 0x14, 0x0, 0x0, 0x4, 0x2d, (byte) 0xde,
             (byte) 0xad, (byte) 0xbe, (byte) 0xef,
             /* pst-tlv */
-            0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0};
+            0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
 
         final PCEPRequestParameterObjectParser parser = new PCEPRequestParameterObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final RpBuilder builder = new RpBuilder();
@@ -1291,11 +1403,11 @@ public class PCEPObjectParserTest {
         builder.setPriority((short) 5);
         builder.setRequestId(new RequestId(0xdeadbeefL));
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.rp.TlvsBuilder().setPathSetupType(
-            new PathSetupTypeBuilder().setPst((short) 0).build()).build());
+                new PathSetupTypeBuilder().setPst((short) 0).build()).build());
 
         final ByteBuf result = Unpooled.wrappedBuffer(rpObjectWithPstTlvBytes);
         assertEquals(builder.build(),
-            parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+                parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(rpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));

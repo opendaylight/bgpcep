@@ -313,19 +313,19 @@ module pcep-types {
             leaf fragmentation {
                 type boolean;
                 default false;
-                reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
+                reference "https://tools.ietf.org/html/rfc8306#section-3.3.1";
             }
 
             leaf p2mp {
                 type boolean;
                 default false;
-                reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
+                reference "https://tools.ietf.org/html/rfc8306#section-3.3.1";
             }
 
             leaf ero-compression {
                 type boolean;
                 default false;
-                reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
+                reference "https://tools.ietf.org/html/rfc8306#section-3.3.1";
             }
 
             leaf supply-of {
@@ -371,17 +371,67 @@ module pcep-types {
         }
     }
 
+    typedef p2mp-leaves {
+        reference "https://tools.ietf.org/html/rfc8306#section-3.3.2";
+        description "Types of leaves in a P2MP request.";
+        type enumeration {
+            enum new-leaves-to-add {
+                value 1;
+            }
+            enum old-leaves-to-remove {
+                value 2;
+            }
+            enum old-leaves-path-modified-reoptimized {
+                value 3;
+            }
+            enum old-leaves-path-unchanged {
+                value 4;
+            }
+        }
+    }
+
+    grouping p2mp-leaves-leaf {
+        leaf p2mp-leaves {
+            type p2mp-leaves;
+            mandatory true;
+        }
+    }
+
+    grouping endpoints-ipv4-source {
+        leaf source-ipv4-address {
+            type inet:ipv4-address-no-zone;
+            mandatory true;
+        }
+    }
+
+    grouping endpoints-ipv6-source {
+        leaf source-ipv6-address {
+            type inet:ipv6-address-no-zone;
+            mandatory true;
+        }
+    }
+
+    grouping ipv6-destinations {
+        leaf-list destination-ipv6-address {
+            type inet:ipv6-address-no-zone;
+            min-elements 1;
+        }
+    }
+
+    grouping ipv4-destinations {
+        leaf-list destination-ipv4-address {
+            type inet:ipv4-address-no-zone;
+            min-elements 1;
+        }
+    }
+
     grouping endpoints {
         choice address-family {
             mandatory true;
 
             case ipv4-case {
                 container ipv4 {
-                    leaf source-ipv4-address {
-                        type inet:ipv4-address-no-zone;
-                        mandatory true;
-                    }
-
+                    uses endpoints-ipv4-source;
                     leaf destination-ipv4-address {
                         type inet:ipv4-address-no-zone;
                         mandatory true;
@@ -390,15 +440,25 @@ module pcep-types {
             }
             case ipv6-case {
                 container ipv6 {
-                    leaf source-ipv6-address {
-                        type inet:ipv6-address-no-zone;
-                        mandatory true;
-                    }
-
+                    uses endpoints-ipv6-source;
                     leaf destination-ipv6-address {
                         type inet:ipv6-address-no-zone;
                         mandatory true;
                     }
+                }
+            }
+            case p2mp-ipv4-case {
+                container p2mp-ipv4 {
+                    uses p2mp-leaves-leaf;
+                    uses endpoints-ipv4-source;
+                    uses ipv4-destinations;
+                }
+            }
+            case p2mp-ipv6-case {
+                container p2mp-ipv6 {
+                    uses p2mp-leaves-leaf;
+                    uses endpoints-ipv6-source;
+                    uses ipv6-destinations;
                 }
             }
         }
