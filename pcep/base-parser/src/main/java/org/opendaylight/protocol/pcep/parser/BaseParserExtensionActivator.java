@@ -22,8 +22,9 @@ import org.opendaylight.protocol.pcep.parser.message.PCEPStartTLSMessageParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPCloseObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.PCEPEndPointsIpv4ObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.PCEPEndPointsIpv6ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv4ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv6ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsObjectSerializer;
 import org.opendaylight.protocol.pcep.parser.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExcludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExistingBandwidthObjectParser;
@@ -50,6 +51,8 @@ import org.opendaylight.protocol.pcep.parser.object.PCEPRequestParameterObjectPa
 import org.opendaylight.protocol.pcep.parser.object.PCEPSecondaryExplicitRouteObjecParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSecondaryRecordRouteObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSvecObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv4ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.EROIpv4PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.EROIpv6PrefixSubobjectParser;
@@ -213,11 +216,20 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerObjectParser(noPathParser));
         regs.add(context.registerObjectSerializer(NoPath.class, noPathParser));
 
+        final PCEPEndPointsObjectSerializer endpointsSerializer = new PCEPEndPointsObjectSerializer();
+        regs.add(context.registerObjectSerializer(EndpointsObj.class, endpointsSerializer));
+
         final PCEPEndPointsIpv4ObjectParser endpoints4Parser = new PCEPEndPointsIpv4ObjectParser();
-        final PCEPEndPointsIpv6ObjectParser endpoints6Parser = new PCEPEndPointsIpv6ObjectParser();
         regs.add(context.registerObjectParser(endpoints4Parser));
+
+        final PCEPEndPointsIpv6ObjectParser endpoints6Parser = new PCEPEndPointsIpv6ObjectParser();
         regs.add(context.registerObjectParser(endpoints6Parser));
-        regs.add(context.registerObjectSerializer(EndpointsObj.class, endpoints4Parser));
+
+        final PCEPP2MPEndPointsIpv4ObjectParser endpoints4Pp2mparser = new PCEPP2MPEndPointsIpv4ObjectParser();
+        regs.add(context.registerObjectParser(endpoints4Pp2mparser));
+
+        final PCEPP2MPEndPointsIpv6ObjectParser endpoints6Pp2mparser = new PCEPP2MPEndPointsIpv6ObjectParser();
+        regs.add(context.registerObjectParser(endpoints6Pp2mparser));
 
         final PCEPBandwidthObjectParser bwParser = new PCEPBandwidthObjectParser();
         final PCEPExistingBandwidthObjectParser bwExistingParser = new PCEPExistingBandwidthObjectParser();
