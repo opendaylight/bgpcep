@@ -11,13 +11,15 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,20 +28,21 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -47,6 +50,10 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -66,12 +73,14 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceI
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.CollectionNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableMapNodeBuilder;
@@ -103,6 +112,16 @@ final class AdjRibInWriter {
     private static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
     private static final NodeIdentifier TABLES = new NodeIdentifier(Tables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
+    private static final LocalPref MIN_LOCAL_PREF = new LocalPrefBuilder().setPref(0L).build();
+    private static final Communities NO_LLRG = (Communities) CommunityUtil.NO_LLGR;
+    private static final Communities LLGR_STALE = (Communities) CommunityUtil.LLGR_STALE;
+    private static final List<Communities> LLGR_STALE_LIST = ImmutableList.of(LLGR_STALE);
+
+    private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path
+        .attributes.Attributes EMPTY_LLGR_ATTRIBUTES = new AttributesBuilder()
+        .setCommunities(LLGR_STALE_LIST)
+        .setLocalPref(MIN_LOCAL_PREF)
+        .build();
 
     // FIXME: is there a utility method to construct this?
     private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder()
@@ -118,6 +137,8 @@ final class AdjRibInWriter {
     private final PeerRole role;
     @GuardedBy("this")
     private final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
+    @GuardedBy("this")
+    private final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> llStaleRoutesRegistry = new HashMap<>();
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
@@ -299,8 +320,12 @@ final class AdjRibInWriter {
         final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         final Collection<NodeIdentifierWithPredicates> routeKeys = ctx.writeRoutes(tx, nlri, attributes);
         final Collection<NodeIdentifierWithPredicates> staleRoutes = this.staleRoutesRegistry.get(key);
+        final Collection<NodeIdentifierWithPredicates> llStaleRoutes = this.llStaleRoutesRegistry.get(key);
         if (staleRoutes != null) {
             staleRoutes.removeAll(routeKeys);
+        }
+        if (llStaleRoutes != null) {
+            llStaleRoutes.removeAll(routeKeys);
         }
         LOG.trace("Write routes {}", nlri);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
@@ -353,9 +378,9 @@ final class AdjRibInWriter {
         }
     }
 
-    final void storeStaleRoutes(final Set<TablesKey> gracefulTables) {
+    void storeStaleRoutes(final Set<TablesKey> gracefulTables) {
         try (final DOMDataReadOnlyTransaction tx = this.chain.getDomChain().newReadOnlyTransaction()) {
-            final Map<TablesKey, Future> readFutures = new HashMap<>();
+            final Map<TablesKey, ListenableFuture<Optional<NormalizedNode<?, ?>>>> readFutures = new HashMap<>();
             final ExecutorService threadPool = Executors.newCachedThreadPool();
             gracefulTables.forEach(tablesKey -> {
                 final TableContext ctx = this.tables.get(tablesKey);
@@ -364,7 +389,7 @@ final class AdjRibInWriter {
                     return;
                 }
                 final YangInstanceIdentifier iid = ctx.routesPath();
-                final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> readFuture =
+                final ListenableFuture<Optional<NormalizedNode<?, ?>>> readFuture =
                         tx.read(LogicalDatastoreType.OPERATIONAL, iid);
                 readFutures.put(tablesKey, readFuture);
                 Futures.addCallback(readFuture, new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
@@ -396,16 +421,143 @@ final class AdjRibInWriter {
                     LOG.warn("Failed to store stale routes for table {}", entry.getKey(), e);
                 }
             });
+            threadPool.shutdown();
         }
     }
 
-    final void removeStaleRoutes(final TablesKey tableKey) {
+    void storeLlStaleRoutes(final Set<TablesKey> llGracefulTables) {
+        final DOMDataReadWriteTransaction tx = this.chain.getDomChain().newReadWriteTransaction();
+        final Object txLock = new Object();
+
+        final CountDownLatch latch = new CountDownLatch(llGracefulTables.size());
+        for (TablesKey tablesKey : llGracefulTables) {
+            final TableContext ctx = this.tables.get(tablesKey);
+            if (ctx == null) {
+                LOG.error("Trying to save routes from missing table {}", tablesKey);
+                latch.countDown();
+                continue;
+            }
+
+            final YangInstanceIdentifier iid = ctx.routesPath();
+            Futures.addCallback(tx.read(LogicalDatastoreType.OPERATIONAL, iid),
+                new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
+                    @Override
+                    public void onSuccess(final Optional<NormalizedNode<?, ?>> result) {
+                        try {
+                            if (result.isPresent()) {
+                                synchronized (AdjRibInWriter.this.llStaleRoutesRegistry) {
+                                    final MapNode routesNode = (MapNode) result.get();
+                                    final MapNode updatedRoutes;
+                                    synchronized (txLock) {
+                                        updatedRoutes = handleLlStaleRoutes(routesNode, ctx, iid, tx);
+                                    }
+                                    final Set<NodeIdentifierWithPredicates> routes = updatedRoutes.getValue().stream()
+                                            .map(MapEntryNode::getIdentifier)
+                                            .collect(Collectors.toSet());
+                                    if (!routes.isEmpty()) {
+                                        AdjRibInWriter.this.llStaleRoutesRegistry.put(tablesKey, routes);
+                                    }
+                                }
+                            }
+                        } finally {
+                            latch.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(final Throwable failure) {
+                        LOG.warn("Reading stale routes for table {} failed", tablesKey, failure);
+                        latch.countDown();
+                    }
+            }, MoreExecutors.directExecutor());
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting to apply {} LLGR_STALE update tasks of {} to finish", latch.getCount(),
+                llGracefulTables, e);
+            tx.cancel();
+            return;
+        }
+
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo commitInfo) {
+                LOG.debug("Routes from tables {} updated with LLGR_STALE community.", llGracefulTables);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to update routes from tables {} with LLGR_STALE community", llGracefulTables,
+                        throwable);
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
+    // Add LLGR_STALE community to community list for all routes. If route has NO_LLGR community present remove it.
+    private static MapNode handleLlStaleRoutes(final MapNode routesNode,
+                                        final TableContext ctx,
+                                        final YangInstanceIdentifier iid,
+                                        final DOMDataWriteTransaction tx) {
+        final CollectionNodeBuilder<MapEntryNode, MapNode> newRoutes = Builders.mapBuilder()
+                .withNodeIdentifier(routesNode.getIdentifier());
+
+        for (final MapEntryNode route : routesNode.getValue()) {
+            final java.util.Optional<DataContainerChild<?, ?>> attributesOpt = route.getChild(
+                ctx.routeAttributesIdentifier());
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path
+                    .attributes.Attributes newAtrributes;
+            if (attributesOpt.isPresent()) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path
+                        .attributes.Attributes oldAttributes = ctx.deserializeAttributes(attributesOpt.get());
+                final List<Communities> oldCommunities = oldAttributes.getCommunities();
+                final List<Communities> newCommunities;
+                if (oldCommunities != null) {
+                    if (oldCommunities.contains(NO_LLRG)) {
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, iid.node(route.getIdentifier()));
+                        continue;
+                    }
+
+                    newCommunities = new ArrayList<>(oldCommunities.size() + 1);
+                    newCommunities.add(LLGR_STALE);
+                    newCommunities.addAll(oldCommunities);
+                } else {
+                    newCommunities = LLGR_STALE_LIST;
+                }
+
+                newAtrributes = new AttributesBuilder(oldAttributes)
+                        .setCommunities(newCommunities)
+                        .setLocalPref(MIN_LOCAL_PREF)
+                        .build();
+            } else {
+                newAtrributes = EMPTY_LLGR_ATTRIBUTES;
+            }
+            newRoutes.withChild(Builders.mapEntryBuilder()
+                .withNodeIdentifier(route.getIdentifier())
+                .withChild(ctx.serializeAttributes(newAtrributes))
+                .build());
+        }
+        tx.merge(LogicalDatastoreType.OPERATIONAL, iid, newRoutes.build());
+        return newRoutes.build();
+    }
+
+    void removeStaleRoutes(final TablesKey tableKey) {
+        removeStaleRoutes(tableKey, this.staleRoutesRegistry);
+    }
+
+    void removeLlStaleRoutes(final TablesKey tableKey) {
+        removeStaleRoutes(tableKey, this.llStaleRoutesRegistry);
+    }
+
+    private void removeStaleRoutes(final TablesKey tableKey,
+                            final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> routeRegistry) {
         final TableContext ctx = this.tables.get(tableKey);
         if (ctx == null) {
             LOG.debug("No table for {}, not removing any stale routes", tableKey);
             return;
         }
-        final Collection<NodeIdentifierWithPredicates> routeKeys = this.staleRoutesRegistry.get(tableKey);
+        final Collection<NodeIdentifierWithPredicates> routeKeys = routeRegistry.get(tableKey);
         if (routeKeys == null || routeKeys.isEmpty()) {
             LOG.debug("No stale routes present in table {}", tableKey);
             return;
@@ -421,8 +573,8 @@ final class AdjRibInWriter {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.trace("Removing routes {}, succeed", routeKeys);
-                synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
-                    staleRoutesRegistry.remove(tableKey);
+                synchronized (routeRegistry) {
+                    routeRegistry.remove(tableKey);
                 }
             }
 
@@ -433,7 +585,7 @@ final class AdjRibInWriter {
         }, MoreExecutors.directExecutor());
     }
 
-    final FluentFuture<? extends CommitInfo> clearTables(final Set<TablesKey> tablesToClear) {
+    FluentFuture<? extends CommitInfo> clearTables(final Set<TablesKey> tablesToClear) {
         if (tablesToClear == null || tablesToClear.isEmpty()) {
             return CommitInfo.emptyFluentFuture();
         }
