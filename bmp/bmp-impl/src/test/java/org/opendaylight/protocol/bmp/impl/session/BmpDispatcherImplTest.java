@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bmp.impl.session;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;

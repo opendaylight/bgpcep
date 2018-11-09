@@ -113,9 +113,7 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new MvpnRoutesIpv6CaseBuilder().setMvpnRoutesIpv6(new MvpnRoutesIpv6Builder()
-                .setMvpnRoute(Collections.emptyList()).build()).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test

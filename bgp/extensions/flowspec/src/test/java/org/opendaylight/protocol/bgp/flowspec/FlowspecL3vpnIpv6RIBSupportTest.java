@@ -104,9 +104,7 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<Flow
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new FlowspecL3vpnIpv6RoutesCaseBuilder().setFlowspecL3vpnIpv6Routes(
-            new FlowspecL3vpnIpv6RoutesBuilder().setFlowspecL3vpnRoute(Collections.emptyList()).build()).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test

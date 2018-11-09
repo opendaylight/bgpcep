@@ -35,7 +35,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
@@ -54,7 +53,6 @@ final class TableContext {
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path
                     .attributes.Attributes.class).augmentation(Attributes2.class).child(MpUnreachNlri.class);
     private static final NodeIdentifier BGP_ROUTES_NODE_ID = new NodeIdentifier(BMP_ROUTES_QNAME);
-    private static final NodeIdentifier ROUTES_NODE_ID = new NodeIdentifier(Routes.QNAME);
 
     private final YangInstanceIdentifier tableId;
     private final RIBSupport tableSupport;
@@ -97,11 +95,9 @@ final class TableContext {
         for (final Map.Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
             tb.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
-        final ChoiceNode routes
-                = (ChoiceNode) this.tableSupport.emptyTable().getChild(ROUTES_NODE_ID).get();
 
         tx.put(LogicalDatastoreType.OPERATIONAL, this.tableId,
-                tb.withChild(ImmutableChoiceNodeBuilder.create(routes).withNodeIdentifier(
+                tb.withChild(ImmutableChoiceNodeBuilder.create().withNodeIdentifier(
                         new NodeIdentifier(TablesUtil.BMP_ROUTES_QNAME)).build()).build());
     }
 

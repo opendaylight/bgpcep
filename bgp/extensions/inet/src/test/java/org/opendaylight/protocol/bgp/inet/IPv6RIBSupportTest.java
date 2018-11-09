@@ -70,8 +70,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
             .setPrefix(PREFIX).build();
     private static final Ipv6Routes ROUTES = new Ipv6RoutesBuilder()
             .setIpv6Route(Collections.singletonList(ROUTE)).build();
-    private static final Ipv6Routes EMPTY_ROUTES = new Ipv6RoutesBuilder()
-            .setIpv6Route(Collections.emptyList()).build();
+    private static final Ipv6Routes EMPTY_ROUTES = new Ipv6RoutesBuilder().build();
 
     @Override
     public void setUp() throws Exception {
@@ -98,8 +97,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new Ipv6RoutesCaseBuilder().setIpv6Routes(EMPTY_ROUTES).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test

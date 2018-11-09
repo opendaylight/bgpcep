@@ -71,8 +71,6 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesC
             .setPrefix(PREFIX).build();
     private static final Ipv4Routes ROUTES = new Ipv4RoutesBuilder()
             .setIpv4Route(Collections.singletonList(ROUTE)).build();
-    private static final Ipv4Routes EMPTY_ROUTES = new Ipv4RoutesBuilder()
-            .setIpv4Route(Collections.emptyList()).build();
 
     @Override
     public void setUp() throws Exception {
@@ -98,8 +96,7 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesC
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new Ipv4RoutesCaseBuilder().setIpv4Routes(EMPTY_ROUTES).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test
