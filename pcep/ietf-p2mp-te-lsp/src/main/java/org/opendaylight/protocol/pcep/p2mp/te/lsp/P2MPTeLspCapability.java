@@ -12,7 +12,7 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2mp.te.lsp.rev181107.TlvsP2mpCapabilityAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2mp.te.lsp.rev181107.TlvsP2mpCapabilityAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2mp.te.lsp.rev181107.p2mp.pce.capability.tlv.P2mpPceCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 
 public final class P2MPTeLspCapability implements PCEPCapability {
     private static TlvsP2mpCapabilityAug PATH_COMPUTATION_CAP_AUG = new TlvsP2mpCapabilityAugBuilder()
