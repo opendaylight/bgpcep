@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateMessage;
@@ -68,4 +70,28 @@ public final class BgpPeerUtil {
         return false;
     }
 
+    public static final class LlGracefulRestartDTO {
+
+        private final TablesKey tableKey;
+        private final int staleTime;
+        private final boolean forwardingFlag;
+
+        public LlGracefulRestartDTO (final TablesKey tableKey, final int staleTime, final boolean forwardingFlag) {
+            this.tableKey = requireNonNull(tableKey);
+            this.staleTime = staleTime;
+            this.forwardingFlag = forwardingFlag;
+        }
+
+        public TablesKey getTableKey() {
+            return tableKey;
+        }
+
+        public int getStaleTime() {
+            return staleTime;
+        }
+
+        public boolean isForwarding() {
+            return forwardingFlag;
+        }
+    }
 }
