@@ -18,9 +18,11 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -29,6 +31,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
+import org.opendaylight.protocol.bgp.rib.impl.BgpPeerUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -259,8 +262,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                     peerGroup, hold);
             final Set<TablesKey> gracefulTables = GracefulRestartUtil.getGracefulTables(afisSafis.getAfiSafi(),
                     tableTypeRegistry);
+            final Map<TablesKey, Integer> llGracefulTimers = GracefulRestartUtil
+                    .getLlGracefulTimers(afisSafis.getAfiSafi(), tableTypeRegistry);
             this.finalCapabilities = getBgpCapabilities(afisSafis, rib, tableTypeRegistry);
-            final List<BgpParameters> bgpParameters = getInitialBgpParameters(gracefulTables);
+            final List<BgpParameters> bgpParameters = getInitialBgpParameters(gracefulTables, llGracefulTimers);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final IpAddress neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
             final AsNumber globalAs = rib.getLocalAs();
@@ -274,7 +279,8 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             }
 
             this.bgpPeer = new BGPPeer(tableTypeRegistry, this.neighborAddress, peerGroupName, rib, role, clusterId,
-                    neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, gracefulTables, BgpPeer.this);
+                    neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
+                    BgpPeer.this);
             this.prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
                     neighborRemoteAs, bgpParameters, getPassword(keyMapping));
             this.activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
@@ -291,10 +297,14 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             this.keys = keyMapping;
         }
 
-        private List<BgpParameters> getInitialBgpParameters(final Set<TablesKey> gracefulTables) {
+        private List<BgpParameters> getInitialBgpParameters(final Set<TablesKey> gracefulTables,
+                                                            final Map<TablesKey, Integer> llGracefulTimers) {
+            final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestarts = llGracefulTimers.entrySet().stream()
+                    .map(entry -> new BgpPeerUtil.LlGracefulRestartDTO(entry.getKey(), entry.getValue(), false))
+                    .collect(Collectors.toSet());
             return Collections.singletonList(
                     GracefulRestartUtil.getGracefulBgpParameters(this.finalCapabilities, gracefulTables,
-                            Collections.emptySet(), gracefulRestartTimer, false));
+                            Collections.emptySet(), gracefulRestartTimer, false, llGracefulRestarts));
         }
 
         private synchronized void instantiateServiceInstance() {
