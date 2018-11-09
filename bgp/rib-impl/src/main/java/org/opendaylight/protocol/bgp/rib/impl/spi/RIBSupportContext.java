@@ -23,6 +23,8 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 /**
  *
@@ -75,4 +77,21 @@ public abstract class RIBSupportContext {
     public abstract <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
             RIBSupport<C, S, R, I> getRibSupport();
+
+    /**
+     *
+     * Translate Attributes object to equivalent ContainerNode.
+     *
+     * @param attributes to translate
+     * @return ContainerNode representation of Attributes object
+     */
+    public abstract ContainerNode serializeAttributes (Attributes attributes);
+
+    /**
+     * Translate NormalizedNode to Attributes object if possible.
+     *
+     * @param attributes as NormalizedNode to translate
+     * @return translated Attributes object
+     */
+    public abstract Attributes deserializeAttributes (NormalizedNode<?,?> attributes);
 }
