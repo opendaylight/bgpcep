@@ -117,6 +117,30 @@ module bgp-multiprotocol {
                 }
             }
         }
+        container ll-graceful-restart-capability {
+            reference "https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04";
+
+            list tables {
+                uses bgp-table-type;
+                key "afi safi";
+
+                leaf afi-flags {
+                    type bits {
+                        bit forwarding-state {
+                            position 0;
+                        }
+                    }
+                    mandatory true;
+                }
+                leaf long-live-stale-time {
+                    type uint32 {
+                        range 0..16777215;
+                    }
+                    units seconds;
+                    default 0;
+                }
+            }
+        }
         container add-path-capability {
             reference "http://tools.ietf.org/html/draft-ietf-idr-add-paths-13#section-4";
             list address-families {
