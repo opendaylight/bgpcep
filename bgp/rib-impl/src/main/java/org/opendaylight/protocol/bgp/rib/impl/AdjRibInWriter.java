@@ -13,10 +13,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,14 +29,12 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -118,6 +116,8 @@ final class AdjRibInWriter {
     private final PeerRole role;
     @GuardedBy("this")
     private final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
+    @GuardedBy("this")
+    private final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> llStaleRoutesRegistry = new HashMap<>();
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
@@ -299,8 +299,12 @@ final class AdjRibInWriter {
         final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         final Collection<NodeIdentifierWithPredicates> routeKeys = ctx.writeRoutes(tx, nlri, attributes);
         final Collection<NodeIdentifierWithPredicates> staleRoutes = this.staleRoutesRegistry.get(key);
+        final Collection<NodeIdentifierWithPredicates> llStaleRoutes = this.llStaleRoutesRegistry.get(key);
         if (staleRoutes != null) {
             staleRoutes.removeAll(routeKeys);
+        }
+        if (llStaleRoutes != null) {
+            llStaleRoutes.removeAll(routeKeys);
         }
         LOG.trace("Write routes {}", nlri);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
@@ -353,9 +357,9 @@ final class AdjRibInWriter {
         }
     }
 
-    final void storeStaleRoutes(final Set<TablesKey> gracefulTables) {
+    void storeStaleRoutes(final Set<TablesKey> gracefulTables) {
         try (final DOMDataReadOnlyTransaction tx = this.chain.getDomChain().newReadOnlyTransaction()) {
-            final Map<TablesKey, Future> readFutures = new HashMap<>();
+            final Map<TablesKey, ListenableFuture<Optional<NormalizedNode<?, ?>>>> readFutures = new HashMap<>();
             final ExecutorService threadPool = Executors.newCachedThreadPool();
             gracefulTables.forEach(tablesKey -> {
                 final TableContext ctx = this.tables.get(tablesKey);
@@ -364,7 +368,7 @@ final class AdjRibInWriter {
                     return;
                 }
                 final YangInstanceIdentifier iid = ctx.routesPath();
-                final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> readFuture =
+                final ListenableFuture<Optional<NormalizedNode<?, ?>>> readFuture =
                         tx.read(LogicalDatastoreType.OPERATIONAL, iid);
                 readFutures.put(tablesKey, readFuture);
                 Futures.addCallback(readFuture, new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
@@ -396,16 +400,26 @@ final class AdjRibInWriter {
                     LOG.warn("Failed to store stale routes for table {}", entry.getKey(), e);
                 }
             });
+            threadPool.shutdown();
         }
     }
 
-    final void removeStaleRoutes(final TablesKey tableKey) {
+    void removeStaleRoutes(final TablesKey tableKey) {
+        removeStaleRoutes(tableKey, this.staleRoutesRegistry);
+    }
+
+    void removeLlStaleRoutes(final TablesKey tableKey) {
+        removeStaleRoutes(tableKey, this.llStaleRoutesRegistry);
+    }
+
+    private void removeStaleRoutes(final TablesKey tableKey,
+                            final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> routeRegistry) {
         final TableContext ctx = this.tables.get(tableKey);
         if (ctx == null) {
             LOG.debug("No table for {}, not removing any stale routes", tableKey);
             return;
         }
-        final Collection<NodeIdentifierWithPredicates> routeKeys = this.staleRoutesRegistry.get(tableKey);
+        final Collection<NodeIdentifierWithPredicates> routeKeys = routeRegistry.get(tableKey);
         if (routeKeys == null || routeKeys.isEmpty()) {
             LOG.debug("No stale routes present in table {}", tableKey);
             return;
@@ -421,8 +435,8 @@ final class AdjRibInWriter {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.trace("Removing routes {}, succeed", routeKeys);
-                synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
-                    staleRoutesRegistry.remove(tableKey);
+                synchronized (routeRegistry) {
+                    routeRegistry.remove(tableKey);
                 }
             }
 
@@ -433,7 +447,7 @@ final class AdjRibInWriter {
         }, MoreExecutors.directExecutor());
     }
 
-    final FluentFuture<? extends CommitInfo> clearTables(final Set<TablesKey> tablesToClear) {
+    FluentFuture<? extends CommitInfo> clearTables(final Set<TablesKey> tablesToClear) {
         if (tablesToClear == null || tablesToClear.isEmpty()) {
             return CommitInfo.emptyFluentFuture();
         }

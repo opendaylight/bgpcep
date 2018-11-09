@@ -15,12 +15,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
@@ -32,6 +34,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -438,5 +441,71 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     @Override
     public long getTotalPrefixesInstalled() {
         return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+    }
+
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void storeLlStaleRoutes(
+                    final Set<TablesKey> llGracefulTables) {
+        final ReadWriteTransaction tx = this.chain.newReadWriteTransaction();
+        final CountDownLatch latch = new CountDownLatch(llGracefulTables.size());
+
+        for (TablesKey tablesKey : llGracefulTables) {
+            final RIBSupport<C, S, R, I> ribSupport = this.registry.getRIBSupport(tablesKey);
+            if (ribSupport == null) {
+                LOG.error("Trying to save routes from missing table {}", tablesKey);
+                latch.countDown();
+                continue;
+            }
+
+            final KeyedInstanceIdentifier<Tables, TablesKey> tablesIid =
+                    this.effRibTables.child(Tables.class, tablesKey);
+            InstanceIdentifier<S> routesIid = tablesIid.builder()
+                    .child(ribSupport.routesCaseClass(), ribSupport.routesContainerClass())
+                    .build();
+            Futures.addCallback(tx.read(LogicalDatastoreType.OPERATIONAL, routesIid),
+                    new FutureCallback<com.google.common.base.Optional<S>>() {
+                        @Override
+                        public void onSuccess(final com.google.common.base.Optional<S> result) {
+                            try {
+                                if (result.isPresent()) {
+                                    final List<R> routes = ribSupport.routesFromContainer(result.get());
+                                    routes.forEach(route -> {
+                                        writeRoutes(tx, tablesKey, ribSupport, tablesIid, route.key(), route, true);
+                                    });
+                                }
+                            } finally {
+                                latch.countDown();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(final Throwable failure) {
+                            LOG.warn("Reading stale routes for table {} failed", tablesKey, failure);
+                            latch.countDown();
+                        }
+                    }, MoreExecutors.directExecutor());
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting to apply {} LLGR_STALE update tasks of {} to finish", latch.getCount(),
+                    llGracefulTables, e);
+            tx.cancel();
+            return;
+        }
+
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo commitInfo) {
+                LOG.debug("Routes from tables {} updated with LLGR_STALE community.", llGracefulTables);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to update routes from tables {} with LLGR_STALE community", llGracefulTables,
+                        throwable);
+            }
+        }, MoreExecutors.directExecutor());
     }
 }
