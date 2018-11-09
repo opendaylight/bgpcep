@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.mockito.Mock;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
+import org.opendaylight.protocol.bgp.rib.impl.BgpPeerUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.GracefulRestartBuilder;
@@ -33,12 +35,16 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.Config1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.Config1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.afi.safi.ll.graceful.restart.LlGracefulRestartBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
@@ -48,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class GracefulRestartUtilTest {
 
     private static final int RESTART_TIME = 5;
+    private static final int STALE_TIME = 10;
     private static final boolean RESTARTING = true;
     private static final AfiSafi IPV4_UNICAST_AFISAFI = new AfiSafiBuilder()
             .setAfiSafiName(IPV4UNICAST.class)
@@ -138,19 +145,75 @@ public class GracefulRestartUtilTest {
         final OptionalCapabilities expectedGracefulCapability = new OptionalCapabilitiesBuilder()
                 .setCParameters(GracefulRestartUtil.getGracefulCapability(gracefulMap, RESTART_TIME, RESTARTING))
                 .build();
+        final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulDTOs = Collections.singleton(
+                new BgpPeerUtil.LlGracefulRestartDTO(IPV4_KEY, STALE_TIME, true));
+        final OptionalCapabilities expectedLlGracefulCapability = new OptionalCapabilitiesBuilder()
+                .setCParameters(GracefulRestartUtil.getLlGracefulCapability(llGracefulDTOs))
+                .build();
         final BgpParameters parameters = GracefulRestartUtil.getGracefulBgpParameters(fixedCaps, gracefulTables,
-                preservedTables, RESTART_TIME, RESTARTING);
+                preservedTables, RESTART_TIME, RESTARTING, llGracefulDTOs);
         final List<OptionalCapabilities> capabilities = parameters.getOptionalCapabilities();
         assertTrue(capabilities != null);
-        assertEquals(3, capabilities.size());
+        assertEquals(4, capabilities.size());
         assertTrue(capabilities.contains(cap1));
         assertTrue(capabilities.contains(cap2));
         assertTrue(capabilities.contains(expectedGracefulCapability));
+        assertTrue(capabilities.contains(expectedLlGracefulCapability));
+    }
 
+    @Test
+    public void getLlGracefulCapabilityTest() {
+        final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestartDTOs = new HashSet<>();
+        llGracefulRestartDTOs.add(new BgpPeerUtil.LlGracefulRestartDTO(IPV4_KEY, STALE_TIME, true));
+        llGracefulRestartDTOs.add(new BgpPeerUtil.LlGracefulRestartDTO(IPV6_KEY, STALE_TIME, false));
+        CParameters capability = GracefulRestartUtil.getLlGracefulCapability(llGracefulRestartDTOs);
+        final CParameters1 params = capability.augmentation(CParameters1.class);
+        assertNotNull(params);
+        final LlGracefulRestartCapability llGracefulCapability = params.getLlGracefulRestartCapability();
+        assertNotNull(llGracefulCapability);
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables> tables =
+                llGracefulCapability.getTables();
+        assertNotNull(tables);
+        assertEquals(2, tables.size());
+        assertEquals(STALE_TIME, tables.get(0).getLongLiveStaleTime().intValue());
+        tables.forEach(table -> {
+            assertTrue((isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()) ||
+                    (isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState()));
+        });
+    }
+
+    @Test
+    public void getLlGracefulTimersTest() {
+        final List<AfiSafi> afiSafi = new ArrayList<>();
+        afiSafi.add(new AfiSafiBuilder()
+                .setAfiSafiName(IPV4UNICAST.class)
+                .setGracefulRestart(new GracefulRestartBuilder()
+                        .setConfig(new ConfigBuilder()
+                                .addAugmentation(Config1.class, new Config1Builder()
+                                        .setLlGracefulRestart(new LlGracefulRestartBuilder()
+                                                .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart.ConfigBuilder()
+                                                        .setLongLiveStaleTime((long) STALE_TIME)
+                                                        .build())
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+        final Map<TablesKey, Integer> llGracefulTimers = GracefulRestartUtil.getLlGracefulTimers(afiSafi,
+                this.tableRegistry);
+        assertNotNull(llGracefulTimers);
+        assertEquals(1, llGracefulTimers.size());
+        assertEquals(STALE_TIME, llGracefulTimers.get(IPV4_KEY).intValue());
     }
 
     private static boolean isSameKey(TablesKey key1,
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesKey key2) {
+        return key1.getAfi() == key2.getAfi() &&
+                key1.getSafi() == key2.getSafi();
+    }
+
+    private static boolean isSameKey(TablesKey key1,
+                                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesKey key2) {
         return key1.getAfi() == key2.getAfi() &&
                 key1.getSafi() == key2.getSafi();
     }
