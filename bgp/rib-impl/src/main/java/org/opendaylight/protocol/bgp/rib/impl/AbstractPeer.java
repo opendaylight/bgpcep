@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
@@ -37,8 +38,8 @@ import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
-import org.opendaylight.protocol.bgp.rib.spi.entry.RouteKeyIdentifier;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteKeyIdentifier;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -219,34 +220,39 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void initializeRibOut(
-            final RouteEntryDependenciesContainer entryDep,
-            List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
+            I extends Identifier<R>> void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
+                    final List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
 
-        final RIBSupport<C,S,R,I> ribSupport = entryDep.getRIBSupport();
+        final RIBSupport<C, S, R, I> ribSupport = entryDep.getRIBSupport();
         final TablesKey tk = entryDep.getRIBSupport().getTablesKey();
         final boolean addPathSupported = supportsAddPathSupported(tk);
 
         final WriteTransaction tx = this.bindingChain.newWriteOnlyTransaction();
-        for(final ActualBestPathRoutes<C,S,R,I> initializingRoute :routesToStore) {
+        for(final ActualBestPathRoutes<C, S, R, I> initializingRoute : routesToStore) {
             final PeerId fromPeerId = initializingRoute.getFromPeerId();
             final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
             if (!filterRoutes(fromPeerId, ribSupport.getTablesKey())) {
                 continue;
             }
-            final R route = initializingRoute.getRoute();
 
+            final Attributes attrs = initializingRoute.getAttributes();
+            if (!supportsLLGR() && attrs.nonnullCommunities().contains(CommunityUtil.LLGR_STALE)) {
+                // Stale Long-lived Graceful Restart routes should not be propagated
+                continue;
+            }
+
+            final R route = initializingRoute.getRoute();
             final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer,
                     this, route.getRouteKey(), this.rtCache);
+
             final Optional<Attributes> effAttr = entryDep.getRoutingPolicies()
-                    .applyExportPolicies(routeEntry, initializingRoute.getAttributes(), entryDep.getAfiSafType());
+                    .applyExportPolicies(routeEntry, attrs, entryDep.getAfiSafType());
             final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
 
             effAttr.ifPresent(attributes
@@ -272,7 +278,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
-            final List<StaleBestPathRoute<C, S, R, I>> staleRoutes, List<AdvertizedRoute<C, S, R, I>> newRoutes) {
+            final List<StaleBestPathRoute<C, S, R, I>> staleRoutes, final List<AdvertizedRoute<C, S, R, I>> newRoutes) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -297,11 +303,12 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }, MoreExecutors.directExecutor());
     }
 
+    @Override
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void reEvaluateAdvertizement(
             final RouteEntryDependenciesContainer entryDep,
-            List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
+            final List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -368,7 +375,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
 
         for (final AdvertizedRoute<C,S,R,I> advRoute:routes) {
             final PeerId fromPeerId = advRoute.getFromPeerId();
-            if (!filterRoutes(fromPeerId, tk) || (!advRoute.isFirstBestPath() && !addPathSupported)) {
+            if (!filterRoutes(fromPeerId, tk) || !advRoute.isFirstBestPath() && !addPathSupported) {
                 continue;
             }
             final R route = advRoute.getRoute();
@@ -467,5 +474,9 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             this.domChain.close();
             this.domChain = null;
         }
+    }
+
+    boolean supportsLLGR() {
+        return false;
     }
 }
