@@ -5,7 +5,7 @@ module network-pcep-topology-stats {
     prefix npts;
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix pn; revision-date 2017-10-25; }
+    import network-topology-pcep { prefix pn; revision-date 2018-11-09; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
     import pcep-session-stats { prefix pss; revision-date 2017-11-13; }
 
@@ -20,6 +20,12 @@ module network-pcep-topology-stats {
 
     organization "AT&T Services, Inc.";
     contact "Claudio D. Gasparini <claudio.gasparini@pantheon.sk>";
+
+    revision "2018-11-09" {
+        description
+            "P2MP extension.";
+        reference "RFC8306";
+    }
 
     revision "2017-11-13" {
         description

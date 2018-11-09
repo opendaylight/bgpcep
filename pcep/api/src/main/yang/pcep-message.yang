@@ -3,7 +3,7 @@ module pcep-message {
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:message";
     prefix "pcep-msg";
 
-    import pcep-types { prefix pcep; revision-date 2013-10-05; }
+    import pcep-types { prefix pcep; revision-date 2018-11-09; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
@@ -19,6 +19,12 @@ module pcep-message {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2018-11-09" {
+        description
+            "P2MP extension.";
+        reference "RFC8306";
+    }
 
     revision "2013-10-07" {
         description
