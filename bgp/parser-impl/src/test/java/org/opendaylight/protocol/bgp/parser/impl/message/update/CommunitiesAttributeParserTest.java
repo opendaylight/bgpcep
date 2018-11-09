@@ -25,11 +25,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 public class CommunitiesAttributeParserTest {
 
-    private static final byte[] CommunitiesBytes = {(byte) 0xC0, (byte) 0x08, (byte) 0x10,
+    private static final byte[] CommunitiesBytes = {(byte) 0xC0, (byte) 0x08, (byte) 0x18,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x1,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x2,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x3,
-        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x10};
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x10,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x06,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x07};
 
     @Test
     public void testCommunitiesAttributeParser() throws Exception {
@@ -38,6 +40,8 @@ public class CommunitiesAttributeParserTest {
         comms.add((Communities) CommunityUtil.NO_ADVERTISE);
         comms.add((Communities) CommunityUtil.NO_EXPORT_SUBCONFED);
         comms.add((Communities) CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF10));
+        comms.add((Communities) CommunityUtil.LLGR_STALE);
+        comms.add((Communities) CommunityUtil.NO_LLGR);
 
         final AttributesBuilder paBuilder = new AttributesBuilder();
         paBuilder.setCommunities(comms);

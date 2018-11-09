@@ -39,6 +39,10 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
 
     private static final byte[] NO_EXPORT_SUBCONFED = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x03 };
 
+    private static final byte[] LLGR_STALE = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x06 };
+
+    private static final byte[] NO_LLGR = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x07 };
+
     private final ReferenceCache refCache;
 
     public CommunitiesAttributeParser(final ReferenceCache refCache) {
@@ -78,6 +82,10 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
             return CommunityUtil.NO_ADVERTISE;
         } else if (Arrays.equals(body, NO_EXPORT_SUBCONFED)) {
             return CommunityUtil.NO_EXPORT_SUBCONFED;
+        } else if (Arrays.equals(body, LLGR_STALE)) {
+            return CommunityUtil.LLGR_STALE;
+        } else if (Arrays.equals(body, NO_LLGR)) {
+            return CommunityUtil.NO_LLGR;
         }
         return CommunityUtil.create(refCache, buffer.readUnsignedShort(), buffer.readUnsignedShort());
     }
