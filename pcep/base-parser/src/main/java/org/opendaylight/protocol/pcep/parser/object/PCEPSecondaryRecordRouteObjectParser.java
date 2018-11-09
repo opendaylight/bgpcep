@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.secondary.reported.route.object.Srro;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.secondary.reported.route.object.SrroBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.secondary.reported.route.object.srro.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.secondary.reported.route.object.Srro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.secondary.reported.route.object.SrroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.secondary.reported.route.object.srro.SubobjectBuilder;
 
 public final class PCEPSecondaryRecordRouteObjectParser extends AbstractRROWithSubobjectsParser {
     private static final int CLASS = 30;
@@ -43,10 +43,10 @@ public final class PCEPSecondaryRecordRouteObjectParser extends AbstractRROWithS
 
         builder.setSubobject(subObjects.stream()
             .map(so -> new SubobjectBuilder()
-                .setSubobjectType(so.getSubobjectType())
-                .setProtectionAvailable(so.isProtectionAvailable())
-                .setProtectionInUse(so.isProtectionInUse())
-                .build())
+                    .setSubobjectType(so.getSubobjectType())
+                    .setProtectionAvailable(so.isProtectionAvailable())
+                    .setProtectionInUse(so.isProtectionInUse())
+                    .build())
             .collect(Collectors.toList()));
 
         return builder.build();
@@ -59,12 +59,12 @@ public final class PCEPSecondaryRecordRouteObjectParser extends AbstractRROWithS
         final Srro sero = ((Srro) object);
         final ByteBuf body = Unpooled.buffer();
         final List<Subobject> subObjects = sero.getSubobject().stream()
-            .map(so -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005
+            .map(so -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                 .reported.route.object.rro.SubobjectBuilder()
-                .setProtectionAvailable(so.isProtectionAvailable())
-                .setProtectionInUse(so.isProtectionInUse())
-                .setSubobjectType(so.getSubobjectType())
-                .build())
+                    .setSubobjectType(so.getSubobjectType())
+                    .setProtectionAvailable(so.isProtectionAvailable())
+                    .setProtectionInUse(so.isProtectionInUse())
+                    .build())
             .collect(Collectors.toList());
         serializeSubobject(subObjects, body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
