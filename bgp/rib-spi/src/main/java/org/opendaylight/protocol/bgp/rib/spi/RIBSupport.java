@@ -247,6 +247,7 @@ public interface RIBSupport<
      * @return Protocol-specific case in the routes choice, may not be null.
      */
     @Nonnull
+    @Deprecated
     C emptyRoutesCase();
 
     /**
