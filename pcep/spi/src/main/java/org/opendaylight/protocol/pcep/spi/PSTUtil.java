@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.pcep.spi;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
 
 public final class PSTUtil {
     private PSTUtil() {
