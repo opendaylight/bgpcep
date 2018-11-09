@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.linkstate.impl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -86,7 +85,7 @@ public final class LinkstateRIBSupport
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 linkstate.getChild(routePathIdNid());
         return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
-                pathIdQName(), Arrays.toString(ByteArray.readAllBytes(buffer)), maybePathIdLeaf);
+                pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
 
     private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
