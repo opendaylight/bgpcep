@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep;
 
 import java.util.EventListener;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 
 /**
  * Listener that receives session informations from the session.
