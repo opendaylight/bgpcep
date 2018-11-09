@@ -157,7 +157,6 @@ public abstract class AbstractRIBSupport<
         this.tk = new TablesKey(afiClass, safiClass);
         this.emptyTable = (MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
-                        .setRoutes(emptyRoutesCase())
                         .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
                                 .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
         this.afiClass = afiClass;

@@ -114,9 +114,7 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest<EvpnRoutesC
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new EvpnRoutesCaseBuilder().setEvpnRoutes(
-                new EvpnRoutesBuilder().setEvpnRoute(Collections.emptyList()).build()).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test

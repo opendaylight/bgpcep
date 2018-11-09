@@ -110,10 +110,7 @@ public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new L3vpnMcastRoutesIpv6CaseBuilder()
-                .setL3vpnMcastRoutesIpv6(new L3vpnMcastRoutesIpv6Builder()
-                        .setL3vpnMcastRoute(Collections.emptyList()).build()).build();
-        Assert.assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        Assert.assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test

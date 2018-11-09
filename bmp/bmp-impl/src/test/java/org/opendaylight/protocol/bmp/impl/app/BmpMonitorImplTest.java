@@ -321,6 +321,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
         readDataOperational(getDataBroker(), routerIId, router -> {
             final List<Peer> peers = router.getPeer();
+            assertNotNull(peers.size());
             assertEquals(1, peers.size());
             final Peer peer = peers.get(0);
             assertEquals(PeerType.Global, peer.getType());
@@ -337,7 +338,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             assertEquals(Ipv4AddressFamily.class, prePolicyTable.getAfi());
             assertEquals(UnicastSubsequentAddressFamily.class, prePolicyTable.getSafi());
             assertFalse(prePolicyTable.getAttributes().isUptodate());
-            assertNotNull(prePolicyTable.getRoutes());
 
             assertNotNull(peer.getPostPolicyRib());
             assertEquals(1, peer.getPostPolicyRib().getTables().size());
@@ -345,7 +345,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             assertEquals(Ipv4AddressFamily.class, postPolicyTable.getAfi());
             assertEquals(UnicastSubsequentAddressFamily.class, postPolicyTable.getSafi());
             assertFalse(postPolicyTable.getAttributes().isUptodate());
-            assertNotNull(postPolicyTable.getRoutes());
 
             assertNotNull(peer.getPeerSession());
             final PeerSession peerSession = peer.getPeerSession();

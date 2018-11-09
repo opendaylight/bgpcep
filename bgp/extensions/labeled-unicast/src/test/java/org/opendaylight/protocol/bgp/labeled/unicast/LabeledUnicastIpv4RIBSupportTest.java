@@ -122,9 +122,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new LabeledUnicastRoutesCaseBuilder().setLabeledUnicastRoutes(
-            new LabeledUnicastRoutesBuilder().setLabeledUnicastRoute(Collections.emptyList()).build()).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test

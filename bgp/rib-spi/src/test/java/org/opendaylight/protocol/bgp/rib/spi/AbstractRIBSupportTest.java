@@ -147,11 +147,10 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         return (ContainerNode) this.mappingService.toNormalizedNode(ATTRIBUTES_IID, ATTRIBUTES).getValue();
     }
 
-    protected final MapEntryNode createEmptyTable(final Routes routes) {
+    protected final MapEntryNode createEmptyTable() {
         final Tables tables = new TablesBuilder().withKey(getTablesKey())
-                .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
-                        .rib.tables.AttributesBuilder().build())
-                .setRoutes(routes).build();
+            .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
+                .rib.tables.AttributesBuilder().build()).build();
         return (MapEntryNode) this.mappingService.toNormalizedNode(tablesIId(), tables).getValue();
     }
 
