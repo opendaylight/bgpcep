@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandl
 import org.opendaylight.protocol.bgp.parser.impl.message.open.BgpExtendedMessageCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.CapabilityParameterParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.LlGracefulCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.MultiProtocolCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.RouteRefreshCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AS4AggregatorAttributeParser;
@@ -46,11 +47,11 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communi
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.OpaqueEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteOriginAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteOriginIpv4EcHandler;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.SourceAS4OctectHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.SourceASHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.VrfRouteImportHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.Generic4OctASEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteOrigin4OctectASEcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.SourceAS4OctectHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.route.target.RouteTarget4OctectASEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.route.target.RouteTargetAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.route.target.RouteTargetIpv4EcHandler;
@@ -82,6 +83,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.RouteRefreshCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
@@ -156,6 +158,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final GracefulCapabilityHandler grace = new GracefulCapabilityHandler(afiReg, safiReg);
         regs.add(context.registerCapabilitySerializer(GracefulRestartCapability.class, grace));
         regs.add(context.registerCapabilityParser(GracefulCapabilityHandler.CODE, grace));
+
+        final LlGracefulCapabilityHandler llgrace = new LlGracefulCapabilityHandler(afiReg, safiReg);
+        regs.add(context.registerCapabilitySerializer(LlGracefulRestartCapability.class, llgrace));
+        regs.add(context.registerCapabilityParser(LlGracefulCapabilityHandler.CODE, llgrace));
 
         final CapabilityParameterParser cpp = new CapabilityParameterParser(context.getCapabilityRegistry());
         regs.add(context.registerParameterParser(CapabilityParameterParser.TYPE, cpp));
