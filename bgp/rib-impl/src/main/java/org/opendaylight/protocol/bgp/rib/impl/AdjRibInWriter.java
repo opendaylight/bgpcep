@@ -400,12 +400,17 @@ final class AdjRibInWriter {
     }
 
     void removeStaleRoutes(final TablesKey tableKey) {
+        removeStaleRoutes(tableKey, this.staleRoutesRegistry);
+    }
+
+    private void removeStaleRoutes(final TablesKey tableKey,
+                                   final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> routeRegistry) {
         final TableContext ctx = this.tables.get(tableKey);
         if (ctx == null) {
             LOG.debug("No table for {}, not removing any stale routes", tableKey);
             return;
         }
-        final Collection<NodeIdentifierWithPredicates> routeKeys = this.staleRoutesRegistry.get(tableKey);
+        final Collection<NodeIdentifierWithPredicates> routeKeys = routeRegistry.get(tableKey);
         if (routeKeys == null || routeKeys.isEmpty()) {
             LOG.debug("No stale routes present in table {}", tableKey);
             return;
@@ -421,8 +426,8 @@ final class AdjRibInWriter {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.trace("Removing routes {}, succeed", routeKeys);
-                synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
-                    staleRoutesRegistry.remove(tableKey);
+                synchronized (routeRegistry) {
+                    routeRegistry.remove(tableKey);
                 }
             }
 
