@@ -13,6 +13,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -26,10 +27,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -68,9 +69,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +124,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final ChannelOutputLimiter limiter;
     private final BGPSessionStateImpl sessionState;
     private final GracefulRestartCapability gracefulCapability;
+    private final LlGracefulRestartCapability llGracefulCapability;
     private boolean terminationReasonNotified;
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
@@ -166,9 +170,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                     }
                 }
             }
-            this.gracefulCapability = findAdvertisedGracefulCapability(bgpParameters);
+            this.gracefulCapability = findSingleCapability(bgpParameters, "Graceful Restart",
+                CParameters1::getGracefulRestartCapability).orElse(GracefulRestartUtil.EMPTY_GR_CAPABILITY);
+            this.llGracefulCapability = findSingleCapability(bgpParameters, "Long-lived Graceful Restart",
+                CParameters1::getLlGracefulRestartCapability).orElse(GracefulRestartUtil.EMPTY_LLGR_CAPABILITY);
         } else {
             this.gracefulCapability = GracefulRestartUtil.EMPTY_GR_CAPABILITY;
+            this.llGracefulCapability = GracefulRestartUtil.EMPTY_LLGR_CAPABILITY;
         }
 
         this.sync = new BGPSynchronization(this.listener, tts);
@@ -191,34 +199,39 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                 this.tableTypes, bgpParameters);
     }
 
-    private GracefulRestartCapability findAdvertisedGracefulCapability(final List<BgpParameters> bgpParameters) {
-        final List<GracefulRestartCapability> gracefulCapabilities = bgpParameters.stream()
-                .flatMap(param -> param.getOptionalCapabilities().stream())
-                .map(OptionalCapabilities::getCParameters)
-                .filter(Objects::nonNull)
-                .map(cParam -> cParam.augmentation(CParameters1.class))
-                .filter(Objects::nonNull)
-                .map(MpCapabilities::getGracefulRestartCapability)
-                .filter(Objects::nonNull)
-                .distinct()
-                .collect(Collectors.toList());
+    private static <T extends ChildOf<MpCapabilities>> Optional<T> findSingleCapability(
+            final List<BgpParameters> bgpParameters, final String name, final Function<CParameters1, T> extractor) {
+        final List<T> found = new ArrayList<>(1);
+        for (BgpParameters bgpParams : bgpParameters) {
+            for (OptionalCapabilities optCapability : bgpParams.nonnullOptionalCapabilities()) {
+                final CParameters cparam = optCapability.getCParameters();
+                if (cparam != null) {
+                    final CParameters1 augment = cparam.augmentation(CParameters1.class);
+                    if (augment != null) {
+                        final T capa = extractor.apply(augment);
+                        if (capa != null) {
+                            found.add(capa);
+                        }
+                    }
+                }
+            }
+        }
 
-        switch (gracefulCapabilities.size()) {
-            case 0: {
-                LOG.debug("Graceful Restart capability not advertised.");
-                return GracefulRestartUtil.EMPTY_GR_CAPABILITY;
-            }
+        final Set<T> set = ImmutableSet.copyOf(found);
+        switch (set.size()) {
+            case 0:
+                LOG.debug("{} capability not advertised.", name);
+                return Optional.empty();
             case 1:
-                return gracefulCapabilities.get(0);
-            default: {
-                LOG.error("Multiple graceful capabilities advertised {}, ignoring.", gracefulCapabilities);
-                return GracefulRestartUtil.EMPTY_GR_CAPABILITY;
-            }
+                return Optional.of(found.get(0));
+            default:
+                LOG.warn("Multiple instances of {} capability advertised: {}, ignoring.", name, set);
+                return Optional.empty();
         }
     }
 
     /**
-     * Set the extend message coder for current channel
+     * Set the extend message coder for current channel.
      * The reason for separating this part from constructor is, in #channel.pipeline().replace(..), the
      * invokeChannelRead() will be invoked after the original message coder handler got removed. And there
      * is chance that before the session instance is fully initiated (constructor returns), a KeepAlive
@@ -449,6 +462,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public GracefulRestartCapability getAdvertisedGracefulRestartCapability() {
         return this.gracefulCapability;
+    }
+
+    @Override
+    public LlGracefulRestartCapability getAdvertisedLlGracefulRestartCapability() {
+        return this.llGracefulCapability;
     }
 
     @VisibleForTesting
