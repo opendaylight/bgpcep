@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 
 public interface ObjectSerializer {
 
