@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
@@ -547,5 +549,127 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     @Override
     public long getTotalPrefixesInstalled() {
         return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+    }
+
+    // mandatory synchronization because onDataTreeChange and mark/removeLLStaleRoutes are using same transaction chain
+    synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void markLlStaleRoutes(
+                    final Set<TablesKey> llGracefulTables) {
+        final ReadWriteTransaction tx = this.chain.newReadWriteTransaction();
+        final CountDownLatch latch = new CountDownLatch(llGracefulTables.size());
+
+        for (TablesKey tablesKey : llGracefulTables) {
+            final RIBSupport<C, S, R, I> ribSupport = this.registry.getRIBSupport(tablesKey);
+            if (ribSupport == null) {
+                LOG.error("Trying to save routes from missing table {}", tablesKey);
+                latch.countDown();
+                continue;
+            }
+
+            final KeyedInstanceIdentifier<Tables, TablesKey> tablesIid =
+                    this.effRibTables.child(Tables.class, tablesKey);
+            final InstanceIdentifier<S> routesIid = tablesIid.builder()
+                    .child(ribSupport.routesCaseClass(), ribSupport.routesContainerClass())
+                    .build();
+            Futures.addCallback(tx.read(LogicalDatastoreType.OPERATIONAL, routesIid),
+                    new FutureCallback<com.google.common.base.Optional<S>>() {
+                        @Override
+                        public void onSuccess(final com.google.common.base.Optional<S> result) {
+                            try {
+                                if (result.isPresent()) {
+                                    final List<R> routes = ribSupport.routesFromContainer(result.get());
+                                    if (routes != null) {
+                                        for (R route : routes) {
+                                            writeRoutes(tx, tablesKey, null, ribSupport, tablesIid, route.key(), route,
+                                                    true);
+                                        }
+                                    }
+                                }
+                            } finally {
+                                latch.countDown();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(final Throwable failure) {
+                            LOG.warn("Reading stale routes for table {} failed", tablesKey, failure);
+                            latch.countDown();
+                        }
+                    }, MoreExecutors.directExecutor());
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting to apply {} LLGR_STALE update tasks of {} to finish", latch.getCount(),
+                    llGracefulTables, e);
+            tx.cancel();
+            return;
+        }
+
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo commitInfo) {
+                LOG.debug("Routes from tables {} updated with LLGR_STALE community.", llGracefulTables);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to update routes from tables {} with LLGR_STALE community", llGracefulTables,
+                        throwable);
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
+    synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void removeLlStaleRoutes(
+                    final TablesKey tablesKey) {
+        final RIBSupport<C, S, R, I> ribSupport = this.registry.getRIBSupport(tablesKey);
+        if (ribSupport == null) {
+            LOG.error("Trying to remove routes from missing table {}", tablesKey);
+            return;
+        }
+        final KeyedInstanceIdentifier<Tables, TablesKey> tablesIid =
+                this.effRibTables.child(Tables.class, tablesKey);
+        final InstanceIdentifier<S> routesIid = tablesIid.builder()
+                .child(ribSupport.routesCaseClass(), ribSupport.routesContainerClass())
+                .build();
+        final com.google.common.base.Optional<S> routesContainerOpt;
+        final ReadWriteTransaction tx = this.chain.newReadWriteTransaction();
+        try {
+            routesContainerOpt = tx.read(LogicalDatastoreType.OPERATIONAL, routesIid).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Reading stale routes for table {} failed", tablesKey, e);
+            tx.cancel();
+            return;
+        }
+
+        if(routesContainerOpt.isPresent()) {
+            final List<R> routes = ribSupport.routesFromContainer(routesContainerOpt.get());
+            if (routes != null) {
+                for (final R route : routes) {
+                    final Attributes attr = route.getAttributes();
+                    if (attr != null) {
+                        final List<Communities> communities = attr.getCommunities();
+                        if (communities != null && communities.contains(CommunityUtil.LLGR_STALE)) {
+                            deleteRoutes(routesIid.child(ribSupport.routesListClass(), route.key()), route, tx);
+                        }
+                    }
+                }
+            }
+        }
+
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo commitInfo) {
+                LOG.debug("Routes from tables {} updated with LLGR_STALE community.", tablesKey);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to update routes from tables {} with LLGR_STALE community", tablesKey,
+                        throwable);
+            }
+        }, MoreExecutors.directExecutor());
     }
 }
