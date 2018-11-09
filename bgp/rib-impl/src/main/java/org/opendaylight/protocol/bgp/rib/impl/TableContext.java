@@ -20,6 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 /**
  * A context for a single RIB table instance. It is always bound to a particular {@link AdjRibInWriter}.
@@ -64,5 +66,17 @@ final class TableContext {
 
     YangInstanceIdentifier routePath(final PathArgument routeId) {
         return tableSupport.getRibSupport().routePath(this.tableId, routeId);
+    }
+
+    YangInstanceIdentifier.NodeIdentifier routeAttributesIdentifier() {
+        return tableSupport.getRibSupport().routeAttributesIdentifier();
+    }
+
+    Attributes deserializeAttributes(final NormalizedNode<?,?> attributes) {
+        return tableSupport.deserializeAttributes(attributes);
+    }
+
+    ContainerNode serializeAttributes(final Attributes attributes) {
+        return tableSupport.serializeAttributes(attributes);
     }
 }

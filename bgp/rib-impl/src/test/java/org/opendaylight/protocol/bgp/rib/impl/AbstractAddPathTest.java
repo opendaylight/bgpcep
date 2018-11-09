@@ -40,6 +40,7 @@ import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
+import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -232,7 +233,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
     BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
         final SimpleSessionListener sessionListener) throws InterruptedException {
-        return createPeerSession(peer,bgpParameters, sessionListener, AS_NUMBER);
+        return createPeerSession(peer, bgpParameters, sessionListener, AS_NUMBER);
     }
 
     BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
@@ -260,18 +261,19 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
             final Set<TablesKey> gracefulAfiSafiAdvertised) {
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                afiSafiAdvertised, gracefulAfiSafiAdvertised, null);
+                afiSafiAdvertised, gracefulAfiSafiAdvertised, Collections.emptyMap(), null);
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
                                  final Ipv4Address peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
                                  final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry,
                                  final Set<TablesKey> afiSafiAdvertised, final Set<TablesKey> gracefulAfiSafiAdvertised,
+                                 final Map<TablesKey, Integer> llGracefulTimersAdvertised,
                                  final BgpPeer peer) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), null, ribImpl, peerRole,
-                null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, peer);
+                null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, peer);
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));
@@ -291,12 +293,13 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     }
 
     static BgpParameters createParameter(final boolean addPath) {
-        return createParameter(addPath, false, null);
+        return createParameter(addPath, false, null, null);
     }
 
     static BgpParameters createParameter(final boolean addPath,
                                          final boolean addIpv6,
-                                         final Map<TablesKey, Boolean> gracefulTables) {
+                                         final Map<TablesKey, Boolean> gracefulTables,
+                                         final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestartDTOS) {
         final TablesKey ipv4Key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final List<TablesKey> advertisedTables = Lists.newArrayList(ipv4Key);
         if (addIpv6) {
@@ -307,7 +310,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         if (addPath) {
             addPathTables.add(ipv4Key);
         }
-        return PeerUtil.createBgpParameters(advertisedTables, addPathTables, gracefulTables, GRACEFUL_RESTART_TIME);
+        return PeerUtil.createBgpParameters(advertisedTables, addPathTables, gracefulTables, GRACEFUL_RESTART_TIME,
+                llGracefulRestartDTOS);
     }
 
     private static Update createSimpleUpdate(final Ipv4Prefix prefix, final PathId pathId,
