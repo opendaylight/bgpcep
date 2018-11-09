@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
+import org.opendaylight.protocol.bgp.rib.impl.config.GracefulRestartUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -32,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Origin;
@@ -46,12 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -116,12 +115,13 @@ final class PeerUtil {
                                final List<Segments> pathSegments,
                                final long preference,
                                final MpReachNlri mpReach,
-                               final MpUnreachNlri mpUnreach) {
+                               final MpUnreachNlri mpUnreach,
+                               final List<Communities> communities) {
         final Origin origin = new OriginBuilder().setValue(bgpOrigin).build();
         final AsPath asPath = new AsPathBuilder().setSegments(pathSegments).build();
         final LocalPref localPref = new LocalPrefBuilder().setPref(preference).build();
         final AttributesBuilder attributeBuilder = new AttributesBuilder()
-                .setOrigin(origin).setAsPath(asPath).setLocalPref(localPref);
+                .setOrigin(origin).setAsPath(asPath).setLocalPref(localPref).setCommunities(communities);
 
         if (mpReach != null) {
             attributeBuilder.addAugmentation(Attributes1.class, new Attributes1Builder()
@@ -136,27 +136,29 @@ final class PeerUtil {
         }
 
         return new UpdateBuilder()
-                .setAttributes(new AttributesBuilder()
-                        .setOrigin(origin)
-                        .setAsPath(asPath)
-                        .setLocalPref(localPref)
-                        .addAugmentation(Attributes1.class, new Attributes1Builder()
-                                .setMpReachNlri(mpReach)
-                                .build())
-                        .build()).build();
+                .setAttributes(attributeBuilder.build())
+                .build();
     }
 
     static BgpParameters createBgpParameters(final List<TablesKey> advertisedTables,
                                              final List<TablesKey> addPathTables,
                                              final Map<TablesKey, Boolean> gracefulTabes,
-                                             final int gracefulTimer) {
+                                             final int gracefulTimer,
+                                             final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestartDTOS) {
         final List<OptionalCapabilities> capabilities = new ArrayList<>();
         advertisedTables.forEach(key -> capabilities.add(createMultiprotocolCapability(key)));
         if (addPathTables != null && !addPathTables.isEmpty()) {
             capabilities.add(createAddPathCapability(addPathTables));
         }
         if (gracefulTabes != null && !gracefulTabes.isEmpty()) {
-            capabilities.add(createGracefulRestartCapability(gracefulTabes, gracefulTimer));
+            capabilities.add(new OptionalCapabilitiesBuilder()
+                    .setCParameters(GracefulRestartUtil.getGracefulCapability(gracefulTabes, gracefulTimer, false))
+                    .build());
+        }
+        if (llGracefulRestartDTOS != null && !llGracefulRestartDTOS.isEmpty()) {
+            capabilities.add(new OptionalCapabilitiesBuilder()
+                    .setCParameters(GracefulRestartUtil.getLlGracefulCapability(llGracefulRestartDTOS))
+                    .build());
         }
         return new BgpParametersBuilder().setOptionalCapabilities(capabilities).build();
     }
@@ -171,23 +173,6 @@ final class PeerUtil {
                     .build()).build()).build()).build();
     }
 
-    private static OptionalCapabilities createGracefulRestartCapability(final Map<TablesKey, Boolean> gracefulTables,
-                                                                        final int restartTime) {
-        return new OptionalCapabilitiesBuilder().setCParameters(
-            new CParametersBuilder().addAugmentation(
-                CParameters1.class, new CParameters1Builder()
-                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
-                    .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
-                    .setRestartTime(restartTime)
-                    .setTables(gracefulTables.keySet().stream()
-                        .map(key -> new TablesBuilder()
-                            .setAfi(key.getAfi())
-                            .setSafi(key.getSafi())
-                            .setAfiFlags(new Tables.AfiFlags(gracefulTables.get(key)))
-                            .build())
-                        .collect(Collectors.toList()))
-                    .build()).build()).build()).build();
-    }
 
     private static OptionalCapabilities createAddPathCapability(final List<TablesKey> keys) {
         return new OptionalCapabilitiesBuilder().setCParameters(
