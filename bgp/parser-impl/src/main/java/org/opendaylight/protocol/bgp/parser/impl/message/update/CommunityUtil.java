@@ -41,6 +41,21 @@ public final class CommunityUtil {
     public static final Community NO_EXPORT_SUBCONFED
             = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF03);
 
+    /**
+     * LLGR_STALE community can be used to mark stale routes retained for a longer period of time.
+     * Such long-lived stale routes are to be handled according to the procedures specified in
+     * https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04#section-4.
+     */
+    public static final Community LLGR_STALE
+            = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0x0006);
+
+    /**
+     * NO_LLGR community can be used to mark routes which a BGP speaker does not want treated according
+     * to procedures, as detailed in https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04#section-4.
+     */
+    public static final Community NO_LLGR
+            = CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0x0007);
+
     private final ReferenceCache refCache;
 
     public CommunityUtil(final ReferenceCache refCache) {
