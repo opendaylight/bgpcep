@@ -138,9 +138,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new LinkstateRoutesCaseBuilder().setLinkstateRoutes(
-            new LinkstateRoutesBuilder().setLinkstateRoute(Collections.emptyList()).build()).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test

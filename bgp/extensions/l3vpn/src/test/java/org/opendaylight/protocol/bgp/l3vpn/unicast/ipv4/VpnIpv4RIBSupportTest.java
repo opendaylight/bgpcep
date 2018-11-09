@@ -91,9 +91,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesC
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new VpnIpv4RoutesCaseBuilder().setVpnIpv4Routes(new VpnIpv4RoutesBuilder()
-                .setVpnRoute(Collections.emptyList()).build()).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test

@@ -124,10 +124,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
 
     @Test
     public void testEmptyRoute() {
-        final Routes empty = new RouteTargetConstrainRoutesCaseBuilder()
-                .setRouteTargetConstrainRoutes(new RouteTargetConstrainRoutesBuilder()
-                        .setRouteTargetConstrainRoute(Collections.emptyList()).build()).build();
-        assertEquals(createEmptyTable(empty), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test
