@@ -39,6 +39,7 @@ import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -53,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
@@ -74,12 +76,14 @@ public class GracefulRestartTest extends AbstractAddPathTest {
 
     private BGPSessionImpl session;
     private BGPPeer peer;
+    private BgpPeer bgpPeer;
     private final Set<TablesKey> afiSafiAdvertised = new HashSet<>();
     private final Set<TablesKey> gracefulAfiSafiAdvertised = new HashSet<>();
     private RIBImpl ribImpl;
     private Channel serverChannel;
     private final SimpleSessionListener listener = new SimpleSessionListener();
-    private final BgpParameters parameters = createParameter(false, true, Collections.singletonMap(TABLES_KEY, true));
+    private final BgpParameters parameters = createParameter(false, true, Collections.singletonMap(TABLES_KEY, true),
+            null);
     private static final int DEFERRAL_TIMER = 5;
     private static final RibId RIBID = new RibId("test-rib");
     private final Ipv4Prefix PREFIX2 = new Ipv4Prefix("2.2.2.2/32");
@@ -120,11 +124,11 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         gracefulAfiSafiAdvertised.add(TABLES_KEY);
         afiSafiAdvertised.add(TABLES_KEY);
         afiSafiAdvertised.add(IPV6_TABLES_KEY);
-        final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
+        bgpPeer = Mockito.mock(BgpPeer.class);
         Mockito.doReturn(GRACEFUL_RESTART_TIME).when(bgpPeer).getGracefulRestartTimer();
         Mockito.doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
-        Mockito.doReturn(createParameter(false, true, Collections.singletonMap(TABLES_KEY, false))
-                .getOptionalCapabilities()).when(bgpPeer).getBgpFixedCapabilities();
+        Mockito.doReturn(createParameter(false, true, Collections.singletonMap(TABLES_KEY, false),
+                Collections.emptySet()).getOptionalCapabilities()).when(bgpPeer).getBgpFixedCapabilities();
         this.peer = configurePeer(this.tableRegistry, PEER1, this.ribImpl, parameters, PeerRole.Ibgp,
                 this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, Collections.emptyMap(), bgpPeer);
         this.session = createPeerSession(PEER1, parameters, this.listener);
@@ -199,7 +203,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     @Test
     public void removeRoutesOnMissingGracefulRestartTest() throws Exception {
         retainRoutesOnPeerRestartTest();
-        this.session = createPeerSession(PEER1, createParameter(false, true, null), this.listener);
+        this.session = createPeerSession(PEER1, createParameter(false, true, null, null), this.listener);
         checkUpState(listener);
         checkLocRibIpv4Routes(0);
         checkLocRibIpv6Routes(0);
@@ -218,7 +222,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     public void removeRoutesOnMissingGracefulRestartAfiSafiTest() throws Exception {
         retainRoutesOnPeerRestartTest();
         this.session = createPeerSession(PEER1, createParameter(false, true,
-                Collections.singletonMap(TABLES_KEY, false)), this.listener);
+                Collections.singletonMap(TABLES_KEY, false), null), this.listener);
         checkUpState(listener);
         checkUpState(this.peer);
         checkLocRibIpv4Routes(0);
@@ -236,7 +240,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     public void removeStaleRoutesAfterRestartTest() throws Exception {
         retainRoutesOnPeerRestartTest();
         this.session = createPeerSession(PEER1, createParameter(false, true,
-                Collections.singletonMap(TABLES_KEY, true)), this.listener);
+                Collections.singletonMap(TABLES_KEY, true), null), this.listener);
         checkUpState(this.listener);
         final List<Ipv4Prefix> ipv4prefixes = Arrays.asList(new Ipv4Prefix(PREFIX1));
         insertRoutes(ipv4prefixes, null);
@@ -318,10 +322,10 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         final List<Ipv4Prefix> ipv4Prefixes2 = Arrays.asList(new Ipv4Prefix(PREFIX2));
         final List<Ipv6Prefix> ipv6Prefixes = Collections.singletonList(new Ipv6Prefix(PREFIX3));
         insertRoutes(ipv4Prefixes, ipv6Prefixes);
-        insertRoutes(ipv4Prefixes2, PEER2, null, null, session2, BgpOrigin.Egp);
+        insertRoutes(ipv4Prefixes2, PEER2, null, null, null, null, session2, BgpOrigin.Egp);
         checkLocRibIpv4Routes(2);
         checkLocRibIpv6Routes(1);
-        org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages(this.listener, 3);
+        checkReceivedMessages(this.listener, 3);
         // verify sending of Ipv4 EOT, Ipv6 EOT and Ipv4 update with route
         checkReceivedMessages(this.listener, 3);
         assertTrue(this.listener.getListMsg().get(0) instanceof Update);
@@ -339,10 +343,10 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         checkReceivedMessages(this.listener, 3);
 
         this.session = createPeerSession(PEER1, createParameter(false, true,
-                Collections.singletonMap(TABLES_KEY, true)), this.listener);
+                Collections.singletonMap(TABLES_KEY, true), null), this.listener);
         checkUpState(listener);
         checkUpState(this.peer);
-        org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages(this.listener, 6);
+        checkReceivedMessages(this.listener, 6);
         // verify sending of Ipv4 update with route, Ipv4 EOT and Ipv6 EOT; order can vary based on ODTC order
         final List<Notification> subList = this.listener.getListMsg().subList(3, 6);
         int EOTCount = 0;
@@ -356,6 +360,100 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         }
         assertEquals(2, EOTCount);
         assertEquals(1, routeUpdateCount);
+    }
+
+    /**
+     * Test long-lived graceful restart in scenario where we have Ibgp peer which advertise on graceful restart
+     * capability and Ebgp peer which advertise also long-lived capability.
+     * @throws Exception
+     */
+    @Test
+    public void llGracefulRestartSessionDownTest() throws Exception {
+        final SimpleSessionListener listener2 = new SimpleSessionListener();
+        final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestartDTOS = new HashSet<>();
+        llGracefulRestartDTOS.add(new BgpPeerUtil.LlGracefulRestartDTO(TABLES_KEY, 10, true));
+        llGracefulRestartDTOS.add(new BgpPeerUtil.LlGracefulRestartDTO(IPV6_TABLES_KEY, 10, false));
+        final Map<TablesKey, Integer> llMap= new HashMap<>();
+        llMap.put(TABLES_KEY, 10);
+        llMap.put(IPV6_TABLES_KEY, 15);
+        configurePeer(this.tableRegistry, PEER2, this.ribImpl, this.parameters, PeerRole.Ebgp,
+                this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, llMap, bgpPeer);
+        final BGPSessionImpl session2 = createPeerSession(PEER2, createParameter(false, true,
+                Collections.singletonMap(TABLES_KEY, false), llGracefulRestartDTOS), listener2);
+        final List<Ipv4Prefix> ipv4prefixes1 = Arrays.asList(new Ipv4Prefix(PREFIX1));
+        final List<Ipv4Prefix> ipv4prefixes2 = Arrays.asList(new Ipv4Prefix(PREFIX2));
+        final List<Ipv6Prefix> ipv6prefixes = Arrays.asList(new Ipv6Prefix(PREFIX3));
+        insertRoutes(ipv4prefixes1, PEER2, null, ipv6prefixes, IPV6_NEXT_HOP, null, session2, BgpOrigin.Egp);
+        insertRoutes(ipv4prefixes2, PEER2, Collections.singletonList((Communities) CommunityUtil.NO_LLGR),
+                null, null, null, session2, BgpOrigin.Egp);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(1);
+        // check sending 2*EOT, 2*Ipv4 route, 1*Ipv6 route
+        checkReceivedMessages(this.listener, 5);
+
+        // after session goes down verify start graceful timer for ipv4 afi and mark ipv6 route with LLGR_STALE
+        // since Ibgp peer is not advertising long-lived graceful restart withdrawn ipv6 route
+        session2.close();
+        checkReceivedMessages(this.listener, 6);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(1);
+
+        // after graceful restart timer expires mark ipv4 route with LLGR_STALE, remove route with NO_LLGR
+        // and withdrawn them from Ibgp peer
+        checkReceivedMessages(this.listener, 8);
+        checkLocRibIpv4Routes(1);
+        checkLocRibIpv6Routes(1);
+
+        // ipv6 stale time expires, remove route from rib
+        checkLocRibIpv4Routes(1);
+        checkLocRibIpv6Routes(0);
+
+        // ipv4 stale time expires
+        checkLocRibIpv4Routes(0);
+        checkLocRibIpv6Routes(0);
+    }
+
+    /**
+     * Test long-lived graceful restart procedures in session restart scenario.
+     * @throws Exception
+     */
+    @Test
+    public void llGracefulRestartSessionRestartTest() throws Exception {
+        final SimpleSessionListener listener2 = new SimpleSessionListener();
+        final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestartDTOS = new HashSet<>();
+        llGracefulRestartDTOS.add(new BgpPeerUtil.LlGracefulRestartDTO(TABLES_KEY, 10, true));
+        llGracefulRestartDTOS.add(new BgpPeerUtil.LlGracefulRestartDTO(IPV6_TABLES_KEY, 10, false));
+        final Map<TablesKey, Integer> llMap= new HashMap<>();
+        llMap.put(TABLES_KEY, 10);
+        llMap.put(IPV6_TABLES_KEY, 15);
+        configurePeer(this.tableRegistry, PEER2, this.ribImpl, this.parameters, PeerRole.Ibgp,
+                this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, llMap, bgpPeer);
+        BGPSessionImpl session2 = createPeerSession(PEER2, createParameter(false, true,
+                Collections.emptyMap(), llGracefulRestartDTOS), listener2);
+        final List<Ipv4Prefix> ipv4prefixes1 = Arrays.asList(new Ipv4Prefix(PREFIX1), new Ipv4Prefix(PREFIX2));
+        final List<Ipv6Prefix> ipv6prefixes = Arrays.asList(new Ipv6Prefix(PREFIX3));
+        insertRoutes(ipv4prefixes1, PEER2, null, ipv6prefixes, IPV6_NEXT_HOP, null, session2, BgpOrigin.Igp);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(1);
+
+        session2.close();
+        checkIdleState(listener2);
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(1);
+
+        session2 = createPeerSession(PEER2, createParameter(false, true,
+                Collections.emptyMap(), llGracefulRestartDTOS), listener2);
+
+        // ipv6 forwarding flag in llGR set to false = clear ipv6 table
+        checkLocRibIpv4Routes(2);
+        checkLocRibIpv6Routes(0);
+
+        final List<Ipv4Prefix> ipv4prefixes2 = Arrays.asList(new Ipv4Prefix(PREFIX1));
+        insertRoutes(ipv4prefixes2, PEER2, null, ipv6prefixes, IPV6_NEXT_HOP, null, session2, BgpOrigin.Igp);
+        insertRoutes(null, null, null, null, null, null, session2, BgpOrigin.Igp);
+        // remove stale routes when EOR is received
+        checkLocRibIpv4Routes(1);
+        checkLocRibIpv6Routes(1);
     }
 
     private void checkLocRibIpv4Routes(final int expectedRoutesOnDS) throws Exception {
@@ -385,11 +483,12 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     }
 
     private void insertRoutes(final List<Ipv4Prefix> ipv4prefixes, final List<Ipv6Prefix> ipv6prefixes) {
-        insertRoutes(ipv4prefixes, PEER1, ipv6prefixes, IPV6_NEXT_HOP, this.session, BgpOrigin.Igp);
+        insertRoutes(ipv4prefixes, PEER1, null, ipv6prefixes, IPV6_NEXT_HOP, null, this.session, BgpOrigin.Igp);
     }
 
     private static void insertRoutes(final List<Ipv4Prefix> ipv4prefixes, final Ipv4Address ipv4NeighborAddress,
-                              final List<Ipv6Prefix> ipv6prefixes, final Ipv6Address ipv6NeighborAddress,
+                              final List<Communities> ipv4Communities, final List<Ipv6Prefix> ipv6prefixes,
+                              final Ipv6Address ipv6NeighborAddress, final List<Communities> ipv6Communities,
                               final BGPSessionImpl session, final BgpOrigin peerRole) {
         if (ipv4prefixes == null && ipv6prefixes == null) {
             waitFutureSuccess(session.writeAndFlush(BgpPeerUtil.createEndOfRib(TABLES_KEY)));
@@ -402,7 +501,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
                     ipv4prefixes.stream()
                             .map(IpPrefix::new)
                             .collect(Collectors.toList()));
-            final Update update1 = PeerUtil.createUpdate(peerRole, Collections.emptyList(), 100, reachIpv4, null);
+            final Update update1 = PeerUtil.createUpdate(peerRole, Collections.emptyList(), 100, reachIpv4, null,
+                    ipv4Communities);
             waitFutureSuccess(session.writeAndFlush(update1));
         }
 
@@ -411,7 +511,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
                     ipv6prefixes.stream()
                             .map(IpPrefix::new)
                             .collect(Collectors.toList()));
-            final Update update2 = PeerUtil.createUpdate(peerRole, Collections.emptyList(), 100, reachIpv6, null);
+            final Update update2 = PeerUtil.createUpdate(peerRole, Collections.emptyList(), 100, reachIpv6, null,
+                    ipv6Communities);
             waitFutureSuccess(session.writeAndFlush(update2));
         }
     }
@@ -425,7 +526,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
                 .setMyAsNumber((int) AS)
                 .setHoldTimer(HOLDTIMER)
                 .setVersion(new ProtocolVersion((short) 4))
-                .setBgpParameters(Collections.singletonList(createParameter(false, true, graceful)))
+                .setBgpParameters(Collections.singletonList(createParameter(false, true, graceful, null)))
                 .setBgpIdentifier(PEER1)
                 .build();
     }

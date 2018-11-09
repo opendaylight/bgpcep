@@ -294,12 +294,13 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     }
 
     static BgpParameters createParameter(final boolean addPath) {
-        return createParameter(addPath, false, null);
+        return createParameter(addPath, false, null, null);
     }
 
     static BgpParameters createParameter(final boolean addPath,
                                          final boolean addIpv6,
-                                         final Map<TablesKey, Boolean> gracefulTables) {
+                                         final Map<TablesKey, Boolean> gracefulTables,
+                                         final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestartDTOS) {
         final TablesKey ipv4Key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final List<TablesKey> advertisedTables = Lists.newArrayList(ipv4Key);
         if (addIpv6) {
@@ -310,7 +311,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         if (addPath) {
             addPathTables.add(ipv4Key);
         }
-        return PeerUtil.createBgpParameters(advertisedTables, addPathTables, gracefulTables, GRACEFUL_RESTART_TIME);
+        return PeerUtil.createBgpParameters(advertisedTables, addPathTables, gracefulTables, GRACEFUL_RESTART_TIME,
+                llGracefulRestartDTOS);
     }
 
     private static Update createSimpleUpdate(final Ipv4Prefix prefix, final PathId pathId,
