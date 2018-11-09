@@ -107,8 +107,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
         assertEquals(LinkstateSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(71));
         final ByteBuf buffer = Unpooled.buffer();
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(LINKSTATE_DESTINATION, buffer);
-        final byte[] arrayKey = ByteArray.readAllBytes(buffer);
-        ROUTE_KEY = new LinkstateRouteKey(PATH_ID, Arrays.toString(arrayKey));
+        ROUTE_KEY = new LinkstateRouteKey(PATH_ID, ByteArray.encodeBase64(buffer));
         ROUTE = new LinkstateRouteBuilder().withKey(ROUTE_KEY).setRouteDistinguisher(RD)
                 .setIdentifier(ID).setObjectType(OBJECT_TYPE2)
                 .setProtocolId(ProtocolId.IsisLevel1).setAttributes(new AttributesBuilder().build()).build();
