@@ -68,6 +68,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -121,6 +122,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final ChannelOutputLimiter limiter;
     private final BGPSessionStateImpl sessionState;
     private final GracefulRestartCapability gracefulCapability;
+    private final LlGracefulRestartCapability llGracefulCapability;
     private boolean terminationReasonNotified;
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
@@ -146,6 +148,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         final List<AddressFamilies> addPathCapabilitiesList = new ArrayList<>();
         final List<BgpParameters> bgpParameters = remoteOpen.getBgpParameters();
         if (bgpParameters != null) {
+            this.llGracefulCapability = findAdvertisedLlGracefulCapability(bgpParameters);
             for (final BgpParameters param : bgpParameters) {
                 for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                     final CParameters cParam = optCapa.getCParameters();
@@ -169,6 +172,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             this.gracefulCapability = findAdvertisedGracefulCapability(bgpParameters);
         } else {
             this.gracefulCapability = GracefulRestartUtil.EMPTY_GRACEFUL_CAPABILITY;
+            this.llGracefulCapability = GracefulRestartUtil.EMPTY_LL_GRACEFUL_CAPABILITY;
         }
 
         this.sync = new BGPSynchronization(this.listener, tts);
@@ -215,6 +219,28 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                 return GracefulRestartUtil.EMPTY_GRACEFUL_CAPABILITY;
             }
         }
+    }
+
+    private LlGracefulRestartCapability findAdvertisedLlGracefulCapability(final List<BgpParameters> bgpParameters) {
+        final List<LlGracefulRestartCapability> llGracefulCapabilities = bgpParameters.stream()
+                .flatMap(param -> param.getOptionalCapabilities().stream())
+                .map(OptionalCapabilities::getCParameters)
+                .filter(Objects::nonNull)
+                .map(cParam -> cParam.augmentation(CParameters1.class))
+                .filter(Objects::nonNull)
+                .map(MpCapabilities::getLlGracefulRestartCapability)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (llGracefulCapabilities.size() > 1) {
+            LOG.error("Multiple graceful capabilities advertised {}, ignoring.", llGracefulCapabilities);
+        } else if (llGracefulCapabilities.isEmpty()) {
+            LOG.debug("Graceful Restart capability not advertised.");
+        } else {
+            return llGracefulCapabilities.get(0);
+        }
+        return GracefulRestartUtil.EMPTY_LL_GRACEFUL_CAPABILITY;
     }
 
     /**
@@ -449,6 +475,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public GracefulRestartCapability getAdvertisedGracefulRestartCapability() {
         return this.gracefulCapability;
+    }
+
+    @Override
+    public LlGracefulRestartCapability getAdvertisedLlGracefulRestartCapability() {
+        return this.llGracefulCapability;
     }
 
     @VisibleForTesting

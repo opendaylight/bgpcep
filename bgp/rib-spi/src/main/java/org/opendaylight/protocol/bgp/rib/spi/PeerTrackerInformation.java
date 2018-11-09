@@ -38,7 +38,7 @@ public interface PeerTrackerInformation {
      * @param tableKey table
      * @return true if Additional Path is supported for defined table
      */
-    default boolean supportsAddPathSupported(@Nonnull TablesKey tableKey) {
+    default boolean supportsAddPathSupported(@Nonnull final TablesKey tableKey) {
         final SendReceive sendReceive = getSupportedAddPathTables(tableKey);
         return sendReceive != null && (sendReceive.equals(SendReceive.Both) || sendReceive.equals(SendReceive.Receive));
     }
@@ -53,12 +53,21 @@ public interface PeerTrackerInformation {
     SendReceive getSupportedAddPathTables(@Nonnull TablesKey tableKey);
 
     /**
-     * Returns if peer supports table.
+     * Returns true if peer supports table.
      *
      * @param tableKey table
      * @return true if Additional Path is supported for defined table
      */
     boolean supportsTable(@Nonnull TablesKey tableKey);
+
+    /**
+     * Returns true if peer supports Long-lived Graceful Restart.
+     *
+     * @return True if the peer supports Long-lived Graceful Restart.
+     */
+    default boolean supportsLLGR() {
+        return false;
+    }
 
     /**
      * Creates Table Adj Rib Out Instance identifier.
