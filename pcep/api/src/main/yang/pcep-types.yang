@@ -24,6 +24,12 @@ module pcep-types {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2018-11-09" {
+        description
+            "P2MP extension.";
+        reference "RFC8306";
+    }
+
     revision "2013-10-05" {
         description
             "Initial revision.";
