@@ -31,6 +31,7 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 class RIBSupportContextImpl extends RIBSupportContext {
     private final RIBSupport<?, ?, ?, ?> ribSupport;
@@ -69,5 +70,10 @@ class RIBSupportContextImpl extends RIBSupportContext {
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
             RIBSupport<C, S, R, I> getRibSupport() {
         return (RIBSupport<C, S, R, I>) this.ribSupport;
+    }
+
+    @Override
+    public Attributes deserializeAttributes (final NormalizedNode<?,?> attributes) {
+        return this.codecs.deserializeAttributes(attributes);
     }
 }
