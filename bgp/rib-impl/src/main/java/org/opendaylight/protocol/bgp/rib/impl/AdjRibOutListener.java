@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesSentCounters;
@@ -75,6 +76,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private final Codecs codecs;
     private final RIBSupport<?, ?, ?, ?> support;
     private final boolean mpSupport;
+    private final boolean llgrSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
     private final LongAdder prefixesSentCounter = new LongAdder();
     private final TablesKey tablesKey;
@@ -82,11 +84,12 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
             final CodecsRegistry registry, final RIBSupport<?, ?, ?, ?> support, final DOMDataTreeChangeService service,
-            final ChannelOutputLimiter session, final boolean mpSupport) {
+            final ChannelOutputLimiter session, final boolean mpSupport, final boolean llgrSupport) {
         this.session = requireNonNull(session);
         this.support = requireNonNull(support);
         this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
+        this.llgrSupport = llgrSupport;
         this.tablesKey = requireNonNull(tablesKey);
         final YangInstanceIdentifier adjRibOutId = ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId))
                 .node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
@@ -108,8 +111,10 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             @Nonnull final RIBSupport<?, ?, ?, ?> support,
             @Nonnull final DOMDataTreeChangeService service,
             @Nonnull final ChannelOutputLimiter session,
-            final boolean mpSupport) {
-        return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport);
+            final boolean mpSupport,
+            final boolean llgrSupport) {
+        return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport,
+                llgrSupport);
     }
 
     @Override
@@ -151,14 +156,17 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             case APPEARED:
             case SUBTREE_MODIFIED:
             case WRITE:
-                update = advertise((MapEntryNode) route.getDataAfter().get());
+                update = advertise((MapEntryNode) route.getDataAfter().get(), route.getDataBefore().isPresent() ?
+                        (MapEntryNode) route.getDataBefore().get() : null);
                 LOG.debug("Advertising routes {}", update);
                 break;
             default:
                 LOG.warn("Ignoring unhandled modification type {}", route.getModificationType());
                 return;
         }
-        this.session.write(update);
+        if (update != null) {
+            this.session.write(update);
+        }
     }
 
     private Attributes routeAttributes(final MapEntryNode route) {
@@ -177,12 +185,26 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         return this.support.buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
     }
 
-    private Update advertise(final MapEntryNode route) {
+    private Update advertise(final MapEntryNode routeAfter, final MapEntryNode routeBefore) {
+        // don't advertise LLGR_STALE routes to peers that doesn't advertised long-lived graceful restart capability,
+        // also if route didn't had LLG_STALE community and now it does withdraw it
+        final Attributes attributes = routeAttributes(routeAfter);
+        if (!this.llgrSupport && attributes.getCommunities() != null
+                && attributes.getCommunities().contains(CommunityUtil.LLGR_STALE)) {
+            if (routeBefore != null) {
+                final Attributes oldAttributes = routeAttributes(routeBefore);
+                if (oldAttributes.getCommunities() == null || oldAttributes.getCommunities().isEmpty()
+                        || !oldAttributes.getCommunities().contains(CommunityUtil.LLGR_STALE)) {
+                    return withdraw(routeBefore);
+                }
+            }
+            return null;
+        }
         this.prefixesSentCounter.increment();
         if (!this.mpSupport) {
-            return buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
+            return buildUpdate(Collections.singleton(routeAfter), Collections.emptyList(), attributes);
         }
-        return this.support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
+        return this.support.buildUpdate(Collections.singleton(routeAfter), Collections.emptyList(), attributes);
     }
 
     private Update buildUpdate(
