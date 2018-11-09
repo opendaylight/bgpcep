@@ -34,8 +34,10 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -43,6 +45,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -62,6 +65,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceI
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
@@ -400,12 +404,17 @@ final class AdjRibInWriter {
     }
 
     void removeStaleRoutes(final TablesKey tableKey) {
+        removeStaleRoutes(tableKey, this.staleRoutesRegistry);
+    }
+
+    private void removeStaleRoutes(final TablesKey tableKey,
+                                   final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> routeRegistry) {
         final TableContext ctx = this.tables.get(tableKey);
         if (ctx == null) {
             LOG.debug("No table for {}, not removing any stale routes", tableKey);
             return;
         }
-        final Collection<NodeIdentifierWithPredicates> routeKeys = this.staleRoutesRegistry.get(tableKey);
+        final Collection<NodeIdentifierWithPredicates> routeKeys = routeRegistry.get(tableKey);
         if (routeKeys == null || routeKeys.isEmpty()) {
             LOG.debug("No stale routes present in table {}", tableKey);
             return;
@@ -421,8 +430,8 @@ final class AdjRibInWriter {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.trace("Removing routes {}, succeed", routeKeys);
-                synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
-                    staleRoutesRegistry.remove(tableKey);
+                synchronized (routeRegistry) {
+                    routeRegistry.remove(tableKey);
                 }
             }
 
@@ -444,5 +453,74 @@ final class AdjRibInWriter {
             wtx.delete(LogicalDatastoreType.OPERATIONAL, ctx.routesPath().getParent());
         });
         return wtx.commit();
+    }
+
+    public void removeNoLlgrRoutes(final Set<TablesKey> tables) {
+        final DOMDataReadWriteTransaction tx = this.chain.getDomChain().newReadWriteTransaction();
+        final CountDownLatch latch = new CountDownLatch(tables.size());
+
+        for (TablesKey tablesKey : tables) {
+            final TableContext ctx = this.tables.get(tablesKey);
+            if (ctx == null) {
+                LOG.error("Trying to remove routes from missing table {}", tablesKey);
+                latch.countDown();
+                continue;
+            }
+
+            final YangInstanceIdentifier routesIid = ctx.routesPath();
+            Futures.addCallback(tx.read(LogicalDatastoreType.OPERATIONAL, routesIid),
+                    new FutureCallback<com.google.common.base.Optional<NormalizedNode<?, ?>>>() {
+                        @Override
+                        public void onSuccess(final Optional<NormalizedNode<?, ?>> routesContainerOpt) {
+                            if (routesContainerOpt.isPresent()) {
+                                final MapNode routesContainer = (MapNode) routesContainerOpt.get();
+                                for (MapEntryNode route : routesContainer.getValue()) {
+                                    final java.util.Optional<DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>> attributesOpt =
+                                            route.getChild(ctx.routeAttributesIdentifier());
+                                    if (!attributesOpt.isPresent()) {
+                                        continue;
+                                    }
+                                    final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes attributes =
+                                            ctx.deserializeAttributes(attributesOpt.get());
+                                    final List<Communities> communities = attributes.getCommunities();
+                                    if (communities != null && communities.contains(CommunityUtil.NO_LLGR)) {
+                                        final YangInstanceIdentifier routeIid = YangInstanceIdentifier.builder(routesIid)
+                                                .node(route.getIdentifier())
+                                                .build();
+                                        tx.delete(LogicalDatastoreType.OPERATIONAL, routeIid);
+                                    }
+                                }
+                            }
+                            latch.countDown();
+                        }
+
+                        @Override
+                        public void onFailure(final Throwable throwable) {
+                            LOG.warn("Reading NO_LLGR routes for table {} failed", tablesKey, throwable);
+                            latch.countDown();
+                        }
+                    }, MoreExecutors.directExecutor());
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting to remove NO_LLGR routes from {} tables out of {} to finish",
+                    latch.getCount(), tables, e);
+            tx.cancel();
+            return;
+        }
+
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo commitInfo) {
+                LOG.debug("NO_LLGR routes removed from tables {}", tables);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to remove NO_LLGR routes from tables {} ", tables, throwable);
+            }
+        }, MoreExecutors.directExecutor());
     }
 }
