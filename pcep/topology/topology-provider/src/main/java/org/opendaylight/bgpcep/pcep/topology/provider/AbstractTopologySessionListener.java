@@ -10,6 +10,8 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -592,8 +594,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public synchronized int getDelegatedLspsCount() {
-        return Math.toIntExact(this.lspData.values().stream()
+    public int getDelegatedLspsCount() {
+        return Math.toIntExact(ImmutableList.of(this.lspData.values()).stream()
                 .map(ReportedLsp::getPath).filter(Objects::nonNull).filter(pathList -> !pathList.isEmpty())
                 // pick the first path, as delegate status should be same in each path
                 .map(pathList -> pathList.get(0))
