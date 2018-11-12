@@ -8,11 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.impl.state;
 
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
@@ -23,70 +22,41 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
 
 @ThreadSafe
 public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer {
-    @GuardedBy("this")
-    private final List<BGPRibStateConsumer> bgpRibStates = new ArrayList<>();
-    @GuardedBy("this")
-    private final List<BGPPeerStateConsumer> bgpPeerStates = new ArrayList<>();
+    private final List<BGPRibStateConsumer> bgpRibStates = new CopyOnWriteArrayList<>();
+    private final List<BGPPeerStateConsumer> bgpPeerStates = new CopyOnWriteArrayList<>();
 
     @Override
     public List<BGPRibState> getRibStats() {
-        synchronized (this.bgpRibStates) {
-            return ImmutableList.copyOf(this.bgpRibStates
-                    .stream()
-                    .map(BGPRibStateConsumer::getRIBState)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()));
-        }
+        return ImmutableList.copyOf(this.bgpRibStates.stream()
+            .map(BGPRibStateConsumer::getRIBState)
+            .collect(Collectors.toList()));
     }
 
     @Override
     public List<BGPPeerState> getPeerStats() {
-        synchronized (this.bgpPeerStates) {
-            return ImmutableList.copyOf(this.bgpPeerStates
-                    .stream()
-                    .map(BGPPeerStateConsumer::getPeerState)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()));
-        }
+        return ImmutableList.copyOf(this.bgpPeerStates.stream()
+            .map(BGPPeerStateConsumer::getPeerState)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList()));
     }
 
     @Override
     public void bind(final BGPRibStateConsumer bgpState) {
-        if (bgpState == null) {
-            return;
-        }
-        synchronized (this.bgpRibStates) {
-            this.bgpRibStates.add(bgpState);
-        }
+        this.bgpRibStates.add(bgpState);
     }
 
     @Override
     public void unbind(final BGPRibStateConsumer bgpState) {
-        if (bgpState == null) {
-            return;
-        }
-        synchronized (this.bgpRibStates) {
-            this.bgpRibStates.remove(bgpState);
-        }
+        this.bgpRibStates.remove(bgpState);
     }
 
     @Override
     public void bind(final BGPPeerStateConsumer bgpState) {
-        if (bgpState == null) {
-            return;
-        }
-        synchronized (this.bgpPeerStates) {
-            this.bgpPeerStates.add(bgpState);
-        }
+        this.bgpPeerStates.add(bgpState);
     }
 
     @Override
     public void unbind(final BGPPeerStateConsumer bgpState) {
-        if (bgpState == null) {
-            return;
-        }
-        synchronized (this.bgpPeerStates) {
-            this.bgpPeerStates.remove(bgpState);
-        }
+        this.bgpPeerStates.remove(bgpState);
     }
 }
