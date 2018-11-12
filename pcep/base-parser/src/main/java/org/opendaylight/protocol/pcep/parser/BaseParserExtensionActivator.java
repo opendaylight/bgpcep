@@ -22,6 +22,8 @@ import org.opendaylight.protocol.pcep.parser.message.PCEPStartTLSMessageParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPCloseObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.bnc.BranchNodeListObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.bnc.NonBranchNodeListObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv4ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsObjectSerializer;
@@ -100,6 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Starttls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.branch.node.object.BranchNodeList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CClose;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.object.EndpointsObj;
@@ -111,6 +114,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.Monitoring;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.non.branch.node.object.NonBranchNodeList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.notification.object.CNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.object.Of;
@@ -230,6 +234,15 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
 
         final PCEPP2MPEndPointsIpv6ObjectParser endpoints6Pp2mparser = new PCEPP2MPEndPointsIpv6ObjectParser();
         regs.add(context.registerObjectParser(endpoints6Pp2mparser));
+
+        final EROSubobjectRegistry subRegistry = context.getEROSubobjectHandlerRegistry();
+
+        final BranchNodeListObjectParser bncPArser = new BranchNodeListObjectParser(subRegistry);
+        regs.add(context.registerObjectParser(bncPArser));
+        regs.add(context.registerObjectSerializer(BranchNodeList.class, bncPArser));
+
+        final NonBranchNodeListObjectParser nonBncPArser = new NonBranchNodeListObjectParser(subRegistry);
+        regs.add(context.registerObjectParser(nonBncPArser));
 
         final PCEPBandwidthObjectParser bwParser = new PCEPBandwidthObjectParser();
         final PCEPExistingBandwidthObjectParser bwExistingParser = new PCEPExistingBandwidthObjectParser();
