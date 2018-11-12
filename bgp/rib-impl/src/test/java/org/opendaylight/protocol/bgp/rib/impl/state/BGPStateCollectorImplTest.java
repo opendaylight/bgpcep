@@ -38,13 +38,6 @@ public class BGPStateCollectorImplTest {
         doReturn(mock(BGPPeerState.class)).when(this.bgpPeerStateConsumer).getPeerState();
         doReturn(mock(BGPRibState.class)).when(this.bgpribStateConsumer).getRIBState();
         final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
-        final BGPRibStateConsumer ribStateConsumerNull = null;
-        collector.bind(ribStateConsumerNull);
-        assertTrue(collector.getRibStats().isEmpty());
-
-        final BGPPeerStateConsumer peerStateConsumerNull = null;
-        collector.bind(peerStateConsumerNull);
-        assertTrue(collector.getPeerStats().isEmpty());
 
         collector.bind(this.bgpribStateConsumer);
         collector.bind(this.bgpPeerStateConsumer);
@@ -62,13 +55,6 @@ public class BGPStateCollectorImplTest {
         doReturn(mock(BGPRibState.class)).when(this.bgpribStateConsumer).getRIBState();
         doReturn(null).when(this.bgpPeerStateConsumer).getPeerState();
         final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
-        final BGPRibStateConsumer ribStateConsumerNull = null;
-        collector.bind(ribStateConsumerNull);
-        assertTrue(collector.getRibStats().isEmpty());
-
-        final BGPPeerStateConsumer peerStateConsumerNull = null;
-        collector.bind(peerStateConsumerNull);
-        assertTrue(collector.getPeerStats().isEmpty());
 
         collector.bind(this.bgpribStateConsumer);
         collector.bind(this.bgpPeerStateConsumer);
@@ -81,14 +67,7 @@ public class BGPStateCollectorImplTest {
         doReturn(null).when(this.bgpribStateConsumer).getRIBState();
         doReturn(null).when(this.bgpPeerStateConsumer).getPeerState();
         final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
-        final BGPRibStateConsumer ribStateConsumerNull = null;
-        collector.bind(ribStateConsumerNull);
-        assertTrue(collector.getRibStats().isEmpty());
-
-        final BGPPeerStateConsumer peerStateConsumerNull = null;
-        collector.bind(peerStateConsumerNull);
-        assertTrue(collector.getPeerStats().isEmpty());
-
+        
         collector.bind(this.bgpribStateConsumer);
         collector.bind(this.bgpPeerStateConsumer);
         assertTrue(collector.getRibStats().isEmpty());
