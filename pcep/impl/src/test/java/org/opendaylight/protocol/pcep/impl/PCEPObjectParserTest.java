@@ -52,6 +52,9 @@ import org.opendaylight.protocol.pcep.parser.object.PCEPProcTimeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSvecObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.bnc.BNCUtil;
+import org.opendaylight.protocol.pcep.parser.object.bnc.BranchNodeListObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.bnc.NonBranchNodeListObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv4ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsObjectSerializer;
@@ -82,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.branch.node.object.BranchNodeListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4CaseBuilder;
@@ -106,6 +110,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.Monitoring;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.Monitoring.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.MonitoringBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.non.branch.node.object.NonBranchNodeListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.notification.object.CNotificationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.object.OfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
@@ -1411,5 +1416,83 @@ public class PCEPObjectParserTest {
         final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(rpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
+    }
+
+    @Test
+    public void testBranchNodeListObject() throws Exception {
+        final byte[] expected = {
+            0x1f, 0x10, 0x0, 0xc,
+            (byte) 0x81, 0x8,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x20, 0x0,
+        };
+
+        final BranchNodeListObjectParser parser
+            = new BranchNodeListObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
+        final ByteBuf result = Unpooled.wrappedBuffer(expected);
+
+        final BranchNodeListBuilder builder = new BranchNodeListBuilder();
+        builder.setProcessingRule(false);
+        builder.setIgnore(false);
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
+            .route.object.ero.Subobject> subs = Lists.newArrayList();
+        subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
+            .route.object.ero.SubobjectBuilder()
+            .setLoose(true)
+            .setSubobjectType(new IpPrefixCaseBuilder()
+                .setIpPrefix(new IpPrefixBuilder().setIpPrefix(
+                    new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).build()).build());
+        builder.setSubobject(BNCUtil.toBncSubobject(subs));
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+            result.slice(4, result.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testNonBranchNodeListObject() throws Exception {
+        final byte[] expected = {
+            0x1f, 0x20, 0x0, 0xc,
+            (byte) 0x81, 0x8,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x20, 0x0,
+        };
+
+        final NonBranchNodeListObjectParser parser
+            = new NonBranchNodeListObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
+        final ByteBuf result = Unpooled.wrappedBuffer(expected);
+
+        final NonBranchNodeListBuilder builder = new NonBranchNodeListBuilder();
+        builder.setProcessingRule(false);
+        builder.setIgnore(false);
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
+            .route.object.ero.Subobject> subs = Lists.newArrayList();
+        subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
+            .route.object.ero.SubobjectBuilder()
+            .setLoose(true)
+            .setSubobjectType(new IpPrefixCaseBuilder()
+                .setIpPrefix(new IpPrefixBuilder().setIpPrefix(
+                    new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).build()).build());
+        builder.setSubobject(BNCUtil.toBncSubobject(subs));
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+            result.slice(4, result.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 }
