@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "898a26db_4047fac2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-12T12:10:43Z",
+      "side": 1,
+      "message": "DOMDataReadOnlyTransaction is AutoCloseable, hence use try-with-resources.\n\nFurthermore, the forEach() approach allocates a transaction for each table -- why not just allocate a single transaction?\n\nAnd finally: this method is synchronous, while clearTables() exposes a future. Why the asymmetry?",
+      "range": {
+        "startLine": 356,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 27
+      },
+      "revId": "33b75dd029ad9676530e1aca454bd96e773ec969",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8772a600_b492a38a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-12T12:10:43Z",
+      "side": 1,
+      "message": "just use Collectors.toList()",
+      "range": {
+        "startLine": 204,
+        "startChar": 16,
+        "endLine": 204,
+        "endChar": 53
+      },
+      "revId": "33b75dd029ad9676530e1aca454bd96e773ec969",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ee56cb1_31f5840a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-12T12:10:43Z",
+      "side": 1,
+      "message": "Allocating an ExecutorService and shutting it down for each peer on each invocation of this method?!",
+      "range": {
+        "startLine": 355,
+        "startChar": 0,
+        "endLine": 357,
+        "endChar": 40
+      },
+      "revId": "33b75dd029ad9676530e1aca454bd96e773ec969",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
