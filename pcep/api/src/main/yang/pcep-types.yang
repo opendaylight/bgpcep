@@ -474,6 +474,49 @@ module pcep-types {
         }
     }
 
+    grouping bnc {
+        uses object;
+        // No possibility of TLVs
+        list subobject {
+            leaf loose {
+                type boolean;
+                mandatory true;
+            }
+
+            uses rsvp:ip-prefix-subobject;
+            ordered-by user;
+        }
+    }
+
+    grouping branch-node-object {
+        description "Branch Node Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.11.1";
+
+        container branch-node-list {
+            uses bnc;
+        }
+    }
+
+    grouping non-branch-node-object {
+        description "Branch Node Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.11.1";
+
+        container non-branch-node-list {
+            uses bnc;
+        }
+    }
+
+    grouping bnc-object {
+        choice branch-node-type {
+            case branch-node-case {
+                uses branch-node-object;
+            }
+            case non-branch-node-case {
+                uses non-branch-node-object;
+            }
+        }
+    }
+
     grouping bandwidth {
         // No possibility to carry TLVs
         leaf bandwidth {
