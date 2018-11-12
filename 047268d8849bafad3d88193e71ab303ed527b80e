@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ddffefd_cbc83ad8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-12T20:50:27Z",
+      "side": 1,
+      "message": "This is still missing try-with-resources: we\u0027ll not close the transaction if an unchecked exception happens anywhere in the body ...",
+      "range": {
+        "startLine": 349,
+        "startChar": 7,
+        "endLine": 349,
+        "endChar": 96
+      },
+      "revId": "047268d8849bafad3d88193e71ab303ed527b80e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdad735d_6940bfd1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-12T20:50:27Z",
+      "side": 1,
+      "message": "Now we have single transaction, but why are we synchronous for each table?\n\nWhy not fire off reads, attach callbacks and sync on all of them?",
+      "range": {
+        "startLine": 358,
+        "startChar": 15,
+        "endLine": 359,
+        "endChar": 31
+      },
+      "revId": "047268d8849bafad3d88193e71ab303ed527b80e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
