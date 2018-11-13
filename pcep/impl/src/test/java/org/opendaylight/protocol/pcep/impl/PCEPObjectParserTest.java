@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +61,9 @@ import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv6
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsObjectSerializer;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv4ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv6ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPIpv4UnreachDestinationParser;
+import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPIpv6UnreachDestinationParser;
+import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPUnreachDestinationSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -135,6 +139,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.req.missing.tlv.ReqMissingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec.object.SvecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.unreach.destination.object.UnreachDestinationObjBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.unreach.destination.object.unreach.destination.obj.destination.Ipv4DestinationCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.unreach.destination.object.unreach.destination.obj.destination.Ipv4DestinationCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.unreach.destination.object.unreach.destination.obj.destination.Ipv6DestinationCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.unreach.destination.object.unreach.destination.obj.destination.Ipv6DestinationCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
@@ -1500,6 +1509,75 @@ public class PCEPObjectParserTest {
             result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPCEPIpv4UnreachDestinationObject() throws Exception {
+        final byte[] expected = {
+            0x1c, 0x10, 0x0, 0x8,
+            (byte) 0x7F, (byte) 0x0, (byte) 0x0, (byte) 0x1
+        };
+
+        final PCEPIpv4UnreachDestinationParser parser = new PCEPIpv4UnreachDestinationParser();
+        final PCEPUnreachDestinationSerializer serializer = new PCEPUnreachDestinationSerializer();
+        final ByteBuf result = Unpooled.wrappedBuffer(expected);
+
+        final UnreachDestinationObjBuilder builder = new UnreachDestinationObjBuilder();
+        builder.setProcessingRule(false);
+        builder.setIgnore(false);
+        final Ipv4DestinationCase dest = new Ipv4DestinationCaseBuilder()
+            .setDestinationIpv4Address(Collections.singletonList(new Ipv4AddressNoZone("127.0.0.1")))
+            .build();
+        builder.setDestination(dest);
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+            result.slice(4, result.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        serializer.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPCEPIpv6UnreachDestinationObject() throws Exception {
+        final byte[] expected = {
+            0x1c, 0x20, 0x0, 0x14,
+            (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x0,
+            (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x0,
+            (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x0,
+            (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x1
+        };
+
+        final PCEPIpv6UnreachDestinationParser parser = new PCEPIpv6UnreachDestinationParser();
+        final PCEPUnreachDestinationSerializer serializer = new PCEPUnreachDestinationSerializer();
+        final ByteBuf result = Unpooled.wrappedBuffer(expected);
+
+        final UnreachDestinationObjBuilder builder = new UnreachDestinationObjBuilder();
+        builder.setProcessingRule(false);
+        builder.setIgnore(false);
+        final Ipv6DestinationCase dest = new Ipv6DestinationCaseBuilder()
+            .setDestinationIpv6Address(Collections.singletonList(new Ipv6AddressNoZone("::1")))
+            .build();
+        builder.setDestination(dest);
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+            result.slice(4, result.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        serializer.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
         try {

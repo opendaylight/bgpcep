@@ -517,6 +517,24 @@ module pcep-types {
         }
     }
 
+    grouping unreach-destination-object {
+        description "UNREACH-DESTINATION Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.14";
+
+        container unreach-destination-obj {
+            uses object;
+
+            choice destination {
+                case ipv4-destination-case {
+                    uses ipv4-destinations;
+                }
+                case ipv6-destination-case {
+                    uses ipv6-destinations;
+                }
+            }
+        }
+    }
+
     grouping bandwidth {
         // No possibility to carry TLVs
         leaf bandwidth {
