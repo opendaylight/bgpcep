@@ -1,3 +1,11 @@
 {
-  "bgp-l3vpn-mcast:l3vpn-mcast-routes-ipv4": {}
+  "tables": [
+    {
+      "afi": "bgp-types:ipv4-address-family",
+      "safi": "bgp-l3vpn-mcast:mcast-mpls-labeled-vpn-subsequent-address-family",
+      "attributes": {
+        "uptodate": "*"
+      }
+    }
+  ]
 }

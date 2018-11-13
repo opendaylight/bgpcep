@@ -8,9 +8,7 @@
                     "route-distinguisher": "172.16.0.44:101",
                     "orig-route-ip": "192.168.100.1"
                 },
-                "attributes": {
-                    "as-path": {
-                    },
+                "attributes": {$AS_PATH
                     "ipv6-next-hop": {
                         "global": "2001:db8:1::6"
                     },

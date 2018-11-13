@@ -7,8 +7,7 @@
                 "attributes": {
                     "ipv6-next-hop": {
                         "global": "2001:db8:1::7"
-                    },
-                    "as-path": {},
+                    },$AS_PATH
                     "extended-communities": [
                         {
                             "vrf-route-import-extended-community": {

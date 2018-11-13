@@ -10,8 +10,7 @@
           },
           "multi-exit-disc": {
             "med": 0
-          },
-          "as-path": {},
+          },$AS_PATH
           "pe-distinguisher-labels-attribute": {
             "pe-distinguisher-label-attribute": [
               {

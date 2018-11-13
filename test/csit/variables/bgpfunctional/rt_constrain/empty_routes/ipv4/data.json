@@ -1,3 +1,11 @@
 {
-  "bgp-route-target-constrain:route-target-constrain-routes": {}
+  "tables": [
+    {
+      "afi": "bgp-types:ipv4-address-family",
+      "safi": "bgp-route-target-constrain:route-target-constrain-subsequent-address-family",
+      "attributes": {
+        "uptodate": "*"
+      }
+    }
+  ]
 }

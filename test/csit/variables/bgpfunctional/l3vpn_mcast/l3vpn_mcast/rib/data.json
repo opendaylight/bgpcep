@@ -7,8 +7,7 @@
                 "attributes": {
                     "ipv4-next-hop": {
                         "global": "127.16.0.44"
-                    },
-                    "as-path": {},
+                    },$AS_PATH
                     "extended-communities": [
                         {
                             "vrf-route-import-extended-community": {

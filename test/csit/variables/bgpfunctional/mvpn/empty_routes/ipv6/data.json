@@ -1,3 +1,11 @@
 {
-  "bgp-mvpn-ipv6:mvpn-routes-ipv6": {}
+  "tables": [
+    {
+      "afi": "bgp-types:ipv6-address-family",
+      "safi": "bgp-mvpn:mcast-vpn-subsequent-address-family",
+      "attributes": {
+        "uptodate": "*"
+      }
+    }
+  ]
 }
