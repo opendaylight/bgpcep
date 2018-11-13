@@ -278,6 +278,8 @@ public class PCEPValidatorTest {
         sBuilder.setLinkDiverse(false);
         sBuilder.setNodeDiverse(false);
         sBuilder.setSrlgDiverse(false);
+        sBuilder.setLinkDirectionDiverse(false);
+        sBuilder.setPartialPathDiverse(false);
         sBuilder.setRequestsIds(Lists.newArrayList(new RequestId(1L)));
         this.svec = sBuilder.build();
 
