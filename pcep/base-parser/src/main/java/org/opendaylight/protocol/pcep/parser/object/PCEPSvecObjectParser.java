@@ -46,6 +46,8 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
     /*
      * flags offsets inside flags field in bits
      */
+    private static final int P_FLAG_OFFSET = 19;
+    private static final int D_FLAG_OFFSET = 20;
     private static final int S_FLAG_OFFSET = 21;
     private static final int N_FLAG_OFFSET = 22;
     private static final int L_FLAG_OFFSET = 23;
@@ -61,10 +63,11 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
 
     @Override
     public Svec parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+            "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() < MIN_SIZE) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: >="
-                    + MIN_SIZE + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: "
+                + bytes.readableBytes() + "; Expected: >=" + MIN_SIZE + ".");
         }
         bytes.skipBytes(FLAGS_F_OFFSET);
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
@@ -84,13 +87,16 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         builder.setLinkDiverse(flags.get(L_FLAG_OFFSET));
         builder.setNodeDiverse(flags.get(N_FLAG_OFFSET));
         builder.setSrlgDiverse(flags.get(S_FLAG_OFFSET));
+        builder.setLinkDirectionDiverse(flags.get(D_FLAG_OFFSET));
+        builder.setPartialPathDiverse(flags.get(P_FLAG_OFFSET));
         builder.setRequestsIds(requestIDs);
         return builder.build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Svec, "Wrong instance of PCEPObject. Passed %s. Needed SvecObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof Svec,
+            "Wrong instance of PCEPObject. Passed %s. Needed SvecObject.", object.getClass());
         final Svec svecObj = (Svec) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_F_OFFSET);
@@ -98,11 +104,13 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         flags.set(L_FLAG_OFFSET, svecObj.isLinkDiverse());
         flags.set(N_FLAG_OFFSET, svecObj.isNodeDiverse());
         flags.set(S_FLAG_OFFSET, svecObj.isSrlgDiverse());
+        flags.set(D_FLAG_OFFSET, svecObj.isLinkDirectionDiverse());
+        flags.set(P_FLAG_OFFSET, svecObj.isPartialPathDiverse());
         flags.toByteBuf(body);
 
         final List<RequestId> requestIDs = svecObj.getRequestsIds();
         assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
-        for(final RequestId requestId : requestIDs) {
+        for (final RequestId requestId : requestIDs) {
             writeUnsignedInt(requestId.getValue(), body);
         }
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

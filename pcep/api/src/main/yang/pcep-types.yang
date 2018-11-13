@@ -717,6 +717,16 @@ module pcep-types {
                 default false;
             }
 
+            leaf partial-path-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf link-direction-diverse {
+                type boolean;
+                default false;
+            }
+
             leaf-list requests-ids {
                 type request-id;
             }
