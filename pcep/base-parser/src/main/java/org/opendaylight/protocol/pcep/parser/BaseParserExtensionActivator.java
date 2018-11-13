@@ -55,6 +55,9 @@ import org.opendaylight.protocol.pcep.parser.object.PCEPSecondaryRecordRouteObje
 import org.opendaylight.protocol.pcep.parser.object.PCEPSvecObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv4ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv6ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPIpv4UnreachDestinationParser;
+import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPIpv6UnreachDestinationParser;
+import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPUnreachDestinationSerializer;
 import org.opendaylight.protocol.pcep.parser.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.EROIpv4PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.EROIpv6PrefixSubobjectParser;
@@ -135,6 +138,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.secondary.explicit.route.object.Sero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.secondary.reported.route.object.Srro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec.object.Svec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.unreach.destination.object.UnreachDestinationObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.LabelCase;
@@ -228,6 +232,14 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
 
         final PCEPEndPointsIpv6ObjectParser endpoints6Parser = new PCEPEndPointsIpv6ObjectParser();
         regs.add(context.registerObjectParser(endpoints6Parser));
+
+        final PCEPIpv4UnreachDestinationParser unreachIpv4Parser = new PCEPIpv4UnreachDestinationParser();
+        final PCEPIpv6UnreachDestinationParser unreachIpv6Parser = new PCEPIpv6UnreachDestinationParser();
+        regs.add(context.registerObjectParser(unreachIpv4Parser));
+        regs.add(context.registerObjectParser(unreachIpv6Parser));
+
+        final PCEPUnreachDestinationSerializer unreachSerializer= new PCEPUnreachDestinationSerializer();
+        regs.add(context.registerObjectSerializer(UnreachDestinationObj.class, unreachSerializer));
 
         final PCEPP2MPEndPointsIpv4ObjectParser endpoints4Pp2mparser = new PCEPP2MPEndPointsIpv4ObjectParser();
         regs.add(context.registerObjectParser(endpoints4Pp2mparser));
