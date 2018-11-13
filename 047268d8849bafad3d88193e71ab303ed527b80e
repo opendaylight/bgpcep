@@ -68,6 +68,30 @@
       "revId": "047268d8849bafad3d88193e71ab303ed527b80e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "817543d5_3addccb1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-11-13T09:38:51Z",
+      "side": 1,
+      "message": "Explanation is on lines 407-413. This is the second solution for that deadlock. Any ideas how to solve it correctly are welcome.",
+      "parentUuid": "bf72ffd7_460009c4",
+      "range": {
+        "startLine": 455,
+        "startChar": 0,
+        "endLine": 457,
+        "endChar": 54
+      },
+      "revId": "047268d8849bafad3d88193e71ab303ed527b80e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
