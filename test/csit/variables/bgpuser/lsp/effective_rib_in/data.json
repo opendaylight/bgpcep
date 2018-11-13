@@ -3,7 +3,7 @@
         "linkstate-route": [
             {
                 "path-id": 0,
-                "route-key": "[0, 5, 0, 21, 7, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 4, 0, 1, 0, 1, 5, 6, 7, 8]",
+                "route-key": "$ROUTE_KEY",
                 "tunnel-id": 1,
                 "lsp-id": 1,
                 "ipv4-tunnel-endpoint-address": "5.6.7.8",
