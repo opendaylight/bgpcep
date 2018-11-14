@@ -47,6 +47,10 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
     protected BindingCodecTreeFactory bindingCodecTreeFactory;
     protected DOMSchemaService schemaService;
 
+    public AbstractConfigLoader() {
+        super(true);
+    }
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
