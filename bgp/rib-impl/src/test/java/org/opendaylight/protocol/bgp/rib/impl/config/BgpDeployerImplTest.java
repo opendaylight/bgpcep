@@ -13,6 +13,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.bgp.rib.impl.config.AbstractConfig.TABLES_KEY;
@@ -77,6 +78,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
             .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
     private static final InstanceIdentifier<Global> GLOBAL_II = BGP_II.child(Global.class);
     private static final InstanceIdentifier<Neighbors> NEIGHBORS_II = BGP_II.child(Neighbors.class);
+    private static final int VERIFY_TIMEOUT_MILIS = 5000;
 
     @Mock
     private BlueprintContainer blueprintContainer;
@@ -138,8 +140,8 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         checkPresentConfiguration(getDataBroker(), NETWORK_II);
         createRib(createGlobalIpv4());
 
-        verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
-        verify(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
+        verify(this.blueprintContainer, timeout(VERIFY_TIMEOUT_MILIS)).getComponentInstance(eq("ribImpl"));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS)).registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
 
         //change with same rib already existing
         createRib(createGlobalIpv4());
@@ -150,7 +152,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         createRib(createGlobalIpv6());
 
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
-        verify(this.bundleContext, times(2)).registerService(eq(InstanceType.RIB.getServices()),
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS).times(2)).registerService(eq(InstanceType.RIB.getServices()),
                 any(), any(Dictionary.class));
         verify(this.dataTreeRegistration).close();
         verify(this.registration).unregister();
@@ -159,10 +161,10 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         deleteRib();
 
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
-        verify(this.bundleContext, times(2))
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS).times(2))
                 .registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
-        verify(this.dataTreeRegistration, times(2)).close();
-        verify(this.registration, times(2)).unregister();
+        verify(this.dataTreeRegistration, timeout(VERIFY_TIMEOUT_MILIS).times(2)).close();
+        verify(this.registration, timeout(VERIFY_TIMEOUT_MILIS).times(2)).unregister();
 
         deployer.close();
     }
@@ -174,8 +176,8 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
 
         createRib(createGlobalIpv4());
         createNeighbor(createNeighbors());
-        verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
-        verify(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()),
+        verify(this.blueprintContainer, timeout(VERIFY_TIMEOUT_MILIS)).getComponentInstance(eq("bgpPeer"));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS)).registerService(eq(InstanceType.PEER.getServices()),
                 any(BgpPeer.class), any(Dictionary.class));
 
         //change with same peer already existing
@@ -188,7 +190,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         createNeighbor(createNeighborsNoRR());
 
         verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
-        verify(this.bundleContext, times(2))
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS).times(2))
                 .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
         verify(this.registration).unregister();
 
@@ -196,7 +198,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         //Delete existing Peer
         verify(this.bundleContext, times(2))
                 .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
-        verify(this.registration, times(2)).unregister();
+        verify(this.registration, timeout(VERIFY_TIMEOUT_MILIS).times(2)).unregister();
 
         deployer.close();
     }
