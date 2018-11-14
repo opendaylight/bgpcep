@@ -270,10 +270,12 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
         final DataObjectModification<Attributes> attUpdate = table.getModifiedChildContainer(Attributes.class);
 
-        if (attUpdate != null && attUpdate.getDataAfter() != null) {
+        if (attUpdate != null) {
             final Attributes newAttValue = attUpdate.getDataAfter();
-            LOG.trace("Uptodate found for {}", newAttValue);
-            tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTableIID.child(Attributes.class), newAttValue);
+            if (newAttValue != null) {
+                LOG.trace("Uptodate found for {}", newAttValue);
+                tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTableIID.child(Attributes.class), newAttValue);
+            }
         }
 
         final DataObjectModification<S> routesChangesContainer
