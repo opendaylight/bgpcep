@@ -44,6 +44,10 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
     private FileWatcher fileWatcher;
     private BindingToNormalizedNodeCodec mappingService;
 
+    public AbstractConfigLoader() {
+        super(true);
+    }
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
