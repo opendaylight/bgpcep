@@ -15,7 +15,7 @@ module pcep-types {
     description
         "This module contains the base data model of a PCEP message.
         It rolls up the definitions contained in RFC5440, RFC7896, RFC5520
-        and RFC6006, RFC5886.
+        and RFC8306, RFC5886.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -503,6 +503,25 @@ module pcep-types {
         }
     }
 
+    grouping secondary-explicit-route-object {
+        description "Secondary Explicit Route Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.2";
+        container sero {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                leaf loose {
+                    type boolean;
+                    mandatory true;
+                }
+
+                uses rsvp:secondary-explicit-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
     grouping include-route-object {
         description "Include Route Object";
         reference "https://tools.ietf.org/html/rfc7896#section-2.1";
@@ -533,6 +552,21 @@ module pcep-types {
 
             list subobject {
                 uses rsvp:record-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping secondary-reported-route-object {
+        description "Reported Route Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.2";
+
+        container srro {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                uses rsvp:secondary-record-route-subobjects;
                 ordered-by user;
             }
         }
