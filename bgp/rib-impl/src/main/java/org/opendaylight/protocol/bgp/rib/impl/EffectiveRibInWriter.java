@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableMap;
@@ -66,6 +67,8 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.IdentifiableItem;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.slf4j.Logger;
@@ -238,8 +241,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
             final Collection<DataObjectModification<R>> routeChanges) {
         for (final DataObjectModification<R> routeChanged : routeChanges) {
-            final I routeKey
-                    = ((InstanceIdentifier.IdentifiableItem<R, I>) routeChanged.getIdentifier()).getKey();
+            final PathArgument routeChangeId = routeChanged.getIdentifier();
+            verify(routeChangeId instanceof IdentifiableItem, "Route change %s has invalid identifier %s",
+                routeChanged, routeChangeId);
+            final I routeKey = ((IdentifiableItem<R, I>) routeChangeId).getKey();
+
             switch (routeChanged.getModificationType()) {
                 case SUBTREE_MODIFIED:
                 case WRITE:
