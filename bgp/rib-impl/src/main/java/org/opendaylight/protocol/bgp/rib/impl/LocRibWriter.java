@@ -220,11 +220,12 @@ final class LocRibWriter implements AutoCloseable, TotalPrefixesCounter, TotalPa
         for (final DataTreeCandidateNode child : table.getChildNodes()) {
             LOG.debug("Modification type {}", child.getModificationType());
             if (Attributes.QNAME.equals(child.getIdentifier().getNodeType())) {
-                if (child.getDataAfter().isPresent()) {
+                final Optional<NormalizedNode<?, ?>> optDataAfter = child.getDataAfter();
+                if (optDataAfter.isPresent()) {
                     // putting uptodate attribute in
-                    LOG.trace("Uptodate found for {}", child.getDataAfter());
-                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()),
-                            child.getDataAfter().get());
+                    final NormalizedNode<?, ?> dataAfter = optDataAfter.get();
+                    LOG.trace("Uptodate found for {}", dataAfter);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), dataAfter);
                 }
                 continue;
             }
