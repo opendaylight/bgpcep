@@ -200,5 +200,9 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
             return Collections.emptyList();
         }
 
+        @Override
+        public void closeWithoutMessage() {
+            close();
+        }
     }
 }

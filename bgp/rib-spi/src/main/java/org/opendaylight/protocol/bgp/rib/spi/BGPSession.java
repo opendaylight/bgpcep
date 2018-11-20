@@ -64,4 +64,8 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
     @Nonnull
     List<BgpTableType> getAdvertisedGracefulRestartTableTypes();
 
+    /**
+     * Close peer session without sending Notification message.
+     */
+    void closeWithoutMessage();
 }
