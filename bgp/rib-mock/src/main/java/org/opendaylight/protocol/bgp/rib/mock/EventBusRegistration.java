@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.mock;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import io.netty.channel.ChannelHandlerContext;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -78,8 +78,8 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
         if (BGPMock.CONNECTION_LOST_MAGIC_MSG.equals(message)) {
             listener.onSessionTerminated(null, new BGPTerminationReason(BGPError.CEASE));
         } else if (message instanceof Open) {
-            final Set<BgpTableType> tts = Sets.newHashSet();
-            final List<AddressFamilies> addPathCapabilitiesList = Lists.newArrayList();
+            final Set<BgpTableType> tts = new HashSet<>();
+            final List<AddressFamilies> addPathCapabilitiesList = new ArrayList<>();
             for (final BgpParameters param : ((Open) message).getBgpParameters()) {
                 for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
                     final CParameters cParam = capa.getCParameters();
@@ -98,7 +98,7 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
                     }
                 }
             }
-            listener.onSessionUp(new MockBGPSession(tts));
+            listener.onSessionUp(new MockBGPSession(tts, addPathCapabilitiesList));
         } else if (!(message instanceof Keepalive)) {
             try {
                 listener.onMessage(new MockBGPSession(), message);
@@ -110,14 +110,17 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
 
     private static class MockBGPSession implements BGPSession {
         private static final long AS = 30L;
+
+        private final List<AddressFamilies> addPathAfis;
         private final Set<BgpTableType> tts;
 
-        MockBGPSession(final Set<BgpTableType> tts) {
+        MockBGPSession(final Set<BgpTableType> tts, final List<AddressFamilies> addPathAfis) {
             this.tts = tts;
+            this.addPathAfis = addPathAfis;
         }
 
         MockBGPSession() {
-            this.tts = Collections.emptySet();
+            this(Collections.emptySet(), Collections.emptyList());
         }
 
         @Override
@@ -189,7 +192,7 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
 
         @Override
         public List<AddressFamilies> getAdvertisedAddPathTableTypes() {
-            return Collections.emptyList();
+            return addPathAfis;
         }
 
         @Override

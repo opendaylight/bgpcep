@@ -9,9 +9,9 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -46,7 +46,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException {
-        final List<Communities> set = Lists.newArrayList();
+        final List<Communities> set = new ArrayList<>();
         while (buffer.isReadable()) {
             set.add((Communities) parseCommunity(this.refCache, buffer.readSlice(COMMUNITY_LENGTH)));
         }

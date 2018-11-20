@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -27,7 +27,7 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
-        final List<ClusterIdentifier> list = Lists.newArrayList();
+        final List<ClusterIdentifier> list = new ArrayList<>();
         while (buffer.isReadable()) {
             list.add(new ClusterIdentifier(Ipv4Util.addressForByteBuf(buffer)));
         }

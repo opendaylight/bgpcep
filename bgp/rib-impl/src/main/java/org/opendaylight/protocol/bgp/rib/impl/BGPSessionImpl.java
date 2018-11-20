@@ -13,8 +13,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -24,8 +22,10 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -136,9 +136,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.peerRegistry = peerRegistry;
         this.sessionState = new BGPSessionStateImpl();
 
-        final Set<TablesKey> tts = Sets.newHashSet();
-        final Set<BgpTableType> tats = Sets.newHashSet();
-        final List<AddressFamilies> addPathCapabilitiesList = Lists.newArrayList();
+        final Set<TablesKey> tts = new HashSet<>();
+        final Set<BgpTableType> tats = new HashSet<>();
+        final List<AddressFamilies> addPathCapabilitiesList = new ArrayList<>();
         if (remoteOpen.getBgpParameters() != null) {
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {

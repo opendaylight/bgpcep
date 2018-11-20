@@ -11,9 +11,9 @@ package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 import static org.opendaylight.protocol.bgp.parser.spi.AttributeUtil.formatAttribute;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -55,7 +55,7 @@ public final class PEDistinguisherLabelsAttributeHandler implements AttributePar
         Preconditions.checkArgument(isIpv4 || isIpv6,
                 "Length of byte array should be multiple of 7 or multiple of 19");
 
-        final List<PeDistinguisherLabelAttribute> list = Lists.newArrayList();
+        final List<PeDistinguisherLabelAttribute> list = new ArrayList<>();
         while (buffer.isReadable()) {
             final PeDistinguisherLabelAttributeBuilder attribute = new PeDistinguisherLabelAttributeBuilder();
             if (isIpv4) {
