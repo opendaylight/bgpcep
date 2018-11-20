@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.KeepaliveBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -28,7 +29,8 @@ public final class BGPKeepAliveMessageParser implements MessageParser, MessageSe
     }
 
     @Override
-    public Keepalive parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+    public Keepalive parseMessageBody(final ByteBuf body, final int messageLength,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
         if (body.isReadable()) {
             throw BGPDocumentedException.badMessageLength("Message length field not within valid range.",
                     messageLength);

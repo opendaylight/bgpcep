@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -105,7 +106,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      * @throws BGPDocumentedException if the parsing was unsuccessful
      */
     @Override
-    public Open parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+    public Open parseMessageBody(final ByteBuf body, final int messageLength,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
         Preconditions.checkArgument(body != null, "Buffer cannot be null.");
 
         if (body.readableBytes() < MIN_MSG_LENGTH) {

@@ -155,7 +155,8 @@ public class ParserTest {
         final byte[] body = ByteArray.cutBytes(inputBytes.get(0), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0),
             MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
+            null);
 
         final Class<? extends AddressFamily> afi = message.getAttributes()
             .augmentation(Attributes2.class).getMpUnreachNlri().getAfi();
@@ -324,7 +325,8 @@ public class ParserTest {
         final byte[] body = ByteArray.cutBytes(inputBytes.get(1), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1),
             MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
+            null);
 
         final UpdateBuilder builder = new UpdateBuilder();
 
@@ -531,7 +533,8 @@ public class ParserTest {
         final byte[] body = ByteArray.cutBytes(inputBytes.get(2), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray
             .bytesToInt(ByteArray.subByte(inputBytes.get(2), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
-        final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
+            null);
 
         final UpdateBuilder builder = new UpdateBuilder();
 

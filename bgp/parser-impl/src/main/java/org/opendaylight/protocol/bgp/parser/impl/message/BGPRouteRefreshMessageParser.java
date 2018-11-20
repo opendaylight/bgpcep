@@ -21,6 +21,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
@@ -75,7 +76,8 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
      * @throws BGPDocumentedException if parsing goes wrong
      */
     @Override
-    public RouteRefresh parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+    public RouteRefresh parseMessageBody(final ByteBuf body, final int messageLength,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
         Preconditions.checkArgument(body != null, "Body buffer cannot be null.");
         if (body.readableBytes() < TRIPLET_BYTE_SIZE) {
             throw BGPDocumentedException.badMessageLength("RouteRefresh message is too small.", messageLength);
