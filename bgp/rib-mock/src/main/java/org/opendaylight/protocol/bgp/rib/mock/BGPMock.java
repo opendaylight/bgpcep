@@ -17,6 +17,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.util.ByteArray;
@@ -60,7 +61,7 @@ public final class BGPMock implements Closeable {
 
                 messages.add(registry.parseMessage(Unpooled.copiedBuffer(body), null));
             }
-        } catch (final BGPDocumentedException | BGPParsingException e) {
+        } catch (final BGPDocumentedException | BGPParsingException | BGPRecoveredUpdateException e) {
             LOG.warn("Failed to parse message", e);
         }
         return messages;
