@@ -17,6 +17,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
@@ -97,7 +98,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         MessageUtil.formatMessage(TYPE, messageBody, bytes);
     }
 
-    private void writePathIdPrefix(final ByteBuf byteBuf, final PathId pathId, final Ipv4Prefix ipv4Prefix) {
+    private static void writePathIdPrefix(final ByteBuf byteBuf, final PathId pathId, final Ipv4Prefix ipv4Prefix) {
         PathIdUtil.writePathId(pathId, byteBuf);
         ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix, byteBuf);
     }
@@ -113,7 +114,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
      */
     @Override
     public Update parseMessageBody(final ByteBuf buffer, final int messageLength,
-            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPRecoveredUpdateException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(),
                 "Buffer cannot be null or empty.");
 

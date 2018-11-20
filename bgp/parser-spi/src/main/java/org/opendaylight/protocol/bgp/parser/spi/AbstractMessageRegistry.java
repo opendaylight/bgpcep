@@ -16,6 +16,7 @@ import java.util.Arrays;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -24,7 +25,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
     private static final byte[] MARKER;
 
     protected abstract Notification parseBody(int type, ByteBuf body, int messageLength,
-            PeerSpecificParserConstraint constraint) throws BGPDocumentedException;
+            PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPRecoveredUpdateException;
 
     protected abstract void serializeMessageImpl(final Notification message, final ByteBuf buffer);
 
@@ -35,7 +36,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
     @Override
     public Notification parseMessage(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
-            throws BGPDocumentedException, BGPParsingException {
+            throws BGPDocumentedException, BGPParsingException, BGPRecoveredUpdateException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes cannot be null or empty.");
         Preconditions.checkArgument(buffer.readableBytes() >= MessageUtil.COMMON_HEADER_LENGTH,
                 "Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(), MessageUtil.COMMON_HEADER_LENGTH);

@@ -5,22 +5,22 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
-import org.junit.Assert;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -185,8 +185,8 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
             Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class), any());
             doReturn(EMPTY).when(this.nlriParser).toString();
 
-        } catch (BGPDocumentedException | BGPParsingException e) {
-            Assert.fail();
+        } catch (BGPDocumentedException | BGPParsingException | BGPRecoveredUpdateException e) {
+            fail("Unexpected exception " + e);
         }
     }
 

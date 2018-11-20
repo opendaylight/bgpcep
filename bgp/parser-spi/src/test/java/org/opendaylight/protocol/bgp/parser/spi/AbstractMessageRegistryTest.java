@@ -14,10 +14,10 @@ import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Keepalive;
@@ -45,7 +45,7 @@ public class AbstractMessageRegistryTest {
     };
 
     @Test
-    public void testRegistry() throws BGPDocumentedException, BGPParsingException {
+    public void testRegistry() throws BGPDocumentedException, BGPParsingException, BGPRecoveredUpdateException {
         final Notification keepAlive = new KeepaliveBuilder().build();
         final ByteBuf buffer = Unpooled.buffer();
         this.registry.serializeMessage(keepAlive, buffer);
@@ -56,49 +56,46 @@ public class AbstractMessageRegistryTest {
     }
 
     @Test
-    public void testIncompleteMarker() {
+    public void testIncompleteMarker() throws BGPParsingException, BGPRecoveredUpdateException {
         final byte[] testBytes = new byte[] { (byte) 0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
         try {
             this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
-            Assert.fail();
-        } catch (BGPDocumentedException | BGPParsingException e) {
-            assertTrue(e instanceof BGPDocumentedException);
-            Assert.assertEquals("Marker not set to ones.", e.getMessage());
+            fail();
+        } catch (BGPDocumentedException e) {
+            assertEquals("Marker not set to ones.", e.getMessage());
         }
     }
 
     @Test
-    public void testInvalidLength() {
+    public void testInvalidLength() throws BGPParsingException, BGPRecoveredUpdateException {
         final byte[] testBytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0x00, (byte) 0x12, (byte) 0x04 };
         try {
             this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
-            Assert.fail();
-        } catch (BGPDocumentedException | BGPParsingException e) {
-            assertTrue(e instanceof BGPDocumentedException);
-            Assert.assertEquals("Message length field not within valid range.", e.getMessage());
+            fail();
+        } catch (BGPDocumentedException  e) {
+            assertEquals("Message length field not within valid range.", e.getMessage());
         }
     }
 
     @Test
-    public void testInvalidSpecifiedSize() {
+    public void testInvalidSpecifiedSize() throws BGPDocumentedException, BGPRecoveredUpdateException {
         final byte[] testBytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04, (byte) 0x04 };
         try {
             this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
-            Assert.fail();
-        } catch (BGPDocumentedException | BGPParsingException e) {
-            assertTrue(e instanceof BGPParsingException);
-            Assert.assertTrue(e.getMessage().startsWith("Size doesn't match size specified in header."));
+            fail();
+        } catch (BGPParsingException e) {
+            assertTrue(e.getMessage().startsWith("Size doesn't match size specified in header."));
         }
     }
 
     @Test
-    public void testBGPHeaderParser() throws Exception {
+    public void testBGPHeaderParser() throws BGPDocumentedException, BGPParsingException, BGPRecoveredUpdateException  {
         final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
         try {
             msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }), null);
@@ -109,7 +106,7 @@ public class AbstractMessageRegistryTest {
     }
 
     @Test
-    public void testMessageParser() throws Exception {
+    public void testMessageParser() {
         final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
         String ex = "";
         try {
