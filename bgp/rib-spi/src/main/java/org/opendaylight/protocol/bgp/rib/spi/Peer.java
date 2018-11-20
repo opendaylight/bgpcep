@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
@@ -49,7 +49,7 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
      * @return future
      */
     @Nonnull
-    ListenableFuture<?> close();
+    FluentFuture<? extends Object> close();
 
     /**
      * Update peers ribout after path selection processing.
