@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41948d2f_39dcca2f",
+        "filename": "bgp/rib-api/src/main/yang/bgp-peer-rpc.yang",
+        "patchSetId": 10
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "\"restart-gracefully\" to use proper wording",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 24
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6285149b_7f204f46",
+        "filename": "bgp/rib-api/src/main/yang/bgp-peer-rpc.yang",
+        "patchSetId": 10
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "description says \u0027in seconds\u0027, thus this should have \u0027units seconds;\u0027",
+      "range": {
+        "startLine": 81,
+        "startChar": 17,
+        "endLine": 81,
+        "endChar": 40
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9d4ecc4_3c857d79",
+        "filename": "bgp/rib-api/src/main/yang/bgp-peer-rpc.yang",
+        "patchSetId": 10
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "missing space",
+      "range": {
+        "startLine": 82,
+        "startChar": 15,
+        "endLine": 82,
+        "endChar": 16
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6e57bf6_11039d37",
+        "filename": "bgp/rib-api/src/main/yang/bgp-peer-rpc.yang",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "misaligned continuation",
+      "range": {
+        "startLine": 83,
+        "startChar": 17,
+        "endLine": 83,
+        "endChar": 71
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "406350b6_2d9e0fc0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "looks like this should be a Stopwatch",
+      "range": {
+        "startLine": 421,
+        "startChar": 16,
+        "endLine": 421,
+        "endChar": 37
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5db2ccee_f27d8148",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "can this change between two lines above and this line?",
+      "range": {
+        "startLine": 436,
+        "startChar": 13,
+        "endLine": 436,
+        "endChar": 32
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf0e6080_f823f425",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "this (and above negation) indicate we need a isRestarting() method",
+      "range": {
+        "startLine": 525,
+        "startChar": 20,
+        "endLine": 525,
+        "endChar": 61
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2a3a5311_6d77b7cd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BgpPeerRpc.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "This looks weird -- I think this alwasy returns true. Please add an explicit test for the failure case.",
+      "range": {
+        "startLine": 72,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 29
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b78bbdd0_386970f3",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/PeerRPCs.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:23:15Z",
+      "side": 1,
+      "message": "what is the time unit?",
+      "range": {
+        "startLine": 28,
+        "startChar": 40,
+        "endLine": 28,
+        "endChar": 67
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
