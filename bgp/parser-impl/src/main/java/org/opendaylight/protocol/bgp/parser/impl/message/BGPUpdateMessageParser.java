@@ -67,11 +67,6 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
     }
 
     @Override
-    public Update parseMessageBody(final ByteBuf buffer, final int messageLength) throws BGPDocumentedException {
-        return parseMessageBody(buffer, messageLength, null);
-    }
-
-    @Override
     public void serializeMessage(final Notification message, final ByteBuf bytes) {
         Preconditions.checkArgument(message instanceof Update, "Message needs to be of type Update");
         final Update update = (Update) message;
