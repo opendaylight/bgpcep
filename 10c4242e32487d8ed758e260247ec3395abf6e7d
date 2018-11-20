@@ -367,6 +367,52 @@
       "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "066ddbe6_ab1f0f72",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPSession.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:14:53Z",
+      "side": 1,
+      "message": "This is session lifecycle change, split this out into a separate patch.",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 31
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1a70b64_02ddd903",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:14:53Z",
+      "side": 1,
+      "message": "with routesPath() present, should this become a default method?",
+      "range": {
+        "startLine": 183,
+        "startChar": 4,
+        "endLine": 183,
+        "endChar": 112
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
