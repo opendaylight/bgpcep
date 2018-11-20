@@ -227,14 +227,12 @@ public class BGPPeer extends BGPPeerStateImpl implements BGPSessionListener, Pee
 
     @Override
     public void onMessage(final BGPSession session, final Notification msg) throws BGPDocumentedException {
-        if (!(msg instanceof Update) && !(msg instanceof RouteRefresh)) {
-            LOG.info("Ignoring unhandled message class {}", msg.getClass());
-            return;
-        }
         if (msg instanceof Update) {
             onUpdateMessage((Update) msg);
-        } else {
+        } else if (msg instanceof RouteRefresh) {
             onRouteRefreshMessage((RouteRefresh) msg, session);
+        } else {
+            LOG.info("Ignoring unhandled message class {}", msg.getClass());
         }
     }
 
