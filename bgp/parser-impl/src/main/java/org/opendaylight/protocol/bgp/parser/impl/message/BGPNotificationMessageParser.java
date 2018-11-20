@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyBuilder;
@@ -66,7 +67,8 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      * @throws BGPDocumentedException if parsing goes wrong
      */
     @Override
-    public Notify parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+    public Notify parseMessageBody(final ByteBuf body, final int messageLength,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
         Preconditions.checkArgument(body != null, "Buffer cannot be null.");
         if (body.readableBytes() < ERROR_SIZE) {
             throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);

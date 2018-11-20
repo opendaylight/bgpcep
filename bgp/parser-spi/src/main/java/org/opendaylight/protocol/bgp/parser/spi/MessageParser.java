@@ -17,28 +17,15 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * Common interface for message parser implementation.
  */
 public interface MessageParser {
-
     /**
-     * Parse BGP Message from buffer.
+     * Parse BGP Message from buffer, potentially applying peer-specific constraints. Implementations are free
      *
      * @param body Encoded BGP message in ByteBuf.
      * @param messageLength Length of the BGP message.
+     * @param constraint Peer specific constraints, implementations may ignore them.
      * @return Parsed BGP Message body.
      * @throws BGPDocumentedException
      */
-    @Nonnull Notification parseMessageBody(@Nonnull ByteBuf body, int messageLength) throws BGPDocumentedException;
-
-    /**
-     * Invokes {@link #parseMessageBody(ByteBuf, int)}, so the constraint is omitted. Override for specific parser behavior.
-     *
-     * @param body Encoded BGP message in ByteBuf.
-     * @param messageLength Length of the BGP message.
-     * @param constraint Peer specific constraints.
-     * @return Parsed BGP Message body.
-     * @throws BGPDocumentedException
-     */
-    @Nonnull default Notification parseMessageBody(@Nonnull final ByteBuf body, final int messageLength, @Nullable final PeerSpecificParserConstraint constraint)
-            throws BGPDocumentedException {
-        return parseMessageBody(body, messageLength);
-    }
+    @Nonnull Notification parseMessageBody(@Nonnull ByteBuf body, int messageLength,
+            @Nullable PeerSpecificParserConstraint constraint) throws BGPDocumentedException;
 }
