@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -28,7 +29,7 @@ public interface MessageRegistry {
      * @throws BGPParsingException
      */
     @Nonnull Notification parseMessage(@Nonnull ByteBuf bytes, @Nullable PeerSpecificParserConstraint constraint)
-            throws BGPDocumentedException, BGPParsingException;
+            throws BGPDocumentedException, BGPParsingException, BGPRecoveredUpdateException;
 
     /**
      * Encode input BGP Message to output buffer.

@@ -11,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -27,5 +28,6 @@ public interface MessageParser {
      * @throws BGPDocumentedException
      */
     @Nonnull Notification parseMessageBody(@Nonnull ByteBuf body, int messageLength,
-            @Nullable PeerSpecificParserConstraint constraint) throws BGPDocumentedException;
+            @Nullable PeerSpecificParserConstraint constraint) throws BGPDocumentedException,
+                BGPRecoveredUpdateException;
 }
