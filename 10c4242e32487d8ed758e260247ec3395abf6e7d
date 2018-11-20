@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09b666f5_b61bb39f",
+        "filename": "bgp/extensions/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/impl/EvpnRibSupport.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "And this is where Set is making us inefficient. We want to use an ArrayList size to the number of elements in routes.getValue().",
+      "range": {
+        "startLine": 112,
+        "startChar": 20,
+        "endLine": 112,
+        "endChar": 83
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ff4c18d_cdb80463",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "staleRoutes.removeAll(routeKeys). please do not misuse lambdas -- they may feel cool, but this certainly is not a place for them.",
+      "range": {
+        "startLine": 301,
+        "startChar": 12,
+        "endLine": 301,
+        "endChar": 51
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31d6d384_9b5c734f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "move this to just above the else branch",
+      "range": {
+        "startLine": 149,
+        "startChar": 12,
+        "endLine": 149,
+        "endChar": 86
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89d02fc2_dfb77738",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "switch (gracefulCapabilities.size()) {\n    case 0:\n        return GracefulRestartUtil.EMPTY_GRACEFUL_CAPABILITY;\n    case 1:\n        return gracefulCapabilities.get(0);\n    default {\n         LOG.error();\n        return GracefulRestartUtil.EMPTY_GRACEFUL_CAPABILITY;\n}",
+      "range": {
+        "startLine": 206,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 61
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee70481e_570707bf",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/TableContext.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "Collection, as Set is expensive to compute -- this needs to be propagated all the way through the APIs",
+      "range": {
+        "startLine": 52,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 7
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11314b7b_15f38a0a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "This should be a single filter and overall this looks contrived. Can you write it without use of a stream?",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 88
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c933de1b_6ee5559a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "missing spaces and what is the magic constant \u00273\u0027?",
+      "range": {
+        "startLine": 385,
+        "startChar": 32,
+        "endLine": 385,
+        "endChar": 43
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6eb16e32_db414279",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/OpenConfigMappingUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "private method and contradicting use of @Nullable and Optional. Just ditch the Optional.",
+      "range": {
+        "startLine": 392,
+        "startChar": 19,
+        "endLine": 392,
+        "endChar": 36
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bf36215_d0102174",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "SessionListener::getState",
+      "range": {
+        "startLine": 27,
+        "startChar": 49,
+        "endLine": 27,
+        "endChar": 80
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ddcc960b_c3af3a17",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "thread-safety: what is preventing peer.getBGPSessionState() from becoming null after this check?",
+      "range": {
+        "startLine": 46,
+        "startChar": 20,
+        "endLine": 46,
+        "endChar": 60
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbdd15a9_9a4fce56",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "qualify time units",
+      "range": {
+        "startLine": 55,
+        "startChar": 36,
+        "endLine": 55,
+        "endChar": 73
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78da5776_0bcb53c3",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "restartTimeSeconds",
+      "range": {
+        "startLine": 67,
+        "startChar": 71,
+        "endLine": 67,
+        "endChar": 82
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f89b6199_7562bf2a",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/CheckUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "hot-path conversion. convert restartTime to nanos, store in a final variable and check against that -- same is true above.",
+      "range": {
+        "startLine": 69,
+        "startChar": 15,
+        "endLine": 69,
+        "endChar": 62
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "458c53b2_6d36ec81",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/PeerUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "missing space",
+      "range": {
+        "startLine": 83,
+        "startChar": 8,
+        "endLine": 83,
+        "endChar": 11
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97fd310d_f3ef810d",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/PeerUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "return key.getAfi() \u003d\u003d Ipv4AddressFamily.class ? new UpdateBuilder().build()\n    : ...",
+      "range": {
+        "startLine": 149,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 20
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bcf647aa_0144e0e3",
+        "filename": "bgp/rib-mock/src/main/java/org/opendaylight/protocol/bgp/rib/mock/EventBusRegistration.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-20T11:12:04Z",
+      "side": 1,
+      "message": "Constant object: store in a constant",
+      "range": {
+        "startLine": 199,
+        "startChar": 19,
+        "endLine": 203,
+        "endChar": 29
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
