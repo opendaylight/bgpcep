@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.UnknownHostException;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
@@ -123,7 +125,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testHeaderErrors() throws BGPParsingException, BGPDocumentedException {
+    public void testHeaderErrors() throws BGPParsingException, BGPDocumentedException, BGPRecoveredUpdateException {
         byte[] wrong = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0x00 };
@@ -140,7 +142,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testBadMsgType() throws BGPParsingException {
+    public void testBadMsgType() throws BGPParsingException, BGPRecoveredUpdateException {
         final byte[] bytes = { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x08 };
@@ -155,7 +157,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testKeepAliveMsg() throws BGPParsingException, BGPDocumentedException {
+    public void testKeepAliveMsg() throws BGPParsingException, BGPDocumentedException, BGPRecoveredUpdateException {
         final Notification keepAlive = new KeepaliveBuilder().build();
         final ByteBuf buffer = Unpooled.buffer();
         ParserTest.reg.serializeMessage(keepAlive, buffer);
@@ -168,7 +170,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testBadKeepAliveMsg() throws BGPParsingException {
+    public void testBadKeepAliveMsg() throws BGPParsingException, BGPRecoveredUpdateException {
         final byte[] bytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x14, (byte) 0x04, (byte) 0x05 };
@@ -185,7 +187,8 @@ public class ParserTest {
     }
 
     @Test
-    public void testOpenMessage() throws UnknownHostException, BGPParsingException, BGPDocumentedException {
+    public void testOpenMessage() throws UnknownHostException, BGPParsingException, BGPDocumentedException,
+            BGPRecoveredUpdateException {
         final Notification open = new OpenBuilder().setMyAsNumber(100).setHoldTimer(180)
             .setBgpIdentifier(new Ipv4Address("20.20.20.20")).setVersion(
             new ProtocolVersion((short) 4)).build();
@@ -203,7 +206,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testBadHoldTimeError() throws BGPParsingException {
+    public void testBadHoldTimeError() throws BGPParsingException, BGPRecoveredUpdateException {
         final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64,
@@ -221,7 +224,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testBadMsgLength() throws BGPParsingException {
+    public void testBadMsgLength() throws BGPParsingException, BGPRecoveredUpdateException {
         final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x1b, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64,
@@ -237,7 +240,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testBadVersion() throws BGPParsingException {
+    public void testBadVersion() throws BGPParsingException, BGPRecoveredUpdateException {
         final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x08, (byte) 0x00, (byte) 0x64,
@@ -255,7 +258,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testNotificationMsg() throws BGPParsingException, BGPDocumentedException {
+    public void testNotificationMsg() throws BGPParsingException, BGPDocumentedException, BGPRecoveredUpdateException {
         Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode())
             .setErrorSubcode(BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
         final ByteBuf bytes = Unpooled.buffer();
@@ -285,7 +288,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testWrongLength() throws BGPParsingException {
+    public void testWrongLength() throws BGPParsingException, BGPRecoveredUpdateException {
         final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x14, (byte) 0x03, (byte) 0x02 };
@@ -302,7 +305,8 @@ public class ParserTest {
     }
 
     @Test
-    public void testUnrecognizedError() throws BGPParsingException, BGPDocumentedException {
+    public void testUnrecognizedError() throws BGPParsingException, BGPDocumentedException,
+            BGPRecoveredUpdateException {
         final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x15, (byte) 0x03, (byte) 0x02, (byte) 0xaa };
@@ -318,7 +322,8 @@ public class ParserTest {
     }
 
     @Test
-    public void testParseUpdMsgWithUnrecognizedAttribute() throws BGPDocumentedException, BGPParsingException {
+    public void testParseUpdMsgWithUnrecognizedAttribute() throws BGPDocumentedException, BGPParsingException,
+            BGPRecoveredUpdateException {
         try {
             reg.parseMessage(Unpooled.copiedBuffer(updMsgWithUnrecognizedAttribute), null);
             fail("Exception should have occured.");
@@ -331,7 +336,8 @@ public class ParserTest {
     }
 
     @Test
-    public void testParseUpdMsgWithMandatoryAttributesPresent() throws BGPDocumentedException, BGPParsingException {
+    public void testParseUpdMsgWithMandatoryAttributesPresent() throws BGPDocumentedException, BGPParsingException,
+            BGPRecoveredUpdateException {
         try {
             final Notification msg = reg.parseMessage(Unpooled.copiedBuffer(updMsgWithMandatoryAttributesPresent),
                 null);
@@ -343,7 +349,7 @@ public class ParserTest {
 
     @Test
     public void testParseUpdMsgWithOneMandatoryAttributeNotPresent()
-        throws BGPDocumentedException, BGPParsingException {
+        throws BGPDocumentedException, BGPParsingException, BGPRecoveredUpdateException {
         try {
             reg.parseMessage(Unpooled.copiedBuffer(updMsgWithOneMandatoryAttributeNotPresent), null);
             fail("Exception should have occured.");
@@ -358,7 +364,7 @@ public class ParserTest {
 
     @Test
     public void testParseUpdMsgWithMultipleMandatoryAttributesNotPresent()
-        throws BGPDocumentedException, BGPParsingException {
+        throws BGPDocumentedException, BGPParsingException, BGPRecoveredUpdateException {
         try {
             reg.parseMessage(Unpooled.copiedBuffer(updMsgWithMultipleMandatoryAttributesNotPresent), null);
             fail("Exception should have occured.");
@@ -372,7 +378,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testRouteRefreshMsg() throws BGPDocumentedException, BGPParsingException {
+    public void testRouteRefreshMsg() throws BGPDocumentedException, BGPParsingException, BGPRecoveredUpdateException {
         final Notification rrMsg = new RouteRefreshBuilder().setAfi(Ipv4AddressFamily.class)
             .setSafi(UnicastSubsequentAddressFamily.class).build();
         final ByteBuf buffer = Unpooled.buffer();

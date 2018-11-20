@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPRecoveredUpdateException;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractMessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -23,7 +24,7 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
 
     @Override
     protected Notification parseBody(final int type, final ByteBuf body, final int messageLength,
-            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPRecoveredUpdateException {
         final MessageParser parser = this.handlers.getParser(type);
         if (parser == null) {
             return null;
