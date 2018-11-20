@@ -308,7 +308,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         return this.channel.newFailedFuture(new NonWritableChannelException());
     }
 
-    private synchronized void closeWithoutMessage() {
+    @Override
+    public synchronized void closeWithoutMessage() {
         if (this.state == State.IDLE) {
             return;
         }
