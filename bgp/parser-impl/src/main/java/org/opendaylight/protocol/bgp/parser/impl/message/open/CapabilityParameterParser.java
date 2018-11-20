@@ -10,10 +10,10 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -52,7 +52,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
             LOG.trace("Started parsing of BGP Capabilities: {}", Arrays.toString(ByteArray.getAllBytes(buffer)));
         }
 
-        final List<OptionalCapabilities> optionalCapas = Lists.newArrayList();
+        final List<OptionalCapabilities> optionalCapas = new ArrayList<>();
         while (buffer.isReadable()) {
             final OptionalCapabilities optionalCapa = parseOptionalCapability(buffer);
             if (optionalCapa != null) {
