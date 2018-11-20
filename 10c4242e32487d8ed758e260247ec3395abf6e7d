@@ -413,6 +413,30 @@
       "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "70447c5b_b4635965",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-11-20T15:20:34Z",
+      "side": 1,
+      "message": "I don\u0027t understand the question.\nBoth methods return different identifier. routesPath() return identifier of list node with all routes and routePath() returns identifier of one specific route.\nThey are both equally needed in specific situations.",
+      "parentUuid": "f1a70b64_02ddd903",
+      "range": {
+        "startLine": 183,
+        "startChar": 4,
+        "endLine": 183,
+        "endChar": 112
+      },
+      "revId": "10c4242e32487d8ed758e260247ec3395abf6e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
