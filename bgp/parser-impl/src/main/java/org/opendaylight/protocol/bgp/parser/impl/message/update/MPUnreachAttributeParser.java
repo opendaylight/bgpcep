@@ -34,16 +34,14 @@ public final class MPUnreachAttributeParser extends ReachAttributeParser {
     }
 
     @Override
-    public void parseAttribute(
-            final ByteBuf buffer,
-            final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint)
-            throws BGPDocumentedException {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
         try {
             final MpUnreachNlri mpUnreachNlri = this.reg.parseMpUnreach(buffer, constraint);
             final Attributes2 a = new Attributes2Builder().setMpUnreachNlri(mpUnreachNlri).build();
             builder.addAugmentation(Attributes2.class, a);
         } catch (final BGPParsingException e) {
+            // FIXME: BGPCEP-359: revise handling
             throw new BGPDocumentedException("Could not parse MP_UNREACH_NLRI", BGPError.OPT_ATTR_ERROR, e);
         }
     }

@@ -21,6 +21,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentPar
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -50,11 +51,12 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
      *
      * @param refCache ReferenceCache shared reference of object
      * @param buffer bytes to be parsed
+     * @param constraint
      * @return new ASPath object
      * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
      */
-    private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer)
-            throws BGPDocumentedException, BGPParsingException {
+    private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException {
         if (!buffer.isReadable()) {
             return EMPTY;
         }
@@ -64,12 +66,18 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
             final int type = buffer.readUnsignedByte();
             final SegmentType segmentType = AsPathSegmentParser.parseType(type);
             if (segmentType == null) {
+                // FIXME: BGPCEP-359: treat-as-withdraw
                 throw new BGPParsingException("AS Path segment type unknown : " + type);
             }
+
+            // FIXME: BGPCEP-359: treat-as-withdraw if no data is available
             final int count = buffer.readUnsignedByte();
+            // FIXME: BGPCEP-359: treat-as-withdraw if count == 0
+            final int segmentLength = count * AsPathSegmentParser.AS_NUMBER_LENGTH;
+            // FIXME: BGPCEP-359: treat-as-withdraw if there is a buffer overrun
 
             final List<AsNumber> asList = AsPathSegmentParser.parseAsSegment(refCache, count,
-                    buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                buffer.readSlice(segmentLength));
             if (segmentType == SegmentType.AS_SEQUENCE) {
                 ases.add(new SegmentsBuilder().setAsSequence(asList).build());
                 isSequence = true;
@@ -87,9 +95,9 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder)
-            throws BGPDocumentedException, BGPParsingException {
-        builder.setAsPath(parseAsPath(this.refCache, buffer));
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException {
+        builder.setAsPath(parseAsPath(this.refCache, buffer, constraint));
     }
 
     @Override

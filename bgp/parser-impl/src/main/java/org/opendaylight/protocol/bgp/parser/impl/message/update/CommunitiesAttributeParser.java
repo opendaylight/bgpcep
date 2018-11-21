@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -45,7 +46,10 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
+        // FIXME: BGPCEP-359: treat-as-withdraw if buffer.readableBytes() is 0 or not a multiple of COMMUNITY_LENGTH
+        // FIXME: optimize allocation once we have done the above check
         final List<Communities> set = new ArrayList<>();
         while (buffer.isReadable()) {
             set.add((Communities) parseCommunity(this.refCache, buffer.readSlice(COMMUNITY_LENGTH)));

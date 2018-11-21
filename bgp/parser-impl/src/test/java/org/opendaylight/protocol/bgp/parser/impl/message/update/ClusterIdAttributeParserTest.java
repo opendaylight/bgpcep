@@ -52,7 +52,8 @@ public class ClusterIdAttributeParserTest {
         assertArrayEquals(clusterIdBytes, ByteArray.getAllBytes(output));
 
         AttributesBuilder clusterIdOutput = new AttributesBuilder();
-        this.parser.parseAttribute(Unpooled.wrappedBuffer(ByteArray.cutBytes(clusterIdBytes, 3)), clusterIdOutput);
+        this.parser.parseAttribute(Unpooled.wrappedBuffer(ByteArray.cutBytes(clusterIdBytes, 3)), clusterIdOutput,
+            null);
         assertEquals(clusterId, clusterIdOutput.build());
     }
 

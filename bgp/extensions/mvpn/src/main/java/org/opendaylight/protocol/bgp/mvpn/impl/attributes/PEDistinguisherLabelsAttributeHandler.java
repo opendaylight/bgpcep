@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.bgp.parser.spi.AttributeUtil.formatAttribute;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.MplsLabelUtil;
@@ -46,14 +46,16 @@ public final class PEDistinguisherLabelsAttributeHandler implements AttributePar
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) {
         if (!buffer.isReadable()) {
             return;
         }
         final boolean isIpv4 = buffer.readableBytes() % 7 == 0;
         final boolean isIpv6 = buffer.readableBytes() % 19 == 0;
-        Preconditions.checkArgument(isIpv4 || isIpv6,
-                "Length of byte array should be multiple of 7 or multiple of 19");
+
+        // FIXME: BGPCEP-359: what is the handling here?
+        checkArgument(isIpv4 || isIpv6, "Length of byte array should be multiple of 7 or multiple of 19");
 
         final List<PeDistinguisherLabelAttribute> list = new ArrayList<>();
         while (buffer.isReadable()) {

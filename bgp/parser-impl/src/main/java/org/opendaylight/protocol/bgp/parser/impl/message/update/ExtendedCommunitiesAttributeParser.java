@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -35,10 +36,13 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder)
-            throws BGPDocumentedException, BGPParsingException {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException {
+        // FIXME: BGPCEP-359: treat-as-withdraw if length == 0 or not a multiple of 8
+        // FIXME: once we do the above check, optimize list allocation here
         final List<ExtendedCommunities> set = new ArrayList<>();
         while (buffer.isReadable()) {
+            // FIXME: BGPCEP-359: malformed communities need to trigger treat-as-withdraw
             final ExtendedCommunities exComm = this.ecReg.parseExtendedCommunity(buffer);
             if (exComm != null) {
                 set.add(exComm);

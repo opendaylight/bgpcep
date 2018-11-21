@@ -77,8 +77,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class LinkstateAttributeParserTest {
 
-    private static final byte[] TE_LSP_ATTR = {0x00, (byte) 0x63, 0x00, (byte) 0x30, // TE LSP Attribute Type, lenght, value
-        0x00, (byte) 0x20, (byte) 0x0c, 0x02,  // Lenght, Class, Ctype
+    private static final byte[] TE_LSP_ATTR = {0x00, (byte) 0x63, 0x00, (byte) 0x30, // TE LSP Attribute Type, length, value
+        0x00, (byte) 0x20, (byte) 0x0c, 0x02,  // Length, Class, Ctype
         0x00, 0x00, 0x00, 0x07,
         0x01, 0x00, 0x00, 0x06,
         (byte) 0x7f, 0x00, 0x00, 0x05,
@@ -87,7 +87,7 @@ public class LinkstateAttributeParserTest {
         0x00, 0x00, 0x00, 0x03, //Peak Data Rate
         0x00, 0x00, 0x00, 0x04, //Minimum Policed Unit
         0x00, 0x00, 0x00, 0x05, //Maximum Packet Size
-        0x00, (byte) 0x08, (byte) 0xc7, 0x01,  // Lenght, Class, Ctype
+        0x00, (byte) 0x08, (byte) 0xc7, 0x01,  // Length, Class, Ctype
         0x00, 0x01, 0x00, 0x02,
         0x01, 0x02, 0x03, 0x04,};
 
@@ -165,38 +165,42 @@ public class LinkstateAttributeParserTest {
     public void testGetNlriType() throws BGPParsingException {
         final ByteBuf b = Unpooled.buffer();
         AttributesBuilder builder = new AttributesBuilder();
-        this.parser.parseAttribute(b, builder);
+        this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
         final Attributes1Builder builder1 = new Attributes1Builder();
         builder.addAugmentation(Attributes1.class, builder1.build());
-        this.parser.parseAttribute(b, builder);
+        this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
         builder.addAugmentation(Attributes1.class, builder1.setMpReachNlri(
-            new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationIpv4CaseBuilder().build()).build()).build()).build());
-        this.parser.parseAttribute(b, builder);
+            new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                .setDestinationType(new DestinationIpv4CaseBuilder().build()).build()).build()).build());
+        this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
         final Attributes2Builder builder2 = new Attributes2Builder();
         builder.addAugmentation(Attributes2.class, builder2.build());
-        this.parser.parseAttribute(b, builder);
+        this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
         builder.addAugmentation(Attributes2.class, builder2.setMpUnreachNlri(
-            new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder().build()).build()).build()).build());
-        this.parser.parseAttribute(b, builder);
+            new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
+                .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder()
+                .build()).build()).build()).build());
+        this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
     }
 
     @Test
     public void testPositiveLinks() throws BGPParsingException {
         final AttributesBuilder builder = createBuilder(new LinkCaseBuilder().build());
-        this.parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR), builder);
+        this.parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR), builder, null);
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final LinkAttributes ls = ((LinkAttributesCase) attrs.getLinkStateAttribute()).getLinkAttributes();
         assertNotNull(ls);
@@ -204,8 +208,10 @@ public class LinkstateAttributeParserTest {
         assertEquals("42.42.42.42", ls.getLocalIpv4RouterId().getValue());
         assertEquals("43.43.43.43", ls.getRemoteIpv4RouterId().getValue());
         assertEquals(Long.valueOf(0L), ls.getAdminGroup().getValue());
-        assertArrayEquals(new byte[] { (byte) 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80 }, ls.getMaxLinkBandwidth().getValue());
-        assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 }, ls.getMaxReservableBandwidth().getValue());
+        assertArrayEquals(new byte[] { (byte) 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80 },
+            ls.getMaxLinkBandwidth().getValue());
+        assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
+            ls.getMaxReservableBandwidth().getValue());
         assertNotNull(ls.getUnreservedBandwidth());
         assertEquals(8, ls.getUnreservedBandwidth().size());
         assertEquals(LinkProtectionType.Dedicated1to1, ls.getLinkProtection());
@@ -215,11 +221,14 @@ public class LinkstateAttributeParserTest {
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
-        final IsisAdjFlagsCase flags = new IsisAdjFlagsCaseBuilder().setAddressFamily(Boolean.TRUE).setBackup(Boolean.FALSE).setSet(Boolean.FALSE).build();
+        final IsisAdjFlagsCase flags = new IsisAdjFlagsCaseBuilder().setAddressFamily(Boolean.TRUE)
+                .setBackup(Boolean.FALSE).setSet(Boolean.FALSE).build();
         assertEquals(flags, ls.getSrAdjIds().get(0).getFlags());
         assertEquals(flags, ls.getSrAdjIds().get(1).getFlags());
-        assertEquals(new Long(1048575L), ((LocalLabelCase)ls.getSrAdjIds().get(0).getSidLabelIndex()).getLocalLabel().getValue());
-        assertEquals(new Long(1048559L), ((LocalLabelCase)ls.getSrAdjIds().get(1).getSidLabelIndex()).getLocalLabel().getValue());
+        assertEquals(new Long(1048575L), ((LocalLabelCase)ls.getSrAdjIds().get(0).getSidLabelIndex()).getLocalLabel()
+            .getValue());
+        assertEquals(new Long(1048559L), ((LocalLabelCase)ls.getSrAdjIds().get(1).getSidLabelIndex()).getLocalLabel()
+            .getValue());
         assertEquals(new Long(168496141L), ((SidCase) ls.getPeerNodeSid().getSidLabelIndex()).getSid());
         assertEquals(new Short("5"), ls.getPeerNodeSid().getWeight().getValue());
         assertEquals(new Long(168496142L), ((SidCase) ls.getPeerSetSids().get(0).getSidLabelIndex()).getSid());
@@ -239,7 +248,7 @@ public class LinkstateAttributeParserTest {
     @Test
     public void testPositiveNodes() throws BGPParsingException {
         final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
-        this.parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR), builder);
+        this.parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR), builder, null);
 
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final NodeAttributes ls = ((NodeAttributesCase) attrs.getLinkStateAttribute()).getNodeAttributes();
@@ -268,8 +277,9 @@ public class LinkstateAttributeParserTest {
     @Test
     public void testPositiveV4Prefixes() throws BGPParsingException {
         final AttributesBuilder builder = createUnreachBuilder(new PrefixCaseBuilder().setPrefixDescriptors(
-            new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32"))).build()).build());
-        this.parser.parseAttribute(Unpooled.copiedBuffer(P4_ATTR), builder);
+            new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32")))
+            .build()).build());
+        this.parser.parseAttribute(Unpooled.copiedBuffer(P4_ATTR), builder, null);
 
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final PrefixAttributes ls = ((PrefixAttributesCase) attrs.getLinkStateAttribute()).getPrefixAttributes();
@@ -286,10 +296,11 @@ public class LinkstateAttributeParserTest {
         assertTrue(ispBits.isOspfLocalAddress());
         assertTrue(ispBits.isOspfPropagateNssa());
         assertEquals(2, ls.getRouteTags().size());
-        assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }, ls.getRouteTags().get(0).getValue());
+        assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }, ls.getRouteTags().get(0)
+            .getValue());
         assertEquals(1, ls.getExtendedTags().size());
-        assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x10, (byte) 0x30, (byte) 0x50,
-            (byte) 0x70 }, ls.getExtendedTags().get(0).getValue());
+        assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x10, (byte) 0x30,
+                (byte) 0x50, (byte) 0x70 }, ls.getExtendedTags().get(0).getValue());
         assertEquals(10, ls.getPrefixMetric().getValue().intValue());
         assertEquals("10.25.2.27", ls.getOspfForwardingAddress().getIpv4Address().getValue());
 
@@ -304,22 +315,27 @@ public class LinkstateAttributeParserTest {
     @Test
     public void testPositiveTELspAttribute() throws BGPParsingException {
         final AttributesBuilder builder = createBuilder(new TeLspCaseBuilder().build());
-        this.parser.parseAttribute(Unpooled.copiedBuffer(TE_LSP_ATTR), builder);
+        this.parser.parseAttribute(Unpooled.copiedBuffer(TE_LSP_ATTR), builder, null);
 
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
-        final TeLspAttributes teLspAttributes = ((TeLspAttributesCase) attrs.getLinkStateAttribute()).getTeLspAttributes();
+        final TeLspAttributes teLspAttributes = ((TeLspAttributesCase) attrs.getLinkStateAttribute())
+                .getTeLspAttributes();
         assertNotNull(teLspAttributes);
         final TspecObject tSpec = teLspAttributes.getTspecObject();
         assertNotNull(tSpec);
-        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01}), tSpec.getTokenBucketRate());
-        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02}), teLspAttributes.getTspecObject().getTokenBucketSize());
-        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03}), tSpec.getPeakDataRate());
+        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01}),
+            tSpec.getTokenBucketRate());
+        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02}),
+            teLspAttributes.getTspecObject().getTokenBucketSize());
+        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03}),
+            tSpec.getPeakDataRate());
         assertEquals(new Long("4"), tSpec.getMinimumPolicedUnit());
         assertEquals(new Long("5"), tSpec.getMaximumPacketSize());
 
         final AssociationObject associationObject = teLspAttributes.getAssociationObject();
         assertEquals(AssociationType.Recovery, associationObject.getAssociationType());
-        final IpAddressNoZone ipv4 = new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(Unpooled.copiedBuffer(new byte[]{0x01, 0x02, 0x03, 0x04})));
+        final IpAddressNoZone ipv4 = new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(Unpooled.copiedBuffer(
+            new byte[]{0x01, 0x02, 0x03, 0x04})));
         assertEquals(ipv4, associationObject.getIpAddress());
         final short associationId = 2;
         assertEquals(associationId, associationObject.getAssociationId().shortValue());

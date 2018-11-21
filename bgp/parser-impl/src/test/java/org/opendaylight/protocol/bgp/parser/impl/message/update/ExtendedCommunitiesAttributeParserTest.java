@@ -5,15 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -55,13 +57,13 @@ public class ExtendedCommunitiesAttributeParserTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setTransitive(false).setExtendedCommunity(routeOrigin).build();
         final AttributesBuilder attBuilder = new AttributesBuilder();
 
-        this.handler.parseAttribute(Unpooled.copiedBuffer(INPUT), attBuilder);
+        this.handler.parseAttribute(Unpooled.copiedBuffer(INPUT), attBuilder, null);
         final ExtendedCommunities parsed = attBuilder.getExtendedCommunities().get(0);
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
 
         final ByteBuf output = Unpooled.buffer(INPUT.length);
         this.handler.serializeAttribute(attBuilder.build(), output);
-        Assert.assertArrayEquals(Bytes.concat(new byte[] {(byte)192, 16, 8}, INPUT), ByteArray.readAllBytes(output));
+        assertArrayEquals(Bytes.concat(new byte[] {(byte)192, 16, 8}, INPUT), ByteArray.readAllBytes(output));
     }
 
     @Test
@@ -71,21 +73,20 @@ public class ExtendedCommunitiesAttributeParserTest {
         final ByteBuf output = Unpooled.buffer();
 
         this.handler.serializeAttribute(attBuilder.build(), output);
-        Assert.assertEquals(output, output);
+        assertEquals(output, output);
     }
 
     @Test
     public void testEmptyExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
         final ByteBuf output = Unpooled.buffer();
         this.handler.serializeAttribute(new AttributesBuilder().build(), output);
-        Assert.assertEquals( Unpooled.buffer(), output);
+        assertEquals( Unpooled.buffer(), output);
     }
 
     @Test
     public void testExtendedCommunityAttributeParserUnknown() throws BGPDocumentedException, BGPParsingException {
         final AttributesBuilder attBuilder = new AttributesBuilder();
-        this.handler.parseAttribute(Unpooled.copiedBuffer(UNKOWN), attBuilder);
-        Assert.assertTrue(attBuilder.getExtendedCommunities().isEmpty());
+        this.handler.parseAttribute(Unpooled.copiedBuffer(UNKOWN), attBuilder, null);
+        assertTrue(attBuilder.getExtendedCommunities().isEmpty());
     }
-
 }

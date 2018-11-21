@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Attributes1Builder;
@@ -79,7 +80,9 @@ public final class LinkstateAttributeParser implements AttributeParser, Attribut
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPParsingException {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+        // FIXME: BGPCEP-359: what is the handling here?
         final CLinkstateDestination lsDestination = getNlriType(builder);
         if (lsDestination == null) {
             LOG.warn("No Linkstate NLRI found, not parsing Linkstate attribute");

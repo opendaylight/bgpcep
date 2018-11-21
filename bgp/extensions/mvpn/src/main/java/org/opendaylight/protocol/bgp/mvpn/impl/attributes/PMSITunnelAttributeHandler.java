@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.mvpn.spi.pojo.attributes.tunnel.identifier.
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.MplsLabelUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -57,7 +58,9 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) {
+        // FIXME: BGPCEP-359: what is the error handling here?
         if (!buffer.isReadable()) {
             return;
         }

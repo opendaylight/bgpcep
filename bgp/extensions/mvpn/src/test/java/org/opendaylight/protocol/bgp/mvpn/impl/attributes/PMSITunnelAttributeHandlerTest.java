@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -211,7 +210,7 @@ public final class PMSITunnelAttributeHandlerTest {
         assertEquals(22, pmsiHandler.getType());
         final AttributesBuilder builder = new AttributesBuilder();
         final ByteBuf emptyBuffer = Unpooled.buffer();
-        pmsiHandler.parseAttribute(emptyBuffer, builder);
+        pmsiHandler.parseAttribute(emptyBuffer, builder, null);
         final Attributes emptyAttributes = new AttributesBuilder().build();
         assertEquals(emptyAttributes, builder.build());
         pmsiHandler.serializeAttribute(emptyAttributes, emptyBuffer);
