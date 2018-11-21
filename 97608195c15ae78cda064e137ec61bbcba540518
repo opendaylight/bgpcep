@@ -22,6 +22,30 @@
       "revId": "97608195c15ae78cda064e137ec61bbcba540518",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b940c3e_0254ba43",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeerUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-11-21T13:19:19Z",
+      "side": 1,
+      "message": "I will move it but all other util classes are in config as well",
+      "parentUuid": "7b5c45a4_6bc914e1",
+      "range": {
+        "startLine": 21,
+        "startChar": 19,
+        "endLine": 21,
+        "endChar": 30
+      },
+      "revId": "97608195c15ae78cda064e137ec61bbcba540518",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
