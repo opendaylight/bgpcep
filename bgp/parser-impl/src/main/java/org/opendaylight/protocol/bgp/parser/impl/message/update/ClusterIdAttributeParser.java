@@ -11,10 +11,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -28,13 +31,29 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) {
-        // FIXME: BGPCEP-359:
-        //        - external peer: discard attribute (always?)
-        //        - internal peer: treat-as-withdraw if length == 0 or not a multiple of four
-        // FIXME: once do the above check, optimize list allocation
-        final List<ClusterIdentifier> list = new ArrayList<>();
-        while (buffer.isReadable()) {
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
+        final RevisedErrorHandling revised = RevisedErrorHandling.from(constraint);
+        if (revised == RevisedErrorHandling.EXTERNAL) {
+            // External peer: always discard
+            return;
+        }
+
+        final int readable = buffer.readableBytes();
+        if (revised == RevisedErrorHandling.INTERNAL && readable == 0) {
+            // FIXME: BGPCEP-359: treat-as-withdraw
+        }
+
+        if (readable % Ipv4Util.IP4_LENGTH != 0) {
+            if (revised == RevisedErrorHandling.INTERNAL) {
+                // FIXME: BGPCEP-359: treat-as-withdraw
+            }
+
+            throw new BGPDocumentedException(BGPError.ATTR_LENGTH_ERROR);
+        }
+
+        final int count = readable / Ipv4Util.IP4_LENGTH;
+        final List<ClusterIdentifier> list = new ArrayList<>(count);
+        for (int i = 0; i < count; ++i) {
             list.add(new ClusterIdentifier(Ipv4Util.addressForByteBuf(buffer)));
         }
         builder.setClusterId(new ClusterIdBuilder().setCluster(list).build());
