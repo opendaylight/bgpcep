@@ -7,16 +7,18 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.protocol.util.Ipv4Util.IP4_LENGTH;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.NextHopUtil;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
-import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
@@ -27,11 +29,15 @@ public final class NextHopAttributeParser implements AttributeParser, AttributeS
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) {
-        // FIXME: BGPCEP-359: treat-as-withdraw
-        checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH,
-                "Length of byte array for NEXT_HOP should be %s, but is %s",
-                buffer.readableBytes(), Ipv4Util.IP4_LENGTH);
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
+        final int readable = buffer.readableBytes();
+        if (readable != IP4_LENGTH) {
+            if (RevisedErrorHandling.from(constraint) != RevisedErrorHandling.NONE) {
+                // FIXME: BGPCEP-359: treat-as-withdraw
+            }
+            throw new BGPDocumentedException("NEXT_HOP attribute is expected to have length " + IP4_LENGTH + " but has "
+                + readable, BGPError.ATTR_LENGTH_ERROR);
+        }
         builder.setCNextHop(NextHopUtil.parseNextHop(buffer));
     }
 
