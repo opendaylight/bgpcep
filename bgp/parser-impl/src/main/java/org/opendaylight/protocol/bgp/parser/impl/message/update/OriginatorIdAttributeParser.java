@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -27,13 +28,21 @@ public final class OriginatorIdAttributeParser implements AttributeParser, Attri
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) {
-        // FIXME: BGPCEP-359:
-        //        - external peers: attribute-discard (always?)
-        //        - internal peers: treat-as-withdraw
-        checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH,
-                "Length of byte array for ORIGINATOR_ID should be %s, but is %s",
-                Ipv4Util.IP4_LENGTH, buffer.readableBytes());
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
+        final RevisedErrorHandling revised = RevisedErrorHandling.from(constraint);
+        if (revised == RevisedErrorHandling.EXTERNAL) {
+            // RFC7606: attribute discard
+            return;
+        }
+
+        final int readable = buffer.readableBytes();
+        if (readable != Ipv4Util.IP4_LENGTH) {
+            if (revised == RevisedErrorHandling.INTERNAL) {
+                // FIXME: BGPCEP-359: treat-as-withdraw
+            }
+            throw new BGPDocumentedException("Length of byte array for ORIGINATOR_ID should be 4, but is " + readable,
+                BGPError.ATTR_LENGTH_ERROR);
+        }
         builder.setOriginatorId(new OriginatorIdBuilder().setOriginator(Ipv4Util.addressForByteBuf(buffer)).build());
     }
 

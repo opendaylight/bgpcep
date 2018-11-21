@@ -21,9 +21,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.ParsedAttributes;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
@@ -127,26 +129,41 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     @Override
-    public Attributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
+    public ParsedAttributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
         final RevisedErrorHandling errorHandling = RevisedErrorHandling.from(constraint);
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();
         while (buffer.isReadable()) {
             addAttribute(buffer, errorHandling, attributes);
         }
+
         /*
          * TreeMap guarantees that we will be invoking the parser in the order
          * of increasing attribute type.
          */
         final AttributesBuilder builder = new AttributesBuilder();
-        for (final Entry<Integer, RawAttribute> e : attributes.entrySet()) {
-            LOG.debug("Parsing attribute type {}", e.getKey());
 
-            final RawAttribute a = e.getValue();
-            a.parser.parseAttribute(a.buffer, builder, constraint);
+        // We may have multiple attribute errors, each specifying a withdraw. We need to finish parsing the message
+        // all attributes before we can decide whether we can discard attributes, or whether we need to terminate
+        // the session.
+        BGPTreatAsWithdrawException withdrawCause = null;
+        for (final Entry<Integer, RawAttribute> entry : attributes.entrySet()) {
+            LOG.debug("Parsing attribute type {}", entry.getKey());
+
+            final RawAttribute a = entry.getValue();
+            try {
+                a.parser.parseAttribute(a.buffer, builder, constraint);
+            } catch (BGPTreatAsWithdrawException e) {
+                LOG.info("Attribute {} indicated treat-as-withdraw", entry.getKey(), e);
+                if (withdrawCause == null) {
+                    withdrawCause = e;
+                } else {
+                    withdrawCause.addSuppressed(e);
+                }
+            }
         }
         builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
-        return builder.build();
+        return new ParsedAttributes(builder.build(), withdrawCause);
     }
 
     @Override

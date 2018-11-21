@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -45,12 +46,10 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
             final PeerSpecificParserConstraint constraint) {
-        // FIXME: BGPCEP-359: attribute-discard if:
-        //  o  Its length is not 6 (when the 4-octet AS number capability is not
-        //     advertised to or not received from the peer [RFC6793]).
-        //
-        //  o  Its length is not 8 (when the 4-octet AS number capability is both
-        //     advertised to and received from the peer).
+        if (RevisedErrorHandling.from(constraint) != RevisedErrorHandling.NONE && buffer.readableBytes() != 8) {
+            // RFC7606: we do not support non-4-octet AS number peers, perform attribute-discard
+            return;
+        }
 
         final AsNumber asNumber = this.refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt()));
         final Ipv4Address address = Ipv4Util.addressForByteBuf(buffer);
