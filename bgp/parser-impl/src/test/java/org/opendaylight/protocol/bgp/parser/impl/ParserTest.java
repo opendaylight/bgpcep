@@ -341,34 +341,6 @@ public class ParserTest {
     }
 
     @Test
-    public void testParseUpdMsgWithOneMandatoryAttributeNotPresent()
-        throws BGPDocumentedException, BGPParsingException {
-        try {
-            reg.parseMessage(Unpooled.copiedBuffer(updMsgWithOneMandatoryAttributeNotPresent), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN", e.getMessage());
-            assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, e.getError());
-            return;
-        }
-        fail();
-    }
-
-    @Test
-    public void testParseUpdMsgWithMultipleMandatoryAttributesNotPresent()
-        throws BGPDocumentedException, BGPParsingException {
-        try {
-            reg.parseMessage(Unpooled.copiedBuffer(updMsgWithMultipleMandatoryAttributesNotPresent), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP", e.getMessage());
-            assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, e.getError());
-            return;
-        }
-        fail();
-    }
-
-    @Test
     public void testRouteRefreshMsg() throws BGPDocumentedException, BGPParsingException {
         final Notification rrMsg = new RouteRefreshBuilder().setAfi(Ipv4AddressFamily.class)
             .setSafi(UnicastSubsequentAddressFamily.class).build();
