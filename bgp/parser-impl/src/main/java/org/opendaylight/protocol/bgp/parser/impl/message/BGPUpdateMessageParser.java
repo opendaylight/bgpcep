@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -20,9 +21,6 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -31,6 +29,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.parser.spi.ParsedAttributes;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -38,10 +37,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.TreatAsWithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -123,6 +130,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         final UpdateBuilder builder = new UpdateBuilder();
         final boolean isMultiPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint,
                 new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        final RevisedErrorHandling errorHandling = RevisedErrorHandling.from(constraint);
 
         final int withdrawnRoutesLength = buffer.readUnsignedShort();
         if (withdrawnRoutesLength > 0) {
@@ -133,18 +141,18 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                 if (isMultiPathSupported) {
                     withdrawnRoutesBuilder.setPathId(PathIdUtil.readPathId(withdrawnRoutesBuffer));
                 }
-                withdrawnRoutesBuilder.setPrefix(Ipv4Util.prefixForByteBuf(withdrawnRoutesBuffer));
+                withdrawnRoutesBuilder.setPrefix(readPrefix(withdrawnRoutesBuffer, errorHandling));
                 withdrawnRoutes.add(withdrawnRoutesBuilder.build());
             }
             withdrawnRoutesBuffer.release();
             builder.setWithdrawnRoutes(withdrawnRoutes);
         }
         final int totalPathAttrLength = buffer.readUnsignedShort();
-
         if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
             return builder.build();
         }
-        final Optional<BGPTreatAsWithdrawException> withdrawCause;
+
+        Optional<BGPTreatAsWithdrawException> withdrawCauseOpt;
         if (totalPathAttrLength > 0) {
             final ParsedAttributes attributes;
             try {
@@ -153,33 +161,66 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                 // Catch everything else and turn it into a BGPDocumentedException
                 throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
             }
+
             builder.setAttributes(attributes.getAttributes());
-            withdrawCause = attributes.getWithdrawCause();
+            withdrawCauseOpt = attributes.getWithdrawCause();
         } else {
-            withdrawCause = Optional.empty();
+            withdrawCauseOpt = Optional.empty();
         }
+
         final List<Nlri> nlri = new ArrayList<>();
         while (buffer.isReadable()) {
             final NlriBuilder nlriBuilder = new NlriBuilder();
             if (isMultiPathSupported) {
                 nlriBuilder.setPathId(PathIdUtil.readPathId(buffer));
             }
-            nlriBuilder.setPrefix(Ipv4Util.prefixForByteBuf(buffer));
+            nlriBuilder.setPrefix(readPrefix(buffer, errorHandling));
             nlri.add(nlriBuilder.build());
         }
         if (!nlri.isEmpty()) {
             builder.setNlri(nlri);
         }
-        Update msg = builder.build();
-        checkMandatoryAttributesPresence(msg);
 
-        if (withdrawCause.isPresent()) {
-            // FIXME: BGPCEP-359: check if we can treat the message as withdraw and convert the message
-            throw withdrawCause.get().toDocumentedException();
+        try {
+            checkMandatoryAttributesPresence(builder.build());
+        } catch (BGPTreatAsWithdrawException e) {
+            LOG.debug(e.getMessage());
+            if (withdrawCauseOpt.isPresent()) {
+                final BGPTreatAsWithdrawException exception = withdrawCauseOpt.get();
+                exception.addSuppressed(e);
+                withdrawCauseOpt = Optional.of(exception);
+            } else {
+                withdrawCauseOpt = Optional.of(e);
+            }
         }
 
+        if (withdrawCauseOpt.isPresent() && errorHandling != RevisedErrorHandling.NONE) {
+            LOG.debug("Converting BGP Update message to withdraw");
+            updateToWithdraw(builder);
+        }
+
+        Update msg = builder.build();
         LOG.debug("BGP Update message was parsed {}.", msg);
         return msg;
+    }
+
+    private static Ipv4Prefix readPrefix(final ByteBuf buf, final RevisedErrorHandling errorHandling)
+            throws BGPDocumentedException {
+        final int prefixLength = UnsignedBytes.toInt(buf.readByte());
+        if (errorHandling != RevisedErrorHandling.NONE) {
+            // https://tools.ietf.org/html/rfc7606#section-5.3
+            if (prefixLength > 32) {
+                throw new BGPDocumentedException("Withdrawn route length " + prefixLength + " exceeds 32 bytes",
+                    BGPError.ATTR_LENGTH_ERROR);
+            }
+            if (prefixLength > buf.readableBytes() * 8) {
+                throw new BGPDocumentedException(
+                    "Withdrawn route length " + prefixLength + " exceeds unconsumed field space",
+                    BGPError.ATTR_LENGTH_ERROR);
+            }
+        }
+
+        return Ipv4Util.prefixForByteBuf(buf, prefixLength);
     }
 
     /**
@@ -189,30 +230,79 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
      * @param message Update message
      * @throws BGPDocumentedException
      */
-    private static void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+    private static void checkMandatoryAttributesPresence(final Update message) throws BGPTreatAsWithdrawException {
         requireNonNull(message, "Update message cannot be null");
 
         final Attributes attrs = message.getAttributes();
 
         if (message.getNlri() != null) {
             if (attrs == null || attrs.getCNextHop() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { NextHopAttributeParser.TYPE });
+                throw new BGPTreatAsWithdrawException(BGPError.WELL_KNOWN_ATTR_MISSING,
+                        BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP attribute missing");
             }
         }
 
         if (MessageUtil.isAnyNlriPresent(message)) {
             if (attrs == null || attrs.getOrigin() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { OriginAttributeParser.TYPE });
+                throw new BGPTreatAsWithdrawException(BGPError.WELL_KNOWN_ATTR_MISSING,
+                        BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN");
             }
 
             if (attrs.getAsPath() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "AS_PATH",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { AsPathAttributeParser.TYPE });
+                throw new BGPTreatAsWithdrawException(BGPError.WELL_KNOWN_ATTR_MISSING,
+                        BGPError.MANDATORY_ATTR_MISSING_MSG + "AS_PATH");
+            }
+        }
+    }
+
+    private static void updateToWithdraw(final UpdateBuilder builder) {
+        final List<Nlri> nlris = builder.getNlri();
+        if (nlris != null && !nlris.isEmpty()) {
+            final List<WithdrawnRoutes> withdrawnRoutes;
+            final Optional<List<WithdrawnRoutes>> optWithdrawnRoutes = Optional.ofNullable(builder.getWithdrawnRoutes());
+            withdrawnRoutes = optWithdrawnRoutes.isPresent() ? new ArrayList<>(optWithdrawnRoutes.get())
+                    : new ArrayList<>();
+
+            for (Nlri nlri : nlris) {
+                withdrawnRoutes.add(new WithdrawnRoutesBuilder()
+                        .setPathId(nlri.getPathId())
+                        .setPrefix(nlri.getPrefix())
+                        .build());
+            }
+            builder.setWithdrawnRoutes(withdrawnRoutes);
+        }
+        reachToUnreach(builder);
+    }
+
+    private static void reachToUnreach( final UpdateBuilder builder) {
+        final Attributes attributes = builder.getAttributes();
+        if (attributes != null) {
+            final Attributes1 reachAttr = attributes.augmentation(Attributes1.class);
+            if (reachAttr != null) {
+                final MpReachNlri mpReachNlri = reachAttr.getMpReachNlri();
+                if (mpReachNlri != null) {
+                    final DestinationType destinationType = mpReachNlri.getAdvertizedRoutes().getDestinationType();
+                    final MpUnreachNlriBuilder unreachNlri;
+                    final Attributes2 unreachAttr = attributes.augmentation(Attributes2.class);
+                    if (unreachAttr != null && unreachAttr.getMpUnreachNlri() != null) {
+                        unreachNlri = new MpUnreachNlriBuilder(unreachAttr.getMpUnreachNlri());
+                    } else {
+                        unreachNlri = new MpUnreachNlriBuilder()
+                                .setAfi(mpReachNlri.getAfi())
+                                .setSafi(mpReachNlri.getSafi());
+                    }
+                    unreachNlri.setTreatAsWithdrawnRoutes(new TreatAsWithdrawnRoutesBuilder()
+                            .setDestinationType(destinationType)
+                            .build())
+                            .build();
+                    final Attributes newAttributes = new AttributesBuilder(attributes)
+                            .removeAugmentation(Attributes1.class)
+                            .addAugmentation(Attributes2.class, new Attributes2Builder()
+                                    .setMpUnreachNlri(unreachNlri.build())
+                                    .build())
+                            .build();
+                    builder.setAttributes(newAttributes);
+                }
             }
         }
     }
