@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.BgpPrefixSid;
@@ -47,8 +48,8 @@ public final class BgpPrefixSidAttributeParser implements AttributeParser, Attri
     }
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder)
-            throws BGPDocumentedException, BGPParsingException {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException {
         final BgpPrefixSidBuilder sid = new BgpPrefixSidBuilder();
         final List<BgpPrefixSidTlvs> tlvList = new ArrayList<>();
         while (buffer.isReadable()) {

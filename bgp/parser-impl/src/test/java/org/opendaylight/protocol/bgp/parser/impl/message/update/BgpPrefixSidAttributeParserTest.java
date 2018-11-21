@@ -8,11 +8,18 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvRegistry;
@@ -21,24 +28,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 public final class BgpPrefixSidAttributeParserTest {
 
-    private final BgpPrefixSidTlvRegistry reg = Mockito.mock(BgpPrefixSidTlvRegistry.class);
-    private final BgpPrefixSidTlv tlv = Mockito.mock(BgpPrefixSidTlv.class);
+    private final BgpPrefixSidTlvRegistry reg = mock(BgpPrefixSidTlvRegistry.class);
+    private final BgpPrefixSidTlv tlv = mock(BgpPrefixSidTlv.class);
     private final BgpPrefixSidAttributeParser parser = new BgpPrefixSidAttributeParser(this.reg);
     private final byte[] bytes = new byte[] {1, 2, 3};
 
     @Before
     public void setUp() {
-        Mockito.doReturn(this.tlv).when(this.reg).parseBgpPrefixSidTlv(Mockito.anyInt(), Mockito.any(ByteBuf.class));
-        Mockito.doNothing().when(this.reg).serializeBgpPrefixSidTlv(Mockito.any(BgpPrefixSidTlv.class), Mockito.any(ByteBuf.class));
+        doReturn(this.tlv).when(this.reg).parseBgpPrefixSidTlv(anyInt(), any(ByteBuf.class));
+        doNothing().when(this.reg).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class), any(ByteBuf.class));
     }
 
     @Test
     public void testHandling() throws BGPDocumentedException, BGPParsingException {
         final AttributesBuilder builder = new AttributesBuilder();
-        this.parser.parseAttribute(Unpooled.copiedBuffer(this.bytes), builder);
+        this.parser.parseAttribute(Unpooled.copiedBuffer(this.bytes), builder, null);
         assertEquals(3, builder.getBgpPrefixSid().getBgpPrefixSidTlvs().size());
 
         this.parser.serializeAttribute(builder.build(), Unpooled.EMPTY_BUFFER);
-        Mockito.verify(this.reg, Mockito.times(3)).serializeBgpPrefixSidTlv(Mockito.any(BgpPrefixSidTlv.class), Mockito.any(ByteBuf.class));
+        verify(this.reg, times(3)).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class), any(ByteBuf.class));
     }
 }

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 
@@ -18,7 +19,8 @@ public final class AS4PathAttributeParser implements AttributeParser, AttributeS
     public static final int TYPE = 18;
 
     @Override
-    public void parseAttribute(final ByteBuf bytes, final AttributesBuilder builder) {
+    public void parseAttribute(final ByteBuf bytes, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) {
         // AS4 Path is ignored
     }
 

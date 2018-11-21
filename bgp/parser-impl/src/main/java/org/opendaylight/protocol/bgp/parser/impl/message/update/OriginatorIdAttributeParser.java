@@ -7,12 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -24,8 +26,12 @@ public final class OriginatorIdAttributeParser implements AttributeParser, Attri
     public static final int TYPE = 9;
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
-        Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH,
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) {
+        // FIXME: BGPCEP-359:
+        //        - internal peers: treat-as-withdraw
+        //        - external peers: attribute-discard
+        checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH,
                 "Length of byte array for ORIGINATOR_ID should be %s, but is %s",
                 Ipv4Util.IP4_LENGTH, buffer.readableBytes());
         builder.setOriginatorId(new OriginatorIdBuilder().setOriginator(Ipv4Util.addressForByteBuf(buffer)).build());

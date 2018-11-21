@@ -14,6 +14,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -26,7 +27,8 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
     public static final int TYPE = 10;
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
+            final PeerSpecificParserConstraint constraint) {
         final List<ClusterIdentifier> list = new ArrayList<>();
         while (buffer.isReadable()) {
             list.add(new ClusterIdentifier(Ipv4Util.addressForByteBuf(buffer)));
