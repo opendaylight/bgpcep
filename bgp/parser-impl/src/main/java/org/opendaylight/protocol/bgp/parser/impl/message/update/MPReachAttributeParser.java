@@ -42,7 +42,6 @@ public final class MPReachAttributeParser extends ReachAttributeParser{
             final Attributes1 a = new Attributes1Builder().setMpReachNlri(mpReachNlri).build();
             builder.addAugmentation(Attributes1.class, a);
         } catch (final BGPParsingException e) {
-            // FIXME: BGPCEP-359: revise handling
             throw new BGPDocumentedException("Could not parse MP_REACH_NLRI", BGPError.OPT_ATTR_ERROR, e);
         }
     }

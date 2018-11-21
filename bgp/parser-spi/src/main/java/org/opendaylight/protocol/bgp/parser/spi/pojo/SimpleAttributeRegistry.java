@@ -21,9 +21,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.ParsedAttributes;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
@@ -69,7 +71,8 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         return this.handlers.registerParser(attributeType, parser);
     }
 
-    synchronized AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass, final AttributeSerializer serializer) {
+    synchronized AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass,
+            final AttributeSerializer serializer) {
         final AbstractRegistration reg = this.handlers.registerSerializer(paramClass, serializer);
 
         this.serializers.put(reg, serializer);
@@ -85,27 +88,32 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         };
     }
 
-    private void addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes)
-            throws BGPDocumentedException {
+    private void addAttribute(final ByteBuf buffer, final PeerSpecificParserConstraint constraint,
+            final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
         final BitArray flags = BitArray.valueOf(buffer.readByte());
         final int type = buffer.readUnsignedByte();
         final int len = flags.get(EXTENDED_LENGTH_BIT) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
-        if (!attributes.containsKey(type)) {
-            final AttributeParser parser = this.handlers.getParser(type);
-            if (parser == null) {
-                processUnrecognized(flags, type, buffer, len);
-            } else {
-                attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
+        final AttributeParser parser = this.handlers.getParser(type);
+        if (attributes.containsKey(type)) {
+            if (parser != null && !parser.ignoreDuplicates(constraint)) {
+                throw new BGPDocumentedException("Duplicate attribute " + type, BGPError.MALFORMED_ATTR_LIST);
             }
-        } else {
             LOG.debug("Ignoring duplicate attribute type {}", type);
+            return;
+        }
+
+        if (parser == null) {
+            processUnrecognized(flags, type, buffer, len);
+        } else {
+            attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
         }
     }
 
     private void processUnrecognized(final BitArray flags, final int type, final ByteBuf buffer, final int len)
             throws BGPDocumentedException {
         if (!flags.get(OPTIONAL_BIT)) {
-            throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
+            throw new BGPDocumentedException("Well known attribute not recognized.",
+                BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
         }
         final UnrecognizedAttributes unrecognizedAttribute = new UnrecognizedAttributesBuilder()
             .withKey(new UnrecognizedAttributesKey((short) type))
@@ -118,25 +126,40 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     @Override
-    public Attributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
+    public ParsedAttributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();
         while (buffer.isReadable()) {
-            addAttribute(buffer, attributes);
+            addAttribute(buffer, constraint, attributes);
         }
+
         /*
          * TreeMap guarantees that we will be invoking the parser in the order
          * of increasing attribute type.
          */
         final AttributesBuilder builder = new AttributesBuilder();
-        for (final Entry<Integer, RawAttribute> e : attributes.entrySet()) {
-            LOG.debug("Parsing attribute type {}", e.getKey());
 
-            final RawAttribute a = e.getValue();
-            a.parser.parseAttribute(a.buffer, builder, constraint);
+        // We may have multiple attribute errors, each specifying a withdraw. We need to finish parsing the message
+        // all attributes before we can decide whether we can discard attributes, or whether we need to terminate
+        // the session.
+        BGPTreatAsWithdrawException withdrawCause = null;
+        for (final Entry<Integer, RawAttribute> entry : attributes.entrySet()) {
+            LOG.debug("Parsing attribute type {}", entry.getKey());
+
+            final RawAttribute a = entry.getValue();
+            try {
+                a.parser.parseAttribute(a.buffer, builder, constraint);
+            } catch (BGPTreatAsWithdrawException e) {
+                LOG.info("Attribute {} indicated treat-as-withdraw", entry.getKey(), e);
+                if (withdrawCause == null) {
+                    withdrawCause = e;
+                } else {
+                    withdrawCause.addSuppressed(e);
+                }
+            }
         }
         builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
-        return builder.build();
+        return new ParsedAttributes(builder.build(), withdrawCause);
     }
 
     @Override
