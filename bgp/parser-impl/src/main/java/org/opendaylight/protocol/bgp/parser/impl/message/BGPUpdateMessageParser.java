@@ -10,13 +10,16 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
@@ -26,8 +29,10 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
+import org.opendaylight.protocol.bgp.parser.spi.ParsedAttributes;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -120,6 +125,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         final UpdateBuilder builder = new UpdateBuilder();
         final boolean isMultiPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint,
                 new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        final RevisedErrorHandling revised = RevisedErrorHandling.from(constraint);
 
         final int withdrawnRoutesLength = buffer.readUnsignedShort();
         if (withdrawnRoutesLength > 0) {
@@ -130,43 +136,78 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                 if (isMultiPathSupported) {
                     withdrawnRoutesBuilder.setPathId(PathIdUtil.readPathId(withdrawnRoutesBuffer));
                 }
-                withdrawnRoutesBuilder.setPrefix(Ipv4Util.prefixForByteBuf(withdrawnRoutesBuffer));
+                withdrawnRoutesBuilder.setPrefix(readPrefix(withdrawnRoutesBuffer, revised));
                 withdrawnRoutes.add(withdrawnRoutesBuilder.build());
             }
             withdrawnRoutesBuffer.release();
             builder.setWithdrawnRoutes(withdrawnRoutes);
         }
         final int totalPathAttrLength = buffer.readUnsignedShort();
-
         if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
             return builder.build();
         }
+
+        final Optional<BGPTreatAsWithdrawException> withdrawCause;
         if (totalPathAttrLength > 0) {
+            final ParsedAttributes attributes;
             try {
-                final Attributes attributes
-                        = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength), constraint);
-                builder.setAttributes(attributes);
+                attributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength), constraint);
             } catch (final RuntimeException | BGPParsingException e) {
                 // Catch everything else and turn it into a BGPDocumentedException
                 throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
             }
+
+            builder.setAttributes(attributes.getAttributes());
+            withdrawCause = attributes.getWithdrawCause();
+        } else {
+            withdrawCause = Optional.empty();
         }
+
+        // FIXME: BGPCEP-359: take revised error handling into account
         final List<Nlri> nlri = new ArrayList<>();
         while (buffer.isReadable()) {
             final NlriBuilder nlriBuilder = new NlriBuilder();
             if (isMultiPathSupported) {
                 nlriBuilder.setPathId(PathIdUtil.readPathId(buffer));
             }
-            nlriBuilder.setPrefix(Ipv4Util.prefixForByteBuf(buffer));
+            nlriBuilder.setPrefix(readPrefix(buffer, revised));
             nlri.add(nlriBuilder.build());
         }
         if (!nlri.isEmpty()) {
             builder.setNlri(nlri);
         }
-        final Update msg = builder.build();
+
+        Update msg = builder.build();
         checkMandatoryAttributesPresence(msg);
+
+        if (withdrawCause.isPresent()) {
+            LOG.debug("Converting BGP Update message to withdraw", msg);
+            // FIXME: BGPCEP-359: check if we can treat the message as withdraw, otherwise promote to session reset
+            throw withdrawCause.get().toDocumentedException();
+        }
+
+
         LOG.debug("BGP Update message was parsed {}.", msg);
         return msg;
+    }
+
+    private static Ipv4Prefix readPrefix(final ByteBuf buf, final RevisedErrorHandling revised)
+            throws BGPDocumentedException {
+        final int prefixLength = UnsignedBytes.toInt(buf.readByte());
+        if (revised != RevisedErrorHandling.NONE) {
+            // https://tools.ietf.org/html/rfc7606#section-5.3
+            if (prefixLength > 32) {
+                throw new BGPDocumentedException("Withdrawn route length " + prefixLength + " exceeds 32 bytes",
+                    BGPError.ATTR_LENGTH_ERROR);
+            }
+            if (prefixLength > buf.readableBytes()) {
+                throw new BGPDocumentedException(
+                    "Withdrawn route length " + prefixLength + " exceeds unconsumed field space",
+                    BGPError.ATTR_LENGTH_ERROR);
+            }
+        }
+
+        return Ipv4Util.prefixForByteBuf(buf, prefixLength);
     }
 
     /**
