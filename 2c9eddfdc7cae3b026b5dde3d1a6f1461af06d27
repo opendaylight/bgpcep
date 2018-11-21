@@ -232,6 +232,30 @@
     },
     {
       "key": {
+        "uuid": "038b960c_04e0aafa",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SimpleSessionListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-11-21T12:22:28Z",
+      "side": 1,
+      "message": "RpcResult is build in BgpPeerRpc.restartGracefully(). Only important information is whether future is successfull or what is error message.",
+      "parentUuid": "2114cc25_7a142268",
+      "range": {
+        "startLine": 92,
+        "startChar": 15,
+        "endLine": 93,
+        "endChar": 109
+      },
+      "revId": "2c9eddfdc7cae3b026b5dde3d1a6f1461af06d27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b78bbdd0_386970f3",
         "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/PeerRPCs.java",
         "patchSetId": 10
