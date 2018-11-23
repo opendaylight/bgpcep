@@ -112,6 +112,29 @@ module bgp-openconfig-extensions {
         }
     }
 
+    grouping neighbor-afi-safi-ll-graceful-restart-state {
+        leaf ll-received {
+            type boolean;
+            description
+                "This leaf indicates whether the neighbor advertised the
+                ability to support long-lived graceful-restart for this AFI-SAFI";
+        }
+        leaf ll-advertised {
+            type boolean;
+            description
+                "This leaf indicates whether the ability to support
+                long-lived graceful-restart has been advertised to the peer";
+        }
+        leaf ll-stale-timer {
+            type uint32;
+            description
+                "Value of timer used during long-lived graceful restart in nseconds.
+                If table is both advertised and received use lower value. Zero value
+                means table is not supported by any side";
+            units seconds;
+        }
+    }
+
     augment /netinst:network-instances/netinst:network-instance/netinst:protocols/netinst:protocol {
         ext:augment-identifier network-instance-protocol;
         uses openconfig-bgp:bgp-top {
@@ -190,6 +213,7 @@ module bgp-openconfig-extensions {
             augment bgp/neighbors/neighbor/afi-safis/afi-safi/graceful-restart/state {
                 ext:augment-identifier neighbor-afi-safi-graceful-restart_state-augmentation;
                 uses bgp-op:bgp-neighbor-afi-safi-graceful-restart_state;
+                uses neighbor-afi-safi-ll-graceful-restart-state;
             }
             augment bgp/peer-groups/peer-group/state {
                 ext:augment-identifier peer-group_state-augmentation;
