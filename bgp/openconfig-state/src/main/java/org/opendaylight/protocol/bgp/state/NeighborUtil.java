@@ -225,7 +225,7 @@ public final class NeighborUtil {
                 new NeighborGracefulRestartStateAugmentationBuilder()
                         .setLocalRestarting(neighbor.isLocalRestarting())
                         .setPeerRestartTime(neighbor.getPeerRestartTime())
-                        //.setMode(mode) TBD once implemented
+                        .setMode(neighbor.getMode())
                         .setPeerRestarting(neighbor.isPeerRestarting()).build();
 
         return new GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
@@ -359,7 +359,10 @@ public final class NeighborUtil {
         final NeighborAfiSafiGracefulRestartStateAugmentation builder =
                 new NeighborAfiSafiGracefulRestartStateAugmentationBuilder()
                         .setAdvertised(neighbor.isGracefulRestartAdvertized(tablesKey))
-                        .setReceived(neighbor.isGracefulRestartReceived(tablesKey)).build();
+                        .setReceived(neighbor.isGracefulRestartReceived(tablesKey))
+                        .setLlAdvertised(neighbor.isLlGracefulRestartAdvertised(tablesKey))
+                        .setLlReceived(neighbor.isLlGracefulRestartReceived(tablesKey))
+                        .setLlStaleTimer((long) neighbor.getLlGracefulRestartTimer(tablesKey)).build();
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
                 .safi.list.afi.safi.GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig
                 .net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.graceful.restart.StateBuilder()
