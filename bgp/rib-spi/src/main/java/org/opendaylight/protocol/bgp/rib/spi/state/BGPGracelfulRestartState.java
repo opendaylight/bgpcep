@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState.Mode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
 /**
@@ -53,4 +54,12 @@ public interface BGPGracelfulRestartState {
      * @return peer is restarting
      */
     boolean isPeerRestarting();
+
+    /**
+     * Returns operational mode of graceful restart. Result depends on advertising
+     * and receiving graceful restart capability to/from peer.
+     *
+     * @return graceful restart operational mode
+     */
+    Mode getMode();
 }
