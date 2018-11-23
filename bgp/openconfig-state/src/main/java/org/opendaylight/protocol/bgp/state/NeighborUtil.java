@@ -25,6 +25,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPLlGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
@@ -225,7 +226,7 @@ public final class NeighborUtil {
                 new NeighborGracefulRestartStateAugmentationBuilder()
                         .setLocalRestarting(neighbor.isLocalRestarting())
                         .setPeerRestartTime(neighbor.getPeerRestartTime())
-                        //.setMode(mode) TBD once implemented
+                        .setMode(neighbor.getMode())
                         .setPeerRestarting(neighbor.isPeerRestarting()).build();
 
         return new GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
@@ -355,11 +356,14 @@ public final class NeighborUtil {
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
             .safi.list.afi.safi.GracefulRestart buildAfiSafiGracefulRestartState(
-            @Nonnull final BGPGracelfulRestartState neighbor, @Nonnull final TablesKey tablesKey) {
+            @Nonnull final BGPLlGracelfulRestartState neighbor, @Nonnull final TablesKey tablesKey) {
         final NeighborAfiSafiGracefulRestartStateAugmentation builder =
                 new NeighborAfiSafiGracefulRestartStateAugmentationBuilder()
                         .setAdvertised(neighbor.isGracefulRestartAdvertized(tablesKey))
-                        .setReceived(neighbor.isGracefulRestartReceived(tablesKey)).build();
+                        .setReceived(neighbor.isGracefulRestartReceived(tablesKey))
+                        .setLlAdvertised(neighbor.isLlGracefulRestartAdvertised(tablesKey))
+                        .setLlReceived(neighbor.isLlGracefulRestartReceived(tablesKey))
+                        .setLlStaleTimer((long) neighbor.getLlGracefulRestartTimer(tablesKey)).build();
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
                 .safi.list.afi.safi.GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig
                 .net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.graceful.restart.StateBuilder()
