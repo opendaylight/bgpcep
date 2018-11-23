@@ -73,6 +73,11 @@ public class NeighborUtilTest {
         doReturn(false).when(this.bgpAfiSafiState).isAfiSafiSupported(eq(TABLES_KEY));
         doReturn(false).when(this.bgpAfiSafiState).isGracefulRestartAdvertized(eq(TABLES_KEY));
         doReturn(false).when(this.bgpAfiSafiState).isGracefulRestartReceived(eq(TABLES_KEY));
+        doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartAdvertised((eq(TABLES_KEY)));
+        doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartReceived((eq(TABLES_KEY)));
+        doReturn(0).when(this.bgpAfiSafiState).getLlGracefulRestartTimer((eq(TABLES_KEY)));
+
+
     }
 
     @Test
@@ -139,8 +144,13 @@ public class NeighborUtilTest {
 
         final GracefulRestart graceful = new GracefulRestartBuilder()
                 .setState(new StateBuilder().addAugmentation(NeighborAfiSafiGracefulRestartStateAugmentation.class,
-                        new NeighborAfiSafiGracefulRestartStateAugmentationBuilder().setAdvertised(false)
-                                .setReceived(false).build()).build()).build();
+                        new NeighborAfiSafiGracefulRestartStateAugmentationBuilder()
+                                .setAdvertised(false)
+                                .setReceived(false)
+                                .setLlReceived(false)
+                                .setLlAdvertised(false)
+                                .setLlStaleTimer(0L)
+                                .build()).build()).build();
 
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi
                 .list.afi.safi.State afiSafiState = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
