@@ -146,8 +146,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private Stopwatch peerRestartStopwatch;
     private long selectionDeferralTimerSeconds;
     private final List<TablesKey> missingEOT = new ArrayList<>();
-    private final Map<TablesKey, Integer> llGracefulTimersAdvertised;
-    private final Map<TablesKey, Integer> llGracefulTimersReceived = new HashMap<>();
+    private final Map<TablesKey, Integer> llGracefulTablesPreserved = new HashMap<>();
 
     public BGPPeer(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
@@ -163,11 +162,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final Map<TablesKey, Integer> llGracefulTablesAdvertised,
             final BgpPeer bgpPeer) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId,
-                localAs, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized);
+                localAs, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
-        this.llGracefulTimersAdvertised = llGracefulTablesAdvertised;
         this.bgpPeer = bgpPeer;
     }
 
@@ -441,16 +439,20 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         }
         final int restartTime = advertisedGracefulRestartCapability.getRestartTime();
+        final Map<TablesKey, Integer> llTablesReceived = new HashMap<>();
+        if (llTables != null) {
+            llTables.forEach(table -> llTablesReceived.put(new TablesKey(table.getAfi(), table.getSafi()),
+                    table.getLongLiveStaleTime().intValue()));
+        }
         setAfiSafiGracefulRestartState(restartTime, false, restartingLocally);
-        llGracefulTimersReceived.clear();
-        this.llgrSupport = llTables != null && !llTables.isEmpty();
+        setAdvertizedLlGracefulRestartTableTypes(llTablesReceived);
+        llGracefulTablesPreserved.clear();
+        this.llgrSupport = !llTablesReceived.isEmpty();
         if (this.llgrSupport) {
-            llTables.forEach(table -> {
-                final TablesKey key = new TablesKey(table.getAfi(), table.getSafi());
-                if (llGracefulTimersAdvertised.containsKey(key)) {
-                    llGracefulTimersReceived.put(key,
-                            Integer.min(table.getLongLiveStaleTime().intValue(),
-                                    llGracefulTimersAdvertised.get(key)));
+            llTablesReceived.entrySet().forEach(entry -> {
+                final TablesKey key = entry.getKey();
+                if (isLlGracefulRestartAdvertised(key)) {
+                    llGracefulTablesPreserved.put(key, getLlGracefulRestartTimer(key));
                 }
             });
         }
@@ -537,7 +539,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 this.effRibInWriter.close();
             }
             final Set<TablesKey> gracefulTables = getGracefulTables();
-            final Set<TablesKey> llGracefulTables = this.llGracefulTimersReceived.keySet();
+            final Set<TablesKey> llGracefulTables = this.llGracefulTablesPreserved.keySet();
             final Sets.SetView<TablesKey> tablesToKeep = Sets.union(gracefulTables, llGracefulTables);
             final Set<TablesKey> tablesToClear = Sets.difference(this.tables, tablesToKeep);
             final Set<TablesKey> onlyLlTables = Sets.difference(tablesToKeep, gracefulTables);
@@ -547,7 +549,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             if (isPeerRestarting()) {
                 this.peerRestartStopwatch = Stopwatch.createStarted();
                 handleRestartTimer(gracefulTables);
-                onlyLlTables.forEach(table -> handleLlRestartTimer(table, llGracefulTimersReceived.get(table)));
+                onlyLlTables.forEach(table -> handleLlRestartTimer(table, llGracefulTablesPreserved.get(table)));
             }
         }
         releaseBindingChain();
@@ -607,16 +609,16 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final long peerRestartTimeNanos = TimeUnit.SECONDS.toNanos(getPeerRestartTime());
         final long elapsedNanos = this.peerRestartStopwatch.elapsed(TimeUnit.NANOSECONDS);
         if (elapsedNanos >= peerRestartTimeNanos) {
-            if (llGracefulTimersReceived.isEmpty()) {
+            if (llGracefulTablesPreserved.isEmpty()) {
                 setAfiSafiGracefulRestartState(0, false, false);
                 onSessionTerminated(this.session, new BGPTerminationReason(BGPError.HOLD_TIMER_EXPIRED));
                 return;
             }
             final Set<TablesKey> tablesToClear = new HashSet<>();
             for (TablesKey table : gracefulTables) {
-                if (llGracefulTimersReceived.containsKey(table)) {
+                if (llGracefulTablesPreserved.containsKey(table)) {
                     this.ribWriter.storeLlStaleRoutes(Collections.singleton(table));
-                    handleLlRestartTimer(table, getPeerRestartTime() + llGracefulTimersReceived.get(table));
+                    handleLlRestartTimer(table, getPeerRestartTime() + llGracefulTablesPreserved.get(table));
                 } else {
                     tablesToClear.add(table);
                 }
@@ -642,8 +644,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final long elapsedNanos = this.peerRestartStopwatch.elapsed(TimeUnit.NANOSECONDS);
         if (elapsedNanos >= peerRestartTimeNanos) {
             this.ribWriter.clearTables(Collections.singleton(table));
-            this.llGracefulTimersReceived.remove(table);
-            if (llGracefulTimersReceived.isEmpty()) {
+            this.llGracefulTablesPreserved.remove(table);
+            if (llGracefulTablesPreserved.isEmpty()) {
                 setAfiSafiGracefulRestartState(0, false, false);
                 onSessionTerminated(this.session, new BGPTerminationReason(BGPError.HOLD_TIMER_EXPIRED));
             }
@@ -671,7 +673,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     private void releaseConnectionGracefully() {
-        if (getPeerRestartTime() > 0 || !llGracefulTimersReceived.isEmpty()) {
+        if (getPeerRestartTime() > 0 || !llGracefulTablesPreserved.isEmpty()) {
             setRestartingState();
         }
         releaseConnection();
@@ -753,12 +755,15 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final Set<TablesKey> gracefulTables = this.tables.stream()
                 .filter(this::isGracefulRestartAdvertized)
                 .collect(Collectors.toSet());
+        final Set<TablesKey> llGracefulTimersAdvertised = this.tables.stream()
+                .filter(this::isLlGracefulRestartAdvertised)
+                .collect(Collectors.toSet());
         final BgpParameters bgpParameters = GracefulRestartUtil.getGracefulBgpParameters(
                 this.bgpPeer.getBgpFixedCapabilities(), gracefulTables, preservedTables,
                 this.bgpPeer.getGracefulRestartTimer(), localRestarting,
-                llGracefulTimersAdvertised.entrySet().stream()
-                .map(entry -> new BgpPeerUtil.LlGracefulRestartDTO(entry.getKey(), entry.getValue(),
-                        llGracefulTimersReceived.containsKey(entry.getKey())))
+                llGracefulTimersAdvertised.stream()
+                .map(table -> new BgpPeerUtil.LlGracefulRestartDTO(table, getLlGracefulRestartTimer(table),
+                        isLlGracefulRestartReceived(table)))
                 .collect(Collectors.toSet()));
         final BGPSessionPreferences oldPrefs = this.rib.getDispatcher().getBGPPeerRegistry()
                 .getPeerPreferences(getNeighborAddress());
