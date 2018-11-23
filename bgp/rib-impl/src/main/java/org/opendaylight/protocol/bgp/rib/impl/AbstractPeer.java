@@ -11,7 +11,9 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -91,8 +93,10 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             @Nullable final AsNumber localAs,
             final IpAddress neighborAddress,
             final Set<TablesKey> afiSafisAdvertized,
-            final Set<TablesKey> afiSafisGracefulAdvertized) {
-        super(rib.getInstanceIdentifier(), groupId, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized);
+            final Set<TablesKey> afiSafisGracefulAdvertized,
+            final Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
+        super(rib.getInstanceIdentifier(), groupId, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized,
+                afiSafisLlGracefulAdvertized);
         this.name = peerName;
         this.peerRole = role;
         this.clusterId = clusterId;
@@ -109,7 +113,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final IpAddress neighborAddress,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
         this(rib, peerName, groupId, role, null, null, neighborAddress,
-                rib.getLocalTablesKeys(), afiSafisGracefulAdvertized);
+                rib.getLocalTablesKeys(), afiSafisGracefulAdvertized, Collections.emptyMap());
     }
 
     final synchronized FluentFuture<? extends CommitInfo> removePeer(@Nullable final YangInstanceIdentifier peerPath) {
