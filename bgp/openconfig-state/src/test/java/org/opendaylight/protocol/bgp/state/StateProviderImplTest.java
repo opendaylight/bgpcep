@@ -74,6 +74,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.GracefulRestartBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.graceful.restart.StateBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpNeighborState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.bgp.neighbor.prefix.counters_state.PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
@@ -261,6 +262,7 @@ public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest 
         doReturn(true).when(this.bgpGracelfulRestartState).isLocalRestarting();
         doReturn(true).when(this.bgpGracelfulRestartState).isPeerRestarting();
         doReturn(this.restartTime).when(this.bgpGracelfulRestartState).getPeerRestartTime();
+        doReturn(BgpAfiSafiGracefulRestartState.Mode.BILATERAL).when(this.bgpGracelfulRestartState).getMode();
 
         doReturn(this.bgpAfiSafiState).when(this.bgpPeerState).getBGPAfiSafiState();
         doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisAdvertized();
@@ -271,6 +273,9 @@ public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest 
         doReturn(true).when(this.bgpAfiSafiState).isAfiSafiSupported(any());
         doReturn(true).when(this.bgpAfiSafiState).isGracefulRestartAdvertized(any());
         doReturn(true).when(this.bgpAfiSafiState).isGracefulRestartReceived(any());
+        doReturn(true).when(this.bgpAfiSafiState).isLlGracefulRestartAdvertised(any());
+        doReturn(true).when(this.bgpAfiSafiState).isLlGracefulRestartReceived(any());
+        doReturn(60).when(this.bgpAfiSafiState).getLlGracefulRestartTimer(any());
     }
 
     @Override
@@ -483,7 +488,12 @@ public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest 
                 .setGracefulRestart(new GracefulRestartBuilder().setState(new StateBuilder().setEnabled(false)
                         .addAugmentation(NeighborAfiSafiGracefulRestartStateAugmentation.class,
                                 new NeighborAfiSafiGracefulRestartStateAugmentationBuilder()
-                                        .setAdvertised(true).setReceived(true).build())
+                                        .setAdvertised(true)
+                                        .setReceived(true)
+                                        .setLlStaleTimer(60L)
+                                        .setLlAdvertised(true)
+                                        .setLlReceived(true)
+                                        .build())
                         .build()).build())
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp
                         .common.afi.safi.list.afi.safi.StateBuilder().setEnabled(false).addAugmentation(
@@ -537,7 +547,9 @@ public class StateProviderImplTest extends ConstantSchemaAbstractDataBrokerTest 
         gracefulAugmentation.setLocalRestarting(false);
         gracefulAugmentation.setPeerRestartTime(0);
         gracefulAugmentation.setLocalRestarting(true)
-                .setPeerRestarting(true).setPeerRestartTime(this.restartTime);
+                .setPeerRestarting(true)
+                .setPeerRestartTime(this.restartTime)
+                .setMode(BgpAfiSafiGracefulRestartState.Mode.BILATERAL);
         final GracefulRestart gracefulRestart = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                 .rev151009.bgp.graceful.restart.GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http
                 .openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart.StateBuilder()

@@ -29,9 +29,11 @@ import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesSentCounters;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPLlGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState.Mode;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
@@ -42,12 +44,15 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public abstract class BGPPeerStateImpl extends DefaultRibReference implements BGPPeerState, BGPAfiSafiState,
-    BGPGracelfulRestartState, BGPErrorHandlingState, BGPPeerMessagesState, BGPPeerStateConsumer, BGPMessagesListener {
+        BGPGracelfulRestartState, BGPLlGracelfulRestartState,BGPErrorHandlingState, BGPPeerMessagesState,
+        BGPPeerStateConsumer, BGPMessagesListener {
     private static final long NONE = 0L;
     private final IpAddress neighborAddress;
     private final Set<TablesKey> afiSafisAdvertized;
     private final Set<TablesKey> afiSafisGracefulAdvertized;
     private final Set<TablesKey> afiSafisGracefulReceived = new HashSet<>();
+    private final Map<TablesKey, Integer> afiSafisLlGracefulAdvertised;
+    private final Map<TablesKey, Integer> afiSafisLlGracefulReceived = new HashMap<>();
     private final LongAdder updateSentCounter = new LongAdder();
     private final LongAdder notificationSentCounter = new LongAdder();
     private final LongAdder updateReceivedCounter = new LongAdder();
@@ -73,12 +78,14 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     public BGPPeerStateImpl(@Nonnull final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
         @Nullable final String groupId, @Nonnull final IpAddress neighborAddress,
         @Nonnull final Set<TablesKey> afiSafisAdvertized,
-        @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized) {
+        @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized,
+        @Nonnull final Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
         super(instanceIdentifier);
         this.neighborAddress = requireNonNull(neighborAddress);
         this.groupId = groupId;
         this.afiSafisAdvertized = requireNonNull(afiSafisAdvertized);
         this.afiSafisGracefulAdvertized = requireNonNull(afiSafisGracefulAdvertized);
+        this.afiSafisLlGracefulAdvertised = requireNonNull(afiSafisLlGracefulAdvertized);
     }
 
     @Override
@@ -274,5 +281,41 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     protected final synchronized void setActive(final boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public final synchronized Mode getMode() {
+        if (this.afiSafisGracefulAdvertized.isEmpty()) {
+            return Mode.HELPERONLY;
+        }
+        if (this.afiSafisGracefulReceived.isEmpty()) {
+            return Mode.REMOTEHELPER;
+        }
+        return Mode.BILATERAL;
+    }
+
+    public final synchronized void setAdvertizedLlGracefulRestartTableTypes(
+            final Map<TablesKey, Integer> afiSafiReceived) {
+        this.afiSafisLlGracefulReceived.clear();
+        this.afiSafisLlGracefulReceived.putAll(afiSafiReceived);
+    }
+
+    @Override
+    public final synchronized boolean isLlGracefulRestartAdvertised(final TablesKey tablesKey) {
+        return this.afiSafisLlGracefulAdvertised.containsKey(tablesKey);
+    }
+
+    @Override
+    public final synchronized boolean isLlGracefulRestartReceived(final TablesKey tablesKey) {
+        return this.afiSafisLlGracefulReceived.containsKey(tablesKey);
+    }
+
+    @Override
+    public final synchronized int getLlGracefulRestartTimer(@Nonnull TablesKey tablesKey) {
+        final int timerAdvertised = isLlGracefulRestartAdvertised(tablesKey) ?
+                this.afiSafisLlGracefulAdvertised.get(tablesKey) : 0;
+        final int timerReceived = isLlGracefulRestartReceived(tablesKey) ?
+                this.afiSafisLlGracefulReceived.get(tablesKey) : 0;
+        return Integer.min(timerAdvertised, timerReceived);
     }
 }
