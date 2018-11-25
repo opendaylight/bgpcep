@@ -176,9 +176,6 @@ BGP Neighbor Operational State
 BGP Neighbor Families Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. note:: Graceful Restart not supported yet. Planned for Carbon.
-
-
 **URL:** ``/restconf/operational/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis``
 
 **Method:** ``GET``
@@ -189,7 +186,7 @@ BGP Neighbor Families Operational State
 
 .. code-block:: xml
    :linenos:
-   :emphasize-lines: 3,5,7,9,10
+   :emphasize-lines: 3,5,7,9,10,11,12,13
 
    <afi-safis xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
         <afi-safi>
@@ -198,11 +195,14 @@ BGP Neighbor Families Operational State
                 <active>false</active>
             </state>
             <graceful-restart>
-                <state>
-                    <received>false</received>
-                    <advertised>false</advertised>
-                </state>
-            </graceful-restart>
+               <state>
+                   <received>true</received>
+                   <ll-received>true</ll-received>
+                   <ll-advertised>true</ll-advertised>
+                   <ll-stale-timer>180</ll-stale-timer>
+                   <advertised>true</advertised>
+               </state>
+           </graceful-restart>
         </afi-safi>
         <afi-safi>
             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-UNICAST</afi-safi-name>
@@ -210,11 +210,14 @@ BGP Neighbor Families Operational State
                 <active>false</active>
             </state>
             <graceful-restart>
-                <state>
-                    <received>false</received>
-                    <advertised>false</advertised>
-                </state>
-            </graceful-restart>
+               <state>
+                   <received>true</received>
+                   <ll-received>true</ll-received>
+                   <ll-advertised>true</ll-advertised>
+                   <ll-stale-timer>100</ll-stale-timer>
+                   <advertised>true</advertised>
+               </state>
+           </graceful-restart>
         </afi-safi>
    </afi-safis>
 
@@ -226,13 +229,18 @@ BGP Neighbor Families Operational State
 
 @line 9: True if the peer supports graceful restart.
 
-@line 10: True if we support graceful restart.
+@line 10: True if peer supports Long-Lived graceful restart.
+
+@line 11: True if we supports Long-Lived graceful restart.
+
+@line 12: Value of Long-Lived stale timer in seconds for specific family
+
+@line 13: True if we support graceful restart.
 
 BGP Neighbor Family Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note:: Prefixes state is only provided once session is established.
-.. note:: Graceful Restart not supported yet. Planned to be implemented in Carbon.
 
 **URL:** ``/restconf/operational/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST``
 
@@ -258,8 +266,11 @@ BGP Neighbor Family Operational State
        </state>
        <graceful-restart>
            <state>
-               <received>false</received>
-               <advertised>false</advertised>
+               <received>true</received>
+               <ll-received>true</ll-received>
+               <ll-advertised>true</ll-advertised>
+               <ll-stale-timer>180</ll-stale-timer>
+               <advertised>true</advertised>
            </state>
        </graceful-restart>
    </afi-safi>
@@ -375,23 +386,26 @@ BGP Neighbor Graceful Restart Operational State
 
 .. code-block:: xml
    :linenos:
-   :emphasize-lines: 3,4,5
+   :emphasize-lines: 3,4,5,6
 
    <graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
        <state>
-           <peer-restart-time>0</peer-restart-time>
            <peer-restarting>false</peer-restarting>
            <local-restarting>false</local-restarting>
+           <peer-restart-time>5</peer-restart-time>
+           <mode>BILATERAL</mode>
        </state>
    </graceful-restart>
 
-@line 3: The period of time (advertised by the peer) that the peer expects a restart of a BGP session to take.
-
-@line 4: This flag indicates whether the remote neighbor is currently in the process of restarting, and hence
+@line 3: This flag indicates whether the remote neighbor is currently in the process of restarting, and hence
 received routes are currently stale.
 
-@line 5: This flag indicates whether the local neighbor is currently restarting. The flag is unset after all NLRI
+@line 4: This flag indicates whether the local neighbor is currently restarting. The flag is unset after all NLRI
 have been advertised to the peer, and the End-of-RIB (EOR) marker has been unset.
+
+@line 5: The period of time (advertised by the peer) in seconds that the peer expects a restart of a BGP session to take.
+
+@line 6: Mode of Graceful Restart operation, depending on family support advertising to peer and receiving from peer can be HELPER-ONLY (only remote peers support some families), REMOTE-HELPER (only we advertise support), BILATERAL (two-side support).
 
 BGP Peer Groups Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
