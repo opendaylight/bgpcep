@@ -176,9 +176,6 @@ BGP Neighbor Operational State
 BGP Neighbor Families Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. note:: Graceful Restart not supported yet. Planned for Carbon.
-
-
 **URL:** ``/restconf/operational/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis``
 
 **Method:** ``GET``
@@ -232,7 +229,6 @@ BGP Neighbor Family Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note:: Prefixes state is only provided once session is established.
-.. note:: Graceful Restart not supported yet. Planned to be implemented in Carbon.
 
 **URL:** ``/restconf/operational/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST``
 
