@@ -39,3 +39,5 @@ In addition to the base protocol implementation, the plugin provides many extens
       * `draft-sajassi-bess-evpn-vpws-fxc-01 <https://tools.ietf.org/html/draft-sajassi-bess-evpn-vpws-fxc-01>`_ - EVPN VPWS Flexible Cross-Connect Service
 * `RFC7911 <https://tools.ietf.org/html/rfc7911>`_  - Advertisement of Multiple Paths in BGP
 * `RFC2918 <https://tools.ietf.org/html/rfc2918>`_  - Route Refresh Capability for BGP-4
+* `RFC4724 <https://tools.ietf.org/html/rfc4724>`_  - Graceful Restart Mechanism for BGP
+   * `draft-uttaro-idr-bgp-persistence-04 <https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04>`_ - Support for Long-lived BGP Graceful Restart
