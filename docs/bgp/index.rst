@@ -22,6 +22,8 @@ The user should learn about BGP basic concepts, supported capabilities, configur
    bgp-user-guide-route-target-family
    bgp-user-guide-additional-path-capability
    bgp-user-guide-route-refresh-capability
+   bgp-user-guide-graceful-restart-capability
+   bgp-user-guide-long-lived-graceful-restart-capability
    bgp-user-guide-operational-state
    bgp-user-guide-high-availability
    bgp-user-guide-topology-provider
