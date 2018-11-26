@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92a9311e_fe56a62d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-26T09:18:12Z",
+      "side": 1,
+      "message": "this (and above negation) indicate we need a isRestarting() method",
+      "range": {
+        "startLine": 529,
+        "startChar": 20,
+        "endLine": 529,
+        "endChar": 61
+      },
+      "revId": "a828dbf45f9adf5f0a59148a6effd0a3b43c5451",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
