@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpAddPathTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.SupportedTablesKey;
@@ -15,15 +15,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
+import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public final class RibSupportUtils {
+    private static final ImmutableOffsetMapTemplate<QName> AFI_SAFI_TEMPLATE =
+            ImmutableOffsetMapTemplate.ordered(ImmutableList.of(QName.create(Tables.QNAME, "afi").intern(),
+                QName.create(Tables.QNAME, "safi").intern()));
 
-    private static final QName AFI_QNAME = QName.create(Tables.QNAME, "afi").intern();
-    private static final QName SAFI_QNAME = QName.create(Tables.QNAME, "safi").intern();
-    private static final QName ADD_PATH_AFI_QNAME = QName.create(BgpAddPathTableType.QNAME, "afi").intern();
-    private static final QName ADD_PATH_SAFI_QNAME = QName.create(BgpAddPathTableType.QNAME, "safi").intern();
+    private static final ImmutableOffsetMapTemplate<QName> ADD_PATH_AFI_SAFI_TEMPLATE =
+            ImmutableOffsetMapTemplate.ordered(ImmutableList.of(QName.create(BgpAddPathTableType.QNAME, "afi").intern(),
+                QName.create(BgpAddPathTableType.QNAME, "safi").intern()));
 
     private RibSupportUtils() {
         throw new UnsupportedOperationException("Utility class");
@@ -51,12 +54,9 @@ public final class RibSupportUtils {
      */
     public static NodeIdentifierWithPredicates toYangKey(final QName id, final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(
-                AFI_QNAME, BindingReflections.findQName(afi),
-                SAFI_QNAME, BindingReflections.findQName(safi));
-        return new NodeIdentifierWithPredicates(id, keyValues);
+        return new NodeIdentifierWithPredicates(id, AFI_SAFI_TEMPLATE.instantiateWithValues(
+            BindingReflections.findQName(afi), BindingReflections.findQName(safi)));
     }
-
 
     /**
      * Creates Yang Instance Identifier path argument from supplied AFI and SAFI.
@@ -68,10 +68,8 @@ public final class RibSupportUtils {
      */
     public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(
-                ADD_PATH_AFI_QNAME, BindingReflections.findQName(afi),
-                ADD_PATH_SAFI_QNAME, BindingReflections.findQName(safi));
-        return new NodeIdentifierWithPredicates(id, keyValues);
+        return new NodeIdentifierWithPredicates(id, ADD_PATH_AFI_SAFI_TEMPLATE.instantiateWithValues(
+            BindingReflections.findQName(afi), BindingReflections.findQName(safi)));
     }
 
     /**
