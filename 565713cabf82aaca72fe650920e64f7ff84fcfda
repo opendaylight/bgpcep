@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4d6b6a5_a224634f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BgpPeerUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-26T21:57:37Z",
+      "side": 1,
+      "message": "move this check to be the first one -- no need to lookup Attributes1 if pa \u003d\u003d null",
+      "range": {
+        "startLine": 42,
+        "startChar": 83,
+        "endLine": 42,
+        "endChar": 93
+      },
+      "revId": "565713cabf82aaca72fe650920e64f7ff84fcfda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
