@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
@@ -53,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.TlvsBuilder;
@@ -829,6 +831,45 @@ public class PCEPValidatorTest {
             result.readableBytes() - 4), Collections.emptyList()));
         buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new PcmonreqBuilder().setPcreqMessage(builder.build()).build(), buf);
+        assertArrayEquals(result.array(), buf.array());
+    }
+
+    @Test
+    public void testReplyMsgWithTwoEros() throws IOException, PCEPDeserializerException {
+        // Success Reply with two EROs: the first one is followed by Bandwidth Object and one Metric Object
+        ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRep.7.bin"));
+
+        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry);
+
+        final PcrepMessageBuilder builder = new PcrepMessageBuilder();
+        RepliesBuilder rBuilder = new RepliesBuilder();
+
+        final List<Replies> replies = Lists.newArrayList();
+
+        final BandwidthBuilder bwBuilder = new BandwidthBuilder();
+        bwBuilder.setIgnore(false);
+        bwBuilder.setProcessingRule(false);
+        bwBuilder.setBandwidth(new Bandwidth(new byte[] { (byte) 0x47, (byte) 0x74, (byte) 0x24, (byte) 0x00 }));
+
+        rBuilder = new RepliesBuilder();
+        rBuilder.setRp(this.rpTrue);
+        final List<Paths> paths = Lists.newArrayList();
+        final PathsBuilder paBuilder1 = new PathsBuilder();
+        paBuilder1.setEro(this.ero);
+        paBuilder1.setBandwidth(bwBuilder.build());
+        paBuilder1.setMetrics(Lists.newArrayList(this.metrics));
+        paths.add(paBuilder1.build());
+        final PathsBuilder paBuilder2 = new PathsBuilder();
+        paBuilder2.setEro(this.ero);
+        paths.add(paBuilder2.build());
+        rBuilder.setResult(new SuccessCaseBuilder().setSuccess(new SuccessBuilder().setPaths(paths).build()).build()).build();
+        replies.add(rBuilder.build());
+        builder.setReplies(replies);
+
+        assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+            result.readableBytes() - 4), Collections.emptyList()));
+        ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
     }
 }
