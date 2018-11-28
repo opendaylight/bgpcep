@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d50a9870_4548f63d",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/message/PCEPReplyMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:05:32Z",
+      "side": 1,
+      "message": "Eros",
+      "revId": "aea7fcd6c9eaa10bc9d5c6d6ad92909a724e96df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
