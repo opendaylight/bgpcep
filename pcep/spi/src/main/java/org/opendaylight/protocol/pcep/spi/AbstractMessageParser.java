@@ -110,8 +110,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     public static Message createErrorMsg(final PCEPErrors e, final Optional<Rp> rp) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         if (rp.isPresent()) {
-            new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(Collections.singletonList(new RpsBuilder().setRp(
-                    rp.get()).build())).build()).build();
+            msgBuilder.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(Collections.singletonList(new RpsBuilder().setRp(
+                    rp.get()).build())).build()).build());
         }
         return new PcerrBuilder().setPcerrMessage(
                 msgBuilder.setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(
