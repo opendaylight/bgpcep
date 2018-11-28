@@ -1,0 +1,273 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8be22f4a_f3776528",
+        "filename": "bgp/extensions/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/impl/EvpnRibSupport.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "findbugs or sonar, I don\u0027t recall, will complain about this kind of name, given that we are passing by, could we update them on all Family ribsupport",
+      "range": {
+        "startLine": 113,
+        "startChar": 52,
+        "endLine": 113,
+        "endChar": 53
+      },
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f098d50b_9390e2b2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "misleading message, use war as well",
+      "range": {
+        "startLine": 363,
+        "startChar": 20,
+        "endLine": 363,
+        "endChar": 75
+      },
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a37a385_f481dccf",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "final",
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d04550a6_41e588a0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "final",
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e769ae0_c5a456b9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "unnecessary middle variable",
+      "range": {
+        "startLine": 416,
+        "startChar": 53,
+        "endLine": 416,
+        "endChar": 76
+      },
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d499d0e_67ba906f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "I think all those LOG.error could just be reduced to warn",
+      "range": {
+        "startLine": 432,
+        "startChar": 16,
+        "endLine": 432,
+        "endChar": 25
+      },
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14a758e5_c437e822",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "we could have some static variable",
+      "range": {
+        "startLine": 324,
+        "startChar": 40,
+        "endLine": 324,
+        "endChar": 116
+      },
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57b2bfcf_461f61e2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "repeated 3 times",
+      "range": {
+        "startLine": 540,
+        "startChar": 16,
+        "endLine": 540,
+        "endChar": 35
+      },
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ebe97b1_534ff974",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "final",
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85483f48_68897a2a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "final",
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "260406a0_1b1f0295",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/GracefulRestartUtil.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "final",
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca981aa4_a8d4e53d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPPeerStateImpl.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "is this set to false once restarted? or all stats are reset?",
+      "range": {
+        "startLine": 214,
+        "startChar": 13,
+        "endLine": 214,
+        "endChar": 27
+      },
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab61de13_f27c9a5a",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/PeerUtil.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-11-28T16:36:26Z",
+      "side": 1,
+      "message": "alignment seems to be wrong on differents parts of this class, could you take a look?",
+      "range": {
+        "startLine": 78,
+        "startChar": 35,
+        "endLine": 79,
+        "endChar": 48
+      },
+      "revId": "591adc7422eaafb55eeb85ab6e9d0d412fcfb482",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
