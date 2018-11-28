@@ -186,7 +186,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
             if (objects.get(0) instanceof NoPath) {
                 res = handleNoPath((NoPath) objects.get(0), objects);
             } else if (objects.get(0) instanceof Ero) {
-                res = handleEro((Ero) objects.get(0), objects);
+                res = handleEros(objects);
             }
         }
         final List<MetricPce> metricPceList = new ArrayList<>();
@@ -214,13 +214,14 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return builder.build();
     }
 
-    private Result handleEro(final Ero ero, final List<Object> objects) {
-        objects.remove(0);
+    private Result handleEros(final List<Object> objects) {
         final SuccessBuilder builder = new SuccessBuilder();
         final List<Paths> paths = new ArrayList<>();
-        final PathsBuilder pBuilder = new PathsBuilder();
-        pBuilder.setEro(ero);
         while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
+            final PathsBuilder pBuilder = new PathsBuilder();
+            if (objects.get(0) instanceof Ero) {
+                pBuilder.setEro((Ero ) objects.remove(0));
+            }
             final List<VendorInformationObject> vendorInfoObjects = addVendorInformationObjects(objects);
             if (!vendorInfoObjects.isEmpty()) {
                 builder.setVendorInformationObject(vendorInfoObjects);
