@@ -24,8 +24,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>routing-policy-config-loader</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>odl-mdsal-broker</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -35,9 +37,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
-            <classifier>features</classifier>
+            <artifactId>odl-bgpcep-bgp-route-target</artifactId>
             <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -46,10 +48,8 @@
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>odl-mdsal-broker</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>routing-policy-config-loader</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -53,6 +53,20 @@
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-topology-tunnel-api</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-topology-segment-routing</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
