@@ -59,6 +59,20 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>odl-bgpcep-topology-tunnel-api</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>odl-bgpcep-topology-segment-routing</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
             <type>xml</type>
