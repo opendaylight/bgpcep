@@ -24,10 +24,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>topology-tunnel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>programming-api</artifactId>
         </dependency>
         <dependency>
