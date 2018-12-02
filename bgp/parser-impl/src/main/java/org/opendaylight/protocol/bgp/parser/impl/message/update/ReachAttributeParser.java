@@ -9,7 +9,11 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 
 public abstract class ReachAttributeParser implements AttributeParser, AttributeSerializer {
-
+    @Override
+    public boolean ignoreDuplicates(final RevisedErrorHandling errorHandling) {
+        return errorHandling == RevisedErrorHandling.NONE;
+    }
 }
