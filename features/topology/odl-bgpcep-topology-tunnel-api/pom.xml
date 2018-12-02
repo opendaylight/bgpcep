@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
- Copyright (c) 2017 Cisco Systems, Inc. and others.  All rights reserved.
+ Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
 
  This program and the accompanying materials are made available under the
  terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -17,29 +18,20 @@
         <relativePath>../../../single-feature-parent</relativePath>
     </parent>
 
-    <artifactId>odl-bgpcep-bgp-config-example</artifactId>
+    <artifactId>odl-bgpcep-topology-tunnel-api</artifactId>
     <packaging>feature</packaging>
-
-    <name>OpenDaylight :: Configuration Example Files</name>
+    <name>OpenDaylight :: BGPCEP :: Topology :: Tunnel :: Api</name>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp</artifactId>
+            <artifactId>topology-tunnel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>odl-mdsal-model-draft-clemm-netmod-yang-network-topo-01-minimal</artifactId>
+            <type>xml</type>
             <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-config-example</artifactId>
-            <type>xml</type>
-            <classifier>bgp-initial-config</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-config-example</artifactId>
-            <type>xml</type>
-            <classifier>network-topology-bgp-initial-config</classifier>
         </dependency>
     </dependencies>
 </project>

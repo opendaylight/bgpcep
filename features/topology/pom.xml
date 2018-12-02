@@ -24,5 +24,7 @@
     <modules>
         <module>features-topology</module>
         <module>odl-bgpcep-topology-api</module>
+        <module>odl-bgpcep-topology-tunnel-api</module>
+        <module>odl-bgpcep-topology-segment-routing</module>
     </modules>
 </project>
