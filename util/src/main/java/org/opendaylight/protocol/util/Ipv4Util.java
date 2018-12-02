@@ -131,6 +131,17 @@ public final class Ipv4Util {
      */
     public static Ipv4Prefix prefixForByteBuf(final ByteBuf buf) {
         final int prefixLength = UnsignedBytes.toInt(buf.readByte());
+        return prefixForByteBuf(buf, prefixLength);
+    }
+
+    /**
+     * Creates an Ipv4Prefix object from given ByteBuf with specified NLRI length.
+     *
+     * @param buf Buffer containing serialized prefix
+     * @param prefixLength Prefix length
+     * @return Ipv4Prefix object
+     */
+    public static Ipv4Prefix prefixForByteBuf(final ByteBuf buf, final int prefixLength) {
         final int size = prefixLength / Byte.SIZE + (prefixLength % Byte.SIZE == 0 ? 0 : 1);
         final int readable = buf.readableBytes();
         Preconditions.checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
