@@ -25,6 +25,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.BitArray;
@@ -57,7 +58,9 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     private static final int TRANSITIVE_BIT = 1;
     private static final int PARTIAL_BIT = 2;
     private static final int EXTENDED_LENGTH_BIT = 3;
-    private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
+
+    private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers =
+            new HandlerRegistry<>();
     private final Map<AbstractRegistration, AttributeSerializer> serializers = new LinkedHashMap<>();
     private final AtomicReference<Iterable<AttributeSerializer>> roSerializers =
         new AtomicReference<>(this.serializers.values());
@@ -69,7 +72,8 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         return this.handlers.registerParser(attributeType, parser);
     }
 
-    synchronized AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass, final AttributeSerializer serializer) {
+    synchronized AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass,
+            final AttributeSerializer serializer) {
         final AbstractRegistration reg = this.handlers.registerSerializer(paramClass, serializer);
 
         this.serializers.put(reg, serializer);
@@ -85,27 +89,32 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         };
     }
 
-    private void addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes)
-            throws BGPDocumentedException {
+    private void addAttribute(final ByteBuf buffer, final RevisedErrorHandling errorHandling,
+            final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
         final BitArray flags = BitArray.valueOf(buffer.readByte());
         final int type = buffer.readUnsignedByte();
         final int len = flags.get(EXTENDED_LENGTH_BIT) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
-        if (!attributes.containsKey(type)) {
-            final AttributeParser parser = this.handlers.getParser(type);
-            if (parser == null) {
-                processUnrecognized(flags, type, buffer, len);
-            } else {
-                attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
+        final AttributeParser parser = this.handlers.getParser(type);
+        if (attributes.containsKey(type)) {
+            if (parser != null && !parser.ignoreDuplicates(errorHandling)) {
+                throw new BGPDocumentedException("Duplicate attribute " + type, BGPError.MALFORMED_ATTR_LIST);
             }
-        } else {
             LOG.debug("Ignoring duplicate attribute type {}", type);
+            return;
+        }
+
+        if (parser == null) {
+            processUnrecognized(flags, type, buffer, len);
+        } else {
+            attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
         }
     }
 
     private void processUnrecognized(final BitArray flags, final int type, final ByteBuf buffer, final int len)
             throws BGPDocumentedException {
         if (!flags.get(OPTIONAL_BIT)) {
-            throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
+            throw new BGPDocumentedException("Well known attribute not recognized.",
+                BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
         }
         final UnrecognizedAttributes unrecognizedAttribute = new UnrecognizedAttributesBuilder()
             .withKey(new UnrecognizedAttributesKey((short) type))
@@ -120,9 +129,10 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     @Override
     public Attributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
+        final RevisedErrorHandling errorHandling = RevisedErrorHandling.from(constraint);
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();
         while (buffer.isReadable()) {
-            addAttribute(buffer, attributes);
+            addAttribute(buffer, errorHandling, attributes);
         }
         /*
          * TreeMap guarantees that we will be invoking the parser in the order
