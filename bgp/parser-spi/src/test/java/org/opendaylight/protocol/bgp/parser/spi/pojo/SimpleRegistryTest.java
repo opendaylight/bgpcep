@@ -19,7 +19,6 @@ import static org.mockito.Mockito.verify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,6 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -58,12 +56,13 @@ public class SimpleRegistryTest {
 
     private static final MultiPathSupport ADD_PATH_SUPPORT = tableType -> true;
 
-    private static final PeerSpecificParserConstraint CONSTRAINT = new PeerSpecificParserConstraint() {
-        @Override
-        public <T extends PeerConstraint> Optional<T> getPeerConstraint(final Class<T> peerConstraintType) {
-            return (Optional<T>) Optional.of(ADD_PATH_SUPPORT);
-        }
-    };
+    private static final PeerSpecificParserConstraint CONSTRAINT;
+
+    static {
+        PeerSpecificParserConstraintImpl c = new PeerSpecificParserConstraintImpl();
+        c.addPeerConstraint(MultiPathSupport.class, ADD_PATH_SUPPORT);
+        CONSTRAINT = c;
+    }
 
     protected BGPExtensionProviderContext ctx;
     private BgpTestActivator activator;
