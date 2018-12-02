@@ -120,7 +120,8 @@ public class BGPParserTest {
             multiPathHexFile));
         constraint = mock(PeerSpecificParserConstraint.class);
         mpSupport = mock(MultiPathSupport.class);
-        Mockito.doReturn(Optional.of(mpSupport)).when(constraint).getPeerConstraint(Mockito.any());
+        Mockito.doReturn(Optional.empty()).when(constraint).getPeerConstraint(Mockito.any());
+        Mockito.doReturn(Optional.of(mpSupport)).when(constraint).getPeerConstraint(MultiPathSupport.class);
         Mockito.doReturn(true).when(mpSupport).isTableTypeSupported(Mockito.any());
     }
 
