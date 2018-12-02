@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-inet</artifactId>
+            <artifactId>odl-bgpcep-bgp-openconfig-rp-spi</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
