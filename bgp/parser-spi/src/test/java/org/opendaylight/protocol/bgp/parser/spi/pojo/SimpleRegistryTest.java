@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -35,6 +36,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
@@ -80,7 +82,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testSimpleAttribute() throws BGPDocumentedException, BGPParsingException {
+    public void testSimpleAttribute() throws BGPDocumentedException, BGPParsingException, BGPTreatAsWithdrawException {
         final AttributeRegistry attrReg = this.ctx.getAttributeRegistry();
         final byte[] attributeBytes = {
             0x00, 0x00, 0x00
@@ -89,7 +91,7 @@ public class SimpleRegistryTest {
         attrReg.serializeAttribute(mock(Attributes.class), byteAggregator);
         attrReg.parseAttributes(Unpooled.wrappedBuffer(attributeBytes), CONSTRAINT);
         verify(this.activator.attrParser, times(1)).parseAttribute(any(ByteBuf.class), any(AttributesBuilder.class),
-            any(PeerSpecificParserConstraint.class));
+            any(RevisedErrorHandling.class), any(PeerSpecificParserConstraint.class));
         verify(this.activator.attrSerializer, times(1)).serializeAttribute(any(Attributes.class), any(ByteBuf.class));
     }
 
