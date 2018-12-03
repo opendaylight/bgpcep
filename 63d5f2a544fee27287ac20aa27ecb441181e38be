@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cba5f9b7_c85fba24",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/RevisedErrorHandlingSupportImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-12-03T07:18:59Z",
+      "side": 1,
+      "message": "final",
+      "revId": "63d5f2a544fee27287ac20aa27ecb441181e38be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
