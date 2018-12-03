@@ -47,7 +47,7 @@ public class UnrecognizedAttributesTest {
     public void testUnrecognizedAttributes() throws BGPDocumentedException, BGPParsingException {
         final byte[] attributeBytes = { (byte)0xe0, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 };
         final List<UnrecognizedAttributes> unrecogAttribs = simpleAttrReg
-            .parseAttributes(Unpooled.wrappedBuffer(attributeBytes), null).getUnrecognizedAttributes();
+            .parseAttributes(Unpooled.wrappedBuffer(attributeBytes), null).getAttributes().getUnrecognizedAttributes();
         assertEquals(UNRECOGNIZED_ATTRIBUTE_COUNT, unrecogAttribs.size());
         final UnrecognizedAttributes unrecogAttrib = unrecogAttribs.get(FIRST_ATTRIBUTE);
         final UnrecognizedAttributesKey expectedAttribKey =
