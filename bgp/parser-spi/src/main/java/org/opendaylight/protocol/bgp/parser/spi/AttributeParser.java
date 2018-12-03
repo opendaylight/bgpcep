@@ -17,7 +17,8 @@ import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 
 /**
- * Common interface for attribute parser implementation.
+ * Common interface for attribute parser implementation. Implementations should consider deriving from
+ * {@link AbstractAttributeParser} and provide an RFC7606-compliant interface.
  */
 public interface AttributeParser {
     /**
