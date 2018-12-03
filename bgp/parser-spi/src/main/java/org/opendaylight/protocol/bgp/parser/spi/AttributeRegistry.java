@@ -11,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 
@@ -23,11 +24,11 @@ public interface AttributeRegistry {
      * @param buffer Input buffer.
      * @param constraints Peer specific constraint.
      * @return Decoded BGP Attribute.
-     * @throws BGPDocumentedException
-     * @throws BGPParsingException
+     * @throws BGPDocumentedException when an unrecoverable error occurs, which is documented via {@link BGPError}
+     * @throws BGPParsingException when a general unrecoverable parsing error occurs
      */
-    @Nonnull Attributes parseAttributes(@Nonnull ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraints)
-            throws BGPDocumentedException, BGPParsingException;
+    @Nonnull ParsedAttributes parseAttributes(@Nonnull ByteBuf buffer,
+            @Nullable PeerSpecificParserConstraint constraints) throws BGPDocumentedException, BGPParsingException;
 
     /**
      * Serialize BGP Attribute to buffer.

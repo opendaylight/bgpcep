@@ -72,7 +72,7 @@ public final class PMSITunnelAttributeHandlerTest {
         assertArrayEquals(BIDIR_PIM_EXPECTED, ByteArray.readAllBytes(actual));
         final Attributes expected = buildBidirPimTreeAttribute();
         final Attributes actualAttr = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(BIDIR_PIM_EXPECTED), null);
+                Unpooled.wrappedBuffer(BIDIR_PIM_EXPECTED), null).getAttributes();
         assertEquals(expected, actualAttr);
     }
 
@@ -84,7 +84,7 @@ public final class PMSITunnelAttributeHandlerTest {
         assertArrayEquals(PIM_SM_TREE_EXPECTED, ByteArray.readAllBytes(actual));
         final Attributes expected = buildPimSMTreeAttribute();
         final Attributes actualAttr = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(PIM_SM_TREE_EXPECTED), null);
+                Unpooled.wrappedBuffer(PIM_SM_TREE_EXPECTED), null).getAttributes();
         assertEquals(expected, actualAttr);
     }
 
@@ -100,7 +100,7 @@ public final class PMSITunnelAttributeHandlerTest {
     public void parsePimSSMTree() throws Exception {
         final Attributes expected = buildPimSSMTreeAttribute();
         final Attributes actual = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(PIM_SSM_TREE_EXPECTED), null);
+                Unpooled.wrappedBuffer(PIM_SSM_TREE_EXPECTED), null).getAttributes();
         assertEquals(expected, actual);
     }
 
@@ -112,7 +112,7 @@ public final class PMSITunnelAttributeHandlerTest {
         assertArrayEquals(M_LDP_P2MP_LSP_EXPECTED_IPV4, ByteArray.readAllBytes(actualIpv4));
 
         final Attributes actualIpv4Attribute = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_IPV4_2), null);
+                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_IPV4_2), null).getAttributes();
         assertEquals(expectedIpv4Att, actualIpv4Attribute);
 
         final Attributes expectedIpv6Att = buildMldpP2mpLspIpv6Attribute();
@@ -121,7 +121,7 @@ public final class PMSITunnelAttributeHandlerTest {
         assertArrayEquals(M_LDP_P2MP_LSP_EXPECTED_IPV6, ByteArray.readAllBytes(actualIpv6));
 
         final Attributes actualIpv6Attribute = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_IPV6), null);
+                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_IPV6), null).getAttributes();
         assertEquals(expectedIpv6Att, actualIpv6Attribute);
 
         final ByteBuf actualL2vpn = Unpooled.buffer();
@@ -130,13 +130,13 @@ public final class PMSITunnelAttributeHandlerTest {
 
 
         final Attributes actualWrongFamily = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_WRONG_FAMILY), null);
+                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_WRONG_FAMILY), null).getAttributes();
         assertEquals(buildWOTunnelInfAttribute(), actualWrongFamily);
 
         final Attributes expectedL2vpnAtt = buildMldpp2MPLspL2vpnAttribute();
 
         final Attributes actualL2vpnAttribute = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_L2VPN), null);
+                Unpooled.wrappedBuffer(M_LDP_P2MP_LSP_EXPECTED_L2VPN), null).getAttributes();
         assertEquals(expectedL2vpnAtt, actualL2vpnAttribute);
 
         final ByteBuf actualL2vp = Unpooled.buffer();
@@ -155,7 +155,7 @@ public final class PMSITunnelAttributeHandlerTest {
         this.handler.serializeAttribute(expected, actual);
         assertArrayEquals(RSVP_TE_P2MP_LSP_LSP_EXPECTED, ByteArray.readAllBytes(actual));
         final Attributes actualAttr = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(RSVP_TE_P2MP_LSP_LSP_EXPECTED), null);
+                Unpooled.wrappedBuffer(RSVP_TE_P2MP_LSP_LSP_EXPECTED), null).getAttributes();
         assertEquals(expected, actualAttr);
     }
 
@@ -166,7 +166,7 @@ public final class PMSITunnelAttributeHandlerTest {
         this.handler.serializeAttribute(expected, actual);
         assertArrayEquals(INGRESS_REPLICATION_EXPECTED, ByteArray.readAllBytes(actual));
         final Attributes actualAttr = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(INGRESS_REPLICATION_EXPECTED), null);
+                Unpooled.wrappedBuffer(INGRESS_REPLICATION_EXPECTED), null).getAttributes();
         assertEquals(expected, actualAttr);
     }
 
@@ -178,11 +178,11 @@ public final class PMSITunnelAttributeHandlerTest {
         assertArrayEquals(M_LDP_MP_2_MP_LSP_EXPECTED, ByteArray.readAllBytes(actual));
 
         final Attributes actualAttr = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(M_LDP_MP_2_MP_LSP_EXPECTED), null);
+                Unpooled.wrappedBuffer(M_LDP_MP_2_MP_LSP_EXPECTED), null).getAttributes();
         assertEquals(expected, actualAttr);
 
         final Attributes actualWrong = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(M_LDP_MP_2_MP_LSP_WRONG), null);
+                Unpooled.wrappedBuffer(M_LDP_MP_2_MP_LSP_WRONG), null).getAttributes();
         assertEquals(buildWOTunnelInfAttribute(), actualWrong);
 
         final Attributes wrongAttribute = buildMldpMP2mpLspWrongAttribute();
@@ -200,7 +200,7 @@ public final class PMSITunnelAttributeHandlerTest {
         assertArrayEquals(NO_TUNNEL_INFORMATION_PRESENT_EXPECTED, ByteArray.readAllBytes(actual));
         final Attributes expected = buildWOTunnelInfAttribute();
         final Attributes actualAttr = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(NO_TUNNEL_INFORMATION_PRESENT_EXPECTED), null);
+                Unpooled.wrappedBuffer(NO_TUNNEL_INFORMATION_PRESENT_EXPECTED), null).getAttributes();
         assertEquals(expected, actualAttr);
     }
 
