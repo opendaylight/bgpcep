@@ -11,30 +11,51 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
+import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class ClusterIdAttributeParser implements AttributeParser, AttributeSerializer {
+public final class ClusterIdAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
+    private static final Logger LOG = LoggerFactory.getLogger(ClusterIdAttributeParser.class);
 
     public static final int TYPE = 10;
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) {
-        // FIXME: BGPCEP-359:
-        //        - external peer: discard attribute (always?)
-        //        - internal peer: treat-as-withdraw if length == 0 or not a multiple of four
-        // FIXME: once do the above check, optimize list allocation
-        final List<ClusterIdentifier> list = new ArrayList<>();
-        while (buffer.isReadable()) {
+            final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
+                    throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        if (errorHandling == RevisedErrorHandling.EXTERNAL) {
+            // RFC7606 section 7.10
+            LOG.debug("Discarded CLUSTER_LIST attribute from external peer");
+            return;
+        }
+
+        final int readable = buffer.readableBytes();
+        if (readable == 0 && errorHandling != RevisedErrorHandling.NONE) {
+            throw new BGPTreatAsWithdrawException(BGPError.ATTR_LENGTH_ERROR, "Empty CLUSTER_LIST attribute");
+        }
+
+        if (readable % Ipv4Util.IP4_LENGTH != 0) {
+            throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
+                "Length of CLUSTER_LIST should be a multiple of 4, but is %s", readable);
+         }
+
+        final int count = readable / Ipv4Util.IP4_LENGTH;
+        final List<ClusterIdentifier> list = new ArrayList<>(count);
+        for (int i = 0; i < count; ++i) {
             list.add(new ClusterIdentifier(Ipv4Util.addressForByteBuf(buffer)));
         }
         builder.setClusterId(new ClusterIdBuilder().setCluster(list).build());
