@@ -32,6 +32,7 @@
         <module>odl-bgpcep-bgp-rib-api</module>
         <module>odl-bgpcep-bgp-path-selection-mode</module>
         <module>odl-bgpcep-bgp-rib-impl</module>
+        <module>odl-bgpcep-bgp-topology-api</module>
         <module>odl-bgpcep-bgp-topology</module>
         <module>odl-bgpcep-bgp-benchmark</module>
         <module>odl-bgpcep-bgp-cli</module>

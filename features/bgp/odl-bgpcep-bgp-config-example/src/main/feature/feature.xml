@@ -13,5 +13,10 @@
     <feature name="odl-bgpcep-bgp-config-example" version="${project.version}">
         <configfile finalname="etc/opendaylight/bgpcep/protocols-config.xml">mvn:org.opendaylight.bgpcep/bgp-config-example/${project.version}/xml/bgp-initial-config</configfile>
         <configfile finalname="etc/opendaylight/bgpcep/network-topology-bgp-config.xml">mvn:org.opendaylight.bgpcep/bgp-config-example/${project.version}/xml/network-topology-bgp-initial-config</configfile>
+        <feature version="${project.version}" prerequisite="true" start-level="50">odl-bgpcep-bgp-topology-api</feature>
+        <feature version="${project.version}" prerequisite="true" start-level="50">odl-bgpcep-bgp-openconfig</feature>
+        <feature version="${project.version}" prerequisite="true" start-level="50">odl-bgpcep-bgp-route-target</feature>
+        <bundle start-level="95">wrap:mvn:org.opendaylight.bgpcep/bgp-protocols-config-example/${project.version}/xml/bgp-protocols-config</bundle>
+        <bundle start-level="100">wrap:mvn:org.opendaylight.bgpcep/bgp-topology-config-example/${project.version}/xml/network-topology-bgp-initial-config</bundle>
     </feature>
 </features>

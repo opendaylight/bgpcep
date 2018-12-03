@@ -151,6 +151,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-topology-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-topology-provider</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -173,47 +178,57 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-example</artifactId>
+                <artifactId>bgp-topology-config-example</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-example</artifactId>
+                <artifactId>bgp-protocols-config-example</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-routing-policy-config-example</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-topology-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-example</artifactId>
+                <artifactId>bgp-protocols-config-example</artifactId>
                 <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
+                <type>test-jar</type>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-example</artifactId>
+                <artifactId>bgp-routing-policy-config-example</artifactId>
                 <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>openconfig-config</classifier>
+                <type>test-jar</type>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-example</artifactId>
+                <artifactId>bgp-protocols-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
-                <classifier>bgp-initial-config</classifier>
+                <classifier>bgp-protocols-config</classifier>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-example</artifactId>
+                <artifactId>bgp-topology-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>network-topology-bgp-initial-config</classifier>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-config-example</artifactId>
+                <artifactId>bgp-routing-policy-config-example</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>routing-policy-default-config</classifier>
@@ -399,6 +414,13 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-bgp-rib-impl</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-topology-api</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>

@@ -266,11 +266,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-config-example</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-dom-adapter</artifactId>
             <scope>test</scope>
@@ -331,7 +326,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-config-example</artifactId>
+            <artifactId>bgp-routing-policy-config-example</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-routing-policy-config-example</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -371,7 +371,7 @@
                 <configuration>
                     <attachToMain>false</attachToMain>
                     <resourceBundles>
-                        <resourceBundle>${project.groupId}:bgp-config-example:${project.version}</resourceBundle>
+                        <resourceBundle>${project.groupId}:bgp-routing-policy-config-example:${project.version}</resourceBundle>
                     </resourceBundles>
                 </configuration>
                 <executions>

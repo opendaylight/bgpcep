@@ -35,9 +35,9 @@
         <module>rib-impl</module>
         <module>rib-mock</module>
         <module>testtool</module>
+        <module>topology-api</module>
         <module>topology-provider</module>
         <module>util</module>
-        <module>config-example</module>
         <module>openconfig-api</module>
         <module>openconfig-spi</module>
         <module>path-selection-mode</module>
@@ -48,6 +48,10 @@
         <module>openconfig-rp-spi</module>
         <module>openconfig-rp-impl</module>
         <module>openconfig-rp-statement</module>
+        <!--Configurations examples-->
+        <module>topology-config-example</module>
+        <module>routing-policy-config-example</module>
+        <module>protocols-config-example</module>
         <!--Extensions-->
         <module>extensions</module>
     </modules>

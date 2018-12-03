@@ -17,41 +17,32 @@
         <relativePath>../../../single-feature-parent</relativePath>
     </parent>
 
-    <artifactId>odl-bgpcep-bgp-config-example</artifactId>
+    <artifactId>odl-bgpcep-bgp-topology-api</artifactId>
     <packaging>feature</packaging>
-
-    <name>OpenDaylight :: Configuration Example Files</name>
+    <name>OpenDaylight :: BGP :: Topology</name>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-topology-api</artifactId>
+            <artifactId>bgp-topology-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
+            <artifactId>odl-bgpcep-topology-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-route-target</artifactId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>odl-mdsal-model-draft-clemm-netmod-yang-network-topo-01</artifactId>
+            <type>xml</type>
             <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-protocols-config-example</artifactId>
-            <type>xml</type>
-            <classifier>bgp-protocols-config</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-topology-config-example</artifactId>
-            <type>xml</type>
-            <classifier>network-topology-bgp-initial-config</classifier>
         </dependency>
     </dependencies>
 </project>
