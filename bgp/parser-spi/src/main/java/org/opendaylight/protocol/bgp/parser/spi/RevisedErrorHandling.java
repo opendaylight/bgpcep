@@ -9,6 +9,9 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 
 /**
  * Enumeration of possible treatments an UPDATE message and attributes can get based on the configuration of a peer.
@@ -20,7 +23,13 @@ public enum RevisedErrorHandling {
     /**
      * Do not use RFC7606 Revised Error Handling.
      */
-    NONE,
+    NONE {
+        @Override
+        public BGPDocumentedException reportError(final BGPError error, final String format, final Object... args)
+                throws BGPDocumentedException {
+            throw new BGPDocumentedException(String.format(format, args), error);
+        }
+    },
     /**
      * Use RFC7606 Revised Error Handling, the peer is an internal neighbor.
      */
@@ -39,5 +48,21 @@ public enum RevisedErrorHandling {
     public static RevisedErrorHandling from(final @Nullable PeerSpecificParserConstraint constraint) {
         return constraint == null ? NONE : constraint.getPeerConstraint(RevisedErrorHandlingSupport.class)
                 .map(support -> support.isExternalPeer() ? EXTERNAL : INTERNAL).orElse(NONE);
+    }
+
+    /**
+     * Report a failure to parse an attribute resulting either in treat-as-withdraw if RFC7606 is in effect, or
+     * connection teardown if it is not.
+     *
+     * @param error {@link BGPError} to report in case of a session teardown
+     * @param format Message format string
+     * @param args Message format arguments
+     * @return This method does not return
+     * @throws BGPTreatAsWithdrawException if Revised Error Handling is in effect
+     * @throws BGPDocumentedException if Revised Error Handling is in not effect
+     */
+    public BGPDocumentedException reportError(final BGPError error, final String format, final Object... args)
+            throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        throw new BGPTreatAsWithdrawException(error, format, args);
     }
 }
