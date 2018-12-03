@@ -58,7 +58,7 @@ public class PathAttributeParserTest {
         final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext
             .getSingletonInstance();
         final Attributes pathAttributes = providerContext.getAttributeRegistry()
-            .parseAttributes(buffer, null);
+            .parseAttributes(buffer, null).getAttributes();
         final Aigp aigp = pathAttributes.getAigp();
         final AigpTlv tlv = aigp.getAigpTlv();
 
@@ -79,7 +79,7 @@ public class PathAttributeParserTest {
         final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext
             .getSingletonInstance();
         final Attributes pathAttributes = providerContext.getAttributeRegistry()
-            .parseAttributes(inputData, null);
+            .parseAttributes(inputData, null).getAttributes();
         final Aigp aigp = pathAttributes.getAigp();
 
         final AttributesBuilder pathAttributesBuilder = new AttributesBuilder();
