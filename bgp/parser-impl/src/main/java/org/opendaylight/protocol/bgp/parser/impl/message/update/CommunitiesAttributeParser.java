@@ -16,10 +16,12 @@ import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
+import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -27,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Community;
 
-public final class CommunitiesAttributeParser implements AttributeParser, AttributeSerializer {
+public final class CommunitiesAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
 
     public static final int TYPE = 8;
 
@@ -51,11 +53,21 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
-        // FIXME: BGPCEP-359: treat-as-withdraw if buffer.readableBytes() is 0 or not a multiple of COMMUNITY_LENGTH
-        // FIXME: optimize allocation once we have done the above check
-        final List<Communities> set = new ArrayList<>();
-        while (buffer.isReadable()) {
+            final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
+                    throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        final int readable = buffer.readableBytes();
+        if (readable == 0 && errorHandling != RevisedErrorHandling.NONE) {
+            throw new BGPTreatAsWithdrawException(BGPError.ATTR_LENGTH_ERROR, "Empty Community attribute");
+        }
+
+        if (readable % COMMUNITY_LENGTH != 0) {
+            throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
+                "Community attribute length must be a multiple of %s, have %s", COMMUNITY_LENGTH, readable);
+        }
+
+        final int count = readable / COMMUNITY_LENGTH;
+        final List<Communities> set = new ArrayList<>(count);
+        for (int i = 0; i < count; ++i) {
             set.add((Communities) parseCommunity(this.refCache, buffer.readSlice(COMMUNITY_LENGTH)));
         }
         builder.setCommunities(set);
