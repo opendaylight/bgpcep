@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
@@ -15,17 +14,20 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
+import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunities;
 
-public final class ExtendedCommunitiesAttributeParser implements AttributeParser, AttributeSerializer {
+public final class ExtendedCommunitiesAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
 
     public static final int TYPE = 16;
 
@@ -37,13 +39,27 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException {
-        // FIXME: BGPCEP-359: treat-as-withdraw if length == 0 or not a multiple of 8
-        // FIXME: once we do the above check, optimize list allocation here
-        final List<ExtendedCommunities> set = new ArrayList<>();
+            final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
+                    throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        final int readable = buffer.readableBytes();
+        if (errorHandling != RevisedErrorHandling.NONE) {
+            if (readable == 0) {
+                throw new BGPTreatAsWithdrawException(BGPError.ATTR_LENGTH_ERROR, "Empty Extended Community attribute");
+            }
+        }
+        if (readable % 8 != 0) {
+            throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
+                "Extended Community attribute length must be a multiple of 8, have %s", readable);
+        }
+        final List<ExtendedCommunities> set = new ArrayList<>(readable / 8);
         while (buffer.isReadable()) {
-            // FIXME: BGPCEP-359: malformed communities need to trigger treat-as-withdraw
-            final ExtendedCommunities exComm = this.ecReg.parseExtendedCommunity(buffer);
+            final ExtendedCommunities exComm;
+            try {
+                // FIXME: BGPCEP-359: revise API contract here
+                exComm = this.ecReg.parseExtendedCommunity(buffer);
+            } catch (BGPParsingException e) {
+                throw errorHandling.reportError(BGPError.MALFORMED_ATTR_LIST, e, "Failed to parse extended community");
+            }
             if (exComm != null) {
                 set.add(exComm);
             }

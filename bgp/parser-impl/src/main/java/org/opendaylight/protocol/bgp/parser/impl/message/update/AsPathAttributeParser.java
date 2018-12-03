@@ -16,12 +16,13 @@ import java.util.Collections;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -33,7 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AsPathAttributeParser implements AttributeParser, AttributeSerializer {
+/**
+ * Parser for AS_PATH attribute.
+ */
+public final class AsPathAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
 
     public static final int TYPE = 2;
 
@@ -46,58 +50,11 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
         this.refCache = requireNonNull(refCache);
     }
 
-    /**
-     * Parses AS_PATH from bytes.
-     *
-     * @param refCache ReferenceCache shared reference of object
-     * @param buffer bytes to be parsed
-     * @param constraint
-     * @return new ASPath object
-     * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
-     */
-    private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer,
-            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException {
-        if (!buffer.isReadable()) {
-            return EMPTY;
-        }
-        final ArrayList<Segments> ases = new ArrayList<>();
-        boolean isSequence = false;
-        while (buffer.isReadable()) {
-            final int type = buffer.readUnsignedByte();
-            final SegmentType segmentType = AsPathSegmentParser.parseType(type);
-            if (segmentType == null) {
-                // FIXME: BGPCEP-359: treat-as-withdraw
-                throw new BGPParsingException("AS Path segment type unknown : " + type);
-            }
-
-            // FIXME: BGPCEP-359: treat-as-withdraw if no data is available
-            final int count = buffer.readUnsignedByte();
-            // FIXME: BGPCEP-359: treat-as-withdraw if count == 0
-            final int segmentLength = count * AsPathSegmentParser.AS_NUMBER_LENGTH;
-            // FIXME: BGPCEP-359: treat-as-withdraw if there is a buffer overrun
-
-            final List<AsNumber> asList = AsPathSegmentParser.parseAsSegment(refCache, count,
-                buffer.readSlice(segmentLength));
-            if (segmentType == SegmentType.AS_SEQUENCE) {
-                ases.add(new SegmentsBuilder().setAsSequence(asList).build());
-                isSequence = true;
-            } else {
-                ases.add(new SegmentsBuilder().setAsSet(asList).build());
-            }
-        }
-        if (!isSequence) {
-            throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.",
-                    BGPError.AS_PATH_MALFORMED);
-        }
-
-        ases.trimToSize();
-        return new AsPathBuilder().setSegments(ases).build();
-    }
-
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException {
-        builder.setAsPath(parseAsPath(this.refCache, buffer, constraint));
+            final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
+                    throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        builder.setAsPath(parseAsPath(this.refCache, buffer, errorHandling));
     }
 
     @Override
@@ -119,5 +76,64 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
             }
         }
         AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE, segmentsBuffer, byteAggregator);
+    }
+
+    /**
+     * Parses AS_PATH from bytes.
+     *
+     * @param refCache ReferenceCache shared reference of object
+     * @param buffer bytes to be parsed
+     * @return new ASPath object
+     * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
+     */
+    private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer,
+            final RevisedErrorHandling errorHandling) throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        if (!buffer.isReadable()) {
+            return EMPTY;
+        }
+
+        final ArrayList<Segments> ases = new ArrayList<>();
+        boolean isSequence = false;
+        for (int readable = buffer.readableBytes(); readable != 0; readable = buffer.readableBytes()) {
+            if (readable < 2) {
+                throw errorHandling.reportError(BGPError.AS_PATH_MALFORMED,
+                    "Insufficient AS PATH segment header length %s", readable);
+            }
+
+            final int type = buffer.readUnsignedByte();
+            final SegmentType segmentType = AsPathSegmentParser.parseType(type);
+            if (segmentType == null) {
+                throw errorHandling.reportError(BGPError.AS_PATH_MALFORMED, "Unknown AS PATH segment type %s", type);
+            }
+            final int count = buffer.readUnsignedByte();
+            if (count == 0 && errorHandling != RevisedErrorHandling.NONE) {
+                throw new BGPTreatAsWithdrawException(BGPError.AS_PATH_MALFORMED, "Empty AS_PATH segment");
+            }
+
+            // We read 2 bytes of header at this point
+            readable -= 2;
+            final int segmentLength = count * AsPathSegmentParser.AS_NUMBER_LENGTH;
+            if (segmentLength > readable) {
+                throw errorHandling.reportError(BGPError.AS_PATH_MALFORMED,
+                    "Calculated segment length %s would overflow available buffer %s", segmentLength, readable);
+            }
+
+            final List<AsNumber> asList = AsPathSegmentParser.parseAsSegment(refCache, count,
+                buffer.readSlice(segmentLength));
+            if (segmentType == SegmentType.AS_SEQUENCE) {
+                ases.add(new SegmentsBuilder().setAsSequence(asList).build());
+                isSequence = true;
+            } else {
+                ases.add(new SegmentsBuilder().setAsSet(asList).build());
+            }
+        }
+
+        if (!isSequence) {
+            throw errorHandling.reportError(BGPError.AS_PATH_MALFORMED,
+                "AS_SEQUENCE must be present in AS_PATH attribute.");
+        }
+
+        ases.trimToSize();
+        return new AsPathBuilder().setSegments(ases).build();
     }
 }
