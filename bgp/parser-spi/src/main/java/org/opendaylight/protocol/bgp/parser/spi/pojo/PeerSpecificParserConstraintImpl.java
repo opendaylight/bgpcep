@@ -10,29 +10,44 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.ImmutableClassToInstanceMap;
+import com.google.common.collect.ImmutableClassToInstanceMap.Builder;
 import java.util.Optional;
-import javax.annotation.concurrent.GuardedBy;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraintProvider;
 
 public class PeerSpecificParserConstraintImpl implements PeerSpecificParserConstraintProvider {
+    @SuppressWarnings("rawtypes")
+    private static final AtomicReferenceFieldUpdater<PeerSpecificParserConstraintImpl, ImmutableClassToInstanceMap>
+            CONSTRAINTS_UPDATER = AtomicReferenceFieldUpdater.newUpdater(PeerSpecificParserConstraintImpl.class,
+                ImmutableClassToInstanceMap.class, "constraints");
 
-    @GuardedBy("this")
-    private final Map<Class<? extends PeerConstraint>, PeerConstraint> constraints = new HashMap<>();
+    private volatile ImmutableClassToInstanceMap<PeerConstraint> constraints = ImmutableClassToInstanceMap.of();
 
     @Override
-    public synchronized <T extends PeerConstraint> Optional<T> getPeerConstraint(final Class<T> peerConstraintType) {
-        return (Optional<T>) Optional.ofNullable(this.constraints.get(peerConstraintType));
+    public <T extends PeerConstraint> Optional<T> getPeerConstraint(final Class<T> peerConstraintType) {
+        return Optional.ofNullable(constraints.getInstance(peerConstraintType));
     }
 
     @Override
-    public synchronized <T extends PeerConstraint> boolean addPeerConstraint(final Class<T> classType, final T peerConstraint) {
+    public <T extends PeerConstraint> boolean addPeerConstraint(final Class<T> classType, final T peerConstraint) {
         requireNonNull(classType);
         requireNonNull(peerConstraint);
-        final PeerConstraint previous = this.constraints.putIfAbsent(classType, peerConstraint);
-        return previous == null;
-    }
 
+        ImmutableClassToInstanceMap<PeerConstraint> local = constraints;
+        while (!local.containsKey(classType)) {
+            final Builder<PeerConstraint> builder = ImmutableClassToInstanceMap.builder();
+            builder.putAll(local);
+            builder.put(classType, peerConstraint);
+            if (CONSTRAINTS_UPDATER.compareAndSet(this, local, builder.build())) {
+                // Successfully updated, finished
+                return true;
+            }
+
+            // Raced with another update, retry
+            local = constraints;
+        }
+        return false;
+    }
 }
