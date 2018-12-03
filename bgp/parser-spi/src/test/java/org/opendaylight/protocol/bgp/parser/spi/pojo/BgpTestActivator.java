@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -37,6 +38,7 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -154,7 +156,7 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
         MockitoAnnotations.initMocks(this);
         try {
             Mockito.doNothing().when(this.attrParser).parseAttribute(any(ByteBuf.class), any(AttributesBuilder.class),
-                any(PeerSpecificParserConstraint.class));
+                any(RevisedErrorHandling.class), any(PeerSpecificParserConstraint.class));
             doReturn(EMPTY).when(this.attrParser).toString();
             Mockito.doNothing().when(this.attrSerializer).serializeAttribute(any(Attributes.class), any(ByteBuf.class));
             doReturn(EMPTY).when(this.attrSerializer).toString();
@@ -185,7 +187,7 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
             Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class), any());
             doReturn(EMPTY).when(this.nlriParser).toString();
 
-        } catch (BGPDocumentedException | BGPParsingException e) {
+        } catch (BGPDocumentedException | BGPParsingException | BGPTreatAsWithdrawException e) {
             Assert.fail();
         }
     }

@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -138,14 +139,33 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
          * TreeMap guarantees that we will be invoking the parser in the order
          * of increasing attribute type.
          */
+        // We may have multiple attribute errors, each specifying a withdraw. We need to finish parsing the message
+        // all attributes before we can decide whether we can discard attributes, or whether we need to terminate
+        // the session.
         final AttributesBuilder builder = new AttributesBuilder();
-        for (final Entry<Integer, RawAttribute> e : attributes.entrySet()) {
-            LOG.debug("Parsing attribute type {}", e.getKey());
+        BGPTreatAsWithdrawException withdrawCause = null;
+        for (final Entry<Integer, RawAttribute> entry : attributes.entrySet()) {
+            LOG.debug("Parsing attribute type {}", entry.getKey());
 
-            final RawAttribute a = e.getValue();
-            a.parser.parseAttribute(a.buffer, builder, constraint);
+            final RawAttribute a = entry.getValue();
+            try {
+                a.parser.parseAttribute(a.buffer, builder, errorHandling, constraint);
+            } catch (BGPTreatAsWithdrawException e) {
+                LOG.info("Attribute {} indicated treat-as-withdraw", entry.getKey(), e);
+                if (withdrawCause == null) {
+                    withdrawCause = e;
+                } else {
+                    withdrawCause.addSuppressed(e);
+                }
+            }
         }
         builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
+
+        // FIXME: BGPCEP-359 report withdrawCause upstream, so it can be handled properly
+        if (withdrawCause != null) {
+            throw withdrawCause.toDocumentedException();
+        }
+
         return builder.build();
     }
 
