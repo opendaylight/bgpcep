@@ -25,6 +25,7 @@ import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkAttributesPars
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.NodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.PrefixAttributesParser;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.rsvp.parser.impl.RSVPActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
@@ -162,7 +163,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testGetNlriType() throws BGPParsingException {
+    public void testGetNlriType() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf b = Unpooled.buffer();
         AttributesBuilder builder = new AttributesBuilder();
         this.parser.parseAttribute(b, builder, null);
@@ -198,7 +199,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testPositiveLinks() throws BGPParsingException {
+    public void testPositiveLinks() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new LinkCaseBuilder().build());
         this.parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR), builder, null);
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
@@ -246,7 +247,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testPositiveNodes() throws BGPParsingException {
+    public void testPositiveNodes() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
         this.parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR), builder, null);
 
@@ -275,7 +276,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testPositiveV4Prefixes() throws BGPParsingException {
+    public void testPositiveV4Prefixes() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createUnreachBuilder(new PrefixCaseBuilder().setPrefixDescriptors(
             new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32")))
             .build()).build());
@@ -313,7 +314,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testPositiveTELspAttribute() throws BGPParsingException {
+    public void testPositiveTELspAttribute() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new TeLspCaseBuilder().build());
         this.parser.parseAttribute(Unpooled.copiedBuffer(TE_LSP_ATTR), builder, null);
 
