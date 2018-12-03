@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -34,16 +33,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 public class PathAttributeParserTest {
 
     @Test
-    public void testOriginParser() {
+    public void testOriginParser() throws BGPParsingException {
         try {
             ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().parseAttributes(
                     Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }), null);
             fail("This needs to fail.");
         } catch (final BGPDocumentedException e) {
-            assertEquals("Unknown Origin type.", e.getMessage());
-            assertArrayEquals(new byte[] { 0x01, 0x01, 0x04 }, e.getData());
-        } catch (final BGPParsingException e) {
-            fail("This exception should not occur.");
+            assertEquals("Unknown ORIGIN type 4", e.getMessage());
         }
     }
 
