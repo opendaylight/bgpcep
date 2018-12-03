@@ -7,17 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.bgp.parser.spi.AttributeUtil.formatAttribute;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
+import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.MplsLabelUtil;
@@ -38,7 +40,8 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
  *
  * @author Claudio D. Gasparini
  */
-public final class PEDistinguisherLabelsAttributeHandler implements AttributeParser, AttributeSerializer {
+public final class PEDistinguisherLabelsAttributeHandler extends AbstractAttributeParser
+        implements AttributeSerializer {
 
     private static final int TYPE = 27;
 
@@ -47,18 +50,33 @@ public final class PEDistinguisherLabelsAttributeHandler implements AttributePar
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) {
-        if (!buffer.isReadable()) {
+            final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
+                    throws BGPTreatAsWithdrawException {
+        final int readable = buffer.readableBytes();
+        if (readable == 0) {
             return;
         }
-        final boolean isIpv4 = buffer.readableBytes() % 7 == 0;
-        final boolean isIpv6 = buffer.readableBytes() % 19 == 0;
 
-        // FIXME: BGPCEP-359: what is the handling here?
-        checkArgument(isIpv4 || isIpv6, "Length of byte array should be multiple of 7 or multiple of 19");
+        final boolean isIpv4;
+        final int count;
+        if (readable % 7 == 0) {
+            count = readable / 7;
+            isIpv4 = true;
+        } else if (readable % 19 == 0) {
+            count = readable / 19;
+            isIpv4 = false;
+        } else {
+            // RFC-6514 page 16:
+            //        When a router that receives a BGP Update that contains the PE
+            //        Distinguisher Labels attribute with its Partial bit set determines
+            //        that the attribute is malformed, the router SHOULD treat this Update
+            //        as though all the routes contained in this Update had been withdrawn.
+            throw new BGPTreatAsWithdrawException(BGPError.MALFORMED_ATTR_LIST,
+                "PE Distinguisher Labels has incorrect length %s", readable);
+        }
 
-        final List<PeDistinguisherLabelAttribute> list = new ArrayList<>();
-        while (buffer.isReadable()) {
+        final List<PeDistinguisherLabelAttribute> list = new ArrayList<>(count);
+        for (int i = 0; i < count; ++i) {
             final PeDistinguisherLabelAttributeBuilder attribute = new PeDistinguisherLabelAttributeBuilder();
             if (isIpv4) {
                 attribute.setPeAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer)));
