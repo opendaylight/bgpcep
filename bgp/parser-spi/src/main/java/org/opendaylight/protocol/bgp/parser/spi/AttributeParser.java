@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 
 /**
@@ -26,9 +27,32 @@ public interface AttributeParser {
      * @param builder Path attributes builder. Guaranteed to contain all valid attributes whose type is numerically
      *        lower than this attribute's type.
      * @param constraint Peer specific constraints, may be null
+     * @throws BGPDocumentedException when an irrecoverable error occurred which has a {@link BGPError} assigned
+     * @throws BGPParsingException when a general unspecified parsing error occurs.
      */
     void parseAttribute(@Nonnull ByteBuf buffer, @Nonnull AttributesBuilder builder,
             @Nullable PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException;
+
+    /**
+     * Parses attribute from ByteBuf buffer with the specified {@link RevisedErrorHandling}. Default implementation
+     * ignores error handling and defers to
+     * {@link #parseAttribute(ByteBuf, AttributesBuilder, PeerSpecificParserConstraint)}.
+     *
+     * @param buffer Encoded attribute body in ByteBuf.
+     * @param builder Path attributes builder. Guaranteed to contain all valid attributes whose type is numerically
+     *        lower than this attribute's type.
+     * @param errorHandling RFC7606 error handling type
+     * @param constraint Peer specific constraints, may be null
+     * @throws BGPDocumentedException when an irrecoverable error occurred which has a {@link BGPError} assigned
+     * @throws BGPParsingException when a general unspecified parsing error occurs.
+     * @throws BGPTreatAsWithdrawException when parsing according to revised error handling indicates the
+     *                                              message should be treated as withdraw.
+     */
+    default void parseAttribute(@Nonnull final ByteBuf buffer, @Nonnull final AttributesBuilder builder,
+            @Nonnull final RevisedErrorHandling errorHandling, @Nullable final PeerSpecificParserConstraint constraint)
+                    throws BGPDocumentedException, BGPParsingException, BGPTreatAsWithdrawException {
+        parseAttribute(buffer, builder, constraint);
+    }
 
     /**
      * Determine whether a duplicate attribute should be ignored or {@link BGPError#MALFORMED_ATTR_LIST} should be
