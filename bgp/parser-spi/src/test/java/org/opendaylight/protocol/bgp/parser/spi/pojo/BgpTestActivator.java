@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -185,7 +186,7 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
             Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class), any());
             doReturn(EMPTY).when(this.nlriParser).toString();
 
-        } catch (BGPDocumentedException | BGPParsingException e) {
+        } catch (BGPDocumentedException | BGPParsingException | BGPTreatAsWithdrawException e) {
             Assert.fail();
         }
     }

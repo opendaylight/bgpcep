@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -81,7 +82,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testSimpleAttribute() throws BGPDocumentedException, BGPParsingException {
+    public void testSimpleAttribute() throws BGPDocumentedException, BGPParsingException, BGPTreatAsWithdrawException {
         final AttributeRegistry attrReg = this.ctx.getAttributeRegistry();
         final byte[] attributeBytes = {
             0x00, 0x00, 0x00
