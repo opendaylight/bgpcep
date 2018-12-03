@@ -72,7 +72,7 @@
                                 <artifact>
                                     <file>${project.build.directory}/classes/initial/protocols-config.xml</file>
                                     <type>xml</type>
-                                    <classifier>bgp-initial-config</classifier>
+                                    <classifier>bgp-protocols-config</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>${project.build.directory}/classes/initial/network-topology-config.xml</file>
