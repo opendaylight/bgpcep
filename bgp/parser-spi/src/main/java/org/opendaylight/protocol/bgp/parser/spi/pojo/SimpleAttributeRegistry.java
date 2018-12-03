@@ -25,6 +25,7 @@ import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.ParsedAttributes;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
@@ -128,13 +129,14 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     @Override
-    public Attributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
+    public ParsedAttributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
         final RevisedErrorHandling errorHandling = RevisedErrorHandling.from(constraint);
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();
         while (buffer.isReadable()) {
             addAttribute(buffer, errorHandling, attributes);
         }
+
         /*
          * TreeMap guarantees that we will be invoking the parser in the order
          * of increasing attribute type.
@@ -160,13 +162,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             }
         }
         builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
-
-        // FIXME: BGPCEP-359 report withdrawCause upstream, so it can be handled properly
-        if (withdrawCause != null) {
-            throw withdrawCause.toDocumentedException();
-        }
-
-        return builder.build();
+        return new ParsedAttributes(builder.build(), withdrawCause);
     }
 
     @Override

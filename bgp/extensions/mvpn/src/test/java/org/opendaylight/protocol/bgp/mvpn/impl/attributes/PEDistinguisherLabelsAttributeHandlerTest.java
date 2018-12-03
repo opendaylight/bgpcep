@@ -68,7 +68,7 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
         this.handler.serializeAttribute(expected, actual);
         assertArrayEquals(PE_DISTINGUISHER_LABELS, ByteArray.readAllBytes(actual));
         final Attributes actualAttr = this.handler.parseAttributes(
-                Unpooled.wrappedBuffer(PE_DISTINGUISHER_LABELS), null);
+                Unpooled.wrappedBuffer(PE_DISTINGUISHER_LABELS), null).getAttributes();
         assertEquals(expected, actualAttr);
     }
 
