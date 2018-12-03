@@ -12,17 +12,19 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
+import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
 
-public final class OriginAttributeParser implements AttributeParser, AttributeSerializer {
+public final class OriginAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
 
     public static final int TYPE = 1;
 
@@ -32,14 +34,18 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
-        // FIXME: BGPCEP-359: check if a byte is available, treat-as-withdraw
+            final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
+                    throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        final int readable = buffer.readableBytes();
+        if (readable != 1) {
+            throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
+                "ORIGIN attribute is expected to have size 1, but has %s", readable);
+        }
+
         final byte rawOrigin = buffer.readByte();
         final BgpOrigin borigin = BgpOrigin.forValue(UnsignedBytes.toInt(rawOrigin));
         if (borigin == null) {
-            // FIXME: BGPCEP-359: treat-as-withdraw
-            throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID,
-                    new byte[]{(byte) 0x01, (byte) 0x01, rawOrigin});
+            throw errorHandling.reportError(BGPError.ORIGIN_ATTR_NOT_VALID, "Unknown ORIGIN type %s", rawOrigin);
         }
         switch (borigin) {
             case Egp:
