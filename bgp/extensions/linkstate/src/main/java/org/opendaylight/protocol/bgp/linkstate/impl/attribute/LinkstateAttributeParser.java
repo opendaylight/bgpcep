@@ -12,10 +12,11 @@ import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Attributes1Builder;
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-04">BGP-LS draft</a>
  */
-public final class LinkstateAttributeParser implements AttributeParser, AttributeSerializer {
+public final class LinkstateAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateAttributeParser.class);
 
@@ -81,8 +82,9 @@ public final class LinkstateAttributeParser implements AttributeParser, Attribut
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
-        // FIXME: BGPCEP-359: what is the handling here?
+            final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
+                    throws BGPParsingException {
+        // FIXME: BGPCEP-359: we need an updated link-state spec for RFC7606
         final CLinkstateDestination lsDestination = getNlriType(builder);
         if (lsDestination == null) {
             LOG.warn("No Linkstate NLRI found, not parsing Linkstate attribute");
