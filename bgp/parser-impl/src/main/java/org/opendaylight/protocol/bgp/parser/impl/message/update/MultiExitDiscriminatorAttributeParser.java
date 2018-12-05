@@ -41,10 +41,12 @@ public final class MultiExitDiscriminatorAttributeParser extends AbstractAttribu
     @Override
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
         final MultiExitDisc multiExitDisc = attribute.getMultiExitDisc();
-        if (multiExitDisc == null) {
-            return;
+        if (multiExitDisc != null) {
+            final Long med = multiExitDisc.getMed();
+            if (med != null) {
+                AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, Unpooled.copyInt(med.intValue()),
+                    byteAggregator);
+            }
         }
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE,
-                Unpooled.copyInt(multiExitDisc.getMed().intValue()), byteAggregator);
     }
 }
