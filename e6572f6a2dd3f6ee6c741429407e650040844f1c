@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "90eec479_0c530ca8",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-12-05T22:58:57Z",
+      "side": 1,
+      "message": "reportError() would turn this into a treat-as-withdraw, which leads us to: Section 3 item j) -- i.e. we require both MP_REACH and MP_UNREACH to be successfully parsed.\n\nHence I do not believe it is feasible to recover from errors in these two attributes.",
+      "parentUuid": "9956b68c_45bd8261",
+      "range": {
+        "startLine": 47,
+        "startChar": 18,
+        "endLine": 47,
+        "endChar": 44
+      },
+      "revId": "e6572f6a2dd3f6ee6c741429407e650040844f1c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e853facb_0d20ed4d",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPUnreachAttributeParser.java",
         "patchSetId": 11
