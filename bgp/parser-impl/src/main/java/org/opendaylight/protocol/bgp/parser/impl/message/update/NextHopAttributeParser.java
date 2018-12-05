@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.util.Ipv4Util.IP4_LENGTH;
+import static org.opendaylight.protocol.util.Ipv6Util.IPV6_LENGTH;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -33,7 +34,7 @@ public final class NextHopAttributeParser  extends AbstractAttributeParser imple
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException, BGPTreatAsWithdrawException {
         final int readable = buffer.readableBytes();
-        if (readable != IP4_LENGTH) {
+        if (readable != IP4_LENGTH  && readable != IPV6_LENGTH && readable != IPV6_LENGTH * 2) {
             throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
                 "NEXT_HOP attribute is expected to have length %s but has %s", IP4_LENGTH, readable);
         }

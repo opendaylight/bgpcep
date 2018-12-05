@@ -50,7 +50,7 @@ public final class LocalPreferenceAttributeParser extends AbstractAttributeParse
     @Override
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
         final LocalPref lp = attribute.getLocalPref();
-        if (lp == null) {
+        if (lp == null || lp.getPref() == null) {
             return;
         }
         AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE,
