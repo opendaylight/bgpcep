@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VA
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -91,6 +92,8 @@ public interface RIBSupport<
      */
     @Nonnull
     Class<R> routesListClass();
+
+    @Nullable List<R> routesFromContainer(@Nonnull S container);
 
     @Nonnull
     default ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
