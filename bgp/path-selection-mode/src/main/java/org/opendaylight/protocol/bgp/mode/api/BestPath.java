@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mode.api;
 
 import com.google.common.primitives.UnsignedInteger;
@@ -44,4 +43,11 @@ public interface BestPath {
      * @return pathId
      */
     long getPathId();
+
+    /**
+     * Return true if this path is depreferenced.
+     *
+     * @return True if this path is depreferenced.
+     */
+    boolean isDepreferenced();
 }

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -31,13 +30,13 @@ public final class AdvertizedRoute<C extends Routes & DataObject & ChoiceIn<Tabl
     private final boolean isFirstBestPath;
 
     public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final Attributes attributes,
-            final PeerId fromPeerId) {
-        this(ribSupport, true, route, attributes, fromPeerId);
+            final PeerId fromPeerId, final boolean depreferenced) {
+        this(ribSupport, true, route, attributes, fromPeerId, depreferenced);
     }
 
     public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final boolean isFirstBestPath,
-            final R route, final Attributes attributes, final PeerId fromPeerId) {
-        super(ribSupport, route, fromPeerId, attributes);
+            final R route, final Attributes attributes, final PeerId fromPeerId, final boolean depreferenced) {
+        super(ribSupport, route, fromPeerId, attributes, depreferenced);
         this.isFirstBestPath = isFirstBestPath;
     }
 

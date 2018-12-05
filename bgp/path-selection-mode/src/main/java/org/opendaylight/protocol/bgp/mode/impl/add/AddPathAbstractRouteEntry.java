@@ -131,7 +131,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
             // FIXME: can we use identity check here?
             final boolean isFirstBestPath = firstBestPath != null && firstBestPath.equals(path);
             final AdvertizedRoute<C, S, R, I> adv = new AdvertizedRoute<>(ribSupport, isFirstBestPath,
-                    routeAddPath, path.getAttributes(), path.getPeerId());
+                    routeAddPath, path.getAttributes(), path.getPeerId(), path.isDepreferenced());
             advertized.add(adv);
         }
         this.newBestPathToBeAdvertised = null;
@@ -148,7 +148,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         for (final AddPathBestPath path : this.bestPath) {
             final R route = createRoute(ribSupport, entryInfo.getRouteKey(), path.getPathId(), path);
             final ActualBestPathRoutes<C, S, R, I> adv = new ActualBestPathRoutes<>(ribSupport, route, path.getPeerId(),
-                    path.getAttributes());
+                    path.getAttributes(), path.isDepreferenced());
             preexistentRoutes.add(adv);
         }
         return preexistentRoutes;

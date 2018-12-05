@@ -38,12 +38,14 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
     private final Attributes attributes;
     private final I nonAddPathRouteKeyIdentifier;
     private final I addPathRouteKeyIdentifier;
+    private final boolean depreferenced;
 
     AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final PeerId fromPeerId,
-            final Attributes attributes) {
+            final Attributes attributes, final boolean depreferenced) {
         this.fromPeerId = fromPeerId;
         this.route = route;
         this.attributes = attributes;
+        this.depreferenced = depreferenced;
 
         final @NonNull String routeKey = verifyNotNull(route.getRouteKey());
         this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(NON_PATH_ID_VALUE, routeKey);
@@ -60,6 +62,10 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
 
     public final Attributes getAttributes() {
         return attributes;
+    }
+
+    public final boolean isDepreferenced() {
+        return depreferenced;
     }
 
     @Override
