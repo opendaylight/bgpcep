@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
@@ -82,5 +83,10 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     @Override
     public Ipv4RouteKey createRouteListKey(final long pathId, final String routeKey) {
         return new Ipv4RouteKey(new PathId(pathId), routeKey);
+    }
+
+    @Override
+    public List<Ipv4Route> routesFromContainer(final Ipv4Routes container) {
+        return container.getIpv4Route();
     }
 }
