@@ -61,18 +61,21 @@ public class AbstractBestPathSelector {
          * FIXME: for eBGP cases (when the LOCAL_PREF is missing), we should assign a policy-based preference
          *        before we ever get here.
          */
-        if (this.bestState.getLocalPref() == null && state.getLocalPref() != null) {
-            return true;
-        }
-        if (this.bestState.getLocalPref() != null && state.getLocalPref() == null) {
+        final Long bestLocal = this.bestState.getLocalPref();
+        final Long stateLocal = state.getLocalPref();
+        if (stateLocal != null) {
+            if (bestLocal == null) {
+                return true;
+            }
+
+            final Boolean bool = firstLower(stateLocal, bestLocal);
+            if (bool != null) {
+                return bool;
+            }
+        } else if (bestLocal != null) {
             return false;
         }
-        if (state.getLocalPref() != null && state.getLocalPref() > this.bestState.getLocalPref()) {
-            return false;
-        }
-        if (state.getLocalPref() != null && state.getLocalPref() < this.bestState.getLocalPref()) {
-            return true;
-        }
+
         // 3. prefer learned path
         // - we assume that all paths are learned
 
@@ -91,8 +94,8 @@ public class AbstractBestPathSelector {
             return no.ordinal() > bo.ordinal();
         }
         // FIXME: we should be able to cache the best AS
-        final Long bestAs = this.bestState.getPeerAs();
-        final Long newAs = state.getPeerAs();
+        final long bestAs = this.bestState.getPeerAs();
+        final long newAs = state.getPeerAs();
 
         /*
          * Checks 6 and 7 are mutually-exclusive, as MEDs are comparable
@@ -101,12 +104,11 @@ public class AbstractBestPathSelector {
          * relationship.
          *
          */
-        if (bestAs.equals(newAs)) {
+        if (bestAs == newAs) {
             // 6. prefer the path with the lowest multi-exit discriminator (MED)
-            if (this.bestState.getMultiExitDisc() != null || state.getMultiExitDisc() != null) {
-                final Long bmed = this.bestState.getMultiExitDisc();
-                final Long nmed = state.getMultiExitDisc();
-                return nmed >= bmed;
+            final Boolean cmp = firstLower(this.bestState.getMultiExitDisc(), state.getMultiExitDisc());
+            if (cmp != null) {
+                return cmp;
             }
         } else {
             /*
@@ -151,5 +153,10 @@ public class AbstractBestPathSelector {
          *  - not applicable, BUG-2631 prevents parallel sessions to be created.
          */
         return true;
+    }
+
+    private static Boolean firstLower(final long first, final long second) {
+        return first < second ? Boolean.TRUE : first == second ? null : Boolean.FALSE;
+
     }
 }
