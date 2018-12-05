@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
@@ -35,6 +36,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
@@ -46,15 +48,18 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameter
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.ClientRouteTargetContrainCache;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.RouteTargetMembeshipUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.EffectiveRibIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.adj.rib.in.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
@@ -95,6 +100,13 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             MplsLabeledVpnSubsequentAddressFamily.class);
     private static final TablesKey IVP6_VPN_TABLE_KEY = new TablesKey(Ipv6AddressFamily.class,
             MplsLabeledVpnSubsequentAddressFamily.class);
+    private static final ImmutableList<Communities> STALE_LLGR_COMMUNUTIES = ImmutableList.of(
+        StaleCommunities.STALE_LLGR);
+    private static final Attributes STALE_LLGR_ATTRIBUTES = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
+            .xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder()
+            .setCommunities(STALE_LLGR_COMMUNUTIES)
+            .build();
+
     private final RIBSupportContextRegistry registry;
     private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
     private final InstanceIdentifier<EffectiveRibIn> effRibTables;
@@ -112,6 +124,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
     private boolean rtMembershipsUpdated;
+
+
 
     EffectiveRibInWriter(
             final BGPRouteEntryImportParameters peer,
@@ -190,23 +204,38 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                         break;
                     }
 
+                    final boolean longLivedStale = longLivedStaleTable(after.getAttributes());
                     final DataObjectModification<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                         .rib.rev180329.rib.tables.Attributes> adjRibAttrsChanged = table.getModifiedChildContainer(
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
                                 .rib.tables.Attributes.class);
+                    final boolean changedLongLivedStale;
                     if (adjRibAttrsChanged != null) {
+                        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
+                            .rib.tables.Attributes adjRibAttrs = adjRibAttrsChanged.getDataAfter();
                         tx.put(LogicalDatastoreType.OPERATIONAL,
                             tablePath.child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-                                .rib.rev180329.rib.tables.Attributes.class), adjRibAttrsChanged.getDataAfter());
+                                .rib.rev180329.rib.tables.Attributes.class), effRibAttrs(adjRibAttrs));
+                        final boolean wasLongLivedStale = before != null && longLivedStaleTable(before.getAttributes());
+                        changedLongLivedStale = longLivedStale != wasLongLivedStale;
+                    } else {
+                        changedLongLivedStale = false;
                     }
 
-                    final DataObjectModification routesChangesContainer = table.getModifiedChildContainer(
-                        ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
-
-                    if (routesChangesContainer == null) {
-                        break;
+                    if (!changedLongLivedStale) {
+                        final DataObjectModification routesChangesContainer = table.getModifiedChildContainer(
+                            ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
+                        if (routesChangesContainer != null) {
+                            updateRoutes(tx, tk, ribSupport, tablePath, routesChangesContainer.getModifiedChildren(),
+                                longLivedStale);
+                        }
+                    } else {
+                        // Long-lived Graceful Restart Stale flag has changed. Wipe the effective table and reinterpret
+                        // all existing routes using the new flag value.
+                        tx.delete(LogicalDatastoreType.OPERATIONAL,
+                            tablePath.child(ribSupport.routesCaseClass(), ribSupport.routesContainerClass()));
+                        writeRoutes(tx, tk, ribSupport, tablePath, after, longLivedStale);
                     }
-                    updateRoutes(tx, tk, ribSupport, tablePath, routesChangesContainer.getModifiedChildren());
                     break;
                 case WRITE:
                     writeTable(tx, table);
@@ -246,7 +275,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final WriteTransaction tx,
             final TablesKey tableKey, final RIBSupport<C, S, R, I> ribSupport,
             final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
-            final Collection<DataObjectModification<R>> routeChanges) {
+            final Collection<DataObjectModification<R>> routeChanges, final boolean longLivedStale) {
         for (final DataObjectModification<R> routeChanged : routeChanges) {
             final PathArgument routeChangeId = routeChanged.getIdentifier();
             verify(routeChangeId instanceof IdentifiableItem, "Route change %s has invalid identifier %s",
@@ -256,7 +285,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             switch (routeChanged.getModificationType()) {
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, routeChanged.getDataAfter());
+                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, routeChanged.getDataAfter(),
+                        longLivedStale);
                     break;
                 case DELETE:
                     final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
@@ -270,28 +300,74 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeRoutes(
                 final WriteTransaction tx, final TablesKey tk, final RIBSupport<C, S, R, I> ribSupport,
             final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final I routeKey,
-            final R route) {
+            final R route, final boolean longLivedStale) {
         final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
         CountersUtil.increment(this.prefixesReceived.get(tk), tk);
-        final Optional<Attributes> effAtt = this.ribPolicies
-                .applyImportPolicies(this.peerImportParameters, route.getAttributes(),
-                        tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get());
-        if (effAtt.isPresent()) {
-            final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
-            if (rtMembership.isPresent()) {
-                final RouteTarget rt = rtMembership.get();
-                if(PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
-                    this.rtCache.cacheRoute(route);
-                }
-                this.rtMemberships.add(rt);
-                this.rtMembershipsUpdated = true;
-            }
-            CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), effAtt.get());
-        } else {
-            deleteRoutes(routeIID, route, tx);
 
+        final Attributes routeAttrs = route.getAttributes();
+        final Attributes attrs = longLivedStale ? wrapLongLivedStale(routeAttrs) : routeAttrs;
+
+        final Optional<Attributes> optEffAtt = this.ribPolicies.applyImportPolicies(this.peerImportParameters, attrs,
+            tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get());
+        if (optEffAtt.isPresent()) {
+            deleteRoutes(routeIID, route, tx);
+            return;
+        }
+
+        final Attributes effAtt = optEffAtt.get();
+        if (longLivedStale) {
+            // LLGR procedures are in effect. If the route is tagged with NO_LLGR, it needs to be removed.
+            final List<Communities> effCommunities = effAtt.getCommunities();
+            if (effCommunities != null && effCommunities.contains(CommunityUtil.NO_LLGR)) {
+                deleteRoutes(routeIID, route, tx);
+                return;
+            }
+        }
+
+        final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
+        if (rtMembership.isPresent()) {
+            final RouteTarget rt = rtMembership.get();
+            if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
+                this.rtCache.cacheRoute(route);
+            }
+            this.rtMemberships.add(rt);
+            this.rtMembershipsUpdated = true;
+        }
+        CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
+        tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
+        tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), effAtt);
+    }
+
+    private static Attributes wrapLongLivedStale(final Attributes attrs) {
+        if (attrs == null) {
+            return STALE_LLGR_ATTRIBUTES;
+        }
+
+        final List<Communities> oldCommunities = attrs.getCommunities();
+        final List<Communities> newCommunities;
+        if (oldCommunities != null) {
+            if (oldCommunities.contains(StaleCommunities.STALE_LLGR)) {
+                return attrs;
+            }
+            newCommunities = StaleCommunities.create(oldCommunities);
+        } else {
+            newCommunities = STALE_LLGR_COMMUNUTIES;
+        }
+
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329
+                .path.attributes.AttributesBuilder(attrs).setCommunities(newCommunities).build();
+    }
+
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeRoutes(
+                final WriteTransaction tx, final TablesKey tk, final RIBSupport<C, S, R, I> ribSupport,
+            final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Tables newTable,
+            final boolean longLivedStale) {
+        final List<R> routes = ribSupport.extractRoutes(newTable);
+        if (routes != null) {
+            for (R route : routes) {
+                writeRoutes(tx, tk, ribSupport, tablePath, route.key(), route, longLivedStale);
+            }
         }
     }
 
@@ -321,18 +397,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         // Create an empty table
         LOG.trace("Create Empty table at {}", tablePath);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes
+            attrs = newTable.getAttributes();
+
         tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
             .withKey(tableKey).setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
-            .setAttributes(newTable.getAttributes()).build());
+            .setAttributes(effRibAttrs(attrs)).build());
 
         final RIBSupport<C, S, R, I> ribSupport = this.registry.getRIBSupport(tableKey);
         if (ribSupport != null) {
-            final List<R> routes = ribSupport.extractRoutes(newTable);
-            if (routes != null) {
-                for (R route : routes) {
-                    writeRoutes(tx, tableKey, ribSupport, tablePath, route.key(), route);
-                }
-            }
+            writeRoutes(tx, tableKey, ribSupport, tablePath, newTable, longLivedStaleTable(attrs));
         }
     }
 
@@ -388,5 +462,21 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     @Override
     public long getTotalPrefixesInstalled() {
         return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+    }
+
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
+        .rib.tables.Attributes effRibAttrs(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                .rib.rev180329.rib.tables.Attributes adjRibAttrs) {
+        // Make sure we clear the augmentation specific to adj-rib-in
+        return new AttributesBuilder(adjRibAttrs).addAugmentation(Attributes1.class, null).build();
+    }
+
+    private static boolean longLivedStaleTable(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .bgp.rib.rev180329.rib.tables.Attributes adjRibAttrs) {
+        if (adjRibAttrs == null) {
+            return false;
+        }
+        final Attributes1 staleAugment = adjRibAttrs.augmentation(Attributes1.class);
+        return staleAugment != null && staleAugment.getLlgrStale() != null;
     }
 }
