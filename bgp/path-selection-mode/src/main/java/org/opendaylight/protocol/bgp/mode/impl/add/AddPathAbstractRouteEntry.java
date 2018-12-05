@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
@@ -123,10 +124,12 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         if (this.newBestPathToBeAdvertised == null || this.newBestPathToBeAdvertised.isEmpty()) {
             return Collections.emptyList();
         }
-        final List<AdvertizedRoute<C, S, R, I>> advertized = new ArrayList<>();
+        final List<AdvertizedRoute<C, S, R, I>> advertized = new ArrayList<>(newBestPathToBeAdvertised.size());
+        final AddPathBestPath firstBestPath = this.bestPath.isEmpty() ? null : this.bestPath.get(0);
         for (final AddPathBestPath path : this.newBestPathToBeAdvertised) {
-            final boolean isFirstBestPath = isFirstBestPath(this.bestPath.indexOf(path));
             final R routeAddPath = createRoute(ribSupport, routeKey, path.getPathId(), path);
+            // FIXME: can we use identity check here?
+            final boolean isFirstBestPath = firstBestPath != null && firstBestPath.equals(path);
             final AdvertizedRoute<C, S, R, I> adv = new AdvertizedRoute<>(ribSupport, isFirstBestPath,
                     routeAddPath, path.getAttributes(), path.getPeerId());
             advertized.add(adv);
@@ -184,19 +187,17 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         return selector.result();
     }
 
-    private static boolean isFirstBestPath(final int bestPathPosition) {
-        return bestPathPosition == 0;
-    }
-
-    protected boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
+    protected boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
         this.isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
         filterRemovedPaths(newBestPathList);
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()
                 || newBestPathList != null
                 && !newBestPathList.equals(this.bestPath)) {
-            this.newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
             if (this.bestPath != null) {
+                this.newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
                 this.newBestPathToBeAdvertised.removeAll(this.bestPath);
+            } else {
+                this.newBestPathToBeAdvertised = newBestPathList;
             }
             this.bestPath = newBestPathList;
             LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
