@@ -47,6 +47,12 @@ public class AbstractBestPathSelector {
      * @return true if the existing path is better, false if the new path is better
      */
     protected boolean isExistingPathBetter(@Nonnull final BestPathState state) {
+        // 0. draft-uttaro-idr-bgp-persistence-04 defines "depreferenced" paths
+        final boolean stateDepref = state.isDepreferenced();
+        if (this.bestState.isDepreferenced() != stateDepref) {
+            return stateDepref;
+        }
+
         // 1. prefer path with accessible nexthop
         // - we assume that all nexthops are accessible
         /*
