@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
@@ -35,6 +36,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
@@ -46,6 +48,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameter
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.ClientRouteTargetContrainCache;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.RouteTargetMembeshipUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
@@ -95,6 +98,13 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             MplsLabeledVpnSubsequentAddressFamily.class);
     private static final TablesKey IVP6_VPN_TABLE_KEY = new TablesKey(Ipv6AddressFamily.class,
             MplsLabeledVpnSubsequentAddressFamily.class);
+    private static final ImmutableList<Communities> STALE_LLGR_COMMUNUTIES = ImmutableList.of(
+        StaleCommunities.STALE_LLGR);
+    private static final Attributes STALE_LLGR_ATTRIBUTES = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
+            .xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder()
+            .setCommunities(STALE_LLGR_COMMUNUTIES)
+            .build();
+
     private final RIBSupportContextRegistry registry;
     private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
     private final InstanceIdentifier<EffectiveRibIn> effRibTables;
@@ -260,7 +270,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             switch (routeChanged.getModificationType()) {
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, routeChanged.getDataAfter());
+                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, routeChanged.getDataAfter(), false);
                     break;
                 case DELETE:
                     final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
@@ -271,32 +281,66 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeRoutes(
-                final WriteTransaction tx, final TablesKey tk, final RIBSupport<C, S, R, I> ribSupport,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeRoutes(
+            final WriteTransaction tx, final TablesKey tk, final RIBSupport<C, S, R, I> ribSupport,
             final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final I routeKey,
-            final R route) {
+            final R route, final boolean longLivedStale) {
         final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
         CountersUtil.increment(this.prefixesReceived.get(tk), tk);
-        final Optional<Attributes> effAtt = this.ribPolicies
-                .applyImportPolicies(this.peerImportParameters, route.getAttributes(),
-                        tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get());
-        if (effAtt.isPresent()) {
-            final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
-            if (rtMembership.isPresent()) {
-                final RouteTarget rt = rtMembership.get();
-                if(PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
-                    this.rtCache.cacheRoute(route);
-                }
-                this.rtMemberships.add(rt);
-                this.rtMembershipsUpdated = true;
-            }
-            CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
-            tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), effAtt.get());
-        } else {
-            deleteRoutes(routeIID, route, tx);
 
+        final Attributes routeAttrs = route.getAttributes();
+        final Optional<Attributes> optEffAtt;
+        // In case we want to add LLGR_STALE we do not process route through policies since it may be
+        // considered as received with LLGR_STALE from peer which is not true.
+        if (longLivedStale) {
+            // LLGR procedures are in effect. If the route is tagged with NO_LLGR, it needs to be removed.
+            final List<Communities> effCommunities = routeAttrs.getCommunities();
+            if (effCommunities != null && effCommunities.contains(CommunityUtil.NO_LLGR)) {
+                deleteRoutes(routeIID, route, tx);
+                return;
+            }
+            optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
+        } else {
+            optEffAtt = this.ribPolicies.applyImportPolicies(this.peerImportParameters, routeAttrs,
+                    tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get());
         }
+        if (!optEffAtt.isPresent()) {
+            deleteRoutes(routeIID, route, tx);
+            return;
+        }
+
+        final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
+        if (rtMembership.isPresent()) {
+            final RouteTarget rt = rtMembership.get();
+            if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
+                this.rtCache.cacheRoute(route);
+            }
+            this.rtMemberships.add(rt);
+            this.rtMembershipsUpdated = true;
+        }
+        CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
+        tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
+        tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), optEffAtt.get());
+    }
+
+    private static Attributes wrapLongLivedStale(final Attributes attrs) {
+        if (attrs == null) {
+            return STALE_LLGR_ATTRIBUTES;
+        }
+
+        final List<Communities> oldCommunities = attrs.getCommunities();
+        final List<Communities> newCommunities;
+        if (oldCommunities != null) {
+            if (oldCommunities.contains(StaleCommunities.STALE_LLGR)) {
+                return attrs;
+            }
+            newCommunities = StaleCommunities.create(oldCommunities);
+        } else {
+            newCommunities = STALE_LLGR_COMMUNUTIES;
+        }
+
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329
+                .path.attributes.AttributesBuilder(attrs).setCommunities(newCommunities).build();
     }
 
     private <R extends Route> void deleteRoutes(final InstanceIdentifier<R> routeIID,
@@ -326,7 +370,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         LOG.trace("Create Empty table at {}", tablePath);
         if (table.getDataBefore() == null) {
             tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
-                    .setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
+                    .withKey(tableKey).setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
                     .setAttributes(newTable.getAttributes()).build());
         }
 
