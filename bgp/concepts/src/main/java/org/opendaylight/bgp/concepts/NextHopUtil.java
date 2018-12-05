@@ -62,18 +62,48 @@ public final class NextHopUtil {
     public static CNextHop parseNextHop(final ByteBuf buffer) {
         switch (buffer.writerIndex()) {
             case Ipv4Util.IP4_LENGTH:
-                return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                        .setGlobal(Ipv4Util.addressForByteBuf(buffer)).build()).build();
+                return parseNextHopIpv4(buffer);
             case Ipv6Util.IPV6_LENGTH:
-                return new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
-                        .setGlobal(Ipv6Util.addressForByteBuf(buffer)).build()).build();
+                return parseNextHopIpv6(buffer);
             case Ipv6Util.IPV6_LENGTH * 2:
-                return new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-                        new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForByteBuf(buffer))
-                                .setLinkLocal(Ipv6Util.addressForByteBuf(buffer)).build()).build();
+                return parseNextHopFullIpv6(buffer);
             default:
                 throw new IllegalArgumentException("Cannot parse NEXT_HOP attribute. Wrong bytes length: "
                         + buffer.writerIndex());
         }
+    }
+
+    /**
+     * Parses CNextHop IPv4 address from given ByteBuf, which has already been checked for size.
+     *
+     * @param buffer contains byte array representation of CNextHop
+     * @return CNexthop object
+     */
+    public static CNextHop parseNextHopIpv4(final ByteBuf buffer) {
+        return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+            .setGlobal(Ipv4Util.addressForByteBuf(buffer)).build()).build();
+    }
+
+    /**
+     * Parses CNextHop IPv6 global address from given ByteBuf, which has already been checked for size.
+     *
+     * @param buffer contains byte array representation of CNextHop
+     * @return CNexthop object
+     */
+    public static CNextHop parseNextHopIpv6(final ByteBuf buffer) {
+        return new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
+            .setGlobal(Ipv6Util.addressForByteBuf(buffer)).build()).build();
+    }
+
+    /**
+     * Parses CNextHop IPv6 global+local address from given ByteBuf, which has already been checked for size.
+     *
+     * @param buffer contains byte array representation of CNextHop
+     * @return CNexthop object
+     */
+    public static CNextHop parseNextHopFullIpv6(final ByteBuf buffer) {
+        return new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
+            .setGlobal(Ipv6Util.addressForByteBuf(buffer))
+            .setLinkLocal(Ipv6Util.addressForByteBuf(buffer)).build()).build();
     }
 }
