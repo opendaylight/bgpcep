@@ -60,7 +60,7 @@ public final class AggregatorAttributeParser extends AbstractAttributeParser imp
     @Override
     public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final Aggregator aggregator = pathAttributes.getAggregator();
-        if (aggregator == null) {
+        if (aggregator == null || aggregator.getAsNumber() == null) {
             return;
         }
         Preconditions.checkArgument(aggregator.getAsNumber() != null,

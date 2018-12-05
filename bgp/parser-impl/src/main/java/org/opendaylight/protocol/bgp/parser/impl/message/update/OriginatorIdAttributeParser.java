@@ -51,7 +51,7 @@ public final class OriginatorIdAttributeParser extends AbstractAttributeParser i
     @Override
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
         final OriginatorId originator = attribute.getOriginatorId();
-        if (originator == null) {
+        if (originator == null || originator.getOriginator() == null) {
             return;
         }
         final ByteBuf originatorIdBuf = Unpooled.buffer();
