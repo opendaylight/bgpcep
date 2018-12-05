@@ -14,7 +14,12 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import java.util.List;
 import org.opendaylight.protocol.bgp.mode.BesthPathStateUtil;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDisc;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
 
@@ -40,37 +45,33 @@ public final class BestPathStateImpl implements BestPathState {
             if (s.getAsSet() != null && !setPresent) {
                 setPresent = true;
                 count++;
-            } else if (s.getAsSequence() != null) {
-                count += s.getAsSequence().size();
+            } else {
+                final List<AsNumber> seq = s.getAsSequence();
+                if (seq != null) {
+                    count += seq.size();
+                }
             }
         }
         return count;
     }
 
     private void resolveValues() {
-        if (this.resolved) {
+        if (resolved) {
             return;
         }
 
-        if (this.attributes.getLocalPref() != null) {
-            this.localPref = this.attributes.getLocalPref().getPref();
-        } else {
-            this.localPref = null;
-        }
+        final LocalPref attrLocalPref = attributes.getLocalPref();
+        localPref = attrLocalPref != null ? attrLocalPref.getPref() : null;
 
-        if (this.attributes.getMultiExitDisc() != null) {
-            this.multiExitDisc = this.attributes.getMultiExitDisc().getMed();
-        } else {
-            this.multiExitDisc = null;
-        }
+        final MultiExitDisc attrMed = attributes.getMultiExitDisc();
+        multiExitDisc = attrMed != null ? attrMed.getMed() : null;
 
-        if (this.attributes.getOrigin() != null) {
-            this.origin = this.attributes.getOrigin().getValue();
-        } else {
-            this.origin = null;
-        }
-        if (this.attributes.getAsPath() != null) {
-            final List<Segments> segs = this.attributes.getAsPath().getSegments();
+        final Origin attrOrigin = attributes.getOrigin();
+        origin = attrOrigin != null ? attrOrigin.getValue() : null;
+
+        final AsPath attrAsPath = attributes.getAsPath();
+        if (attrAsPath != null) {
+            final List<Segments> segs = attrAsPath.getSegments();
             if (segs != null && !segs.isEmpty()) {
                 this.peerAs = BesthPathStateUtil.getPeerAs(segs);
                 this.asPathLength = countAsPath(segs);
