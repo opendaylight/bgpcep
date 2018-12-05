@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
@@ -34,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class AggregatorAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
     private static final Logger LOG = LoggerFactory.getLogger(AggregatorAttributeParser.class);
+    private static final int AGGREGATOR_LENGTH = 8;
     public static final int TYPE = 7;
 
     private final ReferenceCache refCache;
@@ -45,7 +45,7 @@ public final class AggregatorAttributeParser extends AbstractAttributeParser imp
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint) {
-        if (buffer.readableBytes() != 8 && errorHandling != RevisedErrorHandling.NONE) {
+        if (buffer.readableBytes() != AGGREGATOR_LENGTH && errorHandling != RevisedErrorHandling.NONE) {
             // RFC7606: we do not support non-4-octet AS number peers, perform attribute-discard
             LOG.debug("Discarded malformed AGGREGATOR attribute");
             return;
@@ -60,16 +60,15 @@ public final class AggregatorAttributeParser extends AbstractAttributeParser imp
     @Override
     public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final Aggregator aggregator = pathAttributes.getAggregator();
-        if (aggregator == null) {
-            return;
+        if (aggregator != null) {
+            final AsNumber asNumber = aggregator.getAsNumber();
+            if (asNumber != null) {
+                final ByteBuf buffer = Unpooled.buffer(AGGREGATOR_LENGTH);
+                buffer.writeInt(new ShortAsNumber(asNumber).getValue().intValue());
+                buffer.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
+                AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE,
+                        TYPE, buffer, byteAggregator);
+            }
         }
-        Preconditions.checkArgument(aggregator.getAsNumber() != null,
-                "Missing AS number that formed the aggregate route (encoded as 2 octets).");
-        final ShortAsNumber shortAsNumber = new ShortAsNumber(aggregator.getAsNumber());
-        final ByteBuf buffer = Unpooled.buffer();
-        buffer.writeInt(shortAsNumber.getValue().intValue());
-        buffer.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE,
-                TYPE, buffer, byteAggregator);
     }
 }
