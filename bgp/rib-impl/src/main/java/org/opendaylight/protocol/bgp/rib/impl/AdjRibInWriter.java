@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -352,49 +350,54 @@ final class AdjRibInWriter {
     }
 
     void storeStaleRoutes(final Set<TablesKey> gracefulTables) {
+        final CountDownLatch latch = new CountDownLatch(gracefulTables.size());
+
         try (final DOMDataReadOnlyTransaction tx = this.chain.getDomChain().newReadOnlyTransaction()) {
-            final Map<TablesKey, ListenableFuture<Optional<NormalizedNode<?, ?>>>> readFutures = new HashMap<>();
-            final ExecutorService threadPool = Executors.newCachedThreadPool();
-            gracefulTables.forEach(tablesKey -> {
+            for (TablesKey tablesKey : gracefulTables) {
                 final TableContext ctx = this.tables.get(tablesKey);
                 if (ctx == null) {
                     LOG.warn("Missing table for address family {}", tablesKey);
-                    return;
+                    latch.countDown();
+                    continue;
                 }
+
                 final YangInstanceIdentifier iid = ctx.routesPath();
                 final ListenableFuture<Optional<NormalizedNode<?, ?>>> readFuture =
                         tx.read(LogicalDatastoreType.OPERATIONAL, iid);
-                readFutures.put(tablesKey, readFuture);
                 Futures.addCallback(readFuture, new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
                     @Override
                     public void onSuccess(final Optional<NormalizedNode<?, ?>> routesOptional) {
-                        synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
+                        try {
                             if (routesOptional.isPresent()) {
-                                final MapNode routesNode = (MapNode) routesOptional.get();
-                                final List<NodeIdentifierWithPredicates> routes = routesNode.getValue().stream()
-                                        .map(MapEntryNode::getIdentifier)
-                                        .collect(Collectors.toList());
-                                if (!routes.isEmpty()) {
-                                    AdjRibInWriter.this.staleRoutesRegistry.put(tablesKey, routes);
+                                synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
+                                    final MapNode routesNode = (MapNode) routesOptional.get();
+                                    final List<NodeIdentifierWithPredicates> routes = routesNode.getValue().stream()
+                                            .map(MapEntryNode::getIdentifier)
+                                            .collect(Collectors.toList());
+                                    if (!routes.isEmpty()) {
+                                        AdjRibInWriter.this.staleRoutesRegistry.put(tablesKey, routes);
+                                    }
                                 }
                             }
+                        } finally {
+                            latch.countDown();
                         }
                     }
 
                     @Override
                     public void onFailure(final Throwable throwable) {
                         LOG.warn("Failed to store stale routes for table {}", tablesKey, throwable);
+                        latch.countDown();
                     }
-                }, threadPool);
-            });
-            readFutures.entrySet().stream().forEach(entry -> {
-                try {
-                    entry.getValue().get();
-                } catch (final InterruptedException | ExecutionException e) {
-                    LOG.warn("Failed to store stale routes for table {}", entry.getKey(), e);
-                }
-            });
-            threadPool.shutdown();
+                }, MoreExecutors.directExecutor());
+            }
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.warn("Interrupted while waiting to store stale routes with {} tasks of {} to finish", latch.getCount(),
+                gracefulTables, e);
         }
     }
 
