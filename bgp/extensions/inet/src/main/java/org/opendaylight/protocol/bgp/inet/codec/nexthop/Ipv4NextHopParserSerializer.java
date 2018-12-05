@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.inet.codec.nexthop;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -20,16 +20,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class Ipv4NextHopParserSerializer implements NextHopParserSerializer {
     @Override
     public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
-        Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH,
-                "Length of byte array for NEXT_HOP should be %s, but is %s",
-                buffer.readableBytes(), Ipv4Util.IP4_LENGTH);
-        return NextHopUtil.parseNextHop(buffer);
+        final int readable = buffer.readableBytes();
+        checkArgument(readable == Ipv4Util.IP4_LENGTH, "Length of byte array for NEXT_HOP should be %s, but is %s",
+                readable, Ipv4Util.IP4_LENGTH);
+        return NextHopUtil.parseNextHopIpv4(buffer);
     }
 
     @Override
     public void serializeNextHop(final CNextHop nextHop, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(nextHop instanceof Ipv4NextHopCase,
-                "cNextHop is not a Ipv4 NextHop object.");
+        checkArgument(nextHop instanceof Ipv4NextHopCase, "cNextHop is not a Ipv4 NextHop object.");
         NextHopUtil.serializeNextHop(nextHop, byteAggregator);
     }
 }
