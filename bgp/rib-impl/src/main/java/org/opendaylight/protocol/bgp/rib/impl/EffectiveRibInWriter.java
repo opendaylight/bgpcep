@@ -186,9 +186,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     if (ribSupport == null) {
                         break;
                     }
-                    tx.put(LogicalDatastoreType.OPERATIONAL,
+
+                    final DataObjectModification<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                        .rib.rev180329.rib.tables.Attributes> adjRibAttrsChanged = table.getModifiedChildContainer(
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
+                                .rib.tables.Attributes.class);
+                    if (adjRibAttrsChanged != null) {
+                        tx.put(LogicalDatastoreType.OPERATIONAL,
                             tablePath.child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-                                    .rib.rev180329.rib.tables.Attributes.class), after.getAttributes());
+                                .rib.rev180329.rib.tables.Attributes.class), adjRibAttrsChanged.getDataAfter());
+                    }
 
                     final DataObjectModification routesChangesContainer = table.getModifiedChildContainer(
                         ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
