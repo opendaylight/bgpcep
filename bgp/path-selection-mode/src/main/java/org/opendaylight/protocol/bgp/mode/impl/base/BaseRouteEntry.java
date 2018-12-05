@@ -54,7 +54,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         return this.offsets.isEmpty();
     }
 
-    private  R createRoute(final RIBSupport<C, S, R, I> ribSup, String routeKey, final long pathId,
+    private  R createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey, final long pathId,
             final BaseBestPath path) {
         final R route = this.offsets.getValue(this.values, this.offsets.offsetOf(path.getRouterId()));
         return ribSup.createRoute(route, routeKey, pathId, path.getAttributes());
@@ -123,7 +123,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         }
         final R route = createRoute(ribSupport, routeKey, this.bestPath.getPathId(), this.bestPath);
         final AdvertizedRoute<C, S, R, I> adv = new AdvertizedRoute<>(ribSupport, route, this.bestPath.getAttributes(),
-                this.bestPath.getPeerId());
+                this.bestPath.getPeerId(), this.bestPath.isDepreferenced());
         LOG.trace("Selected best route {}", route);
         return Collections.singletonList(adv);
     }
@@ -136,6 +136,6 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         }
         final R route = createRoute(ribSupport, entryInfo.getRouteKey(), this.bestPath.getPathId(), this.bestPath);
         return Collections.singletonList(new ActualBestPathRoutes<>(ribSupport, route, this.bestPath.getPeerId(),
-                this.bestPath.getAttributes()));
+                this.bestPath.getAttributes(), this.bestPath.isDepreferenced()));
     }
 }
