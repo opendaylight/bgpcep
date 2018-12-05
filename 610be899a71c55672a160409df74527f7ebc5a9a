@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43fba921_26d85c2c",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/ParsedAttributes.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-12-05T11:35:37Z",
+      "side": 1,
+      "message": "Is this used anywhere in the patch? If not it should be moved to next consecutive patch.",
+      "revId": "610be899a71c55672a160409df74527f7ebc5a9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
