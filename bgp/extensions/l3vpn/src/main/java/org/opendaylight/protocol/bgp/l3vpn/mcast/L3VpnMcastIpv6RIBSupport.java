@@ -109,4 +109,9 @@ public final class L3VpnMcastIpv6RIBSupport
         return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
                 pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
+
+    @Override
+    public L3vpnMcastRoutesIpv6 containerFromCase(final L3vpnMcastRoutesIpv6Case routesCase) {
+        return routesCase.getL3vpnMcastRoutesIpv6();
+    }
 }
