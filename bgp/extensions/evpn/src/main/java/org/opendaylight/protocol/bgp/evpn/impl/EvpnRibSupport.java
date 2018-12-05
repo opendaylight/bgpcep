@@ -160,4 +160,9 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     public EvpnRouteKey createRouteListKey(final long pathId, final String routeKey) {
         return new EvpnRouteKey(new PathId(pathId), routeKey);
     }
+
+    @Override
+    public List<EvpnRoute> routesFromContainer(final EvpnRoutes container) {
+        return container.getEvpnRoute();
+    }
 }

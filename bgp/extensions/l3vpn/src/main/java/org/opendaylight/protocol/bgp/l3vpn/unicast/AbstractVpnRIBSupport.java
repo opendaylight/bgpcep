@@ -184,7 +184,12 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
     }
 
     @Override
-    public VpnRouteKey createRouteListKey(final long pathId, final String vpnRouteKey) {
+    public final VpnRouteKey createRouteListKey(final long pathId, final String vpnRouteKey) {
         return new VpnRouteKey(new PathId(pathId), vpnRouteKey);
+    }
+
+    @Override
+    public final List<VpnRoute> routesFromContainer(final S container) {
+        return container.getVpnRoute();
     }
 }

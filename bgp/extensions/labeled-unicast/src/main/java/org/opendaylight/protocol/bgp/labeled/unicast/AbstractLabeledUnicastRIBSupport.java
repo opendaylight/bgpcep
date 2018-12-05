@@ -187,4 +187,9 @@ abstract class AbstractLabeledUnicastRIBSupport<
         return builder.withKey(new LabeledUnicastRouteKey(new PathId(pathId), routeKey))
                 .setAttributes(attributes).build();
     }
+
+    @Override
+    public final List<LabeledUnicastRoute> routesFromContainer(final S container) {
+        return container.getLabeledUnicastRoute();
+    }
 }
