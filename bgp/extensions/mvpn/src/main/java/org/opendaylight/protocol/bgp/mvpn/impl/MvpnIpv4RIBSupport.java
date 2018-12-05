@@ -114,4 +114,9 @@ final class MvpnIpv4RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv4Case
         return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
                 pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
+
+    @Override
+    public MvpnRoutesIpv4 containerFromCase(final MvpnRoutesIpv4Case routesCase) {
+        return routesCase.getMvpnRoutesIpv4();
+    }
 }

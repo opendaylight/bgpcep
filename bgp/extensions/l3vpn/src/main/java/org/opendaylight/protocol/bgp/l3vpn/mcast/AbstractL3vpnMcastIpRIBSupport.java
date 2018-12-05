@@ -162,5 +162,11 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
                 .build();
     }
 
+
+    @Override
+    public final List<L3vpnMcastRoute> routesFromContainer(final S container) {
+        return container.getL3vpnMcastRoute();
+    }
+
     abstract NodeIdentifierWithPredicates createRouteKey(UnkeyedListEntryNode l3vpn);
 }

@@ -308,8 +308,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
     }
 
-    @SuppressWarnings("unchecked")
-    private void writeTable(final WriteTransaction tx, final DataObjectModification<Tables> table) {
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeTable(
+                    final WriteTransaction tx, final DataObjectModification<Tables> table) {
         final Tables newTable = table.getDataAfter();
         if (newTable == null) {
             return;
@@ -320,25 +321,19 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         // Create an empty table
         LOG.trace("Create Empty table at {}", tablePath);
-        if (table.getDataBefore() == null) {
-            tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
-                    .setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
-                    .setAttributes(newTable.getAttributes()).build());
-        }
+        tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
+            .withKey(tableKey).setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
+            .setAttributes(newTable.getAttributes()).build());
 
-        final RIBSupport ribSupport = this.registry.getRIBSupport(tableKey);
-        final Routes routes = newTable.getRoutes();
-        if (ribSupport == null || routes == null) {
-            return;
+        final RIBSupport<C, S, R, I> ribSupport = this.registry.getRIBSupport(tableKey);
+        if (ribSupport != null) {
+            final List<R> routes = ribSupport.extractRoutes(newTable);
+            if (routes != null) {
+                for (R route : routes) {
+                    writeRoutes(tx, tableKey, ribSupport, tablePath, route.key(), route);
+                }
+            }
         }
-
-        final DataObjectModification routesChangesContainer =
-                table.getModifiedChildContainer(ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
-
-        if (routesChangesContainer == null) {
-            return;
-        }
-        updateRoutes(tx, tableKey, ribSupport, tablePath, routesChangesContainer.getModifiedChildren());
     }
 
     @Override
