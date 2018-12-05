@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -89,6 +90,8 @@ public interface RIBSupport<
      */
     @Nonnull
     Class<R> routesListClass();
+
+    @Nullable List<R> routesFromContainer(@Nonnull S container);
 
     @Nonnull
     default ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
@@ -179,8 +182,8 @@ public interface RIBSupport<
      * @return YangInstanceIdentifier with routesPath + specific RIB support routes path + routeId
      */
     @Nonnull
-    default YangInstanceIdentifier routePath(@Nonnull YangInstanceIdentifier routesPath,
-                                             @Nonnull PathArgument routeId) {
+    default YangInstanceIdentifier routePath(@Nonnull final YangInstanceIdentifier routesPath,
+                                             @Nonnull final PathArgument routeId) {
         return routesPath(routesPath).node(routeId);
     }
 
@@ -273,8 +276,6 @@ public interface RIBSupport<
      */
     @Nonnull
     S emptyRoutesContainer();
-
-
 
     /**
      * Construct a Route List Key using new path Id for Families.

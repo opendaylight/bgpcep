@@ -115,4 +115,9 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
     public Ipv4RouteKey createRouteListKey(final long pathId, final String routeKey) {
         return new Ipv4RouteKey(new PathId(pathId), routeKey);
     }
+
+    @Override
+    public List<Ipv4Route> routesFromContainer(final Ipv4Routes container) {
+        return container.getIpv4Route();
+    }
 }

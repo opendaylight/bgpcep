@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import java.util.Collections;
+import java.util.List;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
@@ -84,5 +85,10 @@ public final class FlowspecIpv6RIBSupport
     @Override
     public FlowspecRouteKey createRouteListKey(final long pathId, final String routeKey) {
         return new FlowspecRouteKey(new PathId(pathId), routeKey);
+    }
+
+    @Override
+    public List<FlowspecRoute> routesFromContainer(final FlowspecIpv6Routes container) {
+        return container.getFlowspecRoute();
     }
 }
