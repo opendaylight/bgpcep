@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.util.Ipv4Util.IP4_LENGTH;
+import static org.opendaylight.protocol.util.Ipv6Util.IPV6_LENGTH;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -24,8 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
 
-public final class NextHopAttributeParser  extends AbstractAttributeParser implements AttributeSerializer {
-
+public final class NextHopAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
     public static final int TYPE = 3;
 
     @Override
@@ -33,11 +33,24 @@ public final class NextHopAttributeParser  extends AbstractAttributeParser imple
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException, BGPTreatAsWithdrawException {
         final int readable = buffer.readableBytes();
-        if (readable != IP4_LENGTH) {
-            throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
-                "NEXT_HOP attribute is expected to have length %s but has %s", IP4_LENGTH, readable);
+        final CNextHop nextHop;
+        switch (readable) {
+            case IP4_LENGTH:
+                nextHop = NextHopUtil.parseNextHopIpv4(buffer);
+                break;
+            case IPV6_LENGTH:
+                nextHop = NextHopUtil.parseNextHopIpv6(buffer);
+                break;
+            case IPV6_LENGTH * 2:
+                nextHop = NextHopUtil.parseNextHopFullIpv6(buffer);
+                break;
+            default:
+                throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
+                    "NEXT_HOP attribute is expected to have length of {%s, %s, %s} but has %s", IP4_LENGTH, IPV6_LENGTH,
+                    IPV6_LENGTH * 2, readable);
         }
-        builder.setCNextHop(NextHopUtil.parseNextHop(buffer));
+
+        builder.setCNextHop(nextHop);
     }
 
     @Override
