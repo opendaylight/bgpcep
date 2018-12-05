@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv6;
 
 import java.util.Collections;
+import java.util.List;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupport;
@@ -61,7 +62,7 @@ public final class FlowspecL3vpnIpv6RIBSupport
     }
 
     @Override
-    public final FlowspecL3vpnRouteKey createRouteListKey(final long pathId, final String routeKey) {
+    public FlowspecL3vpnRouteKey createRouteListKey(final long pathId, final String routeKey) {
         return new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey);
     }
 
@@ -86,5 +87,10 @@ public final class FlowspecL3vpnIpv6RIBSupport
     @Override
     public FlowspecL3vpnIpv6Routes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
+    }
+
+    @Override
+    public List<FlowspecL3vpnRoute> routesFromContainer(final FlowspecL3vpnIpv6Routes container) {
+        return container.getFlowspecL3vpnRoute();
     }
 }
