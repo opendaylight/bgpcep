@@ -27,6 +27,13 @@ public interface BestPathState {
 
     int getAsPathLength();
 
+    /**
+     * Return true if this route is depreferenced, for example through LLGR_STALE community.
+     *
+     * @return True if this route is depreferenced, false otherwise.
+     */
+    boolean isDepreferenced();
+
     @Nonnull
     Attributes getAttributes();
 }
