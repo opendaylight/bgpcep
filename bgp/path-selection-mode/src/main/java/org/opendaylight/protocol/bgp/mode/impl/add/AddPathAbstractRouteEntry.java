@@ -125,8 +125,8 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         }
         final List<AdvertizedRoute<C, S, R, I>> advertized = new ArrayList<>();
         for (final AddPathBestPath path : this.newBestPathToBeAdvertised) {
-            final boolean isFirstBestPath = isFirstBestPath(this.bestPath.indexOf(path));
             final R routeAddPath = createRoute(ribSupport, routeKey, path.getPathId(), path);
+            final boolean isFirstBestPath = !this.bestPath.isEmpty() && path.equals(this.bestPath.get(0));
             final AdvertizedRoute<C, S, R, I> adv = new AdvertizedRoute<>(ribSupport, isFirstBestPath,
                     routeAddPath, path.getAttributes(), path.getPeerId());
             advertized.add(adv);
@@ -182,10 +182,6 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         Lists.reverse(keyList).forEach(key -> selectBest(key, selector));
         LOG.trace("Best path selected {}", this.bestPath);
         return selector.result();
-    }
-
-    private static boolean isFirstBestPath(final int bestPathPosition) {
-        return bestPathPosition == 0;
     }
 
     protected boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
