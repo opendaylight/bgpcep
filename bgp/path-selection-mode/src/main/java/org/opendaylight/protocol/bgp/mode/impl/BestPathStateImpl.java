@@ -14,9 +14,11 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import java.util.List;
 import org.opendaylight.protocol.bgp.mode.BesthPathStateUtil;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Origin;
@@ -30,6 +32,7 @@ public final class BestPathStateImpl implements BestPathState {
     private Long localPref;
     private Long multiExitDisc;
     private BgpOrigin origin;
+    private boolean depreferenced;
     private boolean resolved;
 
     public BestPathStateImpl(final Attributes attributes) {
@@ -77,6 +80,10 @@ public final class BestPathStateImpl implements BestPathState {
                 this.asPathLength = countAsPath(segs);
             }
         }
+
+        final List<Communities> attrCommunities = attributes.getCommunities();
+        depreferenced = attrCommunities != null && attrCommunities.contains(CommunityUtil.NO_LLGR);
+
         this.resolved = true;
     }
 
@@ -115,12 +122,19 @@ public final class BestPathStateImpl implements BestPathState {
         return this.attributes;
     }
 
+    @Override
+    public boolean isDepreferenced() {
+        resolveValues();
+        return depreferenced;
+    }
+
     private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
         toStringHelper.add("attributes", this.attributes);
         toStringHelper.add("localPref", this.localPref);
         toStringHelper.add("multiExitDisc", this.multiExitDisc);
         toStringHelper.add("origin", this.origin);
         toStringHelper.add("resolved", this.resolved);
+        toStringHelper.add("depreferenced", this.depreferenced);
         return toStringHelper;
     }
 
@@ -137,6 +151,7 @@ public final class BestPathStateImpl implements BestPathState {
         result = prime * result + (this.localPref == null ? 0 : this.localPref.hashCode());
         result = prime * result + (this.multiExitDisc == null ? 0 : this.multiExitDisc.hashCode());
         result = prime * result + (this.origin == null ? 0 : this.origin.hashCode());
+        result = prime * result + Boolean.hashCode(depreferenced);
         return result;
     }
 
@@ -169,6 +184,6 @@ public final class BestPathStateImpl implements BestPathState {
         if (this.origin != other.origin) {
             return false;
         }
-        return true;
+        return depreferenced == other.depreferenced;
     }
 }
