@@ -28,7 +28,7 @@ public final class BestPathStateImpl implements BestPathState {
     private long peerAs = 0L;
     private int asPathLength = 0;
     private Long localPref;
-    private Long multiExitDisc;
+    private long multiExitDisc;
     private BgpOrigin origin;
     private boolean resolved;
 
@@ -64,7 +64,12 @@ public final class BestPathStateImpl implements BestPathState {
         localPref = attrLocalPref != null ? attrLocalPref.getPref() : null;
 
         final MultiExitDisc attrMed = attributes.getMultiExitDisc();
-        multiExitDisc = attrMed != null ? attrMed.getMed() : null;
+        if (attrMed != null) {
+            final Long med = attrMed.getMed();
+            multiExitDisc = med == null ? 0L : med;
+        } else {
+            multiExitDisc = 0L;
+        }
 
         final Origin attrOrigin = attributes.getOrigin();
         origin = attrOrigin != null ? attrOrigin.getValue() : null;
@@ -87,7 +92,7 @@ public final class BestPathStateImpl implements BestPathState {
     }
 
     @Override
-    public Long getMultiExitDisc() {
+    public long getMultiExitDisc() {
         resolveValues();
         return this.multiExitDisc;
     }
@@ -135,7 +140,7 @@ public final class BestPathStateImpl implements BestPathState {
         int result = 1;
         result = prime * result + this.attributes.hashCode();
         result = prime * result + (this.localPref == null ? 0 : this.localPref.hashCode());
-        result = prime * result + (this.multiExitDisc == null ? 0 : this.multiExitDisc.hashCode());
+        result = prime * result + Long.hashCode(multiExitDisc);
         result = prime * result + (this.origin == null ? 0 : this.origin.hashCode());
         return result;
     }
@@ -159,11 +164,7 @@ public final class BestPathStateImpl implements BestPathState {
         } else if (!this.localPref.equals(other.localPref)) {
             return false;
         }
-        if (this.multiExitDisc == null) {
-            if (other.multiExitDisc != null) {
-                return false;
-            }
-        } else if (!this.multiExitDisc.equals(other.multiExitDisc)) {
+        if (this.multiExitDisc != other.multiExitDisc) {
             return false;
         }
         if (this.origin != other.origin) {

@@ -17,8 +17,7 @@ public interface BestPathState {
     @Nullable
     Long getLocalPref();
 
-    @Nullable
-    Long getMultiExitDisc();
+    long getMultiExitDisc();
 
     @Nullable
     BgpOrigin getOrigin();
