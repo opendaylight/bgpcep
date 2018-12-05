@@ -86,4 +86,9 @@ public final class LabeledUnicastIpv4RIBSupport
     public LabeledUnicastRoutes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
+
+    @Override
+    public LabeledUnicastRoutes containerFromCase(final LabeledUnicastRoutesCase routesCase) {
+        return routesCase.getLabeledUnicastRoutes();
+    }
 }

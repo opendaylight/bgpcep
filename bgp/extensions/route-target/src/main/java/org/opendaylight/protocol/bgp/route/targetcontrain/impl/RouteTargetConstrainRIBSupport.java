@@ -223,4 +223,14 @@ public final class RouteTargetConstrainRIBSupport
     public RouteTargetConstrainRouteKey createRouteListKey(final long pathId, final String routeKey) {
         return new RouteTargetConstrainRouteKey(new PathId(pathId), routeKey);
     }
+
+    @Override
+    public RouteTargetConstrainRoutes containerFromCase(final RouteTargetConstrainRoutesCase routesCase) {
+        return routesCase.getRouteTargetConstrainRoutes();
+    }
+
+    @Override
+    public List<RouteTargetConstrainRoute> routesFromContainer(final RouteTargetConstrainRoutes container) {
+        return container.getRouteTargetConstrainRoute();
+    }
 }
