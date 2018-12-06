@@ -90,7 +90,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     public final boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         final int offset = getOffsets().offsetOf(key);
-        final long pathId = this.offsets.getValue(this.pathsId, offset);
+        final Long pathId = this.offsets.getValue(this.pathsId, offset);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
         this.pathsId = this.offsets.removeValue(this.pathsId, offset, EMPTY_PATHS_ID);
         this.offsets = this.offsets.without(key);
