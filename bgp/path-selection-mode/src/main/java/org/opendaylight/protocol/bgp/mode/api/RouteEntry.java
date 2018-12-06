@@ -5,14 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mode.api;
 
-import com.google.common.primitives.UnsignedInteger;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
@@ -42,7 +41,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param remotePathId remote path Id received
      * @return return true if it was the last route on entry
      */
-    boolean removeRoute(@Nonnull UnsignedInteger routerId, Long remotePathId);
+    boolean removeRoute(@Nonnull RouterId routerId, Long remotePathId);
 
     /**
      * Indicates whether best has changed.
@@ -60,7 +59,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param route        route Data change
      * @return returns the offset
      */
-    int addRoute(@Nonnull UnsignedInteger routerId, Long remotePathId, @Nonnull R route);
+    int addRoute(@Nonnull RouterId routerId, Long remotePathId, @Nonnull R route);
 
     /**
      * Returns collections of present selected best path.
