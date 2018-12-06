@@ -26,6 +26,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
@@ -63,6 +64,12 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
     @Override
     public RIBSupportContext getRIBSupportContext(final TablesKey key) {
+        final RIBSupport<?, ?, ?, ?> ribSupport = this.extensionContext.getRIBSupport(key);
+        return ribSupport == null ? null : this.contexts.getUnchecked(ribSupport);
+    }
+
+    @Override
+    public RIBSupportContext getRIBSupportContext(final NodeIdentifierWithPredicates key) {
         final RIBSupport<?, ?, ?, ?> ribSupport = this.extensionContext.getRIBSupport(key);
         return ribSupport == null ? null : this.contexts.getUnchecked(ribSupport);
     }
