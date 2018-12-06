@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -97,14 +98,14 @@ final class OffsetMap {
     }
 
     <T> T getValue(final T[] array, final int offset) {
-        Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
-        Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, this.routeKeys.length);
+        checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
+        checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, this.routeKeys.length);
         return array[offset];
     }
 
     <T> void setValue(final T[] array, final int offset, final T value) {
-        Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
-        Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, this.routeKeys.length);
+        checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
+        checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, this.routeKeys.length);
         array[offset] = value;
     }
 
@@ -121,12 +122,12 @@ final class OffsetMap {
 
     <T> T[] removeValue(final T[] oldArray, final int offset, final T[] emptyArray) {
         final int length = oldArray.length;
-        Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
-        Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, length);
+        checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
+        checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, length);
 
         final int newLength = length - 1;
         if (newLength == 0) {
-            Preconditions.checkArgument(emptyArray.length == 0);
+            checkArgument(emptyArray.length == 0);
             return emptyArray;
         }
 
