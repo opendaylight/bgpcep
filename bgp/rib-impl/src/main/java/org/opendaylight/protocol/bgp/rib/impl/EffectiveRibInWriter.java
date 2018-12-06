@@ -148,19 +148,31 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Tables>> changes) {
         if (this.chain == null) {
             LOG.trace("Chain closed. Ignoring Changes : {}", changes);
             return;
         }
+
         LOG.trace("Data changed called to effective RIB. Change : {}", changes);
-        WriteTransaction tx = null;
+        if (!changes.isEmpty()) {
+            processModifications(changes);
+        }
+
+        //Refresh VPN Table if RT Memberships were updated
+        if (this.rtMembershipsUpdated) {
+            this.vpnTableRefresher.refreshTable(IVP4_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
+            this.vpnTableRefresher.refreshTable(IVP6_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
+            this.rtMembershipsUpdated = false;
+        }
+    }
+
+    @GuardedBy("this")
+    @SuppressWarnings("unchecked")
+    private void processModifications(final Collection<DataTreeModification<Tables>> changes) {
+        final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
         for (final DataTreeModification<Tables> tc : changes) {
             final DataObjectModification<Tables> table = tc.getRootNode();
-            if (tx == null) {
-                tx = this.chain.newWriteOnlyTransaction();
-            }
             final DataObjectModification.ModificationType modificationType = table.getModificationType();
             switch (modificationType) {
                 case DELETE:
@@ -213,28 +225,20 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     break;
             }
         }
-        if (tx != null) {
-            final FluentFuture<? extends CommitInfo> future = tx.commit();
-            this.submitted = future;
-            future.addCallback(new FutureCallback<CommitInfo>() {
-                @Override
-                public void onSuccess(final CommitInfo result) {
-                    LOG.trace("Successful commit");
-                }
 
-                @Override
-                public void onFailure(final Throwable trw) {
-                    LOG.error("Failed commit", trw);
-                }
-            }, MoreExecutors.directExecutor());
-        }
+        final FluentFuture<? extends CommitInfo> future = tx.commit();
+        this.submitted = future;
+        future.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
 
-        //Refresh VPN Table if RT Memberships were updated
-        if (this.rtMembershipsUpdated) {
-            this.vpnTableRefresher.refreshTable(IVP4_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
-            this.vpnTableRefresher.refreshTable(IVP6_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
-            this.rtMembershipsUpdated = false;
-        }
+            @Override
+            public void onFailure(final Throwable trw) {
+                LOG.error("Failed commit", trw);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     @SuppressWarnings("unchecked")
