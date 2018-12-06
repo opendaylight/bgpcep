@@ -17,9 +17,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * We also provide utility reformat methods, which provide access to
  * array members and array management features.
  */
-public final class OffsetMap {
+final class OffsetMap {
     private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     private static final String NEGATIVEOFFSET = "Invalid negative offset %s";
     private static final String INVALIDOFFSET = "Invalid offset %s for %s router IDs";
@@ -54,15 +52,15 @@ public final class OffsetMap {
         this.routeKeys = array;
     }
 
-    public int offsetOf(final RouteKey key) {
+    int offsetOf(final RouteKey key) {
         return Arrays.binarySearch(this.routeKeys, key, COMPARATOR);
     }
 
-    public int size() {
+    int size() {
         return this.routeKeys.length;
     }
 
-    public OffsetMap with(final RouteKey key) {
+    OffsetMap with(final RouteKey key) {
         // TODO: we could make this faster if we had an array-backed Set and requiring
         //       the caller to give us the result of offsetOf() -- as that indicates
         //       where to insert the new routerId while maintaining the sorted nature
@@ -74,7 +72,7 @@ public final class OffsetMap {
         return OFFSETMAPS.getUnchecked(builder.build());
     }
 
-    public OffsetMap without(final RouteKey key) {
+    OffsetMap without(final RouteKey key) {
         final Builder<RouteKey> builder = ImmutableSet.builder();
         final int index = indexOfRouterId(key);
         if (index < 0) {
@@ -94,19 +92,23 @@ public final class OffsetMap {
         return -1;
     }
 
-    public <T> T getValue(final T[] array, final int offset) {
+    RouteKey getKey(final int offset) {
+        return routeKeys[offset];
+    }
+
+    <T> T getValue(final T[] array, final int offset) {
         Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
         Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, this.routeKeys.length);
         return array[offset];
     }
 
-    public <T> void setValue(final T[] array, final int offset, final T value) {
+    <T> void setValue(final T[] array, final int offset, final T value) {
         Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
         Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, this.routeKeys.length);
         array[offset] = value;
     }
 
-    public <T> T[] expand(final OffsetMap oldOffsets, final T[] oldArray, final int offset) {
+    <T> T[] expand(final OffsetMap oldOffsets, final T[] oldArray, final int offset) {
         @SuppressWarnings("unchecked")
         final T[] ret = (T[]) Array.newInstance(oldArray.getClass().getComponentType(), this.routeKeys.length);
         final int oldSize = oldOffsets.routeKeys.length;
@@ -117,7 +119,7 @@ public final class OffsetMap {
         return ret;
     }
 
-    public <T> T[] removeValue(final T[] oldArray, final int offset, final T[] emptyArray) {
+    <T> T[] removeValue(final T[] oldArray, final int offset, final T[] emptyArray) {
         final int length = oldArray.length;
         Preconditions.checkArgument(offset >= 0, NEGATIVEOFFSET, offset);
         Preconditions.checkArgument(offset < this.routeKeys.length, INVALIDOFFSET, offset, length);
@@ -139,9 +141,5 @@ public final class OffsetMap {
 
     boolean isEmpty() {
         return this.size() == 0;
-    }
-
-    public List<RouteKey> getRouteKeysList() {
-        return Arrays.stream(this.routeKeys).collect(Collectors.toList());
     }
 }

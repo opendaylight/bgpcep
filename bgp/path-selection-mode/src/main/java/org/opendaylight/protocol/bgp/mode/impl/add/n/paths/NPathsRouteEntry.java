@@ -9,11 +9,10 @@
 package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.ImmutableList.Builder;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
-import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
+import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -22,27 +21,56 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
         extends AddPathAbstractRouteEntry<C, S, R, I> {
-    private final long npaths;
+    private static final Logger LOG = LoggerFactory.getLogger(NPathsRouteEntry.class);
 
-    NPathsRouteEntry(final long npaths) {
+    private final int npaths;
+
+    NPathsRouteEntry(final int npaths) {
         this.npaths = npaths;
     }
 
     @Override
-    public boolean selectBest(final long localAs) {
-        final List<AddPathBestPath> newBestPathList = new ArrayList<>();
-        final List<RouteKey> keyList = this.offsets.getRouteKeysList();
-        final long maxSearch = this.npaths < this.offsets.size()
-                && this.npaths != 0 ? this.npaths : this.offsets.size();
-        for (long i = 0; i < maxSearch; ++i) {
-            final AddPathBestPath newBest = selectBest(localAs, keyList);
-            newBestPathList.add(newBest);
-            keyList.remove(newBest.getRouteKey());
+    protected ImmutableList<AddPathBestPath> selectBest(final long localAs, final int size) {
+        final int limit = Math.min(npaths, size);
+        switch (limit) {
+            case 0:
+                return ImmutableList.of();
+            case 1:
+                return ImmutableList.of(bestPathAt(0));
+            default:
+                return selectBest(localAs, size, limit);
         }
-        return isBestPathNew(ImmutableList.copyOf(newBestPathList));
+    }
+
+    private ImmutableList<AddPathBestPath> selectBest(final long localAs, final int size, final int limit) {
+        // Scratch pool of offsets, we set them to true as we use them up.
+        final boolean[] offsets = new boolean[size];
+        final Builder<AddPathBestPath> builder = ImmutableList.builderWithExpectedSize(limit);
+
+        // This ends up being (limit * size) traversals of offsets[], but that should be fine, as it is a dense array.
+        // If this ever becomes a problem, we can optimize by having a AddPathSelector which remembers previous state,
+        // so that we can rewind it. That will allow us to not only skip offset searches, but also recomputing the
+        // (relatively) costly per-path state from scratch.
+        for (int search = 0; search < limit; ++search) {
+            final AddPathSelector selector = new AddPathSelector(localAs);
+            for (int offset = 0; offset < size; ++offset) {
+                if (!offsets[offset]) {
+                    processOffset(selector, offset);
+                }
+            }
+            final AddPathBestPath result = selector.result();
+            LOG.trace("Path {} selected {}", search, result);
+            builder.add(result);
+
+            offsets[result.getOffset()] = true;
+        }
+
+        return builder.build();
     }
 }
