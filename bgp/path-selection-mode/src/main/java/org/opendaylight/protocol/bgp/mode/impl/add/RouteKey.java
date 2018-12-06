@@ -7,65 +7,61 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.primitives.UnsignedInteger;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
+@NonNullByDefault
 public final class RouteKey implements Comparable<RouteKey> {
-    private final Long remotePathId;
     private final UnsignedInteger routerId;
+    private final long remotePathId;
 
-    public RouteKey(final UnsignedInteger routerId, final Long remotePathId) {
-        this.routerId = routerId;
-        this.remotePathId = remotePathId != null ? remotePathId : 0;
+    public RouteKey(final UnsignedInteger routerId, final long remotePathId) {
+        this.routerId = requireNonNull(routerId);
+        this.remotePathId = remotePathId;
     }
 
-    private Long getExternalPathId() {
-        return this.remotePathId;
-    }
-
-    public UnsignedInteger getRouteId() {
-        return this.routerId;
-    }
-
-    private MoreObjects.ToStringHelper addToStringAttributes(final MoreObjects.ToStringHelper toStringHelper) {
-        toStringHelper.add("externalPathId", this.remotePathId);
-        toStringHelper.add("routerId", this.routerId);
-        return toStringHelper;
+    public UnsignedInteger getRouterId() {
+        return routerId;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 27;
+        final int prime = 31;
         int result = 1;
-        result = prime * result + this.remotePathId.hashCode();
-        result = prime * result + this.routerId.hashCode();
+        result = prime * result + Long.hashCode(remotePathId);
+        result = prime * result + routerId.hashCode();
         return result;
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(final @Nullable Object obj) {
         if (this == obj) {
             return true;
         }
-
         if (!(obj instanceof RouteKey)) {
             return false;
         }
 
         final RouteKey other = (RouteKey) obj;
-        return this.remotePathId.equals(other.remotePathId) && this.routerId.equals(other.routerId);
+        return remotePathId == other.remotePathId && routerId.equals(other.routerId);
     }
 
     @Override
     public String toString() {
-        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
+        return MoreObjects.toStringHelper(this)
+                .add("externalPathId", remotePathId)
+                .add("routerId", routerId)
+                .toString();
     }
 
     @Override
-    public int compareTo(@Nonnull final RouteKey otherRouteKey) {
-        final int routeIdCompareTo = this.routerId.compareTo(otherRouteKey.getRouteId());
-        return routeIdCompareTo == 0 ? this.remotePathId.compareTo(otherRouteKey.getExternalPathId())
-                : routeIdCompareTo;
+    public int compareTo(final RouteKey otherRouteKey) {
+        int cmp;
+        return (cmp = routerId.compareTo(otherRouteKey.routerId)) != 0 ? cmp
+                : Long.compare(remotePathId, otherRouteKey.remotePathId);
     }
 }
