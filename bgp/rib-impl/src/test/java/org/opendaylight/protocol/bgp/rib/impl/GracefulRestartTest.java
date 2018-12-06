@@ -77,7 +77,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     private final Set<TablesKey> gracefulAfiSafiAdvertised = new HashSet<>();
     private RIBImpl ribImpl;
     private Channel serverChannel;
-    private SimpleSessionListener listener = new SimpleSessionListener();
+    private final SimpleSessionListener listener = new SimpleSessionListener();
     private final BgpParameters parameters = createParameter(false, true, Collections.singletonMap(TABLES_KEY, true));
     private static final int DEFERRAL_TIMER = 5;
     private static final RibId RIBID = new RibId("test-rib");
@@ -128,6 +128,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         this.session = createPeerSession(PEER1, parameters, this.listener);
     }
 
+    @Override
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         waitFutureSuccess(this.serverChannel.close());
@@ -380,11 +381,11 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         });
     }
 
-    private void insertRoutes(List<Ipv4Prefix> ipv4prefixes, List<Ipv6Prefix> ipv6prefixes) {
+    private void insertRoutes(final List<Ipv4Prefix> ipv4prefixes, final List<Ipv6Prefix> ipv6prefixes) {
         insertRoutes(ipv4prefixes, PEER1, ipv6prefixes, IPV6_NEXT_HOP, this.session, BgpOrigin.Igp);
     }
 
-    private void insertRoutes(final List<Ipv4Prefix> ipv4prefixes, final Ipv4Address ipv4NeighborAddress,
+    private static void insertRoutes(final List<Ipv4Prefix> ipv4prefixes, final Ipv4Address ipv4NeighborAddress,
                               final List<Ipv6Prefix> ipv6prefixes, final Ipv6Address ipv6NeighborAddress,
                               final BGPSessionImpl session, final BgpOrigin peerRole) {
         if (ipv4prefixes == null && ipv6prefixes == null) {
@@ -394,7 +395,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         }
 
         if (ipv4prefixes != null && !ipv4prefixes.isEmpty()) {
-            final MpReachNlri reachIpv4 = PeerUtil.createMpReachNlri(new IpAddress(ipv4NeighborAddress), 0,
+            final MpReachNlri reachIpv4 = PeerUtil.createMpReachNlri(new IpAddress(ipv4NeighborAddress),
                     ipv4prefixes.stream()
                             .map(IpPrefix::new)
                             .collect(Collectors.toList()));
@@ -403,7 +404,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         }
 
         if (ipv6prefixes != null && !ipv4prefixes.isEmpty()) {
-            final MpReachNlri reachIpv6 = PeerUtil.createMpReachNlri(new IpAddress(ipv6NeighborAddress), 0,
+            final MpReachNlri reachIpv6 = PeerUtil.createMpReachNlri(new IpAddress(ipv6NeighborAddress),
                     ipv6prefixes.stream()
                             .map(IpPrefix::new)
                             .collect(Collectors.toList()));
@@ -412,7 +413,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         }
     }
 
-    private static Open createClassicOpen(boolean addGraceful) {
+    private static Open createClassicOpen(final boolean addGraceful) {
         final Map<TablesKey, Boolean> graceful = new HashMap<>();
         if (addGraceful) {
             graceful.put(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), true);

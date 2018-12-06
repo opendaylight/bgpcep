@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -24,6 +26,7 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -96,7 +99,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
             final long pathId, final AddPathBestPath path) {
         final OffsetMap map = getOffsets();
         final R route = map.getValue(this.values, map.offsetOf(path.getRouteKey()));
-        return ribSup.createRoute(route, routeKey, pathId, path.getAttributes());
+        return ribSup.createRoute(route, ribSup.createRouteListKey(pathIdObj(pathId), routeKey), path.getAttributes());
     }
 
     @Override
@@ -144,7 +147,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()) {
             final Builder<I> builder = ImmutableList.builderWithExpectedSize(this.bestPathRemoved.size());
             for (AddPathBestPath bestPath : this.bestPathRemoved) {
-                builder.add(ribSupport.createRouteListKey(bestPath.getPathId(), routeKey));
+                builder.add(ribSupport.createRouteListKey(pathIdObj(bestPath.getPathId()), routeKey));
             }
             stalePaths = builder.build();
             this.bestPathRemoved = null;
@@ -156,7 +159,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         if (this.removedPathsId != null && !this.removedPathsId.isEmpty()) {
             final Builder<I> builder = ImmutableList.builderWithExpectedSize(this.bestPathRemoved.size());
             for (Long removedPath : this.removedPathsId) {
-                builder.add(ribSupport.createRouteListKey(removedPath, routeKey));
+                builder.add(ribSupport.createRouteListKey(pathIdObj(removedPath), routeKey));
             }
             removedPaths = builder.build();
             this.removedPathsId = null;
@@ -276,5 +279,13 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
                             && newBest.getRouteKey() == oldBest.getRouteKey()).findAny();
             present.ifPresent(addPathBestPath -> this.bestPathRemoved.remove(oldBest));
         });
+    }
+
+    private static PathId pathIdObj(final long pathId) {
+        return pathId == NON_PATH_ID_VALUE ? NON_PATH_ID : new PathId(pathId);
+    }
+
+    private static PathId pathIdObj(final Long pathId) {
+        return pathId == NON_PATH_ID_VALUE ? NON_PATH_ID : new PathId(pathId);
     }
 }

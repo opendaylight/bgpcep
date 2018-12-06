@@ -171,20 +171,19 @@ abstract class AbstractLabeledUnicastRIBSupport<
     }
 
     @Override
-    public final LabeledUnicastRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new LabeledUnicastRouteKey(new PathId(pathId), routeKey);
+    public final LabeledUnicastRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new LabeledUnicastRouteKey(pathId, routeKey);
     }
 
     @Override
-    public final LabeledUnicastRoute createRoute(final LabeledUnicastRoute route, final String routeKey,
-            final long pathId, final Attributes attributes) {
+    public final LabeledUnicastRoute createRoute(final LabeledUnicastRoute route, final LabeledUnicastRouteKey key,
+            final Attributes attributes) {
         final LabeledUnicastRouteBuilder builder;
         if (route != null) {
             builder = new LabeledUnicastRouteBuilder(route);
         } else {
             builder = new LabeledUnicastRouteBuilder();
         }
-        return builder.withKey(new LabeledUnicastRouteKey(new PathId(pathId), routeKey))
-                .setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 }

@@ -135,15 +135,14 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
-    public EvpnRoute createRoute(final EvpnRoute route, final String routeKey, final long pathId,
-            final Attributes attributes) {
+    public EvpnRoute createRoute(final EvpnRoute route, final EvpnRouteKey key, final Attributes attributes) {
         final EvpnRouteBuilder builder;
         if (route != null) {
             builder = new EvpnRouteBuilder(route);
         } else {
             builder = new EvpnRouteBuilder();
         }
-        return builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
@@ -157,7 +156,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
-    public EvpnRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new EvpnRouteKey(new PathId(pathId), routeKey);
+    public EvpnRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new EvpnRouteKey(pathId, routeKey);
     }
 }
