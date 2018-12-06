@@ -18,9 +18,9 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public interface RIBSupportContextRegistry {
-
     /**
      * Acquire a RIB Support for a AFI/SAFI combination.
      *
@@ -42,4 +42,14 @@ public interface RIBSupportContextRegistry {
      */
     @Nullable
     RIBSupportContext getRIBSupportContext(TablesKey key);
+
+    /**
+     * Acquire a RIB Support Context for a AFI/SAFI combination.
+     *
+     * @param key Tables key with AFI/SAFI key
+     * @return RIBSupport instance, or null if the AFI/SAFI is
+     * not implemented.
+     */
+    @Nullable
+    RIBSupportContext getRIBSupportContext(NodeIdentifierWithPredicates key);
 }
