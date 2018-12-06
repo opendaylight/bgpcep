@@ -11,14 +11,13 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import com.google.common.primitives.UnsignedInteger;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 
 public class RouteUpdateKeyTest {
-    private static final UnsignedInteger PEER_ID = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
-    private static final UnsignedInteger PEER_ID_2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
+    private static final RouterId PEER_ID = RouterId.forPeerId(new PeerId("bgp://127.0.0.1"));
+    private static final RouterId PEER_ID_2 = RouterId.forPeerId(new PeerId("bgp://127.0.0.2"));
     private static final String PREFIX = "0.0.0.0/0";
     private static final String PREFIX_2 = "1.1.1.1/24";
 

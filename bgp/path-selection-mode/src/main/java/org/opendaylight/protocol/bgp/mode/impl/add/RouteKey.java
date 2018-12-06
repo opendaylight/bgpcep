@@ -10,21 +10,21 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.primitives.UnsignedInteger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 
 @NonNullByDefault
 public final class RouteKey implements Comparable<RouteKey> {
-    private final UnsignedInteger routerId;
+    private final RouterId routerId;
     private final long remotePathId;
 
-    public RouteKey(final UnsignedInteger routerId, final long remotePathId) {
+    public RouteKey(final RouterId routerId, final long remotePathId) {
         this.routerId = requireNonNull(routerId);
         this.remotePathId = remotePathId;
     }
 
-    public UnsignedInteger getRouterId() {
+    public RouterId getRouterId() {
         return routerId;
     }
 

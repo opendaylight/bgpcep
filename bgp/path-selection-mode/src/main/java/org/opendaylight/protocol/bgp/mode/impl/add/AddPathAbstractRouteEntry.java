@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
@@ -68,7 +68,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     @Override
-    public final int addRoute(final UnsignedInteger routerId, final long remotePathId, final R route) {
+    public final int addRoute(final RouterId routerId, final long remotePathId, final R route) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
@@ -87,7 +87,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     @Override
-    public final boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+    public final boolean removeRoute(final RouterId routerId, final long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         final int offset = getOffsets().offsetOf(key);
         final long pathId = this.offsets.getValue(this.pathsId, offset);

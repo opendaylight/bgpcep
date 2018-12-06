@@ -9,22 +9,22 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.primitives.UnsignedInteger;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 
 /**
  * Combined key formed as a concatenation of source peer and route identifiers.
  * This is used to internally track updates which need to be processed.
  */
 final class RouteUpdateKey {
-    private final UnsignedInteger peerId;
+    private final RouterId peerId;
     private final String routeId;
 
-    RouteUpdateKey(final UnsignedInteger peerId, final String routeKey) {
+    RouteUpdateKey(final RouterId peerId, final String routeKey) {
         this.peerId = requireNonNull(peerId);
         this.routeId = requireNonNull(routeKey);
     }
 
-    UnsignedInteger getPeerId() {
+    RouterId getPeerId() {
         return this.peerId;
     }
 
@@ -50,12 +50,6 @@ final class RouteUpdateKey {
             return false;
         }
         RouteUpdateKey other = (RouteUpdateKey) obj;
-        if (!this.peerId.equals(other.peerId)) {
-            return false;
-        }
-        if (!this.routeId.equals(other.routeId)) {
-            return false;
-        }
-        return true;
+        return peerId.equals(other.peerId) && routeId.equals(other.routeId);
     }
 }
