@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import static com.google.common.base.Verify.verifyNotNull;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -48,7 +47,7 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
         this.depreferenced = depreferenced;
 
         final @NonNull String routeKey = verifyNotNull(route.getRouteKey());
-        this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(NON_PATH_ID_VALUE, routeKey);
+        this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(routeKey);
         this.addPathRouteKeyIdentifier = ribSupport.createRouteListKey(route.getPathId().getValue(), routeKey);
     }
 
