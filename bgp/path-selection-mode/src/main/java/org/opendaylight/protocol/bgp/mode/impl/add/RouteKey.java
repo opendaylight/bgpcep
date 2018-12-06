@@ -15,13 +15,13 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 @NonNullByDefault
-public final class RouteKey implements Comparable<RouteKey> {
+final class RouteKey implements Comparable<RouteKey> {
     private final UnsignedInteger routerId;
     private final long remotePathId;
 
-    public RouteKey(final UnsignedInteger routerId, final long remotePathId) {
+    RouteKey(final UnsignedInteger routerId, final Long remotePathId) {
         this.routerId = requireNonNull(routerId);
-        this.remotePathId = remotePathId;
+        this.remotePathId = remotePathId.longValue();
     }
 
     public UnsignedInteger getRouterId() {

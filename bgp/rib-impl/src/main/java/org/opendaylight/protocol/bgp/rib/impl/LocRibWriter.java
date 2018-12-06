@@ -289,13 +289,12 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private void updateRoutesEntries(
             final Collection<? extends DataObjectModification<? extends DataObject>> collection,
             final UnsignedInteger routerId,
-            final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> routes
-    ) {
+            final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> routes) {
         for (final DataObjectModification<? extends DataObject> route : collection) {
             final R newRoute = (R) route.getDataAfter();
             final R oldRoute = (R) route.getDataBefore();
             String routeKey;
-            RouteEntry<C,S,R,I> entry;
+            RouteEntry<C, S, R, I> entry;
             if (newRoute != null) {
                 routeKey = newRoute.getRouteKey();
                 entry = this.routeEntries.get(routeKey);
@@ -304,16 +303,14 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                     entry = createEntry(routeKey);
                 }
 
-                final long pathId = newRoute.getPathId().getValue();
-                entry.addRoute(routerId, pathId, newRoute);
+                entry.addRoute(routerId, newRoute.getPathId().getValue(), newRoute);
                 this.totalPathsCounter.increment();
             } else {
                 routeKey = oldRoute.getRouteKey();
                 entry = this.routeEntries.get(routeKey);
                 if(entry != null) {
                     this.totalPathsCounter.decrement();
-                    final long pathId = oldRoute.getPathId().getValue();
-                    if (entry.removeRoute(routerId, pathId)) {
+                    if (entry.removeRoute(routerId, oldRoute.getPathId().getValue())) {
                         this.routeEntries.remove(routeKey);
                         this.totalPrefixesCounter.decrement();
                         LOG.trace("Removed route from {}", routerId);
