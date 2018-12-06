@@ -8,16 +8,15 @@
 
 package org.opendaylight.protocol.bgp.mode.spi;
 
-import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
-import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
 
 public class AbstractBestPathSelector {
     private final long ourAs;
-    protected UnsignedInteger bestOriginatorId = null;
+    protected RouterId bestOriginatorId = null;
     protected BestPathState bestState = null;
 
     protected AbstractBestPathSelector(final long ourAs) {
@@ -32,12 +31,8 @@ public class AbstractBestPathSelector {
      * @param originatorId originator
      * @return returns originators Id if present otherwise routerId
      */
-    protected UnsignedInteger replaceOriginator(final UnsignedInteger routerId, final OriginatorId originatorId) {
-        if (originatorId != null) {
-            return RouterIds.routerIdForAddress(originatorId.getOriginator().getValue());
-        }
-
-        return routerId;
+    protected RouterId replaceOriginator(final RouterId routerId, final OriginatorId originatorId) {
+        return originatorId != null ? RouterId.forAddress(originatorId.getOriginator()) : routerId;
     }
 
     /**
