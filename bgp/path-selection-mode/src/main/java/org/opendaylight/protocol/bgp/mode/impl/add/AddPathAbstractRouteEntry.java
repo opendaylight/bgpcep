@@ -98,7 +98,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private R createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey, final AddPathBestPath path) {
         final OffsetMap map = getOffsets();
         final R route = map.getValue(this.values, map.offsetOf(path.getRouteKey()));
-        return ribSup.createRoute(route, ribSup.createRouteListKey(pathIdObj(path.getPathId()), routeKey),
+        return ribSup.createRoute(route, ribSup.createRouteListKey(pathIdObj(path.getPathIdLong()), routeKey),
             path.getAttributes());
     }
 
@@ -147,7 +147,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()) {
             final Builder<I> builder = ImmutableList.builderWithExpectedSize(this.bestPathRemoved.size());
             for (AddPathBestPath removedPath : this.bestPathRemoved) {
-                builder.add(ribSupport.createRouteListKey(pathIdObj(removedPath.getPathId()), routeKey));
+                builder.add(ribSupport.createRouteListKey(pathIdObj(removedPath.getPathIdLong()), routeKey));
             }
             stalePaths = builder.build();
             this.bestPathRemoved = null;
@@ -218,7 +218,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private void selectBest(final RouteKey key, final AddPathSelector selector) {
         final int offset = this.offsets.offsetOf(key);
         final R route = this.offsets.getValue(this.values, offset);
-        final long pathId = this.offsets.getValue(this.pathsId, offset);
+        final Long pathId = this.offsets.getValue(this.pathsId, offset);
         LOG.trace("Processing router key {} route {}", key, route);
         selector.processPath(route.getAttributes(), key, offset, pathId);
     }
@@ -281,7 +281,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         });
     }
 
-    private static PathId pathIdObj(final long pathId) {
+    private static PathId pathIdObj(final Long pathId) {
         return pathId == NON_PATH_ID_VALUE ? NON_PATH_ID : new PathId(pathId);
     }
 }
