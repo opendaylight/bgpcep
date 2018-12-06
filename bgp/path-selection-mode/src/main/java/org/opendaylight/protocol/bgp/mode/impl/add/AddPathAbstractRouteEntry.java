@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
+import static com.google.common.base.Verify.verifyNotNull;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
+import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
@@ -54,18 +55,19 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private static final Long[] EMPTY_PATHS_ID = new Long[0];
     private static final Route[] EMPTY_VALUES = new Route[0];
 
-    protected OffsetMap offsets = OffsetMap.EMPTY;
-    protected R[] values = (R[]) EMPTY_VALUES;
-    protected Long[] pathsId = EMPTY_PATHS_ID;
+    private OffsetMap offsets = OffsetMap.EMPTY;
+    private R[] values = (R[]) EMPTY_VALUES;
+    private Long[] pathsId = EMPTY_PATHS_ID;
     private List<AddPathBestPath> bestPath;
     private List<AddPathBestPath> bestPathRemoved;
-    private long pathIdCounter = 0L;
-    private boolean isNonAddPathBestPathNew;
     private List<AddPathBestPath> newBestPathToBeAdvertised;
     private List<Long> removedPathsId;
 
+    private long pathIdCounter = 0L;
+    private boolean isNonAddPathBestPathNew;
+
     private R createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey, final AddPathBestPath path) {
-        final OffsetMap map = getOffsets();
+        final OffsetMap map = this.offsets;
         final R route = map.getValue(this.values, map.offsetOf(path.getRouteKey()));
         return ribSup.createRoute(route, ribSup.createRouteListKey(pathIdObj(path.getPathIdLong()), routeKey),
             path.getAttributes());
@@ -93,7 +95,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     @Override
     public final boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
-        final int offset = getOffsets().offsetOf(key);
+        final int offset = this.offsets.offsetOf(key);
         final Long pathId = this.offsets.getValue(this.pathsId, offset);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
         this.pathsId = this.offsets.removeValue(this.pathsId, offset, EMPTY_PATHS_ID);
@@ -102,7 +104,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
             this.removedPathsId = new ArrayList<>();
         }
         this.removedPathsId.add(pathId);
-        return isEmpty();
+        return this.offsets.isEmpty();
     }
 
     @Override
@@ -158,40 +160,35 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         return preexistentRoutes;
     }
 
-    private OffsetMap getOffsets() {
-        return this.offsets;
+    @Override
+    public final boolean selectBest(final long localAs) {
+        final int size;
+        return isBestPathNew((size = offsets.size()) == 0 ? ImmutableList.of() : selectBest(localAs, size));
     }
 
-    public final boolean isEmpty() {
-        return this.offsets.isEmpty();
-    }
+    protected abstract ImmutableList<AddPathBestPath> selectBest(long localAs, int size);
 
-    private void selectBest(final RouteKey key, final AddPathSelector selector) {
-        final int offset = this.offsets.offsetOf(key);
-        final R route = this.offsets.getValue(this.values, offset);
-        final Long pathId = this.offsets.getValue(this.pathsId, offset);
+    /**
+     * Process a specific route offset into specified selector.
+     *
+     * @param selector selector to update
+     * @param offset offset to process
+     */
+    protected final void processOffset(final AddPathSelector selector, final int offset) {
+        final RouteKey key = offsets.getKey(offset);
+        final R route = offsets.getValue(values, offset);
+        final Long pathId = offsets.getValue(pathsId, offset);
         LOG.trace("Processing router key {} route {}", key, route);
         selector.processPath(route.getAttributes(), key, offset, pathId);
     }
 
-    /**
-     * Process best path selection.
-     *
-     * @param localAs The local autonomous system number
-     * @param keyList List of RouteKey
-     * @return the best path inside offset map passed
-     */
-    protected AddPathBestPath selectBest(final long localAs, final List<RouteKey> keyList) {
-        /*
-         * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
-         */
-        final AddPathSelector selector = new AddPathSelector(localAs);
-        Lists.reverse(keyList).forEach(key -> selectBest(key, selector));
-        LOG.trace("Best path selected {}", this.bestPath);
-        return selector.result();
+    protected final AddPathBestPath bestPathAt(final int offset) {
+        final Route route = verifyNotNull(offsets.getValue(values, offset));
+        return new AddPathBestPath(new BestPathStateImpl(route.getAttributes()), offsets.getKey(offset),
+            offsets.getValue(pathsId, offset), offset);
     }
 
-    protected boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
+    private boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
         this.isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
         filterRemovedPaths(newBestPathList);
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()
