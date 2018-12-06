@@ -65,8 +65,7 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     }
 
     @Override
-    public Ipv4Route createRoute(final Ipv4Route route, final String routeKey, final long pathId,
-            final Attributes attributes) {
+    public Ipv4Route createRoute(final Ipv4Route route, final Ipv4RouteKey key, final Attributes attributes) {
         return null;
     }
 
@@ -81,8 +80,8 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     }
 
     @Override
-    public Ipv4RouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new Ipv4RouteKey(new PathId(pathId), routeKey);
+    public Ipv4RouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new Ipv4RouteKey(pathId, routeKey);
     }
 
     @Override
