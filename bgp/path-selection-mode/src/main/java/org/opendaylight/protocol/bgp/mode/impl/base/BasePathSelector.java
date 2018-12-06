@@ -39,14 +39,15 @@ final class BasePathSelector extends AbstractBestPathSelector {
              */
             final BestPathState state = new BestPathStateImpl(attrs);
             if (this.bestOriginatorId == null || !isExistingPathBetter(state)) {
-                LOG.trace("Selecting path from router {}", RouterIds.createPeerId(routerId).getValue());
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Selecting path from router {}", RouterIds.createPeerIdString(routerId));
+                }
                 this.bestOriginatorId = originatorId;
                 this.bestRouterId = routerId;
                 this.bestState = state;
             }
         }
     }
-
 
     BaseBestPath result() {
         return this.bestRouterId == null ? null : new BaseBestPath(this.bestRouterId, this.bestState);

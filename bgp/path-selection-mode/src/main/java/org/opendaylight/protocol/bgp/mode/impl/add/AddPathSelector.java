@@ -39,7 +39,9 @@ public final class AddPathSelector extends AbstractBestPathSelector {
              */
             final BestPathState state = new BestPathStateImpl(attrs);
             if (this.bestOriginatorId == null || !isExistingPathBetter(state)) {
-                LOG.trace("Selecting path from router {}", RouterIds.createPeerId(routerId).getValue());
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Selecting path from router {}", RouterIds.createPeerIdString(routerId));
+                }
                 this.bestOriginatorId = originatorId;
                 this.bestState = state;
                 this.bestRouteKey = key;
