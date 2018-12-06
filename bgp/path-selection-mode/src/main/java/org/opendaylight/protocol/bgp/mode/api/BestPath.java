@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mode.api;
 
-import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 
@@ -17,17 +17,19 @@ public interface BestPath {
     /**
      * RouterId.
      *
-     * @return the routerId (UnsignedInteger)
+     * @return the routerId
      */
-    UnsignedInteger getRouterId();
+    RouterId getRouterId();
 
     /**
      * PeerId.
      *
-     * @return the routerId (UnsignedInteger) converted to a PeerId
+     * @return the routerId converted to a PeerId
      */
     @Nonnull
-    PeerId getPeerId();
+    default PeerId getPeerId() {
+        return getRouterId().getPeerId();
+    }
 
     /**
      * Attributes.
