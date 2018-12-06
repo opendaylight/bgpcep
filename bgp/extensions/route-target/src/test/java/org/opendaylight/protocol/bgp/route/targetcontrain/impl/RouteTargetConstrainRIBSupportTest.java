@@ -157,8 +157,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
 
     @Test
     public void testRouteIdAddPath() {
-        assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId().getValue(),
-                ROUTE_KEY.getRouteKey()));
+        assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(), ROUTE_KEY.getRouteKey()));
     }
 
     @Test
