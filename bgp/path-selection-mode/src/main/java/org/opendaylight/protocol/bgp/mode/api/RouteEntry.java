@@ -42,7 +42,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param remotePathId remote path Id received
      * @return return true if it was the last route on entry
      */
-    boolean removeRoute(@Nonnull UnsignedInteger routerId, long remotePathId);
+    boolean removeRoute(@Nonnull UnsignedInteger routerId, Long remotePathId);
 
     /**
      * Indicates whether best has changed.
@@ -60,8 +60,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param route        route Data change
      * @return returns the offset
      */
-    int addRoute(@Nonnull UnsignedInteger routerId, long remotePathId, @Nonnull R route);
-
+    int addRoute(@Nonnull UnsignedInteger routerId, Long remotePathId, @Nonnull R route);
 
     /**
      * Returns collections of present selected best path.
@@ -73,7 +72,6 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
     List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(
             @Nonnull RIBSupport<C, S, R, I> ribSupport,
             @Nonnull RouteEntryInfo entryInfo);
-
 
     /**
      * Returns list of stale best path.
