@@ -143,8 +143,8 @@ public class L3vpnMcastIpv4RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId().getValue(),
-                ROUTE_KEY.getRouteKey()));
+        Assert.assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(),
+            ROUTE_KEY.getRouteKey()));
     }
 
     @Test
