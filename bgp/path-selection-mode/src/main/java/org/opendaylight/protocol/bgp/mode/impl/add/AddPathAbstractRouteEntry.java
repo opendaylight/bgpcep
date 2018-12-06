@@ -82,7 +82,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
             this.offsets.setValue(this.pathsId, offset, ++this.pathIdCounter);
         }
         this.offsets.setValue(this.values, offset, route);
-        LOG.trace("Added route {} from {}", route, key.getRouteId());
+        LOG.trace("Added route {} from {}", route, routerId);
         return offset;
     }
 
