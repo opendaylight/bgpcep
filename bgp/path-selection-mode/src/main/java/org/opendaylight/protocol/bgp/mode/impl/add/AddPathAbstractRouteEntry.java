@@ -68,7 +68,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     @Override
-    public final int addRoute(final UnsignedInteger routerId, final long remotePathId, final R route) {
+    public final int addRoute(final UnsignedInteger routerId, final Long remotePathId, final R route) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
@@ -87,7 +87,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     @Override
-    public final boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+    public final boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         final int offset = getOffsets().offsetOf(key);
         final Long pathId = this.offsets.getValue(this.pathsId, offset);
