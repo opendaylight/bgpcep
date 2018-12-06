@@ -9,13 +9,10 @@
 package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
 
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.List;
-import org.opendaylight.protocol.bgp.mode.api.BestPathState;
-import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
+import com.google.common.collect.ImmutableList.Builder;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
-import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
+import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -24,35 +21,37 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class AllPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
         extends AddPathAbstractRouteEntry<C, S, R, I> {
-    AllPathsRouteEntry() {
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(AllPathsRouteEntry.class);
 
     @Override
-    public boolean selectBest(final long localAs) {
-        final List<AddPathBestPath> newBestPathList = new ArrayList<>();
-        final List<RouteKey> keyList = this.offsets.getRouteKeysList();
-
-        if (!keyList.isEmpty()) {
-            /* we set the best path first on List for not supported Add path cases*/
-            final AddPathBestPath newBest = selectBest(localAs, keyList);
-            newBestPathList.add(newBest);
-            keyList.remove(newBest.getRouteKey());
-            /*we add the rest of path, regardless in what order they are, since this is all path case */
-            for (final RouteKey key : keyList) {
-                final int offset = this.offsets.offsetOf(key);
-                final Route route = this.offsets.getValue(this.values, offset);
-                if (route != null) {
-                    final BestPathState state = new BestPathStateImpl(route.getAttributes());
-                    final AddPathBestPath bestPath = new AddPathBestPath(state, key,
-                            this.offsets.getValue(this.pathsId, offset), offset);
-                    newBestPathList.add(bestPath);
-                }
-            }
+    protected ImmutableList<AddPathBestPath> selectBest(final long localAs, final int size) {
+        // Select the best path for the case when AddPath is not supported
+        final AddPathSelector selector = new AddPathSelector(localAs);
+        for (int offset = 0; offset < size; ++offset) {
+            processOffset(selector, offset);
         }
-        return isBestPathNew(ImmutableList.copyOf(newBestPathList));
+
+        final AddPathBestPath newBest = selector.result();
+        LOG.trace("Best path selected {}", newBest);
+
+        final Builder<AddPathBestPath> builder = ImmutableList.builderWithExpectedSize(size);
+        builder.add(newBest);
+
+        // Since we are selecting all paths, add all the other paths, do that in two steps, skipping the selected
+        // route.
+        for (int offset = 0; offset < newBest.getOffset(); ++offset) {
+            builder.add(bestPathAt(offset));
+        }
+        for (int offset = newBest.getOffset() + 1; offset < size; ++offset) {
+            builder.add(bestPathAt(offset));
+        }
+
+        return builder.build();
     }
 }
