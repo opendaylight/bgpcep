@@ -228,10 +228,10 @@ final class OpenConfigMappingUtil {
             if (afiSafi2 != null) {
                 final Optional<BgpTableType> bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
                 if (bgpTableType.isPresent()) {
-                    final Short sendMax = afiSafi2.getSendMax();
+                    final int sendMax = afiSafi2.getSendMax();
                     final PathSelectionMode selectionMode;
                     if (sendMax > 1) {
-                        selectionMode = new AddPathBestNPathSelection(sendMax.longValue());
+                        selectionMode = new AddPathBestNPathSelection(sendMax);
                     } else {
                         selectionMode = new AllPathSelection();
                     }
