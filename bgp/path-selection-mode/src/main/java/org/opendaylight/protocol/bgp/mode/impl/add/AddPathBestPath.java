@@ -22,7 +22,7 @@ public final class AddPathBestPath extends AbstractBestPath {
     private final Long pathId;
     private final int offset;
 
-    public AddPathBestPath(@Nonnull final BestPathState state, @Nonnull final RouteKey key, final @Nonnull Long pathId,
+    AddPathBestPath(@Nonnull final BestPathState state, @Nonnull final RouteKey key, final @Nonnull Long pathId,
             final int offset) {
         super(state);
         this.routeKey = requireNonNull(key);
@@ -30,7 +30,7 @@ public final class AddPathBestPath extends AbstractBestPath {
         this.offset = offset;
     }
 
-    public RouteKey getRouteKey() {
+    RouteKey getRouteKey() {
         return this.routeKey;
     }
 
@@ -98,7 +98,7 @@ public final class AddPathBestPath extends AbstractBestPath {
      *
      * @return Path Id as a {@link Long}
      */
-    public @Nonnull Long getPathIdLong() {
+    @Nonnull Long getPathIdLong() {
         return this.pathId;
     }
 }
