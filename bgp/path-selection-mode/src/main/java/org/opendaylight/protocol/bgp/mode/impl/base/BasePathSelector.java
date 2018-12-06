@@ -23,7 +23,7 @@ final class BasePathSelector extends AbstractBestPathSelector {
 
     private UnsignedInteger bestRouterId = null;
 
-    BasePathSelector(final Long ourAs) {
+    BasePathSelector(final long ourAs) {
         super(ourAs);
     }
 
