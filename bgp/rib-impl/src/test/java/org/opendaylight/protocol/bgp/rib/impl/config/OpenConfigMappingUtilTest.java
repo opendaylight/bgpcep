@@ -27,7 +27,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.Shorts;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -115,8 +114,8 @@ public class OpenConfigMappingUtilTest {
     private static final Ipv4Address CLUSTER_ID = new Ipv4Address("4.3.2.1");
     private static final Ipv4Address LOCAL_HOST = new Ipv4Address("127.0.0.1");
 
-    private static final Long ALL_PATHS = 0L;
-    private static final Long N_PATHS = 2L;
+    private static final Short ALL_PATHS = 0;
+    private static final Short N_PATHS = 2;
     private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION = new AddPathBestNPathSelection(N_PATHS);
     private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection();
     private static final BgpTableType BGP_TABLE_TYPE_IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
@@ -146,11 +145,11 @@ public class OpenConfigMappingUtilTest {
         TABLE_TYPES.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         TABLE_TYPES.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(true)
-                        .setSendMax(Shorts.checkedCast(N_PATHS)).build()).build());
+                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(Boolean.TRUE)
+                        .setSendMax(N_PATHS).build()).build());
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(true)
-                        .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
+                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(Boolean.TRUE)
+                        .setSendMax(ALL_PATHS).build()).build());
     }
 
     @Mock
@@ -400,10 +399,10 @@ public class OpenConfigMappingUtilTest {
         final List<AfiSafi> families = new ArrayList<>();
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder()
-                    .setSendMax(Shorts.checkedCast(N_PATHS)).build()).build());
+                    .setSendMax(N_PATHS).build()).build());
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
             .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder()
-                    .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
+                    .setSendMax(ALL_PATHS).build()).build());
         final Map<BgpTableType, PathSelectionMode> result = OpenConfigMappingUtil
                 .toPathSelectionMode(families, this.tableTypeRegistry);
         final Map<BgpTableType, PathSelectionMode> expected = new HashMap<>();
@@ -440,15 +439,14 @@ public class OpenConfigMappingUtilTest {
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(NeighborAddPathsConfig.class,
                 new NeighborAddPathsConfigBuilder()
-                    .setReceive(true).setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
+                    .setReceive(Boolean.TRUE).setSendMax(ALL_PATHS).build()).build());
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
             .addAugmentation(NeighborAddPathsConfig.class,
                 new NeighborAddPathsConfigBuilder()
-                    .setReceive(false).setSendMax(Shorts.checkedCast(N_PATHS)).build()).build());
+                    .setReceive(Boolean.FALSE).setSendMax(N_PATHS).build()).build());
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.class)
             .addAugmentation(NeighborAddPathsConfig.class,
-                new NeighborAddPathsConfigBuilder()
-                    .setReceive(false).build()).build());
+                new NeighborAddPathsConfigBuilder().setReceive(Boolean.FALSE).build()).build());
         final List<AddressFamilies> result = OpenConfigMappingUtil
                 .toAddPathCapability(families, this.tableTypeRegistry);
         assertEquals(FAMILIES, result);
