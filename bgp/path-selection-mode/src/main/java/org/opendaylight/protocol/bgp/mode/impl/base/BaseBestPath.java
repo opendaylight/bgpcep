@@ -43,9 +43,7 @@ final class BaseBestPath extends AbstractBestPath {
 
     @Override
     protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("routerId", this.routerId);
-        toStringHelper.add("state", this.state);
-        return toStringHelper;
+        return super.addToStringAttributes(toStringHelper.add("routerId", this.routerId));
     }
 
     @Override
