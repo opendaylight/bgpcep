@@ -134,17 +134,17 @@ public class BasePathSelectorTest {
         assertEquals(0, processedPath.getState().getOrigin().getIntValue());
 
         // prefer the path with the lowest multi-exit discriminator (MED)
-        assertEquals(4321L, (long) processedPath.getState().getMultiExitDisc());
+        assertEquals(4321L, processedPath.getState().getMultiExitDisc());
         addIgpOrigin(dataContBuilder);
         addLowerMultiExitDisc(dataContBuilder);
         this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
         processedPath = this.selector.result();
-        assertEquals(1234L, (long) processedPath.getState().getMultiExitDisc());
+        assertEquals(1234L, processedPath.getState().getMultiExitDisc());
 
         addHigherMultiExitDisc(dataContBuilder);
         this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
         processedPath = this.selector.result();
-        assertEquals(1234L, (long) processedPath.getState().getMultiExitDisc());
+        assertEquals(1234L, processedPath.getState().getMultiExitDisc());
 
         addLowerMultiExitDisc(dataContBuilder);
         addAsPath(dataContBuilder, SEQ_SEGMENT2);
