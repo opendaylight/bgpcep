@@ -13,18 +13,19 @@ import com.google.common.base.MoreObjects;
 import com.google.common.primitives.UnsignedInteger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.yangtools.concepts.Immutable;
 
 @NonNullByDefault
-public final class RouteKey implements Comparable<RouteKey> {
+public final class RouteKey implements Comparable<RouteKey>, Immutable {
     private final UnsignedInteger routerId;
     private final long remotePathId;
 
-    public RouteKey(final UnsignedInteger routerId, final long remotePathId) {
+    RouteKey(final UnsignedInteger routerId, final Long remotePathId) {
         this.routerId = requireNonNull(routerId);
-        this.remotePathId = remotePathId;
+        this.remotePathId = remotePathId.longValue();
     }
 
-    public UnsignedInteger getRouterId() {
+    UnsignedInteger getRouterId() {
         return routerId;
     }
 
