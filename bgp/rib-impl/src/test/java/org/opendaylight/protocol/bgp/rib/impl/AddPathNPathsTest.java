@@ -35,11 +35,12 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
     private Channel serverChannel;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk, new AddPathBestNPathSelection(2L));
+        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk, new AddPathBestNPathSelection(2));
 
         this.ribImpl = new RIBImpl(this.tableRegistry, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID),
                 this.ribExtension,
@@ -53,6 +54,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         this.serverChannel = channelFuture.channel();
     }
 
+    @Override
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         waitFutureSuccess(this.serverChannel.close());

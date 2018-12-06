@@ -16,7 +16,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yangtools.concepts.Immutable;
 
 @NonNullByDefault
-public final class RouteKey implements Comparable<RouteKey>, Immutable {
+final class RouteKey implements Comparable<RouteKey>, Immutable {
     private final UnsignedInteger routerId;
     private final long remotePathId;
 
