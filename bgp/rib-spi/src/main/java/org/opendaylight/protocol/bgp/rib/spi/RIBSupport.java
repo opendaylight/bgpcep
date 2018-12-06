@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
+
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
@@ -179,8 +181,8 @@ public interface RIBSupport<
      * @return YangInstanceIdentifier with routesPath + specific RIB support routes path + routeId
      */
     @Nonnull
-    default YangInstanceIdentifier routePath(@Nonnull YangInstanceIdentifier routesPath,
-                                             @Nonnull PathArgument routeId) {
+    default YangInstanceIdentifier routePath(@Nonnull final YangInstanceIdentifier routesPath,
+                                             @Nonnull final PathArgument routeId) {
         return routesPath(routesPath).node(routeId);
     }
 
@@ -274,8 +276,6 @@ public interface RIBSupport<
     @Nonnull
     S emptyRoutesContainer();
 
-
-
     /**
      * Construct a Route List Key using new path Id for Families.
      *
@@ -285,4 +285,15 @@ public interface RIBSupport<
      */
     @Nonnull
     I createRouteListKey(@Nonnull long pathId, @Nonnull String routeKey);
+
+    /**
+     * Construct a Route List Key using new path Id for Families.
+     *
+     * @param routeKey RouteKey
+     * @return route list Key (RouteKey + empty pathId)
+     */
+    @Nonnull
+    default I createRouteListKey(@Nonnull final String routeKey) {
+        return createRouteListKey(NON_PATH_ID_VALUE, routeKey);
+    }
 }

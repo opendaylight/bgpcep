@@ -35,6 +35,29 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> implements RouteEntry<C,S,R,I> {
+    private static final class Stale<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+            extends StaleBestPathRoute<C, S, R, I> {
+        Stale(final I nonAddPathRouteKeyIdentifier) {
+            super(nonAddPathRouteKeyIdentifier);
+        }
+
+        @Override
+        public boolean isNonAddPathBestPathNew() {
+            return true;
+        }
+
+        @Override
+        public List<I> getStaleRouteKeyIdentifiers() {
+            return Collections.singletonList(getNonAddPathRouteKeyIdentifier());
+        }
+
+        @Override
+        public List<I> getAddPathRouteKeyIdentifiers() {
+            return Collections.emptyList();
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(BaseRouteEntry.class);
     private static final Route[] EMPTY_VALUES = new Route[0];
 
@@ -110,7 +133,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         if (this.removedBestPath == null) {
             return Optional.empty();
         }
-        final StaleBestPathRoute<C, S, R, I> stale = new StaleBestPathRoute<>(ribSupport, routeKey);
+        final StaleBestPathRoute<C, S, R, I> stale = new Stale<C, S, R, I>(ribSupport.createRouteListKey(routeKey));
         this.removedBestPath = null;
         return Optional.of(stale);
     }
