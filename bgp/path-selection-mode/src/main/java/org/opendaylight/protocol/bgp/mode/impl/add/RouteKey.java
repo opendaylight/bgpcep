@@ -10,22 +10,22 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.primitives.UnsignedInteger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yangtools.concepts.Immutable;
 
 @NonNullByDefault
 final class RouteKey implements Comparable<RouteKey>, Immutable {
-    private final UnsignedInteger routerId;
+    private final RouterId routerId;
     private final long remotePathId;
 
-    RouteKey(final UnsignedInteger routerId, final Long remotePathId) {
+    RouteKey(final RouterId routerId, final Long remotePathId) {
         this.routerId = requireNonNull(routerId);
         this.remotePathId = remotePathId.longValue();
     }
 
-    UnsignedInteger getRouterId() {
+    RouterId getRouterId() {
         return routerId;
     }
 
