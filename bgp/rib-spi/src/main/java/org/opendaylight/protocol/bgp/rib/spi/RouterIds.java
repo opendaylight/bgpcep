@@ -68,8 +68,12 @@ public final class RouterIds {
     }
 
     public static PeerId createPeerId(@Nonnull final UnsignedInteger intAddress) {
+        return new PeerId(createPeerIdString(intAddress));
+    }
+
+    public static String createPeerIdString(@Nonnull final UnsignedInteger intAddress) {
         final String inet4Address = InetAddresses.fromInteger(intAddress.intValue()).getHostAddress();
-        return new PeerId(BGP_PREFIX.concat(inet4Address));
+        return BGP_PREFIX.concat(inet4Address);
     }
 
     public static Ipv4Address inetFromPeerId(@Nonnull final PeerId peerId) {
