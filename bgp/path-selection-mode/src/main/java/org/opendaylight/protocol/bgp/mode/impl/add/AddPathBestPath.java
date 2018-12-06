@@ -19,28 +19,30 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 
 public final class AddPathBestPath extends AbstractBestPath {
     private final RouteKey routeKey;
-    private final int offsetPosition;
-    private final long pathId;
+    private final Long pathId;
+    private final int offset;
 
-    public AddPathBestPath(@Nonnull final BestPathState state, @Nonnull final RouteKey key, final int offsetPosition,
-            final long pathId) {
+    public AddPathBestPath(@Nonnull final BestPathState state, @Nonnull final RouteKey key, final @Nonnull Long pathId,
+            final int offset) {
         super(state);
         this.routeKey = requireNonNull(key);
-        this.offsetPosition = offsetPosition;
-        this.pathId = pathId;
+        this.pathId = requireNonNull(pathId);
+        this.offset = offset;
     }
 
     public RouteKey getRouteKey() {
         return this.routeKey;
     }
 
+    public int getOffset() {
+        return offset;
+    }
+
     @Override
     protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("routeKey", this.routeKey);
-        toStringHelper.add("state", this.state);
-        toStringHelper.add("offsetPosition", this.offsetPosition);
-        toStringHelper.add("pathId", this.pathId);
-        return toStringHelper;
+        return super.addToStringAttributes(toStringHelper.add("routeKey", this.routeKey)
+            .add("pathId", this.pathId)
+            .add("offset", offset));
     }
 
     @Override
@@ -72,7 +74,7 @@ public final class AddPathBestPath extends AbstractBestPath {
             return false;
         }
 
-        return this.pathId == other.pathId;
+        return this.pathId.equals(other.pathId);
     }
 
     @Override
@@ -87,6 +89,16 @@ public final class AddPathBestPath extends AbstractBestPath {
 
     @Override
     public long getPathId() {
+        return this.pathId;
+    }
+
+    /**
+     * Return the boxed value equivalent of {@link #getPathId()}. This class uses boxed instances internally, hence
+     * this method exposes it.
+     *
+     * @return Path Id as a {@link Long}
+     */
+    public @Nonnull Long getPathIdLong() {
         return this.pathId;
     }
 }
