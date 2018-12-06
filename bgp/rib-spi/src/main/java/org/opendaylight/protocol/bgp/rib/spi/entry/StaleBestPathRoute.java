@@ -8,12 +8,9 @@
 
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
+import static java.util.Objects.requireNonNull;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -28,40 +25,15 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
  *
  * @author Claudio D. Gasparini
  */
-public final class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<Tables>,
-        S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> {
+public abstract class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> {
     private final I nonAddPathRouteKeyIdentifier;
-    private final List<I> addPathRouteKeyIdentifier;
-    private final boolean isNonAddPathBestPathNew;
-    private final List<I> staleRouteKeyIdentifier;
 
-    public StaleBestPathRoute(
-            final RIBSupport<C, S, R, I> ribSupport,
-            final String routeKey,
-            final List<Long> staleRoutesPathIds,
-            final List<Long> withdrawalRoutePathIds,
-            final boolean isNonAddPathBestPathNew) {
-        this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
-
-        this.staleRouteKeyIdentifier = staleRoutesPathIds.stream()
-                .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
-        if (withdrawalRoutePathIds != null) {
-            this.addPathRouteKeyIdentifier = withdrawalRoutePathIds.stream()
-                    .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
-        } else {
-            this.addPathRouteKeyIdentifier = Collections.emptyList();
-        }
-        this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(routeKey);
+    protected StaleBestPathRoute(final I nonAddPathRouteKeyIdentifier) {
+        this.nonAddPathRouteKeyIdentifier = requireNonNull(nonAddPathRouteKeyIdentifier);
     }
 
-    public StaleBestPathRoute(final RIBSupport<C, S, R, I> ribSupport, final String routeKey) {
-        this(ribSupport, routeKey, Collections.singletonList(NON_PATH_ID_VALUE),
-                Collections.emptyList(), true);
-    }
-
-    public I getNonAddPathRouteKeyIdentifier() {
+    public final I getNonAddPathRouteKeyIdentifier() {
         return this.nonAddPathRouteKeyIdentifier;
     }
 
@@ -70,25 +42,19 @@ public final class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<T
      *
      * @return Route Identifier List
      */
-    public List<I> getStaleRouteKeyIdentifiers() {
-        return this.staleRouteKeyIdentifier;
-    }
+    public abstract List<I> getStaleRouteKeyIdentifiers();
 
     /**
      * Route Identifier List of withdrawn routes to advertize peers supporting additional Path.
      *
      * @return Route Identifier List
      */
-    public List<I> getAddPathRouteKeyIdentifiers() {
-        return this.addPathRouteKeyIdentifier;
-    }
+    public abstract List<I> getAddPathRouteKeyIdentifiers();
 
     /**
      * Route Identifier of withdrawn routes to advertize peers no supporting additional Path.
      *
      * @return Route Identifier
      */
-    public boolean isNonAddPathBestPathNew() {
-        return this.isNonAddPathBestPathNew;
-    }
+    public abstract boolean isNonAddPathBestPathNew();
 }
