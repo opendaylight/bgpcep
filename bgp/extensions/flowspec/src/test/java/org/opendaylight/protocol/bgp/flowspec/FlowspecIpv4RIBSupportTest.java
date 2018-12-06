@@ -140,7 +140,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
 
     @Test
     public void testRouteIdAddPath() {
-        assertEquals(this.routeKey, this.ribSupport.createRouteListKey(1L, this.routeKey.getRouteKey()));
+        assertEquals(this.routeKey, this.ribSupport.createRouteListKey(routeKey.getPathId(), routeKey.getRouteKey()));
     }
 
     @Test

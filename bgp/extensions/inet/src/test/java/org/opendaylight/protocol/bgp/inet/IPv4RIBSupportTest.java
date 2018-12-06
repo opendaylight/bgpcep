@@ -129,7 +129,7 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesC
     @Test
     public void testRouteIdAddPath() {
         final Ipv4RouteKey expected = new Ipv4RouteKey(new PathId(1L), PREFIX.getValue());
-        assertEquals(expected, this.ribSupport.createRouteListKey(expected.getPathId().getValue(), PREFIX.getValue()));
+        assertEquals(expected, this.ribSupport.createRouteListKey(expected.getPathId(), PREFIX.getValue()));
     }
 
     @Test

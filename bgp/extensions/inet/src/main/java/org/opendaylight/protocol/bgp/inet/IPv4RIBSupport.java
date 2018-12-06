@@ -89,15 +89,14 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
     }
 
     @Override
-    public Ipv4Route createRoute(final Ipv4Route route, final String routeKey, final long pathId,
-            final Attributes attributes) {
+    public Ipv4Route createRoute(final Ipv4Route route, final Ipv4RouteKey key, final Attributes attributes) {
         final Ipv4RouteBuilder builder;
         if (route != null) {
             builder = new Ipv4RouteBuilder(route);
         } else {
             builder = new Ipv4RouteBuilder();
         }
-        builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes);
+        builder.withKey(key).setAttributes(attributes);
         return builder.build();
     }
 
@@ -112,7 +111,7 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
     }
 
     @Override
-    public Ipv4RouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new Ipv4RouteKey(new PathId(pathId), routeKey);
+    public Ipv4RouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new Ipv4RouteKey(pathId, routeKey);
     }
 }
