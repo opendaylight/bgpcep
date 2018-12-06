@@ -86,15 +86,14 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
     }
 
     @Override
-    public Ipv6Route createRoute(final Ipv6Route route, final String routeKey, final long pathId,
-            final Attributes attributes) {
+    public Ipv6Route createRoute(final Ipv6Route route, final Ipv6RouteKey key, final Attributes attributes) {
         final Ipv6RouteBuilder builder;
         if (route != null) {
             builder = new Ipv6RouteBuilder(route);
         } else {
             builder = new Ipv6RouteBuilder();
         }
-        return builder.withKey(new Ipv6RouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
@@ -108,7 +107,7 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
     }
 
     @Override
-    public Ipv6RouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new Ipv6RouteKey(new PathId(pathId), routeKey);
+    public Ipv6RouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new Ipv6RouteKey(pathId, routeKey);
     }
 }

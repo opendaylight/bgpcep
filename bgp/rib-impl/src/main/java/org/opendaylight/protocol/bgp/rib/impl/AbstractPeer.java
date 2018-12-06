@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
-
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -37,8 +35,8 @@ import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
-import org.opendaylight.protocol.bgp.rib.spi.entry.RouteKeyIdentifier;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteKeyIdentifier;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -224,7 +222,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void initializeRibOut(
             final RouteEntryDependenciesContainer entryDep,
-            List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
+            final List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -272,7 +270,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
-            final List<StaleBestPathRoute<C, S, R, I>> staleRoutes, List<AdvertizedRoute<C, S, R, I>> newRoutes) {
+            final List<StaleBestPathRoute<C, S, R, I>> staleRoutes, final List<AdvertizedRoute<C, S, R, I>> newRoutes) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -297,11 +295,12 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }, MoreExecutors.directExecutor());
     }
 
+    @Override
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void reEvaluateAdvertizement(
             final RouteEntryDependenciesContainer entryDep,
-            List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
+            final List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -368,7 +367,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
 
         for (final AdvertizedRoute<C,S,R,I> advRoute:routes) {
             final PeerId fromPeerId = advRoute.getFromPeerId();
-            if (!filterRoutes(fromPeerId, tk) || (!advRoute.isFirstBestPath() && !addPathSupported)) {
+            if (!filterRoutes(fromPeerId, tk) || !advRoute.isFirstBestPath() && !addPathSupported) {
                 continue;
             }
             final R route = advRoute.getRoute();
@@ -406,15 +405,16 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final RouteKeyIdentifier<R, I> advRoute, final R route, final Attributes effAttr,
             final WriteTransaction tx) {
         final InstanceIdentifier<R> ribOut;
-        final R newRoute;
+        final I newKey;
         if (!addPathSupported) {
             ribOut = ribSupport.createRouteIdentifier(tableRibout, advRoute.getNonAddPathRouteKeyIdentifier());
-            newRoute = ribSupport.createRoute(route, route.getRouteKey(), NON_PATH_ID_VALUE, effAttr);
+            newKey = ribSupport.createRouteListKey(route.getRouteKey());
         } else {
             ribOut = ribSupport.createRouteIdentifier(tableRibout, advRoute.getAddPathRouteKeyIdentifier());
-            newRoute = ribSupport.createRoute(route, route.getRouteKey(), route.getPathId().getValue(), effAttr);
+            newKey = ribSupport.createRouteListKey(route.getPathId(), route.getRouteKey());
         }
 
+        final R newRoute = ribSupport.createRoute(route, newKey, effAttr);
         LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, getPeerId());
         tx.put(LogicalDatastoreType.OPERATIONAL, ribOut, newRoute);
     }

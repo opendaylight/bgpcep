@@ -102,7 +102,7 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
     protected abstract IpPrefix createPrefix(String prefix);
 
     @Override
-    public final L3vpnMcastRoute createRoute(final L3vpnMcastRoute route, final String routeKey, final long pathId,
+    public final L3vpnMcastRoute createRoute(final L3vpnMcastRoute route, final L3vpnMcastRouteKey key,
             final Attributes attributes) {
         final L3vpnMcastRouteBuilder builder;
         if (route != null) {
@@ -110,12 +110,12 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
         } else {
             builder = new L3vpnMcastRouteBuilder();
         }
-        return builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
-    public final L3vpnMcastRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new L3vpnMcastRouteKey(new PathId(pathId), routeKey);
+    public final L3vpnMcastRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new L3vpnMcastRouteKey(pathId, routeKey);
     }
 
     @Override
