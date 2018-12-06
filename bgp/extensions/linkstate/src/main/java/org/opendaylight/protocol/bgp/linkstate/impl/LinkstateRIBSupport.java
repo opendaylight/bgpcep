@@ -147,15 +147,15 @@ public final class LinkstateRIBSupport
     }
 
     @Override
-    public LinkstateRoute createRoute(final LinkstateRoute route, final String routeKey,
-            final long pathId, final Attributes attributes) {
+    public LinkstateRoute createRoute(final LinkstateRoute route, final LinkstateRouteKey key,
+            final Attributes attributes) {
         final LinkstateRouteBuilder builder;
         if (route != null) {
             builder = new LinkstateRouteBuilder(route);
         } else {
             builder = new LinkstateRouteBuilder();
         }
-        return builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
@@ -169,8 +169,8 @@ public final class LinkstateRIBSupport
     }
 
     @Override
-    public LinkstateRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new LinkstateRouteKey(new PathId(pathId), routeKey);
+    public LinkstateRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new LinkstateRouteKey(pathId, routeKey);
     }
 
     @Override

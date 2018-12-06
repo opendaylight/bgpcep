@@ -62,21 +62,20 @@ public final class FlowspecL3vpnIpv4RIBSupport
     }
 
     @Override
-    public FlowspecL3vpnRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey);
+    public FlowspecL3vpnRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new FlowspecL3vpnRouteKey(pathId, routeKey);
     }
 
     @Override
-    public FlowspecL3vpnRoute createRoute(final FlowspecL3vpnRoute route, final String routeKey,
-            final long pathId, final Attributes attributes) {
+    public FlowspecL3vpnRoute createRoute(final FlowspecL3vpnRoute route, final FlowspecL3vpnRouteKey key,
+            final Attributes attributes) {
         final FlowspecL3vpnRouteBuilder builder;
         if (route != null) {
             builder = new FlowspecL3vpnRouteBuilder(route);
         } else {
             builder = new FlowspecL3vpnRouteBuilder();
         }
-        return builder.withKey(new FlowspecL3vpnRouteKey(new PathId(pathId), routeKey))
-                .setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
