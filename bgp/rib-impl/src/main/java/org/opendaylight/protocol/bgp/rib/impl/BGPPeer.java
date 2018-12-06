@@ -415,6 +415,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             }
             this.ribWriter.clearTables(Sets.difference(this.tables, forwardingTables));
             if (restartingLocally) {
+                this.effRibInWriter.close();
                 this.peerRestartStopwatch = Stopwatch.createStarted();
                 handleSelectionReferralTimer();
                 this.missingEOT.addAll(this.tables);
@@ -507,9 +508,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (!isRestartingGracefully()) {
             future = terminateConnection();
         } else {
-            if (isLocalRestarting()){
-                this.effRibInWriter.close();
-            }
             final Set<TablesKey> gracefulTables = getGracefulTables();
             this.ribWriter.storeStaleRoutes(gracefulTables);
             future = this.ribWriter.clearTables(Sets.difference(this.tables, gracefulTables));
