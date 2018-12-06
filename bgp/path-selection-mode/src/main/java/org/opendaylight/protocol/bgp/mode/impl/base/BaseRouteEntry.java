@@ -70,7 +70,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+    public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final int offset = this.offsets.offsetOf(routerId);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
         this.offsets = this.offsets.without(routerId);
@@ -112,7 +112,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final long remotePathId, final R route) {
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final R route) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
             final OffsetMap newOffsets = this.offsets.with(routerId);
