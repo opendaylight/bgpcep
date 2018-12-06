@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.primitives.UnsignedInteger;
@@ -18,7 +19,6 @@ import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 
 final class BaseBestPath extends AbstractBestPath {
-    private static final short PATH_ID = 0;
     private final UnsignedInteger routerId;
 
     BaseBestPath(@Nonnull final UnsignedInteger routerId, @Nonnull final BestPathState state) {
@@ -38,7 +38,7 @@ final class BaseBestPath extends AbstractBestPath {
 
     @Override
     public long getPathId() {
-        return PATH_ID;
+        return NON_PATH_ID_VALUE;
     }
 
     @Override
