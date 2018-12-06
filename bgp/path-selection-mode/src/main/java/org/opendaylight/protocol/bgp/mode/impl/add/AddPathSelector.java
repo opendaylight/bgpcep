@@ -20,14 +20,14 @@ public final class AddPathSelector extends AbstractBestPathSelector {
     private static final Logger LOG = LoggerFactory.getLogger(AddPathSelector.class);
 
     private RouteKey bestRouteKey;
-    private int bestOffsetPosition;
-    private long bestPathId;
+    private Long bestPathId;
+    private int bestOffset;
 
     public AddPathSelector(final long ourAs) {
         super(ourAs);
     }
 
-    void processPath(final Attributes attrs, final RouteKey key, final int offsetPosition, final long pathId) {
+    void processPath(final Attributes attrs, final RouteKey key, final int offsetPosition, final Long pathId) {
         // Consider only non-null attributes
         if (attrs != null) {
             final UnsignedInteger routerId = key.getRouterId();
@@ -45,7 +45,7 @@ public final class AddPathSelector extends AbstractBestPathSelector {
                 this.bestOriginatorId = originatorId;
                 this.bestState = state;
                 this.bestRouteKey = key;
-                this.bestOffsetPosition = offsetPosition;
+                this.bestOffset = offsetPosition;
                 this.bestPathId = pathId;
             }
         }
@@ -53,6 +53,6 @@ public final class AddPathSelector extends AbstractBestPathSelector {
 
     public AddPathBestPath result() {
         return this.bestRouteKey == null ? null : new AddPathBestPath(this.bestState, this.bestRouteKey,
-                this.bestOffsetPosition, this.bestPathId);
+            this.bestPathId, this.bestOffset);
     }
 }
