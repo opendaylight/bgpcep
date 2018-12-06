@@ -172,19 +172,18 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
     }
 
     @Override
-    public final VpnRoute createRoute(final VpnRoute route, final String vpnRouteKey,
-            final long pathId, final Attributes attributes) {
+    public final VpnRoute createRoute(final VpnRoute route, final VpnRouteKey key, final Attributes attributes) {
         final VpnRouteBuilder builder;
         if (route != null) {
             builder = new VpnRouteBuilder(route);
         } else {
             builder = new VpnRouteBuilder();
         }
-        return builder.withKey(new VpnRouteKey(new PathId(pathId), vpnRouteKey)).setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
-    public VpnRouteKey createRouteListKey(final long pathId, final String vpnRouteKey) {
-        return new VpnRouteKey(new PathId(pathId), vpnRouteKey);
+    public VpnRouteKey createRouteListKey(final PathId pathId, final String vpnRouteKey) {
+        return new VpnRouteKey(pathId, vpnRouteKey);
     }
 }

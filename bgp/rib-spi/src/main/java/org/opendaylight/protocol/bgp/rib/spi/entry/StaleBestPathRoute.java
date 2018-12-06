@@ -13,7 +13,9 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VA
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -45,10 +47,10 @@ public final class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<T
             final boolean isNonAddPathBestPathNew) {
         this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
 
-        this.staleRouteKeyIdentifier = staleRoutesPathIds.stream()
+        this.staleRouteKeyIdentifier = staleRoutesPathIds.stream().map(StaleBestPathRoute::pathIdObj)
                 .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
         if (withdrawalRoutePathIds != null) {
-            this.addPathRouteKeyIdentifier = withdrawalRoutePathIds.stream()
+            this.addPathRouteKeyIdentifier = withdrawalRoutePathIds.stream().map(StaleBestPathRoute::pathIdObj)
                     .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
         } else {
             this.addPathRouteKeyIdentifier = Collections.emptyList();
@@ -90,5 +92,9 @@ public final class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<T
      */
     public boolean isNonAddPathBestPathNew() {
         return this.isNonAddPathBestPathNew;
+    }
+
+    private static PathId pathIdObj(final Long pathId) {
+        return pathId == NON_PATH_ID_VALUE ? PathIdUtil.NON_PATH_ID : new PathId(pathId);
     }
 }

@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInteger;
@@ -22,6 +25,7 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -60,11 +64,11 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private List<AddPathBestPath> newBestPathToBeAdvertised;
     private List<Long> removedPathsId;
 
-    private R createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey,
-            final long pathId, final AddPathBestPath path) {
+    private R createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey, final AddPathBestPath path) {
         final OffsetMap map = getOffsets();
         final R route = map.getValue(this.values, map.offsetOf(path.getRouteKey()));
-        return ribSup.createRoute(route, routeKey, pathId, path.getAttributes());
+        return ribSup.createRoute(route, ribSup.createRouteListKey(pathIdObj(path.getPathId()), routeKey),
+            path.getAttributes());
     }
 
     @Override
@@ -127,7 +131,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         final List<AdvertizedRoute<C, S, R, I>> advertized = new ArrayList<>(newBestPathToBeAdvertised.size());
         final AddPathBestPath firstBestPath = this.bestPath.isEmpty() ? null : this.bestPath.get(0);
         for (final AddPathBestPath path : this.newBestPathToBeAdvertised) {
-            final R routeAddPath = createRoute(ribSupport, routeKey, path.getPathId(), path);
+            final R routeAddPath = createRoute(ribSupport, routeKey, path);
             // FIXME: can we use identity check here?
             final boolean isFirstBestPath = firstBestPath != null && firstBestPath.equals(path);
             final AdvertizedRoute<C, S, R, I> adv = new AdvertizedRoute<>(ribSupport, isFirstBestPath,
@@ -146,7 +150,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         }
         final List<ActualBestPathRoutes<C, S, R, I>> preexistentRoutes = new ArrayList<>();
         for (final AddPathBestPath path : this.bestPath) {
-            final R route = createRoute(ribSupport, entryInfo.getRouteKey(), path.getPathId(), path);
+            final R route = createRoute(ribSupport, entryInfo.getRouteKey(), path);
             final ActualBestPathRoutes<C, S, R, I> adv = new ActualBestPathRoutes<>(ribSupport, route, path.getPeerId(),
                     path.getAttributes(), path.isDepreferenced());
             preexistentRoutes.add(adv);
@@ -226,5 +230,13 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
                             && newBest.getRouteKey() == oldBest.getRouteKey()).findAny();
             present.ifPresent(addPathBestPath -> this.bestPathRemoved.remove(oldBest));
         });
+    }
+
+    private static PathId pathIdObj(final long pathId) {
+        return pathId == NON_PATH_ID_VALUE ? NON_PATH_ID : new PathId(pathId);
+    }
+
+    private static PathId pathIdObj(final Long pathId) {
+        return pathId == NON_PATH_ID_VALUE ? NON_PATH_ID : new PathId(pathId);
     }
 }
