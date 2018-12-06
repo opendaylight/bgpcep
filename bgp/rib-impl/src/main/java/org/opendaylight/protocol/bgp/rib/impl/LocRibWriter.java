@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.primitives.UnsignedInteger;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
@@ -235,7 +234,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final DataTreeIdentifier<Tables> rootPath = tc.getRootPath();
             final KeyedInstanceIdentifier<Peer, PeerKey> peerKIid = (KeyedInstanceIdentifier<Peer, PeerKey>)
                     rootPath.getRootIdentifier().firstIdentifierOf(Peer.class);
-            final UnsignedInteger peerUuid = RouterIds.routerIdForPeerId(peerKIid.getKey().getPeerId());
+            final RouterId peerUuid = RouterId.forPeerId(peerKIid.getKey().getPeerId());
             /*
             Initialize Peer with routes under loc rib
              */
@@ -263,7 +262,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     private void updateNodes(
             final DataObjectModification<Tables> table,
-            final UnsignedInteger peerUuid,
+            final RouterId peerUuid,
             final WriteTransaction tx,
             final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> routes
     ) {
@@ -286,10 +285,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         updateRoutesEntries(routesChangesContainer.getModifiedChildren(), peerUuid, routes);
     }
 
-    private void updateRoutesEntries(
-            final Collection<? extends DataObjectModification<? extends DataObject>> collection,
-            final UnsignedInteger routerId,
-            final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> routes) {
+    private void updateRoutesEntries(final Collection<? extends DataObjectModification<?>> collection,
+            final RouterId routerId, final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> routes) {
         for (final DataObjectModification<? extends DataObject> route : collection) {
             final R newRoute = (R) route.getDataAfter();
             final R oldRoute = (R) route.getDataBefore();
