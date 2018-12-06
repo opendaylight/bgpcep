@@ -47,8 +47,8 @@ final class AllPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
                 final Route route = this.offsets.getValue(this.values, offset);
                 if (route != null) {
                     final BestPathState state = new BestPathStateImpl(route.getAttributes());
-                    final AddPathBestPath bestPath = new AddPathBestPath(state, key, offset,
-                            this.offsets.getValue(this.pathsId, offset));
+                    final AddPathBestPath bestPath = new AddPathBestPath(state, key,
+                            this.offsets.getValue(this.pathsId, offset), offset);
                     newBestPathList.add(bestPath);
                 }
             }
