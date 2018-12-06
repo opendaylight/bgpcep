@@ -130,7 +130,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
     @Test
     public void testRouteIdAddPath() {
         final Ipv6RouteKey expected = new Ipv6RouteKey(new PathId(1L), PREFIX.getValue());
-        assertEquals(expected, this.ribSupport.createRouteListKey(expected.getPathId().getValue(), PREFIX.getValue()));
+        assertEquals(expected, this.ribSupport.createRouteListKey(expected.getPathId(), PREFIX.getValue()));
     }
 
     @Test
