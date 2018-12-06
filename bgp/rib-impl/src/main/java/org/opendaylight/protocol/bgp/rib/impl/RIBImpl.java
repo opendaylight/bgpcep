@@ -107,7 +107,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     private boolean isServiceInstantiated;
-    private Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
+    private final Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
 
     public RIBImpl(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
