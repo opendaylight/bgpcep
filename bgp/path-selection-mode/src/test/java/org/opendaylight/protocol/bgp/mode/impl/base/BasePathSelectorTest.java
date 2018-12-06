@@ -10,13 +10,12 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import com.google.common.primitives.UnsignedInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
-import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -31,11 +30,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class BasePathSelectorTest {
     private static final List<AsNumber> SEQ_SEGMENT
             = Arrays.asList(new AsNumber(1L), new AsNumber(2L), new AsNumber(3L));
-    static final UnsignedInteger ROUTER_ID2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
+    static final RouterId ROUTER_ID2 = RouterId.forPeerId(new PeerId("bgp://127.0.0.1"));
     private static final List<AsNumber> SEQ_SEGMENT2
             = Arrays.asList(new AsNumber(20L), new AsNumber(2L), new AsNumber(3L));
-    private static final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
-    private static final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
+    private static final RouterId ROUTER_ID = RouterId.forAddress("127.0.0.1");
+    private static final RouterId ROUTER_ID3 = RouterId.forPeerId(new PeerId("bgp://127.0.0.2"));
     private final BasePathSelector selector = new BasePathSelector(20L);
     private final BestPathStateImpl state = new BestPathStateImpl(createStateFromPrefMedOriginASPath().build());
     private final BaseBestPath originBestPath = new BaseBestPath(ROUTER_ID, this.state);
