@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
-import com.google.common.primitives.UnsignedInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
@@ -47,7 +47,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
+    public boolean removeRoute(final RouterId routerId, final Long remotePathId) {
         final int offset = this.offsets.offsetOf(routerId);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
         this.offsets = this.offsets.without(routerId);
@@ -69,7 +69,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
 
         // Select the best route.
         for (int i = 0; i < this.offsets.size(); ++i) {
-            final UnsignedInteger routerId = this.offsets.getRouterKey(i);
+            final RouterId routerId = this.offsets.getRouterKey(i);
             final Attributes attributes = this.offsets.getValue(this.values, i).getAttributes();
             LOG.trace("Processing router id {} attributes {}", routerId, attributes);
             selector.processPath(routerId, attributes);
@@ -89,7 +89,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final R route) {
+    public int addRoute(final RouterId routerId, final Long remotePathId, final R route) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
             final OffsetMap newOffsets = this.offsets.with(routerId);

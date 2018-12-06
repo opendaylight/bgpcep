@@ -10,12 +10,10 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPath;
-import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 
 public final class AddPathBestPath extends AbstractBestPath {
     private final RouteKey routeKey;
@@ -78,13 +76,8 @@ public final class AddPathBestPath extends AbstractBestPath {
     }
 
     @Override
-    public UnsignedInteger getRouterId() {
+    public RouterId getRouterId() {
         return this.routeKey.getRouterId();
-    }
-
-    @Override
-    public PeerId getPeerId() {
-        return RouterIds.createPeerId(this.routeKey.getRouterId());
     }
 
     @Override
