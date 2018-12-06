@@ -8,15 +8,16 @@
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import static com.google.common.base.Verify.verifyNotNull;
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
@@ -50,6 +51,36 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
         implements RouteEntry<C, S, R, I> {
+    private static final class Stale<C extends Routes & DataObject & ChoiceIn<Tables>,
+        S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+            extends StaleBestPathRoute<C, S, R, I> {
+        private final List<I> addPathRouteKeyIdentifier;
+        private final List<I> staleRouteKeyIdentifier;
+        private final boolean nonAddPathBestPathNew;
+
+        Stale(final I nonAddPathRouteKeyIdentifier, final boolean isNonAddPathBestPathNew,
+            final List<I> staleRouteKeyIdentifier, final List<I> addPathRouteKeyIdentifier) {
+            super(nonAddPathRouteKeyIdentifier);
+            this.nonAddPathBestPathNew = isNonAddPathBestPathNew;
+            this.staleRouteKeyIdentifier = requireNonNull(staleRouteKeyIdentifier);
+            this.addPathRouteKeyIdentifier = requireNonNull(addPathRouteKeyIdentifier);
+        }
+
+        @Override
+        public List<I> getStaleRouteKeyIdentifiers() {
+            return this.staleRouteKeyIdentifier;
+        }
+
+        @Override
+        public List<I> getAddPathRouteKeyIdentifiers() {
+            return this.addPathRouteKeyIdentifier;
+        }
+
+        @Override
+        public boolean isNonAddPathBestPathNew() {
+            return nonAddPathBestPathNew;
+        }
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
     private static final Long[] EMPTY_PATHS_ID = new Long[0];
@@ -113,15 +144,33 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         if ((this.bestPathRemoved == null || this.bestPathRemoved.isEmpty()) && this.removedPathsId == null) {
             return Optional.empty();
         }
-        List<Long> stalePaths = Collections.emptyList();
+
+        final List<I> stalePaths;
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()) {
-            stalePaths = this.bestPathRemoved.stream().map(AddPathBestPath::getPathId).collect(Collectors.toList());
+            final Builder<I> builder = ImmutableList.builderWithExpectedSize(this.bestPathRemoved.size());
+            for (AddPathBestPath removedPath : this.bestPathRemoved) {
+                builder.add(ribSupport.createRouteListKey(pathIdObj(removedPath.getPathIdLong()), routeKey));
+            }
+            stalePaths = builder.build();
             this.bestPathRemoved = null;
+        } else {
+            stalePaths = Collections.emptyList();
         }
-        final StaleBestPathRoute<C, S, R, I> stale = new StaleBestPathRoute<>(ribSupport, routeKey, stalePaths,
-                this.removedPathsId, this.isNonAddPathBestPathNew);
-        this.removedPathsId = null;
-        return Optional.of(stale);
+
+        final List<I> removedPaths;
+        if (this.removedPathsId != null && !this.removedPathsId.isEmpty()) {
+            final Builder<I> builder = ImmutableList.builderWithExpectedSize(this.bestPathRemoved.size());
+            for (Long removedPath : this.removedPathsId) {
+                builder.add(ribSupport.createRouteListKey(pathIdObj(removedPath), routeKey));
+            }
+            removedPaths = builder.build();
+            this.removedPathsId = null;
+        } else {
+            removedPaths = Collections.emptyList();
+        }
+
+        return Optional.of(new Stale<C, S, R, I>(ribSupport.createRouteListKey(routeKey), isNonAddPathBestPathNew,
+                stalePaths, removedPaths));
     }
 
     @Override
