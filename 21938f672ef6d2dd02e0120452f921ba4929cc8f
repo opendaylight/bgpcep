@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "109ad3e3_e65fd8d6",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/RouteKey.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-12-06T15:25:12Z",
+      "side": 1,
+      "message": "why is not done on previous line?",
+      "range": {
+        "startLine": 64,
+        "startChar": 16,
+        "endLine": 64,
+        "endChar": 64
+      },
+      "revId": "21938f672ef6d2dd02e0120452f921ba4929cc8f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
