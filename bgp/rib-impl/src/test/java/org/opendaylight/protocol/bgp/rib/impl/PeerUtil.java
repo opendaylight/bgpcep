@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -21,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.destination.ipv6.Ipv6PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
@@ -74,7 +74,7 @@ final class PeerUtil {
         throw new UnsupportedOperationException();
     }
 
-    static MpReachNlri createMpReachNlri(final IpAddress nextHop, final long pathId, final List<IpPrefix> prefixes) {
+    static MpReachNlri createMpReachNlri(final IpAddress nextHop, final List<IpPrefix> prefixes) {
         final Class<? extends AddressFamily> afi;
         final CNextHop cNextHop;
         final DestinationType destinationType;
@@ -86,7 +86,7 @@ final class PeerUtil {
             destinationType = new DestinationIpv4CaseBuilder().setDestinationIpv4(
                     new DestinationIpv4Builder().setIpv4Prefixes(prefixes.stream()
                             .map(prefix -> new Ipv4PrefixesBuilder()
-                                    .setPathId(new PathId(pathId))
+                                    .setPathId(PathIdUtil.NON_PATH_ID)
                                     .setPrefix(new Ipv4Prefix(prefix.getIpv4Prefix())).build())
                             .collect(Collectors.toList()))
                             .build()).build();
@@ -98,7 +98,7 @@ final class PeerUtil {
             destinationType = new DestinationIpv6CaseBuilder().setDestinationIpv6(
                     new DestinationIpv6Builder().setIpv6Prefixes(prefixes.stream()
                             .map(prefix -> new Ipv6PrefixesBuilder()
-                                    .setPathId(new PathId(pathId))
+                                    .setPathId(PathIdUtil.NON_PATH_ID)
                                     .setPrefix(new Ipv6Prefix(prefix.getIpv6Prefix())).build())
                             .collect(Collectors.toList()))
                             .build()).build();

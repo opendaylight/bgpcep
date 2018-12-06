@@ -192,20 +192,16 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
-    public RouteTargetConstrainRoute createRoute(
-            final RouteTargetConstrainRoute route,
-            final String routeKey,
-            final long pathId,
-            final Attributes attributes) {
+    public RouteTargetConstrainRoute createRoute(final RouteTargetConstrainRoute route,
+            final RouteTargetConstrainRouteKey key, final Attributes attributes) {
         final RouteTargetConstrainRouteBuilder builder;
         if (route != null) {
             builder = new RouteTargetConstrainRouteBuilder(route);
         } else {
             builder = new RouteTargetConstrainRouteBuilder();
         }
-        return builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
-
 
     @Override
     public RouteTargetConstrainRoutesCase emptyRoutesCase() {
@@ -218,9 +214,8 @@ public final class RouteTargetConstrainRIBSupport
         return EMPTY_CONTAINER;
     }
 
-
     @Override
-    public RouteTargetConstrainRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new RouteTargetConstrainRouteKey(new PathId(pathId), routeKey);
+    public RouteTargetConstrainRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new RouteTargetConstrainRouteKey(pathId, routeKey);
     }
 }
