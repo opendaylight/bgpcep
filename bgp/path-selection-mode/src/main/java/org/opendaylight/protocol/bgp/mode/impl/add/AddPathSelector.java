@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
@@ -30,11 +28,10 @@ public final class AddPathSelector extends AbstractBestPathSelector {
     }
 
     void processPath(final Attributes attrs, final RouteKey key, final int offsetPosition, final long pathId) {
-        requireNonNull(key.getRouteId(), "Router ID may not be null");
-
         // Consider only non-null attributes
         if (attrs != null) {
-            final UnsignedInteger originatorId = replaceOriginator(key.getRouteId(), attrs.getOriginatorId());
+            final UnsignedInteger routerId = key.getRouterId();
+            final UnsignedInteger originatorId = replaceOriginator(routerId, attrs.getOriginatorId());
 
             /*
              * Store the new details if we have nothing stored or when the selection algorithm indicates new details
@@ -42,7 +39,7 @@ public final class AddPathSelector extends AbstractBestPathSelector {
              */
             final BestPathState state = new BestPathStateImpl(attrs);
             if (this.bestOriginatorId == null || !isExistingPathBetter(state)) {
-                LOG.trace("Selecting path from router {}", RouterIds.createPeerId(key.getRouteId()).getValue());
+                LOG.trace("Selecting path from router {}", RouterIds.createPeerId(routerId).getValue());
                 this.bestOriginatorId = originatorId;
                 this.bestState = state;
                 this.bestRouteKey = key;

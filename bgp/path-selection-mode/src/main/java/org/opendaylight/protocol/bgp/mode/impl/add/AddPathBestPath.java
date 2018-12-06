@@ -77,12 +77,12 @@ public final class AddPathBestPath extends AbstractBestPath {
 
     @Override
     public UnsignedInteger getRouterId() {
-        return this.routeKey.getRouteId();
+        return this.routeKey.getRouterId();
     }
 
     @Override
     public PeerId getPeerId() {
-        return RouterIds.createPeerId(this.routeKey.getRouteId());
+        return RouterIds.createPeerId(this.routeKey.getRouterId());
     }
 
     @Override
