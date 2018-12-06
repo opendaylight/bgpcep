@@ -60,15 +60,15 @@ public final class FlowspecIpv6RIBSupport
     }
 
     @Override
-    public FlowspecRoute createRoute(final FlowspecRoute route, final String routeKey,
-            final long pathId, final Attributes attributes) {
+    public FlowspecRoute createRoute(final FlowspecRoute route, final FlowspecRouteKey key,
+            final Attributes attributes) {
         final FlowspecRouteBuilder builder;
         if (route != null) {
             builder = new FlowspecRouteBuilder(route);
         } else {
             builder = new FlowspecRouteBuilder();
         }
-        return builder.withKey(new FlowspecRouteKey(new PathId(pathId), routeKey)).setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
@@ -82,7 +82,7 @@ public final class FlowspecIpv6RIBSupport
     }
 
     @Override
-    public FlowspecRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new FlowspecRouteKey(new PathId(pathId), routeKey);
+    public FlowspecRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new FlowspecRouteKey(pathId, routeKey);
     }
 }
