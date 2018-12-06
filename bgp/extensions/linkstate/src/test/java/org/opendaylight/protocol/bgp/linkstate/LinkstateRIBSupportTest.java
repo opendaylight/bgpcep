@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Assert;
@@ -168,7 +167,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId().getValue(),
+        Assert.assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(),
                 ROUTE_KEY.getRouteKey()));
     }
 

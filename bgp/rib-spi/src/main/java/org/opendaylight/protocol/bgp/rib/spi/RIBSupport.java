@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
@@ -15,6 +15,7 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -240,7 +241,7 @@ public interface RIBSupport<
      * @return Route List key
      */
     @Nonnull
-    R createRoute(@Nullable R route, String routeKey, @Nullable long pathId, @Nonnull Attributes attributes);
+    R createRoute(@Nullable R route, @Nonnull I key, @Nonnull Attributes attributes);
 
     /**
      * Returns TablesKey which we are providing support.
@@ -284,10 +285,10 @@ public interface RIBSupport<
      * @return route list Key (RouteKey + pathId)
      */
     @Nonnull
-    I createRouteListKey(@Nonnull long pathId, @Nonnull String routeKey);
+    I createRouteListKey(@Nonnull PathId pathId, @Nonnull String routeKey);
 
     /**
-     * Construct a Route List Key using new path Id for Families.
+     * Construct a Route List Key.
      *
      * @param pathId   The path identifier
      * @param routeKey RouteKey
@@ -295,6 +296,6 @@ public interface RIBSupport<
      */
     @Nonnull
     default I createRouteListKey(@Nonnull final String routeKey) {
-        return createRouteListKey(NON_PATH_ID_VALUE, routeKey);
+        return createRouteListKey(NON_PATH_ID, routeKey);
     }
 }

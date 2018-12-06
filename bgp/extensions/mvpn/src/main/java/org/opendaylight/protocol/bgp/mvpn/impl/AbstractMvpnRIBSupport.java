@@ -88,20 +88,19 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
     }
 
     @Override
-    public final MvpnRoute createRoute(final MvpnRoute route, final String routeKey, final long pathId,
-            final Attributes attributes) {
+    public final MvpnRoute createRoute(final MvpnRoute route, final MvpnRouteKey key, final Attributes attributes) {
         final MvpnRouteBuilder builder;
         if (route != null) {
             builder = new MvpnRouteBuilder(route);
         } else {
             builder = new MvpnRouteBuilder();
         }
-        return builder.withKey(createRouteListKey(pathId, routeKey)).setAttributes(attributes).build();
+        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
-    public final MvpnRouteKey createRouteListKey(final long pathId, final String routeKey) {
-        return new MvpnRouteKey(new PathId(pathId), routeKey);
+    public final MvpnRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
+        return new MvpnRouteKey(pathId, routeKey);
     }
 
     final MvpnChoice extractMvpnChoice(final DataContainerNode<? extends PathArgument> route) {

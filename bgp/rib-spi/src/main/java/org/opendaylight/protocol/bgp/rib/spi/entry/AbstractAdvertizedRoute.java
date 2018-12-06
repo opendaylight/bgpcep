@@ -48,7 +48,8 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
 
         final @NonNull String routeKey = verifyNotNull(route.getRouteKey());
         this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(routeKey);
-        this.addPathRouteKeyIdentifier = ribSupport.createRouteListKey(route.getPathId().getValue(), routeKey);
+        // FIXME: can we just use route.key()?
+        this.addPathRouteKeyIdentifier = ribSupport.createRouteListKey(route.getPathId(), routeKey);
     }
 
     public final PeerId getFromPeerId() {
