@@ -13,7 +13,6 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VA
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,7 +95,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private List<Long> removedPathsId;
 
     private R createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey, final AddPathBestPath path) {
-        final OffsetMap map = getOffsets();
+        final OffsetMap map = this.offsets;
         final R route = map.getValue(this.values, map.offsetOf(path.getRouteKey()));
         return ribSup.createRoute(route, ribSup.createRouteListKey(pathIdObj(path.getPathIdLong()), routeKey),
             path.getAttributes());
@@ -124,7 +123,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     @Override
     public final boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
-        final int offset = getOffsets().offsetOf(key);
+        final int offset = this.offsets.offsetOf(key);
         final Long pathId = this.offsets.getValue(this.pathsId, offset);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
         this.pathsId = this.offsets.removeValue(this.pathsId, offset, EMPTY_PATHS_ID);
@@ -207,40 +206,33 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         return preexistentRoutes;
     }
 
-    private OffsetMap getOffsets() {
-        return this.offsets;
+    @Override
+    public final boolean selectBest(final long localAs) {
+        final int size;
+        return isBestPathNew((size = offsets.size()) == 0 ? ImmutableList.of() : selectBest(localAs, size));
     }
+
+    protected abstract ImmutableList<AddPathBestPath> selectBest(long localAs, int size);
 
     public final boolean isEmpty() {
         return this.offsets.isEmpty();
     }
 
-    private void selectBest(final RouteKey key, final AddPathSelector selector) {
-        final int offset = this.offsets.offsetOf(key);
-        final R route = this.offsets.getValue(this.values, offset);
-        final Long pathId = this.offsets.getValue(this.pathsId, offset);
+    /**
+     * Process a specific route offset into specified selector.
+     *
+     * @param selector selector to update
+     * @param offset offset to process
+     */
+    protected final void processOffset(final AddPathSelector selector, final int offset) {
+        final RouteKey key = offsets.getKey(offset);
+        final R route = offsets.getValue(values, offset);
+        final Long pathId = offsets.getValue(pathsId, offset);
         LOG.trace("Processing router key {} route {}", key, route);
         selector.processPath(route.getAttributes(), key, offset, pathId);
     }
 
-    /**
-     * Process best path selection.
-     *
-     * @param localAs The local autonomous system number
-     * @param keyList List of RouteKey
-     * @return the best path inside offset map passed
-     */
-    protected AddPathBestPath selectBest(final long localAs, final List<RouteKey> keyList) {
-        /*
-         * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
-         */
-        final AddPathSelector selector = new AddPathSelector(localAs);
-        Lists.reverse(keyList).forEach(key -> selectBest(key, selector));
-        LOG.trace("Best path selected {}", this.bestPath);
-        return selector.result();
-    }
-
-    protected boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
+    private boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
         this.isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
         filterRemovedPaths(newBestPathList);
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()
