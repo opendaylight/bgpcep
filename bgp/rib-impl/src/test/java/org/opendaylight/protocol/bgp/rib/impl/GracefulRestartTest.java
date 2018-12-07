@@ -143,6 +143,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     @Test
     public void resetConnectionOnOpenTest() {
 
+        checkReceivedMessages(this.listener, 2);
         final Open open = createClassicOpen(true);
         this.session.writeAndFlush(open);
         checkIdleState(this.peer);
