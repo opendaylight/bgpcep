@@ -61,7 +61,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     private static final Logger LOG = LoggerFactory.getLogger(BaseRouteEntry.class);
     private static final Route[] EMPTY_VALUES = new Route[0];
 
-    private OffsetMap offsets = OffsetMap.EMPTY;
+    private RouterIdOffsets offsets = RouterIdOffsets.EMPTY;
     private R[] values = (R[]) EMPTY_VALUES;
     private BaseBestPath bestPath;
     private BaseBestPath removedBestPath;
@@ -92,7 +92,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
 
         // Select the best route.
         for (int i = 0; i < this.offsets.size(); ++i) {
-            final RouterId routerId = this.offsets.getRouterKey(i);
+            final RouterId routerId = this.offsets.getKey(i);
             final Attributes attributes = this.offsets.getValue(this.values, i).getAttributes();
             LOG.trace("Processing router id {} attributes {}", routerId, attributes);
             selector.processPath(routerId, attributes);
@@ -115,7 +115,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     public int addRoute(final RouterId routerId, final Long remotePathId, final R route) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
-            final OffsetMap newOffsets = this.offsets.with(routerId);
+            final RouterIdOffsets newOffsets = this.offsets.with(routerId);
             offset = newOffsets.offsetOf(routerId);
 
             this.values = newOffsets.expand(this.offsets, this.values, offset);
