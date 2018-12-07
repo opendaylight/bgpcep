@@ -86,7 +86,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private static final Long[] EMPTY_PATHS_ID = new Long[0];
     private static final Route[] EMPTY_VALUES = new Route[0];
 
-    private OffsetMap offsets = OffsetMap.EMPTY;
+    private RouteKeyOffsets offsets = RouteKeyOffsets.EMPTY;
     private R[] values = (R[]) EMPTY_VALUES;
     private Long[] pathsId = EMPTY_PATHS_ID;
     private List<AddPathBestPath> bestPath;
@@ -98,7 +98,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private boolean isNonAddPathBestPathNew;
 
     private R createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey, final AddPathBestPath path) {
-        final OffsetMap map = this.offsets;
+        final RouteKeyOffsets map = this.offsets;
         final R route = map.getValue(this.values, map.offsetOf(path.getRouteKey()));
         return ribSup.createRoute(route, ribSup.createRouteListKey(pathIdObj(path.getPathIdLong()), routeKey),
             path.getAttributes());
@@ -109,7 +109,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         final RouteKey key = new RouteKey(routerId, remotePathId);
         int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
-            final OffsetMap newOffsets = this.offsets.with(key);
+            final RouteKeyOffsets newOffsets = this.offsets.with(key);
             offset = newOffsets.offsetOf(key);
             final R[] newRoute = newOffsets.expand(this.offsets, this.values, offset);
             final Long[] newPathsId = newOffsets.expand(this.offsets, this.pathsId, offset);
