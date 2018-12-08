@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.TreatAsWithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
@@ -93,6 +94,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private DataTreeCandidateNode subTree;
     private DOMDataWriteTransaction tx;
     private ContainerNode nlri;
+    private ContainerNode treatAsWithdrawNlri;
     private final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap = new HashMap<>();
     private ContainerNode attributes;
     private MapEntryNode mapEntryNode;
@@ -132,6 +134,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
 
         doReturn(optional).when(this.nlri).getChild(new NodeIdentifier(WithdrawnRoutes.QNAME));
         doReturn(optional).when(this.nlri).getChild(new NodeIdentifier(AdvertizedRoutes.QNAME));
+        doReturn(optional).when(this.nlri).getChild(new NodeIdentifier(TreatAsWithdrawnRoutes.QNAME));
         doReturn(destinationOptional).when(destination).getChild(new NodeIdentifier(DestinationType.QNAME));
         doReturn(destinationsOptional).when(destinations).getChild(new NodeIdentifier(Ipv4Prefixes.QNAME));
         doReturn(emptyCollection).when(route).getValue();
@@ -233,10 +236,18 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void deleteRoutes() {
+        putRoutes();
         this.ribSupportTestImp.deleteRoutes(this.tx, LOC_RIB_TARGET, this.nlri);
         assertTrue(this.routesMap.isEmpty());
     }
 
+    @Test
+    public void deleteTreatAsWithdrawRoutes() {
+        doReturn(Optional.empty()).when(this.nlri).getChild(new NodeIdentifier(WithdrawnRoutes.QNAME));
+        putRoutes();
+        this.ribSupportTestImp.deleteRoutes(this.tx, LOC_RIB_TARGET, this.nlri);
+        assertTrue(this.routesMap.isEmpty());
+    }
 
     @Test
     public void buildUpdate() {
