@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.TreatAsWithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
@@ -88,6 +89,7 @@ public abstract class AbstractRIBSupport<
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
     private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
+    private static final NodeIdentifier TREAT_AS_WITHDRAWN_ROUTES = new NodeIdentifier(TreatAsWithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
     private static final InstanceIdentifier<Tables> TABLES_II = InstanceIdentifier.create(BgpRib.class)
             .child(Rib.class).child(LocRib.class).child(Tables.class);
@@ -441,7 +443,19 @@ public abstract class AbstractRIBSupport<
             if (destination != null) {
                 deleteDestinationRoutes(tx, tablePath, destination, routesNodeId);
             }
-        } else {
+        }
+
+        // delete possible treat-as-withdraw route
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeTreatAsWithdrawRoutes =
+                nlri.getChild(TREAT_AS_WITHDRAWN_ROUTES);
+        if (maybeTreatAsWithdrawRoutes.isPresent()) {
+            final ContainerNode destination = getDestination(maybeTreatAsWithdrawRoutes.get(),
+                    destinationContainerIdentifier());
+            if (destination != null) {
+                deleteDestinationRoutes(tx, tablePath, destination, routesNodeId);
+            }
+        }
+        if (!maybeRoutes.isPresent() && !maybeTreatAsWithdrawRoutes.isPresent()) {
             LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
         }
     }
