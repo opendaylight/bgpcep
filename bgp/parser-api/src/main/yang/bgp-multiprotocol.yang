@@ -181,6 +181,10 @@ module bgp-multiprotocol {
             container withdrawn-routes {
                 uses destination;
             }
+
+            container treat-as-withdrawn-routes {
+                uses destination;
+            }
         }
     }
 
