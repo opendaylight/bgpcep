@@ -45,6 +45,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
 import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
 import org.opendaylight.protocol.bgp.rib.impl.config.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -165,19 +166,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.rpcRegistry = rpcRegistry;
         this.bgpPeer = bgpPeer;
     }
-
-    BGPPeer(
-            final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final IpAddress neighborAddress,
-            final RIB rib,
-            final PeerRole role,
-            final RpcProviderRegistry rpcRegistry,
-            final Set<TablesKey> afiSafisAdvertized,
-            final Set<TablesKey> afiSafisGracefulAdvertized) {
-        this(tableTypeRegistry, neighborAddress, null, rib, role, null, null, rpcRegistry,
-                afiSafisAdvertized, afiSafisGracefulAdvertized, null);
-    }
-
 
     private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
         if (attrs.getCNextHop() == null && mpReach.getCNextHop() != null) {
@@ -435,6 +423,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             for (final TablesKey key : this.tables) {
                 createAdjRibOutListener(key, true);
             }
+        }
+        final RevisedErrorHandlingSupport errrorHandling = this.bgpPeer.getRevisedErrrorHandling();
+        if (errrorHandling != null) {
+            this.session.addDecoderConstraint(RevisedErrorHandlingSupport.class, errrorHandling);
         }
     }
 

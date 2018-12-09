@@ -219,8 +219,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
-        final BGPPeer bgpPeer = new BGPPeer(this.tableRegistry, neighbor, ribImpl, PeerRole.Ibgp, null,
-                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4Address(), ribImpl,
+                null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
                 this.classicOpen.getHoldTimer(), null);
@@ -268,8 +268,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
-        final BGPPeer bgpPeer = new BGPPeer(this.tableRegistry, neighbor, ribImpl, PeerRole.Ibgp, null,
-                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4Address(), ribImpl,
+                null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
                 this.classicOpen.getHoldTimer(), null);
