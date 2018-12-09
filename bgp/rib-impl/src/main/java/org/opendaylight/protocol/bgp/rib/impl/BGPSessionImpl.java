@@ -39,6 +39,7 @@ import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
+import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPMessagesListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -564,5 +565,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public void registerMessagesCounter(final BGPMessagesListener bgpMessagesListener) {
         this.sessionState.registerMessagesCounter(bgpMessagesListener);
+    }
+
+    @Override
+    public <T extends PeerConstraint> void addDecoderConstraint(Class<T> constraintClass, T constraint) {
+        final BGPByteToMessageDecoder decoder = this.channel.pipeline().get(BGPByteToMessageDecoder.class);
+        decoder.addDecoderConstraint(constraintClass, constraint);
     }
 }

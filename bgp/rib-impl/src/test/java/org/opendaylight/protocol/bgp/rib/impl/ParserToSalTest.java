@@ -116,8 +116,8 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
-        final BGPPeer peer = new BGPPeer(this.tableRegistry, this.localAddress, rib, PeerRole.Ibgp, null,
-                Collections.emptySet(), Collections.emptySet());
+        final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry, this.localAddress.getIpv4Address(),
+                rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
@@ -134,8 +134,8 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);
-        final BGPPeer peer = new BGPPeer(this.tableRegistry, this.localAddress, rib, PeerRole.Ibgp, null,
-                Collections.emptySet(), Collections.emptySet());
+        final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry, this.localAddress.getIpv4Address(),
+                rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();

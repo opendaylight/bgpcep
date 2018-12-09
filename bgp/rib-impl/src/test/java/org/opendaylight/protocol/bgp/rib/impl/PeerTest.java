@@ -137,8 +137,8 @@ public class PeerTest extends AbstractRIBTestSetup {
 
     @Test
     public void testClassicPeer() throws Exception {
-        this.classic = new BGPPeer(this.tableRegistry, this.neighborAddress, getRib(), PeerRole.Ibgp, null,
-                Collections.emptySet(), Collections.emptySet());
+        this.classic = AbstractAddPathTest.configurePeer(this.tableRegistry, this.neighborAddress.getIpv4Address(),
+                getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         this.classic.instantiateServiceInstance();
         this.mockSession();
         assertEquals(this.neighborAddress.getIpv4Address().getValue(), this.classic.getName());
@@ -179,8 +179,8 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(3, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
-        final BGPPeer testingPeer = new BGPPeer(this.tableRegistry, this.neighborAddress, getRib(), PeerRole.Ibgp,
-                null, Collections.emptySet(), Collections.emptySet());
+        final BGPPeer testingPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, this.neighborAddress.getIpv4Address(),
+                getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         testingPeer.instantiateServiceInstance();
         testingPeer.onSessionUp(this.session);
         assertEquals(3, this.routes.size());
