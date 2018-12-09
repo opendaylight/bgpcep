@@ -18,6 +18,7 @@ import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -198,6 +199,12 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
         @Override
         public void closeWithoutMessage() {
             close();
+        }
+
+        @Override
+        public <T extends PeerConstraint> void addDecoderConstraint(final Class<T> constraintClass,
+                final T constraint) {
+            // No-op
         }
     }
 }
