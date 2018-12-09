@@ -19,7 +19,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
@@ -39,6 +38,7 @@ import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
+import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPMessagesListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -184,10 +184,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.addPathTypes = addPathCapabilitiesList;
 
         if (!this.addPathTypes.isEmpty()) {
-            final ChannelPipeline pipeline = this.channel.pipeline();
-            final BGPByteToMessageDecoder decoder = pipeline.get(BGPByteToMessageDecoder.class);
-            decoder.addDecoderConstraint(MultiPathSupport.class,
-                    MultiPathSupportImpl.createParserMultiPathSupport(this.addPathTypes));
+            addDecoderConstraint(MultiPathSupport.class,
+                MultiPathSupportImpl.createParserMultiPathSupport(this.addPathTypes));
         }
 
         if (this.holdTimerValue != 0) {
@@ -564,5 +562,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public void registerMessagesCounter(final BGPMessagesListener bgpMessagesListener) {
         this.sessionState.registerMessagesCounter(bgpMessagesListener);
+    }
+
+    @Override
+    public <T extends PeerConstraint> void addDecoderConstraint(final Class<T> constraintClass, final T constraint) {
+        this.channel.pipeline().get(BGPByteToMessageDecoder.class).addDecoderConstraint(constraintClass, constraint);
     }
 }

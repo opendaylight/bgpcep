@@ -259,8 +259,10 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             final Ipv4Address peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
             final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
             final Set<TablesKey> gracefulAfiSafiAdvertised) {
+        final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
+        doReturn(null).when(bgpPeer).getErrorHandling();
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                afiSafiAdvertised, gracefulAfiSafiAdvertised, null);
+                afiSafiAdvertised, gracefulAfiSafiAdvertised, bgpPeer);
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
