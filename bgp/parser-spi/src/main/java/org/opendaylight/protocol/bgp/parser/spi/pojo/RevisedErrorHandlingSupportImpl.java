@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import com.google.common.base.MoreObjects;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
 
@@ -32,5 +33,10 @@ public final class RevisedErrorHandlingSupportImpl implements RevisedErrorHandli
     @Override
     public boolean isExternalPeer() {
         return externalPeer;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("externalPeer", externalPeer).toString();
     }
 }

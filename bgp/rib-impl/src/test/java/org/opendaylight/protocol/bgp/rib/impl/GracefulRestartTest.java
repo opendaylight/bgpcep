@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -121,6 +122,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         afiSafiAdvertised.add(IPV6_TABLES_KEY);
         final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
         Mockito.doReturn(GRACEFUL_RESTART_TIME).when(bgpPeer).getGracefulRestartTimer();
+        Mockito.doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
         Mockito.doReturn(createParameter(false, true, Collections.singletonMap(TABLES_KEY, false))
                 .getOptionalCapabilities()).when(bgpPeer).getBgpFixedCapabilities();
         this.peer = configurePeer(this.tableRegistry, PEER1, this.ribImpl, parameters, PeerRole.Ibgp,
