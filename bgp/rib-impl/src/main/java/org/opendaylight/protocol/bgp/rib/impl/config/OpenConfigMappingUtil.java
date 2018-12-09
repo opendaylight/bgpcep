@@ -25,6 +25,8 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
@@ -34,6 +36,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNe
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ErrorHandling;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
@@ -476,6 +479,31 @@ final class OpenConfigMappingUtil {
             if (localAddress != null ) {
                 return localAddress.getIpAddress();
             }
+        }
+        return null;
+    }
+
+    @Nullable
+    static RevisedErrorHandlingSupport getRevisedErrorHandling(final PeerRole role,final PeerGroup peerGroup,
+                                                               final Neighbor neighbor) {
+        org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling.Config config = null;
+         if (neighbor != null) {
+             final ErrorHandling errorHandling = neighbor.getErrorHandling();
+             if (errorHandling != null) {
+                 config = errorHandling.getConfig();
+
+             }
+         }
+         if (config == null && peerGroup != null) {
+             final ErrorHandling errorHandling = peerGroup.getErrorHandling();
+             if (errorHandling != null) {
+                 config = errorHandling.getConfig();
+             }
+         }
+        if (config != null) {
+            return !config.isTreatAsWithdraw() ? null :
+                    role == PeerRole.Ibgp ? RevisedErrorHandlingSupportImpl.forInternalPeer() :
+                            RevisedErrorHandlingSupportImpl.forExternalPeer();
         }
         return null;
     }
