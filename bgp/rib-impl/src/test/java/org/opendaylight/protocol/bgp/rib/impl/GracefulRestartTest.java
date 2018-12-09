@@ -121,6 +121,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         afiSafiAdvertised.add(IPV6_TABLES_KEY);
         final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
         Mockito.doReturn(GRACEFUL_RESTART_TIME).when(bgpPeer).getGracefulRestartTimer();
+        Mockito.doReturn(null).when(bgpPeer).getRevisedErrrorHandling();
         Mockito.doReturn(createParameter(false, true, Collections.singletonMap(TABLES_KEY, false))
                 .getOptionalCapabilities()).when(bgpPeer).getBgpFixedCapabilities();
         this.peer = configurePeer(this.tableRegistry, PEER1, this.ribImpl, parameters, PeerRole.Ibgp,

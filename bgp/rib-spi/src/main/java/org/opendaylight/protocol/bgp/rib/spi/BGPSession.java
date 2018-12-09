@@ -11,6 +11,7 @@ import io.netty.channel.ChannelInboundHandler;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -70,4 +71,9 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      * Close peer session without sending Notification message.
      */
     void closeWithoutMessage();
+
+    /**
+     * Add peer constraint to session pipeline decoder.
+     */
+    <T extends PeerConstraint> void addDecoderConstraint(Class<T> constraintClass, T constraint);
 }
