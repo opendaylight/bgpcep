@@ -25,6 +25,8 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
@@ -34,6 +36,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNe
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ErrorHandling;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
@@ -478,5 +481,41 @@ final class OpenConfigMappingUtil {
             }
         }
         return null;
+    }
+
+    @Nullable
+    static RevisedErrorHandlingSupport getRevisedErrorHandling(final PeerRole role,final PeerGroup peerGroup,
+            final Neighbor neighbor) {
+        Boolean enabled = getRevisedErrorHandling(neighbor);
+        if (enabled == null) {
+            enabled = getRevisedErrorHandling(peerGroup);
+        }
+        if (!Boolean.TRUE.equals(enabled)) {
+            return null;
+        }
+        switch (role) {
+            case Ebgp:
+                return RevisedErrorHandlingSupportImpl.forExternalPeer();
+            case Ibgp:
+            case Internal:
+            case RrClient:
+                return RevisedErrorHandlingSupportImpl.forInternalPeer();
+            default:
+                throw new IllegalStateException("Unhandled role " + role);
+        }
+    }
+
+    @Nullable
+    private static @org.eclipse.jdt.annotation.Nullable Boolean getRevisedErrorHandling(final BgpNeighborGroup group) {
+        if (group == null) {
+            return null;
+        }
+        final ErrorHandling errorHandling = group.getErrorHandling();
+        if (errorHandling == null) {
+            return null;
+        }
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling
+            .Config config = errorHandling.getConfig();
+        return config == null ? null : config.isTreatAsWithdraw();
     }
 }
