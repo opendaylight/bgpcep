@@ -43,6 +43,7 @@ import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
@@ -51,6 +52,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.g
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafis;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ErrorHandlingBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflectorBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.TimersBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
@@ -490,5 +492,46 @@ public class OpenConfigMappingUtilTest {
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart.ConfigBuilder()
                 .setRestartTime(restartTimer)
                 .build();
+    }
+
+    @Test
+    public void getRevisedErrorHandlingTest() {
+        final NeighborBuilder neighbor = new NeighborBuilder();
+        final PeerGroupBuilder peerGroup = new PeerGroupBuilder();
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling.ConfigBuilder errorHandlingConfig =
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling.ConfigBuilder();
+        // error handling not set -> null
+        assertNull(OpenConfigMappingUtil.getRevisedErrorHandling(PeerRole.Ibgp, peerGroup.build(),
+                neighbor.build()));
+        // error handling for peer group disabled, neighbor not set -> null
+        peerGroup.setErrorHandling(new ErrorHandlingBuilder()
+                .setConfig(errorHandlingConfig.setTreatAsWithdraw(false).build())
+                .build());
+        assertNull(OpenConfigMappingUtil.getRevisedErrorHandling(PeerRole.Ibgp, peerGroup.build(),
+                neighbor.build()));
+        // error handling for peer group enabled, neighbor not set, Igp -> error handling for internal peer
+        peerGroup.setErrorHandling(new ErrorHandlingBuilder()
+                .setConfig(errorHandlingConfig.setTreatAsWithdraw(true).build())
+                .build());
+        assertEquals(RevisedErrorHandlingSupportImpl.forInternalPeer(),
+                OpenConfigMappingUtil.getRevisedErrorHandling(PeerRole.Ibgp, peerGroup.build(), neighbor.build()));
+        // error handling for peer group enabled, neighbor disabled -> null
+        neighbor.setErrorHandling(new ErrorHandlingBuilder()
+                .setConfig(errorHandlingConfig.setTreatAsWithdraw(false).build())
+                .build());
+        assertNull(OpenConfigMappingUtil.getRevisedErrorHandling(PeerRole.Ibgp, peerGroup.build(),
+                neighbor.build()));
+        // error handling for peer group enabled, neighbor enabled, Igb -> error handling for internal peer
+        neighbor.setErrorHandling(new ErrorHandlingBuilder()
+                .setConfig(errorHandlingConfig.setTreatAsWithdraw(true).build())
+                .build());
+        assertEquals(RevisedErrorHandlingSupportImpl.forInternalPeer(),
+                OpenConfigMappingUtil.getRevisedErrorHandling(PeerRole.Ibgp, peerGroup.build(), neighbor.build()));
+        // error handling for peer group enabled, neighbor enabled, Egb -> error handling for external peer
+        neighbor.setErrorHandling(new ErrorHandlingBuilder()
+                .setConfig(errorHandlingConfig.setTreatAsWithdraw(true).build())
+                .build());
+        assertEquals(RevisedErrorHandlingSupportImpl.forExternalPeer(),
+                OpenConfigMappingUtil.getRevisedErrorHandling(PeerRole.Ebgp, peerGroup.build(), neighbor.build()));
     }
 }
