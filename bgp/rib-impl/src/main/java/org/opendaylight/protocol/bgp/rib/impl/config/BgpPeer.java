@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -28,6 +29,7 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -226,6 +228,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         private boolean isServiceInstantiated;
         private final List<OptionalCapabilities> finalCapabilities;
         private final int gracefulRestartTimer;
+        private final RevisedErrorHandlingSupport errorHandling;
 
 
         private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
@@ -252,6 +255,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
                     .toTableKey(afisSafis.getAfiSafi(), tableTypeRegistry);
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
+
             final ClusterIdentifier clusterId = OpenConfigMappingUtil
                     .getNeighborClusterIdentifier(neighbor.getRouteReflector(), peerGroup);
             final int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
@@ -273,6 +277,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                 neighborLocalAs = globalAs;
             }
 
+            this.errorHandling = OpenConfigMappingUtil.getRevisedErrorHandling(role, peerGroup, neighbor);
             this.bgpPeer = new BGPPeer(tableTypeRegistry, this.neighborAddress, peerGroupName, rib, role, clusterId,
                     neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, gracefulTables, BgpPeer.this);
             this.prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
@@ -335,5 +340,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     public synchronized int getGracefulRestartTimer() {
         return this.bgpPeerSingletonService.gracefulRestartTimer;
+    }
+
+    @Nullable
+    public synchronized RevisedErrorHandlingSupport getRevisedErrrorHandling() {
+        return this.bgpPeerSingletonService.errorHandling;
     }
 }
