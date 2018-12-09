@@ -53,7 +53,7 @@ public final class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<T
         } else {
             this.addPathRouteKeyIdentifier = Collections.emptyList();
         }
-        this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(NON_PATH_ID_VALUE, routeKey);
+        this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(routeKey);
     }
 
     public StaleBestPathRoute(final RIBSupport<C, S, R, I> ribSupport, final String routeKey) {
