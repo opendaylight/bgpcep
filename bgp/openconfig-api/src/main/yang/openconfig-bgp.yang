@@ -308,9 +308,9 @@ module openconfig-bgp {
       default "false";
       description
         "Specify whether erroneous UPDATE messages for which the
-        NLRI can be extracted are reated as though the NLRI is
+        NLRI can be extracted are treated as though the NLRI is
         withdrawn - avoiding session reset";
-      reference "draft-ietf-idr-error-handling-16";
+      reference "https://tools.ietf.org/html/rfc7606";
     }
   }
 
