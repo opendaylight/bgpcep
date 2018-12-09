@@ -270,6 +270,11 @@
                             </graceful-restart>
                         </afi-safi>
                     </afi-safis>
+                    <error-handling>
+                        <config>
+                            <treat-as-withdraw>true</treat-as-withdraw>
+                        </config>
+                    </error-handling>
                 </peer-group>
                 <peer-group>
                     <peer-group-name>external-neighbor</peer-group-name>
@@ -426,6 +431,11 @@
                             </graceful-restart>
                         </afi-safi>
                     </afi-safis>
+                    <error-handling>
+                        <config>
+                            <treat-as-withdraw>true</treat-as-withdraw>
+                        </config>
+                    </error-handling>
                 </peer-group>
             </peer-groups>
         </bgp>
