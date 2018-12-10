@@ -92,7 +92,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     private void addAttribute(final ByteBuf buffer, final RevisedErrorHandling errorHandling,
-            final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
+            final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException, BGPTreatAsWithdrawException {
         final BitArray flags = BitArray.valueOf(buffer.readByte());
         final int type = buffer.readUnsignedByte();
         final int len = flags.get(EXTENDED_LENGTH_BIT) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
@@ -105,11 +105,16 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             return;
         }
 
-        if (parser == null) {
-            processUnrecognized(flags, type, buffer, len);
-        } else {
-            attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
-        }
+        try {
+            if (parser == null) {
+                processUnrecognized(flags, type, buffer, len);
+            } else {
+                attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
+            }
+        } catch (Exception e) {
+            errorHandling.reportError(BGPError.MALFORMED_ATTR_LIST, e,
+                "Error encountered while parsing attribute with type %s", type);
+    }
     }
 
     private void processUnrecognized(final BitArray flags, final int type, final ByteBuf buffer, final int len)
@@ -133,8 +138,15 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             throws BGPDocumentedException, BGPParsingException {
         final RevisedErrorHandling errorHandling = RevisedErrorHandling.from(constraint);
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();
+        BGPTreatAsWithdrawException withdrawCause = null;
         while (buffer.isReadable()) {
-            addAttribute(buffer, errorHandling, attributes);
+            try {
+                addAttribute(buffer, errorHandling, attributes);
+            } catch (BGPTreatAsWithdrawException e) {
+                LOG.info("Failed to completely parse attributes list.");
+                withdrawCause = e;
+                break;
+            }
         }
 
         /*
@@ -145,7 +157,6 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         // all attributes before we can decide whether we can discard attributes, or whether we need to terminate
         // the session.
         final AttributesBuilder builder = new AttributesBuilder();
-        BGPTreatAsWithdrawException withdrawCause = null;
         for (final Entry<Integer, RawAttribute> entry : attributes.entrySet()) {
             LOG.debug("Parsing attribute type {}", entry.getKey());
 

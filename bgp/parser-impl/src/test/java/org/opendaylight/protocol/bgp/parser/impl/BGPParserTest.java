@@ -26,11 +26,15 @@ import java.util.Optional;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.PeerSpecificParserConstraintImpl;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.util.ByteArray;
@@ -78,7 +82,7 @@ public class BGPParserTest {
      */
     static final List<byte[]> inputBytes = new ArrayList<>();
 
-    private static final int COUNTER = 7;
+    private static final int COUNTER = 8;
 
     private static final int MAX_SIZE = 300;
 
@@ -712,6 +716,7 @@ public class BGPParserTest {
      * 00 00 00 02 <- path-id (2)
      * 1e ac 10 00 04 <- route (172.16.0.4)
      * 00 00 <- total path attribute length
+     *
      */
     @Test
     public void testUpdateMessageWithdrawAddPath() throws Exception {
@@ -736,5 +741,51 @@ public class BGPParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
         assertArrayEquals(updatesWithMultiplePath.get(1), ByteArray.readAllBytes(buffer));
+    }
+
+    /*
+     * Tests withdrawn routes with malformed attribute.
+     *
+     * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
+     * 00 35 <- length (53) - including header
+     * 02 <- message type
+     * 00 00 <- withdrawn routes length
+     * 00 1a <- total path attribute length (26)
+     * 40 <- attribute flags
+     * 01 <- attribute type code (origin)
+     * 02 <- WRONG attribute length
+     * 00 <- Origin value (IGP)
+     * 40 <- attribute flags
+     * 03 <- attribute type code (Next Hop)
+     * 04 <- attribute length
+     * 0a 00 00 02 <- value (10.0.0.2)
+     * 40 <- attribute flags
+     * 0e <- attribute type code (MP_REACH)
+     * 00 01 <- AFI (Ipv4)
+     * 01 <- SAFI (Unicast)
+     * 04 <- next hop length
+     * ff ff ff ff <- next hop
+     * 00 <- reserved
+     * 18 <- length
+     * 0a 00 01 <- prefix (10.0.1.0)
+     * //NLRI
+     * 18 <- length
+     * 0a 00 02 <- prefix (10.0.2.0)
+     */
+    @Test
+    public void testUpdateMessageWithMalformedAttribute() throws BGPDocumentedException {
+        final byte[] body = ByteArray.cutBytes(inputBytes.get(7), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH,
+                LENGTH_FIELD_LENGTH));
+        final PeerSpecificParserConstraintImpl constraint = new PeerSpecificParserConstraintImpl();
+        constraint.addPeerConstraint(RevisedErrorHandlingSupport.class,
+                RevisedErrorHandlingSupportImpl.forExternalPeer());
+        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
+                constraint);
+        assertNotNull(message);
+        assertNull(message.getNlri());
+        final List<WithdrawnRoutes> withdrawnRoutes = message.getWithdrawnRoutes();
+        assertNotNull(withdrawnRoutes);
+        assertEquals(1, withdrawnRoutes.size());
     }
 }
