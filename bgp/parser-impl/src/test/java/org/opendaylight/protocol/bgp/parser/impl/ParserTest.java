@@ -342,8 +342,8 @@ public class ParserTest {
             reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_UNRECOGNIZED_ATTRIBUTE), null);
             fail("Exception should have occured.");
         } catch (final BGPDocumentedException e) {
-            assertEquals("Well known attribute not recognized.", e.getMessage());
-            assertEquals(BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED, e.getError());
+            assertEquals("Error encountered while parsing attribute list.", e.getMessage());
+            assertEquals(BGPError.MALFORMED_ATTR_LIST, e.getError());
             return;
         }
         fail();
