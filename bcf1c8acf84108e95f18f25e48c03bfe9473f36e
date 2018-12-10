@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8067d80d_9ae6e44d",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-12-10T22:06:29Z",
+      "side": 1,
+      "message": "prefix length is in bits not bytes",
+      "range": {
+        "startLine": 209,
+        "startChar": 12,
+        "endLine": 209,
+        "endChar": 53
+      },
+      "revId": "bcf1c8acf84108e95f18f25e48c03bfe9473f36e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
