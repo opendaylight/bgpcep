@@ -19,3 +19,4 @@ List of supported capabilities
    * `draft-ietf-pce-stateful-sync-optimizations <https://tools.ietf.org/html/draft-ietf-pce-stateful-sync-optimizations-05>`_ - Optimizations of Label Switched Path State Synchronization Procedures for a Stateful PCE
    * `draft-sivabalan-pce-binding-label-sid <https://tools.ietf.org/html/draft-sivabalan-pce-binding-label-sid-01>`_ - Carrying Binding Label/Segment-ID in PCE-based Networks
 * `draft-ietf-pce-pceps <https://tools.ietf.org/html/draft-ietf-pce-pceps-10>`_ - Secure Transport for PCEP
+* `RFC8306 <https://tools.ietf.org/html/rfc8306>`_ - Extensions to the Path Computation Element Communication Protocol (PCEP) for Point-to-Multipoint Traffic Engineering Label Switched Paths
