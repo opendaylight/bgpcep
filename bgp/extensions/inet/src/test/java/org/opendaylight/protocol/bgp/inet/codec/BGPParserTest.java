@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.inet.codec;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.Lists;
@@ -24,6 +25,9 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.PeerSpecificParserConstraintImpl;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -45,9 +49,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.OriginatorIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
@@ -63,27 +70,32 @@ public class BGPParserTest {
 
     private static MessageRegistry messageRegistry;
 
-    private static byte[] input;
+    private static List<byte[]> input;
+
+    private static int MESSAGE_COUNT = 2;
 
     @BeforeClass
     public static void setUp() throws Exception {
         messageRegistry = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+        input = new ArrayList<>(MESSAGE_COUNT);
+        for (int i = 1; i <= MESSAGE_COUNT; i++) {
 
-        final String name = "/up2.bin";
-        try (InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
-            if (is == null) {
-                throw new IOException("Failed to get resource " + name);
-            }
-            final ByteArrayOutputStream bis = new ByteArrayOutputStream();
-            final byte[] data = new byte[MAX_SIZE];
-            int position;
-            while ((position = is.read(data, 0, data.length)) != -1) {
-                bis.write(data, 0, position);
-            }
-            bis.flush();
+            final String name = "/up" + i + ".bin";
+            try (InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
+                if (is == null) {
+                    throw new IOException("Failed to get resource " + name);
+                }
+                final ByteArrayOutputStream bis = new ByteArrayOutputStream();
+                final byte[] data = new byte[MAX_SIZE];
+                int position;
+                while ((position = is.read(data, 0, data.length)) != -1) {
+                    bis.write(data, 0, position);
+                }
+                bis.flush();
 
-            input = bis.toByteArray();
-            is.close();
+                input.add(bis.toByteArray());
+                is.close();
+            }
         }
     }
 
@@ -140,7 +152,7 @@ public class BGPParserTest {
      */
     @Test
     public void testIPv6Nlri() throws Exception {
-        final Update message = (Update) messageRegistry.parseMessage(Unpooled.wrappedBuffer(input), null);
+        final Update message = (Update) messageRegistry.parseMessage(Unpooled.wrappedBuffer(input.get(1)), null);
 
         // check fields
         assertNull(message.getWithdrawnRoutes());
@@ -210,7 +222,56 @@ public class BGPParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         messageRegistry.serializeMessage(message, buffer);
-        assertArrayEquals(input, ByteArray.readAllBytes(buffer));
+        assertArrayEquals(input.get(1), ByteArray.readAllBytes(buffer));
     }
 
+    /*
+     * Tests withdrawn routes with malformed attribute.
+     *
+     * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
+     * 00 36 <- length (54) - including header
+     * 02 <- message type
+     * 00 00 <- withdrawn routes length
+     * 00 1b <- total path attribute length (27)
+     * 40 <- attribute flags
+     * 01 <- attribute type code (origin)
+     * 01 <- WRONG attribute length
+     * 00 <- Origin value (IGP)
+     * 40 <- attribute flags
+     * 03 <- attribute type code (Next Hop)
+     * 04 <- attribute length
+     * 0a 00 00 02 <- value (10.0.0.2)
+     * 40 <- attribute flags
+     * 0e <- attribute type code (MP_REACH)
+     * 0d <- attribute length
+     * 00 01 <- AFI (Ipv4)
+     * 01 <- SAFI (Unicast)
+     * 04 <- next hop length
+     * ff ff ff ff <- next hop
+     * 00 <- reserved
+     * 18 <- length
+     * 0a 00 01 <- prefix (10.0.1.0)
+     * //NLRI
+     * 18 <- length
+     * 0a 00 02 <- prefix (10.0.2.0)
+     */
+    @Test
+    public void testParseUpdateMessageWithMalformedAttributes() throws Exception {
+        final PeerSpecificParserConstraintImpl constraint = new PeerSpecificParserConstraintImpl();
+        constraint.addPeerConstraint(RevisedErrorHandlingSupport.class,
+                RevisedErrorHandlingSupportImpl.forExternalPeer());
+        final Update message = (Update) messageRegistry.parseMessage(Unpooled.wrappedBuffer(input.get(0)), constraint);
+        assertNotNull(message);
+        assertNull(message.getNlri());
+        final List<WithdrawnRoutes> withdrawnRoutes = message.getWithdrawnRoutes();
+        assertNotNull(withdrawnRoutes);
+        assertEquals(1, withdrawnRoutes.size());
+        final Attributes attributes = message.getAttributes();
+        assertNotNull(attributes);
+        assertNull(attributes.augmentation(Attributes1.class));
+        final Attributes2 attributes2 = attributes.augmentation(Attributes2.class);
+        assertNotNull(attributes2);
+        final MpUnreachNlri mpUnreachNlri = attributes2.getMpUnreachNlri();
+        assertNotNull(mpUnreachNlri);
+    }
 }
