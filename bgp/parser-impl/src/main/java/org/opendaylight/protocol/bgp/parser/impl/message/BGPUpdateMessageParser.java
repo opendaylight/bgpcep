@@ -31,6 +31,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.parser.spi.ParsedAttributes;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -106,8 +107,8 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
     }
 
     /**
-     * Parse Update message from buffer.
-     * Calls {@link #checkMandatoryAttributesPresence(Update)} to check for presence of mandatory attributes.
+     * Parse Update message from buffer. Calls {@link #checkMandatoryAttributesPresence(Update, RevisedErrorHandling)}
+     * to check for presence of mandatory attributes.
      *
      * @param buffer Encoded BGP message in ByteBuf
      * @param messageLength Length of the BGP message
@@ -123,6 +124,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         final UpdateBuilder builder = new UpdateBuilder();
         final boolean isMultiPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint,
                 new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        final RevisedErrorHandling errorHandling = RevisedErrorHandling.from(constraint);
 
         final int withdrawnRoutesLength = buffer.readUnsignedShort();
         if (withdrawnRoutesLength > 0) {
@@ -144,13 +146,13 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
             return builder.build();
         }
-        final Optional<BGPTreatAsWithdrawException> withdrawCause;
+        Optional<BGPTreatAsWithdrawException> withdrawCauseOpt;
         if (totalPathAttrLength > 0) {
             final ParsedAttributes attributes = parseAttributes(buffer, totalPathAttrLength, constraint);
             builder.setAttributes(attributes.getAttributes());
-            withdrawCause = attributes.getWithdrawCause();
+            withdrawCauseOpt = attributes.getWithdrawCause();
         } else {
-            withdrawCause = Optional.empty();
+            withdrawCauseOpt = Optional.empty();
         }
         final List<Nlri> nlri = new ArrayList<>();
         while (buffer.isReadable()) {
@@ -164,12 +166,25 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         if (!nlri.isEmpty()) {
             builder.setNlri(nlri);
         }
-        Update msg = builder.build();
-        checkMandatoryAttributesPresence(msg);
 
-        if (withdrawCause.isPresent()) {
+        try {
+            checkMandatoryAttributesPresence(builder.build(), errorHandling);
+        } catch (BGPTreatAsWithdrawException e) {
+            LOG.debug("Well-known mandatory attributes missing", e);
+            if (withdrawCauseOpt.isPresent()) {
+                final BGPTreatAsWithdrawException exception = withdrawCauseOpt.get();
+                exception.addSuppressed(e);
+                withdrawCauseOpt = Optional.of(exception);
+            } else {
+                withdrawCauseOpt = Optional.of(e);
+            }
+        }
+
+        Update msg = builder.build();
+
+        if (withdrawCauseOpt.isPresent()) {
             // FIXME: BGPCEP-359: check if we can treat the message as withdraw and convert the message
-            throw withdrawCause.get().toDocumentedException();
+            throw new BGPDocumentedException(withdrawCauseOpt.get());
         }
 
         LOG.debug("BGP Update message was parsed {}.", msg);
@@ -191,32 +206,30 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
      * Check for presence of well known mandatory path attributes ORIGIN, AS_PATH and NEXT_HOP in Update message.
      *
      * @param message Update message
+     * @param errorHandling Error handling type
      */
-    private static void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+    private static void checkMandatoryAttributesPresence(final Update message,
+            final RevisedErrorHandling errorHandling) throws BGPDocumentedException, BGPTreatAsWithdrawException {
         requireNonNull(message, "Update message cannot be null");
 
         final Attributes attrs = message.getAttributes();
-
-        if (message.getNlri() != null) {
-            if (attrs == null || attrs.getCNextHop() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { NextHopAttributeParser.TYPE });
-            }
+        if (message.getNlri() != null && (attrs == null || attrs.getCNextHop() == null)) {
+            throw reportMissingAttribute(errorHandling, "NEXT_HOP", NextHopAttributeParser.TYPE);
         }
 
         if (MessageUtil.isAnyNlriPresent(message)) {
             if (attrs == null || attrs.getOrigin() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { OriginAttributeParser.TYPE });
+                throw reportMissingAttribute(errorHandling, "ORIGIN", OriginAttributeParser.TYPE);
             }
-
             if (attrs.getAsPath() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "AS_PATH",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { AsPathAttributeParser.TYPE });
+                throw reportMissingAttribute(errorHandling, "AS_PATH", AsPathAttributeParser.TYPE);
             }
         }
+    }
+
+    private static BGPDocumentedException reportMissingAttribute(final RevisedErrorHandling errorHandling,
+            final String attrName, final int attrType) throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        return errorHandling.reportError(BGPError.WELL_KNOWN_ATTR_MISSING, new byte[] { (byte) attrType },
+            "Well known mandatory attribute missing: %s", attrName);
     }
 }
