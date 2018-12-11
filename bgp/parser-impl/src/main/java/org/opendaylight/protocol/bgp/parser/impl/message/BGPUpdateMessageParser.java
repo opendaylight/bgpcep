@@ -20,9 +20,6 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -144,13 +141,13 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
             return builder.build();
         }
-        final Optional<BGPTreatAsWithdrawException> withdrawCause;
+        Optional<BGPTreatAsWithdrawException> withdrawCauseOpt;
         if (totalPathAttrLength > 0) {
             final ParsedAttributes attributes = parseAttributes(buffer, totalPathAttrLength, constraint);
             builder.setAttributes(attributes.getAttributes());
-            withdrawCause = attributes.getWithdrawCause();
+            withdrawCauseOpt = attributes.getWithdrawCause();
         } else {
-            withdrawCause = Optional.empty();
+            withdrawCauseOpt = Optional.empty();
         }
         final List<Nlri> nlri = new ArrayList<>();
         while (buffer.isReadable()) {
@@ -164,12 +161,25 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         if (!nlri.isEmpty()) {
             builder.setNlri(nlri);
         }
-        Update msg = builder.build();
-        checkMandatoryAttributesPresence(msg);
 
-        if (withdrawCause.isPresent()) {
+        try {
+            checkMandatoryAttributesPresence(builder.build());
+        } catch (BGPTreatAsWithdrawException e) {
+            LOG.debug("Well-known mandatory attributes missing", e);
+            if (withdrawCauseOpt.isPresent()) {
+                final BGPTreatAsWithdrawException exception = withdrawCauseOpt.get();
+                exception.addSuppressed(e);
+                withdrawCauseOpt = Optional.of(exception);
+            } else {
+                withdrawCauseOpt = Optional.of(e);
+            }
+        }
+
+        Update msg = builder.build();
+
+        if (withdrawCauseOpt.isPresent()) {
             // FIXME: BGPCEP-359: check if we can treat the message as withdraw and convert the message
-            throw withdrawCause.get().toDocumentedException();
+            throw withdrawCauseOpt.get().toDocumentedException();
         }
 
         LOG.debug("BGP Update message was parsed {}.", msg);
@@ -192,30 +202,27 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
      *
      * @param message Update message
      */
-    private static void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+    private static void checkMandatoryAttributesPresence(final Update message) throws BGPTreatAsWithdrawException {
         requireNonNull(message, "Update message cannot be null");
 
         final Attributes attrs = message.getAttributes();
 
         if (message.getNlri() != null) {
             if (attrs == null || attrs.getCNextHop() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { NextHopAttributeParser.TYPE });
+                throw new BGPTreatAsWithdrawException(BGPError.WELL_KNOWN_ATTR_MISSING,
+                        BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP");
             }
         }
 
         if (MessageUtil.isAnyNlriPresent(message)) {
             if (attrs == null || attrs.getOrigin() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { OriginAttributeParser.TYPE });
+                throw new BGPTreatAsWithdrawException(BGPError.WELL_KNOWN_ATTR_MISSING,
+                        BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN");
             }
 
             if (attrs.getAsPath() == null) {
-                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "AS_PATH",
-                        BGPError.WELL_KNOWN_ATTR_MISSING,
-                        new byte[] { AsPathAttributeParser.TYPE });
+                throw new BGPTreatAsWithdrawException(BGPError.WELL_KNOWN_ATTR_MISSING,
+                        BGPError.MANDATORY_ATTR_MISSING_MSG + "AS_PATH");
             }
         }
     }
