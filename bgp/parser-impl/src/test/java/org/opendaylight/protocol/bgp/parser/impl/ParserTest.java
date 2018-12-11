@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.UnknownHostException;
@@ -22,8 +23,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -350,7 +349,6 @@ public class ParserTest {
         } catch (final BGPDocumentedException e) {
             assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN", e.getMessage());
             assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, e.getError());
-            assertArrayEquals(new byte[] { OriginAttributeParser.TYPE }, e.getData());
             return;
         }
         fail();
@@ -365,7 +363,6 @@ public class ParserTest {
         } catch (final BGPDocumentedException e) {
             assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP", e.getMessage());
             assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, e.getError());
-            assertArrayEquals(new byte[] { NextHopAttributeParser.TYPE }, e.getData());
             return;
         }
         fail();
