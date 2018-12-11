@@ -80,6 +80,22 @@ public enum RevisedErrorHandling {
      */
     public BGPDocumentedException reportError(final BGPError error, final String format, final Object... args)
             throws BGPDocumentedException, BGPTreatAsWithdrawException {
-        throw reportError(error, null, format, args);
+        throw reportError(error, (Exception) null, format, args);
+    }
+
+    /**
+     * Report a failure to parse an attribute resulting either in treat-as-withdraw if RFC7606 is in effect, or
+     * connection teardown if it is not.
+     *
+     * @param error {@link BGPError} to report in case of a session teardown
+     * @param format Message format string
+     * @param args Message format arguments
+     * @return This method does not return
+     * @throws BGPTreatAsWithdrawException if Revised Error Handling is in effect
+     * @throws BGPDocumentedException if Revised Error Handling is in not effect
+     */
+    public BGPDocumentedException reportError(final BGPError error, final byte[] data, final String format,
+            final Object... args) throws BGPDocumentedException, BGPTreatAsWithdrawException {
+        throw new BGPTreatAsWithdrawException(error, data, format, args);
     }
 }

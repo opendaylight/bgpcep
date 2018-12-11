@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import static java.util.Objects.requireNonNull;
-
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -21,28 +19,21 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @author Robert Varga
  */
-public final class BGPTreatAsWithdrawException extends Exception {
+public final class BGPTreatAsWithdrawException extends AbstractBGPException {
     private static final long serialVersionUID = 1L;
-
-    private final @NonNull BGPError error;
 
     public BGPTreatAsWithdrawException(final @NonNull BGPError error, final @NonNull String format,
             final Object... args) {
-        this(error, null, format, args);
+        this(error, (Exception) null, format, args);
+    }
+
+    public BGPTreatAsWithdrawException(final @NonNull BGPError error, final byte[] data, final @NonNull String format,
+            final Object... args) {
+        super(String.format(format, args), error, data, null);
     }
 
     public BGPTreatAsWithdrawException(final @NonNull BGPError error, @Nullable final Exception cause,
             final @NonNull String format, final Object... args) {
-        super(String.format(format, args), cause);
-        this.error = requireNonNull(error);
-    }
-
-    public @NonNull BGPError getError() {
-        return error;
-    }
-
-    // FIXME: remove this method, as it makes checkstyle unhappy
-    public @NonNull BGPDocumentedException toDocumentedException() {
-        return new BGPDocumentedException(getMessage(), error, this);
+        super(String.format(format, args), error, null, cause);
     }
 }

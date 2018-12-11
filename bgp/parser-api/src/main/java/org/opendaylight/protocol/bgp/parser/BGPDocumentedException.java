@@ -17,17 +17,9 @@ import org.slf4j.LoggerFactory;
  * There are several errors documented in RFC4271 or in draft, that have specific meaning for the BGP.
  * This exception is used, when any of those errors occurs.
  */
-public final class BGPDocumentedException extends Exception {
-
+public final class BGPDocumentedException extends AbstractBGPException {
     private static final long serialVersionUID = -6212702584439430736L;
-
     private static final Logger LOG = LoggerFactory.getLogger(BGPDocumentedException.class);
-
-    private static final byte[] EMPTY = new byte[0];
-
-    private final BGPError error;
-
-    private final byte[] data;
 
     /**
      * Used when an error occurred that is described in an RFC or a draft.
@@ -80,28 +72,18 @@ public final class BGPDocumentedException extends Exception {
      */
     public BGPDocumentedException(final String message, final BGPError error, final byte[] data,
             final Exception cause) {
-        super(message, cause);
-        this.error = error;
-        this.data = data == null || data.length == 0 ? null : data.clone();
+        super(message, error, data, cause);
+        // FIXME: remove this error?
         LOG.error("Error = {}", error, this);
     }
 
     /**
-     * Returns specific documented error.
+     * Used when an error occurred that is described in an RFC or a draft.
      *
-     * @return documented error
+     * @param cause cause for the error
      */
-    public BGPError getError() {
-        return error;
-    }
-
-    /**
-     * Returns data associated with this error.
-     *
-     * @return byte array data
-     */
-    public byte[] getData() {
-        return data != null ? data.clone() : EMPTY;
+    public BGPDocumentedException(final BGPTreatAsWithdrawException cause) {
+        this(cause.getMessage(), cause.getError(), cause.getData(), cause);
     }
 
     public static BGPDocumentedException badMessageLength(final String message, final int length) {
