@@ -299,4 +299,22 @@ public interface RIBSupport<
     default I createRouteListKey(@Nonnull final String routeKey) {
         return createRouteListKey(NON_PATH_ID, routeKey);
     }
+
+    /**
+     * Given a route list key, return the associated path ID.
+     *
+     * @param routeListKey Route list key
+     * @return Path ID
+     */
+    @Nonnull
+    PathId extractPathId(@Nonnull I routeListKey);
+
+    /**
+     * Given a route list key, return the associated path ID.
+     *
+     * @param routeListKey Route list key
+     * @return RouteKey
+     */
+    @Nonnull
+    String extractRouteKey(@Nonnull I routeListKey);
 }

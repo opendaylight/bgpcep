@@ -143,5 +143,16 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
         return Collections.emptyList();
     }
 
+
+    @Override
+    public final PathId extractPathId(final MvpnRouteKey routeListKey) {
+        return routeListKey.getPathId();
+    }
+
+    @Override
+    public final String extractRouteKey(final MvpnRouteKey routeListKey) {
+        return routeListKey.getRouteKey();
+    }
+
     abstract NodeIdentifierWithPredicates createRouteKey(UnkeyedListEntryNode mvpn);
 }
