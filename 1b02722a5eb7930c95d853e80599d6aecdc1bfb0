@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e054a8a0_387ce266",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2018-12-12T15:52:23Z",
+      "side": 1,
+      "message": "is it possible to cast PathArgument to Identifier?",
+      "range": {
+        "startLine": 288,
+        "startChar": 12,
+        "endLine": 288,
+        "endChar": 61
+      },
+      "revId": "1b02722a5eb7930c95d853e80599d6aecdc1bfb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
