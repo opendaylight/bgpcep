@@ -25,7 +25,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>topology-parent</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>0.9.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>Topology parent</description>
     <name>${project.artifactId}</name>

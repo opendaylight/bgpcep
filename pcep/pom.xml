@@ -25,7 +25,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>pcep-parent</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>0.9.5-SNAPSHOT</version>
     <description>PCEP protocol parent</description>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>

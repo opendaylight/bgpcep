@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>extensions</artifactId>
-        <version>0.9.4-SNAPSHOT</version>
+        <version>0.9.5-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
