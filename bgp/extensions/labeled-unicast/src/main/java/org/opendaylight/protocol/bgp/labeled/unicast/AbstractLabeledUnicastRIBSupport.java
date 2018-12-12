@@ -191,4 +191,15 @@ abstract class AbstractLabeledUnicastRIBSupport<
     public final List<LabeledUnicastRoute> routesFromContainer(final S container) {
         return container.getLabeledUnicastRoute();
     }
+
+
+    @Override
+    public final PathId extractPathId(final LabeledUnicastRouteKey routeListKey) {
+        return routeListKey.getPathId();
+    }
+
+    @Override
+    public final String extractRouteKey(final LabeledUnicastRouteKey routeListKey) {
+        return routeListKey.getRouteKey();
+    }
 }
