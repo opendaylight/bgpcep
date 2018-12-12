@@ -177,4 +177,14 @@ public final class LinkstateRIBSupport
     public List<LinkstateRoute> routesFromContainer(final LinkstateRoutes container) {
         return container.getLinkstateRoute();
     }
+
+    @Override
+    public PathId extractPathId(final LinkstateRouteKey routeListKey) {
+        return routeListKey.getPathId();
+    }
+
+    @Override
+    public String extractRouteKey(final LinkstateRouteKey routeListKey) {
+        return routeListKey.getRouteKey();
+    }
 }

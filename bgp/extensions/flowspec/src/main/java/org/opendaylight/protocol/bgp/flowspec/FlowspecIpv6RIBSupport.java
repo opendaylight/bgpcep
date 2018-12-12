@@ -91,4 +91,14 @@ public final class FlowspecIpv6RIBSupport
     public List<FlowspecRoute> routesFromContainer(final FlowspecIpv6Routes container) {
         return container.getFlowspecRoute();
     }
+
+    @Override
+    public PathId extractPathId(final FlowspecRouteKey routeListKey) {
+        return routeListKey.getPathId();
+    }
+
+    @Override
+    public String extractRouteKey(final FlowspecRouteKey routeListKey) {
+        return routeListKey.getRouteKey();
+    }
 }

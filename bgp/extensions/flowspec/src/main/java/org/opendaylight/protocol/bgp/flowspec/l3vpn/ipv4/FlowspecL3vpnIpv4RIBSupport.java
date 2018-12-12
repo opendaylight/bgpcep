@@ -92,4 +92,14 @@ public final class FlowspecL3vpnIpv4RIBSupport
     public List<FlowspecL3vpnRoute> routesFromContainer(final FlowspecL3vpnIpv4Routes container) {
         return container.getFlowspecL3vpnRoute();
     }
+
+    @Override
+    public PathId extractPathId(final FlowspecL3vpnRouteKey routeListKey) {
+        return routeListKey.getPathId();
+    }
+
+    @Override
+    public String extractRouteKey(final FlowspecL3vpnRouteKey routeListKey) {
+        return routeListKey.getRouteKey();
+    }
 }
