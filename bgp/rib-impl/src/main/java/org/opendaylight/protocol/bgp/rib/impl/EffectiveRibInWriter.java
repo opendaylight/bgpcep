@@ -47,6 +47,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.ClientRouteTargetContrainCache;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.RouteTargetMembeshipUtil;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
@@ -261,6 +262,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final TablesKey tableKey, final RIBSupport<C, S, R, I> ribSupport,
             final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
             final Collection<DataObjectModification<R>> routeChanges) {
+
+        Class<? extends AfiSafiType> afiSafiType = null;
         for (final DataObjectModification<R> routeChanged : routeChanges) {
             final PathArgument routeChangeId = routeChanged.getIdentifier();
             verify(routeChangeId instanceof IdentifiableItem, "Route change %s has invalid identifier %s",
@@ -270,7 +273,12 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             switch (routeChanged.getModificationType()) {
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    writeRoutes(tx, tableKey, ribSupport, tablePath, routeKey, routeChanged.getDataAfter(), false);
+                    if (afiSafiType == null) {
+                        afiSafiType = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get();
+                    }
+
+                    writeRoutes(tx, tableKey, afiSafiType, ribSupport, tablePath, routeKey,
+                        routeChanged.getDataAfter(), false);
                     break;
                 case DELETE:
                     final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
@@ -282,9 +290,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeRoutes(
-            final WriteTransaction tx, final TablesKey tk, final RIBSupport<C, S, R, I> ribSupport,
-            final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final I routeKey,
-            final R route, final boolean longLivedStale) {
+            final WriteTransaction tx, final TablesKey tk, final Class<? extends AfiSafiType> afiSafiType,
+            final RIBSupport<C, S, R, I> ribSupport, final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
+            final I routeKey, final R route, final boolean longLivedStale) {
         final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
         CountersUtil.increment(this.prefixesReceived.get(tk), tk);
 
@@ -301,8 +309,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             }
             optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
         } else {
-            optEffAtt = this.ribPolicies.applyImportPolicies(this.peerImportParameters, routeAttrs,
-                    tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get());
+            optEffAtt = this.ribPolicies.applyImportPolicies(this.peerImportParameters, routeAttrs, afiSafiType);
         }
         if (!optEffAtt.isPresent()) {
             deleteRoutes(routeIID, route, tx);
