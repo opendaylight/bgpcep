@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
@@ -76,9 +77,9 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
-    private final Map<String, RouteEntry<C,S,R,I>> routeEntries = new HashMap<>();
+    private final Map<String, RouteEntry<C, S, R, I>> routeEntries = new HashMap<>();
     private final Long ourAs;
-    private final RIBSupport<C,S,R,I> ribSupport;
+    private final RIBSupport<C, S, R, I> ribSupport;
     private final DataBroker dataBroker;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
@@ -92,7 +93,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     @GuardedBy("this")
     private ListenerRegistration<LocRibWriter> reg;
 
-    private LocRibWriter(final RIBSupport<C,S,R,I> ribSupport,
+    private LocRibWriter(final RIBSupport<C, S, R, I> ribSupport,
             final BindingTransactionChain chain,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             final Long ourAs,
@@ -117,8 +118,10 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         init();
     }
 
-    public static LocRibWriter create(
-            @Nonnull final RIBSupport ribSupport,
+    public static <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+                R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+                LocRibWriter<C, S, R, I> create(
+            @Nonnull final RIBSupport<C, S, R, I> ribSupport,
             @Nonnull final TablesKey tablesKey,
             @Nonnull final Class<? extends AfiSafiType> afiSafiType,
             @Nonnull final BindingTransactionChain chain,
@@ -128,7 +131,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final BGPRibRoutingPolicy ribPolicies,
             @Nonnull final BGPPeerTracker peerTracker,
             @Nonnull final PathSelectionMode pathSelectionStrategy) {
-        return new LocRibWriter(ribSupport, chain, ribIId, ourAs.getValue(), dataBroker, ribPolicies,
+        return new LocRibWriter<>(ribSupport, chain, ribIId, ourAs.getValue(), dataBroker, ribPolicies,
                 peerTracker, tablesKey, afiSafiType, pathSelectionStrategy);
     }
 
@@ -180,8 +183,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     @Nonnull
-    private RouteEntry<C,S,R,I> createEntry(final String routeId) {
-        final RouteEntry<C,S,R,I> ret = this.pathSelectionMode.createRouteEntry();
+    private RouteEntry<C, S, R, I> createEntry(final String routeId) {
+        final RouteEntry<C, S, R, I> ret = this.pathSelectionMode.createRouteEntry();
         this.routeEntries.put(routeId, ret);
         this.totalPrefixesCounter.increment();
         LOG.trace("Created new entry for {}", routeId);
@@ -203,7 +206,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         LOG.trace("Received data change {} to LocRib {}", changes, this);
         final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
         try {
-            final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> toUpdate = update(tx, changes);
+            final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> toUpdate = update(tx, changes);
 
             if (!toUpdate.isEmpty()) {
                 walkThrough(tx, toUpdate.entrySet());
@@ -244,7 +247,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                 if (toPeer != null && toPeer.supportsTable(this.entryDep.getLocalTablesKey())) {
                     LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
                     final List<ActualBestPathRoutes<C, S, R, I>> routesToStore = new ArrayList<>();
-                    for (final Map.Entry<String, RouteEntry<C, S, R, I>> entry : this.routeEntries.entrySet()) {
+                    for (final Entry<String, RouteEntry<C, S, R, I>> entry : this.routeEntries.entrySet()) {
                         final List<ActualBestPathRoutes<C, S, R, I>> filteredRoute = entry.getValue()
                                 .actualBestPaths(this.ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
                         routesToStore.addAll(filteredRoute);
@@ -260,15 +263,9 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         return ret;
     }
 
-    private void updateNodes(
-            final DataObjectModification<Tables> table,
-            final RouterId peerUuid,
-            final WriteTransaction tx,
-            final Map<RouteUpdateKey, RouteEntry<C,S,R,I>> routes
-    ) {
-
+    private void updateNodes(final DataObjectModification<Tables> table, final RouterId peerUuid,
+            final WriteTransaction tx, final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> routes) {
         final DataObjectModification<Attributes> attUpdate = table.getModifiedChildContainer(Attributes.class);
-
         if (attUpdate != null) {
             final Attributes newAttValue = attUpdate.getDataAfter();
             if (newAttValue != null) {
@@ -279,10 +276,9 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
         final DataObjectModification<S> routesChangesContainer
                 = table.getModifiedChildContainer(ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
-        if (routesChangesContainer == null) {
-            return;
+        if (routesChangesContainer != null) {
+            updateRoutesEntries(routesChangesContainer.getModifiedChildren(), peerUuid, routes);
         }
-        updateRoutesEntries(routesChangesContainer.getModifiedChildren(), peerUuid, routes);
     }
 
     private void updateRoutesEntries(final Collection<? extends DataObjectModification<?>> collection,
@@ -305,7 +301,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             } else {
                 routeKey = oldRoute.getRouteKey();
                 entry = this.routeEntries.get(routeKey);
-                if(entry != null) {
+                if (entry != null) {
                     this.totalPathsCounter.decrement();
                     if (entry.removeRoute(routerId, oldRoute.getPathId().getValue())) {
                         this.routeEntries.remove(routeKey);
@@ -321,10 +317,10 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     private void walkThrough(final WriteTransaction tx,
-            final Set<Map.Entry<RouteUpdateKey, RouteEntry<C,S,R,I>>> toUpdate) {
-        final List<StaleBestPathRoute<C,S,R,I>> staleRoutes = new ArrayList<>();
-        final List<AdvertizedRoute<C,S,R,I>> newRoutes = new ArrayList<>();
-        for (final Map.Entry<RouteUpdateKey, RouteEntry<C,S,R,I>> e : toUpdate) {
+            final Set<Entry<RouteUpdateKey, RouteEntry<C, S, R, I>>> toUpdate) {
+        final List<StaleBestPathRoute<C, S, R, I>> staleRoutes = new ArrayList<>();
+        final List<AdvertizedRoute<C, S, R, I>> newRoutes = new ArrayList<>();
+        for (final Entry<RouteUpdateKey, RouteEntry<C, S, R, I>> e : toUpdate) {
             LOG.trace("Walking through {}", e);
             final RouteEntry<C,S,R,I> entry = e.getValue();
 
@@ -345,8 +341,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final WriteTransaction tx) {
         final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget = this.entryDep.getLocRibTableTarget();
 
-        for (final StaleBestPathRoute<C, S, R, I> staleContainer:staleRoutes) {
-            for (final I routeId: staleContainer.getStaleRouteKeyIdentifiers()) {
+        for (final StaleBestPathRoute<C, S, R, I> staleContainer : staleRoutes) {
+            for (final I routeId : staleContainer.getStaleRouteKeyIdentifiers()) {
                 final InstanceIdentifier<R> routeTarget = ribSupport.createRouteIdentifier(locRibTarget, routeId);
                 LOG.debug("Delete route from LocRib {}", routeTarget);
                 tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
@@ -383,7 +379,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         if (toPeer != null && toPeer.supportsTable(this.entryDep.getLocalTablesKey())) {
             LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
             final List<ActualBestPathRoutes<C, S, R, I>> routesToStore = new ArrayList<>();
-            for (final Map.Entry<String, RouteEntry<C, S, R, I>> entry : this.routeEntries.entrySet()) {
+            for (final Entry<String, RouteEntry<C, S, R, I>> entry : this.routeEntries.entrySet()) {
                 final List<ActualBestPathRoutes<C, S, R, I>> filteredRoute = entry.getValue()
                         .actualBestPaths(this.ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
                 routesToStore.addAll(filteredRoute);
