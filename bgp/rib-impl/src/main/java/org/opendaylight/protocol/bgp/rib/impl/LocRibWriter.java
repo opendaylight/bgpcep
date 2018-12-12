@@ -290,6 +290,11 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         for (final DataObjectModification<? extends DataObject> route : collection) {
             final R newRoute = (R) route.getDataAfter();
             final R oldRoute = (R) route.getDataBefore();
+            if (newRoute == null && oldRoute == null) {
+                // removing route that was already removed, this happens if adj-rib-in contains routes
+                // and effective-rib-in does not (e.g.delete that route because of policy)
+                return;
+            }
             String routeKey;
             RouteEntry<C, S, R, I> entry;
             if (newRoute != null) {
