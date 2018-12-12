@@ -115,4 +115,14 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
     public List<Ipv6Route> routesFromContainer(final Ipv6Routes container) {
         return container.getIpv6Route();
     }
+
+    @Override
+    public PathId extractPathId(final Ipv6RouteKey routeListKey) {
+        return routeListKey.getPathId();
+    }
+
+    @Override
+    public String extractRouteKey(final Ipv6RouteKey routeListKey) {
+        return routeListKey.getRouteKey();
+    }
 }
