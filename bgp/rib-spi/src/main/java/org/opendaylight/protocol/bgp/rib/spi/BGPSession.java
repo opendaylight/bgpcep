@@ -11,10 +11,12 @@ import io.netty.channel.ChannelInboundHandler;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.parser.GracefulRestartUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 
 /**
@@ -63,8 +65,20 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      * @return Advertised graceful restart capability.
      */
     @Nonnull
-    GracefulRestartCapability getAdvertisedGracefulRestartCapability();
+    default GracefulRestartCapability getAdvertisedGracefulRestartCapability() {
+        return GracefulRestartUtil.EMPTY_GR_CAPABILITY;
+    }
 
+    /**
+     * Return advertised long-lived graceful capability containing the list of tables with stale time which
+     * the peer has advertised to support.
+     *
+     * @return Advertised long-lived graceful restart capability.
+     */
+    @Nonnull
+    default LlGracefulRestartCapability getAdvertisedLlGracefulRestartCapability() {
+        return GracefulRestartUtil.EMPTY_LLGR_CAPABILITY;
+    }
 
     /**
      * Close peer session without sending Notification message.

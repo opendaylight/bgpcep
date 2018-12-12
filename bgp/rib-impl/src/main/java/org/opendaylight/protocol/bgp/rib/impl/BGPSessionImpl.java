@@ -36,9 +36,9 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
-import org.opendaylight.protocol.bgp.rib.impl.config.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPMessagesListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -168,7 +168,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             }
             this.gracefulCapability = findAdvertisedGracefulCapability(bgpParameters);
         } else {
-            this.gracefulCapability = GracefulRestartUtil.EMPTY_GRACEFUL_CAPABILITY;
+            this.gracefulCapability = GracefulRestartUtil.EMPTY_GR_CAPABILITY;
         }
 
         this.sync = new BGPSynchronization(this.listener, tts);
@@ -206,13 +206,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         switch (gracefulCapabilities.size()) {
             case 0: {
                 LOG.debug("Graceful Restart capability not advertised.");
-                return GracefulRestartUtil.EMPTY_GRACEFUL_CAPABILITY;
+                return GracefulRestartUtil.EMPTY_GR_CAPABILITY;
             }
             case 1:
                 return gracefulCapabilities.get(0);
             default: {
                 LOG.error("Multiple graceful capabilities advertised {}, ignoring.", gracefulCapabilities);
-                return GracefulRestartUtil.EMPTY_GRACEFUL_CAPABILITY;
+                return GracefulRestartUtil.EMPTY_GR_CAPABILITY;
             }
         }
     }
