@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8db301f3_d049489b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-12-12T20:09:03Z",
+      "side": 1,
+      "message": "What is the exact modification being delivered?\nLocRibWriter has a contract with eff-rib-in, hence this comment needs to be reworded what is happening to eff-rib-in.",
+      "range": {
+        "startLine": 289,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 13
+      },
+      "revId": "2e5c20eee9bbf673d792d629ec68915f0d79df5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
