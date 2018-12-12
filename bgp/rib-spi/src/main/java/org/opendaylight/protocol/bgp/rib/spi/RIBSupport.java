@@ -290,6 +290,24 @@ public interface RIBSupport<
     I createRouteListKey(@Nonnull PathId pathId, @Nonnull String routeKey);
 
     /**
+     * Given a route list key, return the associated path ID.
+     *
+     * @param routeListKey Route list key
+     * @return Path ID
+     */
+    @Nonnull
+    PathId extractPathId(@Nonnull I routeListKey);
+
+    /**
+     * Given a route list key, return the associated path ID.
+     *
+     * @param routeListKey Route list key
+     * @return RouteKey
+     */
+    @Nonnull
+    String extractRouteKey(@Nonnull I routeListKey);
+
+    /**
      * Construct a Route List Key.
      *
      * @param routeKey RouteKey

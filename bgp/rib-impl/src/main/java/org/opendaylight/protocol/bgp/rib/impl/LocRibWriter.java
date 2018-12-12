@@ -45,6 +45,7 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
@@ -284,32 +285,38 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private void updateRoutesEntries(final Collection<? extends DataObjectModification<?>> collection,
             final RouterId routerId, final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> routes) {
         for (final DataObjectModification<? extends DataObject> route : collection) {
-            final R newRoute = (R) route.getDataAfter();
-            final R oldRoute = (R) route.getDataBefore();
-            String routeKey;
+            final I routeListKey = (I) route.getIdentifier();
+            final String routeKey = ribSupport.extractRouteKey(routeListKey);
+            final PathId pathId = ribSupport.extractPathId(routeListKey);
+
             RouteEntry<C, S, R, I> entry;
-            if (newRoute != null) {
-                routeKey = newRoute.getRouteKey();
-                entry = this.routeEntries.get(routeKey);
-
-                if (entry == null) {
-                    entry = createEntry(routeKey);
-                }
-
-                entry.addRoute(routerId, newRoute.getPathId().getValue(), newRoute);
-                this.totalPathsCounter.increment();
-            } else {
-                routeKey = oldRoute.getRouteKey();
-                entry = this.routeEntries.get(routeKey);
-                if (entry != null) {
-                    this.totalPathsCounter.decrement();
-                    if (entry.removeRoute(routerId, oldRoute.getPathId().getValue())) {
-                        this.routeEntries.remove(routeKey);
-                        this.totalPrefixesCounter.decrement();
-                        LOG.trace("Removed route from {}", routerId);
+            switch (route.getModificationType()) {
+                case DELETE:
+                    entry = this.routeEntries.get(routeKey);
+                    if (entry != null) {
+                        this.totalPathsCounter.decrement();
+                        if (entry.removeRoute(routerId, pathId.getValue())) {
+                            this.routeEntries.remove(routeKey);
+                            this.totalPrefixesCounter.decrement();
+                            LOG.trace("Removed route from {}", routerId);
+                        }
                     }
-                }
+                    break;
+                case SUBTREE_MODIFIED:
+                case WRITE:
+                    final R newRoute = (R) route.getDataAfter();
+                    entry = this.routeEntries.get(routeKey);
+                    if (entry == null) {
+                        entry = createEntry(routeKey);
+                    }
+
+                    entry.addRoute(routerId, pathId.getValue(), newRoute);
+                    this.totalPathsCounter.increment();
+                    break;
+                default:
+                    throw new IllegalStateException("Unhandled route modification " + route);
             }
+
             final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(routerId, routeKey);
             LOG.debug("Updated route {} entry {}", routeKey, entry);
             routes.put(routeUpdateKey, entry);
