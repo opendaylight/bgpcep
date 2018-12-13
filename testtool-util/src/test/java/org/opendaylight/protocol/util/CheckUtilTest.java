@@ -27,6 +27,7 @@ import com.google.common.base.VerifyException;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +65,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     public void testWaitFutureSuccessFail() {
         when(this.future.isDone()).thenReturn(false);
         doReturn(this.future).when(this.future).addListener(any());
-        waitFutureSuccess(this.future);
+        waitFutureSuccess(this.future, 10L, TimeUnit.MILLISECONDS);
     }
 
     @Test
