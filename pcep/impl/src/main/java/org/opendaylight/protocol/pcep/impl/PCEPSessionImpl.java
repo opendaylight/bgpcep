@@ -307,7 +307,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         if (error == PCEPErrors.CAPABILITY_NOT_SUPPORTED) {
             this.unknownMessagesTimes.add(ct);
             while (ct - this.unknownMessagesTimes.peek() > MINUTE) {
-                final Long poll = this.unknownMessagesTimes.poll();
+                this.unknownMessagesTimes.remove();
             }
             if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
                 this.terminate(TerminationReason.TOO_MANY_UNKNOWN_MSGS);
