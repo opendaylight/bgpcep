@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 /**
  * BGP Operational Afi SafiS State.
  */
-public interface BGPAfiSafiState extends BGPGracelfulRestartState {
+public interface BGPAfiSafiState extends BGPLlGracelfulRestartState {
     /**
      * is AfiSafi Supported.
      *
