@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -30,7 +29,7 @@ public class UnrecognizedAttributesTest {
     private static final short NON_EXISTENT_TYPE = 0;
     private static final int NON_VALUE_BYTES = 3;
 
-    private static final SimpleAttributeRegistry simpleAttrReg = new SimpleAttributeRegistry();
+    private static final SimpleAttributeRegistry SIMPLE_ATTR_REG = new SimpleAttributeRegistry();
 
     @Rule
     public ExpectedException expException = ExpectedException.none();
@@ -39,15 +38,15 @@ public class UnrecognizedAttributesTest {
     public void testUnrecognizedAttributesWithoutOptionalFlag() throws BGPDocumentedException, BGPParsingException {
         this.expException.expect(BGPDocumentedException.class);
         this.expException.expectMessage("Well known attribute not recognized.");
-        simpleAttrReg.parseAttributes(
+        SIMPLE_ATTR_REG.parseAttributes(
             Unpooled.wrappedBuffer(new byte[] { 0x03, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 }), null);
     }
 
     @Test
     public void testUnrecognizedAttributes() throws BGPDocumentedException, BGPParsingException {
         final byte[] attributeBytes = { (byte)0xe0, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 };
-        final List<UnrecognizedAttributes> unrecogAttribs = simpleAttrReg
-            .parseAttributes(Unpooled.wrappedBuffer(attributeBytes), null).getAttributes().getUnrecognizedAttributes();
+        final List<UnrecognizedAttributes> unrecogAttribs = SIMPLE_ATTR_REG.parseAttributes(
+            Unpooled.wrappedBuffer(attributeBytes), null).getAttributes().getUnrecognizedAttributes();
         assertEquals(UNRECOGNIZED_ATTRIBUTE_COUNT, unrecogAttribs.size());
         final UnrecognizedAttributes unrecogAttrib = unrecogAttribs.get(FIRST_ATTRIBUTE);
         final UnrecognizedAttributesKey expectedAttribKey =

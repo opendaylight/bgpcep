@@ -51,7 +51,7 @@ public final class MessageUtil {
     }
 
     /**
-     * Check for NLRI attribute in Update message
+     * Check for NLRI attribute in Update message.
      *
      * @param message Update message
      * @return true if any prefix or MP-REACH-NLRI attribute is present, false otherwise
@@ -66,7 +66,7 @@ public final class MessageUtil {
     }
 
     /**
-     * Finds MP-REACH-NLRI in Update message attributes
+     * Finds MP-REACH-NLRI in Update message attributes.
      *
      * @param attrs Update message attributes
      * @return MP-REACH-NLRI if present in the attributes, null otherwise
@@ -83,7 +83,7 @@ public final class MessageUtil {
     }
 
     /**
-     * Finds MP-UNREACH-NLRI in Update message attributes
+     * Finds MP-UNREACH-NLRI in Update message attributes.
      *
      * @param attrs Update message attributes
      * @return MP-UNREACH-NLRI if present in the attributes, null otherwise

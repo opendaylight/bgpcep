@@ -16,7 +16,7 @@ public final class BgpPrefixSidTlvUtil {
     }
 
     /**
-     * Utilized method for serialization of BGP prefix SID TLV
+     * Utilized method for serialization of BGP prefix SID TLV.
      *
      * @param type of TLV
      * @param value of TLV

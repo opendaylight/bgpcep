@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -61,9 +60,9 @@ public class SimpleRegistryTest {
     private static final PeerSpecificParserConstraint CONSTRAINT;
 
     static {
-        PeerSpecificParserConstraintImpl c = new PeerSpecificParserConstraintImpl();
-        c.addPeerConstraint(MultiPathSupport.class, ADD_PATH_SUPPORT);
-        CONSTRAINT = c;
+        PeerSpecificParserConstraintImpl peerConstraint = new PeerSpecificParserConstraintImpl();
+        peerConstraint.addPeerConstraint(MultiPathSupport.class, ADD_PATH_SUPPORT);
+        CONSTRAINT = peerConstraint;
     }
 
     protected BGPExtensionProviderContext ctx;
@@ -107,7 +106,8 @@ public class SimpleRegistryTest {
         paramReg.serializeParameter(param, buffer);
         paramReg.parseParameter(0, Unpooled.wrappedBuffer(paramBytes));
         verify(this.activator.paramParser, times(1)).parseParameter(any(ByteBuf.class));
-        verify(this.activator.paramSerializer, times(1)).serializeParameter(any(BgpParameters.class), any(ByteBuf.class));
+        verify(this.activator.paramSerializer, times(1)).serializeParameter(any(BgpParameters.class),
+            any(ByteBuf.class));
     }
 
     @Test
@@ -132,7 +132,8 @@ public class SimpleRegistryTest {
 
         final ByteBuf buffer = Unpooled.buffer(tlvBytes.length);
         sidTlvReg.serializeBgpPrefixSidTlv(tlv, buffer);
-        verify(this.activator.sidTlvSerializer, times(1)).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class), any(ByteBuf.class));
+        verify(this.activator.sidTlvSerializer, times(1)).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class),
+            any(ByteBuf.class));
 
         sidTlvReg.parseBgpPrefixSidTlv(BgpTestActivator.TYPE, Unpooled.wrappedBuffer(tlvBytes));
         verify(this.activator.sidTlvParser, times(1)).parseBgpPrefixSidTlv(any(ByteBuf.class));
@@ -183,7 +184,8 @@ public class SimpleRegistryTest {
         final MpReachNlri mpReach = new MpReachNlriBuilder()
             .setAfi(Ipv4AddressFamily.class)
             .setSafi(UnicastSubsequentAddressFamily.class)
-            .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build())
+            .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(
+                new Ipv4Address("127.0.0.1")).build()).build())
             .build();
         final ByteBuf buffer = Unpooled.buffer(mpReachBytes.length);
         nlriReg.serializeMpReach(mpReach, buffer);
@@ -230,11 +232,13 @@ public class SimpleRegistryTest {
         final byte[] mpUnreachBytes = {
             0x00, 0x01, 0x01
         };
-        final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build();
+        final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class)
+                .setSafi(UnicastSubsequentAddressFamily.class).build();
         final ByteBuf buffer = Unpooled.buffer(mpUnreachBytes.length);
         nlriReg.serializeMpUnReach(mpUnreach, buffer);
         assertArrayEquals(mpUnreachBytes, buffer.array());
         assertEquals(mpUnreach, nlriReg.parseMpUnreach(Unpooled.wrappedBuffer(mpUnreachBytes), CONSTRAINT));
-        verify(this.activator.nlriParser, never()).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
+        verify(this.activator.nlriParser, never()).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class),
+            any());
     }
 }

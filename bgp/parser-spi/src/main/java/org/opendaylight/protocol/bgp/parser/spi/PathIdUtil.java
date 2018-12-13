@@ -56,7 +56,7 @@ public final class PathIdUtil {
     }
 
     /**
-     * Extract PathId from route change received
+     * Extract PathId from route change received.
      *
      * @param data    Data containing the path Id
      * @param pathNii Path Id NodeIdentifier specific per each Rib support

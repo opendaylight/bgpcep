@@ -11,5 +11,5 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParameters;
 
 public interface CapabilitySerializer {
-    void serializeCapability(final CParameters capability, final ByteBuf byteAggregator);
+    void serializeCapability(CParameters capability, ByteBuf byteAggregator);
 }

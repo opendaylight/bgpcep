@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import static java.util.Objects.requireNonNull;
@@ -27,14 +26,13 @@ public final class MultiPathSupportUtil {
      * @param afiSafi Required AFI/SAFI
      * @return True if AFI/SAFI is supported.
      */
-    public static boolean isTableTypeSupported(@Nullable final PeerSpecificParserConstraint constraints, @Nonnull final BgpTableType afiSafi) {
+    public static boolean isTableTypeSupported(@Nullable final PeerSpecificParserConstraint constraints,
+            @Nonnull final BgpTableType afiSafi) {
         requireNonNull(afiSafi);
         if (constraints != null) {
             final Optional<MultiPathSupport> peerConstraint = constraints.getPeerConstraint(MultiPathSupport.class);
             return peerConstraint.isPresent() && peerConstraint.get().isTableTypeSupported(afiSafi);
         }
         return false;
-
     }
-
 }

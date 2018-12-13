@@ -35,7 +35,7 @@ public class SimpleBGPExtensionProviderContextActivator implements AutoCloseable
     public void start() {
         LOG.debug("Starting {} BGPExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final BGPExtensionProviderActivator e : this.extensionActivators) {
+        for (final BGPExtensionProviderActivator e : this.extensionActivators) {
             e.start(this.providerContext);
         }
     }
@@ -44,7 +44,7 @@ public class SimpleBGPExtensionProviderContextActivator implements AutoCloseable
     public void close() {
         LOG.debug("Stopping {} BGPExtensionProviderActivator instances", this.extensionActivators.size());
 
-        for(final BGPExtensionProviderActivator e : this.extensionActivators) {
+        for (final BGPExtensionProviderActivator e : this.extensionActivators) {
             e.stop();
         }
     }

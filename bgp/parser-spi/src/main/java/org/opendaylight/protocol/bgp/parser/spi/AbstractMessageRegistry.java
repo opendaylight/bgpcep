@@ -26,7 +26,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
     protected abstract Notification parseBody(int type, ByteBuf body, int messageLength,
             PeerSpecificParserConstraint constraint) throws BGPDocumentedException;
 
-    protected abstract void serializeMessageImpl(final Notification message, final ByteBuf buffer);
+    protected abstract void serializeMessageImpl(Notification message, ByteBuf buffer);
 
     static {
         MARKER = new byte[MessageUtil.MARKER_LENGTH];
@@ -38,7 +38,8 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
             throws BGPDocumentedException, BGPParsingException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes cannot be null or empty.");
         Preconditions.checkArgument(buffer.readableBytes() >= MessageUtil.COMMON_HEADER_LENGTH,
-                "Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(), MessageUtil.COMMON_HEADER_LENGTH);
+                "Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(),
+                MessageUtil.COMMON_HEADER_LENGTH);
         final byte[] marker = ByteArray.readBytes(buffer, MessageUtil.MARKER_LENGTH);
 
         if (!Arrays.equals(marker, MARKER)) {
@@ -50,19 +51,22 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
         final int messageType = UnsignedBytes.toInt(typeBytes);
 
         if (messageLength < MessageUtil.COMMON_HEADER_LENGTH) {
-            throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
+            throw BGPDocumentedException.badMessageLength("Message length field not within valid range.",
+                messageLength);
         }
 
         if (messageLength - MessageUtil.COMMON_HEADER_LENGTH != buffer.readableBytes()) {
-            throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + buffer.readableBytes()
-                    + "; Expected: " + (messageLength - MessageUtil.COMMON_HEADER_LENGTH) + ". ");
+            throw new BGPParsingException("Size doesn't match size specified in header. Passed: "
+                    + buffer.readableBytes() + "; Expected: " + (messageLength - MessageUtil.COMMON_HEADER_LENGTH)
+                    + ". ");
         }
 
         final ByteBuf msgBody = buffer.readSlice(messageLength - MessageUtil.COMMON_HEADER_LENGTH);
 
         final Notification msg = parseBody(messageType, msgBody, messageLength, constraint);
         if (msg == null) {
-            throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { typeBytes });
+            throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE,
+                new byte[] { typeBytes });
         }
         return msg;
     }

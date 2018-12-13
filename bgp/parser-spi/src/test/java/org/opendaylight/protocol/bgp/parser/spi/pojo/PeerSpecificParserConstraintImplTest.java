@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import java.util.Collections;
@@ -18,7 +17,8 @@ import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraintProv
 
 public class PeerSpecificParserConstraintImplTest {
 
-    private static final MultiPathSupport ADD_PATH_CONSTRAINT = MultiPathSupportImpl.createParserMultiPathSupport(Collections.emptyList());
+    private static final MultiPathSupport ADD_PATH_CONSTRAINT = MultiPathSupportImpl.createParserMultiPathSupport(
+        Collections.emptyList());
 
     private PeerSpecificParserConstraintProvider constraints;
 
@@ -38,7 +38,7 @@ public class PeerSpecificParserConstraintImplTest {
         Assert.assertFalse(this.constraints.addPeerConstraint(MultiPathSupport.class, ADD_PATH_CONSTRAINT));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testProviderNullInput() {
         this.constraints.addPeerConstraint(MultiPathSupport.class, null);
     }
@@ -55,5 +55,4 @@ public class PeerSpecificParserConstraintImplTest {
         final Optional<MultiPathSupport> peerConstraint = this.constraints.getPeerConstraint(MultiPathSupport.class);
         Assert.assertFalse(peerConstraint.isPresent());
     }
-
 }

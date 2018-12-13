@@ -12,6 +12,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 public interface AttributeSerializer {
 
-    void serializeAttribute(final Attributes attribute,final ByteBuf byteAggregator);
+    void serializeAttribute(Attributes attribute, ByteBuf byteAggregator);
 
 }

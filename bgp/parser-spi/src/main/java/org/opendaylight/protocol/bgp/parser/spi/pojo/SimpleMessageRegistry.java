@@ -44,7 +44,8 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
         return this.handlers.registerParser(messageType, parser);
     }
 
-    AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass, final MessageSerializer serializer) {
+    AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass,
+            final MessageSerializer serializer) {
         return this.handlers.registerSerializer(messageClass, serializer);
     }
 }

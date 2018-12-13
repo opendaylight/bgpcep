@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -90,14 +89,13 @@ public class SimpleExtendedCommunityRegistryTest {
         verify(this.parser, never()).parseExtendedCommunity(any(ByteBuf.class));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRegisterParserOutOfRangeType() {
         this.register.registerExtendedCommunityParser(1234, 0, this.parser);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRegisterParserOutOfRangeSubType() {
         this.register.registerExtendedCommunityParser(0, 1234, this.parser);
     }
-
 }

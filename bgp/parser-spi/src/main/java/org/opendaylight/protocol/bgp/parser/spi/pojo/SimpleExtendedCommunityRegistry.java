@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityUtil.isTransitive;
@@ -33,10 +32,11 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
 
     private static final int EXTENDED_COMMUNITY_LENGTH = 6;
 
-    private final HandlerRegistry<DataContainer, ExtendedCommunityParser, ExtendedCommunitySerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, ExtendedCommunityParser, ExtendedCommunitySerializer> handlers =
+            new HandlerRegistry<>();
 
     private static int createKey(final int type, final int subtype) {
-        return (type << Byte.SIZE) | subtype;
+        return type << Byte.SIZE | subtype;
     }
 
     @Override
@@ -58,22 +58,26 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunities extendedCommunity, final ByteBuf byteAggregator) {
-        final ExtendedCommunitySerializer serializer = this.handlers.getSerializer(extendedCommunity.getExtendedCommunity().getImplementedInterface());
+        final ExtendedCommunitySerializer serializer = this.handlers.getSerializer(extendedCommunity
+            .getExtendedCommunity().getImplementedInterface());
         if (serializer == null) {
             return;
         }
-        ByteBufWriteUtil.writeUnsignedByte(Shorts.checkedCast(serializer.getType(extendedCommunity.isTransitive())), byteAggregator);
+        ByteBufWriteUtil.writeUnsignedByte(Shorts.checkedCast(serializer.getType(extendedCommunity.isTransitive())),
+            byteAggregator);
         ByteBufWriteUtil.writeUnsignedByte(Shorts.checkedCast(serializer.getSubType()), byteAggregator);
         serializer.serializeExtendedCommunity(extendedCommunity.getExtendedCommunity(), byteAggregator);
     }
 
     synchronized AutoCloseable registerExtendedCommunitySerializer(
-            final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity> extendedCommunityClass,
+            final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329
+                    .extended.community.ExtendedCommunity> extendedCommunityClass,
             final ExtendedCommunitySerializer serializer) {
         return this.handlers.registerSerializer(extendedCommunityClass, serializer);
     }
 
-    synchronized AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser) {
+    synchronized AutoCloseable registerExtendedCommunityParser(final int type, final int subtype,
+            final ExtendedCommunityParser parser) {
         checkTypes(type, subtype);
         return this.handlers.registerParser(createKey(type, subtype), parser);
     }
@@ -81,7 +85,8 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
     private static void checkTypes(final int type, final int subtype) {
         Preconditions.checkArgument(type >= 0 && type <= UNSIGNED_BYTE_MAX_VALUE, "Illegal extended-community type %s",
                 type);
-        Preconditions.checkArgument(subtype >= 0 && subtype <= UNSIGNED_BYTE_MAX_VALUE, "Illegal extended-community sub-type %s", subtype);
+        Preconditions.checkArgument(subtype >= 0 && subtype <= UNSIGNED_BYTE_MAX_VALUE,
+                "Illegal extended-community sub-type %s", subtype);
     }
 
 }

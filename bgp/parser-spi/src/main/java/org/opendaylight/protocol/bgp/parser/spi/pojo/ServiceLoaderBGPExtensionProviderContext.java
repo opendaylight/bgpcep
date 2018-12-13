@@ -13,24 +13,17 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 
 public final class ServiceLoaderBGPExtensionProviderContext {
     private static final class Holder {
-        private static final BGPExtensionProviderContext INSTANCE;
+        private static final BGPExtensionProviderContext INSTANCE = create();
 
         private Holder() {
-        }
-
-        static {
-            try {
-                INSTANCE = create();
-            } catch (final Exception e) {
-                throw new ExceptionInInitializerError(e);
-            }
         }
     }
 
     public static BGPExtensionProviderContext create() {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
-        final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader.load(BGPExtensionProviderActivator.class);
+        final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader.load(
+            BGPExtensionProviderActivator.class);
         for (final BGPExtensionProviderActivator a : loader) {
             a.start(ctx);
         }

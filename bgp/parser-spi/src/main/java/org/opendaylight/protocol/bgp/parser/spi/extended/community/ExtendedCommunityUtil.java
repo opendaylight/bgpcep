@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.parser.spi.extended.community;
 
 /**
  * The utility functions related to the extended communities.
- *
  */
 public final class ExtendedCommunityUtil {
 
@@ -22,9 +21,11 @@ public final class ExtendedCommunityUtil {
 
     /**
      * Sets transitivity flag for the Extended Community type.
+     *
      * @param type Extended Community Type
      * @param isTransitive Extended Community transitivity
-     * @return Extended Community type with a transitivity flag set if isTransitive false, otherwise returns unchanged type.
+     * @return Extended Community type with a transitivity flag set if isTransitive false, otherwise returns unchanged
+     *         type.
      */
     public static int setTransitivity(final int type, final boolean isTransitive) {
         return isTransitive ? type : ExtendedCommunityUtil.toNonTransitiveType(type);
@@ -32,6 +33,7 @@ public final class ExtendedCommunityUtil {
 
     /**
      * Check the Extended Community type for transitivity.
+     *
      * @param type Extended Community Type
      * @return True if input type is transitive, false if the type is non-transitive
      */
@@ -42,5 +44,4 @@ public final class ExtendedCommunityUtil {
     private static int toNonTransitiveType(final int type) {
         return type | NON_TRANS;
     }
-
 }
