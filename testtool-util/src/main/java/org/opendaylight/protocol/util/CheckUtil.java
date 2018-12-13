@@ -36,9 +36,14 @@ public final class CheckUtil {
     }
 
     public static <T extends Future<?>> void waitFutureSuccess(final T future) {
+        waitFutureSuccess(future, SLEEP_FOR, TimeUnit.SECONDS);
+    }
+
+    @VisibleForTesting
+    static <T extends Future<?>> void waitFutureSuccess(final T future, final long timeout, final TimeUnit unit) {
         final CountDownLatch latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
-        Uninterruptibles.awaitUninterruptibly(latch, SLEEP_FOR, TimeUnit.SECONDS);
+        Uninterruptibles.awaitUninterruptibly(latch, timeout, unit);
         Verify.verify(future.isSuccess());
     }
 
