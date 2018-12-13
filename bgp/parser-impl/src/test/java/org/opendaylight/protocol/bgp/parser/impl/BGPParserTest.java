@@ -72,11 +72,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.ipv4.grouping.RouteTargetIpv4Builder;
 
 public class BGPParserTest {
-
-    /**
-     * Used by other tests as well.
-     */
-    static final List<byte[]> inputBytes = new ArrayList<>();
+    private static final List<byte[]> INPUT_BYTES = new ArrayList<>();
 
     private static final int COUNTER = 7;
 
@@ -112,7 +108,7 @@ public class BGPParserTest {
                 }
                 bis.flush();
 
-                inputBytes.add(bis.toByteArray());
+                INPUT_BYTES.add(bis.toByteArray());
                 is.close();
             }
         }
@@ -127,7 +123,7 @@ public class BGPParserTest {
 
     @Test
     public void testResource() {
-        assertNotNull(inputBytes);
+        assertNotNull(INPUT_BYTES);
     }
 
     /*
@@ -175,8 +171,8 @@ public class BGPParserTest {
     @Test
     public void testGetUpdateMessage1() throws Exception {
 
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(0), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), MessageUtil.MARKER_LENGTH,
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(0), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(0), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -245,7 +241,7 @@ public class BGPParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(0), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(0), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -289,8 +285,8 @@ public class BGPParserTest {
      */
     @Test
     public void testGetUpdateMessage3() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(2), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), MessageUtil.MARKER_LENGTH,
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(2), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(2), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -345,7 +341,7 @@ public class BGPParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(2), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(2), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -389,8 +385,8 @@ public class BGPParserTest {
      */
     @Test
     public void testGetUpdateMessage4() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(3), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), MessageUtil.MARKER_LENGTH,
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(3), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(3), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -451,7 +447,7 @@ public class BGPParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(3), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(3), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -466,8 +462,8 @@ public class BGPParserTest {
      */
     @Test
     public void testGetUpdateMessage5() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(4), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), MessageUtil.MARKER_LENGTH,
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(4), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(4), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -483,7 +479,7 @@ public class BGPParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(4), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(4), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -497,8 +493,8 @@ public class BGPParserTest {
      */
     @Test
     public void testEORIpv4() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(5), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), MessageUtil.MARKER_LENGTH,
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(5), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(5), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -507,7 +503,7 @@ public class BGPParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(5), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(5), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -526,8 +522,8 @@ public class BGPParserTest {
      */
     @Test
     public void testEORIpv6() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(6), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH,
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(6), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(6), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -542,7 +538,7 @@ public class BGPParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(6), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(6), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -561,8 +557,8 @@ public class BGPParserTest {
      */
     @Test
     public void testEORIpv6exLength() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(6), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH,
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(6), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(6), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -577,7 +573,7 @@ public class BGPParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(6), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(6), ByteArray.readAllBytes(buffer));
     }
 
     /*
