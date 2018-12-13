@@ -98,8 +98,8 @@ public class BgpPeerRpc implements BgpPeerRpcService {
                         .build();
             }, MoreExecutors.directExecutor());
         }
-        return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG +
-                " due to unsupported address families.").buildFuture();
+        return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC,
+            FAILURE_MSG + " due to unsupported address families.").buildFuture();
     }
 
     private ChannelFuture sendRRMessage(final RouteRefreshRequestInput input) {
@@ -110,5 +110,4 @@ public class BgpPeerRpc implements BgpPeerRpcService {
         final RouteRefresh msg = new RouteRefreshBuilder().setAfi(input.getAfi()).setSafi(input.getSafi()).build();
         return ((BGPSessionImpl) this.session).getLimiter().writeAndFlush(msg);
     }
-
 }

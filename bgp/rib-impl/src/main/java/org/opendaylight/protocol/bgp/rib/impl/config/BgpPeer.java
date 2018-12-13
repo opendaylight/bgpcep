@@ -107,8 +107,8 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         final List<BgpTableType> tableTypes = OpenConfigMappingUtil.toTableTypes(afiSafi, tableTypeRegistry);
         for (final BgpTableType tableType : tableTypes) {
             if (!rib.getLocalTables().contains(tableType)) {
-                LOG.info("RIB instance does not list {} " +
-                        "in its local tables. Incoming data will be dropped.", tableType);
+                LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.",
+                    tableType);
             }
 
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(
@@ -267,7 +267,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             final AsNumber neighborRemoteAs = OpenConfigMappingUtil
                     .getRemotePeerAs(neighbor.getConfig(), peerGroup, globalAs);
             final AsNumber neighborLocalAs;
-            if(role == PeerRole.Ebgp) {
+            if (role == PeerRole.Ebgp) {
                 neighborLocalAs = OpenConfigMappingUtil.getLocalPeerAs(neighbor.getConfig(), globalAs);
             } else {
                 neighborLocalAs = globalAs;
@@ -329,6 +329,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             return this.bgpPeer.getPeerState();
         }
     }
+
     public synchronized List<OptionalCapabilities> getBgpFixedCapabilities() {
         return this.bgpPeerSingletonService.finalCapabilities;
     }

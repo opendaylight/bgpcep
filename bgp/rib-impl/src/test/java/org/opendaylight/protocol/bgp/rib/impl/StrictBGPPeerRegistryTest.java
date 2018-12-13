@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -52,9 +51,10 @@ public class StrictBGPPeerRegistryTest {
 
     private static Open createOpen(final Ipv4Address bgpId, final AsNumber as) {
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder()
-        .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
-        .setCParameters(new CParametersBuilder()
-        .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build()).build()).build())).build());
+            .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build())
+                    .build()).build())).build());
         return new OpenBuilder().setBgpIdentifier(bgpId).setBgpParameters(params).build();
     }
 

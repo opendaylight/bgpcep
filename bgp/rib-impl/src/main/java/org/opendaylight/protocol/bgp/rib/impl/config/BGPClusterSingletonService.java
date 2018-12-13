@@ -115,7 +115,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             @Override
             public void onSuccess(final List<? extends CommitInfo> result) {
                 done.setFuture(Futures.transform(BGPClusterSingletonService.this.ribImpl.closeServiceInstance(),
-                        input -> null, MoreExecutors.directExecutor()));
+                    input -> null, MoreExecutors.directExecutor()));
             }
 
             @Override
@@ -267,7 +267,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
         this.peers.put(neighborInstanceIdentifier, bgpPeer);
 
-        final Optional<String> peerGroupName= getPeerGroupName(neighbor.getConfig());
+        final Optional<String> peerGroupName = getPeerGroupName(neighbor.getConfig());
         peerGroupName.ifPresent(s -> this.peersGroups.computeIfAbsent(s, k -> new ArrayList<>()).add(bgpPeer));
         LOG.debug("Peer instance created {}", neighbor.key().getNeighborAddress());
     }
@@ -277,10 +277,10 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             return Optional.empty();
         }
         final NeighborPeerGroupConfig aug = config.augmentation(NeighborPeerGroupConfig.class);
-        if(aug == null || aug.getPeerGroup() == null) {
+        if (aug == null || aug.getPeerGroup() == null) {
             return Optional.empty();
         }
-        final String peerGroupName =  aug.getPeerGroup();
+        final String peerGroupName = aug.getPeerGroup();
         if (peerGroupName.equals(APPLICATION_PEER_GROUP_NAME)) {
             return APPLICATION_PEER_GROUP_NAME_OPT;
         }

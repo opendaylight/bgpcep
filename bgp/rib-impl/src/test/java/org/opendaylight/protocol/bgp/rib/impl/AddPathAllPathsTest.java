@@ -49,6 +49,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
     private Channel serverChannel;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -66,23 +67,23 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         this.serverChannel = channelFuture.channel();
     }
 
+    @Override
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         waitFutureSuccess(this.serverChannel.close());
         super.tearDown();
     }
+
     /*
      * All-Paths
      *                                            ___________________
      *                                           | ODL BGP 127.0.0.1 |
-     * [peer://127.0.0.2; p1, lp100] --(iBGP)--> |                   | --(RR-client, non add-path) --> [Peer://127.0.0.5; (p1, lp100), (p1, lp1200)]
-     * [peer://127.0.0.3; p1, lp200] --(iBGP)--> |                   |
-     * [peer://127.0.0.4; p1, lp50] --(iBGP)-->  |                   | --(RR-client, add-path) --> [Peer://127.0.0.6; (p1, path-id1, lp100), (p1, path-id2, pl50), (p1, path-id3, pl200), (p1, path-id4, pl20)]
-     * [peer://127.0.0.2; p1, lp20] --(iBGP)-->  |___________________|
-     * p1 = 1.1.1.1/32
-     *
-     *
-     *
+     * [peer://127.0.0.2; p1, lp100] --(iBGP)--> |                   | --(RR-client, non add-path) -->
+     * [peer://127.0.0.3; p1, lp200] --(iBGP)--> |                   |     [Peer://127.0.0.5; (p1, lp100), (p1, lp1200)]
+     * [peer://127.0.0.4; p1, lp50] --(iBGP)-->  |                   | --(RR-client, add-path) -->
+     * [peer://127.0.0.2; p1, lp20] --(iBGP)-->  |___________________|     [Peer://127.0.0.6; (p1, path-id1, lp100),
+     * p1 = 1.1.1.1/32                                                      (p1, path-id2, pl50), (p1, path-id3, pl200),
+     *                                                                      (p1, path-id4, pl20)]
      */
     @Test
     public void testUseCase1() throws Exception {
@@ -162,10 +163,8 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(new IpAddress(PEER1), transportStatePeer1.getRemoteAddress());
 
         assertEquals(State.UP, peer1State.getBGPSessionState().getSessionState());
-        checkEquals(()-> assertEquals(1L,
-                peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
-        checkEquals(()-> assertEquals(1L,
-                peer1State.getBGPPeerMessagesState().getUpdateMessagesSentCount()));
+        checkEquals(() -> assertEquals(1L, peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
+        checkEquals(() -> assertEquals(1L, peer1State.getBGPPeerMessagesState().getUpdateMessagesSentCount()));
 
         final BGPSessionState sessionStatePeer1 = peer1State.getBGPSessionState();
         assertFalse(sessionStatePeer1.isAddPathCapabilitySupported());
@@ -205,8 +204,8 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener6, 2);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(1));
         causeBGPError(session6);
-        checkEquals(()-> assertEquals(1L,
-                peer6.getPeerState().getBGPPeerMessagesState().getNotificationMessagesSentCount()));
+        checkEquals(() -> assertEquals(1L,
+            peer6.getPeerState().getBGPPeerMessagesState().getNotificationMessagesSentCount()));
 
         checkPeersPresentOnDataStore(5);
 
@@ -292,13 +291,14 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener5, 7);
         assertEquals(UPD_200, listener5.getListMsg().get(3));
 
-        //withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, 1 for non add path (withdrawal)
+        // withdraw second best route, 1 advertisement(1 withdrawal) for add-path supported, 1 for non add path
+        // (withdrawal)
         sendWithdrawalRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 2);
         checkReceivedMessages(listener4, 4);
         checkReceivedMessages(listener5, 8);
 
         sendNotification(session1);
-        checkEquals(()-> assertEquals(1L,
+        checkEquals(() -> assertEquals(1L,
                 peer1.getPeerState().getBGPPeerMessagesState().getNotificationMessagesReceivedCount()));
         session1.close();
         session2.close();
