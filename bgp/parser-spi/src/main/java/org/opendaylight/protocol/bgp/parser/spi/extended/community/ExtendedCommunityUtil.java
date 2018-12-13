@@ -5,19 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.extended.community;
 
 /**
  * The utility functions related to the extended communities.
  */
 public final class ExtendedCommunityUtil {
+    private static final byte NON_TRANS = 0x40;
 
     private ExtendedCommunityUtil() {
-        throw new UnsupportedOperationException();
     }
-
-    private static final byte NON_TRANS = 0x40;
 
     /**
      * Sets transitivity flag for the Extended Community type.

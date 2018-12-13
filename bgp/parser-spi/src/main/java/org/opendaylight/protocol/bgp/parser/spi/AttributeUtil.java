@@ -19,7 +19,6 @@ public final class AttributeUtil {
     private static final int EXTENDED = 16;
 
     private AttributeUtil() {
-        throw new UnsupportedOperationException();
     }
 
     /**

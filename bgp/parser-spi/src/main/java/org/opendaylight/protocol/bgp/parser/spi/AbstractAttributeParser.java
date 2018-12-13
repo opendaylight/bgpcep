@@ -33,7 +33,7 @@ public abstract class AbstractAttributeParser implements AttributeParser {
             parseAttribute(buffer, builder, RevisedErrorHandling.NONE, constraint);
         } catch (BGPTreatAsWithdrawException e) {
             LOG.warn("Encountered misreported error", e);
-            throw e.toDocumentedException();
+            throw new BGPDocumentedException(e.getMessage(), e.getError(), e);
         }
     }
 
