@@ -283,7 +283,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
                 twoOctetSpecificEcHandler.getSubType(), twoOctetSpecificEcHandler));
         regs.add(context.registerExtendedCommunityParser(twoOctetSpecificEcHandler.getType(false),
                 twoOctetSpecificEcHandler.getSubType(), twoOctetSpecificEcHandler));
-        regs.add(context.registerExtendedCommunitySerializer(AsSpecificExtendedCommunityCase.class, twoOctetSpecificEcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(AsSpecificExtendedCommunityCase.class,
+                twoOctetSpecificEcHandler));
 
         final Ipv4SpecificEcHandler ipv4SpecificEcHandler = new Ipv4SpecificEcHandler();
         regs.add(context.registerExtendedCommunityParser(ipv4SpecificEcHandler.getType(true),
@@ -349,8 +350,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerExtendedCommunitySerializer(As4RouteTargetExtendedCommunityCase.class, rt4ASHandler));
 
         final RouteOrigin4OctectASEcHandler rOrig4Oct = new RouteOrigin4OctectASEcHandler();
-        regs.add(context.registerExtendedCommunityParser(rOrig4Oct.getType(true)
-                , rOrig4Oct.getSubType(), rOrig4Oct));
+        regs.add(context.registerExtendedCommunityParser(rOrig4Oct.getType(true), rOrig4Oct.getSubType(), rOrig4Oct));
         regs.add(context.registerExtendedCommunitySerializer(As4RouteOriginExtendedCommunityCase.class, rOrig4Oct));
 
         final EncapsulationEC encapsulationECHandler = new EncapsulationEC();

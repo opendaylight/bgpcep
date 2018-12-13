@@ -24,14 +24,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 
 public class CommunitiesAttributeParserTest {
-
-    private static final byte[] CommunitiesBytes = {(byte) 0xC0, (byte) 0x08, (byte) 0x18,
-        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x1,
-        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x2,
-        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x3,
+    private static final byte[] COMMUNITIES_BYTES = {
+        (byte) 0xC0, (byte) 0x08, (byte) 0x18,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x02,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x03,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x10,
         (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x06,
-        (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x07};
+        (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x07
+    };
 
     @Test
     public void testCommunitiesAttributeParser() throws Exception {
@@ -49,7 +50,7 @@ public class CommunitiesAttributeParserTest {
         final ByteBuf actual = Unpooled.buffer();
         ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
             .serializeAttribute(paBuilder.build(), actual);
-        assertArrayEquals(CommunitiesBytes, ByteArray.getAllBytes(actual));
+        assertArrayEquals(COMMUNITIES_BYTES, ByteArray.getAllBytes(actual));
         final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
             .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
         assertEquals(comms, attributeOut.getCommunities());

@@ -5,11 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
+
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,28 +34,27 @@ public final class AsPathSegmentParser {
     }
 
     private AsPathSegmentParser() {
-        throw new UnsupportedOperationException();
     }
 
     static int serializeType(final SegmentType type) {
         switch (type) {
-        case AS_SET:
-            return 1;
-        case AS_SEQUENCE:
-            return 2;
-        default:
-            return 0;
+            case AS_SET:
+                return 1;
+            case AS_SEQUENCE:
+                return 2;
+            default:
+                return 0;
         }
     }
 
     static SegmentType parseType(final int type) {
         switch (type) {
-        case 1:
-            return AS_SET;
-        case 2:
-            return AS_SEQUENCE;
-        default:
-            return null;
+            case 1:
+                return AS_SET;
+            case 2:
+                return AS_SEQUENCE;
+            default:
+                return null;
         }
     }
 
@@ -64,7 +63,7 @@ public final class AsPathSegmentParser {
         for (int i = 0; i < count; i++) {
             coll.add(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())));
         }
-        return (coll.isEmpty()) ? Collections.emptyList() : coll;
+        return coll.isEmpty() ? Collections.emptyList() : coll;
     }
 
     static void serializeAsList(final List<AsNumber> asList, final SegmentType type, final ByteBuf byteAggregator) {
@@ -74,7 +73,7 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte(serializeType(type));
         byteAggregator.writeByte(asList.size());
         for (final AsNumber asNumber : asList) {
-            byteAggregator.writeInt( asNumber.getValue().intValue());
+            byteAggregator.writeInt(asNumber.getValue().intValue());
         }
     }
 }

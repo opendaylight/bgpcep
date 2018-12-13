@@ -28,14 +28,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.SegmentsBuilder;
 
 public class AsPathAttributeParserTest {
-
-    private static final byte[] ATTRIBUTE_BYTES = {(byte) 0x40, (byte) 0x02, (byte) 0x14,
-            (byte) 0x01, (byte) 0x02, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x02, (byte) 0x02, (byte) 0x02,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x04};
-    private static final byte[] EMPTY_ATTRIBUTE_BYTES = {(byte) 0x40, (byte) 0x02, (byte) 0x00};
+    private static final byte[] ATTRIBUTE_BYTES = {
+        (byte) 0x40, (byte) 0x02, (byte) 0x14,
+        (byte) 0x01, (byte) 0x02, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x02, (byte) 0x02, (byte) 0x02,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x04
+    };
+    private static final byte[] EMPTY_ATTRIBUTE_BYTES = { (byte) 0x40, (byte) 0x02, (byte) 0x00 };
 
     @Test
     public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
 import io.netty.buffer.ByteBuf;
@@ -21,7 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.route.origin.extended.community._case.RouteOriginExtendedCommunityBuilder;
 
 public class RouteOriginAsTwoOctetEcHandlerTest {
-
     private static final byte[] INPUT = {
         0, 24, 4, 2, 8, 7
     };
@@ -29,9 +27,11 @@ public class RouteOriginAsTwoOctetEcHandlerTest {
     @Test
     public void testHandler() throws BGPDocumentedException, BGPParsingException {
         final RouteOriginAsTwoOctetEcHandler handler = new RouteOriginAsTwoOctetEcHandler();
-        final RouteOriginExtendedCommunityCase expected = new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
-                new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(new ShortAsNumber(24L)).setLocalAdministrator(
-                        new byte[] { 4, 2, 8, 7 }).build()).build();
+        final RouteOriginExtendedCommunityCase expected = new RouteOriginExtendedCommunityCaseBuilder()
+                .setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder()
+                    .setGlobalAdministrator(new ShortAsNumber(24L))
+                    .setLocalAdministrator(new byte[] { 4, 2, 8, 7 }).build())
+                .build();
 
         final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
         Assert.assertEquals(expected, exComm);
@@ -40,5 +40,4 @@ public class RouteOriginAsTwoOctetEcHandlerTest {
         handler.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(INPUT, output.array());
     }
-
 }

@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
@@ -38,20 +36,19 @@ public class AigpAttributeParser implements AttributeParser, AttributeSerializer
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
-            PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException {
-        if(!buffer.isReadable()) {
-            return;
+            final PeerSpecificParserConstraint constraint) {
+        if (buffer.isReadable()) {
+            builder.setAigp(new AigpBuilder().setAigpTlv(parseAigpTLV(buffer)).build());
         }
-        builder.setAigp(new AigpBuilder().setAigpTlv(parseAigpTLV(buffer)).build());
     }
 
     @Override
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
         final Aigp aigpAttribute = attribute.getAigp();
-        if (aigpAttribute == null) {
-            return;
+        if (aigpAttribute != null) {
+            AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, serializeAigpTLV(aigpAttribute),
+                byteAggregator);
         }
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, serializeAigpTLV(aigpAttribute), byteAggregator);
     }
 
     /**
@@ -73,10 +70,8 @@ public class AigpAttributeParser implements AttributeParser, AttributeSerializer
     /**
      * Transform AIGP attribute data from instance of Aigp class into byte buffer representation.
      *
-     * @param aigp
-     *          instance of Aigp class
-     * @return
-     *          byte buffer representation or empty buffer if AIGP TLV is null
+     * @param aigp instance of Aigp class
+     * @return byte buffer representation or empty buffer if AIGP TLV is null
      */
     private static ByteBuf serializeAigpTLV(final Aigp aigp) {
         final AigpTlv tlv = aigp.getAigpTlv();

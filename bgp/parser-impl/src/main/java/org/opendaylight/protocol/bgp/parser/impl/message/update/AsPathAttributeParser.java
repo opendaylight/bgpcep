@@ -67,7 +67,8 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
         if (asPath.getSegments() != null) {
             for (final Segments segments : asPath.getSegments()) {
                 if (segments.getAsSequence() != null) {
-                    AsPathSegmentParser.serializeAsList(segments.getAsSequence(), SegmentType.AS_SEQUENCE, segmentsBuffer);
+                    AsPathSegmentParser.serializeAsList(segments.getAsSequence(), SegmentType.AS_SEQUENCE,
+                        segmentsBuffer);
                 } else if (segments.getAsSet() != null) {
                     AsPathSegmentParser.serializeAsList(segments.getAsSet(), SegmentType.AS_SET, segmentsBuffer);
                 } else {

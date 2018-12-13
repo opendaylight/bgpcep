@@ -45,16 +45,20 @@ public class ExtendedCommunitiesAttributeParserTest {
 
     @Before
     public void setUp() {
-        final ExtendedCommunityRegistry exReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getExtendedCommunityRegistry();
+        final ExtendedCommunityRegistry exReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
+                .getExtendedCommunityRegistry();
         this.handler = new ExtendedCommunitiesAttributeParser(exReg);
     }
 
     @Test
     public void testExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
-        final RouteOriginExtendedCommunityCase routeOrigin = new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
-                new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(new ShortAsNumber(54L)).setLocalAdministrator(
-                        new byte[] { 0, 0, 1, 76 }).build()).build();
-        final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setTransitive(false).setExtendedCommunity(routeOrigin).build();
+        final RouteOriginExtendedCommunityCase routeOrigin = new RouteOriginExtendedCommunityCaseBuilder()
+                .setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder()
+                    .setGlobalAdministrator(new ShortAsNumber(54L))
+                    .setLocalAdministrator(new byte[] { 0, 0, 1, 76 }).build())
+                .build();
+        final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setTransitive(false)
+                .setExtendedCommunity(routeOrigin).build();
         final AttributesBuilder attBuilder = new AttributesBuilder();
 
         this.handler.parseAttribute(Unpooled.copiedBuffer(INPUT), attBuilder, null);
@@ -80,7 +84,7 @@ public class ExtendedCommunitiesAttributeParserTest {
     public void testEmptyExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
         final ByteBuf output = Unpooled.buffer();
         this.handler.serializeAttribute(new AttributesBuilder().build(), output);
-        assertEquals( Unpooled.buffer(), output);
+        assertEquals(Unpooled.buffer(), output);
     }
 
     @Test

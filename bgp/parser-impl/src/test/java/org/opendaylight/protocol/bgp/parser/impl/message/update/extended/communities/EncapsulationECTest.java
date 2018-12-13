@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -40,9 +39,8 @@ public class EncapsulationECTest {
     public void testParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buffer = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
-        final EncapsulationCase expected = new EncapsulationCaseBuilder().setEncapsulationExtendedCommunity(new EncapsulationExtendedCommunityBuilder()
-            .setTunnelType(TUNNEL_TYPE)
-            .build()).build();
+        final EncapsulationCase expected = new EncapsulationCaseBuilder().setEncapsulationExtendedCommunity(
+            new EncapsulationExtendedCommunityBuilder().setTunnelType(TUNNEL_TYPE).build()).build();
         this.parser.serializeExtendedCommunity(expected, buffer);
         assertArrayEquals(RESULT, ByteArray.getAllBytes(buffer));
 

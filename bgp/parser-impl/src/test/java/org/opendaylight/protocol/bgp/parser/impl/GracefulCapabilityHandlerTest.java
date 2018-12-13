@@ -61,11 +61,11 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer(capaBytes.length);
-        handler.serializeCapability( new CParametersBuilder().addAugmentation(CParameters1.class,
+        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
         Assert.assertArrayEquals(capaBytes, buffer.array());
 
-        Assert.assertEquals( new CParametersBuilder().addAugmentation(CParameters1.class,
+        Assert.assertEquals(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(),
             handler.parseCapability(Unpooled.wrappedBuffer(capaBytes).slice(2, capaBytes.length - 2)));
 
@@ -78,10 +78,10 @@ public class GracefulCapabilityHandlerTest {
         tablesBuilder.setAfiFlags(new AfiFlags(false));
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
         buffer.clear();
-        handler.serializeCapability( new CParametersBuilder().addAugmentation(CParameters1.class,
+        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
         Assert.assertArrayEquals(capaBytes2, buffer.array());
-        Assert.assertEquals( new CParametersBuilder().addAugmentation(CParameters1.class,
+        Assert.assertEquals(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(),
             handler.parseCapability(Unpooled.wrappedBuffer(capaBytes2).slice(2, capaBytes2.length - 2)));
 
@@ -90,7 +90,7 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setRestartTime(null);
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
         buffer.clear();
-        handler.serializeCapability( new CParametersBuilder().addAugmentation(CParameters1.class,
+        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
         Assert.assertArrayEquals(capaBytes2, buffer.array());
 
@@ -101,7 +101,7 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setRestartFlags(new RestartFlags(false));
         capaBuilder.setRestartTime(0);
         capaBuilder.setTables(Collections.emptyList());
-        Assert.assertEquals( new CParametersBuilder().addAugmentation(CParameters1.class,
+        Assert.assertEquals(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(),
             handler.parseCapability(Unpooled.wrappedBuffer(capaBytes3).slice(2, capaBytes3.length - 2)));
 
@@ -109,7 +109,7 @@ public class GracefulCapabilityHandlerTest {
             (byte) 0x40, (byte) 0x06, (byte) 0x00, (byte) 0x00,
             (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x00
         };
-        Assert.assertEquals( new CParametersBuilder().addAugmentation(CParameters1.class,
+        Assert.assertEquals(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(),
             handler.parseCapability(Unpooled.wrappedBuffer(capaBytes4).slice(2, capaBytes4.length - 2)));
         final byte[] capaBytes5 = {
@@ -117,16 +117,18 @@ public class GracefulCapabilityHandlerTest {
         };
         final ByteBuf b = Unpooled.buffer(capaBytes5.length);
 
-        handler.serializeCapability( new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build(), b);
+        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
+            new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build())
+            .build()).build(), b);
         Assert.assertArrayEquals(capaBytes5, b.array());
         Assert.assertEquals(new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
-            .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().setRestartFlags(new RestartFlags(Boolean.FALSE))
+            .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
+                .setRestartFlags(new RestartFlags(Boolean.FALSE))
                 .setRestartTime(0).setTables(Collections.emptyList()).build()).build()).build(),
             handler.parseCapability(Unpooled.wrappedBuffer(capaBytes5).slice(2, capaBytes5.length - 2)));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testUnhandledAfi() {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
             this.ctx.getSubsequentAddressFamilyRegistry());
@@ -142,11 +144,11 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability( new CParametersBuilder().addAugmentation(CParameters1.class,
+        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testUnhandledSafi() {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
             this.ctx.getSubsequentAddressFamilyRegistry());
@@ -161,11 +163,11 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability( new CParametersBuilder().addAugmentation(CParameters1.class,
+        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRestartTimeMinValue() {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
             this.ctx.getSubsequentAddressFamilyRegistry());
@@ -180,11 +182,11 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability( new CParametersBuilder().addAugmentation(CParameters1.class,
+        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRestartTimeMaxValue() {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
             this.ctx.getSubsequentAddressFamilyRegistry());
@@ -199,8 +201,7 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability( new CParametersBuilder().addAugmentation(CParameters1.class,
+        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
     }
-
 }

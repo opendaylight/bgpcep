@@ -96,11 +96,12 @@ public class AddPathCapabilityHandler implements CapabilityParser, CapabilitySer
             }
             final SendReceive sendReceive = SendReceive.forValue(buffer.readUnsignedByte());
             if (sendReceive != null) {
-                families.add(new AddressFamiliesBuilder().setAfi(afi).setSafi(safi).setSendReceive(sendReceive).build());
+                families.add(new AddressFamiliesBuilder().setAfi(afi).setSafi(safi).setSendReceive(sendReceive)
+                    .build());
             }
         }
-        return new CParametersBuilder().addAugmentation(CParameters1.class,new CParameters1Builder().setAddPathCapability(
-            new AddPathCapabilityBuilder().setAddressFamilies(families).build()).build()).build();
+        return new CParametersBuilder().addAugmentation(CParameters1.class,new CParameters1Builder()
+            .setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(families).build()).build()).build();
     }
 
 }

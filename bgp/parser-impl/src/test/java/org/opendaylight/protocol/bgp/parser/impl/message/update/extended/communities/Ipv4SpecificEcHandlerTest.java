@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class Ipv4SpecificEcHandlerTest {
 
     private static final byte[] INPUT = {
-            12, 51, 2, 5, 21, 45
+        12, 51, 2, 5, 21, 45
     };
 
     @Test

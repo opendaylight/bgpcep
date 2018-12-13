@@ -9,8 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
@@ -22,9 +20,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 public final class As4CapabilityHandler implements CapabilityParser, CapabilitySerializer {
     public static final int CODE = 65;
+
     @Override
-    public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        return new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(buffer.readUnsignedInt())).build()).build();
+    public CParameters parseCapability(final ByteBuf buffer) {
+        return new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder()
+            .setAsNumber(new AsNumber(buffer.readUnsignedInt())).build()).build();
     }
 
     @Override
