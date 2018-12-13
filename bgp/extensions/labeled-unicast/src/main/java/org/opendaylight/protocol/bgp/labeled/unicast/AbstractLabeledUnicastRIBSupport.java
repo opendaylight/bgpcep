@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import io.netty.buffer.ByteBuf;
@@ -135,7 +134,7 @@ abstract class AbstractLabeledUnicastRIBSupport<
     }
 
     /**
-     * Conversion from DataContainer to LabeledUnicastDestination Object
+     * Conversion from DataContainer to LabeledUnicastDestination Object.
      *
      * @param route DataContainer
      * @return LabeledUnicastDestination Object
@@ -149,8 +148,8 @@ abstract class AbstractLabeledUnicastRIBSupport<
         return builder.build();
     }
 
-    protected abstract IpPrefix extractPrefix(final DataContainerNode<? extends PathArgument> route,
-            final NodeIdentifier prefixTypeNid);
+    protected abstract IpPrefix extractPrefix(DataContainerNode<? extends PathArgument> route,
+            NodeIdentifier prefixTypeNid);
 
     public static List<LabelStack> extractLabel(final DataContainerNode<? extends PathArgument> route,
             final NodeIdentifier labelStackNid, final NodeIdentifier labelValueNid) {

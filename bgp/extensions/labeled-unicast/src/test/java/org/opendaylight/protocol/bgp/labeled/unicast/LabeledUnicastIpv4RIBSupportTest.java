@@ -57,7 +57,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<LabeledUnicastRoutesCase,
         LabeledUnicastRoutes, LabeledUnicastRoute, LabeledUnicastRouteKey> {
 
-    private static final IpPrefix IPv4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
+    private static final IpPrefix IPV4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     private static final LabeledUnicastRoute ROUTE;
     private static final LabeledUnicastRoutes ROUTES;
     private static final LabeledUnicastRouteKey ROUTE_KEY;
@@ -67,7 +67,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
             .setLabelValue(new MplsLabel(355L)).build());
     private static final List<CLabeledUnicastDestination> LABELED_DESTINATION_LIST
             = Collections.singletonList(new CLabeledUnicastDestinationBuilder()
-            .setPathId(PATH_ID).setLabelStack(LABEL_STACK).setPrefix(IPv4_PREFIX).build());
+            .setPathId(PATH_ID).setLabelStack(LABEL_STACK).setPrefix(IPV4_PREFIX).build());
     private static final DestinationLabeledUnicastCase REACH_NLRI = new DestinationLabeledUnicastCaseBuilder()
             .setDestinationLabeledUnicast(new DestinationLabeledUnicastBuilder()
                     .setCLabeledUnicastDestination(LABELED_DESTINATION_LIST).build()).build();
@@ -90,7 +90,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
         ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, LABEL_KEY);
         ROUTE = new LabeledUnicastRouteBuilder()
                 .withKey(ROUTE_KEY)
-                .setPrefix(IPv4_PREFIX)
+                .setPrefix(IPV4_PREFIX)
                 .setPathId(PATH_ID)
                 .setLabelStack(LABEL_STACK)
                 .setAttributes(new AttributesBuilder().build()).build();

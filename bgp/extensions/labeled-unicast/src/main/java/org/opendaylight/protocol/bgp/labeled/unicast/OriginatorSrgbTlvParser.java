@@ -34,10 +34,12 @@ final class OriginatorSrgbTlvParser implements BgpPrefixSidTlvParser, BgpPrefixS
     }
 
     private static List<SrgbValue> parseSrgbs(final ByteBuf buffer) {
-        Preconditions.checkState(buffer.readableBytes() % SRGB_LENGTH == 0, "Number of SRGBs doesn't fit available bytes.");
+        Preconditions.checkState(buffer.readableBytes() % SRGB_LENGTH == 0,
+                "Number of SRGBs does not fit available bytes.");
         final List<SrgbValue> ret = new ArrayList<>();
         while (buffer.isReadable()) {
-            ret.add(new SrgbValueBuilder().setBase(new Srgb((long) buffer.readUnsignedMedium())).setRange(new Srgb((long) buffer.readUnsignedMedium())).build());
+            ret.add(new SrgbValueBuilder().setBase(new Srgb((long) buffer.readUnsignedMedium()))
+                .setRange(new Srgb((long) buffer.readUnsignedMedium())).build());
         }
         return ret;
     }
