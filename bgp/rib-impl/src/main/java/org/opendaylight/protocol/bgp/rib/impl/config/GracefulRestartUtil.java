@@ -37,11 +37,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables.AfiFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Helpers for dealing with Graceful Restart capabilities.
+ *
  * @deprecated This class is competing with bgp-parser-api's view of GR and will be renamed and/or eliminated.
  */
 // FIXME: This functionality should live in bgp-parser-api, except the use of RIB version of TablesKey prevents that.
@@ -66,14 +71,11 @@ public final class GracefulRestartUtil {
     }
 
     public static CParameters getLlGracefulCapability(final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestarts) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables> tablesList =
-                llGracefulRestarts.stream()
-                .map(dto -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesBuilder()
+        final List<Tables> tablesList = llGracefulRestarts.stream()
+                .map(dto -> new TablesBuilder()
                         .setAfi(dto.getTableKey().getAfi())
                         .setSafi(dto.getTableKey().getSafi())
-                        .setAfiFlags(
-                                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables.AfiFlags(
-                                        dto.isForwarding()))
+                        .setAfiFlags(new AfiFlags(dto.isForwarding()))
                         .setLongLiveStaleTime((long) dto.getStaleTime())
                         .build())
                 .collect(Collectors.toList());
@@ -115,7 +117,7 @@ public final class GracefulRestartUtil {
                     final LlGracefulRestart llGracefulRestart;
                     final Config1 peerAug = gracefulRestartConfig.augmentation(Config1.class);
                     if (peerAug != null) {
-                       llGracefulRestart = peerAug.getLlGracefulRestart();
+                        llGracefulRestart = peerAug.getLlGracefulRestart();
                     } else {
                         final Config2 neighborAug = gracefulRestartConfig.augmentation(Config2.class);
                         if (neighborAug != null) {
@@ -128,7 +130,7 @@ public final class GracefulRestartUtil {
                         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart
                                 .rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart.Config config =
                                 llGracefulRestart.getConfig();
-                        if(config != null) {
+                        if (config != null) {
                             final Long staleTime = config.getLongLivedStaleTime();
                             if (staleTime != null && staleTime > 0) {
                                 final Optional<TablesKey> key = tableTypeRegistry.getTableKey(afiSafi.getAfiSafiName());

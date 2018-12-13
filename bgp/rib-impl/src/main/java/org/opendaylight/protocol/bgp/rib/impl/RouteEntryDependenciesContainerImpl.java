@@ -52,7 +52,7 @@ final class RouteEntryDependenciesContainerImpl implements RouteEntryDependencie
     @SuppressWarnings("unchecked")
     public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
-    RIBSupport<C, S, R, I> getRIBSupport() {
+            RIBSupport<C, S, R, I> getRIBSupport() {
         return (RIBSupport<C, S, R, I>) this.ribSupport;
     }
 

@@ -10,16 +10,14 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 
 /**
- * Registry for Codec classes
- *
+ * Registry for Codec classes.
  */
 public interface CodecsRegistry {
-
     /**
      * Return the Codecs class registered for given RIBSupport.
      *
      * @param ribSupport associated with Codecs class
      * @return Codecs
      */
-    Codecs getCodecs(final RIBSupport<?, ?, ?, ?> ribSupport);
+    Codecs getCodecs(RIBSupport<?, ?, ?, ?> ribSupport);
 }

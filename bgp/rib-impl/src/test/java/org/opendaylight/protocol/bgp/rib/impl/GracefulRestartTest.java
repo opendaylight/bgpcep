@@ -362,8 +362,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         readDataOperational(getDataBroker(), IPV4_IID, table -> {
             int size = 0;
             final Ipv4RoutesCase routesCase = (Ipv4RoutesCase) table.getRoutes();
-            if (routesCase != null && routesCase.getIpv4Routes() != null &&
-                    routesCase.getIpv4Routes().getIpv4Route() != null) {
+            if (routesCase != null && routesCase.getIpv4Routes() != null
+                    && routesCase.getIpv4Routes().getIpv4Route() != null) {
                 size = routesCase.getIpv4Routes().getIpv4Route().size();
             }
             assertEquals(expectedRoutesOnDS, size);
@@ -375,8 +375,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         readDataOperational(getDataBroker(), IPV6_IID, table -> {
             int size = 0;
             final Ipv6RoutesCase routesCase = (Ipv6RoutesCase) table.getRoutes();
-            if (routesCase != null && routesCase.getIpv6Routes() != null &&
-                    routesCase.getIpv6Routes().getIpv6Route() != null) {
+            if (routesCase != null && routesCase.getIpv6Routes() != null
+                    && routesCase.getIpv6Routes().getIpv6Route() != null) {
                 size = routesCase.getIpv6Routes().getIpv6Route().size();
             }
             assertEquals(expectedRoutesOnDS, size);

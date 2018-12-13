@@ -485,19 +485,19 @@ public class OpenConfigMappingUtilTest {
         assertEquals(HOLDTIMER, timer);
     }
 
-    private org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart.Config createGracefulConfig(
-            final Integer restartTimer) {
-        return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart.ConfigBuilder()
-                .setRestartTime(restartTimer)
-                .build();
+    private org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart
+            .Config createGracefulConfig(final Integer restartTimer) {
+        return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful
+                .restart.ConfigBuilder().setRestartTime(restartTimer).build();
     }
 
     @Test
     public void getRevisedErrorHandlingTest() {
         final NeighborBuilder neighbor = new NeighborBuilder();
         final PeerGroupBuilder peerGroup = new PeerGroupBuilder();
-        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling.ConfigBuilder errorHandlingConfig =
-                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling.ConfigBuilder();
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling
+                .ConfigBuilder errorHandlingConfig = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+                        .rev151009.bgp.neighbor.group.error.handling.ConfigBuilder();
         // error handling not set -> null
         assertNull(OpenConfigMappingUtil.getRevisedErrorHandling(PeerRole.Ibgp, peerGroup.build(),
                 neighbor.build()));

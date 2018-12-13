@@ -7,12 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-
 import static java.util.Objects.requireNonNull;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOutboundHandler;
-
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 
 /**
@@ -32,7 +30,9 @@ public class BGPHandlerFactory {
     }
 
     public ChannelHandler[] getDecoders() {
-        return new ChannelHandler[] { BGPMessageHeaderDecoder.getBGPMessageHeaderDecoder(),
-                new BGPByteToMessageDecoder(this.registry), };
+        return new ChannelHandler[] {
+            BGPMessageHeaderDecoder.getBGPMessageHeaderDecoder(),
+            new BGPByteToMessageDecoder(this.registry),
+        };
     }
 }

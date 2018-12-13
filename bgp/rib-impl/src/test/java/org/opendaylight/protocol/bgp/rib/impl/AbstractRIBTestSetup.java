@@ -130,13 +130,14 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private FluentFuture<? extends CommitInfo> future;
 
     @Mock
-    private Optional<Rib> o;
+    private Optional<Rib> optRib;
 
     @Mock
     private DOMDataTreeChangeService service;
 
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
+
     private static ModuleInfoBackedContext createClassLoadingStrategy() {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
         try {
@@ -216,8 +217,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(map).when(this.dom).getSupportedExtensions();
         doReturn(this.domChain).when(this.dom).createTransactionChain(any(AbstractPeer.class));
         doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
-        doReturn(false).when(this.o).isPresent();
-        doReturn(this.o).when(this.future).get();
+        doReturn(false).when(this.optRib).isPresent();
+        doReturn(this.optRib).when(this.future).get();
         doReturn(this.future).when(this.domTransWrite).commit();
         doNothing().when(this.future).addListener(any(Runnable.class), any(Executor.class));
         doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),

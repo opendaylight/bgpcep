@@ -8,8 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -219,8 +219,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
-        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4Address(), ribImpl,
-                null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4Address(),
+            ribImpl, null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
                 this.classicOpen.getHoldTimer(), null);
@@ -228,8 +228,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         bgpPeer.onSessionUp(bgpSession);
 
         final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
-        final Nlri n2 = new NlriBuilder().setPrefix( new Ipv4Prefix("127.0.0.1/32")).build();
-        final Nlri n3 = new NlriBuilder().setPrefix( new Ipv4Prefix("2.2.2.2/24")).build();
+        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
+        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
         final List<Nlri> nlris = Lists.newArrayList(n1, n2, n3);
         final UpdateBuilder wrongMessage = new UpdateBuilder();
         wrongMessage.setNlri(nlris);
@@ -268,8 +268,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
-        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4Address(), ribImpl,
-                null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4Address(),
+            ribImpl, null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
                 this.classicOpen.getHoldTimer(), null);
@@ -277,8 +277,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         bgpPeer.onSessionUp(bgpSession);
 
         final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
-        final Nlri n2 = new NlriBuilder().setPrefix( new Ipv4Prefix("127.0.0.1/32")).build();
-        final Nlri n3 = new NlriBuilder().setPrefix( new Ipv4Prefix("2.2.2.2/24")).build();
+        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
+        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
         final List<Nlri> nlris = Lists.newArrayList(n1, n2, n3);
         final UpdateBuilder wrongMessage = new UpdateBuilder();
         wrongMessage.setNlri(nlris);

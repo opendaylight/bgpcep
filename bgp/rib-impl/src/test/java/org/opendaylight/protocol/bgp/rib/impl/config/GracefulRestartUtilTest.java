@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,12 +78,10 @@ public class GracefulRestartUtilTest {
     private static final TablesKey IPV4_KEY = new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
     private static final TablesKey IPV6_KEY = new TablesKey(Ipv6AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
-    static {
-        AFISAFIS.add(IPV4_UNICAST_AFISAFI);
-        AFISAFIS.add(IPV4_MULTICAST_AFISAFI);
-        AFISAFIS.add(IPV6_AFISAFI);
-        }
+            UnicastSubsequentAddressFamily.class);
+
+    private static final List<AfiSafi> AFISAFIS = ImmutableList.of(IPV4_UNICAST_AFISAFI, IPV4_MULTICAST_AFISAFI,
+        IPV6_AFISAFI);
 
     @Mock
     private BGPTableTypeRegistryConsumer tableRegistry;
@@ -111,8 +110,8 @@ public class GracefulRestartUtilTest {
         assertNotNull(tables);
         assertEquals(2, tables.size());
         tables.forEach(table -> {
-            assertTrue((isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()) ||
-                    (isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState()));
+            assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()
+                || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState());
         });
     }
 
@@ -171,14 +170,14 @@ public class GracefulRestartUtilTest {
         assertNotNull(params);
         final LlGracefulRestartCapability llGracefulCapability = params.getLlGracefulRestartCapability();
         assertNotNull(llGracefulCapability);
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables> tables =
-                llGracefulCapability.getTables();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
+                .capabilities.ll.graceful.restart.capability.Tables> tables = llGracefulCapability.getTables();
         assertNotNull(tables);
         assertEquals(2, tables.size());
         assertEquals(STALE_TIME, tables.get(0).getLongLiveStaleTime().intValue());
         tables.forEach(table -> {
-            assertTrue((isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()) ||
-                    (isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState()));
+            assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()
+                || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState());
         });
     }
 
@@ -186,35 +185,33 @@ public class GracefulRestartUtilTest {
     public void getLlGracefulTimersTest() {
         final List<AfiSafi> afiSafi = new ArrayList<>();
         afiSafi.add(new AfiSafiBuilder()
-                .setAfiSafiName(IPV4UNICAST.class)
-                .setGracefulRestart(new GracefulRestartBuilder()
-                        .setConfig(new ConfigBuilder()
-                                .addAugmentation(Config1.class, new Config1Builder()
-                                        .setLlGracefulRestart(new LlGracefulRestartBuilder()
-                                                .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart.ConfigBuilder()
-                                                        .setLongLivedStaleTime((long) STALE_TIME)
-                                                        .build())
-                                                .build())
-                                        .build())
-                                .build())
+            .setAfiSafiName(IPV4UNICAST.class)
+            .setGracefulRestart(new GracefulRestartBuilder()
+                .setConfig(new ConfigBuilder()
+                    .addAugmentation(Config1.class, new Config1Builder()
+                        .setLlGracefulRestart(new LlGracefulRestartBuilder()
+                            .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll
+                                .graceful.restart.rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart
+                                .ConfigBuilder().setLongLivedStaleTime((long) STALE_TIME).build())
+                            .build())
                         .build())
-                .build());
+                    .build())
+                .build())
+            .build());
         final Map<TablesKey, Integer> llGracefulTimers = GracefulRestartUtil.getLlGracefulTimers(afiSafi,
-                this.tableRegistry);
+            this.tableRegistry);
         assertNotNull(llGracefulTimers);
         assertEquals(1, llGracefulTimers.size());
         assertEquals(STALE_TIME, llGracefulTimers.get(IPV4_KEY).intValue());
     }
 
-    private static boolean isSameKey(TablesKey key1,
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesKey key2) {
-        return key1.getAfi() == key2.getAfi() &&
-                key1.getSafi() == key2.getSafi();
+    private static boolean isSameKey(final TablesKey key1, final org.opendaylight.yang.gen.v1.urn.opendaylight.params
+            .xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesKey key2) {
+        return key1.getAfi() == key2.getAfi() && key1.getSafi() == key2.getSafi();
     }
 
-    private static boolean isSameKey(TablesKey key1,
-                                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesKey key2) {
-        return key1.getAfi() == key2.getAfi() &&
-                key1.getSafi() == key2.getSafi();
+    private static boolean isSameKey(final TablesKey key1, final org.opendaylight.yang.gen.v1.urn.opendaylight.params
+            .xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesKey key2) {
+        return key1.getAfi() == key2.getAfi() && key1.getSafi() == key2.getSafi();
     }
 }

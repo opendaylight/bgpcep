@@ -163,31 +163,30 @@ final class PeerUtil {
 
     private static OptionalCapabilities createMultiprotocolCapability(final TablesKey key) {
         return new OptionalCapabilitiesBuilder().setCParameters(
-                new CParametersBuilder().addAugmentation(
-                        CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
-                                new MultiprotocolCapabilityBuilder()
-                                        .setAfi(key.getAfi())
-                                        .setSafi(key.getSafi())
-                                        .build()).build()).build()).build();
+            new CParametersBuilder().addAugmentation(
+                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
+                    new MultiprotocolCapabilityBuilder()
+                    .setAfi(key.getAfi())
+                    .setSafi(key.getSafi())
+                    .build()).build()).build()).build();
     }
 
     private static OptionalCapabilities createGracefulRestartCapability(final Map<TablesKey, Boolean> gracefulTables,
                                                                         final int restartTime) {
         return new OptionalCapabilitiesBuilder().setCParameters(
-                new CParametersBuilder().addAugmentation(
-                        CParameters1.class, new CParameters1Builder()
-                                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
-                                        .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
-                                        .setRestartTime(restartTime)
-                                        .setTables(
-                                                gracefulTables.keySet().stream()
-                                                        .map(key -> new TablesBuilder()
-                                                                .setAfi(key.getAfi())
-                                                                .setSafi(key.getSafi())
-                                                                .setAfiFlags(new Tables.AfiFlags(gracefulTables.get(key)))
-                                                                .build())
-                                                        .collect(Collectors.toList()))
-                                        .build()).build()).build()).build();
+            new CParametersBuilder().addAugmentation(
+                CParameters1.class, new CParameters1Builder()
+                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
+                    .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
+                    .setRestartTime(restartTime)
+                    .setTables(gracefulTables.keySet().stream()
+                        .map(key -> new TablesBuilder()
+                            .setAfi(key.getAfi())
+                            .setSafi(key.getSafi())
+                            .setAfiFlags(new Tables.AfiFlags(gracefulTables.get(key)))
+                            .build())
+                        .collect(Collectors.toList()))
+                    .build()).build()).build()).build();
     }
 
     private static OptionalCapabilities createAddPathCapability(final List<TablesKey> keys) {

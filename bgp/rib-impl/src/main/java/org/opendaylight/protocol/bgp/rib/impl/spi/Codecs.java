@@ -20,18 +20,17 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
  */
 public interface Codecs {
     /**
-     * Called when Codec tree is updated. Implementations should
-     * refresh codec context.
+     * Called when Codec tree is updated. Implementations should refresh codec context.
      *
      * @param tree BindingCodecTree
      */
-    void onCodecTreeUpdated(final BindingCodecTree tree);
+    void onCodecTreeUpdated(BindingCodecTree tree);
 
-    ContainerNode serializeUnreachNlri(final MpUnreachNlri nlri);
+    ContainerNode serializeUnreachNlri(MpUnreachNlri nlri);
 
-    ContainerNode serializeReachNlri(final MpReachNlri nlri);
+    ContainerNode serializeReachNlri(MpReachNlri nlri);
 
-    Attributes deserializeAttributes(final NormalizedNode<?,?> attributes);
+    Attributes deserializeAttributes(NormalizedNode<?,?> attributes);
 
-    ContainerNode serializeAttributes(final Attributes pathAttr);
+    ContainerNode serializeAttributes(Attributes pathAttr);
 }

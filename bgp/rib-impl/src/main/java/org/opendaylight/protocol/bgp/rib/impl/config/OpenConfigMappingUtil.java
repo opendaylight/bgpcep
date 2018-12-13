@@ -113,17 +113,6 @@ final class OpenConfigMappingUtil {
     }
 
     @Nullable
-    private static Boolean isActive(final Transport transport) {
-        if (transport != null) {
-            final Config config = transport.getConfig();
-            if (config != null && config.isPassiveMode() != null) {
-                return !config.isPassiveMode();
-            }
-        }
-        return null;
-    }
-
-    @Nullable
     private static Integer getRetryTimer(final Timers timers) {
         if (timers == null) {
             return null;
@@ -283,22 +272,6 @@ final class OpenConfigMappingUtil {
         return SendReceive.Receive;
     }
 
-    static PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
-        if (isRrClient(neighbor)) {
-            return PeerRole.RrClient;
-        }
-
-        if (neighbor.getConfig() != null) {
-            final PeerType peerType = neighbor.getConfig().getPeerType();
-            if (peerType == PeerType.EXTERNAL) {
-                return PeerRole.Ebgp;
-            } else if (peerType == PeerType.INTERNAL) {
-                return PeerRole.Ibgp;
-            }
-        }
-        return null;
-    }
-
     private static boolean isRrClient(final BgpNeighborGroup neighbor) {
         final RouteReflector routeReflector = neighbor.getRouteReflector();
         if (routeReflector != null && routeReflector.getConfig() != null) {
@@ -338,6 +311,33 @@ final class OpenConfigMappingUtil {
             return true;
         }
         return activeConnection;
+    }
+
+    @Nullable
+    private static Boolean isActive(final Transport transport) {
+        if (transport != null) {
+            final Config config = transport.getConfig();
+            if (config != null && config.isPassiveMode() != null) {
+                return !config.isPassiveMode();
+            }
+        }
+        return null;
+    }
+
+    static PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
+        if (isRrClient(neighbor)) {
+            return PeerRole.RrClient;
+        }
+
+        if (neighbor.getConfig() != null) {
+            final PeerType peerType = neighbor.getConfig().getPeerType();
+            if (peerType == PeerType.EXTERNAL) {
+                return PeerRole.Ebgp;
+            } else if (peerType == PeerType.INTERNAL) {
+                return PeerRole.Ibgp;
+            }
+        }
+        return null;
     }
 
     @Nonnull
@@ -476,7 +476,7 @@ final class OpenConfigMappingUtil {
     static IpAddress getLocalAddress(@Nullable final Transport transport) {
         if (transport != null && transport.getConfig() != null) {
             final BgpNeighborTransportConfig.LocalAddress localAddress = transport.getConfig().getLocalAddress();
-            if (localAddress != null ) {
+            if (localAddress != null) {
                 return localAddress.getIpAddress();
             }
         }

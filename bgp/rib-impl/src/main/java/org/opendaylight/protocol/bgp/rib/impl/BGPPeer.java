@@ -409,8 +409,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 this.missingEOT.addAll(this.tables);
             }
         }
-        if (advertisedTables == null ||
-                advertisedTables.isEmpty()) {
+        if (advertisedTables == null || advertisedTables.isEmpty()) {
             setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
         } else {
             setAdvertizedGracefulRestartTableTypes(advertisedTables.stream()
@@ -487,10 +486,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("name", this.name)
-                .add("tables", this.tables).toString();
-        }
+        return MoreObjects.toStringHelper(this).add("name", this.name).add("tables", this.tables).toString();
+    }
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> releaseConnection() {
