@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.util;
 
+import static com.google.common.base.Verify.verify;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Verify;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.util.concurrent.Future;
 import java.util.concurrent.CountDownLatch;
@@ -36,10 +36,15 @@ public final class CheckUtil {
     }
 
     public static <T extends Future<?>> void waitFutureSuccess(final T future) {
+        waitFutureSuccess(future, SLEEP_FOR, TimeUnit.SECONDS);
+    }
+
+    @VisibleForTesting
+    static <T extends Future<?>> void waitFutureSuccess(final T future, final long timeout, final TimeUnit unit) {
         final CountDownLatch latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
-        Uninterruptibles.awaitUninterruptibly(latch, SLEEP_FOR, TimeUnit.SECONDS);
-        Verify.verify(future.isSuccess());
+        Uninterruptibles.awaitUninterruptibly(latch, timeout, unit);
+        verify(future.isSuccess());
     }
 
     public static <R, T extends DataObject> R readDataOperational(final DataBroker dataBroker,
