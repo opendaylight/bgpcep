@@ -50,4 +50,9 @@
         <module>odl-bgpcep-bgp-mvpn</module>
         <module>odl-bgpcep-bgp-route-target</module>
     </modules>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 </project>

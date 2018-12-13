@@ -27,4 +27,9 @@
         <module>odl-bgpcep-topology-tunnel-api</module>
         <module>odl-bgpcep-topology-segment-routing</module>
     </modules>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 </project>

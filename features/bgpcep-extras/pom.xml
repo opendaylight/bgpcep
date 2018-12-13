@@ -26,4 +26,9 @@
         <module>odl-bgpcep-extras-dependencies</module>
         <module>odl-bgpcep-data-change-counter</module>
     </modules>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 </project>
