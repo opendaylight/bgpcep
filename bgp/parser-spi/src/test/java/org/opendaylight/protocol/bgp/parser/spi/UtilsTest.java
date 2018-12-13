@@ -13,8 +13,6 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Optional;
 import org.junit.Assert;
@@ -126,49 +124,5 @@ public class UtilsTest {
         final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
             this.safiReg);
         Assert.assertFalse(parsedAfiSafi.isPresent());
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testAttributeUtilPrivateConstructor() throws Throwable {
-        final Constructor<AttributeUtil> c = AttributeUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testCapabilityUtilPrivateConstructor() throws Throwable {
-        final Constructor<CapabilityUtil> c = CapabilityUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testMessageUtilPrivateConstructor() throws Throwable {
-        final Constructor<MessageUtil> c = MessageUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testParameterUtilPrivateConstructor() throws Throwable {
-        final Constructor<ParameterUtil> c = ParameterUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 }

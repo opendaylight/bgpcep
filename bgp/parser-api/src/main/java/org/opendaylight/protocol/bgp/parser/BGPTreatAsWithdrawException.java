@@ -37,6 +37,11 @@ public final class BGPTreatAsWithdrawException extends Exception {
         this.error = requireNonNull(error);
     }
 
+    public @NonNull BGPError getError() {
+        return error;
+    }
+
+    // FIXME: remove this method, as it makes checkstyle unhappy
     public @NonNull BGPDocumentedException toDocumentedException() {
         return new BGPDocumentedException(getMessage(), error, this);
     }

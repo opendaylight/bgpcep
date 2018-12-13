@@ -19,6 +19,9 @@ public final class ServiceLoaderBGPExtensionProviderContext {
         }
     }
 
+    private ServiceLoaderBGPExtensionProviderContext() {
+    }
+
     public static BGPExtensionProviderContext create() {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
@@ -33,9 +36,5 @@ public final class ServiceLoaderBGPExtensionProviderContext {
 
     public static BGPExtensionProviderContext getSingletonInstance() {
         return Holder.INSTANCE;
-    }
-
-    private ServiceLoaderBGPExtensionProviderContext() {
-        throw new UnsupportedOperationException();
     }
 }
