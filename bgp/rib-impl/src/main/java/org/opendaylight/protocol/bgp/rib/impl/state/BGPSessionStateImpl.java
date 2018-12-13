@@ -180,6 +180,6 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     }
 
     public synchronized void registerMessagesCounter(final BGPMessagesListener bgpMessagesListener) {
-        this.messagesListenerCounter= bgpMessagesListener;
+        this.messagesListenerCounter = bgpMessagesListener;
     }
 }

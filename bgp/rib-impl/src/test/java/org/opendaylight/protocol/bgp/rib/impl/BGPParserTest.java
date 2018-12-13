@@ -24,30 +24,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
 
 public class BGPParserTest {
-
-    private final MessageRegistry registry = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+    private final MessageRegistry registry = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance(
+        ).getMessageRegistry();
 
     @Test
     public void testMessageToByteEncoding() {
         final BGPMessageToByteEncoder encoder = new BGPMessageToByteEncoder(this.registry);
         final ByteBuf out = Unpooled.buffer();
         encoder.encode(null, new KeepaliveBuilder().build(), out);
-        assertArrayEquals(new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, 0, 0x13, 4}, ByteArray.readAllBytes(out));
+        assertArrayEquals(new byte[] {
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            0x00, 0x13, 0x04}, ByteArray.readAllBytes(out));
     }
 
     @Test
     public void testByteToMessageEncoding() throws Exception {
         final BGPByteToMessageDecoder decoder = new BGPByteToMessageDecoder(this.registry);
         final List<Object> out = new ArrayList<>();
-        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, 0, 0x13, 4 }), out);
+        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] {
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            0x00, 0x13, 0x04 }), out);
         assertTrue(out.get(0) instanceof Keepalive);
-        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, 0, 0x17, 3, 2, 4, 4, 9 }), out);
+        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] {
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            0x00, 0x17, 0x03, 0x02, 0x04, 0x04, 0x09 }), out);
         assertTrue(out.get(1) instanceof Notify);
     }
 

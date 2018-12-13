@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
@@ -27,18 +26,14 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
 
     @Override
     public List<BGPRibState> getRibStats() {
-        return ImmutableList.copyOf(this.bgpRibStates.stream()
-            .map(BGPRibStateConsumer::getRIBState)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList()));
+        return this.bgpRibStates.stream().map(BGPRibStateConsumer::getRIBState).filter(Objects::nonNull)
+                .collect(ImmutableList.toImmutableList());
     }
 
     @Override
     public List<BGPPeerState> getPeerStats() {
-        return ImmutableList.copyOf(this.bgpPeerStates.stream()
-            .map(BGPPeerStateConsumer::getPeerState)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList()));
+        return this.bgpPeerStates.stream().map(BGPPeerStateConsumer::getPeerState).filter(Objects::nonNull)
+                .collect(ImmutableList.toImmutableList());
     }
 
     @Override
@@ -47,13 +42,13 @@ public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer
     }
 
     @Override
-    public void unbind(final BGPRibStateConsumer bgpState) {
-        this.bgpRibStates.remove(bgpState);
+    public void bind(final BGPPeerStateConsumer bgpState) {
+        this.bgpPeerStates.add(bgpState);
     }
 
     @Override
-    public void bind(final BGPPeerStateConsumer bgpState) {
-        this.bgpPeerStates.add(bgpState);
+    public void unbind(final BGPRibStateConsumer bgpState) {
+        this.bgpRibStates.remove(bgpState);
     }
 
     @Override

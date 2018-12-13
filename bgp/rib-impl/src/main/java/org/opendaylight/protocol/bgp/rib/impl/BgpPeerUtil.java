@@ -71,6 +71,8 @@ public final class BgpPeerUtil {
     }
 
     /**
+     * DTO for transferring LLGR advertizements.
+     *
      * @deprecated This class is deprecated for refactoring.
      */
     // FIXME: there should be no need for this class, as we should be able to efficiently translate TableKey classes
@@ -82,7 +84,7 @@ public final class BgpPeerUtil {
         private final int staleTime;
         private final boolean forwardingFlag;
 
-        public LlGracefulRestartDTO (final TablesKey tableKey, final int staleTime, final boolean forwardingFlag) {
+        public LlGracefulRestartDTO(final TablesKey tableKey, final int staleTime, final boolean forwardingFlag) {
             this.tableKey = requireNonNull(tableKey);
             this.staleTime = staleTime;
             this.forwardingFlag = forwardingFlag;

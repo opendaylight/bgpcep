@@ -5,9 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.state;
-
 
 import static java.util.Objects.requireNonNull;
 
@@ -68,12 +66,12 @@ public class BGPRIBStateImpl extends DefaultRibReference implements BGPRibState,
     }
 
     @Override
-    public final synchronized long getPathCount(TablesKey tablesKey) {
+    public final synchronized long getPathCount(final TablesKey tablesKey) {
         return this.totalPaths.get(tablesKey).getPathsCount();
     }
 
     @Override
-    public final synchronized long getPrefixesCount(TablesKey tablesKey) {
+    public final synchronized long getPrefixesCount(final TablesKey tablesKey) {
         return this.totalPrefixes.get(tablesKey).getPrefixesCount();
     }
 

@@ -8,8 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -96,6 +96,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
     private ClusterSingletonServiceProvider singletonServiceProvider;
     private BgpDeployerImpl deployer;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -141,7 +142,8 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         createRib(createGlobalIpv4());
 
         verify(this.blueprintContainer, timeout(VERIFY_TIMEOUT_MILIS)).getComponentInstance(eq("ribImpl"));
-        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS)).registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS)).registerService(eq(InstanceType.RIB.getServices()),
+            any(), any(Dictionary.class));
 
         //change with same rib already existing
         createRib(createGlobalIpv4());
@@ -152,8 +154,8 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         createRib(createGlobalIpv6());
 
         verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
-        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS).times(2)).registerService(eq(InstanceType.RIB.getServices()),
-                any(), any(Dictionary.class));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS).times(2)).registerService(
+            eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
         verify(this.dataTreeRegistration).close();
         verify(this.registration).unregister();
 

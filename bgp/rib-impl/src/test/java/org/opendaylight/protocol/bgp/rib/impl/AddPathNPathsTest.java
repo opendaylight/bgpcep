@@ -60,15 +60,16 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         waitFutureSuccess(this.serverChannel.close());
         super.tearDown();
     }
+
     /*
      * N-Paths
      *                                            ___________________
      *                                           | ODL BGP 127.0.0.1 |
-     * [peer://127.0.0.2; p1, lp100] --(iBGP)--> |                   | --(RR-client, non add-path) --> [Peer://127.0.0.5; (p1, lp100), (p1, lp1200)]
-     * [peer://127.0.0.3; p1, lp200] --(iBGP)--> |                   |
-     * [peer://127.0.0.4; p1, lp50] --(iBGP)-->  |                   | --(RR-client, add-path) --> [Peer://127.0.0.6; (p1, path-id1, lp100), (p1, path-id2, pl50), (p1, path-id3, pl200)]
-     * [peer://127.0.0.2; p1, lp20] --(iBGP)-->  |___________________|
-     * p1 = 1.1.1.1/32
+     * [peer://127.0.0.2; p1, lp100] --(iBGP)--> |                   | --(RR-client, non add-path) -->
+     * [peer://127.0.0.3; p1, lp200] --(iBGP)--> |                   |     [Peer://127.0.0.5; (p1, lp100), (p1, lp1200)]
+     * [peer://127.0.0.4; p1, lp50] --(iBGP)-->  |                   | --(RR-client, add-path) -->
+     * [peer://127.0.0.2; p1, lp20] --(iBGP)-->  |___________________|     [Peer://127.0.0.6; (p1, path-id1, lp100),
+     * p1 = 1.1.1.1/32                                                      (p1, path-id2, pl50), (p1, path-id3, pl200)]
      */
     @Test
     public void testUseCase1() throws Exception {

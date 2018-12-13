@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
@@ -29,9 +28,9 @@ public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     public synchronized AbstractRegistration registerPeer(final Peer peer) {
         this.peers.put(peer.getPeerId(), peer);
         this.peersList = ImmutableList.copyOf(this.peers.values());
-        this.peersFilteredList = ImmutableList.copyOf(this.peers.values().stream()
-                .filter(p1->p1.getRole() != PeerRole.Internal)
-                .collect(Collectors.toList()));
+        this.peersFilteredList = this.peers.values().stream()
+                .filter(p1 -> p1.getRole() != PeerRole.Internal)
+                .collect(ImmutableList.toImmutableList());
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
