@@ -24,8 +24,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 public class OriginatorIdAttributeParserTest {
 
-    private static final byte[] ATTRIBUTE_BYTES = {(byte) 0x80, (byte) 0x09, (byte) 0x04,
-            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+    private static final byte[] ATTRIBUTE_BYTES = {
+        (byte) 0x80, (byte) 0x09, (byte) 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
+    };
 
     private static final Attributes RESULT = new AttributesBuilder()
             .setOriginatorId(new OriginatorIdBuilder()

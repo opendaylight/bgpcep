@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteOrigin4OctectASEcHandlerTest.AS_COMMON;
@@ -29,7 +28,7 @@ public final class Generic4OctASEcHandlerTest {
     Generic4OctASEcHandler handler;
 
     @Before
-    public void Setup() {
+    public void before() {
         this.handler = new Generic4OctASEcHandler();
     }
 
@@ -47,8 +46,8 @@ public final class Generic4OctASEcHandlerTest {
         Assert.assertArrayEquals(INPUT, output.array());
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testHandlerError() throws BGPDocumentedException, BGPParsingException {
+    @Test(expected = IllegalArgumentException.class)
+    public void testHandlerError() {
         this.handler.serializeExtendedCommunity(new As4RouteOriginExtendedCommunityCaseBuilder().build(), null);
     }
 }

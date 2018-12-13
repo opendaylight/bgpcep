@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
 import io.netty.buffer.ByteBuf;
@@ -29,9 +28,11 @@ public class AsTwoOctetSpecificEcHandlerTest {
     @Test
     public void testHandler() throws BGPDocumentedException, BGPParsingException {
         final AsTwoOctetSpecificEcHandler handler = new AsTwoOctetSpecificEcHandler();
-        final AsSpecificExtendedCommunityCase expected = new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
-                new AsSpecificExtendedCommunityBuilder().setGlobalAdministrator(new ShortAsNumber(54L)).setLocalAdministrator(
-                        new byte[] { 0, 0, 1, 76 }).build()).build();
+        final AsSpecificExtendedCommunityCase expected = new AsSpecificExtendedCommunityCaseBuilder()
+                .setAsSpecificExtendedCommunity(new AsSpecificExtendedCommunityBuilder()
+                    .setGlobalAdministrator(new ShortAsNumber(54L))
+                    .setLocalAdministrator(new byte[] { 0, 0, 1, 76 }).build())
+                .build();
 
         final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
         Assert.assertEquals(expected, exComm);
@@ -40,5 +41,4 @@ public class AsTwoOctetSpecificEcHandlerTest {
         handler.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(INPUT, output.array());
     }
-
 }

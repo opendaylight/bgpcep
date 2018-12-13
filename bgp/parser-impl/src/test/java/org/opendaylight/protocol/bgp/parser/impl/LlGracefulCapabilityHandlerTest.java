@@ -47,14 +47,14 @@ public class LlGracefulCapabilityHandlerTest {
     public void testLongLivedGracefulCapabilityHandler() throws BGPParsingException, BGPDocumentedException {
 
         final byte[] capaBytes = {
-                //header
-                (byte) 0x47, (byte) 0x0e,
-                // Ipv4 Unicast, afiFlags = false, timer = 10
-                (byte) 0x00, (byte) 0x01, (byte) 0x01,
-                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a,
-                // Ipv6 Unicast, afiFlags = true, timer = 160
-                (byte) 0x00, (byte) 0x02, (byte) 0x01,
-                (byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0xa0
+            //header
+            (byte) 0x47, (byte) 0x0e,
+            // Ipv4 Unicast, afiFlags = false, timer = 10
+            (byte) 0x00, (byte) 0x01, (byte) 0x01,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a,
+            // Ipv6 Unicast, afiFlags = true, timer = 160
+            (byte) 0x00, (byte) 0x02, (byte) 0x01,
+            (byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0xa0
         };
 
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
@@ -82,7 +82,7 @@ public class LlGracefulCapabilityHandlerTest {
                 .slice(2, capaBytes.length - 2)));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testUnsupportedAfi() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(Arrays.asList(new TablesBuilder()
@@ -98,7 +98,7 @@ public class LlGracefulCapabilityHandlerTest {
         this.handler.serializeCapability(cParameters, buffer);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testUnsupportedSafi() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(Arrays.asList(new TablesBuilder()
@@ -114,7 +114,7 @@ public class LlGracefulCapabilityHandlerTest {
         this.handler.serializeCapability(cParameters, buffer);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testMinStaleTime() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(Arrays.asList(new TablesBuilder()
@@ -130,7 +130,7 @@ public class LlGracefulCapabilityHandlerTest {
         this.handler.serializeCapability(cParameters, buffer);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testMaxStaleTime() {
 
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()

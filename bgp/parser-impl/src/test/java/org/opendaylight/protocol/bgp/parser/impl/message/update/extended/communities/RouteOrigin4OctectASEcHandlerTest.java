@@ -32,10 +32,11 @@ public final class RouteOrigin4OctectASEcHandlerTest {
     };
     public static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder().setAsNumber(new AsNumber(20L))
         .setLocalAdministrator(100).build();
-    RouteOrigin4OctectASEcHandler handler;
+
+    private RouteOrigin4OctectASEcHandler handler;
 
     @Before
-    public void Setup() {
+    public void before() {
         this.handler = new RouteOrigin4OctectASEcHandler();
     }
 

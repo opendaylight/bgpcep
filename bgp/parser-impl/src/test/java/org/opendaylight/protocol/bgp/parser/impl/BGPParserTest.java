@@ -74,7 +74,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class BGPParserTest {
 
     /**
-     * Used by other tests as well
+     * Used by other tests as well.
      */
     static final List<byte[]> inputBytes = new ArrayList<>();
 
@@ -86,7 +86,7 @@ public class BGPParserTest {
 
     private static final int LENGTH_FIELD_LENGTH = 2;
 
-    private static final String multiPathHexFile = "/bgp-update-multipath.txt";
+    private static final String MULTIPATH_HEX_FILE = "/bgp-update-multipath.txt";
 
     private static List<byte[]> updatesWithMultiplePath;
 
@@ -100,15 +100,15 @@ public class BGPParserTest {
             .getAttributeRegistry());
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
-            try (final InputStream is = BGPParserTest.class.getResourceAsStream(name)){
+            try (InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
                 if (is == null) {
                     throw new IOException("Failed to get resource " + name);
                 }
                 final ByteArrayOutputStream bis = new ByteArrayOutputStream();
                 final byte[] data = new byte[MAX_SIZE];
-                int nRead = 0;
-                while ((nRead = is.read(data, 0, data.length)) != -1) {
-                    bis.write(data, 0, nRead);
+                int numRead = 0;
+                while ((numRead = is.read(data, 0, data.length)) != -1) {
+                    bis.write(data, 0, numRead);
                 }
                 bis.flush();
 
@@ -117,7 +117,7 @@ public class BGPParserTest {
             }
         }
         updatesWithMultiplePath = HexDumpBGPFileParser.parseMessages(BGPParserTest.class.getResourceAsStream(
-            multiPathHexFile));
+            MULTIPATH_HEX_FILE));
         constraint = mock(PeerSpecificParserConstraint.class);
         mpSupport = mock(MultiPathSupport.class);
         Mockito.doReturn(Optional.empty()).when(constraint).getPeerConstraint(Mockito.any());

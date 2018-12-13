@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -25,9 +24,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 
 public class ClusterIdAttributeParserTest {
-    private static final byte[] clusterIdBytes = {(byte) 0x80, (byte) 0x0A, (byte) 0x08,
-        (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x1,
-        (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x2};
+    private static final byte[] CLUSTER_ID_BYTES = {
+        (byte) 0x80, (byte) 0x0A, (byte) 0x08,
+        (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x1, (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x2
+    };
     ClusterIdAttributeParser parser;
 
     @Before
@@ -42,17 +42,17 @@ public class ClusterIdAttributeParserTest {
         final Ipv4Address ip2 = new Ipv4Address("192.168.1.2");
         list.add(new ClusterIdentifier(ip1));
         list.add(new ClusterIdentifier(ip2));
-        final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster
-            (list).build()).build();
+        final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster(list)
+            .build()).build();
 
 
         final ByteBuf output = Unpooled.buffer();
         this.parser.serializeAttribute(clusterId, output);
 
-        assertArrayEquals(clusterIdBytes, ByteArray.getAllBytes(output));
+        assertArrayEquals(CLUSTER_ID_BYTES, ByteArray.getAllBytes(output));
 
         AttributesBuilder clusterIdOutput = new AttributesBuilder();
-        this.parser.parseAttribute(Unpooled.wrappedBuffer(ByteArray.cutBytes(clusterIdBytes, 3)), clusterIdOutput,
+        this.parser.parseAttribute(Unpooled.wrappedBuffer(ByteArray.cutBytes(CLUSTER_ID_BYTES, 3)), clusterIdOutput,
             null);
         assertEquals(clusterId, clusterIdOutput.build());
     }
@@ -60,8 +60,8 @@ public class ClusterIdAttributeParserTest {
     @Test
     public void testParseEmptyListAttribute() {
         final List<ClusterIdentifier> list = Lists.newArrayList();
-        final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster
-            (list).build()).build();
+        final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster(list)
+            .build()).build();
         final ByteBuf output = Unpooled.buffer();
         this.parser.serializeAttribute(clusterId, output);
         assertEquals(Unpooled.buffer(), output);

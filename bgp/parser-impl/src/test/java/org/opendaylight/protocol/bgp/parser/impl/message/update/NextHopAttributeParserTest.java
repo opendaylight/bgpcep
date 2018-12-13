@@ -28,17 +28,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class NextHopAttributeParserTest {
 
-    private static final byte[] IPV4_NEXT_HOP_BYTES = {(byte) 0x40, (byte) 0x03, (byte) 0x04,
-            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
-    private static final byte[] IPV6_NEXT_HOP_BYTES = {(byte) 0x40, (byte) 0x03, (byte) 0x20,
-            (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
-            (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02};
+    private static final byte[] IPV4_NEXT_HOP_BYTES = {
+        (byte) 0x40, (byte) 0x03, (byte) 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
+    };
+    private static final byte[] IPV6_NEXT_HOP_BYTES = {
+        (byte) 0x40, (byte) 0x03, (byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02
+    };
 
     private static final Attributes IPV4_RESULT = new AttributesBuilder()
             .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()

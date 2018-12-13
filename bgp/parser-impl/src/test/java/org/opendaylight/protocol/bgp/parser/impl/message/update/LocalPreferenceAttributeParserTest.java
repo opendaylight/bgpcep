@@ -22,9 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPrefBuilder;
 
 public class LocalPreferenceAttributeParserTest {
-
-    private static final byte[] ATTRIBUTE_BYTES = {(byte) 0x40, (byte) 0x05, (byte) 0x04,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01};
+    private static final byte[] ATTRIBUTE_BYTES = {
+        (byte) 0x40, (byte) 0x05, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01
+    };
 
     private static final Attributes RESULT = new AttributesBuilder()
             .setLocalPref(new LocalPrefBuilder()

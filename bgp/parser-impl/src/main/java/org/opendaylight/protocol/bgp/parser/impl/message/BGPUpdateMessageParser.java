@@ -146,13 +146,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         }
         final Optional<BGPTreatAsWithdrawException> withdrawCause;
         if (totalPathAttrLength > 0) {
-            final ParsedAttributes attributes;
-            try {
-                attributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength), constraint);
-            } catch (final RuntimeException | BGPParsingException e) {
-                // Catch everything else and turn it into a BGPDocumentedException
-                throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
-            }
+            final ParsedAttributes attributes = parseAttributes(buffer, totalPathAttrLength, constraint);
             builder.setAttributes(attributes.getAttributes());
             withdrawCause = attributes.getWithdrawCause();
         } else {
@@ -182,12 +176,21 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         return msg;
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
+    private ParsedAttributes parseAttributes(final ByteBuf buffer, final int totalPathAttrLength,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
+        try {
+            return reg.parseAttributes(buffer.readSlice(totalPathAttrLength), constraint);
+        } catch (final RuntimeException | BGPParsingException e) {
+            // Catch everything else and turn it into a BGPDocumentedException
+            throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
+        }
+    }
+
     /**
-     * Check for presence of well known mandatory path attributes
-     * ORIGIN, AS_PATH and NEXT_HOP in Update message
+     * Check for presence of well known mandatory path attributes ORIGIN, AS_PATH and NEXT_HOP in Update message.
      *
      * @param message Update message
-     * @throws BGPDocumentedException
      */
     private static void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
         requireNonNull(message, "Update message cannot be null");

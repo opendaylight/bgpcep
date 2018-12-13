@@ -24,10 +24,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AggregatorBuilder;
 
 public class AggregatorAttributeParserTest {
-
-    private static final byte[] ATTRIBUTE_BYTES = {(byte) 0xC0, (byte) 0x07, (byte) 0x08,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
-            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01};
+    private static final byte[] ATTRIBUTE_BYTES = {
+        (byte) 0xC0, (byte) 0x07, (byte) 0x08,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01
+    };
 
     private static final Attributes RESULT = new AttributesBuilder()
             .setAggregator(new AggregatorBuilder()

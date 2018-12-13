@@ -12,12 +12,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParameters;
@@ -43,20 +40,23 @@ public class ComplementaryTest {
     @Test
     public void testBGPParameter() {
 
-        final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(Ipv6AddressFamily.class).setSafi(
-            UnicastSubsequentAddressFamily.class).build();
+        final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(Ipv6AddressFamily.class)
+                .setSafi(UnicastSubsequentAddressFamily.class).build();
         final CParameters tlv1 = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
             .setMultiprotocolCapability(cap).build()).build();
-        final MultiprotocolCapability cap1 = new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
-            UnicastSubsequentAddressFamily.class).build();
+        final MultiprotocolCapability cap1 = new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
+                .setSafi(UnicastSubsequentAddressFamily.class).build();
         final CParameters tlv2 = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
             .setMultiprotocolCapability(cap1).build()).build();
 
         final List<Tables> tt = new ArrayList<>();
-        tt.add(new TablesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build());
-        tt.add(new TablesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build());
+        tt.add(new TablesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+            .build());
+        tt.add(new TablesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+            .build());
 
-        final GracefulRestartCapability tlv3 = new GracefulRestartCapabilityBuilder().setRestartFlags(new RestartFlags(Boolean.FALSE)).setRestartTime(0).setTables(tt).build();
+        final GracefulRestartCapability tlv3 = new GracefulRestartCapabilityBuilder().setRestartFlags(
+            new RestartFlags(Boolean.FALSE)).setRestartTime(0).setTables(tt).build();
 
         final CParameters tlv4 = new CParametersBuilder().setAs4BytesCapability(
             new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build();
@@ -79,7 +79,8 @@ public class ComplementaryTest {
 
         assertEquals(40, tlv4.getAs4BytesCapability().getAsNumber().getValue().longValue());
 
-        assertEquals(new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build(), tlv4);
+        assertEquals(new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
+            new AsNumber((long) 40)).build()).build(), tlv4);
     }
 
     @Test
@@ -94,16 +95,5 @@ public class ComplementaryTest {
         assertNotSame(ipv4.getAsNumber(), ipv4i.getAsNumber());
 
         assertEquals(ipv4.getNetworkAddress(), ipv4i.getNetworkAddress());
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testAsPathSegmentParserPrivateConstructor() throws Throwable {
-        final Constructor<AsPathSegmentParser> c = AsPathSegmentParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 }

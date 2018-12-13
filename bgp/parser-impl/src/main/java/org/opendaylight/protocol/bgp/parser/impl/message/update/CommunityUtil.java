@@ -74,16 +74,6 @@ public final class CommunityUtil {
     }
 
     /**
-     * Creates a Community from its String representation.
-     *
-     * @param string String representation of a community
-     * @return new Community
-     */
-    public Community valueOf(final String string) {
-        return valueOf(this.refCache, string);
-    }
-
-    /**
      * Creates a new Community given AS number value and semantics using generated CommunitiesBuilder.
      *
      * @param refCache reference cache to use
@@ -96,6 +86,16 @@ public final class CommunityUtil {
         builder.setAsNumber(refCache.getSharedReference(new AsNumber(asn)));
         builder.setSemantics(refCache.getSharedReference(semantics));
         return refCache.getSharedReference(builder.build());
+    }
+
+    /**
+     * Creates a Community from its String representation.
+     *
+     * @param string String representation of a community
+     * @return new Community
+     */
+    public Community valueOf(final String string) {
+        return valueOf(this.refCache, string);
     }
 
     /**
