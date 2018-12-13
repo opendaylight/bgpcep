@@ -26,11 +26,9 @@ public interface NlriParser {
      * @param constraint Peer specific constraints.
      * @throws BGPParsingException exception.
      */
-    void parseNlri(
-            @Nonnull final ByteBuf nlri,
-            @Nonnull final MpReachNlriBuilder builder,
-            @Nullable final PeerSpecificParserConstraint constraint)
-            throws BGPParsingException;
+    void parseNlri(@Nonnull ByteBuf nlri, @Nonnull MpReachNlriBuilder builder,
+            @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+
     /**
      * Parse MP UN_REACH NLRI from buffer.
      *
@@ -39,9 +37,6 @@ public interface NlriParser {
      * @param constraint Peer specific constraints.
      * @throws BGPParsingException exception.
      */
-    void parseNlri(
-            @Nonnull final ByteBuf nlri,
-            @Nonnull final MpUnreachNlriBuilder builder,
-            @Nullable final PeerSpecificParserConstraint constraint)
-            throws BGPParsingException;
+    void parseNlri(@Nonnull ByteBuf nlri, @Nonnull MpUnreachNlriBuilder builder,
+            @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
 }

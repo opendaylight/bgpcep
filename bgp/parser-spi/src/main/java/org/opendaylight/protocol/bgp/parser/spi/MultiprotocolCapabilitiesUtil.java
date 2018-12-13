@@ -27,14 +27,18 @@ public final class MultiprotocolCapabilitiesUtil {
     private static final Logger LOG = LoggerFactory.getLogger(MultiprotocolCapabilitiesUtil.class);
 
     public static final CParameters RR_CAPABILITY = new CParametersBuilder().addAugmentation(CParameters1.class,
-        new CParameters1Builder().setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build()).build()).build();
+        new CParameters1Builder().setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build()).build())
+            .build();
 
     private static final int RESERVED = 1;
 
-    private MultiprotocolCapabilitiesUtil() { throw new UnsupportedOperationException(); }
+    private MultiprotocolCapabilitiesUtil() {
+        throw new UnsupportedOperationException();
+    }
 
-    public static void serializeMPAfiSafi(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg,
-        final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final ByteBuf capBuffer) {
+    public static void serializeMPAfiSafi(final AddressFamilyRegistry afiReg,
+            final SubsequentAddressFamilyRegistry safiReg, final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi, final ByteBuf capBuffer) {
         final Integer afival = afiReg.numberForClass(afi);
         Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
         capBuffer.writeShort(afival);
@@ -46,7 +50,8 @@ public final class MultiprotocolCapabilitiesUtil {
         capBuffer.writeByte(safival);
     }
 
-    public static Optional<BgpTableType> parseMPAfiSafi(final ByteBuf buffer, final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+    public static Optional<BgpTableType> parseMPAfiSafi(final ByteBuf buffer, final AddressFamilyRegistry afiReg,
+            final SubsequentAddressFamilyRegistry safiReg) {
         final int afiVal = buffer.readUnsignedShort();
         final Class<? extends AddressFamily> afi = afiReg.classForFamily(afiVal);
         if (afi == null) {

@@ -21,14 +21,16 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class SimpleBgpPrefixSidTlvRegistry implements BgpPrefixSidTlvRegistry {
 
-    private final HandlerRegistry<DataContainer, BgpPrefixSidTlvParser, BgpPrefixSidTlvSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, BgpPrefixSidTlvParser, BgpPrefixSidTlvSerializer> handlers =
+            new HandlerRegistry<>();
 
     AutoCloseable registerBgpPrefixSidTlvParser(final int tlvType, final BgpPrefixSidTlvParser parser) {
         Preconditions.checkArgument(tlvType >= 0 && tlvType <= Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(tlvType, parser);
     }
 
-    AutoCloseable registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass, final BgpPrefixSidTlvSerializer serializer) {
+    AutoCloseable registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass,
+            final BgpPrefixSidTlvSerializer serializer) {
         return this.handlers.registerSerializer(tlvClass, serializer);
     }
 
@@ -39,7 +41,8 @@ public final class SimpleBgpPrefixSidTlvRegistry implements BgpPrefixSidTlvRegis
             return null;
         }
         final int length = buffer.readUnsignedShort();
-        Preconditions.checkState(length <= buffer.readableBytes(), "Length of BGP prefix SID TLV exceeds readable bytes of income.");
+        Preconditions.checkState(length <= buffer.readableBytes(),
+                "Length of BGP prefix SID TLV exceeds readable bytes of income.");
         return parser.parseBgpPrefixSidTlv(buffer.readBytes(length));
     }
 
@@ -53,5 +56,4 @@ public final class SimpleBgpPrefixSidTlvRegistry implements BgpPrefixSidTlvRegis
         serializer.serializeBgpPrefixSidTlv(tlv, valueBuf);
         BgpPrefixSidTlvUtil.formatBgpPrefixSidTlv(serializer.getType(), valueBuf, bytes);
     }
-
 }

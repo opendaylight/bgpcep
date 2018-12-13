@@ -26,15 +26,17 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class AbstractMessageRegistryTest {
 
-    public static final byte[] keepAliveBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
+    public static final byte[] KEEPALIVE_BMSG = new byte[] {
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0x00, (byte) 0x13, (byte) 0x04
+    };
 
     private final AbstractMessageRegistry registry = new AbstractMessageRegistry() {
 
         @Override
         protected void serializeMessageImpl(final Notification message, final ByteBuf buffer) {
-            buffer.writeBytes(keepAliveBMsg);
+            buffer.writeBytes(KEEPALIVE_BMSG);
         }
 
         @Override
@@ -49,17 +51,19 @@ public class AbstractMessageRegistryTest {
         final Notification keepAlive = new KeepaliveBuilder().build();
         final ByteBuf buffer = Unpooled.buffer();
         this.registry.serializeMessage(keepAlive, buffer);
-        assertArrayEquals(keepAliveBMsg, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(KEEPALIVE_BMSG, ByteArray.getAllBytes(buffer));
 
-        final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(keepAliveBMsg), null);
+        final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(KEEPALIVE_BMSG), null);
         assertTrue(not instanceof Keepalive);
     }
 
     @Test
     public void testIncompleteMarker() {
-        final byte[] testBytes = new byte[] { (byte) 0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
+        final byte[] testBytes = new byte[] {
+            (byte) 0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0x00, (byte) 0x13, (byte) 0x04
+        };
         try {
             this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
             Assert.fail();
@@ -71,9 +75,11 @@ public class AbstractMessageRegistryTest {
 
     @Test
     public void testInvalidLength() {
-        final byte[] testBytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0x00, (byte) 0x12, (byte) 0x04 };
+        final byte[] testBytes = new byte[] {
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0x00, (byte) 0x12, (byte) 0x04
+        };
         try {
             this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
             Assert.fail();
@@ -85,9 +91,11 @@ public class AbstractMessageRegistryTest {
 
     @Test
     public void testInvalidSpecifiedSize() {
-        final byte[] testBytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04, (byte) 0x04 };
+        final byte[] testBytes = new byte[] {
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0x00, (byte) 0x13, (byte) 0x04, (byte) 0x04
+        };
         try {
             this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
             Assert.fail();
@@ -99,7 +107,8 @@ public class AbstractMessageRegistryTest {
 
     @Test
     public void testBGPHeaderParser() throws Exception {
-        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
+                .getMessageRegistry();
         try {
             msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }), null);
             fail("Exception should have occured.");
@@ -110,7 +119,8 @@ public class AbstractMessageRegistryTest {
 
     @Test
     public void testMessageParser() throws Exception {
-        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
+                .getMessageRegistry();
         String ex = "";
         try {
             msgReg.serializeMessage(null, Unpooled.EMPTY_BUFFER);

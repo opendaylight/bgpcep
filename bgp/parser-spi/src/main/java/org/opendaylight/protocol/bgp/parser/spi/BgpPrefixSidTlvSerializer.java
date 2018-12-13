@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  */
 public interface BgpPrefixSidTlvSerializer {
     /**
-     * Method for serializing specific types of TLVs from incoming buffer
+     * Method for serializing specific types of TLVs from incoming buffer.
      *
      * @param tlv instance
      * @param bytes outcome serialized TLV

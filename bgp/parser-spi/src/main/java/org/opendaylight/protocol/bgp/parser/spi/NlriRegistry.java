@@ -15,35 +15,32 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 
 /**
- * The codec registry for BGP NLRI, offers
- * services for NLRI encoding/decoding.
- *
+ * The codec registry for BGP NLRI, offers services for NLRI encoding/decoding.
  */
 public interface NlriRegistry {
     /**
      * Decode MP REACH NLRI Attribute.
+     *
      * @param buffer Input buffer.
      * @param constraint Peer specific constraint.
      * @return Parsed reach NLRI.
-     * @throws BGPParsingException
      */
-    @Nonnull MpReachNlri parseMpReach(
-            @Nonnull ByteBuf buffer,
-            @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+    @Nonnull MpReachNlri parseMpReach(@Nonnull ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraint)
+            throws BGPParsingException;
 
     /**
      * Decode MP REACH NLRI Attribute.
+     *
      * @param buffer Input buffer.
      * @param constraint Peer specific constraint.
      * @return Parsed unreach NLRI.
-     * @throws BGPParsingException
      */
-    @Nonnull MpUnreachNlri parseMpUnreach(
-            @Nonnull ByteBuf buffer,
-            @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+    @Nonnull MpUnreachNlri parseMpUnreach(@Nonnull ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraint)
+            throws BGPParsingException;
 
     /**
      * Encode BGP MP REACH NLRI Attribute.
+     *
      * @param mpReachNlri Input reach NLRI.
      * @param byteAggregator Output buffer.
      */
@@ -51,6 +48,7 @@ public interface NlriRegistry {
 
     /**
      * Encode BGP MP UNREACH NLRI Attribute.
+     *
      * @param mpUnreachNlri Input unreach NLRI.
      * @param byteAggregator Output buffer.
      */
@@ -58,6 +56,7 @@ public interface NlriRegistry {
 
     /**
      * Get all available NLRI encoders.
+     *
      * @return Iterable of NLRI serializers.
      */
     Iterable<NlriSerializer> getSerializers();

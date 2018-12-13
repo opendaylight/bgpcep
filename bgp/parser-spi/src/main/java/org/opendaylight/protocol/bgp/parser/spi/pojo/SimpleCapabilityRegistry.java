@@ -21,19 +21,22 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 final class SimpleCapabilityRegistry implements CapabilityRegistry {
-    private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers =
+            new HandlerRegistry<>();
 
     AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {
         Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(messageType, parser);
     }
 
-    AutoCloseable registerCapabilitySerializer(final Class<? extends DataObject> paramClass, final CapabilitySerializer serializer) {
+    AutoCloseable registerCapabilitySerializer(final Class<? extends DataObject> paramClass,
+            final CapabilitySerializer serializer) {
         return this.handlers.registerSerializer(paramClass, serializer);
     }
 
     @Override
-    public CParameters parseCapability(final int type, final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public CParameters parseCapability(final int type, final ByteBuf buffer) throws BGPDocumentedException,
+            BGPParsingException {
         final CapabilityParser parser = this.handlers.getParser(type);
         if (parser == null) {
             return null;
@@ -42,7 +45,7 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
     }
 
     @Override
-    public void serializeCapability(final CParameters capability, ByteBuf bytes) {
+    public void serializeCapability(final CParameters capability, final ByteBuf bytes) {
         for (CapabilitySerializer s : this.handlers.getAllSerializers()) {
             s.serializeCapability(capability, bytes);
         }

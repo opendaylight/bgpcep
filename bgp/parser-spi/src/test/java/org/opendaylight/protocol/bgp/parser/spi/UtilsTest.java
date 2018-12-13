@@ -57,9 +57,10 @@ public class UtilsTest {
     @Test
     public void testMessageUtil() {
         final byte[] result = new byte[] { UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
-            UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
-            UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
-            UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, 0, 23, 3, 32, 5, 14, 21 };
+            UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
+            UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
+            UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
+            UnsignedBytes.MAX_VALUE, 0, 23, 3, 32, 5, 14, 21 };
         final ByteBuf formattedMessage = Unpooled.buffer();
         MessageUtil.formatMessage(3, Unpooled.wrappedBuffer(new byte[] { 32, 5, 14, 21 }), formattedMessage);
         assertArrayEquals(result, ByteArray.getAllBytes(formattedMessage));
@@ -98,12 +99,14 @@ public class UtilsTest {
     public void testMultiprotocolCapabilitiesUtil() throws BGPParsingException {
         final byte[] bytes = new byte[] {0, 1, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg, this.safiReg).get();
+        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
+            this.safiReg).get();
         assertEquals(Ipv4AddressFamily.class, parsedAfiSafi.getAfi());
         assertEquals(UnicastSubsequentAddressFamily.class, parsedAfiSafi.getSafi());
 
         final ByteBuf serializedAfiSafi = Unpooled.buffer(4);
-        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, serializedAfiSafi);
+        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, Ipv4AddressFamily.class,
+            UnicastSubsequentAddressFamily.class, serializedAfiSafi);
         assertArrayEquals(bytes, serializedAfiSafi.array());
     }
 
@@ -111,7 +114,8 @@ public class UtilsTest {
     public void testUnsupportedAfi() {
         final byte[] bytes = new byte[] {0, 2, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg, this.safiReg);
+        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
+            this.safiReg);
         Assert.assertFalse(parsedAfiSafi.isPresent());
     }
 
@@ -119,11 +123,12 @@ public class UtilsTest {
     public void testUnsupportedSafi() {
         final byte[] bytes = new byte[] {0, 1, 0, 3};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg, this.safiReg);
+        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
+            this.safiReg);
         Assert.assertFalse(parsedAfiSafi.isPresent());
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testAttributeUtilPrivateConstructor() throws Throwable {
         final Constructor<AttributeUtil> c = AttributeUtil.class.getDeclaredConstructor();
         c.setAccessible(true);
@@ -134,7 +139,7 @@ public class UtilsTest {
         }
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testCapabilityUtilPrivateConstructor() throws Throwable {
         final Constructor<CapabilityUtil> c = CapabilityUtil.class.getDeclaredConstructor();
         c.setAccessible(true);
@@ -145,7 +150,7 @@ public class UtilsTest {
         }
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testMessageUtilPrivateConstructor() throws Throwable {
         final Constructor<MessageUtil> c = MessageUtil.class.getDeclaredConstructor();
         c.setAccessible(true);
@@ -156,7 +161,7 @@ public class UtilsTest {
         }
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testParameterUtilPrivateConstructor() throws Throwable {
         final Constructor<ParameterUtil> c = ParameterUtil.class.getDeclaredConstructor();
         c.setAccessible(true);

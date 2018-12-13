@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  */
 public interface BgpPrefixSidTlvParser {
     /**
-     * Method for parsing specific types of TLVs from incoming buffer
+     * Method for parsing specific types of TLVs from incoming buffer.
      *
      * @param buffer with TLV bytes
      * @return instance of specific TLV

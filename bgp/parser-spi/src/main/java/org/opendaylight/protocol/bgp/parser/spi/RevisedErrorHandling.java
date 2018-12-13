@@ -42,7 +42,7 @@ public enum RevisedErrorHandling {
     /**
      * Determine Revised Error Handling from the contents of a {@link PeerSpecificParserConstraint}.
      *
-     * @param constraint
+     * @param constraint Peer-specific constraint
      * @return Revised Error Handling treatment message/attributes should receive.
      */
     public static RevisedErrorHandling from(final @Nullable PeerSpecificParserConstraint constraint) {

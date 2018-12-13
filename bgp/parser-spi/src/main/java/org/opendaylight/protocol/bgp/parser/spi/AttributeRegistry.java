@@ -16,11 +16,12 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 
 /**
- *
+ * Attribute serializer/deserializer registry, exposing the capability to parse BGP attributes as a whole.
  */
 public interface AttributeRegistry {
     /**
      * Parse BGP Attribute from buffer.
+     *
      * @param buffer Input buffer.
      * @param constraints Peer specific constraint.
      * @return Decoded BGP Attribute.
@@ -32,6 +33,7 @@ public interface AttributeRegistry {
 
     /**
      * Serialize BGP Attribute to buffer.
+     *
      * @param attribute Input BGP Attribute.
      * @param byteAggregator Output buffer.
      */

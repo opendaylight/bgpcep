@@ -26,15 +26,15 @@ public final class AttributeUtil {
      * Adds header to attribute value. If the length of the attribute value exceeds one-byte length field,
      * set EXTENDED bit and write length as 2B field.
      *
-     * @param flags
+     * @param flags attribute flags
      * @param type of the attribute
      * @param value attribute value
      * @param buffer ByteBuf where the attribute will be copied with its header
      */
     public static void formatAttribute(final int flags, final int type, final ByteBuf value, final ByteBuf buffer) {
         final int length = value.writerIndex();
-        final boolean extended = (length > MAX_ATTR_LENGTH_FOR_SINGLE_BYTE) ? true : false;
-        buffer.writeByte((extended) ? (flags | EXTENDED) : flags);
+        final boolean extended = length > MAX_ATTR_LENGTH_FOR_SINGLE_BYTE ? true : false;
+        buffer.writeByte(extended ? flags | EXTENDED : flags);
         buffer.writeByte(type);
         if (extended) {
             buffer.writeShort(length);

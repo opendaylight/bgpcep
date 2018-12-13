@@ -15,28 +15,26 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
 
 /**
- * Handles Next Hop, by default use {@link NextHopUtil}
- * which is handles Ipv4 and Ipv6 Next hop.
+ * Handles Next Hop, by default use {@link NextHopUtil} which is handles Ipv4 and Ipv6 Next hop.
  */
 public interface NextHopParserSerializer {
     /**
-     * Parse Next hop from buffer,
+     * Parse Next hop from buffer.
      *
      * @param buffer Encoded Next Hop in ByteBuf.
      * @return CNextHop
-     * @throws BGPParsingException
      */
-    default CNextHop parseNextHop(@Nonnull ByteBuf buffer) throws BGPParsingException {
+    default CNextHop parseNextHop(@Nonnull final ByteBuf buffer) throws BGPParsingException {
         return NextHopUtil.parseNextHop(buffer);
     }
 
     /**
-     * Serialize Next Hop
+     * Serialize Next Hop.
      *
-     * @param cNextHop Next Hop container
+     * @param cnextHop Next Hop container
      * @param byteAggregator return Encoded Next Hop in ByteBuf
      */
-    default void serializeNextHop(@Nonnull CNextHop cNextHop, @Nonnull final ByteBuf byteAggregator) {
-        NextHopUtil.serializeNextHop(cNextHop, byteAggregator);
+    default void serializeNextHop(@Nonnull final CNextHop cnextHop, @Nonnull final ByteBuf byteAggregator) {
+        NextHopUtil.serializeNextHop(cnextHop, byteAggregator);
     }
 }

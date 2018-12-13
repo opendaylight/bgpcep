@@ -5,19 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.extended.community;
 
-public abstract class Abstract4OctetAsExtendedCommunity implements ExtendedCommunityParser, ExtendedCommunitySerializer {
+public abstract class Abstract4OctetAsExtendedCommunity implements ExtendedCommunityParser,
+        ExtendedCommunitySerializer {
 
     private static final int TRANSITIVE_TYPE = 2;
     private static final int NON_TRANSITIVE_TYPE = 66;
 
     @Override
     public int getType(final boolean isTransitive) {
-        if (isTransitive) {
-            return TRANSITIVE_TYPE;
-        }
-        return NON_TRANSITIVE_TYPE;
+        return isTransitive ? TRANSITIVE_TYPE : NON_TRANSITIVE_TYPE;
     }
 }

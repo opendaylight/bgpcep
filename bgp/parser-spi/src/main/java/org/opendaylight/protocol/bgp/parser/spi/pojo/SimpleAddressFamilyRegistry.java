@@ -12,7 +12,8 @@ import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 
-final class SimpleAddressFamilyRegistry extends AbstractFamilyRegistry<AddressFamily, Integer> implements AddressFamilyRegistry {
+final class SimpleAddressFamilyRegistry extends AbstractFamilyRegistry<AddressFamily, Integer>
+        implements AddressFamilyRegistry {
     AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
         Preconditions.checkArgument(number >= 0 && number <= Values.UNSIGNED_SHORT_MAX_VALUE);
         return super.registerFamily(clazz, number);

@@ -15,8 +15,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
- * BGP Message codec registry, provides services
- * to encode/decode messages.
+ * BGP Message codec registry, provides services to encode/decode messages.
  */
 public interface MessageRegistry {
     /**
@@ -24,8 +23,6 @@ public interface MessageRegistry {
      * @param bytes Input buffer with encoded message.
      * @param constraint Peer specific constraint.
      * @return Parsed BGP message.
-     * @throws BGPDocumentedException
-     * @throws BGPParsingException
      */
     @Nonnull Notification parseMessage(@Nonnull ByteBuf bytes, @Nullable PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException;
@@ -36,5 +33,4 @@ public interface MessageRegistry {
      * @param buffer Output buffer where message is to be written.
      */
     void serializeMessage(@Nonnull Notification message, @Nonnull ByteBuf buffer);
-
 }

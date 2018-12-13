@@ -129,10 +129,12 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
         this.nextHopParserSerializer = new NextHopParserSerializer() {
             @Override
             public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
-                return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+                return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
+                    .setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
             }
+
             @Override
-            public void serializeNextHop(final CNextHop cNextHop, final ByteBuf byteAggregator) {
+            public void serializeNextHop(final CNextHop cnextHop, final ByteBuf byteAggregator) {
                 final byte[] mpReachBytes = {
                     0x7f, 0x00, 0x00, 0x01
                 };
@@ -163,33 +165,38 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
 
             doReturn(null).when(this.paramParser).parseParameter(any(ByteBuf.class));
             doReturn(EMPTY).when(this.paramParser).toString();
-            Mockito.doNothing().when(this.paramSerializer).serializeParameter(any(BgpParameters.class), any(ByteBuf.class));
+            Mockito.doNothing().when(this.paramSerializer).serializeParameter(any(BgpParameters.class),
+                any(ByteBuf.class));
             doReturn(EMPTY).when(this.paramSerializer).toString();
 
             doReturn(null).when(this.capaParser).parseCapability(any(ByteBuf.class));
             doReturn(EMPTY).when(this.capaParser).toString();
-            Mockito.doNothing().when(this.capaSerializer).serializeCapability(any(CParameters.class), any(ByteBuf.class));
+            Mockito.doNothing().when(this.capaSerializer).serializeCapability(any(CParameters.class),
+                any(ByteBuf.class));
             doReturn(EMPTY).when(this.capaSerializer).toString();
 
             doReturn(null).when(this.sidTlvParser).parseBgpPrefixSidTlv(any(ByteBuf.class));
             doReturn(EMPTY).when(this.sidTlvParser).toString();
-            Mockito.doNothing().when(this.sidTlvSerializer).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class), any(ByteBuf.class));
+            Mockito.doNothing().when(this.sidTlvSerializer).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class),
+                any(ByteBuf.class));
             doReturn(EMPTY).when(this.sidTlvSerializer).toString();
             doReturn(0).when(this.sidTlvSerializer).getType();
 
-            doReturn(mock(Notification.class)).when(this.msgParser).parseMessageBody(any(ByteBuf.class), Mockito.anyInt(),
-                any(PeerSpecificParserConstraint.class));
+            doReturn(mock(Notification.class)).when(this.msgParser).parseMessageBody(any(ByteBuf.class),
+                Mockito.anyInt(), any(PeerSpecificParserConstraint.class));
             doReturn(EMPTY).when(this.msgParser).toString();
-            Mockito.doNothing().when(this.msgSerializer).serializeMessage(any(Notification.class), any(ByteBuf.class));
+            Mockito.doNothing().when(this.msgSerializer).serializeMessage(any(Notification.class),
+                any(ByteBuf.class));
             doReturn(EMPTY).when(this.msgSerializer).toString();
 
-            Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
-            Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class), any());
+            Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class),
+                any());
+            Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class),
+                any());
             doReturn(EMPTY).when(this.nlriParser).toString();
 
         } catch (BGPDocumentedException | BGPParsingException | BGPTreatAsWithdrawException e) {
             Assert.fail();
         }
     }
-
 }
