@@ -55,7 +55,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     private final SubsequentAddressFamilyRegistry safiReg;
     private final AddressFamilyRegistry afiReg;
 
-    public SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+    SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
         this.afiReg = requireNonNull(afiReg);
         this.safiReg = requireNonNull(safiReg);
     }
@@ -67,8 +67,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
         return new BgpTableTypeImpl(afi, safi);
     }
 
-    synchronized AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final
-        NlriSerializer serializer){
+    synchronized AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass,
+            final NlriSerializer serializer) {
         final NlriSerializer prev = this.serializers.get(nlriClass);
         Preconditions.checkState(prev == null, "Serializer already bound to class " + prev);
 
@@ -87,8 +87,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
         final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
-        final NextHopParserSerializer nextHopSerializer, final Class<? extends CNextHop> cNextHopClass,
-        final Class<? extends CNextHop>... cNextHopClassList) {
+        final NextHopParserSerializer nextHopSerializer, final Class<? extends CNextHop> cnextHopClass,
+        final Class<? extends CNextHop>... cnextHopClassList) {
         final BgpTableType key = createKey(afi, safi);
         final NlriParser prev = this.handlers.get(key);
         Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
@@ -96,11 +96,11 @@ final class SimpleNlriRegistry implements NlriRegistry {
         this.handlers.put(key, parser);
         this.nextHopParsers.put(key,nextHopSerializer);
 
-        if (cNextHopClass != null) {
-            final Entry<Class<? extends CNextHop>, BgpTableType> nhKey = new SimpleEntry<>(cNextHopClass, key);
+        if (cnextHopClass != null) {
+            final Entry<Class<? extends CNextHop>, BgpTableType> nhKey = new SimpleEntry<>(cnextHopClass, key);
             this.nextHopSerializers.put(nhKey, nextHopSerializer);
-            for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
-                final Entry<Class<? extends CNextHop>, BgpTableType> nhKeys = new SimpleEntry<>(cNextHop, key);
+            for (final Class<? extends CNextHop> cnextHop : cnextHopClassList) {
+                final Entry<Class<? extends CNextHop>, BgpTableType> nhKeys = new SimpleEntry<>(cnextHop, key);
                 this.nextHopSerializers.put(nhKeys, nextHopSerializer);
             }
         }
@@ -112,13 +112,13 @@ final class SimpleNlriRegistry implements NlriRegistry {
                 synchronized (lock) {
                     SimpleNlriRegistry.this.handlers.remove(key);
                     SimpleNlriRegistry.this.nextHopParsers.remove(key);
-                    if (cNextHopClass != null) {
+                    if (cnextHopClass != null) {
                         final Entry<Class<? extends CNextHop>, BgpTableType> nhKey
-                                = new SimpleEntry<>(cNextHopClass, key);
+                                = new SimpleEntry<>(cnextHopClass, key);
                         SimpleNlriRegistry.this.nextHopSerializers.remove(nhKey);
-                        for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
+                        for (final Class<? extends CNextHop> cnextHop : cnextHopClassList) {
                             final Entry<Class<? extends CNextHop>, BgpTableType> nhKeys
-                                    = new SimpleEntry<>(cNextHop, key);
+                                    = new SimpleEntry<>(cnextHop, key);
                             SimpleNlriRegistry.this.nextHopSerializers.remove(nhKeys);
                         }
                     }

@@ -7,16 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 
-final class SimpleSubsequentAddressFamilyRegistry extends AbstractFamilyRegistry<SubsequentAddressFamily, Integer> implements
-        SubsequentAddressFamilyRegistry {
-    AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
-        Preconditions.checkArgument(number >= 0 && number <= Values.UNSIGNED_BYTE_MAX_VALUE);
+final class SimpleSubsequentAddressFamilyRegistry extends AbstractFamilyRegistry<SubsequentAddressFamily, Integer>
+        implements SubsequentAddressFamilyRegistry {
+    AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz,
+            final int number) {
+        checkArgument(number >= 0 && number <= Values.UNSIGNED_BYTE_MAX_VALUE);
         return super.registerFamily(clazz, number);
     }
 

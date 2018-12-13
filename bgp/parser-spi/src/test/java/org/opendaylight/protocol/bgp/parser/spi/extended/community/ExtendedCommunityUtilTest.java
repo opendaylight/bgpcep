@@ -17,7 +17,7 @@ import org.junit.Test;
 
 public class ExtendedCommunityUtilTest {
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testPrivateConstructor() throws Throwable {
         final Constructor<ExtendedCommunityUtil> c = ExtendedCommunityUtil.class.getDeclaredConstructor();
         c.setAccessible(true);

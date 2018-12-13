@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static java.util.Objects.requireNonNull;
@@ -22,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 
 public final class MultiPathSupportImpl implements MultiPathSupport {
-
     private final Set<BgpTableType> supportedTables;
 
     private MultiPathSupportImpl(final Set<BgpTableType> supportedTables) {
@@ -37,7 +35,8 @@ public final class MultiPathSupportImpl implements MultiPathSupport {
      * @param addPathCapabilities The remote add-path capabilities list.
      * @return MultiPathSupport instance.
      */
-    public static MultiPathSupport createParserMultiPathSupport(@Nonnull final List<AddressFamilies> addPathCapabilities) {
+    public static MultiPathSupport createParserMultiPathSupport(
+            @Nonnull final List<AddressFamilies> addPathCapabilities) {
         requireNonNull(addPathCapabilities);
         final Set<BgpTableType> support = addPathCapabilities
             .stream()
@@ -51,5 +50,4 @@ public final class MultiPathSupportImpl implements MultiPathSupport {
     public boolean isTableTypeSupported(final BgpTableType tableType) {
         return this.supportedTables.contains(tableType);
     }
-
 }

@@ -11,11 +11,12 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
 
 /**
- * BGP prefix SID TLVs registry for encoding/decoding
+ * BGP prefix SID TLVs registry for encoding/decoding.
  */
 public interface BgpPrefixSidTlvRegistry {
     /**
-     * Decode incoming TLV
+     * Decode incoming TLV.
+     *
      * @param type number of TLV
      * @param buffer contains bytes of TLV
      * @return instance of specific TLV
@@ -23,7 +24,8 @@ public interface BgpPrefixSidTlvRegistry {
     BgpPrefixSidTlv parseBgpPrefixSidTlv(int type, ByteBuf buffer);
 
     /**
-     * Encode TLV instance
+     * Encode TLV instance.
+     *
      * @param tlv instance
      * @param bytes encoded TLV outcome
      */

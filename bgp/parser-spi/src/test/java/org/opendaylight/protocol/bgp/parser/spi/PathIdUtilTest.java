@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
@@ -60,22 +59,22 @@ public class PathIdUtilTest {
 
     @Test
     public void testExtractPathId() {
-        final NodeIdentifier NII = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "path-id").intern());
+        final NodeIdentifier NII = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet",
+            "2015-03-05", "path-id").intern());
         final long pathIdValue = 0;
-        final ContainerNode cont = ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(NII).
-            addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(NII).withValue(pathIdValue).build()).build();
+        final ContainerNode cont = ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(NII).addChild(
+            new ImmutableLeafNodeBuilder<>().withNodeIdentifier(NII).withValue(pathIdValue).build()).build();
         Assert.assertEquals(pathIdValue, PathIdUtil.extractPathId(cont, NII).longValue());
     }
 
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testReadPathIdBufferNull() {
         PathIdUtil.readPathId(null);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testReadPathIdBufferEmpty() {
         PathIdUtil.readPathId(this.buffer);
     }
-
 }

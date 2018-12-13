@@ -8,11 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 
 public interface NlriSerializer {
 
-    void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator);
-
+    void serializeAttribute(Attributes attribute, ByteBuf byteAggregator);
 }

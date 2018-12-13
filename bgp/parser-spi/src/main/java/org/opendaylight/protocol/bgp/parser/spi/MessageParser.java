@@ -24,7 +24,6 @@ public interface MessageParser {
      * @param messageLength Length of the BGP message.
      * @param constraint Peer specific constraints, implementations may ignore them.
      * @return Parsed BGP Message body.
-     * @throws BGPDocumentedException
      */
     @Nonnull Notification parseMessageBody(@Nonnull ByteBuf body, int messageLength,
             @Nullable PeerSpecificParserConstraint constraint) throws BGPDocumentedException;

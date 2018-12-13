@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import java.util.Optional;
@@ -22,7 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class MultiPathSupportUtilTest {
 
-    private static final BgpTableType AFI_SAFI = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType AFI_SAFI = new BgpTableTypeImpl(Ipv4AddressFamily.class,
+        UnicastSubsequentAddressFamily.class);
 
     @Mock
     private PeerSpecificParserConstraint constraints;
@@ -60,9 +60,8 @@ public class MultiPathSupportUtilTest {
         Assert.assertFalse(MultiPathSupportUtil.isTableTypeSupported(null, AFI_SAFI));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testIsTableTypeSupportedNPE() {
         MultiPathSupportUtil.isTableTypeSupported(null, null);
     }
-
 }

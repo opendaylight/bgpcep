@@ -1,11 +1,10 @@
 /*
- *  Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+ * Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
  *
- *  This program and the accompanying materials are made available under the
- *  terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *  and is available at http://www.eclipse.org/legal/epl-v10.html
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.extended.community;
 
 import io.netty.buffer.ByteBuf;
@@ -18,13 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class Inet4SpecificExtendedCommunityCommonUtilTest {
     private static final byte[] INPUT = {
-            12, 51, 2, 5, 21, 45
+        12, 51, 2, 5, 21, 45
     };
 
     @Test
     public void testHandle() {
-        final Inet4SpecificExtendedCommunityCommon expected
-                = new Inet4SpecificExtendedCommunityCommonBuilder()
+        final Inet4SpecificExtendedCommunityCommon expected = new Inet4SpecificExtendedCommunityCommonBuilder()
                 .setGlobalAdministrator(new Ipv4Address("12.51.2.5"))
                 .setLocalAdministrator(new byte[]{21, 45}).build();
 
@@ -36,5 +34,4 @@ public class Inet4SpecificExtendedCommunityCommonUtilTest {
         Inet4SpecificExtendedCommunityCommonUtil.serializeCommon(expected, output);
         Assert.assertArrayEquals(INPUT, output.array());
     }
-
 }

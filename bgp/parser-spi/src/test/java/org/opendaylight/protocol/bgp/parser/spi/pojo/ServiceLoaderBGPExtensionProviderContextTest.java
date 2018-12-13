@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import java.lang.reflect.Constructor;
@@ -14,9 +13,10 @@ import org.junit.Test;
 
 public class ServiceLoaderBGPExtensionProviderContextTest {
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testPrivateConstructor() throws Throwable {
-        final Constructor<ServiceLoaderBGPExtensionProviderContext> c = ServiceLoaderBGPExtensionProviderContext.class.getDeclaredConstructor();
+        final Constructor<ServiceLoaderBGPExtensionProviderContext> c = ServiceLoaderBGPExtensionProviderContext.class
+                .getDeclaredConstructor();
         c.setAccessible(true);
         try {
             c.newInstance();

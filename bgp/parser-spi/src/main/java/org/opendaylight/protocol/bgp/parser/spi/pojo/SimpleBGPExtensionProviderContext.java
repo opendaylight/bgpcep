@@ -36,7 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext implements BGPExtensionProviderContext {
+public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext
+        implements BGPExtensionProviderContext {
 
     public static final int DEFAULT_MAXIMUM_CACHED_OBJECTS = 100000;
 
@@ -77,7 +78,8 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> attributeClass, final AttributeSerializer serializer) {
+    public AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> attributeClass,
+            final AttributeSerializer serializer) {
         return this.getAttributeRegistry().registerAttributeSerializer(attributeClass, serializer);
     }
 
@@ -87,7 +89,8 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerCapabilitySerializer(final Class<? extends DataObject> capabilityClass, final CapabilitySerializer serializer) {
+    public AutoCloseable registerCapabilitySerializer(final Class<? extends DataObject> capabilityClass,
+            final CapabilitySerializer serializer) {
         return this.getCapabilityRegistry().registerCapabilitySerializer(capabilityClass, serializer);
     }
 
@@ -97,19 +100,23 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass, final MessageSerializer serializer) {
+    public AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass,
+            final MessageSerializer serializer) {
         return this.getMessageRegistry().registerMessageSerializer(messageClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
-        final NlriParser parser, final NextHopParserSerializer nextHopParserSerializer, final Class<? extends
-            CNextHop> cNextHopClass, final Class<? extends CNextHop>... cNextHopClassList) {
-        return this.getNlriRegistry().registerNlriParser(afi, safi, parser, nextHopParserSerializer, cNextHopClass, cNextHopClassList);
+    public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
+            final NextHopParserSerializer nextHopParserSerializer, final Class<? extends CNextHop> cnextHopClass,
+            final Class<? extends CNextHop>... cnextHopClassList) {
+        return this.getNlriRegistry().registerNlriParser(afi, safi, parser, nextHopParserSerializer, cnextHopClass,
+            cnextHopClassList);
     }
 
     @Override
-    public AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer) {
+    public AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass,
+            final NlriSerializer serializer) {
         return this.getNlriRegistry().registerNlriSerializer(nlriClass, serializer);
     }
 
@@ -119,12 +126,14 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerParameterSerializer(final Class<? extends BgpParameters> paramClass, final ParameterSerializer serializer) {
+    public AutoCloseable registerParameterSerializer(final Class<? extends BgpParameters> paramClass,
+            final ParameterSerializer serializer) {
         return this.getParameterRegistry().registerParameterSerializer(paramClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
+    public AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz,
+            final int number) {
         return this.getSubsequentAddressFamilyRegistry().registerSubsequentAddressFamily(clazz, number);
     }
 
@@ -134,13 +143,16 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerExtendedCommunitySerializer(final Class<? extends ExtendedCommunity> extendedCommunityClass,
+    public AutoCloseable registerExtendedCommunitySerializer(
+            final Class<? extends ExtendedCommunity> extendedCommunityClass,
             final ExtendedCommunitySerializer serializer) {
-        return this.getExtendedCommunityRegistry().registerExtendedCommunitySerializer(extendedCommunityClass, serializer);
+        return this.getExtendedCommunityRegistry().registerExtendedCommunitySerializer(extendedCommunityClass,
+            serializer);
     }
 
     @Override
-    public AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser) {
+    public AutoCloseable registerExtendedCommunityParser(final int type, final int subtype,
+            final ExtendedCommunityParser parser) {
         return this.getExtendedCommunityRegistry().registerExtendedCommunityParser(type, subtype, parser);
     }
 
@@ -150,7 +162,8 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass, final BgpPrefixSidTlvSerializer serializer) {
+    public AutoCloseable registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass,
+            final BgpPrefixSidTlvSerializer serializer) {
         return this.getBgpPrefixSidTlvRegistry().registerBgpPrefixSidTlvSerializer(tlvClass, serializer);
     }
 }
