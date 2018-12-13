@@ -26,4 +26,9 @@
         <module>odl-bgpcep-rsvp</module>
         <module>odl-bgpcep-rsvp-api</module>
     </modules>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 </project>

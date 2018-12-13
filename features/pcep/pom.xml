@@ -40,4 +40,9 @@
         <module>odl-bgpcep-pcep-base-parser</module>
         <module>odl-bgpcep-pcep-p2mp-te-lsp</module>
     </modules>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 </project>
