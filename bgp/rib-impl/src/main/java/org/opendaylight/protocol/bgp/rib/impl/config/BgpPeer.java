@@ -294,7 +294,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         private List<BgpParameters> getInitialBgpParameters(final Set<TablesKey> gracefulTables) {
             return Collections.singletonList(
                     GracefulRestartUtil.getGracefulBgpParameters(this.finalCapabilities, gracefulTables,
-                            Collections.emptySet(), gracefulRestartTimer, false));
+                            Collections.emptySet(), gracefulRestartTimer, false, Collections.emptySet()));
         }
 
         private synchronized void instantiateServiceInstance() {

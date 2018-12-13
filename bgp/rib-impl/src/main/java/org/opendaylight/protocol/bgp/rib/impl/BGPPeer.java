@@ -680,7 +680,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 .collect(Collectors.toSet());
         final BgpParameters bgpParameters = GracefulRestartUtil.getGracefulBgpParameters(
                 this.bgpPeer.getBgpFixedCapabilities(), gracefulTables, preservedTables,
-                this.bgpPeer.getGracefulRestartTimer(), localRestarting);
+                this.bgpPeer.getGracefulRestartTimer(), localRestarting, Collections.emptySet());
         final BGPSessionPreferences oldPrefs = this.rib.getDispatcher().getBGPPeerRegistry()
                 .getPeerPreferences(getNeighborAddress());
         final BGPSessionPreferences newPrefs = new BGPSessionPreferences(
