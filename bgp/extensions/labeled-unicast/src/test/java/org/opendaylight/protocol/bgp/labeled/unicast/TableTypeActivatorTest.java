@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import java.util.Optional;
@@ -23,8 +22,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class TableTypeActivatorTest {
 
-    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class);
-    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class);
+    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
+        LabeledUnicastSubsequentAddressFamily.class);
+    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class,
+        LabeledUnicastSubsequentAddressFamily.class);
 
     @Test
     public void testActivator() {
