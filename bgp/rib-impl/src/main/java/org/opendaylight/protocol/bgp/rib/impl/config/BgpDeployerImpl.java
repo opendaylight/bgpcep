@@ -205,8 +205,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         if (peerGroups == null) {
             return;
         }
-        for (final PeerGroup peerGroup: peerGroups.getPeerGroup()) {
-            this.bgpCss.values().forEach(css->css.restartNeighbors(peerGroup.getPeerGroupName()));
+        for (final PeerGroup peerGroup : peerGroups.getPeerGroup()) {
+            this.bgpCss.values().forEach(css -> css.restartNeighbors(peerGroup.getPeerGroupName()));
         }
     }
 
@@ -269,8 +269,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
 
     @Override
     public PeerGroup getPeerGroup(final InstanceIdentifier<Bgp> bgpIid, final String peerGroupName) {
-        final InstanceIdentifier<PeerGroup> peerGroupsIid =
-        bgpIid.child(PeerGroups.class).child(PeerGroup.class, new PeerGroupKey(peerGroupName));
+        final InstanceIdentifier<PeerGroup> peerGroupsIid = bgpIid.child(PeerGroups.class)
+                .child(PeerGroup.class, new PeerGroupKey(peerGroupName));
         return this.peerGroups.getUnchecked(peerGroupsIid).orElse(null);
     }
 }

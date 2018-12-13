@@ -54,16 +54,16 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
         // Set up a client with pre-configured bootstrap, but add a closed channel handler
         // into the pipeline to support reconnect attempts
         this.pending = connectSessionPromise(this.address, this.retryTimer, this.bootstrap, this.peerRegistry,
-                (channel, promise) -> {
-                    this.initializer.initializeChannel(channel, promise);
-                    // add closed channel handler
-                    // This handler has to be added as last channel handler and the channel inactive event has to be
-                    // caught by it
-                    // Handlers in front of it can react to channelInactive event, but have to forward the event or
-                    // the reconnect will not work. This handler is last so all handlers in front of it can handle
-                    // channel inactive (to e.g. resource cleanup) before a new connection is started
-                    channel.pipeline().addLast(new ClosedChannelHandler(this));
-                });
+            (channel, promise) -> {
+                this.initializer.initializeChannel(channel, promise);
+                // add closed channel handler
+                // This handler has to be added as last channel handler and the channel inactive event has to be
+                // caught by it
+                // Handlers in front of it can react to channelInactive event, but have to forward the event or
+                // the reconnect will not work. This handler is last so all handlers in front of it can handle
+                // channel inactive (to e.g. resource cleanup) before a new connection is started
+                channel.pipeline().addLast(new ClosedChannelHandler(this));
+            });
 
         this.pending.addListener(future -> {
             if (!future.isSuccess() && !this.isDone()) {
@@ -91,10 +91,12 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
     }
 
     /**
+     * Indicate whether the initial connection was established successfully.
+     *
      * @return true if initial connection was established successfully, false if initial connection failed due
      *         to e.g. Connection refused, Negotiation failed
      */
-    private  synchronized boolean isInitialConnectFinished() {
+    private synchronized boolean isInitialConnectFinished() {
         requireNonNull(this.pending);
         return this.pending.isDone() && this.pending.isSuccess();
     }

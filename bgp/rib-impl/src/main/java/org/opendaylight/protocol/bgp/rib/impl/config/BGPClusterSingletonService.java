@@ -115,7 +115,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             @Override
             public void onSuccess(final List<? extends CommitInfo> result) {
                 done.setFuture(Futures.transform(BGPClusterSingletonService.this.ribImpl.closeServiceInstance(),
-                        input -> null, MoreExecutors.directExecutor()));
+                    input -> null, MoreExecutors.directExecutor()));
             }
 
             @Override
