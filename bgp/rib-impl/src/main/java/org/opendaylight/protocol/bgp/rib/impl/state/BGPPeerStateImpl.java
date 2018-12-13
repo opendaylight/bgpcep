@@ -32,6 +32,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState.Mode;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
@@ -274,5 +275,16 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     protected final synchronized void setActive(final boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public final synchronized Mode getMode() {
+        if (this.afiSafisGracefulAdvertized.isEmpty()) {
+            return Mode.HELPERONLY;
+        }
+        if (this.afiSafisGracefulReceived.isEmpty()) {
+            return Mode.REMOTEHELPER;
+        }
+        return Mode.BILATERAL;
     }
 }
