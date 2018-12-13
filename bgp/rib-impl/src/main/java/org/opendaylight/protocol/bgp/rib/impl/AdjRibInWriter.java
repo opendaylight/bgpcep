@@ -352,7 +352,7 @@ final class AdjRibInWriter {
     void storeStaleRoutes(final Set<TablesKey> gracefulTables) {
         final CountDownLatch latch = new CountDownLatch(gracefulTables.size());
 
-        try (final DOMDataReadOnlyTransaction tx = this.chain.getDomChain().newReadOnlyTransaction()) {
+        try (DOMDataReadOnlyTransaction tx = this.chain.getDomChain().newReadOnlyTransaction()) {
             for (TablesKey tablesKey : gracefulTables) {
                 final TableContext ctx = this.tables.get(tablesKey);
                 if (ctx == null) {
@@ -363,30 +363,30 @@ final class AdjRibInWriter {
 
                 Futures.addCallback(tx.read(LogicalDatastoreType.OPERATIONAL, ctx.routesPath()),
                     new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
-                    @Override
-                    public void onSuccess(final Optional<NormalizedNode<?, ?>> routesOptional) {
-                        try {
-                            if (routesOptional.isPresent()) {
-                                synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
-                                    final MapNode routesNode = (MapNode) routesOptional.get();
-                                    final List<NodeIdentifierWithPredicates> routes = routesNode.getValue().stream()
-                                            .map(MapEntryNode::getIdentifier)
-                                            .collect(Collectors.toList());
-                                    if (!routes.isEmpty()) {
-                                        AdjRibInWriter.this.staleRoutesRegistry.put(tablesKey, routes);
+                        @Override
+                        public void onSuccess(final Optional<NormalizedNode<?, ?>> routesOptional) {
+                            try {
+                                if (routesOptional.isPresent()) {
+                                    synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
+                                        final MapNode routesNode = (MapNode) routesOptional.get();
+                                        final List<NodeIdentifierWithPredicates> routes = routesNode.getValue().stream()
+                                                .map(MapEntryNode::getIdentifier)
+                                                .collect(Collectors.toList());
+                                        if (!routes.isEmpty()) {
+                                            AdjRibInWriter.this.staleRoutesRegistry.put(tablesKey, routes);
+                                        }
                                     }
                                 }
+                            } finally {
+                                latch.countDown();
                             }
-                        } finally {
+                        }
+
+                        @Override
+                        public void onFailure(final Throwable throwable) {
+                            LOG.warn("Failed to store stale routes for table {}", tablesKey, throwable);
                             latch.countDown();
                         }
-                    }
-
-                    @Override
-                    public void onFailure(final Throwable throwable) {
-                        LOG.warn("Failed to store stale routes for table {}", tablesKey, throwable);
-                        latch.countDown();
-                    }
                 }, MoreExecutors.directExecutor());
             }
         }

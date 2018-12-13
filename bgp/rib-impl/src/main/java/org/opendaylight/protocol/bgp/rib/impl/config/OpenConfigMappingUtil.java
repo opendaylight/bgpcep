@@ -476,7 +476,7 @@ final class OpenConfigMappingUtil {
     static IpAddress getLocalAddress(@Nullable final Transport transport) {
         if (transport != null && transport.getConfig() != null) {
             final BgpNeighborTransportConfig.LocalAddress localAddress = transport.getConfig().getLocalAddress();
-            if (localAddress != null ) {
+            if (localAddress != null) {
                 return localAddress.getIpAddress();
             }
         }

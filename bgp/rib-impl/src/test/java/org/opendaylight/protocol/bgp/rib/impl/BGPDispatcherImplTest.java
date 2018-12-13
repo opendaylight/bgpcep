@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 
 import com.google.common.collect.Sets;
@@ -53,5 +52,4 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
         this.serverListener.releaseConnection();
         checkIdleState(this.serverListener);
     }
-
 }

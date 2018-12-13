@@ -61,6 +61,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     private BGPSessionImpl session;
     @GuardedBy("this")
     private ScheduledFuture<?> pending;
+
     @VisibleForTesting
     public enum State {
         /**
@@ -149,7 +150,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
                 sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
                 return;
             case IDLE:
-                // to avoid race condition when Open message was sent by the peer before startNegotiation could be executed
+                // to avoid race condition when Open message was sent by the peer before startNegotiation could be
+                // executed
                 if (msg instanceof Open) {
                     startNegotiation();
                     handleOpen((Open) msg);

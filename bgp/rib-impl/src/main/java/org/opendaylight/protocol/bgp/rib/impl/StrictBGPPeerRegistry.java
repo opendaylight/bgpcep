@@ -163,8 +163,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                         BGPError.CEASE);
 
                 // Session reestablished with lower source bgp id, dropping current
-            } else if (previousConnection.isHigherDirection(currentConnection) ||
-                    previousConnection.hasHigherAsNumber(currentConnection)) {
+            } else if (previousConnection.isHigherDirection(currentConnection)
+                    || previousConnection.hasHigherAsNumber(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present",
                         ip, currentConnection);
                 throw new BGPDocumentedException(
@@ -172,8 +172,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                                 + "Opposite session already present", ip, currentConnection), BGPError.CEASE);
 
                 // Session reestablished with higher source bgp id, dropping previous
-            } else if (currentConnection.isHigherDirection(previousConnection) ||
-                    currentConnection.hasHigherAsNumber(previousConnection)) {
+            } else if (currentConnection.isHigherDirection(previousConnection)
+                    || currentConnection.hasHigherAsNumber(previousConnection)) {
                 LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
                 this.peers.get(ip).releaseConnection();
                 return this.peers.get(ip);
@@ -291,7 +291,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
      */
     private static final class BGPSessionId {
 
-        private final Ipv4Address from, to;
+        private final Ipv4Address from;
+        private final Ipv4Address to;
         private final AsNumber asNumber;
 
         BGPSessionId(final Ipv4Address from, final Ipv4Address to, final AsNumber asNumber) {
@@ -304,15 +305,15 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
          * Equals does not take direction of connection into account id1 -> id2 and id2 -> id1 are equal
          */
         @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
+        public boolean equals(final Object obj) {
+            if (this == obj) {
                 return true;
             }
-            if (o == null || getClass() != o.getClass()) {
+            if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
 
-            final BGPSessionId bGPSessionId = (BGPSessionId) o;
+            final BGPSessionId bGPSessionId = (BGPSessionId) obj;
 
             if (!this.from.equals(bGPSessionId.from) && !this.from.equals(bGPSessionId.to)) {
                 return false;
