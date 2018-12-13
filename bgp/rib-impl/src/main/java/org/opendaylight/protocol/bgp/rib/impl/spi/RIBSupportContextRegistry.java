@@ -25,8 +25,7 @@ public interface RIBSupportContextRegistry {
      * Acquire a RIB Support for a AFI/SAFI combination.
      *
      * @param key AFI/SAFI key
-     * @return RIBSupport instance, or null if the AFI/SAFI is
-     * not implemented.
+     * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
     @Nullable
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
@@ -37,8 +36,7 @@ public interface RIBSupportContextRegistry {
      * Acquire a RIB Support Context for a AFI/SAFI combination.
      *
      * @param key AFI/SAFI key
-     * @return RIBSupport instance, or null if the AFI/SAFI is
-     * not implemented.
+     * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
     @Nullable
     RIBSupportContext getRIBSupportContext(TablesKey key);

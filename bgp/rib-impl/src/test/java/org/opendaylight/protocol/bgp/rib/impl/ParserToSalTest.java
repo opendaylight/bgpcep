@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.AS_NUMBER;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
@@ -68,12 +68,15 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     private final IpAddress localAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
     private BGPMock mock;
-    private AbstractRIBExtensionProviderActivator baseact, lsact;
-    private RIBExtensionProviderContext ext1, ext2;
+    private AbstractRIBExtensionProviderActivator baseact;
+    private AbstractRIBExtensionProviderActivator lsact;
+    private RIBExtensionProviderContext ext1;
+    private RIBExtensionProviderContext ext2;
     @Mock
     private BGPDispatcher dispatcher;
     private CodecsRegistryImpl codecsRegistry;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -98,6 +101,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
                 GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
     }
 
+    @Override
     @After
     public void tearDown() {
         this.lsact.close();
