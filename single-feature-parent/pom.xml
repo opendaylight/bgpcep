@@ -34,6 +34,18 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- FIXME: remove this override once we have odlparent-4.0.3 with the equivalent -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
     <scm>
         <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
         <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
