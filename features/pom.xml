@@ -30,4 +30,9 @@
         <module>concepts</module>
         <module>config-loader</module>
     </modules>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 </project>
