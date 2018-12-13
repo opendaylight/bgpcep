@@ -5,10 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.openconfig.spi.AbstractBGPTableTypeRegistryProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProvider;
@@ -22,10 +21,13 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProviderActivator {
 
     @Override
-    protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(final BGPTableTypeRegistryProvider provider) {
-        return Lists.newArrayList(
-                provider.registerBGPTableType(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class, IPV4LABELLEDUNICAST.class),
-                provider.registerBGPTableType(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class, IPV6LABELLEDUNICAST.class));
+    protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
+            final BGPTableTypeRegistryProvider provider) {
+        return ImmutableList.of(
+                provider.registerBGPTableType(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
+                    IPV4LABELLEDUNICAST.class),
+                provider.registerBGPTableType(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
+                    IPV6LABELLEDUNICAST.class));
     }
 
 }

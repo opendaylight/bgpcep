@@ -31,7 +31,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final List<AutoCloseable> regs = new ArrayList<>(8);
         final LUNlriParser luNlriParser = new LUNlriParser();
 
-        regs.add(context.registerSubsequentAddressFamily(LabeledUnicastSubsequentAddressFamily.class, LABELED_UNICAST_SAFI));
+        regs.add(context.registerSubsequentAddressFamily(LabeledUnicastSubsequentAddressFamily.class,
+            LABELED_UNICAST_SAFI));
 
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
