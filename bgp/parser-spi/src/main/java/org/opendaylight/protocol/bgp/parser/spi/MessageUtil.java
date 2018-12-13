@@ -33,7 +33,7 @@ public final class MessageUtil {
     }
 
     private MessageUtil() {
-        throw new UnsupportedOperationException();
+
     }
 
     /**

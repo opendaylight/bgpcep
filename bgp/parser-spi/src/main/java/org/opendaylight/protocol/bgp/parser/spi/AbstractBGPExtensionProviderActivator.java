@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 import org.slf4j.Logger;
@@ -22,16 +22,17 @@ public abstract class AbstractBGPExtensionProviderActivator implements AutoClose
     private List<AutoCloseable> registrations;
 
     @GuardedBy("this")
+    // FIXME: use yangtools.concepts.Registration here
     protected abstract List<AutoCloseable> startImpl(BGPExtensionProviderContext context);
 
     @Override
     public final synchronized void start(final BGPExtensionProviderContext context) {
-        Preconditions.checkState(this.registrations == null);
-
+        checkState(this.registrations == null);
         this.registrations = requireNonNull(startImpl(context));
     }
 
     @Override
+    @SuppressWarnings("checkstyle:illegalCatch")
     public final synchronized void stop() {
         if (this.registrations == null) {
             return;
