@@ -39,7 +39,8 @@ public class LinkBandwidthECTest {
     public void parserTest() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
-        final LinkBandwidthCase expected = new LinkBandwidthCaseBuilder().setLinkBandwidthExtendedCommunity(new LinkBandwidthExtendedCommunityBuilder()
+        final LinkBandwidthCase expected = new LinkBandwidthCaseBuilder().setLinkBandwidthExtendedCommunity(
+            new LinkBandwidthExtendedCommunityBuilder()
             .setBandwidth(new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff}))
             .build()).build();
         this.parser.serializeExtendedCommunity(expected, buff);

@@ -63,7 +63,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
     private final AddressFamilyRegistry afiReg;
     private final SubsequentAddressFamilyRegistry safiReg;
 
-    public GracefulCapabilityHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+    public GracefulCapabilityHandler(final AddressFamilyRegistry afiReg,
+            final SubsequentAddressFamilyRegistry safiReg) {
         this.afiReg = requireNonNull(afiReg);
         this.safiReg = requireNonNull(safiReg);
     }
@@ -150,7 +151,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
                 continue;
             }
             final int flags = buffer.readUnsignedByte();
-            tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
+            tables.add(new TablesBuilder().setAfi(afi).setSafi(safi)
+                .setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
         }
         cb.setTables(tables);
         return new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()

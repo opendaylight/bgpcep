@@ -51,7 +51,7 @@ public final class ClusterIdAttributeParser extends AbstractAttributeParser impl
         if (readable % Ipv4Util.IP4_LENGTH != 0) {
             throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
                 "Length of CLUSTER_LIST should be a multiple of 4, but is %s", readable);
-         }
+        }
 
         final int count = readable / Ipv4Util.IP4_LENGTH;
         final List<ClusterIdentifier> list = new ArrayList<>(count);

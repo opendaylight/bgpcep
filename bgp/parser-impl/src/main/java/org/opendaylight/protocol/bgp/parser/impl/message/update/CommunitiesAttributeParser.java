@@ -76,10 +76,9 @@ public final class CommunitiesAttributeParser extends AbstractAttributeParser im
    /**
     * Parse known Community, if unknown, a new one will be created.
     *
-    * @param refCache
+    * @param refCache reference cache
     * @param buffer byte array to be parsed
     * @return new Community
-    * @throws BGPDocumentedException
     */
     private static Community parseCommunity(final ReferenceCache refCache, final ByteBuf buffer)
             throws BGPDocumentedException {

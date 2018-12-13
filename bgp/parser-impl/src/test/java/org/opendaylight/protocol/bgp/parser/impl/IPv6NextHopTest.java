@@ -17,15 +17,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 
 public class IPv6NextHopTest {
-
     private Ipv6NextHop nextHopA;
     private Ipv6NextHop nextHopB;
 
     @Before
     public void init() {
         this.nextHopA = new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:7331")).build();
-        this.nextHopB = new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:7331")).setLinkLocal(
-                new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:0000")).build();
+        this.nextHopB = new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:7331"))
+                .setLinkLocal(new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:0000")).build();
     }
 
     @Test
