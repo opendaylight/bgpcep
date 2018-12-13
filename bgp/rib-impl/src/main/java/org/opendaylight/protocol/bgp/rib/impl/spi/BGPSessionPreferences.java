@@ -44,7 +44,7 @@ public final class BGPSessionPreferences {
             final List<BgpParameters> params, final Optional<byte[]> md5Password) {
         this.as = as;
         this.hold = hold;
-        this.bgpId = (bgpId != null) ? new BgpId(bgpId) : null;
+        this.bgpId = bgpId != null ? new BgpId(bgpId) : null;
         this.remoteAs = remoteAs;
         this.params = params;
         this.md5Password = md5Password;
@@ -54,6 +54,7 @@ public final class BGPSessionPreferences {
             final List<BgpParameters> params) {
         this(as, hold, bgpId, remoteAs, params, Optional.empty());
     }
+
     /**
      * Returns my AS number.
      *

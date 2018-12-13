@@ -145,7 +145,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @Override
-    public synchronized final PeerId getPeerId() {
+    public final synchronized PeerId getPeerId() {
         return this.peerId;
     }
 
@@ -257,7 +257,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
 
             effAttr.ifPresent(attributes
-                    -> storeRoute(ribSupport, addPathSupported, tableRibout, initializingRoute, route, attributes, tx));
+                -> storeRoute(ribSupport, addPathSupported, tableRibout, initializingRoute, route, attributes, tx));
         }
 
         final FluentFuture<? extends CommitInfo> future = tx.commit();
@@ -363,9 +363,9 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
-    void installRouteRibOut(final RouteEntryDependenciesContainer entryDep,
-            final List<AdvertizedRoute<C, S, R, I>> routes, final WriteTransaction tx) {
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void installRouteRibOut(
+                    final RouteEntryDependenciesContainer entryDep, final List<AdvertizedRoute<C, S, R, I>> routes,
+                    final WriteTransaction tx) {
         final TablesKey tk = entryDep.getRIBSupport().getTablesKey();
         final BGPPeerTracker peerTracker = entryDep.getPeerTracker();
         final RIBSupport<C, S, R, I> ribSupport = entryDep.getRIBSupport();
@@ -400,7 +400,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 effAttr = routingPolicies.applyExportPolicies(routeEntry, attributes, entryDep.getAfiSafType());
             }
             effAttr.ifPresent(attributes1
-                    -> storeRoute(ribSupport, addPathSupported, tableRibout, advRoute, route, attributes1, tx));
+                -> storeRoute(ribSupport, addPathSupported, tableRibout, advRoute, route, attributes1, tx));
         }
     }
 
@@ -414,15 +414,15 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
         final boolean addPathSupported = supportsAddPathSupported(tk);
         staleRoutesIid.forEach(staleRouteIid
-                -> removeRoute(ribSupport, addPathSupported, tableRibout, staleRouteIid, tx));
+            -> removeRoute(ribSupport, addPathSupported, tableRibout, staleRouteIid, tx));
     }
 
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
-    void storeRoute(final RIBSupport<C, S, R, I> ribSupport, final boolean addPathSupported,
-            final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout,
-            final RouteKeyIdentifier<R, I> advRoute, final R route, final Attributes effAttr,
-            final WriteTransaction tx) {
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void storeRoute(
+                    final RIBSupport<C, S, R, I> ribSupport, final boolean addPathSupported,
+                    final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout,
+                    final RouteKeyIdentifier<R, I> advRoute, final R route, final Attributes effAttr,
+                    final WriteTransaction tx) {
         final InstanceIdentifier<R> ribOut;
         final I newKey;
         if (!addPathSupported) {

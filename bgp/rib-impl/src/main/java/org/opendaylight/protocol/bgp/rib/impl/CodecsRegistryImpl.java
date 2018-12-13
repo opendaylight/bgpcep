@@ -28,8 +28,7 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(CodecsRegistryImpl.class);
 
     private final LoadingCache<RIBSupport<?, ?, ?, ?>, Codecs> contexts = CacheBuilder.newBuilder()
-        .build(new CacheLoader<RIBSupport<?, ?, ?, ?>, Codecs>(){
-
+        .build(new CacheLoader<RIBSupport<?, ?, ?, ?>, Codecs>() {
             @Override
             public Codecs load(final RIBSupport<?, ?, ?, ?> key) {
                 return createContext(key);
@@ -39,7 +38,8 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
     private final GeneratedClassLoadingStrategy classContext;
     private volatile BindingCodecTree latestCodecTree;
 
-    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy strategy) {
+    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory,
+            final GeneratedClassLoadingStrategy strategy) {
         this.codecFactory = requireNonNull(codecFactory);
         this.classContext = requireNonNull(strategy);
     }

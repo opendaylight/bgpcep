@@ -322,14 +322,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     @GuardedBy("this")
     private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification msg) {
-        future.addListener(
-                (ChannelFutureListener) f -> {
-                    if (!f.isSuccess()) {
-                        LOG.warn("Failed to send message {} to socket {}", msg, BGPSessionImpl.this.channel, f.cause());
-                    } else {
-                        LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
-                    }
-                });
+        future.addListener((ChannelFutureListener) f -> {
+            if (!f.isSuccess()) {
+                LOG.warn("Failed to send message {} to socket {}", msg, BGPSessionImpl.this.channel, f.cause());
+            } else {
+                LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
+            }
+        });
         this.lastMessageSentAt = System.nanoTime();
         this.sessionState.messageSent(msg);
         return future;
@@ -361,8 +360,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
         LOG.info("Closing session: {}", this);
         this.channel.close().addListener((ChannelFutureListener) future
-                -> Preconditions.checkArgument(future.isSuccess(),
-                "Channel failed to close: %s", future.cause()));
+            -> Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause()));
         this.state = State.IDLE;
         removePeerSession();
         this.sessionState.setSessionState(this.state);

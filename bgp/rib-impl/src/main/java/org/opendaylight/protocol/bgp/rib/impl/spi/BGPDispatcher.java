@@ -41,7 +41,7 @@ public interface BGPDispatcher {
     ChannelFuture createServer(InetSocketAddress localAddress);
 
     /**
-     * Return BGP Peer Registry
+     * Return BGP Peer Registry.
      *
      * @return BGPPeerRegistry
      */

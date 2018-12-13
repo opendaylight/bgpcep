@@ -23,9 +23,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 
 /**
  * A context for a single RIB table instance. It is always bound to a particular {@link AdjRibInWriter}.
- *
- * FIXME: need a better name once we local-rib and rib-out contexts
  */
+// FIXME: need a better name once we local-rib and rib-out contexts
 @NotThreadSafe
 final class TableContext {
     private final YangInstanceIdentifier tableId;
