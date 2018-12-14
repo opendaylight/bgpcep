@@ -60,4 +60,13 @@ public interface NlriRegistry {
      * @return Iterable of NLRI serializers.
      */
     Iterable<NlriSerializer> getSerializers();
+
+    /**
+     * Convert MP_REACH attribute to MP_UNREACH attribute and merge it with original one if it exists.
+     *
+     * @param mpReachNlri MP_REACH attribute to be converted
+     * @param mpUnreachNlri original MP_UNREACH attribute
+     * @return resulting MP_UNREACH attribute after conversion
+     */
+    MpUnreachNlri convertMpReachToMpUnReach(@Nonnull MpReachNlri mpReachNlri, @Nullable MpUnreachNlri mpUnreachNlri);
 }

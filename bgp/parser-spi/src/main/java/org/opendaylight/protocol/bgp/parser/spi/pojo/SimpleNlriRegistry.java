@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
@@ -229,6 +230,22 @@ final class SimpleNlriRegistry implements NlriRegistry {
         } else {
             parser.parseNlri(nlri, builder, constraint);
         }
+        return builder.build();
+    }
+
+    @Override
+    public MpUnreachNlri convertMpReachToMpUnReach(final MpReachNlri mpReachNlri, final MpUnreachNlri mpUnreachNlri) {
+        if (mpUnreachNlri == null) {
+            return new MpUnreachNlriBuilder()
+                    .setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+                            .setDestinationType(mpReachNlri.getAdvertizedRoutes().getDestinationType())
+                            .build())
+                    .build();
+        }
+        final MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder(mpUnreachNlri);
+        final BgpTableType key = createKey(mpUnreachNlri.getAfi(), mpUnreachNlri.getSafi());
+        final NlriParser parser = this.handlers.get(key);
+        parser.convertMpReachToMpUnReach(mpReachNlri, builder);
         return builder.build();
     }
 }
