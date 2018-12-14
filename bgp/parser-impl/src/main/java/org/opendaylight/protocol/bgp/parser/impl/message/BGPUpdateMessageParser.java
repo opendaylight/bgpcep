@@ -41,10 +41,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.TreatAsWithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -184,7 +192,6 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         }
 
         Update msg = builder.build();
-
         if (withdrawCauseOpt.isPresent()) {
             // Attempt to apply treat-as-withdraw
             msg = withdrawUpdate(msg, errorHandling, withdrawCauseOpt.get());
@@ -276,8 +283,49 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         }
         builder.setWithdrawnRoutes(withdrawn);
 
-        // FIXME: BGPCEP-359: deal with MP_REACH-to-MP_UNREACH conversion
+        final Attributes attributes = parsed.getAttributes();
+        if (attributes != null) {
+            builder.setAttributes(withdrawAttributes(attributes, withdrawCause));
+        }
 
         return builder.build();
+    }
+
+    private static Attributes withdrawAttributes(final Attributes parsed,
+            final BGPTreatAsWithdrawException withdrawCause) {
+        final AttributesBuilder builder = new AttributesBuilder();
+        final MpReachNlri mpReachNlri = getMpReach(parsed);
+        if (mpReachNlri == null) {
+            // No MP_REACH attribute, just reuse MP_UNREACH if it is present.
+            builder.addAugmentation(Attributes2.class, parsed.augmentation(Attributes2.class));
+            return builder.build();
+        }
+
+        final MpUnreachNlri unreachNlri = getMpUnreach(parsed);
+
+        // FIXME: BGPCEP-359: this is ugly, we should rather be going through registry, requesting a conversion,
+        //        so that individual plugins can deal with their particular AFI/SAFI
+        final MpUnreachNlriBuilder unreachBuilder;
+        if (unreachNlri != null) {
+            unreachBuilder = new MpUnreachNlriBuilder(unreachNlri);
+        } else {
+            unreachBuilder = new MpUnreachNlriBuilder(mpReachNlri);
+        }
+        builder.addAugmentation(Attributes2.class, new Attributes2Builder()
+            .setMpUnreachNlri(unreachBuilder.setTreatAsWithdrawnRoutes(new TreatAsWithdrawnRoutesBuilder()
+                .setDestinationType(mpReachNlri.getAdvertizedRoutes().getDestinationType())
+                .build()).build()).build());
+
+        return builder.build();
+    }
+
+    private static MpReachNlri getMpReach(final Attributes attrs) {
+        final Attributes1 reachAttr = attrs.augmentation(Attributes1.class);
+        return reachAttr == null ? null : reachAttr.getMpReachNlri();
+    }
+
+    private static MpUnreachNlri getMpUnreach(final Attributes attrs) {
+        final Attributes2 unreachAttr = attrs.augmentation(Attributes2.class);
+        return unreachAttr == null ? null : unreachAttr.getMpUnreachNlri();
     }
 }
