@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -110,18 +111,26 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     @Override
     public final Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(final RIBSupport<C, S, R, I> ribSupport,
             final String routeKey) {
-        if ((this.bestPathRemoved == null || this.bestPathRemoved.isEmpty()) && this.removedPathsId == null) {
-            return Optional.empty();
+        final List<PathId> stalePaths;
+        if (bestPathRemoved != null && !bestPathRemoved.isEmpty()) {
+            stalePaths = bestPathRemoved.stream().map(AddPathBestPath::getPathId)
+                    .map(AddPathAbstractRouteEntry::pathIdObj).collect(Collectors.toList());
+            bestPathRemoved = null;
+        } else {
+            stalePaths = Collections.emptyList();
         }
-        List<Long> stalePaths = Collections.emptyList();
-        if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()) {
-            stalePaths = this.bestPathRemoved.stream().map(AddPathBestPath::getPathId).collect(Collectors.toList());
-            this.bestPathRemoved = null;
+
+        List<PathId> removedPaths;
+        if (removedPathsId != null) {
+            removedPaths = Lists.transform(removedPathsId, AddPathAbstractRouteEntry::pathIdObj);
+            this.removedPathsId = null;
+        } else {
+            removedPaths = Collections.emptyList();
         }
-        final StaleBestPathRoute<C, S, R, I> stale = new StaleBestPathRoute<>(ribSupport, routeKey, stalePaths,
-                this.removedPathsId, this.isNonAddPathBestPathNew);
-        this.removedPathsId = null;
-        return Optional.of(stale);
+
+        return stalePaths.isEmpty() && removedPaths.isEmpty() ? Optional.empty()
+                : Optional.of(new StaleBestPathRoute<>(ribSupport, routeKey, stalePaths,
+                        removedPaths, this.isNonAddPathBestPathNew));
     }
 
     @Override
