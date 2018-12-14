@@ -257,7 +257,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerMessageParser(BGPOpenMessageParser.TYPE, omp));
         regs.add(context.registerMessageSerializer(Open.class, omp));
 
-        final BGPUpdateMessageParser ump = new BGPUpdateMessageParser(context.getAttributeRegistry());
+        final BGPUpdateMessageParser ump = new BGPUpdateMessageParser(context.getAttributeRegistry(), context.getNlriRegistry());
         regs.add(context.registerMessageParser(BGPUpdateMessageParser.TYPE, ump));
         regs.add(context.registerMessageSerializer(Update.class, ump));
 
