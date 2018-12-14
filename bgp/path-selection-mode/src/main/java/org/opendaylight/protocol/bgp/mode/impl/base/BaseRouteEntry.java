@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,9 +32,31 @@ import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
 final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
-        S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> implements RouteEntry<C,S,R,I> {
+        S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
+        I extends Identifier<R>> implements RouteEntry<C, S, R, I> {
+    private static final class Stale<C extends Routes & DataObject & ChoiceIn<Tables>,
+            S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
+            I extends Identifier<R>> extends StaleBestPathRoute<C, S, R, I> {
+        Stale(final I nonAddPathRouteKeyIdentifier) {
+            super(nonAddPathRouteKeyIdentifier);
+        }
+
+        @Override
+        public List<I> getStaleRouteKeyIdentifiers() {
+            return Collections.singletonList(getNonAddPathRouteKeyIdentifier());
+        }
+
+        @Override
+        public List<I> getAddPathRouteKeyIdentifiers() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean isNonAddPathBestPathNew() {
+            return true;
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(BaseRouteEntry.class);
     private static final Route[] EMPTY_VALUES = new Route[0];
 
@@ -109,13 +129,11 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     @Override
     public Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(final RIBSupport<C, S, R, I> ribSupport,
             final String routeKey) {
-        if (this.removedBestPath == null) {
+        if (removedBestPath == null) {
             return Optional.empty();
         }
-        final StaleBestPathRoute<C, S, R, I> stale = new StaleBestPathRoute<>(ribSupport, routeKey,
-                Collections.singletonList(NON_PATH_ID), Collections.emptyList(), true);
-        this.removedBestPath = null;
-        return Optional.of(stale);
+        removedBestPath = null;
+        return Optional.of(new Stale<C, S, R, I>(ribSupport.createRouteListKey(routeKey)));
     }
 
     @Override
