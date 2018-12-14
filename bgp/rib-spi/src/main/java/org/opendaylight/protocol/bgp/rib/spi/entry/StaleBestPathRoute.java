@@ -5,15 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi.entry;
-
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -42,25 +38,20 @@ public final class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<T
     public StaleBestPathRoute(
             final RIBSupport<C, S, R, I> ribSupport,
             final String routeKey,
-            final List<Long> staleRoutesPathIds,
-            final List<Long> withdrawalRoutePathIds,
+            final List<PathId> staleRoutesPathIds,
+            final List<PathId> withdrawalRoutePathIds,
             final boolean isNonAddPathBestPathNew) {
         this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
 
-        this.staleRouteKeyIdentifier = staleRoutesPathIds.stream().map(StaleBestPathRoute::pathIdObj)
+        this.staleRouteKeyIdentifier = staleRoutesPathIds.stream()
                 .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
         if (withdrawalRoutePathIds != null) {
-            this.addPathRouteKeyIdentifier = withdrawalRoutePathIds.stream().map(StaleBestPathRoute::pathIdObj)
+            this.addPathRouteKeyIdentifier = withdrawalRoutePathIds.stream()
                     .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
         } else {
             this.addPathRouteKeyIdentifier = Collections.emptyList();
         }
         this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(routeKey);
-    }
-
-    public StaleBestPathRoute(final RIBSupport<C, S, R, I> ribSupport, final String routeKey) {
-        this(ribSupport, routeKey, Collections.singletonList(NON_PATH_ID_VALUE),
-                Collections.emptyList(), true);
     }
 
     public I getNonAddPathRouteKeyIdentifier() {
@@ -92,9 +83,5 @@ public final class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<T
      */
     public boolean isNonAddPathBestPathNew() {
         return this.isNonAddPathBestPathNew;
-    }
-
-    private static PathId pathIdObj(final Long pathId) {
-        return pathId == NON_PATH_ID_VALUE ? PathIdUtil.NON_PATH_ID : new PathId(pathId);
     }
 }
