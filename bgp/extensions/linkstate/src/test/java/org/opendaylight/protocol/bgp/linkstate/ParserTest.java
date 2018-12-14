@@ -11,6 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -30,6 +31,7 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -109,7 +111,7 @@ public class ParserTest {
     @Before
     public void setUp() throws Exception {
         updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext
-            .getSingletonInstance().getAttributeRegistry());
+            .getSingletonInstance().getAttributeRegistry(), mock(NlriRegistry.class));
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
             try (final InputStream is = ParserTest.class.getResourceAsStream(name)){
