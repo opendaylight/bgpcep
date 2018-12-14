@@ -11,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
 
@@ -39,4 +40,16 @@ public interface NlriParser {
      */
     void parseNlri(@Nonnull ByteBuf nlri, @Nonnull MpUnreachNlriBuilder builder,
             @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+
+    /**
+     * Convert MP_REACH attribute and merge it to existing MpUnreachNlriBuilder.
+     *
+     * @param mpReachNlri MP_REACH attribute to be converted
+     * @param builder to which converted routing information should be added
+     * @return True if the conversion was successful, false otherwise
+     */
+    default boolean convertMpReachToMpUnReach(@Nonnull final MpReachNlri mpReachNlri,
+            @Nonnull final MpUnreachNlriBuilder builder) {
+        return false;
+    }
 }

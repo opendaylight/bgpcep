@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.bgp.concepts.NextHopUtil;
@@ -33,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
@@ -230,5 +232,27 @@ final class SimpleNlriRegistry implements NlriRegistry {
             parser.parseNlri(nlri, builder, constraint);
         }
         return builder.build();
+    }
+
+    @Override
+    public Optional<MpUnreachNlri> convertMpReachToMpUnReach(final MpReachNlri mpReachNlri,
+            final MpUnreachNlri mpUnreachNlri) {
+        if (mpUnreachNlri == null) {
+            return Optional.of(new MpUnreachNlriBuilder()
+                    .setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+                            .setDestinationType(mpReachNlri.getAdvertizedRoutes().getDestinationType())
+                            .build())
+                    .build());
+        }
+
+        final BgpTableType key = createKey(mpUnreachNlri.getAfi(), mpUnreachNlri.getSafi());
+        final NlriParser parser = this.handlers.get(key);
+        if (parser == null) {
+            LOG.debug("Parser for {} not found", key);
+            return Optional.empty();
+        }
+
+        final MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder(mpUnreachNlri);
+        return parser.convertMpReachToMpUnReach(mpReachNlri, builder) ? Optional.of(builder.build()) : Optional.empty();
     }
 }

@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -60,4 +61,17 @@ public interface NlriRegistry {
      * @return Iterable of NLRI serializers.
      */
     Iterable<NlriSerializer> getSerializers();
+
+    /**
+     * Convert MP_REACH attribute to MP_UNREACH attribute and merge it with original one if it exists.
+     *
+     * <p>
+     * The default implementation rejects the conversion.
+     *
+     * @param mpReachNlri MP_REACH attribute to be converted
+     * @param mpUnreachNlri original MP_UNREACH attribute
+     * @return resulting MP_UNREACH attribute after conversion
+     */
+    Optional<MpUnreachNlri> convertMpReachToMpUnReach(@Nonnull MpReachNlri mpReachNlri,
+            @Nullable MpUnreachNlri mpUnreachNlri);
 }
