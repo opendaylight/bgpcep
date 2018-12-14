@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -113,13 +114,15 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         if ((this.bestPathRemoved == null || this.bestPathRemoved.isEmpty()) && this.removedPathsId == null) {
             return Optional.empty();
         }
-        List<Long> stalePaths = Collections.emptyList();
+        List<PathId> stalePaths = Collections.emptyList();
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()) {
-            stalePaths = this.bestPathRemoved.stream().map(AddPathBestPath::getPathId).collect(Collectors.toList());
+            stalePaths = this.bestPathRemoved.stream().map(AddPathBestPath::getPathId)
+                    .map(AddPathAbstractRouteEntry::pathIdObj).collect(Collectors.toList());
             this.bestPathRemoved = null;
         }
         final StaleBestPathRoute<C, S, R, I> stale = new StaleBestPathRoute<>(ribSupport, routeKey, stalePaths,
-                this.removedPathsId, this.isNonAddPathBestPathNew);
+                Lists.transform(this.removedPathsId, AddPathAbstractRouteEntry::pathIdObj),
+                this.isNonAddPathBestPathNew);
         this.removedPathsId = null;
         return Optional.of(stale);
     }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -110,7 +112,8 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         if (this.removedBestPath == null) {
             return Optional.empty();
         }
-        final StaleBestPathRoute<C, S, R, I> stale = new StaleBestPathRoute<>(ribSupport, routeKey);
+        final StaleBestPathRoute<C, S, R, I> stale = new StaleBestPathRoute<>(ribSupport, routeKey,
+                Collections.singletonList(NON_PATH_ID), Collections.emptyList(), true);
         this.removedBestPath = null;
         return Optional.of(stale);
     }
