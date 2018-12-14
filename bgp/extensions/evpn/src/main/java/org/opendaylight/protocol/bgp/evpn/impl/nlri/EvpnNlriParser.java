@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
@@ -173,5 +174,36 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
             nlriOutput = SimpleEvpnNlriRegistry.getInstance().serializeEvpn(dest.getEvpnChoice(), nlriCommon);
         }
         output.writeBytes(nlriOutput);
+    }
+
+    @Override
+    public boolean convertMpReachToMpUnReach(final MpReachNlri mpReachNlri, final MpUnreachNlriBuilder builder) {
+        final WithdrawnRoutesBuilder withdrawnRoutes = new WithdrawnRoutesBuilder(builder.getWithdrawnRoutes());
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.update.attributes.mp
+                .unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder destinationType =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder(
+                                (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329
+                                        .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                                        .DestinationEvpnCase) withdrawnRoutes.getDestinationType());
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.update.attributes.mp
+                .unreach.nlri.withdrawn.routes.destination.type.destination.evpn._case.DestinationEvpnBuilder
+                destinationEvpn = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
+                .rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.evpn._case
+                .DestinationEvpnBuilder(destinationType.getDestinationEvpn());
+        List<EvpnDestination> evpnDestination = destinationEvpn.getEvpnDestination();
+        if (evpnDestination == null) {
+            evpnDestination = new ArrayList<>();
+        }
+        evpnDestination.addAll(((DestinationEvpnCase) mpReachNlri.getAdvertizedRoutes().getDestinationType())
+                .getDestinationEvpn().getEvpnDestination());
+        builder.setWithdrawnRoutes(withdrawnRoutes
+                .setDestinationType(destinationType
+                        .setDestinationEvpn(destinationEvpn
+                                .setEvpnDestination(evpnDestination)
+                                .build())
+                        .build())
+                .build());
+        return true;
     }
 }
