@@ -48,9 +48,45 @@ import org.slf4j.LoggerFactory;
  */
 @NotThreadSafe
 public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
-        S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+        S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
         implements RouteEntry<C, S, R, I> {
+    private static final class Stale<C extends Routes & DataObject & ChoiceIn<Tables>,
+            S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
+            I extends Identifier<R>> extends StaleBestPathRoute<C, S, R, I> {
+        private final List<I> addPathRouteKeyIdentifier;
+        private final List<I> staleRouteKeyIdentifier;
+        private final boolean isNonAddPathBestPathNew;
+
+        Stale(final RIBSupport<C, S, R, I> ribSupport, final String routeKey, final List<PathId> staleRoutesPathIds,
+            final List<PathId> withdrawalRoutePathIds, final boolean isNonAddPathBestPathNew) {
+            super(ribSupport.createRouteListKey(routeKey));
+            this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
+
+            this.staleRouteKeyIdentifier = staleRoutesPathIds.stream()
+                    .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
+            if (withdrawalRoutePathIds != null) {
+                this.addPathRouteKeyIdentifier = withdrawalRoutePathIds.stream()
+                        .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
+            } else {
+                this.addPathRouteKeyIdentifier = Collections.emptyList();
+            }
+        }
+
+        @Override
+        public List<I> getStaleRouteKeyIdentifiers() {
+            return this.staleRouteKeyIdentifier;
+        }
+
+        @Override
+        public List<I> getAddPathRouteKeyIdentifiers() {
+            return addPathRouteKeyIdentifier;
+        }
+
+        @Override
+        public boolean isNonAddPathBestPathNew() {
+            return isNonAddPathBestPathNew;
+        }
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
     private static final Long[] EMPTY_PATHS_ID = new Long[0];
@@ -129,8 +165,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         }
 
         return stalePaths.isEmpty() && removedPaths.isEmpty() ? Optional.empty()
-                : Optional.of(new StaleBestPathRoute<>(ribSupport, routeKey, stalePaths,
-                        removedPaths, this.isNonAddPathBestPathNew));
+                : Optional.of(new Stale<>(ribSupport, routeKey, stalePaths, removedPaths, isNonAddPathBestPathNew));
     }
 
     @Override
