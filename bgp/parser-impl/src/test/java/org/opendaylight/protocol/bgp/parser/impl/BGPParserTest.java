@@ -30,6 +30,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
+import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
@@ -93,7 +94,7 @@ public class BGPParserTest {
     @BeforeClass
     public static void setUp() throws Exception {
         updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-            .getAttributeRegistry());
+            .getAttributeRegistry(), mock(NlriRegistry.class));
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
             try (InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
