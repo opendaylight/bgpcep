@@ -41,10 +41,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.TreatAsWithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -184,7 +192,6 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         }
 
         Update msg = builder.build();
-
         if (withdrawCauseOpt.isPresent()) {
             // Attempt to apply treat-as-withdraw
             msg = withdrawUpdate(msg, errorHandling, withdrawCauseOpt.get());
@@ -277,6 +284,34 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         builder.setWithdrawnRoutes(withdrawn);
 
         // FIXME: BGPCEP-359: deal with MP_REACH-to-MP_UNREACH conversion
+        final Attributes attributes = parsed.getAttributes();
+        if (attributes != null) {
+            final Attributes1 reachAttr = attributes.augmentation(Attributes1.class);
+            if (reachAttr != null) {
+                final MpReachNlri mpReachNlri = reachAttr.getMpReachNlri();
+                if (mpReachNlri != null) {
+                    final DestinationType destinationType = mpReachNlri.getAdvertizedRoutes().getDestinationType();
+                    final MpUnreachNlriBuilder unreachNlri;
+                    final Attributes2 unreachAttr = attributes.augmentation(Attributes2.class);
+                    if (unreachAttr != null && unreachAttr.getMpUnreachNlri() != null) {
+                        unreachNlri = new MpUnreachNlriBuilder(unreachAttr.getMpUnreachNlri());
+                    } else {
+                        unreachNlri = new MpUnreachNlriBuilder(mpReachNlri);
+                    }
+                    unreachNlri.setTreatAsWithdrawnRoutes(new TreatAsWithdrawnRoutesBuilder()
+                            .setDestinationType(destinationType)
+                            .build())
+                            .build();
+                    final Attributes newAttributes = new AttributesBuilder(attributes)
+                            .removeAugmentation(Attributes1.class)
+                            .addAugmentation(Attributes2.class, new Attributes2Builder()
+                                    .setMpUnreachNlri(unreachNlri.build())
+                                    .build())
+                            .build();
+                    builder.setAttributes(newAttributes);
+                }
+            }
+        }
 
         return builder.build();
     }
