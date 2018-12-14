@@ -135,17 +135,17 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                 if (isMultiPathSupported) {
                     withdrawnRoutesBuilder.setPathId(PathIdUtil.readPathId(withdrawnRoutesBuffer));
                 }
-                withdrawnRoutesBuilder.setPrefix(Ipv4Util.prefixForByteBuf(withdrawnRoutesBuffer));
+                withdrawnRoutesBuilder.setPrefix(readPrefix(withdrawnRoutesBuffer, errorHandling));
                 withdrawnRoutes.add(withdrawnRoutesBuilder.build());
             }
             withdrawnRoutesBuffer.release();
             builder.setWithdrawnRoutes(withdrawnRoutes);
         }
         final int totalPathAttrLength = buffer.readUnsignedShort();
-
         if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
             return builder.build();
         }
+
         Optional<BGPTreatAsWithdrawException> withdrawCauseOpt;
         if (totalPathAttrLength > 0) {
             final ParsedAttributes attributes = parseAttributes(buffer, totalPathAttrLength, constraint);
@@ -154,13 +154,14 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         } else {
             withdrawCauseOpt = Optional.empty();
         }
+
         final List<Nlri> nlri = new ArrayList<>();
         while (buffer.isReadable()) {
             final NlriBuilder nlriBuilder = new NlriBuilder();
             if (isMultiPathSupported) {
                 nlriBuilder.setPathId(PathIdUtil.readPathId(buffer));
             }
-            nlriBuilder.setPrefix(Ipv4Util.prefixForByteBuf(buffer));
+            nlriBuilder.setPrefix(readPrefix(buffer, errorHandling));
             nlri.add(nlriBuilder.build());
         }
         if (!nlri.isEmpty()) {
@@ -200,6 +201,25 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             // Catch everything else and turn it into a BGPDocumentedException
             throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
         }
+    }
+
+    private static Ipv4Prefix readPrefix(final ByteBuf buf, final RevisedErrorHandling errorHandling)
+            throws BGPDocumentedException {
+        final int prefixLength = UnsignedBytes.toInt(buf.readByte());
+        if (errorHandling != RevisedErrorHandling.NONE) {
+            // https://tools.ietf.org/html/rfc7606#section-5.3
+            if (prefixLength > 32) {
+                throw new BGPDocumentedException("Withdrawn route length " + prefixLength + " exceeds 32 bytes",
+                    BGPError.ATTR_LENGTH_ERROR);
+            }
+            if (prefixLength > buf.readableBytes() * 8) {
+                throw new BGPDocumentedException(
+                    "Withdrawn route length " + prefixLength + " exceeds unconsumed field space",
+                    BGPError.ATTR_LENGTH_ERROR);
+            }
+        }
+
+        return Ipv4Util.prefixForByteBuf(buf, prefixLength);
     }
 
     /**
