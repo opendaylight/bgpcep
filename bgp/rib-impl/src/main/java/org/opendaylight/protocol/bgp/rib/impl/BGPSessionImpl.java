@@ -337,6 +337,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.channel.flush();
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     synchronized void write(final Notification msg) {
         try {
             writeEpilogue(this.channel.write(msg), msg);
@@ -369,12 +370,12 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      * Closes BGP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
      * modified, because he initiated the closing. (To prevent concurrent modification exception).
      *
-     * @param e BGPDocumentedException
+     * @param cause BGPDocumentedException
      */
     @VisibleForTesting
-    synchronized void terminate(final BGPDocumentedException e) {
-        final BGPError error = e.getError();
-        final byte[] data = e.getData();
+    synchronized void terminate(final BGPDocumentedException cause) {
+        final BGPError error = cause.getError();
+        final byte[] data = cause.getData();
         final NotifyBuilder builder = new NotifyBuilder().setErrorCode(error.getCode())
                 .setErrorSubcode(error.getSubcode());
         if (data != null && data.length != 0) {
@@ -465,6 +466,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @VisibleForTesting
+    @SuppressWarnings("checkstyle:illegalCatch")
     synchronized void sessionUp() {
         this.state = State.UP;
         try {
@@ -499,6 +501,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
+    @SuppressWarnings("checkstyle:illegalCatch")
     public final void channelInactive(final ChannelHandlerContext ctx) {
         LOG.debug("Channel {} inactive.", ctx.channel());
         this.endOfInput();
