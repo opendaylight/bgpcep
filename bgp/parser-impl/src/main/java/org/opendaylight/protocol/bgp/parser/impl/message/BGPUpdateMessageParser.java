@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -184,8 +186,8 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         Update msg = builder.build();
 
         if (withdrawCauseOpt.isPresent()) {
-            // FIXME: BGPCEP-359: check if we can treat the message as withdraw and convert the message
-            throw new BGPDocumentedException(withdrawCauseOpt.get());
+            // Attempt to apply treat-as-withdraw
+            msg = withdrawUpdate(msg, errorHandling, withdrawCauseOpt.get());
         }
 
         LOG.debug("BGP Update message was parsed {}.", msg);
@@ -250,5 +252,32 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             final String attrName, final int attrType) throws BGPDocumentedException, BGPTreatAsWithdrawException {
         return errorHandling.reportError(BGPError.WELL_KNOWN_ATTR_MISSING, new byte[] { (byte) attrType },
             "Well known mandatory attribute missing: %s", attrName);
+    }
+
+    private static Update withdrawUpdate(final Update parsed, final RevisedErrorHandling errorHandling,
+            final BGPTreatAsWithdrawException withdrawCause) throws BGPDocumentedException {
+        if (errorHandling == RevisedErrorHandling.NONE) {
+            throw new BGPDocumentedException(withdrawCause);
+        }
+
+        // TODO: additional checks as per RFC7606 section 5.2
+
+        LOG.debug("Converting BGP Update message {} to withdraw", parsed, withdrawCause);
+        final UpdateBuilder builder = new UpdateBuilder();
+
+        final List<Nlri> nlris = parsed.getNlri();
+        final List<WithdrawnRoutes> withdrawn;
+        if (nlris != null && !nlris.isEmpty()) {
+            withdrawn = Streams.concat(parsed.nonnullWithdrawnRoutes().stream(),
+                nlris.stream().map(nlri -> new WithdrawnRoutesBuilder(nlri).build()))
+                    .collect(ImmutableList.toImmutableList());
+        } else {
+            withdrawn = parsed.getWithdrawnRoutes();
+        }
+        builder.setWithdrawnRoutes(withdrawn);
+
+        // FIXME: BGPCEP-359: deal with MP_REACH-to-MP_UNREACH conversion
+
+        return builder.build();
     }
 }
