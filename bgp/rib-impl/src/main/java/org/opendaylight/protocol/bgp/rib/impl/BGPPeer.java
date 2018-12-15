@@ -260,13 +260,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final Class<? extends SubsequentAddressFamily> rrSafi = message.getSafi();
 
         final TablesKey key = new TablesKey(rrAfi, rrSafi);
-        final AdjRibOutListener listener = this.adjRibOutListenerSet.get(key);
-        if (listener != null) {
-            listener.close();
-            this.adjRibOutListenerSet.remove(key);
-            createAdjRibOutListener(key, listener.isMpSupported());
-        } else {
-            LOG.info("Ignoring RouteRefresh message. Afi/Safi is not supported: {}, {}.", rrAfi, rrSafi);
+        synchronized (this) {
+            final AdjRibOutListener listener = this.adjRibOutListenerSet.remove(key);
+            if (listener != null) {
+                listener.close();
+                createAdjRibOutListener(key, listener.isMpSupported());
+            } else {
+                LOG.info("Ignoring RouteRefresh message. Afi/Safi is not supported: {}, {}.", rrAfi, rrSafi);
+            }
         }
     }
 
@@ -330,7 +331,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    private synchronized void handleGracefulEndOfRib() {
+    @GuardedBy("this")
+    private void handleGracefulEndOfRib() {
         if (isLocalRestarting()) {
             if (this.missingEOT.isEmpty()) {
                 createEffRibInWriter();
@@ -446,7 +448,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
-    private synchronized void addBgp4Support() {
+    @GuardedBy("this")
+    private void addBgp4Support() {
         if (!this.tables.contains(IPV4_UCAST_TABLE_KEY)) {
             final HashSet<TablesKey> newSet = new HashSet<>(this.tables);
             newSet.add(IPV4_UCAST_TABLE_KEY);
@@ -455,8 +458,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    private synchronized void createAdjRibOutListener(final TablesKey key,
-                                                      final boolean mpSupport) {
+    @GuardedBy("this")
+    private void createAdjRibOutListener(final TablesKey key, final boolean mpSupport) {
         final RIBSupport<?, ?, ?, ?> ribSupport = this.rib.getRibSupportContext().getRIBSupport(key);
 
         // not particularly nice
