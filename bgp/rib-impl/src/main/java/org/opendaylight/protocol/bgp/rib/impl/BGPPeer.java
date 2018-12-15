@@ -144,6 +144,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
     private YangInstanceIdentifier peerPath;
     private boolean sessionUp;
+    private boolean llgrSupport;
     private Stopwatch peerRestartStopwatch;
     private long selectionDeferralTimerSeconds;
     private final List<TablesKey> missingEOT = new ArrayList<>();
@@ -159,9 +160,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final RpcProviderRegistry rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized,
+            final Map<TablesKey, Integer> llGracefulTablesAdvertised,
             final BgpPeer bgpPeer) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId,
-                localAs, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized, Collections.emptyMap());
+                localAs, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
@@ -308,7 +310,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (mpReach != null) {
             this.ribWriter.updateRoutes(mpReach, nextHopToAttribute(attrs, mpReach));
         }
-        MpUnreachNlri mpUnreach;
+        final MpUnreachNlri mpUnreach;
         if (message.getWithdrawnRoutes() != null) {
             mpUnreach = prefixesToMpUnreach(message, isAnyNlriAnnounced);
         } else {
@@ -360,6 +362,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
                 .capabilities.graceful.restart.capability.Tables> advertisedTables =
                     advertisedGracefulRestartCapability.getTables();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
+                .capabilities.ll.graceful.restart.capability.Tables> advertisedLLTables =
+                    session.getAdvertisedLlGracefulRestartCapability().getTables();
+
         final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
         final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
         LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name,
@@ -419,8 +425,29 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             setAdvertizedGracefulRestartTableTypes(advertisedTables.stream()
                     .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         }
-        final int restartTime = advertisedGracefulRestartCapability.getRestartTime();
-        setAfiSafiGracefulRestartState(restartTime, false, restartingLocally);
+        setAfiSafiGracefulRestartState(advertisedGracefulRestartCapability.getRestartTime(), false, restartingLocally);
+
+        final Map<TablesKey, Integer> llTablesReceived;
+        if (advertisedLLTables != null) {
+            llTablesReceived = new HashMap<>();
+            for (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
+                    .capabilities.ll.graceful.restart.capability.Tables table : advertisedLLTables) {
+                llTablesReceived.put(new TablesKey(table.getAfi(), table.getSafi()),
+                    table.getLongLiveStaleTime().intValue());
+            }
+        } else {
+            llTablesReceived = Collections.emptyMap();
+        }
+        setAdvertizedLlGracefulRestartTableTypes(llTablesReceived);
+
+        if (!llTablesReceived.isEmpty()) {
+            llgrSupport = true;
+            // FIXME: propagate preserved tables
+        } else {
+            // FIXME: clear preserved tables
+            llgrSupport = false;
+        }
+
         if (!restartingLocally) {
             addBgp4Support();
             for (final TablesKey key : this.tables) {
@@ -667,6 +694,11 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.selectionDeferralTimerSeconds = selectionDeferralTimerSeconds;
         setLocalRestartingState(true);
         return releaseConnection();
+    }
+
+    @Override
+    boolean supportsLLGR() {
+        return this.llgrSupport;
     }
 
     private synchronized void setGracefulPreferences(final boolean localRestarting,

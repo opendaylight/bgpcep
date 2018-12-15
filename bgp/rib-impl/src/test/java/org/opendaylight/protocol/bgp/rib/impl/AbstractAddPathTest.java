@@ -263,17 +263,18 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
         doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                afiSafiAdvertised, gracefulAfiSafiAdvertised, bgpPeer);
+                afiSafiAdvertised, gracefulAfiSafiAdvertised, Collections.emptyMap(), bgpPeer);
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4Address peerAddress,
             final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole,
             final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
-            final Set<TablesKey> gracefulAfiSafiAdvertised, final BgpPeer peer) {
+            final Set<TablesKey> gracefulAfiSafiAdvertised, final Map<TablesKey, Integer> llGracefulTimersAdvertised,
+            final BgpPeer peer) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), null, ribImpl, peerRole,
-                null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, peer);
+                null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, peer);
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));

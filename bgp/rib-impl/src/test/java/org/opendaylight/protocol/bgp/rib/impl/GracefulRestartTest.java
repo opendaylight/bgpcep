@@ -126,7 +126,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         Mockito.doReturn(createParameter(false, true, Collections.singletonMap(TABLES_KEY, false))
                 .getOptionalCapabilities()).when(bgpPeer).getBgpFixedCapabilities();
         this.peer = configurePeer(this.tableRegistry, PEER1, this.ribImpl, parameters, PeerRole.Ibgp,
-                this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, bgpPeer);
+                this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, Collections.emptyMap(), bgpPeer);
         this.session = createPeerSession(PEER1, parameters, this.listener);
     }
 
