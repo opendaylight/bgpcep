@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
@@ -599,8 +598,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             setAfiSafiGracefulRestartState(0, false, false);
             onSessionTerminated(this.session, new BGPTerminationReason(BGPError.HOLD_TIMER_EXPIRED));
         }
-        new ScheduledThreadPoolExecutor(1)
-                .schedule(this::handleRestartTimer, peerRestartTimeNanos - elapsedNanos, TimeUnit.NANOSECONDS);
+
+        this.session.schedule(this::handleRestartTimer, peerRestartTimeNanos - elapsedNanos, TimeUnit.NANOSECONDS);
     }
 
     private synchronized void handleSelectionReferralTimer() {
@@ -614,8 +613,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             this.missingEOT.clear();
             handleGracefulEndOfRib();
         }
-        new ScheduledThreadPoolExecutor(1)
-                .schedule(this::handleSelectionReferralTimer, referalTimerNanos - elapsedNanos, TimeUnit.NANOSECONDS);
+        this.session.schedule(this::handleSelectionReferralTimer, referalTimerNanos - elapsedNanos,
+            TimeUnit.NANOSECONDS);
     }
 
     private void releaseConnectionGracefully() {

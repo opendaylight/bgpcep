@@ -8,8 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import io.netty.channel.ChannelInboundHandler;
+import io.netty.util.concurrent.ScheduledFuture;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
@@ -90,4 +92,14 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      * Add peer constraint to session pipeline decoder.
      */
     <T extends PeerConstraint> void addDecoderConstraint(Class<T> constraintClass, T constraint);
+
+    /**
+     * Schedule a task to be executed in the context of the session handling thread.
+     *
+     * @param command the task to execute
+     * @param delay the time from now to delay execution
+     * @param unit the time unit of the delay parameter
+     * @return Future representing the scheduled task.
+     */
+    ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit);
 }
