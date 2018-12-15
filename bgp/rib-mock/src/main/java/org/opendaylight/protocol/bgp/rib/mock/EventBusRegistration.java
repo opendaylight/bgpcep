@@ -10,11 +10,13 @@ package org.opendaylight.protocol.bgp.rib.mock;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.ScheduledFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -205,6 +207,11 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
         public <T extends PeerConstraint> void addDecoderConstraint(final Class<T> constraintClass,
                 final T constraint) {
             // No-op
+        }
+
+        @Override
+        public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit) {
+            return null;
         }
     }
 }

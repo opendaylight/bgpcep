@@ -20,6 +20,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.concurrent.ScheduledFuture;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
 import java.util.ArrayList;
@@ -563,5 +564,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public <T extends PeerConstraint> void addDecoderConstraint(final Class<T> constraintClass, final T constraint) {
         this.channel.pipeline().get(BGPByteToMessageDecoder.class).addDecoderConstraint(constraintClass, constraint);
+    }
+
+    @Override
+    public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit) {
+        return this.channel.eventLoop().schedule(command, delay, unit);
     }
 }
