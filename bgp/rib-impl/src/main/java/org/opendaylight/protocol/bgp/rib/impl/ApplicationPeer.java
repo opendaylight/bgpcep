@@ -70,12 +70,15 @@ import org.slf4j.LoggerFactory;
  * Application Peer is a special case of BGP peer. It serves as an interface
  * for user to advertise user routes to ODL and through ODL to other BGP peers.
  *
+ * <p>
  * This peer has it's own RIB, where it stores all user routes. This RIB is
  * located in configurational datastore. Routes are added through RESTCONF.
  *
+ * <p>
  * They are then processed as routes from any other peer, through AdjRib,
  * EffectiveRib,LocRib and if they are advertised further, through AdjRibOut.
  *
+ * <p>
  * For purposed of import policies such as Best Path Selection, application
  * peer needs to have a BGP-ID that is configurable.
  */
@@ -244,8 +247,8 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                     // No-op
                     break;
                 case SUBTREE_MODIFIED:
-                    //For be ables to use DELETE when we remove specific routes as we do when we remove the whole routes,
-                    // we need to go deeper three levels
+                    // For be ables to use DELETE when we remove specific routes as we do when we remove the whole
+                    // routes, we need to go deeper three levels
                     if (!routeTableIdentifier.equals(childIdentifier.getParent().getParent().getParent())) {
                         processRoutesTable(child, childIdentifier, tx, routeTableIdentifier);
                         break;

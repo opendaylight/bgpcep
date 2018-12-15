@@ -118,8 +118,8 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final synchronized boolean isAfiSafiSupported(final TablesKey tablesKey) {
-        return this.prefixesReceived != null && this.prefixesReceived.isSupported(tablesKey) &&
-            this.afiSafisAdvertized.contains(tablesKey);
+        return this.prefixesReceived != null && this.prefixesReceived.isSupported(tablesKey)
+                && this.afiSafisAdvertized.contains(tablesKey);
     }
 
     @Override
@@ -188,7 +188,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         return this.peerRestarting;
     }
 
-    public synchronized final void setAfiSafiGracefulRestartState(final int peerRestartTime,
+    public final synchronized void setAfiSafiGracefulRestartState(final int peerRestartTime,
             final boolean peerRestarting, final boolean localRestarting) {
         this.peerRestartTime = peerRestartTime;
         this.peerRestarting = peerRestarting;
@@ -311,11 +311,11 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     @Override
-    public final synchronized int getLlGracefulRestartTimer(@Nonnull TablesKey tablesKey) {
-        final int timerAdvertised = isLlGracefulRestartAdvertised(tablesKey) ?
-                this.afiSafisLlGracefulAdvertised.get(tablesKey) : 0;
-        final int timerReceived = isLlGracefulRestartReceived(tablesKey) ?
-                this.afiSafisLlGracefulReceived.get(tablesKey) : 0;
+    public final synchronized int getLlGracefulRestartTimer(@Nonnull final TablesKey tablesKey) {
+        final int timerAdvertised = isLlGracefulRestartAdvertised(tablesKey)
+                ? this.afiSafisLlGracefulAdvertised.get(tablesKey) : 0;
+        final int timerReceived = isLlGracefulRestartReceived(tablesKey)
+                ? this.afiSafisLlGracefulReceived.get(tablesKey) : 0;
         return Integer.min(timerAdvertised, timerReceived);
     }
 }

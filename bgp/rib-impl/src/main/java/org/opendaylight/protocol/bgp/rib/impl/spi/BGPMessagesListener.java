@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
- * BGP Operational Messages Listener State
+ * BGP Operational Messages Listener State.
  */
 public interface BGPMessagesListener {
     /**

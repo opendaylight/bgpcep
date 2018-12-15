@@ -81,8 +81,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Implementation of the BGP import policy. Listens on peer's Adj-RIB-In, inspects all inbound
  * routes in the context of the advertising peer's role and applies the inbound policy.
+ *
  * <p>
  * Inbound policy is applied as follows:
+ *
  * <p>
  * 1) if the peer is an eBGP peer, perform attribute replacement and filtering
  * 2) check if a route is admissible based on attributes attached to it, as well as the
@@ -192,10 +194,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 case DELETE:
                     final Tables removeTable = table.getDataBefore();
                     final TablesKey tableKey = removeTable.key();
-                    final KeyedInstanceIdentifier<Tables, TablesKey> effectiveTablePath
-                            = this.effRibTables.child(Tables.class, tableKey);
-                    LOG.debug("Delete Effective Table {} modification type {}, "
-                            , effectiveTablePath, modificationType);
+                    final KeyedInstanceIdentifier<Tables, TablesKey> effectiveTablePath = this.effRibTables
+                            .child(Tables.class, tableKey);
+                    LOG.debug("Delete Effective Table {} modification type {}, ", effectiveTablePath, modificationType);
                     tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
                     CountersUtil.decrement(this.prefixesInstalled.get(tableKey), tableKey);
                     break;
@@ -354,7 +355,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final R route, final WriteTransaction tx) {
         final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
         if (rtMembership.isPresent()) {
-            if(PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
+            if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
                 this.rtCache.uncacheRoute(route);
             }
             this.rtMemberships.remove(rtMembership.get());

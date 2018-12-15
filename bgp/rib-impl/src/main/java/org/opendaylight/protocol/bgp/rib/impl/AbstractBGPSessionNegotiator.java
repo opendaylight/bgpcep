@@ -47,9 +47,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     // 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
     private static final int INITIAL_HOLDTIMER = 4;
 
-    /**
-     * @see <a href="http://tools.ietf.org/html/rfc6793">BGP Support for 4-Octet AS Number Space</a>
-     */
+    // <a href="http://tools.ietf.org/html/rfc6793">BGP Support for 4-Octet AS Number Space</a>
     private static final int AS_TRANS = 23456;
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
     private final BGPPeerRegistry registry;
@@ -234,6 +232,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     }
 
     /**
+     * Get destination identifier.
+     *
      * @param openMsg Open message received from remote BGP speaker
      * @param preferences Local BGP speaker preferences
      * @return BGP Id of device that accepted the connection
@@ -241,6 +241,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     protected abstract Ipv4Address getDestinationId(Open openMsg, BGPSessionPreferences preferences);
 
     /**
+     * Get source identifier.
+     *
      * @param openMsg Open message received from remote BGP speaker
      * @param preferences Local BGP speaker preferences
      * @return BGP Id of device that accepted the connection

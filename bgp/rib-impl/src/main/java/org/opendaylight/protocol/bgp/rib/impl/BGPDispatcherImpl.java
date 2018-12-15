@@ -154,8 +154,8 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress serverAddress) {
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(this.bgpPeerRegistry);
-        final ChannelPipelineInitializer<?> initializer = BGPChannel.
-                createChannelPipelineInitializer(this.handlerFactory, snf);
+        final ChannelPipelineInitializer<?> initializer = BGPChannel.createChannelPipelineInitializer(
+            this.handlerFactory, snf);
         final ServerBootstrap serverBootstrap = createServerBootstrap(initializer);
         final ChannelFuture channelFuture = serverBootstrap.bind(serverAddress);
         LOG.debug("Initiated server {} at {}.", channelFuture, serverAddress);
@@ -199,7 +199,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
 
         static <S extends BGPSession, T extends BGPSessionNegotiatorFactory<S>> ChannelPipelineInitializer<S>
-        createChannelPipelineInitializer(final BGPHandlerFactory hf, final T snf) {
+            createChannelPipelineInitializer(final BGPHandlerFactory hf, final T snf) {
             return (channel, promise) -> {
                 channel.pipeline().addLast(hf.getDecoders());
                 channel.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(channel, promise));

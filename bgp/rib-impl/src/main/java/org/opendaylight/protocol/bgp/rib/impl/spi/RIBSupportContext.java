@@ -25,16 +25,12 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
- *
  * {@link RIBSupport} wrapper which provides additional functionality
  * such as logic to update / remove routes using Binding DTOs
  * for BGP messages.
- *
  */
 public abstract class RIBSupportContext {
-
     /**
-     *
      * Create specified Rib table structure using supplied transaction.
      *
      * @param tx Transaction to to be used
@@ -52,9 +48,7 @@ public abstract class RIBSupportContext {
     public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpUnreachNlri nlri);
 
     /**
-     *
      * Writes supplied routes and attributes to RIB table using supplied transaction.
-     *
      *
      * @param tx Transaction to be used
      * @param tableId Instance Identifier of table to be updated

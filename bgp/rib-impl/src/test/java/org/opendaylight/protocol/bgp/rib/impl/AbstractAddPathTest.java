@@ -249,9 +249,9 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         return connectPeer(peer, clientDispatcher);
     }
 
-    static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
-                                 final Ipv4Address peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
-                                 final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry) {
+    static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4Address peerAddress,
+            final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole,
+            final BGPPeerRegistry bgpPeerRegistry) {
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
                 AFI_SAFIS_ADVERTIZED, Collections.emptySet());
     }
@@ -266,11 +266,10 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
                 afiSafiAdvertised, gracefulAfiSafiAdvertised, bgpPeer);
     }
 
-    static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
-                                 final Ipv4Address peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
-                                 final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry,
-                                 final Set<TablesKey> afiSafiAdvertised, final Set<TablesKey> gracefulAfiSafiAdvertised,
-                                 final BgpPeer peer) {
+    static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4Address peerAddress,
+            final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole,
+            final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
+            final Set<TablesKey> gracefulAfiSafiAdvertised, final BgpPeer peer) {
         final IpAddress ipAddress = new IpAddress(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddress(peerAddress), null, ribImpl, peerRole,

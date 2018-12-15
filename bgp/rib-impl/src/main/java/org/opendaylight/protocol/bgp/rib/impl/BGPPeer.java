@@ -110,7 +110,8 @@ import org.slf4j.LoggerFactory;
  */
 public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
-    private static final TablesKey IPV4_UCAST_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final TablesKey IPV4_UCAST_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
+        UnicastSubsequentAddressFamily.class);
 
     private Set<TablesKey> tables = Collections.emptySet();
     private final RIB rib;
@@ -354,8 +355,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         final GracefulRestartCapability advertisedGracefulRestartCapability =
                 session.getAdvertisedGracefulRestartCapability();
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.Tables> advertisedTables =
-                advertisedGracefulRestartCapability.getTables();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
+                .capabilities.graceful.restart.capability.Tables> advertisedTables =
+                    advertisedGracefulRestartCapability.getTables();
         final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
         final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
         LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name,
@@ -386,8 +388,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                         new BgpPeerRpc(this, session, this.tables));
                 final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
                         .rev180329.bgp.rib.rib.Peer, PeerKey> path = this.rib.getInstanceIdentifier()
-                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib
-                                .rib.Peer.class, new PeerKey(this.peerId));
+                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp
+                            .rib.rib.Peer.class, new PeerKey(this.peerId));
                 this.rpcRegistration.registerPath(PeerContext.class, path);
             }
         } else {

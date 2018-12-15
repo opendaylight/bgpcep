@@ -87,44 +87,6 @@ final class OpenConfigMappingUtil {
         return rootIdentifier.firstKeyOf(Protocol.class).getName();
     }
 
-    @Nullable
-    private static Integer getHoldTimer(final Timers timers) {
-        if (timers == null) {
-            return null;
-        }
-        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
-                .Config config = timers.getConfig();
-        if (config != null && config.getHoldTime() != null) {
-            return config.getHoldTime().intValue();
-        }
-        return null;
-    }
-
-    @Nullable
-    private static AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
-            .rev151009.bgp.neighbor.group.Config config) {
-        if (config != null) {
-            final AsNumber peerAs = config.getPeerAs();
-            if (peerAs != null) {
-                return peerAs;
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    private static Integer getRetryTimer(final Timers timers) {
-        if (timers == null) {
-            return null;
-        }
-        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
-                .Config config = timers.getConfig();
-        if (config != null && config.getConnectRetry() != null) {
-            return config.getConnectRetry().intValue();
-        }
-        return null;
-    }
-
     static KeyMapping getNeighborKey(final Neighbor neighbor) {
         if (neighbor.getConfig() != null) {
             final String authPassword = neighbor.getConfig().getAuthPassword();
@@ -143,21 +105,6 @@ final class OpenConfigMappingUtil {
 
     static String getNeighborInstanceName(final InstanceIdentifier<?> rootIdentifier) {
         return Ipv4Util.toStringIP(rootIdentifier.firstKeyOf(Neighbor.class).getNeighborAddress());
-    }
-
-    @Nullable
-    private static <T extends TransportConfig & Augmentation<Config>> PortNumber getPort(
-            @Nullable final Transport transport, final Class<T> augment) {
-        if (transport != null) {
-            final Config config = transport.getConfig();
-            if (config != null) {
-                final T peerTc = config.augmentation(augment);
-                if (peerTc != null) {
-                    return peerTc.getRemotePort();
-                }
-            }
-        }
-        return null;
     }
 
     //make sure IPv4 Unicast (RFC 4271) when required
@@ -374,6 +321,19 @@ final class OpenConfigMappingUtil {
         return hold;
     }
 
+    @Nullable
+    private static Integer getHoldTimer(final Timers timers) {
+        if (timers == null) {
+            return null;
+        }
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
+                .Config config = timers.getConfig();
+        if (config != null && config.getHoldTime() != null) {
+            return config.getHoldTime().intValue();
+        }
+        return null;
+    }
+
     static int getGracefulRestartTimer(final Neighbor neighbor, final PeerGroup peerGroup, final int holdTimer) {
         Integer timer = null;
         if (peerGroup != null) {
@@ -425,6 +385,12 @@ final class OpenConfigMappingUtil {
         return neighborAs;
     }
 
+    @Nullable
+    private static AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+            .rev151009.bgp.neighbor.group.Config config) {
+        return config == null ? null : config.getPeerAs();
+    }
+
     @Nonnull
     static AsNumber getLocalPeerAs(@Nullable final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
             .rev151009.bgp.neighbor.group.Config config, @Nonnull final AsNumber globalAs) {
@@ -454,6 +420,19 @@ final class OpenConfigMappingUtil {
         return retryTimer;
     }
 
+    @Nullable
+    private static Integer getRetryTimer(final Timers timers) {
+        if (timers == null) {
+            return null;
+        }
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
+                .Config config = timers.getConfig();
+        if (config != null && config.getConnectRetry() != null) {
+            return config.getConnectRetry().intValue();
+        }
+        return null;
+    }
+
     @Nonnull
     static PortNumber getPort(final Neighbor neighbor, final PeerGroup peerGroup) {
         PortNumber port = null;
@@ -470,6 +449,21 @@ final class OpenConfigMappingUtil {
         }
 
         return port;
+    }
+
+    @Nullable
+    private static <T extends TransportConfig & Augmentation<Config>> PortNumber getPort(
+            @Nullable final Transport transport, final Class<T> augment) {
+        if (transport != null) {
+            final Config config = transport.getConfig();
+            if (config != null) {
+                final T peerTc = config.augmentation(augment);
+                if (peerTc != null) {
+                    return peerTc.getRemotePort();
+                }
+            }
+        }
+        return null;
     }
 
     @Nullable

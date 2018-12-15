@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import javax.annotation.Nonnull;
@@ -68,10 +67,11 @@ public interface BGPPeerRegistry extends AutoCloseable {
             throws BGPDocumentedException;
 
     /**
+     * Get preferences for a remote peer.
+     *
      * @param ip address of remote peer
      * @return BGP session preferences for configured peer
-     *
-     * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
+     * @throws IllegalStateException if there is no peer configured for provided ip address
      */
     BGPSessionPreferences getPeerPreferences(IpAddress ip);
 

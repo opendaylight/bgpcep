@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
@@ -179,8 +179,8 @@ public class PeerTest extends AbstractRIBTestSetup {
         assertEquals(3, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
-        final BGPPeer testingPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, this.neighborAddress.getIpv4Address(),
-                getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+        final BGPPeer testingPeer = AbstractAddPathTest.configurePeer(this.tableRegistry,
+            this.neighborAddress.getIpv4Address(), getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         testingPeer.instantiateServiceInstance();
         testingPeer.onSessionUp(this.session);
         assertEquals(3, this.routes.size());

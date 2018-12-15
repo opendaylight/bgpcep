@@ -287,7 +287,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     /**
      * Session identifier that contains (source Bgp Id) -> (destination Bgp Id) AsNumber is the remoteAs coming from
-     * remote Open message
+     * remote Open message.
      */
     private static final class BGPSessionId {
 
@@ -302,7 +302,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
 
         /**
-         * Equals does not take direction of connection into account id1 -> id2 and id2 -> id1 are equal
+         * Equals does not take direction of connection into account id1 -> id2 and id2 -> id1 are equal.
          */
         @Override
         public boolean equals(final Object obj) {
@@ -334,7 +334,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
 
         /**
-         * Check if this connection is equal to other and if it contains higher source bgp id
+         * Check if this connection is equal to other and if it contains higher source bgp id.
          */
         boolean isHigherDirection(final BGPSessionId other) {
             return toLong(this.from) > toLong(other.from);

@@ -99,7 +99,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private long lastMessageSentAt;
 
     /**
-     * System.nanoTime value about when was received the last message
+     * System.nanoTime value about when was received the last message.
      */
     private long lastMessageReceivedAt;
 
@@ -236,8 +236,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      * message arrived already in the channel buffer. Thus #AbstractBGPSessionNegotiator.handleMessage(..)
      * gets invoked again and a deadlock is caused.  A BGP final state machine error will happen as BGP
      * negotiator is still in OPEN_SENT state as the session constructor hasn't returned yet.
-     *
-     * @param remoteOpen
      */
     public synchronized void setChannelExtMsgCoder(final Open remoteOpen) {
         final boolean enableExMess = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);

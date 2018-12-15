@@ -144,7 +144,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.ribPolicies = requireNonNull(ribPolicies);
         this.codecsRegistry = codecsRegistry;
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
-        final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
+        final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME)
+                .node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
         this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
         this.ribId = ribId;
@@ -351,11 +352,11 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
                         .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
                         .build()).build();
 
-
         final DOMDataWriteTransaction trans = this.domChain.newWriteOnlyTransaction();
 
         // merge empty BgpRib + Rib, to make sure the top-level parent structure is present
-        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.builder().node(BgpRib.QNAME).build(), bgpRib);
+        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.builder().node(BgpRib.QNAME).build(),
+            bgpRib);
         trans.put(LogicalDatastoreType.OPERATIONAL, this.yangRibId, ribInstance);
 
         try {

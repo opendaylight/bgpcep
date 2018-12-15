@@ -19,9 +19,6 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 @Sharable
 final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
     private static final Logger LOG = LoggerFactory.getLogger(BGPMessageToByteEncoder.class);

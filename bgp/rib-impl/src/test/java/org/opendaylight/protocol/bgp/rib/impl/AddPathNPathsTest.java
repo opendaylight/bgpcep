@@ -80,7 +80,7 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
 
         configurePeer(this.tableRegistry, PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
-       final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
+        final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
 
         configurePeer(this.tableRegistry, PEER3, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
         final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());

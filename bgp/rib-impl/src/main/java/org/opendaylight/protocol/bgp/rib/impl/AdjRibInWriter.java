@@ -142,10 +142,10 @@ final class AdjRibInWriter {
      * method returns, the old instance must not be reasonably used.
      *
      * @param newPeerId         new peer BGP identifier
-     * @param peerPath
+     * @param peerPath          path of the peer in the datastore
      * @param registry          RIB extension registry
      * @param tableTypes        New tables, must not be null
-     * @param addPathTablesType
+     * @param addPathTablesType supported add path tables
      * @return New writer
      */
     AdjRibInWriter transform(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
@@ -187,7 +187,7 @@ final class AdjRibInWriter {
     }
 
     /**
-     * Create new table instances, potentially creating their empty entries
+     * Create new table instances, potentially creating their empty entries.
      */
     private static ImmutableMap<TablesKey, TableContext> createNewTableInstances(
             final YangInstanceIdentifier newPeerPath, final RIBSupportContextRegistry registry,
@@ -387,7 +387,7 @@ final class AdjRibInWriter {
                             LOG.warn("Failed to store stale routes for table {}", tablesKey, throwable);
                             latch.countDown();
                         }
-                }, MoreExecutors.directExecutor());
+                    }, MoreExecutors.directExecutor());
             }
         }
 
