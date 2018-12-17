@@ -25,11 +25,15 @@ import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.AdministrativeGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Ipv4RouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Ipv6RouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkProtectionType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Loss;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.MplsProtocolMask;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.LinkMinMaxDelay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.LinkMinMaxDelayBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.PeerAdjSid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.PeerAdjSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.PeerNodeSid;
@@ -85,6 +89,14 @@ public final class LinkAttributesParser {
     private static final int PEER_NODE_SID_CODE = 1101;
     private static final int PEER_ADJ_SID_CODE = 1102;
     private static final int PEER_SET_SID_CODE = 1103;
+    // Performance Metrics
+    private static final int LINK_DELAY = 1114;
+    private static final int LINK_MIN_MAX_DELAY = 1115;
+    private static final int DELAY_VARIATION = 1116;
+    private static final int LINK_LOSS = 1117;
+    private static final int RESIDUAL_BANDWIDTH = 1118;
+    private static final int AVAILABLE_BANDWIDTH = 1119;
+    private static final int UTILIZED_BANDWIDTH = 1120;
 
     private LinkAttributesParser() {
         throw new UnsupportedOperationException();
@@ -191,6 +203,36 @@ public final class LinkAttributesParser {
                 peerSetSids.add(new PeerSetSidsBuilder(SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
                 LOG.debug("Parsed Peer Set Sid :{}", peerSetSids.get(peerSetSids.size() - 1));
                 break;
+            // Performance Metrics
+            case LINK_DELAY:
+                builder.setLinkDelay(new Delay(value.readUnsignedInt()));
+                LOG.debug("Parsed Link Delay {}", builder.getLinkDelay());
+                break;
+            case LINK_MIN_MAX_DELAY:
+                builder.setLinkMinMaxDelay(new LinkMinMaxDelayBuilder().setMinDelay(new Delay(value.readUnsignedInt()))
+                        .setMaxDelay(new Delay(value.readUnsignedInt())).build());
+                LOG.debug("Parsed Link Min/Max Delay {}", builder.getLinkMinMaxDelay());
+                break;
+            case DELAY_VARIATION:
+                builder.setDelayVariation(new Delay(value.readUnsignedInt()));
+                LOG.debug("Parsed Delay Variation {}", builder.getDelayVariation());
+                break;
+            case LINK_LOSS:
+                builder.setLinkLoss(new Loss(value.readUnsignedInt()));
+                LOG.debug("Parsed Link Loss {}", builder.getLinkLoss());
+                break;
+            case RESIDUAL_BANDWIDTH:
+                builder.setResidualBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
+                LOG.debug("Parsed Residual Bandwidth {}", builder.getResidualBandwidth());
+                break;
+            case AVAILABLE_BANDWIDTH:
+                builder.setAvailableBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
+                LOG.debug("Parsed Available Bandwidth {}", builder.getAvailableBandwidth());
+                break;
+            case UTILIZED_BANDWIDTH:
+                builder.setUtilizedBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
+                LOG.debug("Parsed Utilized Bandwidth {}", builder.getUtilizedBandwidth());
+                break;
             default:
                 LOG.warn("TLV {} is not a valid link attribute, ignoring it", key);
             }
@@ -256,6 +298,14 @@ public final class LinkAttributesParser {
         ifPresentApply(linkAttributes.getPeerNodeSid(), value -> TlvUtil.writeTLV(PEER_NODE_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerNodeSid) value), output));
         ifPresentApply(linkAttributes.getPeerAdjSid(), value -> TlvUtil.writeTLV(PEER_ADJ_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerAdjSid) value), output));
         ifPresentApply(linkAttributes.getPeerSetSids(), value -> SrLinkAttributesParser.serializeAdjacencySegmentIdentifiers((List<PeerSetSids>) value, PEER_SET_SID_CODE, output));
+        // Performance Metrics
+        ifPresentApply(linkAttributes.getLinkDelay(), value -> TlvUtil.writeTLV(LINK_DELAY, Unpooled.copyInt((((Delay) value).getValue()).intValue()), output));
+        serializeLinkMinMaxDelay(linkAttributes.getLinkMinMaxDelay(), output);
+        ifPresentApply(linkAttributes.getDelayVariation(), value -> TlvUtil.writeTLV(DELAY_VARIATION, Unpooled.copyInt((((Delay) value).getValue()).intValue()), output));
+        ifPresentApply(linkAttributes.getLinkLoss(), value -> TlvUtil.writeTLV(LINK_LOSS, Unpooled.copyInt((((Loss) value).getValue()).intValue()), output));
+        ifPresentApply(linkAttributes.getResidualBandwidth(), value -> TlvUtil.writeTLV(RESIDUAL_BANDWIDTH, Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
+        ifPresentApply(linkAttributes.getAvailableBandwidth(), value -> TlvUtil.writeTLV(AVAILABLE_BANDWIDTH, Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
+        ifPresentApply(linkAttributes.getUtilizedBandwidth(), value -> TlvUtil.writeTLV(UTILIZED_BANDWIDTH, Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
         LOG.trace("Finished serializing Link Attributes");
     }
 
@@ -288,6 +338,15 @@ public final class LinkAttributesParser {
             mask.set(RSVP_BIT, mplsProtocolMask.isRsvpte());
             mask.toByteBuf(mplsProtocolMaskBuf);
             TlvUtil.writeTLV(MPLS_PROTOCOL, mplsProtocolMaskBuf, byteAggregator);
+        }
+    }
+
+    private static void serializeLinkMinMaxDelay(final LinkMinMaxDelay linkMinMaxDelay, final ByteBuf byteAggregator) {
+        if (linkMinMaxDelay != null) {
+            final ByteBuf linkMinMaxDelayBuf = Unpooled.buffer();
+            linkMinMaxDelayBuf.writeInt(linkMinMaxDelay.getMinDelay().getValue().intValue());
+            linkMinMaxDelayBuf.writeInt(linkMinMaxDelay.getMaxDelay().getValue().intValue());
+            TlvUtil.writeTLV(LINK_MIN_MAX_DELAY, linkMinMaxDelayBuf, byteAggregator);
         }
     }
 }
