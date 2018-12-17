@@ -21,7 +21,7 @@ module bgp-linkstate {
     description
         "This module contains the base data model of a BGP message.
         It rolls up the definitions contained in RFC4271
-        and draft-ietf-idr-ls-distribution-03.
+        and RFC7752.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -31,7 +31,9 @@ module bgp-linkstate {
         http://www.eclipse.org/legal/epl-v10.html";
 
     revision "2018-03-29" {
-        description "Add support for add-path for all afi/safi.";
+        description "Add support for add-path for all afi/safi.
+            and Updated to include Performance Metric Extensions";
+        reference "draft-ietf-idr-te-pm-bgp-17";
     }
 
     revision "2017-12-07" {
@@ -83,12 +85,12 @@ module bgp-linkstate {
             }
             enum ipv4-te-lsp {
                 status deprecated;
-                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-4.1";
+                reference "http://tools.ietf.org/html/rfc7752#section-4.1";
                 value 5;
             }
             enum ipv6-te-lsp {
                 status deprecated;
-                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-4.1";
+                reference "http://tools.ietf.org/html/rfc7752#section-4.1";
                 value 6;
             }
         }
@@ -121,12 +123,12 @@ module bgp-linkstate {
             }
             enum rsvp-te {
                 status deprecated;
-                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.1";
+                reference "http://tools.ietf.org/html/rfc7752#section-2.1";
                 value 8; // rsvp-te protocol-id TBD by IANA
             }
             enum segment-routing {
                 status deprecated;
-                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.1";
+                reference "http://tools.ietf.org/html/rfc7752#section-2.1";
                 value 9; // segment-routing protocol-id TBD by IANA
             }
         }
@@ -508,7 +510,7 @@ module bgp-linkstate {
 
     // linkstate
     typedef mpls-protocol-mask {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.2";
+        reference "http://tools.ietf.org/html/rfc7752#section-3.3.2.2";
         type bits {
             bit ldp {
                 position 0;
@@ -534,8 +536,34 @@ module bgp-linkstate {
         }
     }
 
+    typedef delay {
+        description "This 24-bit typedef describes delay over a configurable
+            interval in microseconds, encoded as an integer value. When set to
+            the maximum value 16,777,215 (16.777215 sec), then the delay is at
+            least that value, and it may be larger.";
+        reference "https://tools.ietf.org/html/rfc7471#section-4.1.5";
+        type uint32 {
+            range "0..16777215";
+        }
+        units microseconds;
+    }
+
+    typedef loss {
+        description "This 24-bit typedef describes packet loss as a percentage
+            of the total traffic sent over a configurable interval. The basic
+            unit is 0.000003%, where (2^24 - 2) is 50.331642%. This value is
+            the highest packet loss percentage that can be expressed.
+            Therefore, measured values that are larger than the field maximum
+            SHOULD be encoded as the maximum value.";
+        reference "https://tools.ietf.org/html/rfc7471#section-4.4.5";
+        type uint32 {
+            range "0..16777215";
+        }
+        units percent;
+    }
+
     grouping linkstate-attribute {
-        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2";
+        reference "http://tools.ietf.org/html/rfc7752#section-3.3.2";
         leaf local-ipv4-router-id {
             type ipv4-router-identifier;
         }
@@ -599,6 +627,47 @@ module bgp-linkstate {
             description "The SID representing the group the peer is part of.";
             reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-05#section-4.3";
             uses bgp-sr:epe-adj-sid-tlv;
+        }
+        // Performance Metric https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2
+        leaf link-delay {
+            description "Unidirectional Link Delay";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.1";
+            type delay;
+        }
+        container link-min-max-delay {
+            description "Min/Max Unidirectional Link Delay";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.2";
+            leaf min-delay {
+                type delay;
+            }
+            leaf max-delay {
+                type delay;
+            }
+        }
+        leaf delay-variation {
+            description "Unidirectional Delay Variation";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.3";
+            type delay;
+        }
+        leaf link-loss {
+            description "Unidirectional Link Loss";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.4";
+            type loss;
+        }
+        leaf residual-bandwidth {
+            description "Unidirectional Residual Bandwidth";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.5";
+            type netc:bandwidth;
+        }
+        leaf available-bandwidth {
+            description "Unidirectional Available Bandwidth";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.6";
+            type netc:bandwidth;
+        }
+        leaf utilized-bandwidth {
+            description "Unidirectional Utilized Bandwidth";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.7";
+            type netc:bandwidth;
         }
     }
 
@@ -692,7 +761,7 @@ module bgp-linkstate {
             case te-lsp-attributes-case {
                 status deprecated;
                 description "LSP Object";
-                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.2";
+                reference "http://tools.ietf.org/html/rfc7752#section-2.2";
                 container te-lsp-attributes {
                     uses rsvp:tspec-object;
                     uses rsvp:flow-spec-object;

@@ -105,6 +105,14 @@ public class LinkstateAttributeParserTest {
         0x04, 0x4d, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0d, // peer-node-sid
         0x04, 0x4e, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0f, // peer-adj-sid
         0x04, 0x4f, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0e, // peer-set-sid
+        // Performace Metrics
+        0x04, 0x5a, 0, 0x04, 0, 0, 0x27, 0x10, // Link Delay
+        0x04, 0x5b, 0, 0x08, 0, 0, 0x13, (byte)0x88, 0, 0, 0x4e, 0x20, // Link Min-Max Delay
+        0x04, 0x5c, 0, 0x04, 0, 0, 0x27, 0x10, // Link Delay Variation
+        0x04, 0x5d, 0, 0x04, 0, 0, 0, 0, // Link Loss
+        0x04, 0x5e, 0, 0x04, 0x46, 0x43, 0x50, 0, // Residual Bandwidth
+        0x04, 0x5f, 0, 0x04, 0x46, 0x43, 0x50, 0, // Available Bandwidth
+        0x04, 0x60, 0, 0x04, 0, 0, 0, 0,  // Utilized Bandwidth
         0x04, (byte) 0x88, 0, 0x01, 0x0a };
 
     private static final byte[] NODE_ATTR = { 0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0,
@@ -237,10 +245,24 @@ public class LinkstateAttributeParserTest {
         assertEquals(new Long(168496143L), ((SidCase) ls.getPeerAdjSid().getSidLabelIndex()).getSid());
         assertEquals(new Short("5"), ls.getPeerAdjSid().getWeight().getValue());
 
+        // Performance Metrics
+        assertEquals(new Long(10000L), ls.getLinkDelay().getValue());
+        assertEquals(new Long(5000L), ls.getLinkMinMaxDelay().getMinDelay().getValue());
+        assertEquals(new Long(20000L), ls.getLinkMinMaxDelay().getMaxDelay().getValue());
+        assertEquals(new Long(10000L), ls.getDelayVariation().getValue());
+        assertEquals(new Long(0L), ls.getLinkLoss().getValue());
+        assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
+                ls.getResidualBandwidth().getValue());
+        assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
+                ls.getAvailableBandwidth().getValue());
+        assertArrayEquals(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 },
+                ls.getUtilizedBandwidth().getValue());
+
         //serialization
         final ByteBuf buff = Unpooled.buffer();
         this.parser.serializeAttribute(builder.build(), buff);
-        buff.skipBytes(3);
+        // The LINK_ATTR buffer is now greater than 255 bytes. Need to skip one more byte
+        buff.skipBytes(4);
         // there is unresolved TLV at the end, that needs to be cut off
 
         assertArrayEquals(ByteArray.subByte(LINK_ATTR, 0, LINK_ATTR.length -5), ByteArray.getAllBytes(buff));
