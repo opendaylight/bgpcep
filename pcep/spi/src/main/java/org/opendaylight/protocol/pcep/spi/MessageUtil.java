@@ -15,12 +15,11 @@ public final class MessageUtil {
     private static final int VERSION_SF_LENGTH = 3;
 
     private MessageUtil() {
-        throw new UnsupportedOperationException();
     }
 
     public static void formatMessage(final int messageType, final ByteBuf body, final ByteBuf out) {
         final int msgLength = body.writerIndex();
-        out.writeByte(PCEPMessageConstants.PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
+        out.writeByte(PCEPMessageConstants.PCEP_VERSION << Byte.SIZE - VERSION_SF_LENGTH);
         out.writeByte(messageType);
         out.writeShort(msgLength + PCEPMessageConstants.COMMON_HEADER_LENGTH);
         Preconditions.checkState(out.writerIndex() == PCEPMessageConstants.COMMON_HEADER_LENGTH);

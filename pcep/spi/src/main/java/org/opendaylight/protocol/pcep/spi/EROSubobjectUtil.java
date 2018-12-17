@@ -16,7 +16,6 @@ public final class EROSubobjectUtil {
     private static final int LOOSE_BIT = 7;
 
     private EROSubobjectUtil() {
-        throw new UnsupportedOperationException();
     }
 
     public static void formatSubobject(final int type, final Boolean loose, final ByteBuf body, final ByteBuf buffer) {

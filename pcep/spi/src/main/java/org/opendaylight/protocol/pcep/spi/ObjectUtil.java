@@ -22,7 +22,6 @@ public final class ObjectUtil {
     private static final int IGNORED = 3;
 
     private ObjectUtil() {
-        throw new UnsupportedOperationException();
     }
 
     public static void formatSubobject(final int objectType, final int objectClass, final Boolean processingRule, final Boolean ignore,
@@ -32,7 +31,7 @@ public final class ObjectUtil {
         flags.set(IGNORED, ignore);
         flags.set(PROCESSED, processingRule);
         final byte flagB = flags.toByte();
-        final int typeByte = objectType << FLAGS_SIZE | (flagB & 0xff);
+        final int typeByte = objectType << FLAGS_SIZE | flagB & 0xff;
         out.writeByte(typeByte);
         out.writeShort(body.writerIndex() + HEADER_SIZE);
         out.writeBytes(body);

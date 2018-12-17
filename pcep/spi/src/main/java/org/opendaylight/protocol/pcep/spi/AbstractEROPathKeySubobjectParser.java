@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 
 /**
- * Parser for {@link PathKey}
+ * Parser for {@link PathKey}.
  */
 public abstract class AbstractEROPathKeySubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -33,13 +33,14 @@ public abstract class AbstractEROPathKeySubobjectParser implements EROSubobjectP
     protected static final int CONTENT128_LENGTH = 2 + PCE128_ID_F_LENGTH;
     protected static final int CONTENT_LENGTH = 2 + PCE_ID_F_LENGTH;
 
-    protected abstract byte[] readPceId(final ByteBuf buffer);
+    protected abstract byte[] readPceId(ByteBuf buffer);
 
-    protected abstract void checkContentLenght(final int i) throws PCEPDeserializerException;
+    protected abstract void checkContentLenght(int i) throws PCEPDeserializerException;
 
     @Override
     public final Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         checkContentLenght(buffer.readableBytes());
         final int pathKey = buffer.readUnsignedShort();
         final byte[] pceId = readPceId(buffer);
@@ -54,17 +55,20 @@ public abstract class AbstractEROPathKeySubobjectParser implements EROSubobjectP
 
     @Override
     public final void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase, "Unknown subobject instance. Passed %s. Needed PathKey.",
-            subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase,
+            "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
-            .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
+            .subobjects.subobject.type.path.key._case.PathKey pk =
+            ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         final byte[] pceID = pk.getPceId().getValue();
-        Preconditions.checkArgument(pceID.length == PCE_ID_F_LENGTH || pceID.length == PCE128_ID_F_LENGTH, "PceId 32/128 Bit required.");
+        Preconditions.checkArgument(pceID.length == PCE_ID_F_LENGTH || pceID.length == PCE128_ID_F_LENGTH,
+                "PceId 32/128 Bit required.");
         final ByteBuf body = Unpooled.buffer();
         writeUnsignedShort(pk.getPathKey().getValue(), body);
         body.writeBytes(pceID);
-        EROSubobjectUtil.formatSubobject(pceID.length == PCE_ID_F_LENGTH ? TYPE_32 : TYPE_128, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(pceID.length == PCE_ID_F_LENGTH ? TYPE_32 : TYPE_128, subobject.isLoose(),
+                body, buffer);
     }
 }

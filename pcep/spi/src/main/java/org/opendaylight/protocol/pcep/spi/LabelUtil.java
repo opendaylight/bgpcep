@@ -18,7 +18,6 @@ public final class LabelUtil {
     private static final int GLOBAL = 7;
 
     private LabelUtil() {
-        throw new UnsupportedOperationException();
     }
 
     public static void formatLabel(final int type, final Boolean unidirectional, final Boolean global, final ByteBuf body, final ByteBuf buffer) {

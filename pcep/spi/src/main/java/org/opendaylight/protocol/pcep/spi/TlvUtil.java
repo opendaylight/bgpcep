@@ -16,7 +16,6 @@ public final class TlvUtil {
     public static final int PADDED_TO = 4;
 
     private TlvUtil() {
-        throw new UnsupportedOperationException();
     }
 
     public static void formatTlv(final int type,final ByteBuf body, final ByteBuf out) {
@@ -27,6 +26,6 @@ public final class TlvUtil {
     }
 
     public static int getPadding(final int length, final int padding) {
-        return (padding - (length % padding)) % padding;
+        return (padding - length % padding) % padding;
     }
 }

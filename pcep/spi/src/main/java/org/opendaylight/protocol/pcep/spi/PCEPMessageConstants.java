@@ -7,9 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-/**
- *
- */
 public final class PCEPMessageConstants {
     /**
      * Length of the common message header, in bytes.
@@ -22,6 +19,5 @@ public final class PCEPMessageConstants {
     public static final int PCEP_VERSION = 1;
 
     private PCEPMessageConstants() {
-        throw new UnsupportedOperationException();
     }
 }

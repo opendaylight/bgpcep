@@ -23,8 +23,7 @@ public interface EROSubobjectRegistry {
      * @return null if the parser for this subobject could not be found
      * @throws PCEPDeserializerException if the parsing did not succeed
      */
-    Subobject parseSubobject(final int subobjectType, final ByteBuf buffer, final boolean loose)
-        throws PCEPDeserializerException;
+    Subobject parseSubobject(int subobjectType, ByteBuf buffer, boolean loose) throws PCEPDeserializerException;
 
     /**
      * Find serializer for given subobject. Delegates parsing to found serializer.
@@ -32,5 +31,5 @@ public interface EROSubobjectRegistry {
      * @param subobject to be parsed
      * @param buffer    buffer where the serialized subobject will be parsed
      */
-    void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
+    void serializeSubobject(Subobject subobject, ByteBuf buffer);
 }

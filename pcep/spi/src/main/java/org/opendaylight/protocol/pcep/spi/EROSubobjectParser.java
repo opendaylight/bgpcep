@@ -14,5 +14,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Explicit Route Object Parser.
  */
 public interface EROSubobjectParser {
-    Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException;
+    Subobject parseSubobject(ByteBuf buffer, boolean loose) throws PCEPDeserializerException;
 }
