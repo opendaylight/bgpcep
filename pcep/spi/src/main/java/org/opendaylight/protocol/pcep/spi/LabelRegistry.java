@@ -8,19 +8,18 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 
 public interface LabelRegistry {
     /**
      * Finds parser for given label C-type in the registry. Delegates parsing to found parser.
      *
-     * @param cType label type, key in parser registry
+     * @param ctype label type, key in parser registry
      * @param buffer label wrapped in ByteBuf
      * @return null if the parser for this label could not be found
      * @throws PCEPDeserializerException if the parsing did not succeed
      */
-    LabelType parseLabel(final int cType, final ByteBuf buffer) throws PCEPDeserializerException;
+    LabelType parseLabel(int ctype, ByteBuf buffer) throws PCEPDeserializerException;
 
     /**
      * Find serializer for given label. Delegates parsing to found serializer.
@@ -30,5 +29,5 @@ public interface LabelRegistry {
      * @param label to be parsed
      * @param buffer buffer where the serialized label will be parsed
      */
-    void serializeLabel(final boolean unidirectional, final boolean global, final LabelType label, final ByteBuf buffer);
+    void serializeLabel(boolean unidirectional, boolean global, LabelType label, ByteBuf buffer);
 }

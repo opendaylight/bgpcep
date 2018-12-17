@@ -20,9 +20,9 @@ public final class EROPathKey128SubobjectParser extends AbstractEROPathKeySubobj
     }
 
     @Override
-    protected void checkContentLenght(final int lenght) throws PCEPDeserializerException {
-        if (lenght != CONTENT128_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + lenght + "; Expected: >"
+    protected void checkContentLength(final int length) throws PCEPDeserializerException {
+        if (length != CONTENT128_LENGTH) {
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + length + "; Expected: >"
                 + CONTENT128_LENGTH + ".");
         }
     }

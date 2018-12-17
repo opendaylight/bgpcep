@@ -13,17 +13,9 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 
 public final class ServiceLoaderPCEPExtensionProviderContext extends SimplePCEPExtensionProviderContext {
     private static final class Holder {
-        private static final PCEPExtensionProviderContext INSTANCE;
+        private static final PCEPExtensionProviderContext INSTANCE = create();
 
         private Holder() {
-        }
-
-        static {
-            try {
-                INSTANCE = create();
-            } catch (final Exception e) {
-                throw new ExceptionInInitializerError(e);
-            }
         }
     }
 
@@ -34,7 +26,8 @@ public final class ServiceLoaderPCEPExtensionProviderContext extends SimplePCEPE
     public static PCEPExtensionProviderContext create() {
         final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
 
-        final ServiceLoader<PCEPExtensionProviderActivator> loader = ServiceLoader.load(PCEPExtensionProviderActivator.class);
+        final ServiceLoader<PCEPExtensionProviderActivator> loader =
+                ServiceLoader.load(PCEPExtensionProviderActivator.class);
         for (final PCEPExtensionProviderActivator a : loader) {
             a.start(ctx);
         }

@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
@@ -28,12 +28,13 @@ public abstract class AbstractPCEPExtensionProviderActivator implements AutoClos
 
     @Override
     public final synchronized void start(final PCEPExtensionProviderContext context) {
-        Preconditions.checkState(this.registrations == null);
+        checkState(this.registrations == null);
 
         this.registrations = requireNonNull(startImpl(context));
     }
 
     @Override
+    @SuppressWarnings("checkstyle:illegalCatch")
     public final synchronized void stop() {
         if (this.registrations == null) {
             return;

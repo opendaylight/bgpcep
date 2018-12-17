@@ -5,11 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import java.util.Optional;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
@@ -18,8 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public interface VendorInformationObjectRegistry {
 
-    Optional<? extends Object> parseVendorInformationObject(final EnterpriseNumber enterpriseNumber, final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException;
+    Optional<? extends Object> parseVendorInformationObject(EnterpriseNumber enterpriseNumber, ObjectHeader header,
+            ByteBuf buffer) throws PCEPDeserializerException;
 
-    void serializeVendorInformationObject(final VendorInformationObject viObject, final ByteBuf buffer);
-
+    void serializeVendorInformationObject(VendorInformationObject viObject, ByteBuf buffer);
 }

@@ -24,14 +24,14 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 public final class UnknownObject implements Object {
     private final Object invalidObject;
     private final Errors error;
-    private final PCEPErrors e;
+    private final PCEPErrors err;
 
     public UnknownObject(final PCEPErrors error) {
         this(error, null);
     }
 
     public UnknownObject(final PCEPErrors error, final Object invalidObject) {
-        this.e = requireNonNull(error);
+        this.err = requireNonNull(error);
 
         this.error = new ErrorsBuilder().setErrorObject(
                 new ErrorObjectBuilder().setType(error.getErrorType()).setValue(
@@ -44,7 +44,7 @@ public final class UnknownObject implements Object {
     }
 
     public PCEPErrors getError() {
-        return this.e;
+        return this.err;
     }
 
     public Object getInvalidObject() {
@@ -58,11 +58,11 @@ public final class UnknownObject implements Object {
 
     @Override
     public Boolean isIgnore() {
-        return false;
+        return Boolean.FALSE;
     }
 
     @Override
     public Boolean isProcessingRule() {
-        return false;
+        return Boolean.FALSE;
     }
 }

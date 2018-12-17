@@ -8,11 +8,8 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
-
 import java.util.List;
-
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
@@ -35,12 +32,14 @@ public final class SimpleMessageRegistry implements MessageRegistry {
         return this.handlers.registerParser(messageType, parser);
     }
 
-    public AutoCloseable registerMessageSerializer(final Class<? extends Message> msgClass, final MessageSerializer serializer) {
+    public AutoCloseable registerMessageSerializer(final Class<? extends Message> msgClass,
+            final MessageSerializer serializer) {
         return this.handlers.registerSerializer(msgClass, serializer);
     }
 
     @Override
-    public Message parseMessage(final int messageType, final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException {
+    public Message parseMessage(final int messageType, final ByteBuf buffer, final List<Message> errors)
+            throws PCEPDeserializerException {
         Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
         final MessageParser parser = this.handlers.getParser(messageType);
         if (parser == null) {
@@ -51,7 +50,7 @@ public final class SimpleMessageRegistry implements MessageRegistry {
     }
 
     @Override
-    public void serializeMessage(Message message, ByteBuf buffer) {
+    public void serializeMessage(final Message message, final ByteBuf buffer) {
         final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
         if (serializer == null) {
             LOG.warn("PCEP serializer for message type {} is not registered.", message.getClass());

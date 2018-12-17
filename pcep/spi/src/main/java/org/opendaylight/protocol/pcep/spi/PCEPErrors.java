@@ -13,10 +13,10 @@ import java.util.Map;
 /**
  * Possible errors listed in RFC5440, RFC 5455 and stateful draft.
  *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-9.12">PCEP-ERROR Object(RFC5440)</a>, <a href=
- *      "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-8.4" >PCEP-ERROR Object(stateful draft)</a>,
- *      <a href="http://tools.ietf.org/html/rfc5455#section-3.6">Error Codes for CLASSTYPE Object(RFC5455)</a>, <a href=
- *      "http://www.ietf.org/id/draft-crabbe-pce-pce-initiated-lsp-00.txt#section-7.1" >PCEP-Error Object</a>
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-9.12">PCEP-ERROR Object(RFC5440)</a>
+ * @see <a href="http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-8.4" >PCEP-ERROR Object</a>
+ * @see <a href="http://tools.ietf.org/html/rfc5455#section-3.6">Error Codes for CLASSTYPE Object(RFC5455)</a>
+ * @see <a href="http://www.ietf.org/id/draft-crabbe-pce-pce-initiated-lsp-00.txt#section-7.1" >PCEP-Error Object</a>
  */
 public enum PCEPErrors {
 
@@ -81,23 +81,23 @@ public enum PCEPErrors {
      */
     O_BIT_SET(5, 2),
     /**
-     * Objective function not allowed (request rejected)
+     * Objective function not allowed (request rejected).
      */
     OF_NOT_ALLOWED(5, 3),
     /**
-     * OF bit of the RP object set (request rejected)
+     * OF bit of the RP object set (request rejected).
      */
     OF_BIT_SET(5, 4),
     /**
-     * Global concurrent optimization not allowed (GCO extension)
+     * Global concurrent optimization not allowed (GCO extension).
      */
     GCO_NOT_ALLOWED(5, 5),
     /**
-     * P2MP Path computation is not allowed
+     * P2MP Path computation is not allowed.
      */
     P2MP_COMPUTATION_NOT_ALLOWED(5, 7),
     /**
-     * RP object missing
+     * RP object missing.
      */
     RP_MISSING(6, 1),
     /**
@@ -105,15 +105,15 @@ public enum PCEPErrors {
      */
     RRO_MISSING(6, 2),
     /**
-     * END-POINTS object missing
+     * END-POINTS object missing.
      */
     END_POINTS_MISSING(6, 3),
     /**
-     * LSP cleanup TLV missing
+     * LSP cleanup TLV missing.
      */
     LSP_CLEANUP_TLV_MISSING(6, 13),
     /**
-     * SYMBOLIC-PATH-NAME TLV missing
+     * SYMBOLIC-PATH-NAME TLV missing.
      */
     SYMBOLIC_PATH_NAME_MISSING(6, 14),
     /**
@@ -121,7 +121,7 @@ public enum PCEPErrors {
      */
     SYNC_PATH_COMP_REQ_MISSING(7, 0),
     /**
-     * Unknown request reference
+     * Unknown request reference.
      */
     UNKNOWN_REQ_REF(8, 0),
     /**
@@ -149,11 +149,11 @@ public enum PCEPErrors {
      */
     P_FLAG_NOT_SET(10, 1),
     /**
-     * Insufficient memory (GCO extension)
+     * Insufficient memory (GCO extension).
      */
     INSUFFICIENT_MEMORY(15, 1),
     /**
-     * Global concurrent optimization not supported (GCO extension)
+     * Global concurrent optimization not supported (GCO extension).
      */
     GCO_NOT_SUPPORTED(15, 2),
     /**
@@ -170,31 +170,31 @@ public enum PCEPErrors {
     CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS(12, 3),
 
     /**
-     * The PCE cannot satisfy the request due to insufficient memory
+     * The PCE cannot satisfy the request due to insufficient memory.
      */
     CANNOT_SATISFY_P2MP_REQUEST_DUE_TO_INSUFFISIENT_MEMMORY(16, 1),
     /**
-     * The PCE is not capable of P2MP computation
+     * The PCE is not capable of P2MP computation.
      */
     NOT_CAPPABLE_P2MP_COMPUTATION(16, 2),
     /**
-     * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 2
+     * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 2.
      */
     P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT2(17, 1),
     /**
-     * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 3
+     * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 3.
      */
     P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT3(17, 2),
     /**
-     * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 4
+     * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 4.
      */
     P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT4(17, 3),
     /**
-     * The PCE is not capable to satisfy the request due to inconsistent END-POINTS
+     * The PCE is not capable to satisfy the request due to inconsistent END-POINTS.
      */
     P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_INCONSISTENT_EP(17, 4),
     /**
-     * P2MP Fragmented request failure
+     * P2MP Fragmented request failure.
      */
     P2MP_FRAGMENTATION_FAILRUE(18, 1),
     /**
@@ -216,15 +216,15 @@ public enum PCEPErrors {
      */
     RESOURCE_LIMIT_EXCEEDED(19, 4),
     /**
-     * PCE-initiated LSP limit reached
+     * PCE-initiated LSP limit reached.
      */
     LSP_LIMIT_EXCEEDED(19, 6),
     /**
-     * Delegation for PCE-initiated LSP cannot be revoked
+     * Delegation for PCE-initiated LSP cannot be revoked.
      */
     DELEGATION_NON_REVOKABLE(19, 7),
     /**
-     * Non-zero PLSP-ID in LSP initiation request
+     * Non-zero PLSP-ID in LSP initiation request.
      */
     NON_ZERO_PLSPID(19, 8),
     /**
@@ -241,39 +241,39 @@ public enum PCEPErrors {
      */
     DB_VERSION_TLV_MISSING_WHEN_SYNC_ALLOWED(20, 3),
     /**
-     * A PCC indicates to a PCE that it can not complete the state synchronization,
+     * A PCC indicates to a PCE that it can not complete the state synchronization.
      */
     CANNOT_COMPLETE_STATE_SYNC(20, 5),
     /**
-     * SYMBOLIC-PATH-NAME in use
+     * SYMBOLIC-PATH-NAME in use.
      */
     USED_SYMBOLIC_PATH_NAME(23, 1),
     /**
-     * LSP instantiation error: Unacceptable instantiation parameters
+     * LSP instantiation error: Unacceptable instantiation parameters.
      */
     LSP_UNACC_INST_PARAMS(24, 1),
     /**
-     * LSP instantiation error: Internal error
+     * LSP instantiation error: Internal error.
      */
     LSP_INTERNAL_ERROR(24, 2),
     /**
-     * LSP instantiation error: RSVP signaling error
+     * LSP instantiation error: RSVP signaling error.
      */
     LSP_RSVP_ERROR(24, 3),
     /**
-     * Segment Routing error: ERO subobject with invalid SID value
+     * Segment Routing error: ERO subobject with invalid SID value.
      */
     BAD_LABEL_VALUE(10, 2),
     /**
-     * Segment Routing error: Unsupported number of Segment ERO subobjects
+     * Segment Routing error: Unsupported number of Segment ERO subobjects.
      */
     UNSUPPORTED_NUMBER_OF_SR_ERO_SUBOBJECTS(10, 3),
     /**
-     * Segment Routing error: Bad label format
+     * Segment Routing error: Bad label format.
      */
     BAD_LABEL_FORMAT(10, 4),
     /**
-     * Segment Routing error: Non-identical ERO subobjects
+     * Segment Routing error: Non-identical ERO subobjects.
      */
     NON_IDENTICAL_ERO_SUBOBJECTS(10, 5),
     /**
@@ -289,62 +289,60 @@ public enum PCEPErrors {
      */
     SID_NON_IDENTICAL_RRO_SUBOBJECTS(10, 8),
     /**
-     * Invalid traffic engineering path setup type: Unsupported path setup type
+     * Invalid traffic engineering path setup type: Unsupported path setup type.
      */
     UNSUPPORTED_PST(21, 1),
     /**
-     * Invalid traffic engineering path setup type: Mismatched path setup type
+     * Invalid traffic engineering path setup type: Mismatched path setup type.
      */
     MISMATCHED_PST(21, 2),
     /**
-     * MONITORING object missing
+     * MONITORING object missing.
      */
     MONITORING_OBJECT_MISSING(6, 4),
     /**
-     * Reception of StartTLS after any PCEP exchange
-     * TODO: error code to be assigned by IANA
+     * Reception of StartTLS after any PCEP exchange.
      */
+    // FIXME: error code to be assigned by IANA
     STARTTLS_RCVD_INCORRECTLY(30, 1),
     /**
-     * Reception of non-StartTLS or non-PCErr message
-     * TODO: error code to be assigned by IANA
+     * Reception of non-StartTLS or non-PCErr message.
      */
+    // FIXME: error code to be assigned by IANA
     NON_STARTTLS_MSG_RCVD(30, 2),
     /**
-     * Failure, connection without TLS not possible
-     * TODO: error code to be assigned by IANA
+     * Failure, connection without TLS not possible.
      */
+    // FIXME: error code to be assigned by IANA
     NOT_POSSIBLE_WITHOUT_TLS(30, 3),
     /**
-     * Failure, connection without TLS possible
-     * TODO: error code to be assigned by IANA
+     * Failure, connection without TLS possible.
      */
+    // FIXME: error code to be assigned by IANA
     POSSIBLE_WITHOUT_TLS(30, 4),
     /**
-     * No StartTLS message before StartTLSWait timer expired
-     * TODO: error code to be assigned by IANA
+     * No StartTLS message before StartTLSWait timer expired.
      */
+    // FIXME: error code to be assigned by IANA
     STARTTLS_TIMER_EXP(30, 5),
     /**
-     * LSP is not PCE-initiated
+     * LSP is not PCE-initiated.
      */
     LSP_NOT_PCE_INITIATED(19, 9),
     /**
-     * LSP-DB-VERSION TLV missing
+     * LSP-DB-VERSION TLV missing.
      */
     LSP_DB_VERSION_MISSING(6, 12),
     /**
-     * Attempt to trigger a synchronization when the
-     * PCE triggered synchronization capability has not been advertised.
+     * Attempt to trigger a synchronization when the PCE triggered synchronization capability has not been advertised.
      */
     UNEXPECTED_SYNCHRONIZATION_ATTEMPT(20, 4),
     /**
-     * No sufficient LSP change information for
-     * incremental LSP state synchronization.
+     * No sufficient LSP change information for incremental LSP state synchronization.
      */
     NO_SUFFICIENT_LSP_CHANGE(20, 6),
     /**
-     * Received an invalid LSP DB Version Number
+     * Received an invalid LSP DB Version Number.
      */
     INVALID_LSP_DB_VERSION(20, 7);
 

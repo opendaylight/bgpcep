@@ -8,12 +8,11 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 
 public interface ObjectParser {
-    Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException;
+    Object parseObject(ObjectHeader header, ByteBuf buffer) throws PCEPDeserializerException;
 
     int getObjectClass();
 

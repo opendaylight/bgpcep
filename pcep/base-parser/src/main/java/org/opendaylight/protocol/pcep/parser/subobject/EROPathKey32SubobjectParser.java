@@ -20,9 +20,9 @@ public final class EROPathKey32SubobjectParser extends AbstractEROPathKeySubobje
     }
 
     @Override
-    protected void checkContentLenght(final int lenght) throws PCEPDeserializerException {
-        if (lenght != CONTENT_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + lenght + "; Expected: >"
+    protected void checkContentLength(final int length) throws PCEPDeserializerException {
+        if (length != CONTENT_LENGTH) {
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + length + "; Expected: >"
                 + CONTENT_LENGTH + ".");
         }
     }

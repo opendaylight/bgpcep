@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.spi;
 import java.io.Serializable;
 
 /**
- * Caret for combination of Error-type and Error-value
+ * Caret for combination of Error-type and Error-value.
  */
 final class PCEPErrorIdentifier implements Serializable {
     private static final long serialVersionUID = 2434590156751699872L;

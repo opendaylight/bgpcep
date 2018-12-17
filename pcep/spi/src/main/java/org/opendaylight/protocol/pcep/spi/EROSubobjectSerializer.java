@@ -14,5 +14,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Explicit Route Object Serializer.
  */
 public interface EROSubobjectSerializer {
-    void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
+    void serializeSubobject(Subobject subobject, ByteBuf buffer);
 }

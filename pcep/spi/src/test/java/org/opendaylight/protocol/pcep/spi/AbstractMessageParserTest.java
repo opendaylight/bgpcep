@@ -8,18 +8,25 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcrep;
@@ -33,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObjectBuilder;
 
+@RunWith(MockitoJUnitRunner.class)
 public class AbstractMessageParserTest {
 
     private static final EnterpriseNumber EN = new EnterpriseNumber(0L);
@@ -59,9 +67,9 @@ public class AbstractMessageParserTest {
             if (objects.get(0) instanceof VendorInformationObject) {
                 final RepliesBuilder repsBuilder = new RepliesBuilder();
                 repsBuilder.setVendorInformationObject(addVendorInformationObjects(objects));
-                final PcrepBuilder builder = new PcrepBuilder();
-                builder.setPcrepMessage(new PcrepMessageBuilder().setReplies(Lists.newArrayList(repsBuilder.build())).build());
-                return builder.build();
+                return new PcrepBuilder().setPcrepMessage(
+                    new PcrepMessageBuilder().setReplies(Arrays.asList(repsBuilder.build())).build())
+                        .build();
             } else if (objects.get(0) instanceof ErrorObject) {
                 final short errorType = ((ErrorObject) objects.get(0)).getType();
                 final short errorValue = ((ErrorObject) objects.get(0)).getValue();
@@ -73,13 +81,15 @@ public class AbstractMessageParserTest {
 
     @Before
     public void setUp() throws PCEPDeserializerException {
-        MockitoAnnotations.initMocks(this);
         this.object = new ErrorObjectBuilder().setType((short) 1).setValue((short) 1).build();
         this.viObject = new VendorInformationObjectBuilder().setEnterpriseNumber(EN).build();
-        Mockito.doNothing().when(this.registry).serializeVendorInformationObject(Mockito.any(VendorInformationObject.class), Mockito.any(ByteBuf.class));
-        Mockito.doReturn(Optional.of(this.viObject)).when(this.registry).parseVendorInformationObject(Mockito.eq(EN), Mockito.eq(new ObjectHeaderImpl(true, true)), Mockito.any(ByteBuf.class));
-        Mockito.doNothing().when(this.registry).serializeObject(Mockito.any(Object.class), Mockito.any(ByteBuf.class));
-        Mockito.doReturn(this.object).when(this.registry).parseObject(13, 1, new ObjectHeaderImpl(true, true), Unpooled.wrappedBuffer(new byte[] { 0, 0, 1, 1 }));
+        doNothing().when(this.registry).serializeVendorInformationObject(any(VendorInformationObject.class),
+            any(ByteBuf.class));
+        doReturn(Optional.of(this.viObject)).when(this.registry).parseVendorInformationObject(eq(EN),
+            eq(new ObjectHeaderImpl(true, true)), any(ByteBuf.class));
+        doNothing().when(this.registry).serializeObject(any(Object.class), any(ByteBuf.class));
+        doReturn(this.object).when(this.registry).parseObject(13, 1, new ObjectHeaderImpl(true, true),
+            Unpooled.wrappedBuffer(new byte[] { 0, 0, 1, 1 }));
     }
 
     @Test
@@ -88,9 +98,10 @@ public class AbstractMessageParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         a.serializeObject(this.object, buffer);
 
-        Mockito.verify(this.registry, Mockito.only()).serializeObject(Mockito.any(Object.class), Mockito.any(ByteBuf.class));
+        verify(this.registry, only()).serializeObject(any(Object.class), any(ByteBuf.class));
 
-        final Message b = a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }), Collections.emptyList());
+        final Message b = a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }),
+            Collections.emptyList());
 
         assertEquals(this.object, ((Pcerr) b).getPcerrMessage().getErrors().get(0).getErrorObject());
     }
@@ -101,10 +112,13 @@ public class AbstractMessageParserTest {
         final ByteBuf buffer = Unpooled.buffer();
 
         parser.serializeVendorInformationObjects(Lists.newArrayList(this.viObject), buffer);
-        Mockito.verify(this.registry, Mockito.only()).serializeVendorInformationObject(Mockito.any(VendorInformationObject.class), Mockito.any(ByteBuf.class));
+        verify(this.registry, only()).serializeVendorInformationObject(any(VendorInformationObject.class),
+            any(ByteBuf.class));
 
-        final Message msg = parser.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), Collections.emptyList());
+        final Message msg = parser.parseMessage(
+            Unpooled.wrappedBuffer(new byte[] { 0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), Collections.emptyList());
 
-        assertEquals(this.viObject, ((Pcrep)msg).getPcrepMessage().getReplies().get(0).getVendorInformationObject().get(0));
+        assertEquals(this.viObject, ((Pcrep)msg).getPcrepMessage().getReplies().get(0).getVendorInformationObject()
+            .get(0));
     }
 }

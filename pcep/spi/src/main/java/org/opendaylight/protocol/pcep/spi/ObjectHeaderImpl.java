@@ -11,7 +11,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 /**
- * Header parser for PCEP object
+ * Header parser for PCEP object.
  */
 public class ObjectHeaderImpl implements ObjectHeader {
 
@@ -40,12 +40,10 @@ public class ObjectHeaderImpl implements ObjectHeader {
 
     @Override
     public String toString() {
-        final String objectHeader = "ObjectHeader [objClass=" +
-                ", processed=" +
-                this.processed +
-                ", ignored=" +
-                this.ignored +
-                "]";
+        final String objectHeader = "ObjectHeader [objClass="
+                + ", processed=" + this.processed
+                + ", ignored=" + this.ignored
+                + "]";
         return objectHeader;
     }
 
@@ -53,8 +51,8 @@ public class ObjectHeaderImpl implements ObjectHeader {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.ignored == null) ? 0 : this.ignored.hashCode());
-        result = prime * result + ((this.processed == null) ? 0 : this.processed.hashCode());
+        result = prime * result + (this.ignored == null ? 0 : this.ignored.hashCode());
+        result = prime * result + (this.processed == null ? 0 : this.processed.hashCode());
         return result;
     }
 

@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
@@ -22,10 +21,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class SimpleRROSubobjectRegistry implements RROSubobjectRegistry {
-    private final HandlerRegistry<DataContainer, RROSubobjectParser, RROSubobjectSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, RROSubobjectParser, RROSubobjectSerializer> handlers =
+            new HandlerRegistry<>();
 
     public AutoCloseable registerSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
-        Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
+        checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
         return this.handlers.registerParser(subobjectType, parser);
     }
 
@@ -36,20 +36,17 @@ public final class SimpleRROSubobjectRegistry implements RROSubobjectRegistry {
 
     @Override
     public Subobject parseSubobject(final int type, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
+        checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
         final RROSubobjectParser parser = this.handlers.getParser(type);
-        if (parser == null) {
-            return null;
-        }
-        return parser.parseSubobject(buffer);
+        return parser == null ? null : parser.parseSubobject(buffer);
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        final RROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType().getImplementedInterface());
-        if (serializer == null) {
-            return;
+        final RROSubobjectSerializer serializer = this.handlers.getSerializer(
+            subobject.getSubobjectType().getImplementedInterface());
+        if (serializer != null) {
+            serializer.serializeSubobject(subobject, buffer);
         }
-        serializer.serializeSubobject(subobject, buffer);
     }
 }

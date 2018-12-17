@@ -46,7 +46,8 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
             final int type = bytes.readUnsignedShort();
             final int length = bytes.readUnsignedShort();
             if (length > bytes.readableBytes()) {
-                throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= " + bytes.readableBytes()
+                throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+            + bytes.readableBytes()
                     + ".");
             }
             final ByteBuf tlvBytes = bytes.readSlice(length);
@@ -54,14 +55,15 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
 
             if (VendorInformationUtil.isVendorInformationTlv(type)) {
                 final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(tlvBytes.readUnsignedInt());
-                final Optional<VendorInformationTlv> viTlv = this.viTlvReg.parseVendorInformationTlv(enterpriseNumber, tlvBytes);
-                if(viTlv.isPresent()) {
+                final Optional<VendorInformationTlv> viTlv = this.viTlvReg.parseVendorInformationTlv(enterpriseNumber,
+                    tlvBytes);
+                if (viTlv.isPresent()) {
                     LOG.trace("Parsed VENDOR-INFORMATION TLV {}.", viTlv.get());
                     viTlvs.add(viTlv.get());
                 }
             } else {
                 final Tlv tlv = this.tlvReg.parseTlv(type, tlvBytes);
-                if(tlv != null) {
+                if (tlv != null) {
                     LOG.trace("Parsed PCEP TLV {}.", tlv);
                     addTlv(builder, tlv);
                 }
@@ -82,7 +84,7 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
         // FIXME: No TLVs by default, fallback to augments
     }
 
-    protected abstract void addVendorInformationTlvs(final T builder, final List<VendorInformationTlv> tlvs);
+    protected abstract void addVendorInformationTlvs(T builder, List<VendorInformationTlv> tlvs);
 
     protected final void serializeVendorInformationTlvs(final List<VendorInformationTlv> tlvs, final ByteBuf buffer) {
         if (tlvs != null) {

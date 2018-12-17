@@ -18,11 +18,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerContext {
     AutoCloseable registerLabelSerializer(Class<? extends LabelType> labelClass, LabelSerializer serializer);
 
-    AutoCloseable registerLabelParser(int cType, LabelParser parser);
+    AutoCloseable registerLabelParser(int ctype, LabelParser parser);
 
     AutoCloseable registerEROSubobjectParser(int subobjectType, EROSubobjectParser parser);
 
-    AutoCloseable registerEROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, EROSubobjectSerializer serializer);
+    AutoCloseable registerEROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass,
+            EROSubobjectSerializer serializer);
 
     AutoCloseable registerMessageParser(int messageType, MessageParser parser);
 
@@ -37,23 +38,26 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
 
     AutoCloseable registerRROSubobjectParser(int subobjectType, RROSubobjectParser parser);
 
-    AutoCloseable registerRROSubobjectSerializer(
-            Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass,
+    AutoCloseable registerRROSubobjectSerializer(Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params
+            .xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass,
             RROSubobjectSerializer serializer);
 
     AutoCloseable registerTlvSerializer(Class<? extends Tlv> tlvClass, TlvSerializer serializer);
 
     AutoCloseable registerTlvParser(int tlvType, TlvParser parser);
 
-    AutoCloseable registerVendorInformationTlvSerializer(Class<? extends EnterpriseSpecificInformation> esInformationClass, TlvSerializer serializer);
+    AutoCloseable registerVendorInformationTlvSerializer(
+            Class<? extends EnterpriseSpecificInformation> esInformationClass, TlvSerializer serializer);
 
     AutoCloseable registerVendorInformationTlvParser(EnterpriseNumber enterpriseNumber, TlvParser parser);
 
-    AutoCloseable registerXROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, XROSubobjectSerializer serializer);
+    AutoCloseable registerXROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass,
+            XROSubobjectSerializer serializer);
 
     AutoCloseable registerXROSubobjectParser(int subobjectType, XROSubobjectParser parser);
 
-    AutoCloseable registerVendorInformationObjectSerializer(Class<? extends EnterpriseSpecificInformation> esInformationClass, ObjectSerializer serializer);
+    AutoCloseable registerVendorInformationObjectSerializer(
+            Class<? extends EnterpriseSpecificInformation> esInformationClass, ObjectSerializer serializer);
 
     AutoCloseable registerVendorInformationObjectParser(EnterpriseNumber enterpriseNumber, ObjectParser parser);
 }

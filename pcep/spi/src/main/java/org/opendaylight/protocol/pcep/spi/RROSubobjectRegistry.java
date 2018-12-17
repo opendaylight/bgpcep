@@ -22,7 +22,7 @@ public interface RROSubobjectRegistry {
      * @return null if the parser for this subobject could not be found otherwise returns parser
      * @throws PCEPDeserializerException if the parsing did not succeed
      */
-    Subobject parseSubobject(final int type, final ByteBuf buffer) throws PCEPDeserializerException;
+    Subobject parseSubobject(int type, ByteBuf buffer) throws PCEPDeserializerException;
 
     /**
      * Find serializer for given subobject. Delegates parsing to found serializer.
@@ -30,5 +30,5 @@ public interface RROSubobjectRegistry {
      * @param subobject to be parsed
      * @param buffer buffer where the serialized subobject will be parsed
      */
-    void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
+    void serializeSubobject(Subobject subobject, ByteBuf buffer);
 }

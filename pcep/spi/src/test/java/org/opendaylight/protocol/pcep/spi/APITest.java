@@ -23,7 +23,8 @@ public class APITest {
         final PCEPDeserializerException e = new PCEPDeserializerException("Some error message.");
         assertEquals("Some error message.", e.getMessage());
 
-        final PCEPDeserializerException e1 = new PCEPDeserializerException("Some error message.", new IllegalArgumentException());
+        final PCEPDeserializerException e1 = new PCEPDeserializerException("Some error message.",
+            new IllegalArgumentException());
         assertEquals("Some error message.", e1.getMessage());
         assertTrue(e1.getCause() instanceof IllegalArgumentException);
     }
@@ -45,7 +46,8 @@ public class APITest {
         assertFalse(un.isIgnore());
         assertFalse(un.isProcessingRule());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS, un.getError());
-        assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS.getErrorType(), un.getErrors().get(0).getErrorObject().getType().shortValue());
+        assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS.getErrorType(),
+            un.getErrors().get(0).getErrorObject().getType().shortValue());
 
         final Object o = new CCloseBuilder().build();
         UnknownObject unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);

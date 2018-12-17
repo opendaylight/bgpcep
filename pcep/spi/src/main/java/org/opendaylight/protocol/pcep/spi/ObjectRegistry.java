@@ -22,14 +22,14 @@ public interface ObjectRegistry extends VendorInformationObjectRegistry {
      * @return null if the parser for this object could not be found
      * @throws PCEPDeserializerException if the parsing did not succeed
      */
-    Object parseObject(final int objectClass, final int objectType, final ObjectHeader header, final ByteBuf buffer)
+    Object parseObject(int objectClass, int objectType, ObjectHeader header, ByteBuf buffer)
             throws PCEPDeserializerException;
 
     /**
      * Find serializer for given object. Delegates parsing to found serializer.
      *
      * @param object to be parsed
-     * @param buffer ByteBuf wrapped aroung bytes representing given object
+     * @param buffer ByteBuf wrapped around bytes representing given object
      */
-    void serializeObject(final Object object, final ByteBuf buffer);
+    void serializeObject(Object object, ByteBuf buffer);
 }

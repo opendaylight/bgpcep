@@ -10,11 +10,12 @@ package org.opendaylight.protocol.pcep.spi;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS;
+import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_INFORMATION_OBJECT_TYPE;
+import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -128,111 +129,16 @@ public class UtilsTest {
 
     @Test
     public void testVendorInformationUtil() {
-        assertTrue(VendorInformationUtil.isVendorInformationTlv(VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE));
-        assertFalse(VendorInformationUtil.isVendorInformationTlv(VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS));
+        assertTrue(VendorInformationUtil.isVendorInformationTlv(VENDOR_INFORMATION_TLV_TYPE));
+        assertFalse(VendorInformationUtil.isVendorInformationTlv(VENDOR_INFORMATION_OBJECT_CLASS));
 
-        assertTrue(VendorInformationUtil.isVendorInformationObject(VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS, VendorInformationUtil.VENDOR_INFORMATION_OBJECT_TYPE));
-        assertFalse(VendorInformationUtil.isVendorInformationObject(VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS, VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE));
-        assertFalse(VendorInformationUtil.isVendorInformationObject(VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE, VendorInformationUtil.VENDOR_INFORMATION_OBJECT_TYPE));
-        assertFalse(VendorInformationUtil.isVendorInformationObject(VendorInformationUtil.VENDOR_INFORMATION_OBJECT_TYPE, VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS));
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testVendorInformationUtilPrivateConstructor() throws Throwable {
-        final Constructor<VendorInformationUtil> c = VendorInformationUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testEROSubobjectUtilPrivateConstructor() throws Throwable {
-        final Constructor<EROSubobjectUtil> c = EROSubobjectUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testRROSubobjectUtilPrivateConstructor() throws Throwable {
-        final Constructor<RROSubobjectUtil> c = RROSubobjectUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testTlvUtilPrivateConstructor() throws Throwable {
-        final Constructor<TlvUtil> c = TlvUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testXROSubobjectUtilPrivateConstructor() throws Throwable {
-        final Constructor<XROSubobjectUtil> c = XROSubobjectUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testObjectUtilPrivateConstructor() throws Throwable {
-        final Constructor<ObjectUtil> c = ObjectUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testMessageUtilPrivateConstructor() throws Throwable {
-        final Constructor<MessageUtil> c = MessageUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testLabelUtilPrivateConstructor() throws Throwable {
-        final Constructor<LabelUtil> c = LabelUtil.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPCEPMessageConstantsPrivateConstructor() throws Throwable {
-        final Constructor<PCEPMessageConstants> c = PCEPMessageConstants.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
+        assertTrue(VendorInformationUtil.isVendorInformationObject(VENDOR_INFORMATION_OBJECT_CLASS,
+            VENDOR_INFORMATION_OBJECT_TYPE));
+        assertFalse(VendorInformationUtil.isVendorInformationObject(VENDOR_INFORMATION_OBJECT_CLASS,
+            VENDOR_INFORMATION_TLV_TYPE));
+        assertFalse(VendorInformationUtil.isVendorInformationObject(VENDOR_INFORMATION_TLV_TYPE,
+            VENDOR_INFORMATION_OBJECT_TYPE));
+        assertFalse(VendorInformationUtil.isVendorInformationObject(VENDOR_INFORMATION_OBJECT_TYPE,
+            VENDOR_INFORMATION_OBJECT_CLASS));
     }
 }

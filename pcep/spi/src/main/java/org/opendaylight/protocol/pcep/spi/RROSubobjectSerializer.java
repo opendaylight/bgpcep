@@ -8,12 +8,11 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.Subobject;
 
 /**
  * Reported Route Object Serializer.
  */
 public interface RROSubobjectSerializer {
-    void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
+    void serializeSubobject(Subobject subobject, ByteBuf buffer);
 }

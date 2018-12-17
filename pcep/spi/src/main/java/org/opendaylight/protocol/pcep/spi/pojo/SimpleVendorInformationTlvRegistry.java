@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import com.google.common.primitives.Ints;
@@ -25,16 +24,19 @@ public class SimpleVendorInformationTlvRegistry implements VendorInformationTlvR
 
     private final HandlerRegistry<DataContainer, TlvParser, TlvSerializer> handlers = new HandlerRegistry<>();
 
-    public AutoCloseable registerVendorInformationTlvParser(final EnterpriseNumber enterpriseNumber, final TlvParser parser) {
+    public AutoCloseable registerVendorInformationTlvParser(final EnterpriseNumber enterpriseNumber,
+            final TlvParser parser) {
         return this.handlers.registerParser(Ints.checkedCast(enterpriseNumber.getValue()), parser);
     }
 
-    public AutoCloseable registerVendorInformationTlvSerializer(final Class<? extends EnterpriseSpecificInformation> esInformationClass, final TlvSerializer serializer) {
+    public AutoCloseable registerVendorInformationTlvSerializer(
+            final Class<? extends EnterpriseSpecificInformation> esInformationClass, final TlvSerializer serializer) {
         return this.handlers.registerSerializer(esInformationClass, serializer);
     }
 
     @Override
-    public Optional<VendorInformationTlv> parseVendorInformationTlv(final EnterpriseNumber enterpriseNumber, final ByteBuf buffer) throws PCEPDeserializerException {
+    public Optional<VendorInformationTlv> parseVendorInformationTlv(final EnterpriseNumber enterpriseNumber,
+            final ByteBuf buffer) throws PCEPDeserializerException {
         final TlvParser parser = this.handlers.getParser(Ints.checkedCast(enterpriseNumber.getValue()));
         if (parser == null) {
             return Optional.empty();
@@ -44,12 +46,11 @@ public class SimpleVendorInformationTlvRegistry implements VendorInformationTlvR
 
     @Override
     public void serializeVendorInformationTlv(final VendorInformationTlv viTlv, final ByteBuf buffer) {
-        final TlvSerializer serializer = this.handlers.getSerializer(viTlv.getEnterpriseSpecificInformation().getImplementedInterface());
+        final TlvSerializer serializer = this.handlers.getSerializer(
+            viTlv.getEnterpriseSpecificInformation().getImplementedInterface());
         if (serializer == null) {
             return;
         }
         serializer.serializeTlv(viTlv, buffer);
     }
-
-
 }

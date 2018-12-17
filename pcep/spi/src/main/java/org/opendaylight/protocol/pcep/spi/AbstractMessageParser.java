@@ -70,8 +70,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         final List<Object> objs = new ArrayList<>();
         while (bytes.isReadable()) {
             if (bytes.readableBytes() < COMMON_OBJECT_HEADER_LENGTH) {
-                throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + bytes.readableBytes() + " Expected: >= "
-                        + COMMON_OBJECT_HEADER_LENGTH + ".");
+                throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + bytes.readableBytes()
+                    + " Expected: >= " + COMMON_OBJECT_HEADER_LENGTH + ".");
             }
             final int objClass = bytes.readUnsignedByte();
 
@@ -81,8 +81,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             final int objLength = bytes.readUnsignedShort();
 
             if (bytes.readableBytes() < objLength - COMMON_OBJECT_HEADER_LENGTH) {
-                throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + bytes.readableBytes() + " Expected: >= "
-                        + objLength + ".");
+                throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + bytes.readableBytes()
+                    + " Expected: >= " + objLength + ".");
             }
             // copy bytes for deeper parsing
             final ByteBuf bytesToPass = bytes.readSlice(objLength - COMMON_OBJECT_HEADER_LENGTH);
@@ -91,7 +91,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
             if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
                 final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(bytesToPass.readUnsignedInt());
-                final Optional<? extends Object> obj = this.registry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass);
+                final Optional<? extends Object> obj = this.registry.parseVendorInformationObject(enterpriseNumber,
+                    header, bytesToPass);
                 if (obj.isPresent()) {
                     objs.add(obj.get());
                 }
@@ -107,22 +108,23 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         return objs;
     }
 
-    public static Message createErrorMsg(final PCEPErrors e, final Optional<Rp> rp) {
+    public static Message createErrorMsg(final PCEPErrors err, final Optional<Rp> rp) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         if (rp.isPresent()) {
-            msgBuilder.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(Collections.singletonList(new RpsBuilder().setRp(
-                    rp.get()).build())).build()).build());
+            msgBuilder.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(
+                Collections.singletonList(new RpsBuilder().setRp(rp.get()).build())).build()).build());
         }
         return new PcerrBuilder().setPcerrMessage(
                 msgBuilder.setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(
-                    new ErrorObjectBuilder().setType(e.getErrorType()).setValue(
-                        e.getErrorValue()).build()).build())).build()).build();
+                    new ErrorObjectBuilder().setType(err.getErrorType()).setValue(
+                        err.getErrorValue()).build()).build())).build()).build();
     }
 
-    protected abstract Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;
+    protected abstract Message validate(List<Object> objects, List<Message> errors) throws PCEPDeserializerException;
 
     @Override
-    public final Message parseMessage(final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException {
+    public final Message parseMessage(final ByteBuf buffer, final List<Message> errors)
+            throws PCEPDeserializerException {
         requireNonNull(buffer, "Buffer may not be null");
 
         // Parse objects first
@@ -132,7 +134,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         return validate(objs, errors);
     }
 
-    protected final void serializeVendorInformationObjects(final List<VendorInformationObject> viObjects, final ByteBuf buffer) {
+    protected final void serializeVendorInformationObjects(final List<VendorInformationObject> viObjects,
+            final ByteBuf buffer) {
         if (viObjects != null) {
             for (final VendorInformationObject viObject : viObjects) {
                 this.registry.serializeVendorInformationObject(viObject, buffer);

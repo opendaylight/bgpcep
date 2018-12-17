@@ -14,7 +14,7 @@ public class PCEPDeserializerException extends Exception {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Used when no exact error (from rfc or from draft) is specified.
+     * Used when no exact error (from an RFC or from a draft) is specified.
      *
      * @param err error message describing the error that occurred
      */
@@ -26,9 +26,9 @@ public class PCEPDeserializerException extends Exception {
      * Used when we want to pass also the exception that occurred.
      *
      * @param err error message describing the error that occurred
-     * @param e specific exception that occurred
+     * @param cause specific exception that occurred
      */
-    public PCEPDeserializerException(final String err, final Throwable e) {
-        super(err, e);
+    public PCEPDeserializerException(final String err, final Throwable cause) {
+        super(err, cause);
     }
 }

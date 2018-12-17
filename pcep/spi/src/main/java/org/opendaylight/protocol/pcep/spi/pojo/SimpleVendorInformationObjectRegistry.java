@@ -5,13 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import com.google.common.primitives.Ints;
-
 import io.netty.buffer.ByteBuf;
-
 import java.util.Optional;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
@@ -28,19 +25,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleVendorInformationObjectRegistry implements VendorInformationObjectRegistry {
-
     private final HandlerRegistry<DataContainer, ObjectParser, ObjectSerializer> handlers = new HandlerRegistry<>();
 
-    public AutoCloseable registerVendorInformationObjectParser(final EnterpriseNumber enterpriseNumber, final ObjectParser parser) {
+    public AutoCloseable registerVendorInformationObjectParser(final EnterpriseNumber enterpriseNumber,
+            final ObjectParser parser) {
         return this.handlers.registerParser(Ints.checkedCast(enterpriseNumber.getValue()), parser);
     }
 
-    public AutoCloseable registerVendorInformationObjectSerializer(final Class<? extends EnterpriseSpecificInformation> esInformationClass, final ObjectSerializer serializer) {
+    public AutoCloseable registerVendorInformationObjectSerializer(
+            final Class<? extends EnterpriseSpecificInformation> esInformationClass,
+            final ObjectSerializer serializer) {
         return this.handlers.registerSerializer(esInformationClass, serializer);
     }
 
     @Override
-    public Optional<? extends Object> parseVendorInformationObject(final EnterpriseNumber enterpriseNumber, final ObjectHeader header, final ByteBuf buffer)
+    public Optional<? extends Object> parseVendorInformationObject(final EnterpriseNumber enterpriseNumber,
+            final ObjectHeader header, final ByteBuf buffer)
             throws PCEPDeserializerException {
         final ObjectParser parser = this.handlers.getParser(Ints.checkedCast(enterpriseNumber.getValue()));
         if (parser == null) {
@@ -54,11 +54,11 @@ public class SimpleVendorInformationObjectRegistry implements VendorInformationO
 
     @Override
     public void serializeVendorInformationObject(final VendorInformationObject viObject, final ByteBuf buffer) {
-        final ObjectSerializer serializer = this.handlers.getSerializer(viObject.getEnterpriseSpecificInformation().getImplementedInterface());
+        final ObjectSerializer serializer = this.handlers.getSerializer(
+            viObject.getEnterpriseSpecificInformation().getImplementedInterface());
         if (serializer == null) {
             return;
         }
         serializer.serializeObject(viObject, buffer);
     }
-
 }

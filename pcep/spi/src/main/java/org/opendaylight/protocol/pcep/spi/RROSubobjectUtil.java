@@ -14,7 +14,6 @@ public final class RROSubobjectUtil {
     private static final int HEADER_SIZE = 2;
 
     private RROSubobjectUtil() {
-        throw new UnsupportedOperationException();
     }
 
     public static void formatSubobject(final int type, final ByteBuf body, final ByteBuf buffer) {

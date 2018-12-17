@@ -22,17 +22,16 @@ public final class ObjectUtil {
     private static final int IGNORED = 3;
 
     private ObjectUtil() {
-        throw new UnsupportedOperationException();
     }
 
-    public static void formatSubobject(final int objectType, final int objectClass, final Boolean processingRule, final Boolean ignore,
-        final ByteBuf body, final ByteBuf out) {
+    public static void formatSubobject(final int objectType, final int objectClass, final Boolean processingRule,
+            final Boolean ignore, final ByteBuf body, final ByteBuf out) {
         out.writeByte(objectClass);
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(IGNORED, ignore);
         flags.set(PROCESSED, processingRule);
         final byte flagB = flags.toByte();
-        final int typeByte = objectType << FLAGS_SIZE | (flagB & 0xff);
+        final int typeByte = objectType << FLAGS_SIZE | flagB & 0xff;
         out.writeByte(typeByte);
         out.writeShort(body.writerIndex() + HEADER_SIZE);
         out.writeBytes(body);
