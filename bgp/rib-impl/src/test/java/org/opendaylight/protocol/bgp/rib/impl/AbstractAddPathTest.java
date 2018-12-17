@@ -18,6 +18,7 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +134,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     protected StrictBGPPeerRegistry serverRegistry;
     protected CodecsRegistryImpl codecsRegistry;
 
+    private List<BGPDispatcherImpl> clientDispatchers;
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -159,6 +162,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
         this.codecsRegistry = CodecsRegistryImpl.create(this.mappingService.getCodecFactory(),
                 this.ribExtension.getClassLoadingStrategy());
+        this.clientDispatchers = new ArrayList<>();
     }
 
     @Override
@@ -173,6 +177,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         this.ribActivator.close();
         this.inetActivator.close();
         this.bgpActivator.close();
+        this.clientDispatchers.forEach(BGPDispatcherImpl::close);
+        this.clientDispatchers = null;
         super.tearDown();
     }
 
@@ -242,6 +248,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         final StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
         final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss,
                 this.worker, clientRegistry);
+
+        clientDispatchers.add(clientDispatcher);
         clientRegistry.addPeer(new IpAddress(new Ipv4Address(RIB_ID)), sessionListener,
                 new BGPSessionPreferences(remoteAsNumber, HOLDTIMER, new BgpId(peer),
                         AS_NUMBER, Lists.newArrayList(bgpParameters)));
