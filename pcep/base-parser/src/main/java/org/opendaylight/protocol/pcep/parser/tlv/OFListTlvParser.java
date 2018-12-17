@@ -10,9 +10,9 @@ package org.opendaylight.protocol.pcep.parser.tlv;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfListBuilder;
 
 /**
- * Parser for {@link OfList}
+ * Parser for {@link OfList}.
  */
 public class OFListTlvParser implements TlvParser, TlvSerializer {
 
@@ -38,9 +38,10 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
             return null;
         }
         if (buffer.readableBytes() % OF_CODE_ELEMENT_LENGTH != 0) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + ".");
         }
-        final List<OfId> ofCodes = Lists.newArrayList();
+        final List<OfId> ofCodes = new ArrayList<>();
         while (buffer.isReadable()) {
             ofCodes.add(new OfId(buffer.readUnsignedShort()));
         }

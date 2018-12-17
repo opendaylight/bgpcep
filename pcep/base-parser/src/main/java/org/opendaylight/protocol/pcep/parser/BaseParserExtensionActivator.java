@@ -239,7 +239,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerObjectParser(unreachIpv4Parser));
         regs.add(context.registerObjectParser(unreachIpv6Parser));
 
-        final PCEPUnreachDestinationSerializer unreachSerializer= new PCEPUnreachDestinationSerializer();
+        final PCEPUnreachDestinationSerializer unreachSerializer = new PCEPUnreachDestinationSerializer();
         regs.add(context.registerObjectSerializer(UnreachDestinationObj.class, unreachSerializer));
 
         final PCEPP2MPEndPointsIpv4ObjectParser endpoints4Pp2mparser = new PCEPP2MPEndPointsIpv4ObjectParser();

@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.proc.time.object.ProcTime;
 
 /**
- * Utilities used in pcep-base-parser
+ * Utilities used in pcep-base-parser.
  */
 public final class Util {
 
@@ -26,22 +26,24 @@ public final class Util {
     }
 
     private static State insertObject(final MetricPceBuilder metricPceBuilder, final State state, final Object obj) {
-        switch(state) {
-        case START :
-            if (obj instanceof ProcTime) {
-                metricPceBuilder.setProcTime((ProcTime) obj);
-                return State.PROC_TIME;
-            }
-        case PROC_TIME :
-            if (obj instanceof Overload) {
-                metricPceBuilder.setOverload((Overload) obj);
-                return State.OVERLOAD;
-            }
-        case OVERLOAD :
-        case END :
-            return State.END;
-        default:
-            return state;
+        switch (state) {
+            case START:
+                if (obj instanceof ProcTime) {
+                    metricPceBuilder.setProcTime((ProcTime) obj);
+                    return State.PROC_TIME;
+                }
+                return State.END;
+            case PROC_TIME:
+                if (obj instanceof Overload) {
+                    metricPceBuilder.setOverload((Overload) obj);
+                    return State.OVERLOAD;
+                }
+                return State.END;
+            case OVERLOAD:
+            case END:
+                return State.END;
+            default:
+                return state;
         }
     }
 
@@ -50,7 +52,7 @@ public final class Util {
         if (!(objects.get(0) instanceof PceId)) {
             throw new PCEPDeserializerException("metric-pce-list must start with PCE-ID object.");
         }
-        metricPceBuilder.setPceId((PceId) (objects.get(0)));
+        metricPceBuilder.setPceId((PceId) objects.get(0));
         objects.remove(0);
         State state = State.START;
         while (!objects.isEmpty() && !state.equals(State.END)) {

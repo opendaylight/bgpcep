@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
@@ -49,10 +49,10 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() < HEADER_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
-                    + HEADER_LENGTH + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + "; Expected: >" + HEADER_LENGTH + ".");
         }
         final BitArray reserved = BitArray.valueOf(buffer, FLAGS_SIZE);
 
@@ -66,7 +66,8 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
         builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
         builder.setGlobal(reserved.get(G_FLAG_OFFSET));
         builder.setLabelType(labelType);
-        return new SubobjectBuilder().setSubobjectType(new LabelCaseBuilder().setLabel(builder.build()).build()).build();
+        return new SubobjectBuilder().setSubobjectType(new LabelCaseBuilder().setLabel(builder.build()).build())
+                .build();
     }
 
     @Override

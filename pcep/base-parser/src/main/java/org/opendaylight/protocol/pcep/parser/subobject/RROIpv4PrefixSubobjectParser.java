@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
-import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -27,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
 /**
- * Parser for {@link IpPrefixCase}
+ * Parser for {@link IpPrefixCase}.
  */
 public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
@@ -45,14 +46,16 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT4_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + ";");
         }
         final SubobjectBuilder builder = new SubobjectBuilder();
         final int length = buffer.getUnsignedByte(PREFIX4_F_OFFSET);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefix prefix = new IpPrefixBuilder().setIpPrefix(
-                new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH), length))).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
+            .subobject.type.ip.prefix._case.IpPrefix prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(
+                Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH), length))).build();
         buffer.skipBytes(PREFIX_F_LENGTH);
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
@@ -63,10 +66,12 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
+        checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase,
+            "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
-        Preconditions.checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null, "Unknown AbstractPrefix instance. Passed %s.", prefix.getClass());
+        checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null,
+                "Unknown AbstractPrefix instance. Passed %s.", prefix.getClass());
         if (prefix.getIpv6Prefix() != null) {
             new RROIpv6PrefixSubobjectParser().serializeSubobject(subobject, buffer);
         } else {
@@ -74,7 +79,7 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
             flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
             flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
             final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
-            Preconditions.checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
+            checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
             writeIpv4Prefix(prefix.getIpv4Prefix(), body);
             flags.toByteBuf(body);
             RROSubobjectUtil.formatSubobject(TYPE, body, buffer);

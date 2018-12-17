@@ -7,13 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -25,10 +23,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.keepalive.message.KeepaliveMessageBuilder;
 
 /**
- * Parser for {@link KeepaliveMessage}
+ * Parser for {@link KeepaliveMessage}.
  */
 public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
-    private static final KeepaliveMessage MESSAGE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+    private static final KeepaliveMessage MESSAGE = new KeepaliveBuilder().setKeepaliveMessage(
+        new KeepaliveMessageBuilder().build()).build();
     public static final int TYPE = 2;
 
     public PCEPKeepAliveMessageParser(final ObjectRegistry registry) {
@@ -37,7 +36,8 @@ public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof KeepaliveMessage, "Wrong instance of Message. Passed instance of %s. Need KeepaliveMessage.", message.getClass());
+        checkArgument(message instanceof KeepaliveMessage,
+            "Wrong instance of Message. Passed instance of %s. Need KeepaliveMessage.", message.getClass());
         MessageUtil.formatMessage(TYPE, Unpooled.EMPTY_BUFFER, out);
     }
 

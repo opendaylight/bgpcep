@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.tlv;
 
 import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE;
@@ -24,7 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlvBuilder;
 
-public abstract class AbstractVendorInformationTlvParser implements TlvSerializer, TlvParser, EnterpriseSpecificInformationParser {
+public abstract class AbstractVendorInformationTlvParser implements TlvSerializer, TlvParser,
+        EnterpriseSpecificInformationParser {
 
     @Override
     public final void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
