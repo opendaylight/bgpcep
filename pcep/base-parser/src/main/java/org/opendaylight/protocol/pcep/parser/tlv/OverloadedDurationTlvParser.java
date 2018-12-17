@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.overload.duration.tlv.OverloadDurationBuilder;
 
 /**
- * Parser for {@link OverloadDuration}
+ * Parser for {@link OverloadDuration}.
  */
 public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 

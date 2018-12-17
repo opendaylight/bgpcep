@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.order.tlv.OrderBuilder;
 
 /**
- * Parser for {@link Order}
+ * Parser for {@link Order}.
  */
 public class OrderTlvParser implements TlvParser, TlvSerializer {
 

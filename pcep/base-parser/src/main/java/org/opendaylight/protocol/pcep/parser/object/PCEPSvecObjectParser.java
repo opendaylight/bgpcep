@@ -10,9 +10,9 @@ package org.opendaylight.protocol.pcep.parser.object;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
@@ -71,7 +71,7 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         }
         bytes.skipBytes(FLAGS_F_OFFSET);
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
-        final List<RequestId> requestIDs = Lists.newArrayList();
+        final List<RequestId> requestIDs = new ArrayList<>();
 
         while (bytes.isReadable()) {
             requestIDs.add(new RequestId(bytes.readUnsignedInt()));
@@ -109,7 +109,7 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         flags.toByteBuf(body);
 
         final List<RequestId> requestIDs = svecObj.getRequestsIds();
-        assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
+        assert !requestIDs.isEmpty() : "Empty Svec Object - no request ids.";
         for (final RequestId requestId : requestIDs) {
             writeUnsignedInt(requestId.getValue(), body);
         }
