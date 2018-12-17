@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
@@ -164,7 +163,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
     @Override
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws Exception {
         this.serverDispatcher.close();
         if (!Epoll.isAvailable()) {
             this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
@@ -174,6 +173,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         this.ribActivator.close();
         this.inetActivator.close();
         this.bgpActivator.close();
+        super.tearDown();
     }
 
     void sendRouteAndCheckIsOnLocRib(final BGPSessionImpl session, final Ipv4Prefix prefix, final long localPreference,

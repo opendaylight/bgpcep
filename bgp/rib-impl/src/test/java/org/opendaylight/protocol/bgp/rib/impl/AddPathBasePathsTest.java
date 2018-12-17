@@ -16,7 +16,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +54,7 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
 
     @Override
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws Exception {
         waitFutureSuccess(this.serverChannel.close());
         super.tearDown();
     }
