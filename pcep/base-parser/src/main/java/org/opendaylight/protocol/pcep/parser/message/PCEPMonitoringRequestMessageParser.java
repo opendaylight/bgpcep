@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -28,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.Svec;
 
 /**
- * Parser for {@link Pcmonreq}
+ * Parser for {@link Pcmonreq}.
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-3.1">Monitoring Request Message</a>
  */
 public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser {
@@ -41,9 +42,10 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcmonreq, "Wrong instance of Message. Passed instance of %s. Need Pcmonreq.", message.getClass());
+        checkArgument(message instanceof Pcmonreq, "Wrong instance of Message. Passed instance of %s. Need Pcmonreq.",
+            message.getClass());
         final PcreqMessage msg = ((Pcmonreq) message).getPcreqMessage();
-        Preconditions.checkArgument(msg.getMonitoringRequest() != null, "MONITORING object MUST be present.");
+        checkArgument(msg.getMonitoringRequest() != null, "MONITORING object MUST be present.");
         final ByteBuf buffer = Unpooled.buffer();
         serializeMonitoringRequest(msg.getMonitoringRequest(), buffer);
         if (msg.getSvec() != null) {
@@ -56,8 +58,9 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
+    protected Message validate(final List<Object> objects, final List<Message> errors)
+            throws PCEPDeserializerException {
+        checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcmonreq message cannot be empty.");
         }

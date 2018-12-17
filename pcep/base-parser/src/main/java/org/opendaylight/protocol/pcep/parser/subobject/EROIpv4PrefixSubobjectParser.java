@@ -7,7 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -26,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
 /**
- * Parser for {@link IpPrefixCase}
+ * Parser for {@link IpPrefixCase}.
  */
 public class EROIpv4PrefixSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -40,25 +42,28 @@ public class EROIpv4PrefixSubobjectParser implements EROSubobjectParser, EROSubo
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setLoose(loose);
         if (buffer.readableBytes() != CONTENT4_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + ";");
         }
         final int length = buffer.getUnsignedByte(PREFIX4_F_OFFSET);
-        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer,
-                Ipv4Util.IP4_LENGTH), length)));
+        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv4Util.prefixForBytes(
+            ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH), length)));
         builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
         return builder.build();
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
+        checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase,
+            "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
-        Preconditions.checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null, "Unknown AbstractPrefix instance. Passed %s.", prefix.getClass());
+        checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null,
+                "Unknown AbstractPrefix instance. Passed %s.", prefix.getClass());
         if (prefix.getIpv6Prefix() != null) {
             new EROIpv6PrefixSubobjectParser().serializeSubobject(subobject, buffer);
         } else {
