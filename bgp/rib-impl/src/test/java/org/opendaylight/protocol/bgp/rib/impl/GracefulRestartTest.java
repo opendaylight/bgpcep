@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
@@ -132,7 +131,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
 
     @Override
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws Exception {
         waitFutureSuccess(this.serverChannel.close());
         this.session.close();
         super.tearDown();
