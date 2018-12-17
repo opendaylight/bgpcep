@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
@@ -18,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
 
 /**
- * Parser for {@link AsNumberCase}
+ * Parser for {@link AsNumberCase}.
  */
 public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
@@ -26,12 +27,14 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
-        return new SubobjectBuilder().setMandatory(mandatory).setSubobjectType(AsNumberCaseParser.parseSubobject(buffer)).build();
+        return new SubobjectBuilder().setMandatory(mandatory)
+                .setSubobjectType(AsNumberCaseParser.parseSubobject(buffer)).build();
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
+        checkArgument(subobject.getSubobjectType() instanceof AsNumberCase,
+            "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }

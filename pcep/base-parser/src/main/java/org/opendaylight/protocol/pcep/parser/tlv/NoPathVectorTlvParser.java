@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVectorBuilder;
 
 /**
- * Parser for {@link NoPathVector}
+ * Parser for {@link NoPathVector}.
  */
 public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 
@@ -44,12 +44,13 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
             return null;
         }
         if (buffer.readableBytes() != FLAGS_SIZE / Byte.SIZE) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >="
-                    + FLAGS_SIZE / Byte.SIZE + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+            + "; Expected: >=" + FLAGS_SIZE / Byte.SIZE + ".");
         }
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        return new NoPathVectorBuilder().setFlags(
-                new Flags(flags.get(CHAIN_UNAVAILABLE), flags.get(NO_GCO_MIGRATION_PATH), flags.get(NO_GCO_SOLUTION), flags.get(REACHABLITY_PROBLEM), flags.get(PATH_KEY), flags.get(PCE_UNAVAILABLE), flags.get(UNKNOWN_DEST), flags.get(UNKNOWN_SRC))).build();
+        return new NoPathVectorBuilder().setFlags(new Flags(flags.get(CHAIN_UNAVAILABLE),
+            flags.get(NO_GCO_MIGRATION_PATH), flags.get(NO_GCO_SOLUTION), flags.get(REACHABLITY_PROBLEM),
+            flags.get(PATH_KEY), flags.get(PCE_UNAVAILABLE), flags.get(UNKNOWN_DEST), flags.get(UNKNOWN_SRC))).build();
     }
 
     @Override
