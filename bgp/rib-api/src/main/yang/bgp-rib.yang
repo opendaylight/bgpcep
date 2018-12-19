@@ -127,7 +127,16 @@ module bgp-rib {
                 }
                 container adj-rib-in {
                     description "Routes as we have received them from the peer.";
-                    uses rib;
+                    uses rib {
+                        augment tables/attributes {
+                            leaf llgr-stale {
+                                type empty;
+                                description "Presence indicates that all routes in this table
+                                             are to be treated as having LLGR_STALE community
+                                             attached to them";
+                            }
+                        }
+                    }
                 }
                 container effective-rib-in {
                     description "Routes as processed by inbound policy.";
