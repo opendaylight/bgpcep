@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38a5ce56_079c3d3a",
+        "filename": "bgp/extensions/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-12-19T16:53:22Z",
+      "side": 1,
+      "message": "units microseconds?\na reference to the type would be nice",
+      "range": {
+        "startLine": 540,
+        "startChar": 0,
+        "endLine": 542,
+        "endChar": 9
+      },
+      "revId": "b268a2631a91932a656edfe233beadd756a502a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b394d0f_e458c0b6",
+        "filename": "bgp/extensions/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-12-19T16:53:22Z",
+      "side": 1,
+      "message": "A reference would be nice, presumably to https://tools.ietf.org/html/rfc7471#section-4.4.5?\n\nAlso units needs to be described (\"multiple of 0.000003%\"?)",
+      "range": {
+        "startLine": 546,
+        "startChar": 0,
+        "endLine": 548,
+        "endChar": 9
+      },
+      "revId": "b268a2631a91932a656edfe233beadd756a502a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
