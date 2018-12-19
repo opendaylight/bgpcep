@@ -325,6 +325,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final Optional<DataContainerChild<?, ?>> maybeAttrsAfter = tableAfter.getChild(ATTRIBUTES);
             if (maybeAttrsAfter.isPresent()) {
                 final ContainerNode attrsAfter = extractContainer(maybeAttrsAfter);
+                // FIXME: BGPCEP-495: extract llgr-stale flag
                 tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES), attrsAfter);
             }
 
