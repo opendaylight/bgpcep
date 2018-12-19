@@ -9,11 +9,14 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_ATTRIBUTES_AID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LLGR_STALE_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -47,6 +50,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesReceivedCounters;
+import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
@@ -312,12 +316,21 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Modify Effective Table {}", effectiveTablePath);
 
+        final boolean wasLongLivedStale = isLongLivedStaleTable(table.getDataBefore());
+        final boolean longLivedStale = isLongLivedStaleTable(table.getDataAfter());
+        if (wasLongLivedStale != longLivedStale) {
+            LOG.debug("LLGR_STALE flag flipped {}, overwriting table {}", longLivedStale ? "ON" : "OFF",
+                    effectiveTablePath);
+            writeTable(tx, ribContext, effectiveTablePath, table);
+            return;
+        }
+
         final DataTreeCandidateNode modifiedAttrs = table.getModifiedChild(ATTRIBUTES_NID);
         if (modifiedAttrs != null) {
-            final Optional<NormalizedNode<?, ?>> attrsAfter = modifiedAttrs.getDataAfter();
             final YangInstanceIdentifier effAttrsPath = effectiveTablePath.node(ATTRIBUTES_NID);
-            if (attrsAfter.isPresent()) {
-                tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath, attrsAfter.get());
+            final Optional<NormalizedNode<?, ?>> optAttrsAfter = modifiedAttrs.getDataAfter();
+            if (optAttrsAfter.isPresent()) {
+                tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath, effectiveAttributes(optAttrsAfter));
             } else {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, effAttrsPath);
             }
@@ -332,7 +345,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     deleteRoutesBefore(tx, ribSupport, effectiveTablePath, modifiedRoutes);
                     // XXX: YANG Tools seems to have an issue stacking DELETE with child WRITE
                     tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES_NID), EMPTY_ROUTES);
-                    writeRoutesAfter(tx, ribSupport, effectiveTablePath, modifiedRoutes.getDataAfter());
+                    writeRoutesAfter(tx, ribSupport, effectiveTablePath, modifiedRoutes.getDataAfter(), longLivedStale);
                     break;
                 case DELETE:
                 case DISAPPEARED:
@@ -341,7 +354,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     break;
                 case SUBTREE_MODIFIED:
                     for (DataTreeCandidateNode modifiedRoute : ribSupport.changedRoutes(modifiedRoutes)) {
-                        processRoute(tx, ribSupport, effectiveTablePath, modifiedRoute);
+                        processRoute(tx, ribSupport, effectiveTablePath, modifiedRoute, longLivedStale);
                     }
                     break;
                 case UNMODIFIED:
@@ -365,13 +378,18 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             ribContext.createEmptyTableStructure(tx, effectiveTablePath);
 
             final Optional<DataContainerChild<?, ?>> maybeAttrsAfter = tableAfter.getChild(ATTRIBUTES_NID);
+            final boolean longLivedStale;
             if (maybeAttrsAfter.isPresent()) {
                 final ContainerNode attrsAfter = extractContainer(maybeAttrsAfter);
-                tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES_NID), attrsAfter);
+                longLivedStale = isLongLivedStale(attrsAfter);
+                tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES_NID),
+                    effectiveAttributes(attrsAfter.getChild(UPTODATE_NID)));
+            } else {
+                longLivedStale = false;
             }
 
             writeRoutesAfter(tx, ribContext.getRibSupport(), effectiveTablePath,
-                NormalizedNodes.findNode(tableAfter, ROUTES_NID));
+                NormalizedNodes.findNode(tableAfter, ROUTES_NID), longLivedStale);
         }
     }
 
@@ -396,14 +414,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void writeRoutesAfter(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
-            final YangInstanceIdentifier effectiveTablePath, final Optional<NormalizedNode<?, ?>> routesAfter) {
+            final YangInstanceIdentifier effectiveTablePath, final Optional<NormalizedNode<?, ?>> routesAfter,
+            final boolean longLivedStale) {
         final Optional<NormalizedNode<?, ?>> maybeRoutesAfter = NormalizedNodes.findNode(routesAfter,
             ribSupport.relativeRoutesPath());
         if (maybeRoutesAfter.isPresent()) {
             final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES_NID),
                 ribSupport.relativeRoutesPath());
             for (MapEntryNode routeAfter : extractMap(maybeRoutesAfter).getValue()) {
-                writeRoute(tx, ribSupport, routesPath.node(routeAfter.getIdentifier()), Optional.empty(), routeAfter);
+                writeRoute(tx, ribSupport, routesPath.node(routeAfter.getIdentifier()), Optional.empty(), routeAfter,
+                    longLivedStale);
             }
         }
     }
@@ -424,7 +444,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
-            final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
+            final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route, final boolean longLivedStale) {
         LOG.debug("Process route {}", route.getIdentifier());
         final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.getIdentifier());
         switch (route.getModificationType()) {
@@ -438,7 +458,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             case APPEARED:
             case SUBTREE_MODIFIED:
             case WRITE:
-                writeRoute(tx, ribSupport, routePath, route.getDataBefore(), route.getDataAfter().get());
+                writeRoute(tx, ribSupport, routePath, route.getDataBefore(), route.getDataAfter().get(),
+                    longLivedStale);
             default:
                 LOG.warn("Ignoring unhandled route {}", route);
                 break;
@@ -456,7 +477,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void writeRoute(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routePath, final Optional<NormalizedNode<?, ?>> routeBefore,
-            final NormalizedNode<?, ?> routeAfter) {
+            final NormalizedNode<?, ?> routeAfter, final boolean longLivedStale) {
         final TablesKey tablesKey = ribSupport.getTablesKey();
         CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
         // Lookup per-table attributes from RIBSupport
@@ -466,7 +487,6 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         final Optional<Attributes> optEffAtt;
         // In case we want to add LLGR_STALE we do not process route through policies since it may be
         // considered as received with LLGR_STALE from peer which is not true.
-        final boolean longLivedStale = false;
         if (longLivedStale) {
             // LLGR procedures are in effect. If the route is tagged with NO_LLGR, it needs to be removed.
             final List<Communities> effCommunities = routeAttrs.getCommunities();
@@ -563,6 +583,24 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
         return this.effRibTables.node(TABLES_NID).node(tableKey);
+    }
+
+    private static boolean isLongLivedStale(final ContainerNode attributes) {
+        return NormalizedNodes.findNode(attributes, ADJRIBIN_ATTRIBUTES_AID, LLGR_STALE_NID).isPresent();
+    }
+
+    private static boolean isLongLivedStaleTable(final Optional<NormalizedNode<?, ?>> optTable) {
+        final Optional<NormalizedNode<?, ?>> optAttributes = NormalizedNodes.findNode(optTable, ATTRIBUTES_NID);
+        return optAttributes.isPresent() ? isLongLivedStale(extractContainer(optAttributes)) : false;
+    }
+
+    private static ContainerNode effectiveAttributes(final Optional<? extends NormalizedNode<?, ?>> optUptodate) {
+        return optUptodate.map(leaf -> {
+            final Object value = leaf.getValue();
+            verify(value instanceof Boolean, "Expected boolean uptodate, got %s", value);
+            return ((Boolean) value).booleanValue() ? RIBNormalizedNodes.UPTODATE_ATTRIBUTES
+                    : RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES;
+        }).orElse(RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES);
     }
 
     private static ContainerNode extractContainer(final Optional<? extends NormalizedNode<?, ?>> optNode) {
