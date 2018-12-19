@@ -17,6 +17,7 @@ import org.opendaylight.yangtools.yang.common.QName;
 public final class RIBQNames {
     public static final QName UPTODATE_QNAME = QName.create(Attributes.QNAME, "uptodate").intern();
     public static final QName PEER_ID_QNAME = QName.create(Peer.QNAME, "peer-id").intern();
+    public static final QName LLGR_STALE_QNAME = QName.create(Attributes.QNAME, "llgr-stale").intern();
 
     private RIBQNames() {
 
