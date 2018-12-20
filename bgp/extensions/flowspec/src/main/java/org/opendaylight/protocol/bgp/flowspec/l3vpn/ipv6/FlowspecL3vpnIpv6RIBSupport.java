@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv6;
 
+import static com.google.common.base.Verify.verify;
+
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -22,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.l3vpn.ipv6.routes.FlowspecL3vpnIpv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 
 public final class FlowspecL3vpnIpv6RIBSupport
@@ -89,11 +92,6 @@ public final class FlowspecL3vpnIpv6RIBSupport
     }
 
     @Override
-    public List<FlowspecL3vpnRoute> routesFromContainer(final FlowspecL3vpnIpv6Routes container) {
-        return container.getFlowspecL3vpnRoute();
-    }
-
-    @Override
     public PathId extractPathId(final FlowspecL3vpnRouteKey routeListKey) {
         return routeListKey.getPathId();
     }
@@ -101,5 +99,14 @@ public final class FlowspecL3vpnIpv6RIBSupport
     @Override
     public String extractRouteKey(final FlowspecL3vpnRouteKey routeListKey) {
         return routeListKey.getRouteKey();
+    }
+
+    @Override
+    public List<FlowspecL3vpnRoute> extractAdjRibInRoutes(Routes routes) {
+        verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329
+            .bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecL3vpnIpv6RoutesCase, "Unrecognized routes %s", routes);
+        return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329
+                .bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecL3vpnIpv6RoutesCase) routes)
+                .getFlowspecL3vpnIpv6Routes().nonnullFlowspecL3vpnRoute();
     }
 }

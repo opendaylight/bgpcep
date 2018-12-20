@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.inet;
 
+import static com.google.common.base.Verify.verify;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
@@ -116,11 +119,6 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
     }
 
     @Override
-    public List<Ipv4Route> routesFromContainer(final Ipv4Routes container) {
-        return container.getIpv4Route();
-    }
-
-    @Override
     public PathId extractPathId(final Ipv4RouteKey routeListKey) {
         return routeListKey.getPathId();
     }
@@ -128,5 +126,13 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
     @Override
     public String extractRouteKey(final Ipv4RouteKey routeListKey) {
         return routeListKey.getRouteKey();
+    }
+
+    @Override
+    public List<Ipv4Route> extractAdjRibInRoutes(Routes routes) {
+        verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
+            .bgp.rib.rib.peer.adj.rib.in.tables.routes.Ipv4RoutesCase, "Unrecognized routes %s", routes);
+        return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.peer
+                .adj.rib.in.tables.routes.Ipv4RoutesCase) routes).getIpv4Routes().nonnullIpv4Route();
     }
 }

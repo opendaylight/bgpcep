@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import static com.google.common.base.Verify.verify;
+
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -21,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.routes.FlowspecIpv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 
 public final class FlowspecIpv6RIBSupport
@@ -88,11 +91,6 @@ public final class FlowspecIpv6RIBSupport
     }
 
     @Override
-    public List<FlowspecRoute> routesFromContainer(final FlowspecIpv6Routes container) {
-        return container.getFlowspecRoute();
-    }
-
-    @Override
     public PathId extractPathId(final FlowspecRouteKey routeListKey) {
         return routeListKey.getPathId();
     }
@@ -100,5 +98,14 @@ public final class FlowspecIpv6RIBSupport
     @Override
     public String extractRouteKey(final FlowspecRouteKey routeListKey) {
         return routeListKey.getRouteKey();
+    }
+
+    @Override
+    public List<FlowspecRoute> extractAdjRibInRoutes(Routes routes) {
+        verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329
+            .bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecIpv6RoutesCase, "Unrecognized routes %s", routes);
+        return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329
+                .bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecIpv6RoutesCase) routes).getFlowspecIpv6Routes()
+                .nonnullFlowspecRoute();
     }
 }

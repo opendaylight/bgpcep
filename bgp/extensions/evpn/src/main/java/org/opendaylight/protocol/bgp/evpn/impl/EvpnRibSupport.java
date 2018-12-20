@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl;
 
+import static com.google.common.base.Verify.verify;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -161,11 +164,6 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
-    public List<EvpnRoute> routesFromContainer(final EvpnRoutes container) {
-        return container.getEvpnRoute();
-    }
-
-    @Override
     public PathId extractPathId(final EvpnRouteKey routeListKey) {
         return routeListKey.getPathId();
     }
@@ -173,5 +171,13 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     @Override
     public String extractRouteKey(final EvpnRouteKey routeListKey) {
         return routeListKey.getRouteKey();
+    }
+
+    @Override
+    public List<EvpnRoute> extractAdjRibInRoutes(Routes routes) {
+        verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329
+            .bgp.rib.rib.peer.adj.rib.in.tables.routes.EvpnRoutesCase, "Unrecognized routes %s", routes);
+        return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329
+                .bgp.rib.rib.peer.adj.rib.in.tables.routes.EvpnRoutesCase) routes).getEvpnRoutes().nonnullEvpnRoute();
     }
 }
