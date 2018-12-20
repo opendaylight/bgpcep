@@ -41,7 +41,6 @@ import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
-import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
@@ -55,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -104,7 +104,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                     return ApplicationPeer.this.peerRibOutIId.child(Tables.class, tablesKey);
                 }
             });
-    private AbstractRegistration trackerRegistration;
+    private Registration trackerRegistration;
     private YangInstanceIdentifier peerPath;
 
     @Override

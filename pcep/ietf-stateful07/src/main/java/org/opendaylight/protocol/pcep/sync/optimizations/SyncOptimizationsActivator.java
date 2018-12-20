@@ -18,12 +18,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public class SyncOptimizationsActivator extends AbstractPCEPExtensionProviderActivator {
 
     @Override
-    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();

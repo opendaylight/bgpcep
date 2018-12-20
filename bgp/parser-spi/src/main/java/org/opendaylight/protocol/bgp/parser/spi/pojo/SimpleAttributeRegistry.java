@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,7 +28,6 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParsedAttributes;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
-import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
@@ -38,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.UnrecognizedAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.UnrecognizedAttributesKey;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
@@ -63,20 +64,20 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 
     private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers =
             new HandlerRegistry<>();
-    private final Map<AbstractRegistration, AttributeSerializer> serializers = new LinkedHashMap<>();
+    private final Map<Registration, AttributeSerializer> serializers = new LinkedHashMap<>();
     private final AtomicReference<Iterable<AttributeSerializer>> roSerializers =
         new AtomicReference<>(this.serializers.values());
     private final List<UnrecognizedAttributes> unrecognizedAttributes = new ArrayList<>();
 
 
-    AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
-        Preconditions.checkArgument(attributeType >= 0 && attributeType <= Values.UNSIGNED_BYTE_MAX_VALUE);
+    Registration registerAttributeParser(final int attributeType, final AttributeParser parser) {
+        checkArgument(attributeType >= 0 && attributeType <= Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(attributeType, parser);
     }
 
-    synchronized AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass,
+    synchronized Registration registerAttributeSerializer(final Class<? extends DataObject> paramClass,
             final AttributeSerializer serializer) {
-        final AbstractRegistration reg = this.handlers.registerSerializer(paramClass, serializer);
+        final Registration reg = this.handlers.registerSerializer(paramClass, serializer);
 
         this.serializers.put(reg, serializer);
         return new AbstractRegistration() {

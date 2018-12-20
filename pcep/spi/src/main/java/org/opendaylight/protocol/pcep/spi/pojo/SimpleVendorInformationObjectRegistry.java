@@ -22,17 +22,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.EnterpriseSpecificInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleVendorInformationObjectRegistry implements VendorInformationObjectRegistry {
     private final HandlerRegistry<DataContainer, ObjectParser, ObjectSerializer> handlers = new HandlerRegistry<>();
 
-    public AutoCloseable registerVendorInformationObjectParser(final EnterpriseNumber enterpriseNumber,
+    public Registration registerVendorInformationObjectParser(final EnterpriseNumber enterpriseNumber,
             final ObjectParser parser) {
         return this.handlers.registerParser(Ints.checkedCast(enterpriseNumber.getValue()), parser);
     }
 
-    public AutoCloseable registerVendorInformationObjectSerializer(
+    public Registration registerVendorInformationObjectSerializer(
             final Class<? extends EnterpriseSpecificInformation> esInformationClass,
             final ObjectSerializer serializer) {
         return this.handlers.registerSerializer(esInformationClass, serializer);

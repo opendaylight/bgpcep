@@ -26,10 +26,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.opendaylight.bgpcep</groupId>
-            <artifactId>concepts</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-concepts</artifactId>
         </dependency>
@@ -60,6 +56,10 @@
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-spec-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>concepts</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>

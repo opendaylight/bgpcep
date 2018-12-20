@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Registry that contains configured bgp peers ready for when a bgp session is established with remote peer.
@@ -83,7 +84,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param listener The PeerRegistryListener to be registered.
      * @return Registration ticked, used for closing of registration.
      */
-    @Nonnull AutoCloseable registerPeerRegisterListener(@Nonnull PeerRegistryListener listener);
+    @Nonnull Registration registerPeerRegisterListener(@Nonnull PeerRegistryListener listener);
 
     /**
      * Register PeerRegistrySessionListener, which listens to the changes in sessions
@@ -93,7 +94,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param listener The PeerRegistrySessionListener to be registered.
      * @return Registration ticked, used for closing of registration.
      */
-    @Nonnull AutoCloseable registerPeerSessionListener(PeerRegistrySessionListener listener);
+    @Nonnull Registration registerPeerSessionListener(PeerRegistrySessionListener listener);
 
     /**
      * Set new preferences. In case of graceful restart execution we need to send

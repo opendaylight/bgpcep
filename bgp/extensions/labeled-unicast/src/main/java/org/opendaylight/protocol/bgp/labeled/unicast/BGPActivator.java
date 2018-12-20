@@ -21,14 +21,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     private static final int LABELED_UNICAST_SAFI = 4;
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>(8);
+    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>(8);
         final LUNlriParser luNlriParser = new LUNlriParser();
 
         regs.add(context.registerSubsequentAddressFamily(LabeledUnicastSubsequentAddressFamily.class,
@@ -52,5 +53,4 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         return regs;
     }
-
 }

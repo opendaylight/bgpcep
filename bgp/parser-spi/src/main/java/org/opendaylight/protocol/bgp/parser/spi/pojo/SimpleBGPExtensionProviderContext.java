@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -68,45 +69,45 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
+    public Registration registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
         return this.getAddressFamilyRegistry().registerAddressFamily(clazz, number);
     }
 
     @Override
-    public AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
+    public Registration registerAttributeParser(final int attributeType, final AttributeParser parser) {
         return this.getAttributeRegistry().registerAttributeParser(attributeType, parser);
     }
 
     @Override
-    public AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> attributeClass,
+    public Registration registerAttributeSerializer(final Class<? extends DataObject> attributeClass,
             final AttributeSerializer serializer) {
         return this.getAttributeRegistry().registerAttributeSerializer(attributeClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerCapabilityParser(final int capabilityType, final CapabilityParser parser) {
+    public Registration registerCapabilityParser(final int capabilityType, final CapabilityParser parser) {
         return this.getCapabilityRegistry().registerCapabilityParser(capabilityType, parser);
     }
 
     @Override
-    public AutoCloseable registerCapabilitySerializer(final Class<? extends DataObject> capabilityClass,
+    public Registration registerCapabilitySerializer(final Class<? extends DataObject> capabilityClass,
             final CapabilitySerializer serializer) {
         return this.getCapabilityRegistry().registerCapabilitySerializer(capabilityClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
+    public Registration registerMessageParser(final int messageType, final MessageParser parser) {
         return this.getMessageRegistry().registerMessageParser(messageType, parser);
     }
 
     @Override
-    public AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass,
+    public Registration registerMessageSerializer(final Class<? extends Notification> messageClass,
             final MessageSerializer serializer) {
         return this.getMessageRegistry().registerMessageSerializer(messageClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
+    public Registration registerNlriParser(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
             final NextHopParserSerializer nextHopParserSerializer, final Class<? extends CNextHop> cnextHopClass,
             final Class<? extends CNextHop>... cnextHopClassList) {
@@ -115,24 +116,24 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass,
+    public Registration registerNlriSerializer(final Class<? extends DataObject> nlriClass,
             final NlriSerializer serializer) {
         return this.getNlriRegistry().registerNlriSerializer(nlriClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerParameterParser(final int parameterType, final ParameterParser parser) {
+    public Registration registerParameterParser(final int parameterType, final ParameterParser parser) {
         return this.getParameterRegistry().registerParameterParser(parameterType, parser);
     }
 
     @Override
-    public AutoCloseable registerParameterSerializer(final Class<? extends BgpParameters> paramClass,
+    public Registration registerParameterSerializer(final Class<? extends BgpParameters> paramClass,
             final ParameterSerializer serializer) {
         return this.getParameterRegistry().registerParameterSerializer(paramClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz,
+    public Registration registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz,
             final int number) {
         return this.getSubsequentAddressFamilyRegistry().registerSubsequentAddressFamily(clazz, number);
     }
@@ -143,7 +144,7 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerExtendedCommunitySerializer(
+    public Registration registerExtendedCommunitySerializer(
             final Class<? extends ExtendedCommunity> extendedCommunityClass,
             final ExtendedCommunitySerializer serializer) {
         return this.getExtendedCommunityRegistry().registerExtendedCommunitySerializer(extendedCommunityClass,
@@ -151,18 +152,18 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     }
 
     @Override
-    public AutoCloseable registerExtendedCommunityParser(final int type, final int subtype,
+    public Registration registerExtendedCommunityParser(final int type, final int subtype,
             final ExtendedCommunityParser parser) {
         return this.getExtendedCommunityRegistry().registerExtendedCommunityParser(type, subtype, parser);
     }
 
     @Override
-    public AutoCloseable registerBgpPrefixSidTlvParser(final int tlvType, final BgpPrefixSidTlvParser parser) {
+    public Registration registerBgpPrefixSidTlvParser(final int tlvType, final BgpPrefixSidTlvParser parser) {
         return this.getBgpPrefixSidTlvRegistry().registerBgpPrefixSidTlvParser(tlvType, parser);
     }
 
     @Override
-    public AutoCloseable registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass,
+    public Registration registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass,
             final BgpPrefixSidTlvSerializer serializer) {
         return this.getBgpPrefixSidTlvRegistry().registerBgpPrefixSidTlvSerializer(tlvClass, serializer);
     }

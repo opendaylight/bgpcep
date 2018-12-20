@@ -24,12 +24,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>(6);
+    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>(6);
 
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         final Ipv4NlriParser ipv4Codec = new Ipv4NlriParser();
@@ -48,5 +49,4 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerBgpPrefixSidTlvSerializer(Ipv6SidTlv.class, tlvHandler));
         return regs;
     }
-
 }

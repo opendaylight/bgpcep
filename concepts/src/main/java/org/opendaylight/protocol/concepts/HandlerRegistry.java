@@ -8,13 +8,14 @@
 package org.opendaylight.protocol.concepts;
 
 import javax.annotation.concurrent.ThreadSafe;
+import org.opendaylight.yangtools.concepts.Registration;
 
 @ThreadSafe
 public class HandlerRegistry<C, P, S> {
     private final MultiRegistry<Class<? extends C>, S> serializers = new MultiRegistry<>();
     private final MultiRegistry<Integer, P> parsers = new MultiRegistry<>();
 
-    public AbstractRegistration registerParser(final int type, final P parser) {
+    public Registration registerParser(final int type, final P parser) {
         return this.parsers.register(type, parser);
     }
 
@@ -22,7 +23,7 @@ public class HandlerRegistry<C, P, S> {
         return this.parsers.get(type);
     }
 
-    public AbstractRegistration registerSerializer(final Class<? extends C> clazz, final S serializer) {
+    public Registration registerSerializer(final Class<? extends C> clazz, final S serializer) {
         return this.serializers.register(clazz, serializer);
     }
 

@@ -19,6 +19,7 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
@@ -46,8 +47,7 @@ public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
 
     private final class TestActivator extends AbstractRIBExtensionProviderActivator {
         @Override
-        protected List<AutoCloseable> startRIBExtensionProviderImpl(
-                final RIBExtensionProviderContext context,
+        protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
                 final BindingNormalizedNodeSerializer mappingService) {
             final RIBSupport<?, ?, ?, ?> support = Mockito.mock(RIBSupport.class);
             Mockito.doReturn(Route.class).when(support).routesListClass();

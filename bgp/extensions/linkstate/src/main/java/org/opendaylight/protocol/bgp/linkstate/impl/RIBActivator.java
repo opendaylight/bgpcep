@@ -14,14 +14,14 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivat
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Activator for registering Linkstate AFI/SAFI to RIB.
  */
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(
-            final RIBExtensionProviderContext context,
+    protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return Collections.singletonList(context.registerRIBSupport(LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class, LinkstateRIBSupport.getInstance(mappingService)));

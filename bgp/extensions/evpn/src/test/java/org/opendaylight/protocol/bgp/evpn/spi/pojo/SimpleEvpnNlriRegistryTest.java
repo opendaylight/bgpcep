@@ -28,6 +28,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.Evpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -47,7 +48,7 @@ public final class SimpleEvpnNlriRegistryTest {
 
     @Before
     public void setUp() {
-        final ArrayList<AutoCloseable> reg = new ArrayList<>();
+        final ArrayList<Registration> reg = new ArrayList<>();
         ESIActivator.registerEsiTypeParsers(reg);
         NlriActivator.registerNlriParsers(reg);
     }

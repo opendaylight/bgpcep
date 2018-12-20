@@ -14,17 +14,14 @@ import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public abstract class AbstractPCEPExtensionProviderActivator implements AutoCloseable, PCEPExtensionProviderActivator {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPExtensionProviderActivator.class);
+    @GuardedBy("this")
+    private List<? extends Registration> registrations;
 
     @GuardedBy("this")
-    private List<AutoCloseable> registrations;
-
-    @GuardedBy("this")
-    protected abstract List<AutoCloseable> startImpl(PCEPExtensionProviderContext context);
+    protected abstract List<? extends Registration> startImpl(PCEPExtensionProviderContext context);
 
     @Override
     public final synchronized void start(final PCEPExtensionProviderContext context) {
@@ -34,20 +31,12 @@ public abstract class AbstractPCEPExtensionProviderActivator implements AutoClos
     }
 
     @Override
-    @SuppressWarnings("checkstyle:illegalCatch")
     public final synchronized void stop() {
         if (this.registrations == null) {
             return;
         }
 
-        for (final AutoCloseable r : this.registrations) {
-            try {
-                r.close();
-            } catch (final Exception e) {
-                LOG.warn("Failed to close registration", e);
-            }
-        }
-
+        this.registrations.forEach(Registration::close);
         this.registrations = null;
     }
 

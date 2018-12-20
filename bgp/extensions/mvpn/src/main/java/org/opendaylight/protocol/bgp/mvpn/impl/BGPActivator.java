@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Registers NLRI, Attributes, Extended communities Handlers.
@@ -36,9 +37,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int MVPN_SAFI = 5;
 
-    private static void registerAttributesHandler(
-            final BGPExtensionProviderContext context,
-            final List<AutoCloseable> regs) {
+    private static void registerAttributesHandler(final BGPExtensionProviderContext context,
+            final List<Registration> regs) {
         final PEDistinguisherLabelsAttributeHandler peDistHandler =
                 new PEDistinguisherLabelsAttributeHandler();
         regs.add(context.registerAttributeParser(peDistHandler.getType(), peDistHandler));
@@ -49,9 +49,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerAttributeSerializer(pmsiParser.getClazz(), pmsiParser));
     }
 
-    private static void registerNlri(
-            final BGPExtensionProviderContext context,
-            final List<AutoCloseable> regs) {
+    private static void registerNlri(final BGPExtensionProviderContext context, final List<Registration> regs) {
         final MvpnIpv4NlriHandler mvpnIpv4NlriHandler = new MvpnIpv4NlriHandler();
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, McastVpnSubsequentAddressFamily.class,
@@ -66,13 +64,13 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriSerializer(MvpnRoutesIpv6.class, mvpnIpv6NlriHandler));
     }
 
-    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<Registration> regs) {
         regs.add(context.registerSubsequentAddressFamily(McastVpnSubsequentAddressFamily.class, MVPN_SAFI));
     }
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
         TunnelIdentifierActivator.registerTunnelIdentifierHandlers(context, regs);
         registerAfiSafi(context, regs);
         registerNlri(context, regs);

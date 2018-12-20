@@ -40,6 +40,11 @@
             <artifactId>guava</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>concepts</artifactId>
+        </dependency>
+
         <!--
            FIXME: this is in support of the generated code. This should not
                   be here, but the plugin should bring it in.

@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public class StrictBGPPeerRegistryTest {
 
@@ -79,14 +80,14 @@ public class StrictBGPPeerRegistryTest {
     }
 
     @Test
-    public void testIpAddressConstruction() throws Exception {
+    public void testIpAddressConstruction() throws BGPDocumentedException {
         final InetSocketAddress adr = new InetSocketAddress("127.0.0.1", 179);
         final IpAddress ipAdr = StrictBGPPeerRegistry.getIpAddress(adr);
         assertEquals("127.0.0.1", ipAdr.getIpv4Address().getValue());
     }
 
     @Test
-    public void testDuplicatePeerConnection() throws Exception {
+    public void testDuplicatePeerConnection() throws BGPDocumentedException {
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
         this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
         try {
@@ -99,7 +100,7 @@ public class StrictBGPPeerRegistryTest {
     }
 
     @Test
-    public void testPeerNotConfigured() throws Exception {
+    public void testPeerNotConfigured() throws BGPDocumentedException {
         try {
             this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
         } catch (final IllegalStateException e) {
@@ -127,7 +128,7 @@ public class StrictBGPPeerRegistryTest {
     }
 
     @Test
-    public void testDropSecondPeer() throws Exception {
+    public void testDropSecondPeer() throws BGPDocumentedException {
         final Ipv4Address higher = new Ipv4Address("192.168.200.200");
         final Ipv4Address lower = new Ipv4Address("10.10.10.10");
         final IpAddress remoteIp = new IpAddress(lower);
@@ -158,7 +159,7 @@ public class StrictBGPPeerRegistryTest {
     }
 
     @Test
-    public void testDuplicatePeersWDifferentIds() throws Exception {
+    public void testDuplicatePeersWDifferentIds() throws BGPDocumentedException {
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
 
         this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
@@ -172,7 +173,7 @@ public class StrictBGPPeerRegistryTest {
     }
 
     @Test
-    public void testDuplicatePeersHigherAs() throws Exception {
+    public void testDuplicatePeersHigherAs() throws BGPDocumentedException {
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
 
         this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
@@ -197,7 +198,7 @@ public class StrictBGPPeerRegistryTest {
     }
 
     @Test
-    public void testAsMismatch() throws Exception {
+    public void testAsMismatch() {
         final AsNumber as2 = new AsNumber(3L);
 
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
@@ -229,9 +230,9 @@ public class StrictBGPPeerRegistryTest {
     }
 
     @Test
-    public void testClosePeerSessionOneListener() throws Exception {
+    public void testClosePeerSessionOneListener() throws BGPDocumentedException {
         final PeerRegistrySessionListener sessionListener1 = getMockSessionListener();
-        final AutoCloseable registration1 = this.peerRegistry.registerPeerSessionListener(sessionListener1);
+        final Registration registration1 = this.peerRegistry.registerPeerSessionListener(sessionListener1);
 
         final PeerRegistrySessionListener sessionListener2 = getMockSessionListener();
         this.peerRegistry.registerPeerSessionListener(sessionListener2);

@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import java.util.List;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
@@ -17,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.MessageSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +29,12 @@ public final class SimpleMessageRegistry implements MessageRegistry {
 
     private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
-    public AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
-        Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
+    public Registration registerMessageParser(final int messageType, final MessageParser parser) {
+        checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(messageType, parser);
     }
 
-    public AutoCloseable registerMessageSerializer(final Class<? extends Message> msgClass,
+    public Registration registerMessageSerializer(final Class<? extends Message> msgClass,
             final MessageSerializer serializer) {
         return this.handlers.registerSerializer(msgClass, serializer);
     }
@@ -40,7 +42,7 @@ public final class SimpleMessageRegistry implements MessageRegistry {
     @Override
     public Message parseMessage(final int messageType, final ByteBuf buffer, final List<Message> errors)
             throws PCEPDeserializerException {
-        Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
+        checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
         final MessageParser parser = this.handlers.getParser(messageType);
         if (parser == null) {
             LOG.warn("PCEP parser for message type {} is not registered.", messageType);

@@ -7,34 +7,32 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-
-import com.google.common.base.Preconditions;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.opendaylight.protocol.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 
 abstract class AbstractFamilyRegistry<C, N> {
     private final Map<Class<? extends C>, N> classToNumber = new ConcurrentHashMap<>();
     private final Map<N, Class<? extends C>> numberToClass = new ConcurrentHashMap<>();
 
-    protected synchronized AutoCloseable registerFamily(final Class<? extends C> clazz, final N number) {
+    protected synchronized Registration registerFamily(final Class<? extends C> clazz, final N number) {
         requireNonNull(clazz);
 
         final Class<?> c = this.numberToClass.get(number);
-        Preconditions.checkState(c == null, "Number " + number + " already registered to " + c);
+        checkState(c == null, "Number " + number + " already registered to " + c);
 
         final N n = this.classToNumber.get(clazz);
-        Preconditions.checkState(n == null, "Class " + clazz + " already registered to " + n);
+        checkState(n == null, "Class " + clazz + " already registered to " + n);
 
         this.numberToClass.put(number, clazz);
         this.classToNumber.put(clazz, number);
 
         final Object lock = this;
         return new AbstractRegistration() {
-
             @Override
             protected void removeRegistration() {
                 synchronized (lock) {

@@ -22,11 +22,6 @@ import org.opendaylight.protocol.pcep.parser.message.PCEPStartTLSMessageParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPCloseObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.bnc.BranchNodeListObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.bnc.NonBranchNodeListObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv4ObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv6ObjectParser;
-import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsObjectSerializer;
 import org.opendaylight.protocol.pcep.parser.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExcludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExistingBandwidthObjectParser;
@@ -53,6 +48,11 @@ import org.opendaylight.protocol.pcep.parser.object.PCEPRequestParameterObjectPa
 import org.opendaylight.protocol.pcep.parser.object.PCEPSecondaryExplicitRouteObjecParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSecondaryRecordRouteObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSvecObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.bnc.BranchNodeListObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.bnc.NonBranchNodeListObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv4ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv6ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsObjectSerializer;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv4ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPP2MPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPIpv4UnreachDestinationParser;
@@ -117,7 +117,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.Monitoring;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.non.branch.node.object.NonBranchNodeList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.notification.object.CNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.object.Of;
@@ -148,11 +147,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.GeneralizedLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.Type1LabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.WavebandSwitchingLabelCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class BaseParserExtensionActivator extends AbstractPCEPExtensionProviderActivator {
     @Override
-    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
         registerLabelParsers(regs, context);
 
@@ -209,7 +209,8 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         return regs;
     }
 
-    private static void registerObjectParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
+    private static void registerObjectParsers(final List<Registration> regs,
+            final PCEPExtensionProviderContext context) {
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();
         final PCEPOpenObjectParser openParser = new PCEPOpenObjectParser(tlvReg, viTlvReg);
@@ -309,24 +310,22 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         registerExtensionsObjectParsers(regs, context, tlvReg, viTlvReg, eroSubReg, rroSubReg);
     }
 
-    private static void registerExtensionsObjectParsers(
-        final List<AutoCloseable> regs,
-        final PCEPExtensionProviderContext context,
-        final TlvRegistry tlvReg,
-        final VendorInformationTlvRegistry viTlvReg,
-        final EROSubobjectRegistry eroSubReg,
-        final RROSubobjectRegistry rroSubReg) {
+    private static void registerExtensionsObjectParsers(final List<Registration> regs,
+            final PCEPExtensionProviderContext context, final TlvRegistry tlvReg,
+            final VendorInformationTlvRegistry viTlvReg, final EROSubobjectRegistry eroSubReg,
+            final RROSubobjectRegistry rroSubReg) {
         final PCEPPathKeyObjectParser pathKeyParser = new PCEPPathKeyObjectParser(eroSubReg);
         regs.add(context.registerObjectParser(pathKeyParser));
-        regs.add(context.registerObjectSerializer(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.key.object.PathKey.class,
-            pathKeyParser));
+        regs.add(context.registerObjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
+            .types.rev181109.path.key.object.PathKey.class, pathKeyParser));
 
-        final PCEPExcludeRouteObjectParser xroParser = new PCEPExcludeRouteObjectParser(context.getXROSubobjectHandlerRegistry());
+        final PCEPExcludeRouteObjectParser xroParser = new PCEPExcludeRouteObjectParser(
+            context.getXROSubobjectHandlerRegistry());
         regs.add(context.registerObjectParser(xroParser));
         regs.add(context.registerObjectSerializer(Xro.class, xroParser));
 
-        final PCEPObjectiveFunctionObjectParser objectiveParser = new PCEPObjectiveFunctionObjectParser(tlvReg, viTlvReg);
+        final PCEPObjectiveFunctionObjectParser objectiveParser = new PCEPObjectiveFunctionObjectParser(tlvReg,
+            viTlvReg);
         regs.add(context.registerObjectParser(objectiveParser));
         regs.add(context.registerObjectSerializer(Of.class, objectiveParser));
 
@@ -349,12 +348,13 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         registerMonitoringExtensionParsers(regs, context, tlvReg, viTlvReg);
     }
 
-    private static void registerEROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context,
+    private static void registerEROParsers(final List<Registration> regs, final PCEPExtensionProviderContext context,
             final LabelRegistry labelReg) {
         final EROIpv4PrefixSubobjectParser ipv4prefixParser = new EROIpv4PrefixSubobjectParser();
         regs.add(context.registerEROSubobjectParser(EROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerEROSubobjectSerializer(IpPrefixCase.class, ipv4prefixParser));
-        regs.add(context.registerEROSubobjectParser(EROIpv6PrefixSubobjectParser.TYPE, new EROIpv6PrefixSubobjectParser()));
+        regs.add(context.registerEROSubobjectParser(EROIpv6PrefixSubobjectParser.TYPE,
+            new EROIpv6PrefixSubobjectParser()));
 
         final EROAsNumberSubobjectParser asNumberParser = new EROAsNumberSubobjectParser();
         regs.add(context.registerEROSubobjectParser(EROAsNumberSubobjectParser.TYPE, asNumberParser));
@@ -366,7 +366,8 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
 
         final EROPathKey32SubobjectParser pathKeyParser =  new EROPathKey32SubobjectParser();
         regs.add(context.registerEROSubobjectParser(EROPathKey32SubobjectParser.TYPE_32, pathKeyParser));
-        regs.add(context.registerEROSubobjectParser(EROPathKey128SubobjectParser.TYPE_128, new EROPathKey128SubobjectParser()));
+        regs.add(context.registerEROSubobjectParser(EROPathKey128SubobjectParser.TYPE_128,
+            new EROPathKey128SubobjectParser()));
         regs.add(context.registerEROSubobjectSerializer(PathKeyCase.class, pathKeyParser));
 
         final EROLabelSubobjectParser labelParser = new EROLabelSubobjectParser(labelReg);
@@ -374,40 +375,39 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerEROSubobjectSerializer(LabelCase.class, labelParser));
     }
 
-    private static void registerRROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context,
+    private static void registerRROParsers(final List<Registration> regs, final PCEPExtensionProviderContext context,
             final LabelRegistry labelReg) {
         final RROIpv4PrefixSubobjectParser ipv4prefixParser = new RROIpv4PrefixSubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
-        regs.add(context.registerRROSubobjectSerializer(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCase.class,
-            ipv4prefixParser));
-        regs.add(context.registerRROSubobjectParser(RROIpv6PrefixSubobjectParser.TYPE, new RROIpv6PrefixSubobjectParser()));
+        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCase.class, ipv4prefixParser));
+        regs.add(context.registerRROSubobjectParser(RROIpv6PrefixSubobjectParser.TYPE,
+            new RROIpv6PrefixSubobjectParser()));
 
         final RROUnnumberedInterfaceSubobjectParser unnumberedParser = new RROUnnumberedInterfaceSubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROUnnumberedInterfaceSubobjectParser.TYPE, unnumberedParser));
-        regs.add(context.registerRROSubobjectSerializer(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.UnnumberedCase.class,
-            unnumberedParser));
+        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .rsvp.rev150820.record.route.subobjects.subobject.type.UnnumberedCase.class, unnumberedParser));
 
         final RROPathKey32SubobjectParser pathKeyParser =  new RROPathKey32SubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROPathKey32SubobjectParser.TYPE, pathKeyParser));
-        regs.add(context.registerRROSubobjectParser(RROPathKey128SubobjectParser.TYPE, new RROPathKey128SubobjectParser()));
-        regs.add(context.registerRROSubobjectSerializer(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCase.class,
-            pathKeyParser));
+        regs.add(context.registerRROSubobjectParser(RROPathKey128SubobjectParser.TYPE,
+            new RROPathKey128SubobjectParser()));
+        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCase.class, pathKeyParser));
 
         final RROLabelSubobjectParser labelParser = new RROLabelSubobjectParser(labelReg);
         regs.add(context.registerRROSubobjectParser(RROLabelSubobjectParser.TYPE, labelParser));
-        regs.add(context.registerRROSubobjectSerializer(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.LabelCase.class,
-            labelParser));
+        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .rsvp.rev150820.record.route.subobjects.subobject.type.LabelCase.class, labelParser));
     }
 
-    private static void registerXROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
+    private static void registerXROParsers(final List<Registration> regs, final PCEPExtensionProviderContext context) {
         final XROIpv4PrefixSubobjectParser ipv4prefixParser = new XROIpv4PrefixSubobjectParser();
         regs.add(context.registerXROSubobjectParser(XROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerXROSubobjectSerializer(IpPrefixCase.class, ipv4prefixParser));
-        regs.add(context.registerXROSubobjectParser(XROIpv6PrefixSubobjectParser.TYPE, new XROIpv6PrefixSubobjectParser()));
+        regs.add(context.registerXROSubobjectParser(XROIpv6PrefixSubobjectParser.TYPE,
+            new XROIpv6PrefixSubobjectParser()));
 
         final XROAsNumberSubobjectParser asNumberParser = new XROAsNumberSubobjectParser();
         regs.add(context.registerXROSubobjectParser(XROAsNumberSubobjectParser.TYPE, asNumberParser));
@@ -423,11 +423,13 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
 
         final XROPathKey32SubobjectParser pathKeyParser =  new XROPathKey32SubobjectParser();
         regs.add(context.registerXROSubobjectParser(XROPathKey32SubobjectParser.TYPE, pathKeyParser));
-        regs.add(context.registerXROSubobjectParser(XROPathKey128SubobjectParser.TYPE, new XROPathKey128SubobjectParser()));
+        regs.add(context.registerXROSubobjectParser(XROPathKey128SubobjectParser.TYPE,
+            new XROPathKey128SubobjectParser()));
         regs.add(context.registerXROSubobjectSerializer(PathKeyCase.class, pathKeyParser));
     }
 
-    private static void registerLabelParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
+    private static void registerLabelParsers(final List<Registration> regs,
+            final PCEPExtensionProviderContext context) {
         final Type1LabelParser type1Parser = new Type1LabelParser();
         regs.add(context.registerLabelParser(Type1LabelParser.CTYPE, type1Parser));
         regs.add(context.registerLabelSerializer(Type1LabelCase.class, type1Parser));
@@ -441,7 +443,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerLabelSerializer(WavebandSwitchingLabelCase.class, wavebandParser));
     }
 
-    private static void registerTlvParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
+    private static void registerTlvParsers(final List<Registration> regs, final PCEPExtensionProviderContext context) {
         final NoPathVectorTlvParser noPathParser = new NoPathVectorTlvParser();
         regs.add(context.registerTlvParser(NoPathVectorTlvParser.TYPE, noPathParser));
         regs.add(context.registerTlvSerializer(NoPathVector.class, noPathParser));
@@ -467,7 +469,7 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerTlvSerializer(PathSetupType.class, pstParser));
     }
 
-    private static void registerMonitoringExtensionParsers(final List<AutoCloseable> regs,
+    private static void registerMonitoringExtensionParsers(final List<Registration> regs,
             final PCEPExtensionProviderContext context, final TlvRegistry tlvReg,
             final VendorInformationTlvRegistry viTlvReg) {
         final PCEPMonitoringObjectParser monParser = new PCEPMonitoringObjectParser(tlvReg, viTlvReg);

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -15,9 +14,9 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.bandwidth.usage.object.BandwidthUsage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Pcrpt;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public class Activator extends AbstractPCEPExtensionProviderActivator {
-
     private final int bandwidthUsageObjectType;
 
     @VisibleForTesting
@@ -30,8 +29,8 @@ public class Activator extends AbstractPCEPExtensionProviderActivator {
     }
 
     @Override
-    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
         final BandwidthUsageObjectCodec bandwidthUsageObjectCodec =
                 new BandwidthUsageObjectCodec(this.bandwidthUsageObjectType);
@@ -44,5 +43,4 @@ public class Activator extends AbstractPCEPExtensionProviderActivator {
 
         return regs;
     }
-
 }

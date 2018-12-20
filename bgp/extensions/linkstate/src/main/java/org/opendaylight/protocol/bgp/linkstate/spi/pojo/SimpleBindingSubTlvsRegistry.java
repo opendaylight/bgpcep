@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.spi.pojo;
 
 import io.netty.buffer.ByteBuf;
@@ -18,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.BindingSubTlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.BindingSubTlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,8 @@ import org.slf4j.LoggerFactory;
 public final class SimpleBindingSubTlvsRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleBindingSubTlvsRegistry.class);
     private static final SimpleBindingSubTlvsRegistry SINGLETON = new SimpleBindingSubTlvsRegistry();
-    private final HandlerRegistry<DataContainer, BindingSubTlvsParser, BindingSubTlvsSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, BindingSubTlvsParser, BindingSubTlvsSerializer> handlers =
+            new HandlerRegistry<>();
 
     private SimpleBindingSubTlvsRegistry() {
     }
@@ -35,18 +36,20 @@ public final class SimpleBindingSubTlvsRegistry {
         return SINGLETON;
     }
 
-    public AutoCloseable registerBindingSubTlvsParser(final int bindingSubTlvsType, final BindingSubTlvsParser parser) {
+    public Registration registerBindingSubTlvsParser(final int bindingSubTlvsType, final BindingSubTlvsParser parser) {
         return this.handlers.registerParser(bindingSubTlvsType, parser);
     }
 
-    public AutoCloseable registerBindingSubTlvsSerializer(final Class<? extends BindingSubTlv> esiType, final BindingSubTlvsSerializer serializer) {
+    public Registration registerBindingSubTlvsSerializer(final Class<? extends BindingSubTlv> esiType,
+            final BindingSubTlvsSerializer serializer) {
         return this.handlers.registerSerializer(esiType, serializer);
     }
 
     public void serializeBindingSubTlvs(final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
         for (final BindingSubTlvs subTlv : bindingSubTlvs) {
             final BindingSubTlv bindingSubTlv = subTlv.getBindingSubTlv();
-            final BindingSubTlvsSerializer serializer = this.handlers.getSerializer(bindingSubTlv.getImplementedInterface());
+            final BindingSubTlvsSerializer serializer = this.handlers.getSerializer(
+                bindingSubTlv.getImplementedInterface());
             if (serializer == null) {
                 LOG.info("Unknown binding sub Tlv type {}", subTlv);
                 return;
@@ -66,7 +69,8 @@ public final class SimpleBindingSubTlvsRegistry {
                 if (parser == null) {
                     return null;
                 }
-                subTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(parser.parseSubTlv(slice, protocolId)).build());
+                subTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(parser.parseSubTlv(slice, protocolId))
+                    .build());
             }
         }
         return subTlvs;

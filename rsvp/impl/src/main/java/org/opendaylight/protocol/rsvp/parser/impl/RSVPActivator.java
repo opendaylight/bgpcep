@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl;
 
 import java.util.ArrayList;
@@ -98,11 +97,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.BasicSessionAttributeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.SessionAttributeObjectWithResourcesAffinities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
     @Override
-    protected List<AutoCloseable> startImpl(final RSVPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final RSVPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
         registerLabelParsers(regs, context);
         final LabelRegistry labelReg = context.getLabelHandlerRegistry();
@@ -229,8 +229,8 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         context.registerRsvpObjectSerializer(SecondaryRecordRouteObject.class, srroTypeParser);
     }
 
-    private static void registerLabelParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext
-        context) {
+    private static void registerLabelParsers(final List<Registration> regs,
+            final RSVPExtensionProviderContext  context) {
         final Type1LabelParser type1Parser = new Type1LabelParser();
         regs.add(context.registerLabelParser(Type1LabelParser.CTYPE, type1Parser));
         regs.add(context.registerLabelSerializer(Type1LabelCase.class, type1Parser));
@@ -244,8 +244,8 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         regs.add(context.registerLabelSerializer(WavebandSwitchingLabelCase.class, wavebandParser));
     }
 
-    private static void registerRROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context,
-        final LabelRegistry labelReg) {
+    private static void registerRROParsers(final List<Registration> regs, final RSVPExtensionProviderContext context,
+            final LabelRegistry labelReg) {
         final RROIpv4PrefixSubobjectParser ipv4prefixParser = new RROIpv4PrefixSubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerRROSubobjectSerializer(
@@ -287,7 +287,7 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
             .DynamicControlProtectionCase.class, srroDynamicParser));
     }
 
-    private static void registerXROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context) {
+    private static void registerXROParsers(final List<Registration> regs, final RSVPExtensionProviderContext context) {
         final XROIpv4PrefixSubobjectParser ipv4prefixParser = new XROIpv4PrefixSubobjectParser();
         regs.add(context.registerXROSubobjectParser(XROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerXROSubobjectSerializer(IpPrefixCase.class, ipv4prefixParser));
@@ -313,7 +313,7 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         regs.add(context.registerXROSubobjectSerializer(PathKeyCase.class, pathKeyParser));
     }
 
-    private static void registerEROParsers(final List<AutoCloseable> regs, final RSVPExtensionProviderContext context,
+    private static void registerEROParsers(final List<Registration> regs, final RSVPExtensionProviderContext context,
         final LabelRegistry labelReg) {
         final EROIpv4PrefixSubobjectParser ipv4prefixParser = new EROIpv4PrefixSubobjectParser();
         regs.add(context.registerEROSubobjectParser(EROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));

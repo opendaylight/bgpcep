@@ -71,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Activator for registering linkstate extensions to BGP parser.
@@ -98,8 +99,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
         final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();
 
@@ -113,8 +114,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
             parser, linkstateNextHopParser, Ipv4NextHopCase.class, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(LinkstateRoutes.class, parser));
 
-        regs.add(context.registerAttributeSerializer(Attributes1.class, new LinkstateAttributeParser(this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry)));
-        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry);
+        regs.add(context.registerAttributeSerializer(Attributes1.class,
+            new LinkstateAttributeParser(this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry)));
+        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(
+            this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry);
         regs.add(context.registerAttributeParser(linkstateAttributeParser.getType(), linkstateAttributeParser));
 
         registerNlriCodecs(regs, nlriTypeReg);
@@ -123,7 +126,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 
-    private static void registerBindingSubTlvs(final List<AutoCloseable> regs) {
+    private static void registerBindingSubTlvs(final List<Registration> regs) {
         final SimpleBindingSubTlvsRegistry simpleReg = SimpleBindingSubTlvsRegistry.getInstance();
 
         final SIDParser sidParser = new SIDParser();
@@ -160,14 +163,16 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         final UnnumberedEroParser unnumberedEroParser = new UnnumberedEroParser();
         regs.add(simpleReg.registerBindingSubTlvsParser(unnumberedEroParser.getType(), unnumberedEroParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(UnnumberedInterfaceIdEroCase.class, unnumberedEroParser));
+        regs.add(simpleReg.registerBindingSubTlvsSerializer(UnnumberedInterfaceIdEroCase.class,
+            unnumberedEroParser));
 
         final BackupUnnumberedParser backupUnnumberedParser = new BackupUnnumberedParser();
         regs.add(simpleReg.registerBindingSubTlvsParser(backupUnnumberedParser.getType(), backupUnnumberedParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(UnnumberedInterfaceIdBackupEroCase.class, backupUnnumberedParser));
+        regs.add(simpleReg.registerBindingSubTlvsSerializer(UnnumberedInterfaceIdBackupEroCase.class,
+            backupUnnumberedParser));
     }
 
-    private static void registerNlriCodecs(final List<AutoCloseable> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
+    private static void registerNlriCodecs(final List<Registration> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
 
         final NodeNlriParser nodeParser = new NodeNlriParser();
         regs.add(nlriTypeReg.registerNlriParser(nodeParser.getNlriType(), nodeParser));
@@ -188,10 +193,9 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(nlriTypeReg.registerNlriSerializer(TeLspCase.class, teLspIpv4Parser));
         final TeLspIpv6NlriParser teLspIpv6Parser = new TeLspIpv6NlriParser();
         regs.add(nlriTypeReg.registerNlriParser(teLspIpv6Parser.getNlriType(), teLspIpv6Parser));
-
     }
 
-    private static void registerNlriTlvCodecs(final List<AutoCloseable> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
+    private static void registerNlriTlvCodecs(final List<Registration> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
 
         final LocalNodeDescriptorTlvParser localParser = new LocalNodeDescriptorTlvParser();
         regs.add(nlriTypeReg.registerTlvParser(localParser.getType(), localParser));

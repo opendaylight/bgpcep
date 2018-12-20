@@ -17,11 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.Stateful;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProviderActivator {
     @Override
-    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
         regs.add(context.registerMessageParser(CInitiated00PCInitiateMessageParser.TYPE,
                 new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));

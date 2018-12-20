@@ -5,14 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Tracks Peers under RIB.
@@ -24,7 +23,7 @@ public interface BGPPeerTracker {
      * @param peer Peer
      * @return registration tickets
      */
-    AbstractRegistration registerPeer(@Nonnull Peer peer);
+    Registration registerPeer(@Nonnull Peer peer);
 
     /**
      * Returns Peer.

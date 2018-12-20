@@ -12,8 +12,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.mockito.Mock;
@@ -58,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -104,9 +105,9 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
     protected BgpPrefixSidTlvSerializer sidTlvSerializer;
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
+    protected List<? extends Registration> startImpl(final BGPExtensionProviderContext context) {
         initMock();
-        final List<AutoCloseable> regs = Lists.newArrayList();
+        final List<Registration> regs = new ArrayList<>();
         regs.add(context.registerAttributeParser(TYPE, this.attrParser));
         regs.add(context.registerAttributeSerializer(DataObject.class, this.attrSerializer));
 

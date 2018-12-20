@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Registers NLRI, Attributes, Extended communities Handlers.
@@ -30,9 +31,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int RT_SAFI = 132;
 
-    private static void registerNlri(
-            final BGPExtensionProviderContext context,
-            final List<AutoCloseable> regs) {
+    private static void registerNlri(final BGPExtensionProviderContext context, final List<Registration> regs) {
         final RouteTargetConstrainNlriHandler routeTargetNlriHandler = new RouteTargetConstrainNlriHandler();
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,
@@ -40,13 +39,13 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriSerializer(RouteTargetConstrainRoutes.class, routeTargetNlriHandler));
     }
 
-    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<Registration> regs) {
         regs.add(context.registerSubsequentAddressFamily(RouteTargetConstrainSubsequentAddressFamily.class, RT_SAFI));
     }
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
         NlriActivator.registerNlriParsers(regs);
         registerAfiSafi(context, regs);
         registerNlri(context, regs);

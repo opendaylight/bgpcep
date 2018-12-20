@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public class SimpleRIBExtensionProviderContextActivatorTest extends AbstractRIBActivatorTest {
     private static boolean RIBACTIVATED;
@@ -33,8 +34,7 @@ public class SimpleRIBExtensionProviderContextActivatorTest extends AbstractRIBA
 
     private static class RibActivator extends AbstractRIBExtensionProviderActivator {
         @Override
-        protected List<AutoCloseable> startRIBExtensionProviderImpl(
-                final RIBExtensionProviderContext context,
+        protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
                 final BindingNormalizedNodeSerializer mappingService) {
             RIBACTIVATED = true;
             return Collections.singletonList(() -> RIBACTIVATED = false);

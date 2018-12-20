@@ -14,9 +14,10 @@ import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
-import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @GuardedBy("this")
@@ -25,7 +26,7 @@ public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     private ImmutableList<Peer> peersFilteredList;
 
     @Override
-    public synchronized AbstractRegistration registerPeer(final Peer peer) {
+    public synchronized Registration registerPeer(final Peer peer) {
         this.peers.put(peer.getPeerId(), peer);
         this.peersList = ImmutableList.copyOf(this.peers.values());
         this.peersFilteredList = this.peers.values().stream()

@@ -5,8 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.spi.pojo;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
@@ -18,6 +19,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.concepts.MultiRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EsiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.Esi;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -41,24 +43,23 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
         return SINGLETON;
     }
 
-    public AutoCloseable registerEsiParser(final EsiType esiType, final EsiParser parser) {
+    public Registration registerEsiParser(final EsiType esiType, final EsiParser parser) {
         return this.handlers.registerParser(esiType.getIntValue(), parser);
     }
 
-    public AutoCloseable registerEsiSerializer(final Class<? extends Esi> esiType, final EsiSerializer serializer) {
+    public Registration registerEsiSerializer(final Class<? extends Esi> esiType, final EsiSerializer serializer) {
         return this.handlers.registerSerializer(esiType, serializer);
     }
 
-    public AutoCloseable registerEsiModelSerializer(final QName qname, final EsiSerializer serializer) {
+    public Registration registerEsiModelSerializer(final QName qname, final EsiSerializer serializer) {
         return this.modelHandlers.register(new NodeIdentifier(qname), serializer);
     }
 
     @Override
     public Esi parseEsi(final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
-        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH,
-                "Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer.readableBytes() == CONTENT_LENGTH,
+                "Wrong length of array of bytes. Passed: %s;", buffer.readableBytes());
 
         final EsiParser parser = this.handlers.getParser(EsiType.forValue(buffer.readByte()).getIntValue());
         if (parser == null) {

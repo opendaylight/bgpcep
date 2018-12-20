@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.l3vpn.ipv4.routes.VpnIpv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev180329.l3vpn.ipv6.routes.VpnIpv6Routes;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Registers NLRI, Attributes, Extended communities Handlers.
@@ -41,10 +42,9 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int MCAST_L3VPN_SAFI = 129;
 
-
     private static void registerNlri(
             final BGPExtensionProviderContext context,
-            final List<AutoCloseable> regs) {
+            final List<Registration> regs) {
         final VpnIpv4NlriParser vpnIpv4NlriParser = new VpnIpv4NlriParser();
         final VpnIpv4NextHopParserSerializer vpnIpv4NextHopParserSerializer = new VpnIpv4NextHopParserSerializer();
 
@@ -73,14 +73,14 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriSerializer(L3vpnMcastRoutesIpv6.class, l3vpnMcastIpv6NlriHandler));
     }
 
-    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<Registration> regs) {
         regs.add(context.registerSubsequentAddressFamily(McastMplsLabeledVpnSubsequentAddressFamily.class,
                 MCAST_L3VPN_SAFI));
     }
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
         registerAfiSafi(context, regs);
         registerNlri(context, regs);
         return regs;

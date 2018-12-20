@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.spi.pojo;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.HashMap;
@@ -23,6 +22,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.concepts.MultiRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,10 @@ public final class SimpleNlriTypeRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleNlriTypeRegistry.class);
     private static final SimpleNlriTypeRegistry SINGLETON = new SimpleNlriTypeRegistry();
-    private final HandlerRegistry<ObjectType, NlriTypeCaseParser, NlriTypeCaseSerializer> nlriRegistry = new HandlerRegistry<>();
-    private final MultiRegistry<QName, LinkstateTlvParser.LinkstateTlvSerializer<?>> tlvSerializers = new MultiRegistry<>();
+    private final HandlerRegistry<ObjectType, NlriTypeCaseParser, NlriTypeCaseSerializer> nlriRegistry =
+            new HandlerRegistry<>();
+    private final MultiRegistry<QName, LinkstateTlvParser.LinkstateTlvSerializer<?>> tlvSerializers =
+            new MultiRegistry<>();
     private final MultiRegistry<Integer, LinkstateTlvParser<?>> tlvParsers = new MultiRegistry<>();
 
     private SimpleNlriTypeRegistry() {
@@ -42,22 +44,20 @@ public final class SimpleNlriTypeRegistry {
         return SINGLETON;
     }
 
-    public AutoCloseable registerNlriParser(final int type, final NlriTypeCaseParser parser) {
+    public Registration registerNlriParser(final int type, final NlriTypeCaseParser parser) {
         return this.nlriRegistry.registerParser(type, parser);
     }
 
-    public AutoCloseable registerNlriSerializer(
-            final Class<? extends ObjectType> clazzType,
+    public Registration registerNlriSerializer(final Class<? extends ObjectType> clazzType,
             final NlriTypeCaseSerializer serializer) {
         return this.nlriRegistry.registerSerializer(clazzType, serializer);
     }
 
-    public <T> AutoCloseable registerTlvParser(final int tlvType, final LinkstateTlvParser<T> parser) {
+    public <T> Registration registerTlvParser(final int tlvType, final LinkstateTlvParser<T> parser) {
         return this.tlvParsers.register(tlvType, parser);
     }
 
-    public <T> AutoCloseable registerTlvSerializer(
-            final QName tlvQName,
+    public <T> Registration registerTlvSerializer(final QName tlvQName,
             final LinkstateTlvParser.LinkstateTlvSerializer<T> serializer) {
         return this.tlvSerializers.register(tlvQName, serializer);
     }
@@ -107,7 +107,7 @@ public final class SimpleNlriTypeRegistry {
     }
 
     private <T> LinkstateTlvParser<T> getParser(final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable());
+        checkArgument(buffer != null && buffer.isReadable());
         final int type = buffer.readUnsignedShort();
         final LinkstateTlvParser<T> parser = (LinkstateTlvParser<T>) this.tlvParsers.get(type);
         if (parser == null) {
@@ -120,7 +120,7 @@ public final class SimpleNlriTypeRegistry {
         if (parser == null) {
             return null;
         }
-        Preconditions.checkArgument(buffer != null && buffer.isReadable());
+        checkArgument(buffer != null && buffer.isReadable());
         final int length = buffer.readUnsignedShort();
         return parser.parseTlvBody(buffer.readSlice(length));
     }

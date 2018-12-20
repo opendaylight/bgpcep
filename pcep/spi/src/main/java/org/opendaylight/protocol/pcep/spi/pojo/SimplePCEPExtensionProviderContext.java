@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.EnterpriseSpecificInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
+import org.opendaylight.yangtools.concepts.Registration;
 
 @ThreadSafe
 public class SimplePCEPExtensionProviderContext implements PCEPExtensionProviderContext {
@@ -93,110 +94,110 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     }
 
     @Override
-    public final AutoCloseable registerLabelSerializer(final Class<? extends LabelType> labelClass,
+    public final Registration registerLabelSerializer(final Class<? extends LabelType> labelClass,
             final LabelSerializer serializer) {
         return this.labelReg.registerLabelSerializer(labelClass, serializer);
     }
 
     @Override
-    public final AutoCloseable registerLabelParser(final int ctype, final LabelParser parser) {
+    public final Registration registerLabelParser(final int ctype, final LabelParser parser) {
         return this.labelReg.registerLabelParser(ctype, parser);
     }
 
     @Override
-    public final AutoCloseable registerEROSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
+    public final Registration registerEROSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
         return this.eroSubReg.registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public final AutoCloseable registerEROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
+    public final Registration registerEROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
             final EROSubobjectSerializer serializer) {
         return this.eroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
     }
 
     @Override
-    public final AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
+    public final Registration registerMessageParser(final int messageType, final MessageParser parser) {
         return this.msgReg.registerMessageParser(messageType, parser);
     }
 
     @Override
-    public final AutoCloseable registerMessageSerializer(final Class<? extends Message> msgClass,
+    public final Registration registerMessageSerializer(final Class<? extends Message> msgClass,
             final MessageSerializer serializer) {
         return this.msgReg.registerMessageSerializer(msgClass, serializer);
     }
 
     @Override
-    public final AutoCloseable registerObjectParser(final int objectClass, final int objectType,
+    public final Registration registerObjectParser(final int objectClass, final int objectType,
             final ObjectParser parser) {
         return this.objReg.registerObjectParser(objectClass, objectType, parser);
     }
 
     @Override
-    public final AutoCloseable registerObjectParser(final ObjectParser parser) {
+    public final Registration registerObjectParser(final ObjectParser parser) {
         return this.objReg.registerObjectParser(parser.getObjectClass(), parser.getObjectType(), parser);
     }
 
     @Override
-    public final AutoCloseable registerObjectSerializer(final Class<? extends Object> objClass,
+    public final Registration registerObjectSerializer(final Class<? extends Object> objClass,
             final ObjectSerializer serializer) {
         return this.objReg.registerObjectSerializer(objClass, serializer);
     }
 
     @Override
-    public final AutoCloseable registerRROSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
+    public final Registration registerRROSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
         return this.rroSubReg.registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public final AutoCloseable registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
+    public final Registration registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
             .opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass,
             final RROSubobjectSerializer serializer) {
         return this.rroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerTlvParser(final int tlvType, final TlvParser parser) {
+    public Registration registerTlvParser(final int tlvType, final TlvParser parser) {
         return this.tlvReg.registerTlvParser(tlvType, parser);
     }
 
     @Override
-    public final AutoCloseable registerTlvSerializer(final Class<? extends Tlv> tlvClass,
+    public final Registration registerTlvSerializer(final Class<? extends Tlv> tlvClass,
             final TlvSerializer serializer) {
         return this.tlvReg.registerTlvSerializer(tlvClass, serializer);
     }
 
     @Override
-    public final AutoCloseable registerXROSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
+    public final Registration registerXROSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
         return this.xroSubReg.registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public final AutoCloseable registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
+    public final Registration registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
             final XROSubobjectSerializer serializer) {
         return this.xroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerVendorInformationTlvSerializer(final
+    public Registration registerVendorInformationTlvSerializer(final
             Class<? extends EnterpriseSpecificInformation> esInformationClass, final TlvSerializer serializer) {
         return this.viTlvReg.registerVendorInformationTlvSerializer(esInformationClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerVendorInformationTlvParser(final EnterpriseNumber enterpriseNumber,
+    public Registration registerVendorInformationTlvParser(final EnterpriseNumber enterpriseNumber,
             final TlvParser parser) {
         return this.viTlvReg.registerVendorInformationTlvParser(enterpriseNumber, parser);
     }
 
     @Override
-    public AutoCloseable registerVendorInformationObjectSerializer(
+    public Registration registerVendorInformationObjectSerializer(
             final Class<? extends EnterpriseSpecificInformation> esInformationClass,
             final ObjectSerializer serializer) {
         return this.viObjReg.registerVendorInformationObjectSerializer(esInformationClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerVendorInformationObjectParser(final EnterpriseNumber enterpriseNumber,
+    public Registration registerVendorInformationObjectParser(final EnterpriseNumber enterpriseNumber,
             final ObjectParser parser) {
         return this.viObjReg.registerVendorInformationObjectParser(enterpriseNumber, parser);
     }

@@ -12,11 +12,12 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2mp.te.lsp.rev181109.p2mp.pce.capability.tlv.P2mpPceCapability;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class Activator extends AbstractPCEPExtensionProviderActivator {
     @Override
-    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>(2);
+    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>(2);
 
         final P2MPTeLspCapabilityParser p2mpCapabilityParser = new P2MPTeLspCapabilityParser();
         regs.add(context.registerTlvParser(P2MPTeLspCapabilityParser.TYPE, p2mpCapabilityParser));

@@ -7,7 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvParser;
@@ -17,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvUtil;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class SimpleBgpPrefixSidTlvRegistry implements BgpPrefixSidTlvRegistry {
@@ -24,12 +27,12 @@ public final class SimpleBgpPrefixSidTlvRegistry implements BgpPrefixSidTlvRegis
     private final HandlerRegistry<DataContainer, BgpPrefixSidTlvParser, BgpPrefixSidTlvSerializer> handlers =
             new HandlerRegistry<>();
 
-    AutoCloseable registerBgpPrefixSidTlvParser(final int tlvType, final BgpPrefixSidTlvParser parser) {
-        Preconditions.checkArgument(tlvType >= 0 && tlvType <= Values.UNSIGNED_BYTE_MAX_VALUE);
+    Registration registerBgpPrefixSidTlvParser(final int tlvType, final BgpPrefixSidTlvParser parser) {
+        checkArgument(tlvType >= 0 && tlvType <= Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(tlvType, parser);
     }
 
-    AutoCloseable registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass,
+    Registration registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass,
             final BgpPrefixSidTlvSerializer serializer) {
         return this.handlers.registerSerializer(tlvClass, serializer);
     }
@@ -41,7 +44,7 @@ public final class SimpleBgpPrefixSidTlvRegistry implements BgpPrefixSidTlvRegis
             return null;
         }
         final int length = buffer.readUnsignedShort();
-        Preconditions.checkState(length <= buffer.readableBytes(),
+        checkState(length <= buffer.readableBytes(),
                 "Length of BGP prefix SID TLV exceeds readable bytes of income.");
         return parser.parseBgpPrefixSidTlv(buffer.readBytes(length));
     }

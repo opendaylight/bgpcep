@@ -18,18 +18,19 @@ import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.EnterpriseSpecificInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleVendorInformationTlvRegistry implements VendorInformationTlvRegistry {
 
     private final HandlerRegistry<DataContainer, TlvParser, TlvSerializer> handlers = new HandlerRegistry<>();
 
-    public AutoCloseable registerVendorInformationTlvParser(final EnterpriseNumber enterpriseNumber,
+    public Registration registerVendorInformationTlvParser(final EnterpriseNumber enterpriseNumber,
             final TlvParser parser) {
         return this.handlers.registerParser(Ints.checkedCast(enterpriseNumber.getValue()), parser);
     }
 
-    public AutoCloseable registerVendorInformationTlvSerializer(
+    public Registration registerVendorInformationTlvSerializer(
             final Class<? extends EnterpriseSpecificInformation> esInformationClass, final TlvSerializer serializer) {
         return this.handlers.registerSerializer(esInformationClass, serializer);
     }

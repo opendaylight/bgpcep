@@ -5,16 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.spi.registry;
 
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.Tlv;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public interface BmpTlvRegistrator {
 
-    AutoCloseable registerBmpTlvParser(int tlvType, BmpTlvParser parser);
+    Registration registerBmpTlvParser(int tlvType, BmpTlvParser parser);
 
-    AutoCloseable registerBmpTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
+    Registration registerBmpTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
 }

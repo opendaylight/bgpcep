@@ -7,23 +7,20 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public abstract class AbstractRIBExtensionProviderActivator implements AutoCloseable, RIBExtensionProviderActivator {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBExtensionProviderActivator.class);
+    @GuardedBy("this")
+    private List<? extends Registration> registrations;
 
     @GuardedBy("this")
-    private List<AutoCloseable> registrations;
-
-    @GuardedBy("this")
-    protected abstract List<AutoCloseable> startRIBExtensionProviderImpl(
+    protected abstract List<? extends Registration> startRIBExtensionProviderImpl(
             RIBExtensionProviderContext context,
             BindingNormalizedNodeSerializer mappingService);
 
@@ -31,26 +28,18 @@ public abstract class AbstractRIBExtensionProviderActivator implements AutoClose
     public final synchronized void startRIBExtensionProvider(
             final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        Preconditions.checkState(this.registrations == null);
+        checkState(this.registrations == null);
 
         this.registrations = requireNonNull(startRIBExtensionProviderImpl(context, mappingService));
     }
 
     @Override
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public final synchronized void stopRIBExtensionProvider() {
         if (this.registrations == null) {
             return;
         }
 
-        for (final AutoCloseable r : this.registrations) {
-            try {
-                r.close();
-            } catch (final Exception e) {
-                LOG.warn("Failed to close registration", e);
-            }
-        }
-
+        this.registrations.forEach(Registration::close);
         this.registrations = null;
     }
 

@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class SimpleObjectRegistry implements ObjectRegistry {
@@ -45,14 +46,14 @@ public final class SimpleObjectRegistry implements ObjectRegistry {
         return objectClass << MAX_OBJECT_CLASS | objectType;
     }
 
-    public AutoCloseable registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
+    public Registration registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
         checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE, "Illegal object class %s",
                 objectClass);
         checkArgument(objectType >= 0 && objectType <= MAX_OBJECT_TYPE, "Illegal object type %s", objectType);
         return this.handlers.registerParser(createKey(objectClass, objectType), parser);
     }
 
-    public AutoCloseable registerObjectSerializer(final Class<? extends Object> objClass,
+    public Registration registerObjectSerializer(final Class<? extends Object> objClass,
             final ObjectSerializer serializer) {
         return this.handlers.registerSerializer(objClass, serializer);
     }

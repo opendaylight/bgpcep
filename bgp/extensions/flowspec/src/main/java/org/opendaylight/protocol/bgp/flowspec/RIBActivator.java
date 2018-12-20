@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
@@ -29,10 +30,9 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     }
 
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(
-            final RIBExtensionProviderContext context,
+    protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        final List<AutoCloseable> regs = new ArrayList<>(4);
+        final List<Registration> regs = new ArrayList<>(4);
         regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class,
                 FlowspecIpv4RIBSupport.getInstance(this.fsContext, mappingService)));
         regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class,

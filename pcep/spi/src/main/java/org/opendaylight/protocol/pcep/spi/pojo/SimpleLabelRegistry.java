@@ -17,17 +17,18 @@ import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleLabelRegistry implements LabelRegistry {
     private final HandlerRegistry<DataContainer, LabelParser, LabelSerializer> handlers = new HandlerRegistry<>();
 
-    public AutoCloseable registerLabelParser(final int ctype, final LabelParser parser) {
+    public Registration registerLabelParser(final int ctype, final LabelParser parser) {
         checkArgument(ctype >= 0 && ctype <= Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(ctype, parser);
     }
 
-    public AutoCloseable registerLabelSerializer(final Class<? extends LabelType> labelClass,
+    public Registration registerLabelSerializer(final Class<? extends LabelType> labelClass,
             final LabelSerializer serializer) {
         return this.handlers.registerSerializer(labelClass, serializer);
     }

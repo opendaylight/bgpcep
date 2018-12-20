@@ -14,10 +14,12 @@ import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.FlowspecType;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleFlowspecTypeRegistry {
-    private final HandlerRegistry<DataContainer, FlowspecTypeParser, FlowspecTypeSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, FlowspecTypeParser, FlowspecTypeSerializer> handlers =
+            new HandlerRegistry<>();
 
     public FlowspecTypeParser getFlowspecTypeParser(final short type) {
         return this.handlers.getParser(type);
@@ -40,11 +42,12 @@ public class SimpleFlowspecTypeRegistry {
         return parser.parseType(buffer);
     }
 
-    public AutoCloseable registerFlowspecTypeParser(final int type, final FlowspecTypeParser parser) {
+    public Registration registerFlowspecTypeParser(final int type, final FlowspecTypeParser parser) {
         return this.handlers.registerParser(type, parser);
     }
 
-    public AutoCloseable registerFlowspecTypeSerializer(final Class<? extends FlowspecType> typeClass, final FlowspecTypeSerializer serializer) {
+    public Registration registerFlowspecTypeSerializer(final Class<? extends FlowspecType> typeClass,
+            final FlowspecTypeSerializer serializer) {
         return this.handlers.registerSerializer(typeClass, serializer);
     }
 }

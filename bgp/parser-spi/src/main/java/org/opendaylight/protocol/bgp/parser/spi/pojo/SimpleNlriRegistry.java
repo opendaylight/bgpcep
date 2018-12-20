@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -28,7 +28,6 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
-import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
@@ -38,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,10 +70,10 @@ final class SimpleNlriRegistry implements NlriRegistry {
         return new BgpTableTypeImpl(afi, safi);
     }
 
-    synchronized AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass,
+    synchronized Registration registerNlriSerializer(final Class<? extends DataObject> nlriClass,
             final NlriSerializer serializer) {
         final NlriSerializer prev = this.serializers.get(nlriClass);
-        Preconditions.checkState(prev == null, "Serializer already bound to class " + prev);
+        checkState(prev == null, "Serializer already bound to class " + prev);
 
         this.serializers.put(nlriClass, serializer);
 
@@ -87,13 +88,13 @@ final class SimpleNlriRegistry implements NlriRegistry {
         };
     }
 
-    synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
+    synchronized Registration registerNlriParser(final Class<? extends AddressFamily> afi,
         final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
         final NextHopParserSerializer nextHopSerializer, final Class<? extends CNextHop> cnextHopClass,
         final Class<? extends CNextHop>... cnextHopClassList) {
         final BgpTableType key = createKey(afi, safi);
         final NlriParser prev = this.handlers.get(key);
-        Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
+        checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
 
         this.handlers.put(key, parser);
         this.nextHopParsers.put(key,nextHopSerializer);

@@ -17,13 +17,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.evpn.choice.MacIpAdvRouteCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.inc.multi.ethernet.tag.res.IncMultiEthernetTagRes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.mac.ip.adv.route.MacIpAdvRoute;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class NlriActivator {
     private NlriActivator() {
         throw new UnsupportedOperationException();
     }
 
-    public static void registerNlriParsers(final List<AutoCloseable> regs) {
+    public static void registerNlriParsers(final List<Registration> regs) {
         final SimpleEvpnNlriRegistry evpnNlriRegistry = SimpleEvpnNlriRegistry.getInstance();
 
         final EthADRParser ethADR = new EthADRParser();

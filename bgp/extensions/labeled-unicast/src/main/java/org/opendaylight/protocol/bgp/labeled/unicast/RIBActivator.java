@@ -15,15 +15,14 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.LabeledUnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(
-        final RIBExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService
-    ) {
-        final List<AutoCloseable> regs = new ArrayList<>(2);
+    protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
+            final BindingNormalizedNodeSerializer mappingService) {
+        final List<Registration> regs = new ArrayList<>(2);
         regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
                 LabeledUnicastIpv4RIBSupport.getInstance(mappingService)));
         regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,

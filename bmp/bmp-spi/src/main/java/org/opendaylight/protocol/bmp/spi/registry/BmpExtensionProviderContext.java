@@ -5,32 +5,32 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.spi.registry;
 
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.Tlv;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public interface BmpExtensionProviderContext extends BmpMessageRegistrator, BmpExtensionConsumerContext {
 
-    AutoCloseable registerBmpStatisticsTlvParser(int tlvType, BmpTlvParser parser);
+    Registration registerBmpStatisticsTlvParser(int tlvType, BmpTlvParser parser);
 
-    AutoCloseable registerBmpStatisticsTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
+    Registration registerBmpStatisticsTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
 
-    AutoCloseable registerBmpInitiationTlvParser(int tlvType, BmpTlvParser parser);
+    Registration registerBmpInitiationTlvParser(int tlvType, BmpTlvParser parser);
 
-    AutoCloseable registerBmpInitiationTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
+    Registration registerBmpInitiationTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
 
-    AutoCloseable registerBmpPeerUpTlvParser(int tlvType, BmpTlvParser parser);
+    Registration registerBmpPeerUpTlvParser(int tlvType, BmpTlvParser parser);
 
-    AutoCloseable registerBmpPeerUpTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
+    Registration registerBmpPeerUpTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
 
-    AutoCloseable registerBmpTerminationTlvParser(int tlvType, BmpTlvParser parser);
+    Registration registerBmpTerminationTlvParser(int tlvType, BmpTlvParser parser);
 
-    AutoCloseable registerBmpTerminationTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
+    Registration registerBmpTerminationTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
 
-    AutoCloseable registerBmpRouteMirroringTlvParser(int tlvType, BmpTlvParser parser);
+    Registration registerBmpRouteMirroringTlvParser(int tlvType, BmpTlvParser parser);
 
-    AutoCloseable registerBmpRouteMirroringTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
+    Registration registerBmpRouteMirroringTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
 }

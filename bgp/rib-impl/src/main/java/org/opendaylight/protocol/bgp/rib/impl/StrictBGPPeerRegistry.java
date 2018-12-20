@@ -52,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -359,7 +360,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized AutoCloseable registerPeerRegisterListener(final PeerRegistryListener listener) {
+    public synchronized Registration registerPeerRegisterListener(final PeerRegistryListener listener) {
         this.listeners.add(listener);
         for (final Entry<IpAddress, BGPSessionPreferences> entry : this.peerPreferences.entrySet()) {
             listener.onPeerAdded(entry.getKey(), entry.getValue());
@@ -375,7 +376,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized AutoCloseable registerPeerSessionListener(final PeerRegistrySessionListener listener) {
+    public synchronized Registration registerPeerSessionListener(final PeerRegistrySessionListener listener) {
         this.sessionListeners.add(listener);
         for (final IpAddress ipAddress : this.sessionIds.keySet()) {
             listener.onSessionCreated(ipAddress);

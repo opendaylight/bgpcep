@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.mvpn.impl.nlri.SharedTreeJoinHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.SourceActiveADHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.SourceTreeJoinHandler;
 import org.opendaylight.protocol.bgp.mvpn.spi.pojo.nlri.SimpleMvpnNlriRegistry;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Nlri Registry activator.
@@ -28,7 +29,7 @@ public final class NlriActivator {
         throw new UnsupportedOperationException();
     }
 
-    public static void registerNlriParsers(final List<AutoCloseable> regs) {
+    public static void registerNlriParsers(final List<Registration> regs) {
         final SimpleMvpnNlriRegistry nlriRegistry = SimpleMvpnNlriRegistry.getInstance();
 
         final IntraAsIPmsiADHandler intra = new IntraAsIPmsiADHandler();

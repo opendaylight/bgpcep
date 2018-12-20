@@ -15,11 +15,12 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivat
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.L2vpnAddressFamily;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(
+    protected List<Registration> startRIBExtensionProviderImpl(
             final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return Collections.singletonList(context.registerRIBSupport(L2vpnAddressFamily.class,

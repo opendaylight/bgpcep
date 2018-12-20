@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +65,7 @@ public final class MultiRegistry<K, V> {
         this.current.put(key, best);
     }
 
-    public synchronized AbstractRegistration register(final K key, final V value) {
+    public synchronized Registration register(final K key, final V value) {
         this.candidates.put(key, value);
         updateCurrent(key);
 

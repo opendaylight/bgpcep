@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl;
 
 import java.util.List;
@@ -18,6 +17,7 @@ import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.PimS
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.RsvpTeP2MpLspParser;
 import org.opendaylight.protocol.bgp.mvpn.spi.pojo.attributes.tunnel.identifier.SimpleTunnelIdentifierRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Tunnel Identifier PMSI handlers Activator.
@@ -29,9 +29,8 @@ final class TunnelIdentifierActivator {
         throw new UnsupportedOperationException();
     }
 
-    static void registerTunnelIdentifierHandlers(
-            final BGPExtensionProviderContext context,
-            final List<AutoCloseable> regs) {
+    static void registerTunnelIdentifierHandlers(final BGPExtensionProviderContext context,
+            final List<Registration> regs) {
         final SimpleTunnelIdentifierRegistry tunnelIdentifierReg = SimpleTunnelIdentifierRegistry.getInstance();
 
         final RsvpTeP2MpLspParser rsvpTeP2MpLspParser = new RsvpTeP2MpLspParser();

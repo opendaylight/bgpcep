@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityUtil.isTransitive;
 import static org.opendaylight.protocol.util.Values.UNSIGNED_BYTE_MAX_VALUE;
 
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.Shorts;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -22,6 +22,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunitiesBuilder;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,24 +70,23 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
         serializer.serializeExtendedCommunity(extendedCommunity.getExtendedCommunity(), byteAggregator);
     }
 
-    synchronized AutoCloseable registerExtendedCommunitySerializer(
+    synchronized Registration registerExtendedCommunitySerializer(
             final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329
                     .extended.community.ExtendedCommunity> extendedCommunityClass,
             final ExtendedCommunitySerializer serializer) {
         return this.handlers.registerSerializer(extendedCommunityClass, serializer);
     }
 
-    synchronized AutoCloseable registerExtendedCommunityParser(final int type, final int subtype,
+    synchronized Registration registerExtendedCommunityParser(final int type, final int subtype,
             final ExtendedCommunityParser parser) {
         checkTypes(type, subtype);
         return this.handlers.registerParser(createKey(type, subtype), parser);
     }
 
     private static void checkTypes(final int type, final int subtype) {
-        Preconditions.checkArgument(type >= 0 && type <= UNSIGNED_BYTE_MAX_VALUE, "Illegal extended-community type %s",
-                type);
-        Preconditions.checkArgument(subtype >= 0 && subtype <= UNSIGNED_BYTE_MAX_VALUE,
-                "Illegal extended-community sub-type %s", subtype);
+        checkArgument(type >= 0 && type <= UNSIGNED_BYTE_MAX_VALUE, "Illegal extended-community type %s", type);
+        checkArgument(subtype >= 0 && subtype <= UNSIGNED_BYTE_MAX_VALUE, "Illegal extended-community sub-type %s",
+                subtype);
     }
 
 }

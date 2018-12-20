@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.spi.pojo;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.evpn.spi.EvpnParser;
@@ -18,6 +18,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.concepts.MultiRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -41,23 +42,22 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
         return SINGLETON;
     }
 
-    public AutoCloseable registerNlriParser(final NlriType esiType, final EvpnParser parser) {
+    public Registration registerNlriParser(final NlriType esiType, final EvpnParser parser) {
         return this.handlers.registerParser(esiType.getIntValue(), parser);
     }
 
-    public AutoCloseable registerNlriSerializer(final Class<? extends EvpnChoice> evpnClass,
+    public Registration registerNlriSerializer(final Class<? extends EvpnChoice> evpnClass,
             final EvpnSerializer serializer) {
         return this.handlers.registerSerializer(evpnClass, serializer);
     }
 
-    public AutoCloseable registerNlriModelSerializer(final QName qname, final EvpnSerializer serializer) {
+    public Registration registerNlriModelSerializer(final QName qname, final EvpnSerializer serializer) {
         return this.modelHandlers.register(new NodeIdentifier(qname), serializer);
     }
 
     @Override
     public EvpnChoice parseEvpn(final NlriType type, final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EvpnParser parser = this.handlers.getParser(type.getIntValue());
         if (parser == null) {
             return null;
@@ -85,7 +85,7 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
     }
 
     private EvpnChoice getEvpnCase(final ChoiceNode evpnChoice, final SerializerInterface serializerInterface) {
-        Preconditions.checkArgument(evpnChoice != null && !evpnChoice.getValue().isEmpty(),
+        checkArgument(evpnChoice != null && !evpnChoice.getValue().isEmpty(),
                 "Evpn case is mandatory. Can't be null or empty.");
         final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(evpnChoice.getValue());
         final EvpnSerializer serializer = this.modelHandlers.get(cont.getIdentifier());

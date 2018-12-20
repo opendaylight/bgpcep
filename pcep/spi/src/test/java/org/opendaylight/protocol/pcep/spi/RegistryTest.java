@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.Type1LabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.LabelCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class RegistryTest {
@@ -97,12 +98,12 @@ public class RegistryTest {
     @Mock
     VendorInformationTlv viTlv;
 
-    public final List<AutoCloseable> regs = new ArrayList<>();
+    public final List<Registration> regs = new ArrayList<>();
 
     final AbstractPCEPExtensionProviderActivator activator = new AbstractPCEPExtensionProviderActivator() {
 
         @Override
-        protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
+        protected List<? extends Registration> startImpl(final PCEPExtensionProviderContext context) {
             return RegistryTest.this.regs;
         }
     };

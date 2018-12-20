@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators;
 
 import java.util.Collections;
@@ -16,6 +15,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.RouteTargetConstrainRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * RIBActivator.
@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  */
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
-    protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
+    protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return Collections.singletonList(
                 context.registerRIBSupport(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,

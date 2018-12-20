@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -32,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.MacMobilityExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
@@ -40,8 +40,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     static final int EVPN_SAFI = 70;
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
         regs.add(context.registerSubsequentAddressFamily(EvpnSubsequentAddressFamily.class, EVPN_SAFI));
         regs.add(context.registerAddressFamily(L2vpnAddressFamily.class, L2VPN_AFI));
@@ -54,7 +54,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 
-    private static void registerNlriHandler(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+    private static void registerNlriHandler(final BGPExtensionProviderContext context, final List<Registration> regs) {
         final NextHopParserSerializer nextHopParser = new NextHopParserSerializer() {};
         final EvpnNlriParser nlriHandler = new EvpnNlriParser();
         regs.add(context.registerNlriParser(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class,
@@ -63,7 +63,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     private static void registerExtendedCommunities(final BGPExtensionProviderContext context,
-            final List<AutoCloseable> regs) {
+            final List<Registration> regs) {
         final DefaultGatewayExtCom defGEC = new DefaultGatewayExtCom();
         regs.add(context.registerExtendedCommunityParser(defGEC.getType(true), defGEC.getSubType(), defGEC));
         regs.add(context.registerExtendedCommunitySerializer(DefaultGatewayExtendedCommunityCase.class, defGEC));

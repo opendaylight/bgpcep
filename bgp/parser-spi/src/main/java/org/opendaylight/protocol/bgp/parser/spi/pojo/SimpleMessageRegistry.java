@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -40,11 +41,11 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
         serializer.serializeMessage(message, buffer);
     }
 
-    AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
+    Registration registerMessageParser(final int messageType, final MessageParser parser) {
         return this.handlers.registerParser(messageType, parser);
     }
 
-    AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass,
+    Registration registerMessageSerializer(final Class<? extends Notification> messageClass,
             final MessageSerializer serializer) {
         return this.handlers.registerSerializer(messageClass, serializer);
     }

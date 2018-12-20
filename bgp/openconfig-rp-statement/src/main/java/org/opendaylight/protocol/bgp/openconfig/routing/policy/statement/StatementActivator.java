@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import static java.util.Objects.requireNonNull;
@@ -47,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetClusterIdPrepend;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetOriginatorIdPrepend;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.VpnNonMemberCondition;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
     private final DataBroker dataBroker;
@@ -56,14 +56,14 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
     }
 
     @Override
-    protected synchronized List<AutoCloseable> startImpl(final StatementRegistryProvider provider) {
-        final List<AutoCloseable> registration = new ArrayList<>(14);
+    protected synchronized List<Registration> startImpl(final StatementRegistryProvider provider) {
+        final List<Registration> registration = new ArrayList<>(14);
         registerActions(provider, registration);
         registerConditions(provider, registration);
         return registration;
     }
 
-    private void registerConditions(final StatementRegistryProvider provider, final List<AutoCloseable> registration) {
+    private void registerConditions(final StatementRegistryProvider provider, final List<Registration> registration) {
         registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchRoleSetCondition.class,
                 new MatchRoleSetHandler(this.dataBroker)));
 
@@ -92,7 +92,7 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
                 VpnNonMemberHandler.getInstance()));
     }
 
-    private void registerActions(final StatementRegistryProvider provider, final List<AutoCloseable> registration) {
+    private void registerActions(final StatementRegistryProvider provider, final List<Registration> registration) {
         registration.add(provider.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.getInstance()));
 
         registration.add(provider.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,

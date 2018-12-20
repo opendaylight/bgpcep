@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public class MultiRegistryTest {
 
@@ -21,7 +22,7 @@ public class MultiRegistryTest {
         final String second = "second";
         final String third = "third";
 
-        final AbstractRegistration a = registry.register(first, 1);
+        final Registration a = registry.register(first, 1);
         registry.register(second, 2);
         registry.register(third, 3);
 
@@ -78,5 +79,4 @@ public class MultiRegistryTest {
         registry.register(second, new Object());
         assertEquals('2', registry.get("second"));
     }
-
 }

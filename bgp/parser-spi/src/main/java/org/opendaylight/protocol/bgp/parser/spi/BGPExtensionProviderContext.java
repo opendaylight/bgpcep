@@ -16,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -25,44 +26,44 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * increase the in-memory efficiency when the same objects are created over and over again.
  */
 public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext {
-    AutoCloseable registerAddressFamily(Class<? extends AddressFamily> clazz, int number);
+    Registration registerAddressFamily(Class<? extends AddressFamily> clazz, int number);
 
-    AutoCloseable registerSubsequentAddressFamily(Class<? extends SubsequentAddressFamily> clazz, int number);
+    Registration registerSubsequentAddressFamily(Class<? extends SubsequentAddressFamily> clazz, int number);
 
-    AutoCloseable registerAttributeParser(int attributeType, AttributeParser parser);
+    Registration registerAttributeParser(int attributeType, AttributeParser parser);
 
-    AutoCloseable registerAttributeSerializer(Class<? extends DataObject> attributeClass,
+    Registration registerAttributeSerializer(Class<? extends DataObject> attributeClass,
             AttributeSerializer serializer);
 
-    AutoCloseable registerCapabilityParser(int capabilityType, CapabilityParser parser);
+    Registration registerCapabilityParser(int capabilityType, CapabilityParser parser);
 
-    AutoCloseable registerCapabilitySerializer(Class<? extends DataObject> capabilityClass,
+    Registration registerCapabilitySerializer(Class<? extends DataObject> capabilityClass,
             CapabilitySerializer serializer);
 
-    AutoCloseable registerMessageParser(int messageType, MessageParser parser);
+    Registration registerMessageParser(int messageType, MessageParser parser);
 
-    AutoCloseable registerMessageSerializer(Class<? extends Notification> messageClass, MessageSerializer serializer);
+    Registration registerMessageSerializer(Class<? extends Notification> messageClass, MessageSerializer serializer);
 
-    AutoCloseable registerBgpPrefixSidTlvParser(int tlvType, BgpPrefixSidTlvParser parser);
+    Registration registerBgpPrefixSidTlvParser(int tlvType, BgpPrefixSidTlvParser parser);
 
-    AutoCloseable registerBgpPrefixSidTlvSerializer(Class<? extends BgpPrefixSidTlv> tlvClass,
+    Registration registerBgpPrefixSidTlvSerializer(Class<? extends BgpPrefixSidTlv> tlvClass,
             BgpPrefixSidTlvSerializer serializer);
 
-    AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
+    Registration registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
         NlriParser parser, NextHopParserSerializer nextHopHandler, Class<? extends CNextHop> cnextHopClass,
         Class<? extends CNextHop>... cnextHopClassList);
 
-    AutoCloseable registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);
+    Registration registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);
 
-    AutoCloseable registerParameterParser(int parameterType, ParameterParser parser);
+    Registration registerParameterParser(int parameterType, ParameterParser parser);
 
-    AutoCloseable registerParameterSerializer(Class<? extends BgpParameters> paramClass,
+    Registration registerParameterSerializer(Class<? extends BgpParameters> paramClass,
             ParameterSerializer serializer);
 
-    AutoCloseable registerExtendedCommunitySerializer(Class<? extends ExtendedCommunity> extendedCommunityClass,
+    Registration registerExtendedCommunitySerializer(Class<? extends ExtendedCommunity> extendedCommunityClass,
         ExtendedCommunitySerializer serializer);
 
-    AutoCloseable registerExtendedCommunityParser(int type, int subtype, ExtendedCommunityParser parser);
+    Registration registerExtendedCommunityParser(int type, int subtype, ExtendedCommunityParser parser);
 
     /**
      * Get the context-wide cache for a particular object type.

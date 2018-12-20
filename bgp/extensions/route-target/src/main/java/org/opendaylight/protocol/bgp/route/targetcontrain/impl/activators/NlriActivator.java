@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.RouteTargetA
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.RouteTargetASRouteHandler;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.RouteTargetIpv4RouteHandler;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.SimpleRouteTargetConstrainNlriRegistry;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Nlri Registry activator.
@@ -24,7 +25,7 @@ public final class NlriActivator {
         throw new UnsupportedOperationException();
     }
 
-    public static void registerNlriParsers(final List<AutoCloseable> regs) {
+    public static void registerNlriParsers(final List<Registration> regs) {
         final SimpleRouteTargetConstrainNlriRegistry nlriRegistry
                 = SimpleRouteTargetConstrainNlriRegistry.getInstance();
 

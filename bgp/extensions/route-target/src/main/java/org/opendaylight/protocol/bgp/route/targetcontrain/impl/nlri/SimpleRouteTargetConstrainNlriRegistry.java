@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.route.targetcontrain.spi.nlri.RouteTargetCo
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.nlri.RouteTargetConstrainSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 /**
@@ -24,11 +25,11 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
  * @author Claudio D. Gasparini
  */
 public final class SimpleRouteTargetConstrainNlriRegistry implements RouteTargeConstraintNlriRegistry {
-    private static final SimpleRouteTargetConstrainNlriRegistry SINGLETON
-            = new SimpleRouteTargetConstrainNlriRegistry();
+    private static final SimpleRouteTargetConstrainNlriRegistry SINGLETON =
+            new SimpleRouteTargetConstrainNlriRegistry();
     private static final short RT_SUBTYPE = 2;
-    private final HandlerRegistry<DataContainer, RouteTargetConstrainParser, RouteTargetConstrainSerializer> handlers
-            = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, RouteTargetConstrainParser, RouteTargetConstrainSerializer> handlers =
+            new HandlerRegistry<>();
     private final RouteTargetDefaultHandler defaultHandler;
 
     private SimpleRouteTargetConstrainNlriRegistry() {
@@ -40,16 +41,17 @@ public final class SimpleRouteTargetConstrainNlriRegistry implements RouteTargeC
         return SINGLETON;
     }
 
-    public <T extends RouteTargetConstrainChoice> AutoCloseable registerNlriParser(
+    public <T extends RouteTargetConstrainChoice> Registration registerNlriParser(
             final RouteTargetConstrainParser<T> parser) {
         return this.handlers.registerParser(parser.getType(), parser);
     }
 
-    public <T extends RouteTargetConstrainChoice> AutoCloseable registerNlriSerializer(
+    public <T extends RouteTargetConstrainChoice> Registration registerNlriSerializer(
             final RouteTargetConstrainSerializer<T> serializer) {
         return this.handlers.registerSerializer(serializer.getClazz(), serializer);
     }
 
+    @Override
     public RouteTargetConstrainChoice parseRouteTargetConstrain(final Integer type, final ByteBuf nlriBuf) {
         Preconditions.checkArgument(nlriBuf != null
                         && (nlriBuf.isReadable() || type == null && !nlriBuf.isReadable()),
@@ -57,13 +59,14 @@ public final class SimpleRouteTargetConstrainNlriRegistry implements RouteTargeC
         if (type == null) {
             return this.defaultHandler.parseRouteTargetConstrain(nlriBuf);
         }
-        final RouteTargetConstrainParser parser = this.handlers.getParser(type);
+        final RouteTargetConstrainParser<?> parser = this.handlers.getParser(type);
         if (parser == null) {
             return null;
         }
         return parser.parseRouteTargetConstrain(nlriBuf);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public ByteBuf serializeRouteTargetConstrain(final RouteTargetConstrainChoice routeTarget) {
         final RouteTargetConstrainSerializer serializer

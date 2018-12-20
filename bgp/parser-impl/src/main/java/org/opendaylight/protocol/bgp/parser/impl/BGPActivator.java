@@ -108,6 +108,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.SourceAs4ExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.SourceAsExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.VrfRouteImportExtendedCommunityCase;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
@@ -118,8 +119,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private static final int VPN_SAFI = 128;
 
     @Override
-    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-        final List<AutoCloseable> regs = new ArrayList<>();
+    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
         regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, IPV4_AFI));
         regs.add(context.registerAddressFamily(Ipv6AddressFamily.class, IPV6_AFI));
@@ -134,7 +135,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 
-    private static void registerCapabilityParsers(final List<AutoCloseable> regs,
+    private static void registerCapabilityParsers(final List<Registration> regs,
             final BGPExtensionProviderContext context) {
         final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
         final SubsequentAddressFamilyRegistry safiReg = context.getSubsequentAddressFamilyRegistry();
@@ -172,7 +173,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerCapabilitySerializer(BgpExtendedMessageCapability.class, bgpextmessage));
     }
 
-    private static void registerAttributeParsers(final List<AutoCloseable> regs,
+    private static void registerAttributeParsers(final List<Registration> regs,
             final BGPExtensionProviderContext context) {
         final BgpPrefixSidAttributeParser prefixSidAttributeParser
                 = new BgpPrefixSidAttributeParser(context.getBgpPrefixSidTlvRegistry());
@@ -251,7 +252,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
                 new UnrecognizedAttributesSerializer()));
     }
 
-    private static void registerMessageParsers(final List<AutoCloseable> regs,
+    private static void registerMessageParsers(final List<Registration> regs,
             final BGPExtensionProviderContext context) {
         final BGPOpenMessageParser omp = new BGPOpenMessageParser(context.getParameterRegistry());
         regs.add(context.registerMessageParser(BGPOpenMessageParser.TYPE, omp));
@@ -277,7 +278,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerMessageSerializer(RouteRefresh.class, rrmp));
     }
 
-    private static void registerExtendedCommunities(final List<AutoCloseable> regs,
+    private static void registerExtendedCommunities(final List<Registration> regs,
             final BGPExtensionProviderContext context) {
         final AsTwoOctetSpecificEcHandler twoOctetSpecificEcHandler = new AsTwoOctetSpecificEcHandler();
         regs.add(context.registerExtendedCommunityParser(twoOctetSpecificEcHandler.getType(true),

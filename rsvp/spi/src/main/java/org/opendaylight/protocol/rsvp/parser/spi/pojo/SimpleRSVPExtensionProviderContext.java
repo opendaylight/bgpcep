@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
 import com.google.common.cache.Cache;
@@ -26,6 +25,7 @@ import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsumerContext implements
     RSVPExtensionProviderContext {
@@ -62,7 +62,6 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
         return this.referenceCache;
     }
 
-
     @Override
     public void registerRsvpObjectParser(final int classNum, final int ctype, final RSVPTeObjectParser parser) {
         this.getRsvpRegistry().registerRsvpObjectParser(classNum, ctype, parser);
@@ -75,48 +74,48 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
     }
 
     @Override
-    public AutoCloseable registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
+    public Registration registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
         final XROSubobjectSerializer serializer) {
         return this.getXROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerXROSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
+    public Registration registerXROSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
         return this.getXROSubobjectHandlerRegistry().registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public AutoCloseable registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
+    public Registration registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
         .opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass,
         final RROSubobjectSerializer serializer) {
         return this.getRROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerRROSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
+    public Registration registerRROSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
         return this.getRROSubobjectHandlerRegistry().registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public AutoCloseable registerEROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
+    public Registration registerEROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
         .opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType>
         subobjectClass, final EROSubobjectSerializer serializer) {
         return this.getEROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerEROSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
+    public Registration registerEROSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
         return this.getEROSubobjectHandlerRegistry().registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public AutoCloseable registerLabelSerializer(final Class<? extends LabelType> labelClass,
+    public Registration registerLabelSerializer(final Class<? extends LabelType> labelClass,
         final LabelSerializer serializer) {
         return this.getLabelHandlerRegistry().registerLabelSerializer(labelClass, serializer);
     }
 
     @Override
-    public AutoCloseable registerLabelParser(final int ctype, final LabelParser parser) {
+    public Registration registerLabelParser(final int ctype, final LabelParser parser) {
         return this.getLabelHandlerRegistry().registerLabelParser(ctype, parser);
     }
 }

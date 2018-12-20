@@ -5,15 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.spi.pojo.attributes.tunnel.identifier;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier.TunnelIdentifierParser;
 import org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier.TunnelIdentifierSerializer;
-import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,11 +53,11 @@ public final class SimpleTunnelIdentifierRegistry {
         return serializer.serialize(tunnel, tunnelBuffer);
     }
 
-    public AbstractRegistration registerParser(final TunnelIdentifierParser<?> parser) {
+    public Registration registerParser(final TunnelIdentifierParser<?> parser) {
         return this.handlers.registerParser(parser.getType(), parser);
     }
 
-    public AbstractRegistration registerSerializer(final TunnelIdentifierSerializer<?> serializer) {
+    public Registration registerSerializer(final TunnelIdentifierSerializer<?> serializer) {
         return this.handlers.registerSerializer(serializer.getClazz(), serializer);
     }
 }

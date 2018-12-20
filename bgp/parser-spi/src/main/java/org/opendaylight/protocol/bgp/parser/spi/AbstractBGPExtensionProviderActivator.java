@@ -12,18 +12,14 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opendaylight.yangtools.concepts.Registration;
 
 public abstract class AbstractBGPExtensionProviderActivator implements AutoCloseable, BGPExtensionProviderActivator {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPExtensionProviderActivator.class);
+    @GuardedBy("this")
+    private List<? extends Registration> registrations;
 
     @GuardedBy("this")
-    private List<AutoCloseable> registrations;
-
-    @GuardedBy("this")
-    // FIXME: use yangtools.concepts.Registration here
-    protected abstract List<AutoCloseable> startImpl(BGPExtensionProviderContext context);
+    protected abstract List<? extends Registration> startImpl(BGPExtensionProviderContext context);
 
     @Override
     public final synchronized void start(final BGPExtensionProviderContext context) {
@@ -32,20 +28,12 @@ public abstract class AbstractBGPExtensionProviderActivator implements AutoClose
     }
 
     @Override
-    @SuppressWarnings("checkstyle:illegalCatch")
     public final synchronized void stop() {
         if (this.registrations == null) {
             return;
         }
 
-        for (final AutoCloseable r : this.registrations) {
-            try {
-                r.close();
-            } catch (final Exception e) {
-                LOG.warn("Failed to close registration", e);
-            }
-        }
-
+        this.registrations.forEach(Registration::close);
         this.registrations = null;
     }
 
