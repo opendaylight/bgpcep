@@ -365,36 +365,56 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @SuppressWarnings("unchecked")
-    private void writeTable(final WriteTransaction tx, final DataObjectModification<Tables> table) {
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeTable(
+                    final WriteTransaction tx, final DataObjectModification<Tables> table) {
+
         final Tables newTable = table.getDataAfter();
         if (newTable == null) {
+            final Tables oldTable = table.getDataBefore();
+            if (oldTable != null) {
+                final KeyedInstanceIdentifier<Tables, TablesKey> tablePath = tablePath(oldTable.key());
+                LOG.trace("Delete table at {}", tablePath);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath);
+                // FIXME: account for route-target?
+            }
             return;
         }
+
         final TablesKey tableKey = newTable.key();
-        final KeyedInstanceIdentifier<Tables, TablesKey> tablePath
-                = this.effRibTables.child(Tables.class, tableKey);
+        final KeyedInstanceIdentifier<Tables, TablesKey> tablePath = tablePath(tableKey);
 
         // Create an empty table
         LOG.trace("Create Empty table at {}", tablePath);
-        if (table.getDataBefore() == null) {
-            tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
-                    .withKey(tableKey).setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
-                    .setAttributes(newTable.getAttributes()).build());
+        tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
+            .withKey(tableKey).setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
+            .setAttributes(newTable.getAttributes()).build());
+
+        final RIBSupport<C, S, R, I> ribSupport = this.registry.getRIBSupport(tableKey);
+        if (ribSupport == null) {
+            LOG.trace("No RIB support for {}", tableKey);
+            return;
         }
 
-        final RIBSupport ribSupport = this.registry.getRIBSupport(tableKey);
+        writeTableRoutes(tx, tableKey, ribSupport, tablePath, newTable);
+    }
+
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeTableRoutes(
+                    final WriteTransaction tx, final TablesKey tableKey, final RIBSupport<C, S, R, I> ribSupport,
+                    final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Tables newTable) {
         final Routes routes = newTable.getRoutes();
-        if (ribSupport == null || routes == null) {
-            return;
+        if (routes != null) {
+            final Class<? extends AfiSafiType> afiSafiType = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey())
+                    .get();
+            for (R route : ribSupport.extractAdjRibInRoutes(routes)) {
+                writeRoutes(tx, tableKey, afiSafiType, ribSupport, tablePath, route.key(), route, false);
+            }
         }
+    }
 
-        final DataObjectModification routesChangesContainer =
-                table.getModifiedChildContainer(ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
-
-        if (routesChangesContainer == null) {
-            return;
-        }
-        updateRoutes(tx, tableKey, ribSupport, tablePath, routesChangesContainer.getModifiedChildren());
+    private KeyedInstanceIdentifier<Tables, TablesKey> tablePath(TablesKey tableKey) {
+        return this.effRibTables.child(Tables.class, tableKey);
     }
 
     @Override

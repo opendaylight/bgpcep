@@ -148,7 +148,6 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
         return Collections.emptyList();
     }
 
-
     final List<L3vpnMcastDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(this::extractDestinations).collect(Collectors.toList());
     }
@@ -161,13 +160,6 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
                 .setPathId(PathIdUtil.buildPathId(destination, routePathIdNid()))
                 .build();
     }
-
-
-    @Override
-    public final List<L3vpnMcastRoute> routesFromContainer(final S container) {
-        return container.getL3vpnMcastRoute();
-    }
-
 
     @Override
     public final PathId extractPathId(final L3vpnMcastRouteKey routeListKey) {
