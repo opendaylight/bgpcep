@@ -94,8 +94,6 @@ public interface RIBSupport<
     @Nonnull
     Class<R> routesListClass();
 
-    @Nullable List<R> routesFromContainer(@Nonnull S container);
-
     @Nonnull
     default ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
@@ -317,4 +315,13 @@ public interface RIBSupport<
      */
     @Nonnull
     String extractRouteKey(@Nonnull I routeListKey);
+
+    /**
+     * Extract a route list from the adj-rib-in instantiation of table routes.
+     *
+     * @param routes Table route choice
+     * @return A potentially empty list of routes
+     */
+    @Nonnull
+    List<R> extractAdjRibInRoutes(Routes routes);
 }
