@@ -103,11 +103,6 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
         return new MvpnRouteKey(pathId, routeKey);
     }
 
-    @Override
-    public final List<MvpnRoute> routesFromContainer(final S container) {
-        return container.getMvpnRoute();
-    }
-
     final MvpnChoice extractMvpnChoice(final DataContainerNode<? extends PathArgument> route) {
         final DataObject nn = this.mappingService.fromNormalizedNode(this.routeDefaultYii, route).getValue();
         return ((MvpnRoute) nn).getMvpnChoice();
