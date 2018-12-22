@@ -190,6 +190,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final ListenerRegistration<?> listener = mock(ListenerRegistration.class);
         doReturn(listener).when(dOMDataTreeChangeService).registerDataTreeChangeListener(any(), any());
         doNothing().when(listener).close();
+        doNothing().when(this.domChain).close();
 
         doReturn(Collections.singletonMap(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
                 .when(this.domBroker).getSupportedExtensions();
