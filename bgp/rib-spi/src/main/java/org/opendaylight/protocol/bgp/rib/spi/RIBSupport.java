@@ -39,6 +39,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 
 /**
@@ -249,6 +250,30 @@ public interface RIBSupport<
      * @return TablesKey
      */
     TablesKey getTablesKey();
+
+    /**
+     * Translates supplied YANG Instance Identifier and NormalizedNode into Binding Route.
+     *
+     * @param routerId Binding Instance Identifier
+     * @param normalizedNode NormalizedNode representing Route
+     * @return Route
+     */
+    R fromNormalizedNode(YangInstanceIdentifier routerId, NormalizedNode<?, ?> normalizedNode);
+
+    /**
+     * Translates supplied YANG Instance Identifier and NormalizedNode into Binding data Attribute.
+     * @param advertisedAttrs NormalizedNode representing attributes
+     * @return Attribute
+     */
+    Attributes attributeFromContainerNode(ContainerNode advertisedAttrs);
+
+    /**
+     * Translates supplied Binding Instance Identifier and data into NormalizedNode representation.
+     * @param routePath Binding Instance Identifier pointing to data
+     * @param attributes Data object representing Attributes
+     * @return NormalizedNode representation
+     */
+    ContainerNode attributeToContainerNode(YangInstanceIdentifier routePath, Attributes attributes);
 
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
