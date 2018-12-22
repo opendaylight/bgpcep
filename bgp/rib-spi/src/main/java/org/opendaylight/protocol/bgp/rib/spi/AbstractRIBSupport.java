@@ -69,6 +69,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
@@ -519,5 +520,22 @@ public abstract class AbstractRIBSupport<
 
     protected final YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesTablePaths) {
         return this.routesPath.getUnchecked(routesTablePaths);
+    }
+
+    @Override
+    public R fromNormalizedNode(final YangInstanceIdentifier routePath, final NormalizedNode<?, ?> normalizedNode) {
+        return (R) this.mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
+    }
+
+    @Override
+    public Attributes attributeFromContainerNode(final ContainerNode advertisedAttrs) {
+        final YangInstanceIdentifier path = this.routeDefaultYii.node(routeAttributesIdentifier());
+        return (Attributes) this.mappingService.fromNormalizedNode(path, advertisedAttrs).getValue();
+    }
+
+    @Override
+    public ContainerNode attributeToContainerNode(final YangInstanceIdentifier attPath, final Attributes attributes) {
+        final InstanceIdentifier<DataObject> iid = this.mappingService.fromYangInstanceIdentifier(attPath);
+        return (ContainerNode) this.mappingService.toNormalizedNode(iid, attributes).getValue();
     }
 }
