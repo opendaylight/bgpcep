@@ -467,10 +467,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     private synchronized void createEffRibInWriter() {
         this.effRibInWriter = new EffectiveRibInWriter(this, this.rib,
-                this.rib.createPeerChain(this),
-                this.peerIId, this.tables, this.tableTypeRegistry,
-                this.rtMemberships,
-                this.rtCache);
+            this.rib.createPeerDOMChain(this),
+            this.peerPath, this.tables, this.tableTypeRegistry,
+            this.rtMemberships,
+            this.rtCache);
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability

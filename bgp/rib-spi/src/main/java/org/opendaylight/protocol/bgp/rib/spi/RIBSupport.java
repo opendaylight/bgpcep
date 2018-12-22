@@ -39,6 +39,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 
 /**
@@ -249,6 +250,12 @@ public interface RIBSupport<
      * @return TablesKey
      */
     TablesKey getTablesKey();
+
+    R fromNormalizedNode(final YangInstanceIdentifier routerId, NormalizedNode<?, ?> normalizedNode);
+
+    Attributes attributeFromContainerNode(YangInstanceIdentifier routeId, ContainerNode advertisedAttrs);
+
+    ContainerNode attributeToContainerNode(YangInstanceIdentifier attPath, Attributes attributes);
 
     interface ApplyRoute {
         void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
