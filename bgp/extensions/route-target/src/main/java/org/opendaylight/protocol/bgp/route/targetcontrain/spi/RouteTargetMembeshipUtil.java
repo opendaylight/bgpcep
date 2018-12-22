@@ -8,8 +8,6 @@
 
 package org.opendaylight.protocol.bgp.route.targetcontrain.spi;
 
-import java.util.Optional;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainAs4ExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainDefaultCase;
@@ -23,12 +21,8 @@ public final class RouteTargetMembeshipUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static <R extends Route> Optional<RouteTarget> getRT(final R route) {
-        if (!(route instanceof RouteTargetConstrainRoute)) {
-            return Optional.empty();
-        }
-
-        final RouteTargetConstrainChoice rtc = ((RouteTargetConstrainRoute) route).getRouteTargetConstrainChoice();
+    public static RouteTarget getRT(final RouteTargetConstrainRoute route) {
+        final RouteTargetConstrainChoice rtc = route.getRouteTargetConstrainChoice();
         RouteTarget rt;
         if (rtc instanceof RouteTargetConstrainDefaultCase) {
             rt = ((RouteTargetConstrainDefaultCase) rtc).getRouteTargetConstrainDefaultRoute();
@@ -39,6 +33,6 @@ public final class RouteTargetMembeshipUtil {
         } else {
             rt = ((RouteTargetConstrainRouteCase) rtc).getRouteTargetExtendedCommunity();
         }
-        return Optional.of(rt);
+        return rt;
     }
 }
