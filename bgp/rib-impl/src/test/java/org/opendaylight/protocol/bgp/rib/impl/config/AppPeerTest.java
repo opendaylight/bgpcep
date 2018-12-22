@@ -56,8 +56,8 @@ public class AppPeerTest extends AbstractConfig {
         APP_PEER.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
         APP_PEER.instantiateServiceInstance();
         Mockito.verify(this.rib, times(6)).getYangRibId();
-        Mockito.verify(this.rib, times(2)).getService();
-        Mockito.verify(this.listener).close();
+        Mockito.verify(this.rib, times(4)).getService();
+        Mockito.verify(this.listener, times(2)).close();
 
         assertTrue(APP_PEER.containsEqualConfiguration(this.neighbor));
         assertFalse(APP_PEER.containsEqualConfiguration(new NeighborBuilder()
