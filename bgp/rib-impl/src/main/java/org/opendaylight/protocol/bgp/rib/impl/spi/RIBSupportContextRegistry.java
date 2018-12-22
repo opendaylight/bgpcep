@@ -49,4 +49,18 @@ public interface RIBSupportContextRegistry {
      */
     @Nullable
     RIBSupportContext getRIBSupportContext(NodeIdentifierWithPredicates key);
+
+    /**
+     * Acquire a RIB Support Context for a AFI/SAFI combination.
+     *
+     * @param key Tables key with AFI/SAFI key
+     * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
+     */
+    @Nullable
+    default <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
+        R extends Route & ChildOf<? super S> & Identifiable<I>,
+        I extends Identifier<R>> RIBSupport<C, S, R, I> getRIBSupport(NodeIdentifierWithPredicates key) {
+        final RIBSupportContext support = getRIBSupportContext(key);
+        return support == null ? null : support.getRibSupport();
+    }
 }

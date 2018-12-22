@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -26,18 +27,17 @@ import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
@@ -51,30 +51,28 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.ChoiceIn;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.IdentifiableItem;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +91,7 @@ import org.slf4j.LoggerFactory;
  */
 @NotThreadSafe
 final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesInstalledCounters,
-        AutoCloseable, ClusteredDataTreeChangeListener<Tables> {
+        AutoCloseable, ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
@@ -109,14 +107,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             .build();
 
     private final RIBSupportContextRegistry registry;
-    private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
-    private final InstanceIdentifier<EffectiveRibIn> effRibTables;
-    private final DataBroker databroker;
+    private final YangInstanceIdentifier peerIId;
+    private final YangInstanceIdentifier effRibTables;
+    private final DOMDataTreeChangeService service;
     private final List<RouteTarget> rtMemberships;
     private final RibOutRefresh vpnTableRefresher;
     private final ClientRouteTargetContrainCache rtCache;
     private ListenerRegistration<?> reg;
-    private BindingTransactionChain chain;
+    private DOMTransactionChain chain;
     private final Map<TablesKey, LongAdder> prefixesReceived;
     private final Map<TablesKey, LongAdder> prefixesInstalled;
     private final BGPRibRoutingPolicy ribPolicies;
@@ -129,8 +127,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     EffectiveRibInWriter(
             final BGPRouteEntryImportParameters peer,
             final RIB rib,
-            final BindingTransactionChain chain,
-            final KeyedInstanceIdentifier<Peer, PeerKey> peerIId,
+            final DOMTransactionChain chain,
+            final YangInstanceIdentifier peerIId,
             final Set<TablesKey> tables,
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final List<RouteTarget> rtMemberships,
@@ -138,11 +136,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.registry = requireNonNull(rib.getRibSupportContext());
         this.chain = requireNonNull(chain);
         this.peerIId = requireNonNull(peerIId);
-        this.effRibTables = this.peerIId.child(EffectiveRibIn.class);
+        this.effRibTables = this.peerIId.node(EffectiveRibIn.QNAME);
         this.prefixesInstalled = buildPrefixesTables(tables);
         this.prefixesReceived = buildPrefixesTables(tables);
         this.ribPolicies = requireNonNull(rib.getRibPolicies());
-        this.databroker = requireNonNull(rib.getDataBroker());
+        this.service = requireNonNull(rib.getService());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.peerImportParameters = peer;
         this.rtMemberships = rtMemberships;
@@ -151,10 +149,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     public void init() {
-        final DataTreeIdentifier<Tables> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
-                this.peerIId.child(AdjRibIn.class).child(Tables.class));
+        final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
+            this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME));
         LOG.debug("Registered Effective RIB on {}", this.peerIId);
-        this.reg = requireNonNull(this.databroker).registerDataTreeChangeListener(treeId, this);
+        this.reg = requireNonNull(this.service).registerDataTreeChangeListener(treeId, this);
     }
 
     private static Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
@@ -164,80 +162,22 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @Override
-    public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Tables>> changes) {
+    public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeCandidate> changes) {
         if (this.chain == null) {
             LOG.trace("Chain closed. Ignoring Changes : {}", changes);
             return;
         }
 
         LOG.trace("Data changed called to effective RIB. Change : {}", changes);
-        if (!changes.isEmpty()) {
-            processModifications(changes);
-        }
-
-        //Refresh VPN Table if RT Memberships were updated
-        if (this.rtMembershipsUpdated) {
-            this.vpnTableRefresher.refreshTable(IVP4_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
-            this.vpnTableRefresher.refreshTable(IVP6_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
-            this.rtMembershipsUpdated = false;
-        }
-    }
-
-    @GuardedBy("this")
-    @SuppressWarnings("unchecked")
-    private void processModifications(final Collection<DataTreeModification<Tables>> changes) {
-        final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        for (final DataTreeModification<Tables> tc : changes) {
-            final DataObjectModification<Tables> table = tc.getRootNode();
-            final DataObjectModification.ModificationType modificationType = table.getModificationType();
-            switch (modificationType) {
-                case DELETE:
-                    final Tables removeTable = table.getDataBefore();
-                    final TablesKey tableKey = removeTable.key();
-                    final KeyedInstanceIdentifier<Tables, TablesKey> effectiveTablePath = this.effRibTables
-                            .child(Tables.class, tableKey);
-                    LOG.debug("Delete Effective Table {} modification type {}, ", effectiveTablePath, modificationType);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
-                    CountersUtil.decrement(this.prefixesInstalled.get(tableKey), tableKey);
-                    break;
-                case SUBTREE_MODIFIED:
-                    final Tables before = table.getDataBefore();
-                    final Tables after = table.getDataAfter();
-                    final TablesKey tk = after.key();
-                    LOG.debug("Process table {} type {}, dataAfter {}, dataBefore {}",
-                            tk, modificationType, after, before);
-
-                    final KeyedInstanceIdentifier<Tables, TablesKey> tablePath
-                            = this.effRibTables.child(Tables.class, tk);
-                    final RIBSupport ribSupport = this.registry.getRIBSupport(tk);
-                    if (ribSupport == null) {
-                        break;
-                    }
-
-                    final DataObjectModification<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-                        .rib.rev180329.rib.tables.Attributes> adjRibAttrsChanged = table.getModifiedChildContainer(
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
-                                .rib.tables.Attributes.class);
-                    if (adjRibAttrsChanged != null) {
-                        tx.put(LogicalDatastoreType.OPERATIONAL,
-                            tablePath.child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-                                .rib.rev180329.rib.tables.Attributes.class), adjRibAttrsChanged.getDataAfter());
-                    }
-
-                    final DataObjectModification routesChangesContainer = table.getModifiedChildContainer(
-                        ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
-
-                    if (routesChangesContainer == null) {
-                        break;
-                    }
-                    updateRoutes(tx, tk, ribSupport, tablePath, routesChangesContainer.getModifiedChildren());
-                    break;
-                case WRITE:
-                    writeTable(tx, table);
-                    break;
-                default:
-                    LOG.warn("Ignoring unhandled root {}", table);
-                    break;
+        DOMDataWriteTransaction tx = null;
+        for (final DataTreeCandidate tc : changes) {
+            final YangInstanceIdentifier rootPath = tc.getRootPath();
+            final DataTreeCandidateNode root = tc.getRootNode();
+            for (final DataTreeCandidateNode table : root.getChildNodes()) {
+                if (tx == null) {
+                    tx = this.chain.newWriteOnlyTransaction();
+                }
+                changeDataTree(tx, rootPath, root, table);
             }
         }
 
@@ -254,83 +194,242 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 LOG.error("Failed commit", trw);
             }
         }, MoreExecutors.directExecutor());
+
+        //Refresh VPN Table if RT Memberships were updated
+        if (this.rtMembershipsUpdated) {
+            this.vpnTableRefresher.refreshTable(IVP4_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
+            this.vpnTableRefresher.refreshTable(IVP6_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
+            this.rtMembershipsUpdated = false;
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void updateRoutes(
-            final WriteTransaction tx,
-            final TablesKey tableKey, final RIBSupport<C, S, R, I> ribSupport,
-            final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
-            final Collection<DataObjectModification<R>> routeChanges) {
+    @GuardedBy("this")
+    private void changeDataTree(
+        final DOMDataWriteTransaction tx,
+        final YangInstanceIdentifier rootPath,
+        final DataTreeCandidateNode root,
+        final DataTreeCandidateNode table) {
+        final PathArgument lastArg = table.getIdentifier();
+        Verify.verify(lastArg instanceof NodeIdentifierWithPredicates,
+            "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
+        final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+        final ModificationType modificationType = root.getModificationType();
+        final RIBSupport ribSupport = this.registry.getRIBSupport(tableKey);
+        final TablesKey tk = ribSupport.getTablesKey();
+        final YangInstanceIdentifier effectiveTablePath = effectiveTablePath(tableKey);
 
-        Class<? extends AfiSafiType> afiSafiType = null;
-        for (final DataObjectModification<R> routeChanged : routeChanges) {
-            final PathArgument routeChangeId = routeChanged.getIdentifier();
-            verify(routeChangeId instanceof IdentifiableItem, "Route change %s has invalid identifier %s",
-                routeChanged, routeChangeId);
-            final I routeKey = ((IdentifiableItem<R, I>) routeChangeId).getKey();
+        switch (modificationType) {
+            case DISAPPEARED:
+            case DELETE:
+                processTableChildren(tx, ribSupport, effectiveTablePath, table.getChildNodes());
+                LOG.debug("Delete Effective Table {} modification type {}, ", effectiveTablePath, modificationType);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
+                break;
+            case APPEARED:
+            case WRITE:
+                final RIBSupportContext ctx = this.registry.getRIBSupportContext(tk);
+                LOG.trace("Create Empty table {}", tk);
+                ctx.createEmptyTableStructure(tx, effectiveTablePath);
+                processTableChildren(tx, ribSupport, effectiveTablePath, table.getChildNodes());
+                break;
+            case SUBTREE_MODIFIED:
+                processTableChildren(tx, ribSupport, effectiveTablePath, table.getChildNodes());
+                break;
+            case UNMODIFIED:
+                LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
+                break;
+            default:
+                LOG.warn("Ignoring unhandled root {}", table);
+                break;
+        }
+    }
 
-            switch (routeChanged.getModificationType()) {
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    if (afiSafiType == null) {
-                        afiSafiType = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get();
-                    }
-
-                    writeRoutes(tx, tableKey, afiSafiType, ribSupport, tablePath, routeKey,
-                        routeChanged.getDataAfter(), false);
-                    break;
+    private void processTableChildren(
+        final DOMDataWriteTransaction tx,
+        final RIBSupport ribSupport,
+        final YangInstanceIdentifier effectiveTablePath,
+        final Collection<DataTreeCandidateNode> children) {
+        for (final DataTreeCandidateNode child : children) {
+            final PathArgument childIdentifier = child.getIdentifier();
+            final Optional<NormalizedNode<?, ?>> childDataAfter = child.getDataAfter();
+            LOG.debug("Process table {} type {}, dataAfter {}, dataBefore {}", childIdentifier, child
+                .getModificationType(), childDataAfter, child.getDataBefore());
+            final YangInstanceIdentifier routesPath = effectiveTablePath.node(childIdentifier);
+            switch (child.getModificationType()) {
                 case DELETE:
-                    final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
-                    deleteRoutes(routeIID, routeChanged.getDataBefore(), tx);
+                case DISAPPEARED:
+                    processDeleteRouteTables(child, childIdentifier, ribSupport, routesPath);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, routesPath);
+                    LOG.debug("Route deleted. routeId={}", routesPath);
+                    break;
+                case UNMODIFIED:
+                    // No-op
+                    break;
+                case SUBTREE_MODIFIED:
+                    processModifiedRouteTables(child, childIdentifier,tx, ribSupport, routesPath, childDataAfter);
+                    break;
+                case APPEARED:
+                case WRITE:
+                    writeRouteTables(child, childIdentifier, tx, ribSupport, routesPath, childDataAfter);
+                    break;
+                default:
+                    LOG.warn("Ignoring unhandled child {}", child);
                     break;
             }
         }
     }
 
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeRoutes(
-            final WriteTransaction tx, final TablesKey tk, final Class<? extends AfiSafiType> afiSafiType,
-            final RIBSupport<C, S, R, I> ribSupport, final KeyedInstanceIdentifier<Tables, TablesKey> tablePath,
-            final I routeKey, final R route, final boolean longLivedStale) {
-        final InstanceIdentifier<R> routeIID = ribSupport.createRouteIdentifier(tablePath, routeKey);
-        CountersUtil.increment(this.prefixesReceived.get(tk), tk);
-
-        final Attributes routeAttrs = route.getAttributes();
-        final Optional<Attributes> optEffAtt;
-        // In case we want to add LLGR_STALE we do not process route through policies since it may be
-        // considered as received with LLGR_STALE from peer which is not true.
-        if (longLivedStale) {
-            // LLGR procedures are in effect. If the route is tagged with NO_LLGR, it needs to be removed.
-            final List<Communities> effCommunities = routeAttrs.getCommunities();
-            if (effCommunities != null && effCommunities.contains(CommunityUtil.NO_LLGR)) {
-                deleteRoutes(routeIID, route, tx);
-                return;
+    private void processDeleteRouteTables(
+        final DataTreeCandidateNode child,
+        final PathArgument childIdentifier,
+        final RIBSupport ribSupport,
+        final YangInstanceIdentifier routesPath) {
+        if (TABLE_ROUTES.equals(childIdentifier)) {
+            final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
+            for (final DataTreeCandidateNode route : changedRoutes) {
+                handleRouteTarget(ModificationType.DELETE, ribSupport, routesPath.getParent(),
+                    route.getDataBefore().orElse(null));
+                final TablesKey tablesKey = ribSupport.getTablesKey();
+                CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
             }
-            optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
+        }
+    }
+
+    private void processModifiedRouteTables(
+        final DataTreeCandidateNode child,
+        final PathArgument childIdentifier,
+        final DOMDataWriteTransaction tx,
+        final RIBSupport ribSupport,
+        final YangInstanceIdentifier routesPath,
+        final Optional<NormalizedNode<?, ?>> childDataAfter) {
+        if (TABLE_ROUTES.equals(childIdentifier)) {
+            final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
+            for (final DataTreeCandidateNode route : changedRoutes) {
+                processRoute(tx, ribSupport, routesPath.getParent(), route);
+            }
         } else {
-            optEffAtt = this.ribPolicies.applyImportPolicies(this.peerImportParameters, routeAttrs, afiSafiType);
+            tx.put(LogicalDatastoreType.OPERATIONAL, routesPath, childDataAfter.get());
         }
-        if (!optEffAtt.isPresent()) {
-            deleteRoutes(routeIID, route, tx);
-            return;
-        }
+    }
 
-        final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
-        if (rtMembership.isPresent()) {
-            final RouteTarget rt = rtMembership.get();
-            if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
-                this.rtCache.cacheRoute(route);
+    private void writeRouteTables(
+        final DataTreeCandidateNode child,
+        final PathArgument childIdentifier,
+        final DOMDataWriteTransaction tx,
+        final RIBSupport ribSupport,
+        final YangInstanceIdentifier routesPath,
+        final Optional<NormalizedNode<?, ?>> childDataAfter) {
+        if (TABLE_ROUTES.equals(childIdentifier)) {
+            final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
+            if (!changedRoutes.isEmpty()) {
+                tx.put(LogicalDatastoreType.OPERATIONAL, routesPath, childDataAfter.get());
+                // Routes are special, as they may end up being filtered. The previous put conveniently
+                // ensured that we have them in at target, so a subsequent delete will not fail :)
+                for (final DataTreeCandidateNode route : changedRoutes) {
+                    processRoute(tx, ribSupport, routesPath.getParent(), route);
+                }
             }
-            this.rtMemberships.add(rt);
+        }
+    }
+
+    private void processRoute(
+        final DOMDataWriteTransaction tx,
+        final RIBSupport ribSupport,
+        final YangInstanceIdentifier routesPath,
+        final DataTreeCandidateNode route) {
+        LOG.debug("Process route {}", route.getIdentifier());
+        final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.getIdentifier());
+        final TablesKey tablesKey = ribSupport.getTablesKey();
+        switch (route.getModificationType()) {
+            case DELETE:
+            case DISAPPEARED:
+                deleteRoute(tx, ribSupport, routePath, route.getDataBefore().orElse(null), tablesKey);
+                break;
+            case UNMODIFIED:
+                // No-op
+                break;
+            case APPEARED:
+            case SUBTREE_MODIFIED:
+            case WRITE:
+                CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
+                // Lookup per-table attributes from RIBSupport
+                final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(),
+                    ribSupport.routeAttributesIdentifier()).orElse(null);
+                final Attributes routeAttrs = ribSupport.attributeFromContainerNode(advertisedAttrs);
+                final Optional<Attributes> optEffAtt;
+                // In case we want to add LLGR_STALE we do not process route through policies since it may be
+                // considered as received with LLGR_STALE from peer which is not true.
+                final boolean longLivedStale = false;
+                if (longLivedStale) {
+                    // LLGR procedures are in effect. If the route is tagged with NO_LLGR, it needs to be removed.
+                    final List<Communities> effCommunities = routeAttrs.getCommunities();
+                    if (effCommunities != null && effCommunities.contains(CommunityUtil.NO_LLGR)) {
+                        deleteRoute(tx, ribSupport, routePath, route.getDataBefore().orElse(null), tablesKey);
+                        return;
+                    }
+                    optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
+                } else {
+                    final Class<? extends AfiSafiType> afiSafiType
+                        = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get();
+                    optEffAtt = this.ribPolicies
+                        .applyImportPolicies(this.peerImportParameters, routeAttrs, afiSafiType);
+                }
+                if (!optEffAtt.isPresent()) {
+                    deleteRoute(tx, ribSupport, routePath, route.getDataBefore().orElse(null), tablesKey);
+                    return;
+                }
+                final NormalizedNode<?, ?> routeChanged = route.getDataAfter().get();
+                handleRouteTarget(ModificationType.WRITE, ribSupport, routePath, routeChanged);
+                tx.put(LogicalDatastoreType.OPERATIONAL, routePath, routeChanged);
+                CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
+
+                final YangInstanceIdentifier attPath = routePath.node(ribSupport.routeAttributesIdentifier());
+                final ContainerNode finalAttribute = ribSupport.attributeToContainerNode(attPath, optEffAtt.get());
+                tx.put(LogicalDatastoreType.OPERATIONAL, attPath, finalAttribute);
+                break;
+            default:
+                LOG.warn("Ignoring unhandled route {}", route);
+                break;
+        }
+    }
+
+    private void deleteRoute(
+        final DOMDataWriteTransaction tx,
+        final RIBSupport ribSupport,
+        final YangInstanceIdentifier routeIdPath,
+        final NormalizedNode<?, ?> route,
+        final TablesKey tablesKey) {
+        handleRouteTarget(ModificationType.DELETE, ribSupport, routeIdPath, route);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, routeIdPath);
+        LOG.debug("Route deleted. routeId={}", routeIdPath);
+        CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
+    }
+
+    private void handleRouteTarget(
+        final ModificationType modificationType,
+        final RIBSupport ribSupport,
+        final YangInstanceIdentifier routeIdPath,
+        final NormalizedNode<?, ?> route) {
+        if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
+            final RouteTargetConstrainRoute rtc =
+                (RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route);
+            final RouteTarget rtMembership = RouteTargetMembeshipUtil.getRT(rtc);
+            if (ModificationType.DELETE == modificationType) {
+                if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
+                    this.rtCache.uncacheRoute(rtc);
+                }
+                this.rtMemberships.remove(rtMembership);
+            } else {
+                if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
+                    this.rtCache.cacheRoute(rtc);
+                }
+                this.rtMemberships.add(rtMembership);
+            }
             this.rtMembershipsUpdated = true;
         }
-        CountersUtil.increment(this.prefixesInstalled.get(tk), tk);
-        tx.put(LogicalDatastoreType.OPERATIONAL, routeIID, route);
-        tx.put(LogicalDatastoreType.OPERATIONAL, routeIID.child(Attributes.class), optEffAtt.get());
     }
 
+    @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private static Attributes wrapLongLivedStale(final Attributes attrs) {
         if (attrs == null) {
             return STALE_LLGR_ATTRIBUTES;
@@ -351,72 +450,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 .path.attributes.AttributesBuilder(attrs).setCommunities(newCommunities).build();
     }
 
-    private <R extends Route> void deleteRoutes(final InstanceIdentifier<R> routeIID,
-            final R route, final WriteTransaction tx) {
-        deleteRT(route);
-        tx.delete(LogicalDatastoreType.OPERATIONAL, routeIID);
-    }
-
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeTable(
-                    final WriteTransaction tx, final DataObjectModification<Tables> table) {
-
-        final Tables newTable = table.getDataAfter();
-        if (newTable == null) {
-            final Tables oldTable = table.getDataBefore();
-            if (oldTable != null) {
-                final TablesKey tableKey = oldTable.key();
-                final KeyedInstanceIdentifier<Tables, TablesKey> tablePath = tablePath(tableKey);
-                LOG.trace("Delete table at {}", tablePath);
-                tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath);
-
-                final RIBSupport<C, S, R, I> ribSupport = this.registry.getRIBSupport(tableKey);
-                if (ribSupport != null) {
-                    final Routes oldRoutes = oldTable.getRoutes();
-                    if (oldRoutes != null) {
-                        for (R route : ribSupport.extractAdjRibInRoutes(oldRoutes)) {
-                            deleteRT(route);
-                        }
-                    }
-                }
-            }
-            return;
-        }
-
-        final TablesKey tableKey = newTable.key();
-        final KeyedInstanceIdentifier<Tables, TablesKey> tablePath = tablePath(tableKey);
-
-        // Create an empty table
-        LOG.trace("Create Empty table at {}", tablePath);
-        tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, new TablesBuilder()
-            .withKey(tableKey).setAfi(tableKey.getAfi()).setSafi(tableKey.getSafi())
-            .setAttributes(newTable.getAttributes()).build());
-
-        final RIBSupport<C, S, R, I> ribSupport = this.registry.getRIBSupport(tableKey);
-        if (ribSupport == null) {
-            LOG.trace("No RIB support for {}", tableKey);
-            return;
-        }
-
-        writeTableRoutes(tx, tableKey, ribSupport, tablePath, newTable);
-    }
-
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void writeTableRoutes(
-                    final WriteTransaction tx, final TablesKey tableKey, final RIBSupport<C, S, R, I> ribSupport,
-                    final KeyedInstanceIdentifier<Tables, TablesKey> tablePath, final Tables newTable) {
-        final Routes routes = newTable.getRoutes();
-        if (routes != null) {
-            final Class<? extends AfiSafiType> afiSafiType = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey())
-                    .get();
-            for (R route : ribSupport.extractAdjRibInRoutes(routes)) {
-                writeRoutes(tx, tableKey, afiSafiType, ribSupport, tablePath, route.key(), route, false);
-            }
-        }
-    }
-
-    private KeyedInstanceIdentifier<Tables, TablesKey> tablePath(TablesKey tableKey) {
-        return this.effRibTables.child(Tables.class, tableKey);
+    private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
+        return this.effRibTables.node(Tables.QNAME).node(tableKey);
     }
 
     @Override
@@ -471,16 +506,5 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     @Override
     public long getTotalPrefixesInstalled() {
         return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
-    }
-
-    private void deleteRT(final Route route) {
-        final Optional<RouteTarget> rtMembership = RouteTargetMembeshipUtil.getRT(route);
-        if (rtMembership.isPresent()) {
-            if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
-                this.rtCache.uncacheRoute(route);
-            }
-            this.rtMemberships.remove(rtMembership.get());
-            this.rtMembershipsUpdated = true;
-        }
     }
 }
