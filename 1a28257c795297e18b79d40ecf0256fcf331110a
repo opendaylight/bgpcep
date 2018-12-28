@@ -22,6 +22,30 @@
       "revId": "1a28257c795297e18b79d40ecf0256fcf331110a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eaee3639_e0f470a6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2018-12-28T14:35:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5805304f_234279b7",
+      "range": {
+        "startLine": 367,
+        "startChar": 24,
+        "endLine": 367,
+        "endChar": 60
+      },
+      "revId": "1a28257c795297e18b79d40ecf0256fcf331110a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
