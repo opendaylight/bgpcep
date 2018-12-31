@@ -174,7 +174,7 @@ public class GracefulRestartUtilTest {
                 .capabilities.ll.graceful.restart.capability.Tables> tables = llGracefulCapability.getTables();
         assertNotNull(tables);
         assertEquals(2, tables.size());
-        assertEquals(STALE_TIME, tables.get(0).getLongLiveStaleTime().intValue());
+        assertEquals(STALE_TIME, tables.get(0).getLongLivedStaleTime().intValue());
         tables.forEach(table -> {
             assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()
                 || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState());

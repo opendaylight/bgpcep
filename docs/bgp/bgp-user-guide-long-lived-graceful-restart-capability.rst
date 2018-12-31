@@ -35,7 +35,7 @@ or
          <enable>true</enable>
          <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
              <config>
-                 <long-live-stale-time>180</long-live-stale-time>
+                 <long-lived-stale-time>180</long-lived-stale-time>
              </config>
          </ll-graceful-restart>
        </config>

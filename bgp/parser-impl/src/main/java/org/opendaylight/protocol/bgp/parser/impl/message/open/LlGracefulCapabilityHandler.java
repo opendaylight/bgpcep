@@ -84,7 +84,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
                     .setAfi(afi)
                     .setSafi(safi)
                     .setAfiFlags(new Tables.AfiFlags(Boolean.valueOf(afiFlags == AFI_FLAG_FORWARDING_STATE)))
-                    .setLongLiveStaleTime(Long.valueOf(staleTime))
+                    .setLongLivedStaleTime(Long.valueOf(staleTime))
                     .build();
             tables.add(table);
         }
@@ -129,7 +129,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
             } else {
                 buffer.writeZero(1);
             }
-            final Long staleTime = table.getLongLiveStaleTime();
+            final Long staleTime = table.getLongLivedStaleTime();
             final int timeval = staleTime != null ? staleTime.intValue() : 0;
             checkArgument(timeval >= 0 && timeval <= MAX_STALE_TIME, "Restart time is %s", staleTime);
             buffer.writeMedium(timeval);

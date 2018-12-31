@@ -132,7 +132,7 @@ module bgp-multiprotocol {
                     }
                     mandatory true;
                 }
-                leaf long-live-stale-time {
+                leaf long-lived-stale-time {
                     type uint32 {
                         range 0..16777215;
                     }

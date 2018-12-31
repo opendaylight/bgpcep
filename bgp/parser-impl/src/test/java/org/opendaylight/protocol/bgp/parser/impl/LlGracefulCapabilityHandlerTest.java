@@ -62,13 +62,13 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(false))
-                                .setLongLiveStaleTime(10L)
+                                .setLongLivedStaleTime(10L)
                                 .build(),
                         new TablesBuilder()
                                 .setAfi(Ipv6AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(true))
-                                .setLongLiveStaleTime(160L)
+                                .setLongLivedStaleTime(160L)
                                 .build())
                 ).build();
 
@@ -89,7 +89,7 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setAfi(AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(false))
-                                .setLongLiveStaleTime(10L)
+                                .setLongLivedStaleTime(10L)
                                 .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
@@ -105,7 +105,7 @@ public class LlGracefulCapabilityHandlerTest {
                         .setAfi(Ipv4AddressFamily.class)
                         .setSafi(SubsequentAddressFamily.class)
                         .setAfiFlags(new Tables.AfiFlags(false))
-                        .setLongLiveStaleTime(10L)
+                        .setLongLivedStaleTime(10L)
                         .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
@@ -121,7 +121,7 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(false))
-                                .setLongLiveStaleTime(-1L)
+                                .setLongLivedStaleTime(-1L)
                                 .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
@@ -138,7 +138,7 @@ public class LlGracefulCapabilityHandlerTest {
                         .setAfi(Ipv4AddressFamily.class)
                         .setSafi(UnicastSubsequentAddressFamily.class)
                         .setAfiFlags(new Tables.AfiFlags(false))
-                        .setLongLiveStaleTime(16777216L)
+                        .setLongLivedStaleTime(16777216L)
                         .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
