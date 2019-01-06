@@ -174,7 +174,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
-        Assert.assertEquals(getRoutePath().node(prefixNii), this.ribSupport.routePath(getTablePath(), prefixNii));
+        Assert.assertEquals(getRoutePath().node(prefixNii), this.ribSupport.createRouteIdentifier(getTablePath(), prefixNii));
     }
 
     @Test

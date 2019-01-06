@@ -147,7 +147,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(this.routes);
         assertEquals(getRoutePath().node(prefixNii),
-                this.ribSupport.routePath(getTablePath(), prefixNii));
+                this.ribSupport.createRouteIdentifier(getTablePath(), prefixNii));
     }
 
     @Test

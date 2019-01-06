@@ -27,6 +27,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +38,12 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     private static final class Stale<C extends Routes & DataObject & ChoiceIn<Tables>,
             S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> extends StaleBestPathRoute<C, S, R, I> {
-        Stale(final I nonAddPathRouteKeyIdentifier) {
+        Stale(final PathArgument nonAddPathRouteKeyIdentifier) {
             super(nonAddPathRouteKeyIdentifier);
         }
 
         @Override
-        public List<I> getStaleRouteKeyIdentifiers() {
+        public List<PathArgument> getStaleRouteKeyIdentifiers() {
             return Collections.singletonList(getNonAddPathRouteKeyIdentifier());
         }
 

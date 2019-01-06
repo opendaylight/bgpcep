@@ -186,23 +186,23 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             return;
         }
         LOG.debug("Creating LocRIB writer for key {}", key);
-        final BindingTransactionChain txChain = createPeerChain(this);
         PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
+        final DOMTransactionChain txChain = createPeerDOMChain(this);
+
         final LocRibWriter locRibWriter = LocRibWriter.create(
-                ribSupport,
-                key,
-                this.tableTypeRegistry.getAfiSafiType(key).get(),
-                txChain,
-                getInstanceIdentifier(),
-                this.localAs,
-                getDataBroker(),
-                this.ribPolicies,
-                this.peerTracker,
-                pathSelectionStrategy);
+            ribSupport,
+            txChain,
+            this.tableTypeRegistry.getAfiSafiType(key).get(),
+            this.yangRibId,
+            this.localAs,
+            getService(),
+            this.ribPolicies,
+            this.peerTracker,
+            pathSelectionStrategy);
         this.vpnTableRefresher.put(key, locRibWriter);
         registerTotalPathCounter(key, locRibWriter);
         registerTotalPrefixesCounter(key, locRibWriter);
@@ -250,7 +250,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
                 getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
         if (this.txChainToLocRibWriter.containsKey(chain)) {
             final LocRibWriter locRibWriter = this.txChainToLocRibWriter.remove(chain);
-            final BindingTransactionChain newChain = createPeerChain(this);
+            final DOMTransactionChain newChain = createPeerDOMChain(this);
             startLocRib(locRibWriter.getTableKey());
             locRibWriter.restart(newChain);
             this.txChainToLocRibWriter.put(newChain, locRibWriter);

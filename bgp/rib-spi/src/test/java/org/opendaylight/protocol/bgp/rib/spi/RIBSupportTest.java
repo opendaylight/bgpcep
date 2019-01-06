@@ -215,7 +215,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     public void routePath() {
         assertEquals(LOC_RIB_TARGET.node(ROUTES_IDENTIFIER)
                         .node(Ipv4Routes.QNAME).node(Ipv4Route.QNAME).node(PREFIX_NII),
-                this.ribSupportTestImp.routePath(LOC_RIB_TARGET, PREFIX_NII));
+                this.ribSupportTestImp.createRouteIdentifier(LOC_RIB_TARGET, PREFIX_NII));
     }
 
     @Test

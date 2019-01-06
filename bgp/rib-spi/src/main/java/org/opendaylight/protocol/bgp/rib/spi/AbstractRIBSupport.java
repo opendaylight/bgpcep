@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -110,6 +111,7 @@ public abstract class AbstractRIBSupport<
     private final Class<S> containerClass;
     private final Class<R> listClass;
     private final ApplyRoute putRoute = new PutRoute();
+    private final ChoiceNode emptyRoutes;
     private final MapEntryNode emptyTable;
     private final QName routeQname;
     private final Class<? extends AddressFamily> afiClass;
@@ -157,10 +159,16 @@ public abstract class AbstractRIBSupport<
         this.routeQname = BindingReflections.findQName(listClass).withModule(module);
         this.routesListIdentifier = new NodeIdentifier(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
+        this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES)
+            .addChild(Builders.containerBuilder()
+                .withNodeIdentifier(routesContainerIdentifier())
+                .withChild(ImmutableNodes.mapNodeBuilder(this.routeQname)
+                    .build()).build()).build();
+
         this.emptyTable = (MapEntryNode) this.mappingService
-                .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
-                        .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                                .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
+            .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
+                .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+                    .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = new NodeIdentifier(destContainerQname);
@@ -201,6 +209,12 @@ public abstract class AbstractRIBSupport<
     @Override
     public final Class<R> routesListClass() {
         return this.listClass;
+    }
+
+    @Nonnull
+    @Override
+    public final ChoiceNode emptyRoutes() {
+        return this.emptyRoutes;
     }
 
     @Override
@@ -509,6 +523,23 @@ public abstract class AbstractRIBSupport<
 
     protected final String extractPrefix(final DataContainerNode<? extends PathArgument> route) {
         return (String) route.getChild(prefixTypeNid).get().getValue();
+    }
+
+    @Override
+    public final NodeIdentifierWithPredicates createRouteListNodeIdentifier(final PathId pathId,
+        final String routeKey) {
+        //FIXME
+        return null;
+    }
+
+    @Override
+    public final String extractRouteKey(final NodeIdentifierWithPredicates routeKey) {
+            return routeKey.getKeyValues().get(routeKeyQName()).toString();
+    }
+
+    @Override
+    public final Long extractPathId(NodeIdentifierWithPredicates routeKey) {
+        return (Long) routeKey.getKeyValues().get(pathIdQName());
     }
 
     protected final RouteDistinguisher extractRouteDistinguisher(

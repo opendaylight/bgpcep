@@ -14,14 +14,13 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
  * Container wrapper for all dependencies related to Route Entry, required for process and storage.
@@ -38,14 +37,6 @@ public interface RouteEntryDependenciesContainer {
             I extends Identifier<R>> RIBSupport<C, S, R, I> getRIBSupport();
 
     /**
-     * Returns the table key(AFI/SAFI) corresponding to the Route Entry.
-     *
-     * @return TablesKey
-     */
-    @Nonnull
-    TablesKey getLocalTablesKey();
-
-    /**
      * Returns the AfiSafiType(AFI/SAFI) corresponding to the Route Entry.
      *
      * @return TablesKey
@@ -56,10 +47,10 @@ public interface RouteEntryDependenciesContainer {
     /**
      * Returns the loc-rib table to be updated and to which  corresponds this Route Entry.
      *
-     * @return InstanceIdentifier containing the path to loc-rib table.
+     * @return YangInstanceIdentifier containing the path to loc-rib table.
      */
     @Nonnull
-    KeyedInstanceIdentifier<Tables, TablesKey> getLocRibTableTarget();
+    YangInstanceIdentifier getLocRibTableTarget();
 
     /**
      * Return routing policies defined per RIB.
