@@ -151,7 +151,7 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv
     public void testRoutePath() {
         final YangInstanceIdentifier.NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MVPN_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);
-        final YangInstanceIdentifier actual = this.ribSupport.routePath(getTablePath(), prefixNii);
+        final YangInstanceIdentifier actual = this.ribSupport.createRouteIdentifier(getTablePath(), prefixNii);
         assertEquals(expected, actual);
     }
 

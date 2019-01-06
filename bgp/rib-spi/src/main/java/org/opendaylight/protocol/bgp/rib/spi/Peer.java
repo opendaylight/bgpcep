@@ -59,7 +59,7 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void refreshRibOut(@NonNull RouteEntryDependenciesContainer entryDep,
-                    @NonNull List<StaleBestPathRoute<C, S, R, I>> staleRoutes,
+                    @NonNull List<StaleBestPathRoute> staleRoutes,
                     @NonNull List<AdvertizedRoute<C, S, R, I>> newRoutes);
 
     /**

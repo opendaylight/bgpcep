@@ -149,7 +149,7 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
                 = createRouteNIWP(new FlowspecL3vpnIpv4RoutesBuilder()
                 .setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build());
         assertEquals(getRoutePath().node(prefixNii),
-                this.ribSupport.routePath(getTablePath(), prefixNii));
+                this.ribSupport.createRouteIdentifier(getTablePath(), prefixNii));
     }
 
     @Test

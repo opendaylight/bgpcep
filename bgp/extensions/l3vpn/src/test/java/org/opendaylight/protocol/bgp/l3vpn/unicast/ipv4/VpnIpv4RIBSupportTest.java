@@ -130,7 +130,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesC
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
         assertEquals(getRoutePath().node(prefixNii), ribSupport
-                .routePath(getTablePath(), prefixNii));
+                .createRouteIdentifier(getTablePath(), prefixNii));
     }
 
     @Test

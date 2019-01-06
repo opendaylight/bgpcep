@@ -63,6 +63,6 @@ final class TableContext {
     }
 
     YangInstanceIdentifier routePath(final PathArgument routeId) {
-        return tableSupport.getRibSupport().routePath(this.tableId, routeId);
+        return tableSupport.getRibSupport().createRouteIdentifier(this.tableId, routeId);
     }
 }

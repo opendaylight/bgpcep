@@ -35,6 +35,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,33 +52,35 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         implements RouteEntry<C, S, R, I> {
     private static final class Stale<C extends Routes & DataObject & ChoiceIn<Tables>,
             S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> extends StaleBestPathRoute<C, S, R, I> {
-        private final List<I> addPathRouteKeyIdentifier;
-        private final List<I> staleRouteKeyIdentifier;
+            I extends Identifier<R>> extends StaleBestPathRoute {
+        private final List<NodeIdentifierWithPredicates> addPathRouteKeyIdentifier;
+        private final List<NodeIdentifierWithPredicates> staleRouteKeyIdentifier;
         private final boolean isNonAddPathBestPathNew;
 
         Stale(final RIBSupport<C, S, R, I> ribSupport, final String routeKey, final List<PathId> staleRoutesPathIds,
             final List<PathId> withdrawalRoutePathIds, final boolean isNonAddPathBestPathNew) {
-            super(ribSupport.createRouteListKey(routeKey));
+            super(ribSupport.createRouteListNodeIdentifier(routeKey));
             this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
 
             this.staleRouteKeyIdentifier = staleRoutesPathIds.stream()
-                    .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
+                .map(pathId -> ribSupport.createRouteListNodeIdentifier(pathId, routeKey))
+                .collect(Collectors.toList());
             if (withdrawalRoutePathIds != null) {
                 this.addPathRouteKeyIdentifier = withdrawalRoutePathIds.stream()
-                        .map(pathId -> ribSupport.createRouteListKey(pathId, routeKey)).collect(Collectors.toList());
+                    .map(pathId -> ribSupport.createRouteListNodeIdentifier(pathId, routeKey))
+                    .collect(Collectors.toList());
             } else {
                 this.addPathRouteKeyIdentifier = Collections.emptyList();
             }
         }
 
         @Override
-        public List<I> getStaleRouteKeyIdentifiers() {
+        public List<NodeIdentifierWithPredicates> getStaleRouteKeyIdentifiers() {
             return this.staleRouteKeyIdentifier;
         }
 
         @Override
-        public List<I> getAddPathRouteKeyIdentifiers() {
+        public List<NodeIdentifierWithPredicates> getAddPathRouteKeyIdentifiers() {
             return addPathRouteKeyIdentifier;
         }
 
@@ -144,7 +147,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     @Override
-    public final Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(final RIBSupport<C, S, R, I> ribSupport,
+    public final Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport<C, S, R, I> ribSupport,
             final String routeKey) {
         final List<PathId> stalePaths;
         if (bestPathRemoved != null && !bestPathRemoved.isEmpty()) {
