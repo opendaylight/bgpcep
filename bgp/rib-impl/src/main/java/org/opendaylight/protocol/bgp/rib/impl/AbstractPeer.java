@@ -66,6 +66,7 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -290,7 +291,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
-            final List<StaleBestPathRoute<C, S, R, I>> staleRoutes, final List<AdvertizedRoute<C, S, R, I>> newRoutes) {
+            final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute<C, S, R, I>> newRoutes) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -419,7 +420,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void deleteRouteRibOut(
             final RIBSupport<C, S, R, I> ribSupport,
-            final List<StaleBestPathRoute<C, S, R, I>> staleRoutesIid,
+            final List<StaleBestPathRoute> staleRoutesIid,
             final WriteTransaction tx) {
         final TablesKey tk = ribSupport.getTablesKey();
         final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
@@ -450,13 +451,13 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void removeRoute(final RIBSupport<C, S, R, I> ribSupport,
-            final boolean addPathSupported, final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout,
-            final StaleBestPathRoute<C, S, R, I> staleRouteIid, final WriteTransaction tx) {
+            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void removeRoute(
+                    final RIBSupport<C, S, R, I> ribSupport, final boolean addPathSupported,
+                    final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout,
+                    final StaleBestPathRoute staleRouteIid, final WriteTransaction tx) {
         if (addPathSupported) {
-            List<I> staleRoutesIId = staleRouteIid.getAddPathRouteKeyIdentifiers();
-            for (final I id : staleRoutesIId) {
+            List<NodeIdentifierWithPredicates> staleRoutesIId = staleRouteIid.getAddPathRouteKeyIdentifiers();
+            for (final NodeIdentifierWithPredicates id : staleRoutesIId) {
                 final InstanceIdentifier<R> ribOutTarget = ribSupport.createRouteIdentifier(tableRibout, id);
                 LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
                 tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);

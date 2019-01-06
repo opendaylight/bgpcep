@@ -28,6 +28,7 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
@@ -115,8 +116,10 @@ public abstract class AbstractRIBSupport<
     private final Class<S> containerClass;
     private final Class<R> listClass;
     private final ApplyRoute putRoute = new PutRoute();
+    private final ChoiceNode emptyRoutes;
     private final MapEntryNode emptyTable;
     private final QName routeQname;
+    private final QName routeKeyQName;
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
@@ -162,10 +165,16 @@ public abstract class AbstractRIBSupport<
         this.routeQname = BindingReflections.findQName(listClass).withModule(module);
         this.routesListIdentifier = NodeIdentifier.create(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
+        this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES_NID)
+            .addChild(Builders.containerBuilder()
+                .withNodeIdentifier(routesContainerIdentifier())
+                .withChild(ImmutableNodes.mapNodeBuilder(this.routeQname)
+                    .build()).build()).build();
+
         this.emptyTable = (MapEntryNode) this.mappingService
-                .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
-                        .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                                .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
+            .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
+                .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+                    .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = NodeIdentifier.create(destContainerQname);
@@ -185,8 +194,9 @@ public abstract class AbstractRIBSupport<
                         .node(this.routesListIdentifier)
                         .node(this.routesListIdentifier).build();
         this.relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
+        this.routeKeyQName = QName.create(routeQName(), ROUTE_KEY).intern();
         this.routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
-            ImmutableList.of(this.pathIdNid.getNodeType(), QName.create(routeQName(), ROUTE_KEY).intern()));
+            ImmutableList.of(this.pathIdNid.getNodeType(), routeKeyQName));
     }
 
     @Override
@@ -207,6 +217,11 @@ public abstract class AbstractRIBSupport<
     @Override
     public final Class<R> routesListClass() {
         return this.listClass;
+    }
+
+    @Override
+    public final ChoiceNode emptyRoutes() {
+        return this.emptyRoutes;
     }
 
     @Override
@@ -511,6 +526,23 @@ public abstract class AbstractRIBSupport<
 
     protected final String extractPrefix(final DataContainerNode<? extends PathArgument> route) {
         return (String) route.getChild(prefixTypeNid).get().getValue();
+    }
+
+    @Override
+    public final NodeIdentifierWithPredicates createRouteListNodeIdentifier(final PathId pathId,
+            final String routeKey) {
+        return NodeIdentifierWithPredicates.of(routeQname,
+            routeKeyTemplate.instantiateWithValues(pathId.getValue(), routeKey));
+    }
+
+    @Override
+    public final String extractRouteKey(final NodeIdentifierWithPredicates routeKey) {
+        return routeKey.getKeyValues().get(routeKeyQName).toString();
+    }
+
+    @Override
+    public final Long extractPathId(NodeIdentifierWithPredicates routeKey) {
+        return (Long) routeKey.getKeyValues().get(this.pathIdNid.getNodeType());
     }
 
     protected final RouteDistinguisher extractRouteDistinguisher(

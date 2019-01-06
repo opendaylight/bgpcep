@@ -37,6 +37,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -53,6 +54,15 @@ public interface RIBSupport<
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> {
+    /**
+     * Return the table-type-specific empty routes container, as augmented into the
+     * bgp-rib model under /rib/tables/routes choice node. This needs to include all
+     * the skeleton nodes under which the individual routes will be stored.
+     *
+     * @return Protocol-specific case in the routes choice, may not be null.
+     */
+    @NonNull ChoiceNode emptyRoutes();
+
     /**
      * Return the table-type-specific empty table with routes empty container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -175,8 +185,8 @@ public interface RIBSupport<
      * @param routeId    PathArgument leaf path
      * @return YangInstanceIdentifier with routesPath + specific RIB support routes path + routeId
      */
-    default @NonNull YangInstanceIdentifier routePath(final @NonNull YangInstanceIdentifier routesPath,
-                                             final @NonNull PathArgument routeId) {
+    default @NonNull YangInstanceIdentifier createRouteIdentifier(final @NonNull YangInstanceIdentifier routesPath,
+            final @NonNull PathArgument routeId) {
         return routesPath(routesPath).node(routeId);
     }
 
@@ -264,6 +274,10 @@ public interface RIBSupport<
      */
     ContainerNode attributeToContainerNode(YangInstanceIdentifier routePath, Attributes attributes);
 
+    String extractRouteKey(NodeIdentifierWithPredicates routeKey);
+
+    Long extractPathId(NodeIdentifierWithPredicates routeKey);
+
     interface ApplyRoute {
         void apply(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier base,
                 @NonNull NodeIdentifierWithPredicates routeKey, @NonNull DataContainerNode<?> route,
@@ -296,6 +310,26 @@ public interface RIBSupport<
      */
     default @NonNull I createRouteListKey(final @NonNull String routeKey) {
         return createRouteListKey(NON_PATH_ID, routeKey);
+    }
+
+    /**
+     * Construct a Route List Key using new path Id for Families.
+     *
+     * @param pathId   The path identifier
+     * @param routeKey RouteKey
+     * @return route list Key (RouteKey + pathId)
+     */
+    @NonNull NodeIdentifierWithPredicates createRouteListNodeIdentifier(@NonNull PathId pathId,
+            @NonNull String routeKey);
+
+    /**
+     * Construct a Route List Key.
+     *
+     * @param routeKey RouteKey
+     * @return route list Key (RouteKey + empty pathId)
+     */
+    default @NonNull NodeIdentifierWithPredicates createRouteListNodeIdentifier(final @NonNull String routeKey) {
+        return createRouteListNodeIdentifier(NON_PATH_ID, routeKey);
     }
 
     /**

@@ -77,7 +77,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param routeKey   of stale route
      * @return list containing list of stale best path
      */
-    @NonNull Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(@NonNull RIBSupport<C, S, R, I> ribSupport,
+    @NonNull Optional<StaleBestPathRoute> removeStalePaths(@NonNull RIBSupport<C, S, R, I> ribSupport,
             @NonNull String routeKey);
 
     /**

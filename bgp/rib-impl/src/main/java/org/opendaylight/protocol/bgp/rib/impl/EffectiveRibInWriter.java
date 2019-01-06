@@ -444,7 +444,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void processRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route, final boolean longLivedStale) {
         LOG.debug("Process route {}", route.getIdentifier());
-        final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.getIdentifier());
+        final YangInstanceIdentifier routePath = ribSupport.createRouteIdentifier(routesPath, route.getIdentifier());
         switch (route.getModificationType()) {
             case DELETE:
             case DISAPPEARED:

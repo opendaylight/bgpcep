@@ -26,26 +26,25 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> implements RouteEntry<C, S, R, I> {
-    private static final class Stale<C extends Routes & DataObject & ChoiceIn<Tables>,
-            S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> extends StaleBestPathRoute<C, S, R, I> {
-        Stale(final I nonAddPathRouteKeyIdentifier) {
+    private static final class Stale extends StaleBestPathRoute {
+        Stale(final NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier) {
             super(nonAddPathRouteKeyIdentifier);
         }
 
         @Override
-        public List<I> getStaleRouteKeyIdentifiers() {
+        public List<NodeIdentifierWithPredicates> getStaleRouteKeyIdentifiers() {
             return Collections.singletonList(getNonAddPathRouteKeyIdentifier());
         }
 
         @Override
-        public List<I> getAddPathRouteKeyIdentifiers() {
+        public List<NodeIdentifierWithPredicates> getAddPathRouteKeyIdentifiers() {
             return Collections.emptyList();
         }
 
@@ -125,13 +124,13 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(final RIBSupport<C, S, R, I> ribSupport,
+    public Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport<C, S, R, I> ribSupport,
             final String routeKey) {
         if (removedBestPath == null) {
             return Optional.empty();
         }
         removedBestPath = null;
-        return Optional.of(new Stale<C, S, R, I>(ribSupport.createRouteListKey(routeKey)));
+        return Optional.of(new Stale(ribSupport.createRouteListNodeIdentifier(routeKey)));
     }
 
     @Override
