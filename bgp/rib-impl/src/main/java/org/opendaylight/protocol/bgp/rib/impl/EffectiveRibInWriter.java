@@ -257,16 +257,18 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final YangInstanceIdentifier routesPath = effectiveTablePath.node(childIdentifier);
             switch (child.getModificationType()) {
                 case DELETE:
-                case DISAPPEARED:
-                    processDeleteRouteTables(child, childIdentifier, ribSupport, routesPath);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, routesPath);
                     LOG.debug("Route deleted. routeId={}", routesPath);
+                    processTableChildenDelete(child, childIdentifier, tx, ribSupport, routesPath);
+                    break;
+                case DISAPPEARED:
+                    LOG.debug("Route disappeared. routeId={}", routesPath);
+                    processTableChildenDelete(child, childIdentifier, tx, ribSupport, routesPath);
                     break;
                 case UNMODIFIED:
                     // No-op
                     break;
                 case SUBTREE_MODIFIED:
-                    processModifiedRouteTables(child, childIdentifier,tx, ribSupport, routesPath, childDataAfter);
+                    processModifiedRouteTables(child, childIdentifier, tx, ribSupport, routesPath, childDataAfter);
                     break;
                 case APPEARED:
                 case WRITE:
@@ -277,6 +279,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     break;
             }
         }
+    }
+
+    private void processTableChildenDelete(
+        final DataTreeCandidateNode child,
+        final PathArgument childIdentifier,
+        final DOMDataWriteTransaction tx,
+        final RIBSupport ribSupport,
+        final YangInstanceIdentifier routesPath) {
+        processDeleteRouteTables(child, childIdentifier, ribSupport, routesPath);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, routesPath);
     }
 
     private void processDeleteRouteTables(
