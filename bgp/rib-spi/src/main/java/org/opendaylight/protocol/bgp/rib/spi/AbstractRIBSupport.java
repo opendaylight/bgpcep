@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
@@ -524,7 +525,9 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public R fromNormalizedNode(final YangInstanceIdentifier routePath, final NormalizedNode<?, ?> normalizedNode) {
-        return (R) this.mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
+        final DataObject node = this.mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
+        verify(node instanceof Route, "node %s is not a Route", node);
+        return (R) node;
     }
 
     @Override
