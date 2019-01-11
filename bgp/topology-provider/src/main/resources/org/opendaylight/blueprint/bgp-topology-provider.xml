@@ -15,7 +15,6 @@
   <bean id="bgpTopologyDeployer" class="org.opendaylight.bgpcep.bgp.topology.provider.config.BgpTopologyDeployerImpl"
         init-method="init"
         destroy-method="close">
-    <argument ref="blueprintBundleContext"/>
     <argument ref="dataBroker"/>
     <argument ref="clusterSingletonServiceProvider"/>
   </bean>
