@@ -125,7 +125,6 @@ public class BgpPeerTest extends AbstractConfig {
     public void setUp() throws Exception {
         super.setUp();
         this.bgpPeer = new BgpPeer(Mockito.mock(RpcProviderRegistry.class));
-        Mockito.doNothing().when(this.serviceRegistration).unregister();
     }
 
     @Test
@@ -150,7 +149,6 @@ public class BgpPeerTest extends AbstractConfig {
         } catch (final IllegalStateException expected) {
             assertEquals("Previous peer instance was not closed.", expected.getMessage());
         }
-        this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.closeServiceInstance();
         this.bgpPeer.close();
         verify(this.future).cancel(true);
@@ -169,7 +167,6 @@ public class BgpPeerTest extends AbstractConfig {
 
         this.bgpPeer.closeServiceInstance();
         this.bgpPeer.close();
-        verify(this.serviceRegistration).unregister();
         verify(this.future, times(2)).cancel(true);
 
         final Neighbor neighborDiffConfig = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
