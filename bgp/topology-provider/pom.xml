@@ -125,11 +125,6 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
