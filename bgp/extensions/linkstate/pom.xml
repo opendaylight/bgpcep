@@ -49,11 +49,6 @@
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>yang-ext</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!-- test scope dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
