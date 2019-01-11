@@ -396,8 +396,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
 
                 final YangInstanceIdentifier attPath = routePath.node(ribSupport.routeAttributesIdentifier());
-                final ContainerNode finalAttribute = ribSupport.attributeToContainerNode(attPath, optEffAtt.get());
-                tx.put(LogicalDatastoreType.OPERATIONAL, attPath, finalAttribute);
+                final Attributes attToStore = optEffAtt.get();
+                if(!attToStore.equals(routeAttrs)) {
+                    final ContainerNode finalAttribute = ribSupport.attributeToContainerNode(attPath, attToStore);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, attPath, finalAttribute);
+                }
                 break;
             default:
                 LOG.warn("Ignoring unhandled route {}", route);
