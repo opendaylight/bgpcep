@@ -58,7 +58,6 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +72,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     private final DOMSchemaService domSchemaService;
     private final BGPRibRoutingPolicyFactory policyProvider;
     private RIBImpl ribImpl;
-    private ServiceRegistration<?> serviceRegistration;
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
     private List<AfiSafi> afiSafi;
     private AsNumber asNumber;
@@ -205,18 +203,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
             this.schemaContextRegistration.close();
             this.schemaContextRegistration = null;
         }
-        if (this.serviceRegistration != null) {
-            try {
-                this.serviceRegistration.unregister();
-            } catch (final IllegalStateException e) {
-                LOG.warn("Failed to unregister {} service instance", this, e);
-            }
-            this.serviceRegistration = null;
-        }
-    }
-
-    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
-        this.serviceRegistration = serviceRegistration;
     }
 
     @Override
