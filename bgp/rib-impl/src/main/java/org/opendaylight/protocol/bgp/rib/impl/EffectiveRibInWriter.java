@@ -258,11 +258,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             switch (child.getModificationType()) {
                 case DELETE:
                     LOG.debug("Route deleted. routeId={}", routesPath);
-                    processTableChildenDelete(child, childIdentifier, tx, ribSupport, routesPath);
+                    processTableChildrenDelete(child, childIdentifier, tx, ribSupport, routesPath);
                     break;
                 case DISAPPEARED:
                     LOG.debug("Route disappeared. routeId={}", routesPath);
-                    processTableChildenDelete(child, childIdentifier, tx, ribSupport, routesPath);
+                    processTableChildrenDelete(child, childIdentifier, tx, ribSupport, routesPath);
                     break;
                 case UNMODIFIED:
                     // No-op
@@ -281,30 +281,27 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void processTableChildenDelete(
+    private void processTableChildrenDelete(
         final DataTreeCandidateNode child,
         final PathArgument childIdentifier,
         final DOMDataWriteTransaction tx,
         final RIBSupport ribSupport,
         final YangInstanceIdentifier routesPath) {
-        processDeleteRouteTables(child, childIdentifier, ribSupport, routesPath);
-        tx.delete(LogicalDatastoreType.OPERATIONAL, routesPath);
-    }
-
-    private void processDeleteRouteTables(
-        final DataTreeCandidateNode child,
-        final PathArgument childIdentifier,
-        final RIBSupport ribSupport,
-        final YangInstanceIdentifier routesPath) {
         if (TABLE_ROUTES.equals(childIdentifier)) {
             final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
-            for (final DataTreeCandidateNode route : changedRoutes) {
-                handleRouteTarget(ModificationType.DELETE, ribSupport, routesPath.getParent(),
-                    route.getDataBefore().orElse(null));
-                final TablesKey tablesKey = ribSupport.getTablesKey();
-                CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
+            if (!changedRoutes.isEmpty()) {
+                for (final DataTreeCandidateNode route : changedRoutes) {
+                    final NormalizedNode<?, ?> routeBefore = route.getDataBefore().orElse(null);
+                    if (routeBefore != null) {
+                        final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.getIdentifier());
+                        handleRouteTarget(ModificationType.DELETE, ribSupport, routePath, routeBefore);
+                        final TablesKey tablesKey = ribSupport.getTablesKey();
+                        CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
+                    }
+                }
             }
         }
+        tx.delete(LogicalDatastoreType.OPERATIONAL, routesPath);
     }
 
     private void processModifiedRouteTables(
@@ -316,8 +313,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         final Optional<NormalizedNode<?, ?>> childDataAfter) {
         if (TABLE_ROUTES.equals(childIdentifier)) {
             final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
-            for (final DataTreeCandidateNode route : changedRoutes) {
-                processRoute(tx, ribSupport, routesPath.getParent(), route);
+            if (!changedRoutes.isEmpty()) {
+                for (final DataTreeCandidateNode route : changedRoutes) {
+                    processRoute(tx, ribSupport, routesPath.getParent(), route);
+                }
             }
         } else {
             tx.put(LogicalDatastoreType.OPERATIONAL, routesPath, childDataAfter.get());
