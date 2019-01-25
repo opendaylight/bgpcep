@@ -67,6 +67,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
@@ -242,7 +244,26 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void deleteTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
-        processTableChildren(tx, ribContext.getRibSupport(), effectiveTablePath, table.getChildNodes());
+        // Routes are special in that we need to process the to keep our counters accurate
+        final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
+        final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
+                NormalizedNodes.findNode(table.getDataBefore(), ROUTES), ribSupport.relativeRoutesPath());
+        if (maybeRoutesBefore.isPresent()) {
+            final NormalizedNode<?, ?> routesBefore = maybeRoutesBefore.get();
+            verify(routesBefore instanceof MapNode, "Expected a MapNode, have %s", routesBefore);
+            final Collection<MapEntryNode> deletedRoutes = ((MapNode) routesBefore).getValue();
+            if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
+                final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
+                    ribSupport.relativeRoutesPath());
+                for (MapEntryNode routeBefore : deletedRoutes) {
+                    deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
+                }
+            }
+
+            final TablesKey tablesKey = ribSupport.getTablesKey();
+            CountersUtil.add(prefixesInstalled.get(tablesKey), tablesKey, -deletedRoutes.size());
+        }
+
         LOG.debug("Delete Effective Table {}", effectiveTablePath);
         tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
     }
@@ -405,24 +426,35 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
     }
 
+    private void deleteRouteTarget(final RIBSupport<?, ?, ?, ?> ribSupport, final YangInstanceIdentifier routeIdPath,
+            final NormalizedNode<?, ?> route) {
+        deleteRouteTarget((RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route));
+    }
+
+    private void deleteRouteTarget(final RouteTargetConstrainRoute rtc) {
+        final RouteTarget rtMembership = RouteTargetMembeshipUtil.getRT(rtc);
+        if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
+            this.rtCache.uncacheRoute(rtc);
+        }
+        this.rtMemberships.remove(rtMembership);
+        this.rtMembershipsUpdated = true;
+    }
+
     private void handleRouteTarget(final ModificationType modificationType, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routeIdPath, final NormalizedNode<?, ?> route) {
         if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
             final RouteTargetConstrainRoute rtc =
                 (RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route);
-            final RouteTarget rtMembership = RouteTargetMembeshipUtil.getRT(rtc);
             if (ModificationType.DELETE == modificationType) {
-                if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
-                    this.rtCache.uncacheRoute(rtc);
-                }
-                this.rtMemberships.remove(rtMembership);
+                deleteRouteTarget(rtc);
             } else {
+                final RouteTarget rtMembership = RouteTargetMembeshipUtil.getRT(rtc);
                 if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
                     this.rtCache.cacheRoute(rtc);
                 }
                 this.rtMemberships.add(rtMembership);
+                this.rtMembershipsUpdated = true;
             }
-            this.rtMembershipsUpdated = true;
         }
     }
 
@@ -445,6 +477,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329
                 .path.attributes.AttributesBuilder(attrs).setCommunities(newCommunities).build();
+    }
+
+    private static YangInstanceIdentifier concat(final YangInstanceIdentifier parent, final List<PathArgument> args) {
+        YangInstanceIdentifier ret = parent;
+        for (PathArgument arg : args) {
+            ret = ret.node(arg);
+        }
+        return ret;
     }
 
     private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
