@@ -199,6 +199,14 @@ public interface RIBSupport<
     YangInstanceIdentifier routesPath(@Nonnull YangInstanceIdentifier routesPath);
 
     /**
+     * Return the relative path from the generic routes container to the AFI/SAFI specific route list.
+     *
+     * @return Relative path.
+     */
+    @Nonnull
+    List<PathArgument> relativeRoutesPath();
+
+    /**
      * To send routes out, we'd need to transform the DOM representation of route to
      * binding-aware format. This needs to be done per each AFI/SAFI.
      *
