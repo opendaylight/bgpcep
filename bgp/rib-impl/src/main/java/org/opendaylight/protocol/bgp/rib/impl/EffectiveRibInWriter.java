@@ -242,7 +242,26 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void deleteTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
-        processTableChildren(tx, ribContext.getRibSupport(), effectiveTablePath, table.getChildNodes());
+        for (DataTreeCandidateNode tableChild : table.getChildNodes()) {
+            final PathArgument tableChildId = tableChild.getIdentifier();
+            LOG.trace("Effective Table {} delete child {}", effectiveTablePath, tableChildId);
+            if (ROUTES.equals(tableChildId)) {
+                // Routes are special in that we need to process the to keep our counters accurate
+                final YangInstanceIdentifier routesPath = effectiveTablePath.node(ROUTES);
+                final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
+                final TablesKey tablesKey = ribSupport.getTablesKey();
+                final LongAdder counter = prefixesInstalled.get(tablesKey);
+                for (DataTreeCandidateNode route : ribSupport.changedRoutes(tableChild)) {
+                    final Optional<NormalizedNode<?, ?>> maybeRouteBefore = route.getDataBefore();
+                    if (maybeRouteBefore.isPresent()) {
+                        handleRouteTarget(ModificationType.DELETE, ribSupport,
+                            ribSupport.routePath(routesPath, route.getIdentifier()), maybeRouteBefore.get());
+                        CountersUtil.decrement(counter, tablesKey);
+                    }
+                }
+            }
+        }
+
         LOG.debug("Delete Effective Table {}", effectiveTablePath);
         tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
     }
