@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.concurrent.atomic.LongAdder;
@@ -32,12 +31,8 @@ public final class CountersUtil {
      * @param counter   counter
      * @param tablesKey tablesKey Type
      */
-    static void increment(@Nullable final LongAdder counter, @Nonnull TablesKey tablesKey) {
-        if (counter != null) {
-            counter.increment();
-            return;
-        }
-        LOG.warn("Family {} not supported", tablesKey);
+    static void increment(@Nullable final LongAdder counter, @Nonnull final TablesKey tablesKey) {
+        add(counter, tablesKey, 1);
     }
 
     /**
@@ -46,11 +41,21 @@ public final class CountersUtil {
      * @param counter   counter
      * @param tablesKey tablesKey Type
      */
-    static void decrement(@Nullable final LongAdder counter, @Nonnull TablesKey tablesKey) {
+    static void decrement(@Nullable final LongAdder counter, @Nonnull final TablesKey tablesKey) {
+        add(counter, tablesKey, -1);
+    }
+
+    /**
+     * Add specified valut to the counter if supported, otherwise produce a warn.
+     *
+     * @param counter   counter
+     * @param tablesKey tablesKey Type
+     */
+    static void add(@Nullable final LongAdder counter, @Nonnull final TablesKey tablesKey, final long amount) {
         if (counter != null) {
-            counter.decrement();
-            return;
+            counter.add(amount);
+        } else {
+            LOG.warn("Family {} not supported", tablesKey);
         }
-        LOG.warn("Family {} not supported", tablesKey);
     }
 }
