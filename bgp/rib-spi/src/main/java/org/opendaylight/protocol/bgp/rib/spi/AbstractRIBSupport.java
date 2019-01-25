@@ -19,8 +19,10 @@ import com.google.common.annotations.Beta;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -127,6 +129,7 @@ public abstract class AbstractRIBSupport<
     protected final BindingNormalizedNodeSerializer mappingService;
     protected final YangInstanceIdentifier routeDefaultYii;
     private final TablesKey tk;
+    private final ImmutableList<PathArgument> relativeRoutesPath;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -151,15 +154,15 @@ public abstract class AbstractRIBSupport<
             final Class<? extends SubsequentAddressFamily> safiClass,
             final QName destContainerQname) {
         final QNameModule module = BindingReflections.getQNameModule(cazeClass);
-        this.routesContainerIdentifier
-                = new NodeIdentifier(BindingReflections.findQName(containerClass).withModule(module));
-        this.routeAttributesIdentifier = new NodeIdentifier(Attributes.QNAME.withModule(module));
+        this.routesContainerIdentifier = NodeIdentifier.create(
+            BindingReflections.findQName(containerClass).withModule(module));
+        this.routeAttributesIdentifier = NodeIdentifier.create(Attributes.QNAME.withModule(module));
         this.cazeClass = requireNonNull(cazeClass);
         this.mappingService = requireNonNull(mappingService);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
         this.routeQname = BindingReflections.findQName(listClass).withModule(module);
-        this.routesListIdentifier = new NodeIdentifier(this.routeQname);
+        this.routesListIdentifier = NodeIdentifier.create(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
         this.emptyTable = (MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
@@ -167,9 +170,9 @@ public abstract class AbstractRIBSupport<
                                 .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
         this.afiClass = afiClass;
         this.safiClass = safiClass;
-        this.destinationNid = new NodeIdentifier(destContainerQname);
+        this.destinationNid = NodeIdentifier.create(destContainerQname);
         this.pathIdQname = QName.create(routeQName(), "path-id").intern();
-        this.pathIdNid = new NodeIdentifier(this.pathIdQname);
+        this.pathIdNid = NodeIdentifier.create(this.pathIdQname);
         this.routeKeyQname = QName.create(routeQName(), ROUTE_KEY).intern();
         this.prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
         this.rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
@@ -182,9 +185,10 @@ public abstract class AbstractRIBSupport<
                         .node(TABLES)
                         .node(TABLES)
                         .node(ROUTES)
-                        .node(BindingReflections.findQName(containerClass).withModule(module))
-                        .node(this.routeQname)
-                        .node(this.routeQname).build();
+                        .node(this.routesContainerIdentifier)
+                        .node(this.routesListIdentifier)
+                        .node(this.routesListIdentifier).build();
+        this.relativeRoutesPath = ImmutableList.of(destinationNid, routesListIdentifier);
     }
 
     @Override
@@ -275,7 +279,7 @@ public abstract class AbstractRIBSupport<
      *
      * @return Container identifier, may not be null.
      */
-    protected final NodeIdentifier routesContainerIdentifier() {
+    public final NodeIdentifier routesContainerIdentifier() {
         return this.routesContainerIdentifier;
     }
 
@@ -387,6 +391,11 @@ public abstract class AbstractRIBSupport<
     @Override
     public final YangInstanceIdentifier routesPath(final YangInstanceIdentifier routesTablePaths) {
         return routesYangInstanceIdentifier(routesTablePaths.node(ROUTES));
+    }
+
+    @Override
+    public final List<PathArgument> relativeRoutesPath() {
+        return relativeRoutesPath;
     }
 
     @Override
