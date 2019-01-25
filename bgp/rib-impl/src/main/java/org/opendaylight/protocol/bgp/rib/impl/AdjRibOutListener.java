@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -39,8 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibOut;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -89,7 +89,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         this.mpSupport = mpSupport;
         this.tablesKey = requireNonNull(tablesKey);
         final YangInstanceIdentifier adjRibOutId = ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId))
-                .node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+                .node(ADJRIBOUT).node(TABLES).node(RibSupportUtils.toYangTablesKey(tablesKey));
         /*
          *  After listener registration should always be executed ODTC. Even when empty table is present
          *  in data store. Within this first ODTC execution we should advertise present routes and than

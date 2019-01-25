@@ -5,8 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -28,16 +28,17 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.ApplicationRibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
+    private static final NodeIdentifier APPRIB = NodeIdentifier.create(ApplicationRib.QNAME);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
     @GuardedBy("this")
     private Neighbor currentConfiguration;
@@ -129,9 +130,9 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
 
         public synchronized void instantiateServiceInstance() {
             this.isServiceInstantiated = true;
-            final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME)
+            final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(APPRIB)
                     .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue())
-                    .node(Tables.QNAME).node(Tables.QNAME).build();
+                    .node(TABLES).node(TABLES).build();
             this.applicationPeer.instantiateServiceInstance(this.dataTreeChangeService,
                     new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
         }

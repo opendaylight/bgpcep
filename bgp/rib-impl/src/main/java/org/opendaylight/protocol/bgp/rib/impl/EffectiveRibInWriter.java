@@ -9,6 +9,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -51,11 +55,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibIn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.EffectiveRibIn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
@@ -64,7 +64,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteTarget;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -94,7 +93,6 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         AutoCloseable, ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
-    static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final TablesKey IVP4_VPN_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
             MplsLabeledVpnSubsequentAddressFamily.class);
     private static final TablesKey IVP6_VPN_TABLE_KEY = new TablesKey(Ipv6AddressFamily.class,
@@ -136,7 +134,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.registry = requireNonNull(rib.getRibSupportContext());
         this.chain = requireNonNull(chain);
         this.peerIId = requireNonNull(peerIId);
-        this.effRibTables = this.peerIId.node(EffectiveRibIn.QNAME);
+        this.effRibTables = this.peerIId.node(EFFRIBIN);
         this.prefixesInstalled = buildPrefixesTables(tables);
         this.prefixesReceived = buildPrefixesTables(tables);
         this.ribPolicies = requireNonNull(rib.getRibPolicies());
@@ -150,7 +148,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     public void init() {
         final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
-            this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME));
+            this.peerIId.node(ADJRIBIN).node(TABLES));
         LOG.debug("Registered Effective RIB on {}", this.peerIId);
         this.reg = requireNonNull(this.service).registerDataTreeChangeListener(treeId, this);
     }
@@ -281,7 +279,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void processTableChildrenDelete(final DataTreeCandidateNode child, final PathArgument childIdentifier,
             final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routesPath) {
-        if (TABLE_ROUTES.equals(childIdentifier)) {
+        if (ROUTES.equals(childIdentifier)) {
             final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
             if (!changedRoutes.isEmpty()) {
                 for (final DataTreeCandidateNode route : changedRoutes) {
@@ -301,7 +299,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void processModifiedRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier,
             final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routesPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
-        if (TABLE_ROUTES.equals(childIdentifier)) {
+        if (ROUTES.equals(childIdentifier)) {
             final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
             if (!changedRoutes.isEmpty()) {
                 for (final DataTreeCandidateNode route : changedRoutes) {
@@ -316,7 +314,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier,
             final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier routesPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
-        if (TABLE_ROUTES.equals(childIdentifier)) {
+        if (ROUTES.equals(childIdentifier)) {
             final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
             if (!changedRoutes.isEmpty()) {
                 tx.put(LogicalDatastoreType.OPERATIONAL, routesPath, childDataAfter.get());
@@ -441,7 +439,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
-        return this.effRibTables.node(Tables.QNAME).node(tableKey);
+        return this.effRibTables.node(TABLES).node(tableKey);
     }
 
     @Override

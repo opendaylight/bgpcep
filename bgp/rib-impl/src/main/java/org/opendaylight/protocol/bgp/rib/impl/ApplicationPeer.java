@@ -8,6 +8,9 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
 
 import com.google.common.base.Verify;
 import com.google.common.cache.CacheBuilder;
@@ -48,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -130,7 +132,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         this.adjRibsInId = targetRib.getYangRibId().node(Peer.QNAME)
                 .node(IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress)))
-                .node(AdjRibIn.QNAME).node(Tables.QNAME);
+                .node(ADJRIBIN).node(TABLES);
         this.peerId = RouterIds.createPeerId(ipAddress);
         this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                 .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
@@ -202,7 +204,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                         // No-op
                         break;
                     case SUBTREE_MODIFIED:
-                        if (EffectiveRibInWriter.TABLE_ROUTES.equals(childIdentifier)) {
+                        if (ROUTES.equals(childIdentifier)) {
                             processRoutesTable(child, tableId, tx, tableId);
                             break;
                         }

@@ -8,6 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
@@ -57,7 +61,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -72,7 +75,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -144,8 +146,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.ribPolicies = requireNonNull(ribPolicies);
         this.codecsRegistry = codecsRegistry;
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
-        final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME)
-                .node(Rib.QNAME);
+        final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BGPRIB).node(RIB);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
         this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
         this.ribId = ribId;
@@ -165,7 +166,7 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         if (ribSupport != null) {
             final MapEntryNode emptyTable = ribSupport.emptyTable();
             final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
-                    .builder(this.yangRibId.node(LocRib.QNAME).node(Tables.QNAME)).node(emptyTable.getIdentifier());
+                    .builder(this.yangRibId.node(LOCRIB).node(TABLES)).node(emptyTable.getIdentifier());
 
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), emptyTable);
             try {
@@ -341,22 +342,21 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
         this.domChain = this.domDataBroker.createTransactionChain(this);
         LOG.debug("Instantiating RIB table {} at {}", this.ribId, this.yangRibId);
 
-        final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
-                .addChild(ImmutableNodes.mapNodeBuilder(Rib.QNAME).build()).build();
+        final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(BGPRIB)
+                .addChild(ImmutableNodes.mapNodeBuilder(RIB).build()).build();
 
         final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
                 new NodeIdentifierWithPredicates(Rib.QNAME, RIB_ID_QNAME, this.ribId.getValue()))
                 .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, this.ribId.getValue()))
                 .addChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build())
-                .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(LocRib.QNAME))
-                        .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
+                .addChild(Builders.containerBuilder().withNodeIdentifier(LOCRIB)
+                        .addChild(ImmutableNodes.mapNodeBuilder(TABLES).build())
                         .build()).build();
 
         final DOMDataWriteTransaction trans = this.domChain.newWriteOnlyTransaction();
 
         // merge empty BgpRib + Rib, to make sure the top-level parent structure is present
-        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.builder().node(BgpRib.QNAME).build(),
-            bgpRib);
+        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.create(BGPRIB), bgpRib);
         trans.put(LogicalDatastoreType.OPERATIONAL, this.yangRibId, ribInstance);
 
         try {

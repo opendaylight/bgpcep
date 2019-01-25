@@ -9,6 +9,11 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
 
 import com.google.common.annotations.Beta;
 import com.google.common.cache.CacheBuilder;
@@ -88,12 +93,11 @@ public abstract class AbstractRIBSupport<
         implements RIBSupport<C, S, R, I> {
     public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
-    private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
-    private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
-    private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
-    private static final InstanceIdentifier<Tables> TABLES_II = InstanceIdentifier.create(BgpRib.class)
-            .child(Rib.class).child(LocRib.class).child(Tables.class);
-    private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    private static final NodeIdentifier ADVERTISED_ROUTES = NodeIdentifier.create(AdvertizedRoutes.QNAME);
+    private static final NodeIdentifier WITHDRAWN_ROUTES = NodeIdentifier.create(WithdrawnRoutes.QNAME);
+    private static final NodeIdentifier DESTINATION_TYPE = NodeIdentifier.create(DestinationType.QNAME);
+    private static final InstanceIdentifier<Tables> TABLES_II = InstanceIdentifier.builder(BgpRib.class)
+            .child(Rib.class).child(LocRib.class).child(Tables.class).build();
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     // Instance identifier to table/(choice routes)/(map of route)
     private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath = CacheBuilder.newBuilder()
@@ -171,13 +175,13 @@ public abstract class AbstractRIBSupport<
         this.rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
         this.routeDefaultYii =
                 YangInstanceIdentifier.builder()
-                        .node(BgpRib.QNAME)
-                        .node(Rib.QNAME)
-                        .node(Rib.QNAME)
-                        .node(LocRib.QNAME)
-                        .node(Tables.QNAME)
-                        .node(Tables.QNAME)
-                        .node(Routes.QNAME)
+                        .node(BGPRIB)
+                        .node(RIB)
+                        .node(RIB)
+                        .node(LOCRIB)
+                        .node(TABLES)
+                        .node(TABLES)
+                        .node(ROUTES)
                         .node(BindingReflections.findQName(containerClass).withModule(module))
                         .node(this.routeQname)
                         .node(this.routeQname).build();
@@ -382,7 +386,7 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public final YangInstanceIdentifier routesPath(final YangInstanceIdentifier routesTablePaths) {
-        return routesYangInstanceIdentifier(routesTablePaths.node(Routes.QNAME));
+        return routesYangInstanceIdentifier(routesTablePaths.node(ROUTES));
     }
 
     @Override
