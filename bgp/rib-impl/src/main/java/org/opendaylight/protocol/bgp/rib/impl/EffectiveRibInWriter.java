@@ -67,6 +67,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
@@ -242,7 +244,24 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void deleteTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
-        processTableChildren(tx, ribContext.getRibSupport(), effectiveTablePath, table.getChildNodes());
+        // Routes are special in that we need to process the to keep our counters accurate
+        final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
+        final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
+                NormalizedNodes.findNode(table.getDataBefore(), ROUTES), ribSupport.relativeRoutesPath());
+        if (maybeRoutesBefore.isPresent()) {
+            final NormalizedNode<?, ?> routesBefore = maybeRoutesBefore.get();
+            verify(routesBefore instanceof MapNode, "Expected a MapNode, have %s", routesBefore);
+            final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
+                ribSupport.relativeRoutesPath());
+            final TablesKey tablesKey = ribSupport.getTablesKey();
+            final LongAdder counter = prefixesInstalled.get(tablesKey);
+            for (MapEntryNode routeBefore : ((MapNode) routesBefore).getValue()) {
+                handleRouteTarget(ModificationType.DELETE, ribSupport, routesPath.node(routeBefore.getIdentifier()),
+                    routeBefore);
+                CountersUtil.decrement(counter, tablesKey);
+            }
+        }
+
         LOG.debug("Delete Effective Table {}", effectiveTablePath);
         tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
     }
@@ -445,6 +464,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329
                 .path.attributes.AttributesBuilder(attrs).setCommunities(newCommunities).build();
+    }
+
+    private static YangInstanceIdentifier concat(final YangInstanceIdentifier parent, final List<PathArgument> args) {
+        YangInstanceIdentifier ret = parent;
+        for (PathArgument arg : args) {
+            ret = ret.node(arg);
+        }
+        return ret;
     }
 
     private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
