@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.EmptyNextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Bgp Attribute Conditions Util per check conditions matchs.
@@ -39,6 +40,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 final class BgpAttributeConditionsUtil {
     private BgpAttributeConditionsUtil() {
         throw new UnsupportedOperationException();
+    }
+
+    static boolean matchImportConditions(
+        final Class<? extends AfiSafiType> afiSafi,
+        final ContainerNode attributes,
+        final BgpConditions conditions) {
+        if (!matchAfiSafi(afiSafi, conditions.getAfiSafiIn())) {
+            return false;
+        }
+
+       /* //TODO
+        if (!matchAsPathLength(attributes.getAsPath(), conditions.getAsPathLength())) {
+            return false;
+        }
+
+        if (!matchMED(attributes.getMultiExitDisc(), conditions.getMedEq())) {
+            return false;
+        }
+
+        if (!matchOrigin(attributes.getOrigin(), conditions.getOriginEq())) {
+            return false;
+        }
+
+        if (!matchNextHopIn(attributes.getCNextHop(), conditions.getNextHopIn())) {
+            return false;
+        }
+
+        if (!matchLocalPref(attributes.getLocalPref(), conditions.getLocalPrefEq())) {
+            return false;
+        }*/
+        return true;
     }
 
     static boolean matchConditions(

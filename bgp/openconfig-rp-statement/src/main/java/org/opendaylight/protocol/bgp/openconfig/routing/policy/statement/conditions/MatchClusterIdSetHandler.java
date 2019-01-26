@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -41,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.cluster.id.set.ClusterIdSetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.routing.policy.defined.sets.bgp.defined.sets.ClusterIdSets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Match a set of Cluster Id(ALL, NAY, INVERT).
@@ -95,6 +97,11 @@ public final class MatchClusterIdSetHandler
                 ? routeEntryInfo.getClusterId() : exportParameters.getFromClusterId();
         return matchClusterIdCondition(clusterIdLocal, clusterIdAtt,
                 conditions.getMatchClusterIdSetCondition());
+    }
+
+    @Override
+    public ClusterId getConditionImportParameter(@Nonnull final ContainerNode attributes) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

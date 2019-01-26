@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -45,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AsPathSegment;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Match a set of AS (All, ANY, INVERT).
@@ -96,6 +98,11 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
         return matchAsPathSetCondition(asPath, conditions.getAsPathSet(),
                 conditions.getMatchSetOptions());
 
+    }
+
+    @Override
+    public AsPath getConditionImportParameter(@Nonnull final ContainerNode attributes) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

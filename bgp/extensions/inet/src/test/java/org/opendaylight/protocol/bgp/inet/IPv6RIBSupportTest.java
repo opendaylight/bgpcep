@@ -70,7 +70,6 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
             .setPrefix(PREFIX).build();
     private static final Ipv6Routes ROUTES = new Ipv6RoutesBuilder()
             .setIpv6Route(Collections.singletonList(ROUTE)).build();
-    private static final Ipv6Routes EMPTY_ROUTES = new Ipv6RoutesBuilder().build();
 
     @Override
     public void setUp() throws Exception {

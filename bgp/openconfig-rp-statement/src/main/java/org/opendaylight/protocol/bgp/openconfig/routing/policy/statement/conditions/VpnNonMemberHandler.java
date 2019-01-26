@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -27,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.constrain._default.route.grouping.RouteTargetConstrainDefaultRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.constrain._default.route.grouping.RouteTargetConstrainDefaultRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.VpnNonMemberCondition;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Returns true if Route Target extended communities attributes are not part of the VPN membership of destiny peer.
@@ -75,6 +77,11 @@ public final class VpnNonMemberHandler implements
                 .map(this::extendedCommunityToRouteTarget)
                 .collect(Collectors.toList());
         return Collections.disjoint(allowedRouteTarget, toRT);
+    }
+
+    @Override
+    public List<ExtendedCommunities> getConditionImportParameter(@Nonnull final ContainerNode attributes) {
+        throw new UnsupportedOperationException();
     }
 
     private RouteTarget extendedCommunityToRouteTarget(final ExtendedCommunity rt) {

@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameter
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.LocalAsPathPrepend;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public final class LocalAsPathPrependHandler extends AbstractPrependAsPath
         implements BgpActionAugPolicy<LocalAsPathPrepend> {
@@ -28,15 +29,12 @@ public final class LocalAsPathPrependHandler extends AbstractPrependAsPath
     }
 
     @Override
-    public Attributes applyImportAction(
+    public ContainerNode applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters parameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final LocalAsPathPrepend actions) {
-        if (parameters.getFromPeerLocalAs() != null) {
-            return prependAS(attributes, parameters.getFromPeerLocalAs());
-        }
-        return attributes;
+        throw new UnsupportedOperationException();
     }
 
     @Override

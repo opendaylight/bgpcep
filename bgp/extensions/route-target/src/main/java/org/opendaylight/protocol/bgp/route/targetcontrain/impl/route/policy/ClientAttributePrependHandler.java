@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameter
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.ClientAttributePrepend;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public final class ClientAttributePrependHandler implements BgpActionAugPolicy<ClientAttributePrepend> {
     private static final ClientAttributePrependHandler INSTANCE = new ClientAttributePrependHandler();
@@ -30,9 +31,9 @@ public final class ClientAttributePrependHandler implements BgpActionAugPolicy<C
     }
 
     @Override
-    public Attributes applyImportAction(final RouteEntryBaseAttributes routeEntryInfo,
+    public ContainerNode applyImportAction(final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeBaseParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final ClientAttributePrepend actions) {
         return attributes;
     }

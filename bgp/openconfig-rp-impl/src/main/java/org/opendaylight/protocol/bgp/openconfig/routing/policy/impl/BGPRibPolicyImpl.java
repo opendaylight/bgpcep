@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeImportPolicyContainer;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     private static final InstanceIdentifier<RoutingPolicy> ROUTING_POLICY_IID
@@ -97,9 +99,10 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     }
 
     @Override
-    public Optional<Attributes> applyImportPolicies(final BGPRouteEntryImportParameters policyParameters,
-            final Attributes attributes, final Class<? extends AfiSafiType> afiSafiType) {
-        RouteAttributeContainer currentAttributes = routeAttributeContainerFalse(attributes);
+    public Optional<ContainerNode> applyImportPolicies(final BGPRouteEntryImportParameters policyParameters,
+            final ContainerNode attributes, final Class<? extends AfiSafiType> afiSafiType) {
+        RouteAttributeImportPolicyContainer currentAttributes
+            = RouteAttributeImportPolicyContainer.routeAttributeContainerFalse(attributes);
         for (final String policyName : this.importPolicy) {
             for (final Statement statement : this.statements.getUnchecked(policyName)) {
                 currentAttributes = this.policyRegistry

@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchBgpNeighborCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.match.bgp.neighbor.grouping.MatchBgpNeighborSet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Match a set of Neighbors(ip address) (ANY, INVERT).
@@ -97,6 +98,11 @@ public final class MatchBgpNeighborSetHandler
             final MatchBgpNeighborCondition conditions) {
         return matchBgpNeighborSetCondition(exportParameters.getFromPeerId(), exportParameters.getToPeerId(),
                 conditions.getMatchBgpNeighborSet());
+    }
+
+    @Override
+    public Void getConditionImportParameter(@Nonnull final ContainerNode attributes) {
+        return null;
     }
 
     private boolean matchBgpNeighborSetCondition(

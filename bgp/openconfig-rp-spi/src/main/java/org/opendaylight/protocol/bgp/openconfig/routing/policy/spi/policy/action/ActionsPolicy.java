@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBas
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Common interface for Apply action policy.
@@ -31,10 +32,10 @@ public interface ActionsPolicy<T> {
      * @return Filtered attributes, or null if the advertisement should be ignored.
      */
     @Nullable
-    Attributes applyImportAction(
+    ContainerNode applyImportAction(
             @Nonnull RouteEntryBaseAttributes routeEntryInfo,
             @Nonnull BGPRouteEntryImportParameters routeBaseParameters,
-            @Nonnull Attributes attributes,
+            @Nonnull ContainerNode attributes,
             @Nonnull T actions);
 
     /**

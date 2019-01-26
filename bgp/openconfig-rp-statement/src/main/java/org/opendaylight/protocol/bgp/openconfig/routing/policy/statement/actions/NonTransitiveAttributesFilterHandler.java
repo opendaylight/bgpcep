@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.NonTransitiveAttributesFilter;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Removes non transitive attributes.
@@ -36,12 +37,12 @@ public final class NonTransitiveAttributesFilterHandler implements BgpActionAugP
     }
 
     @Override
-    public Attributes applyImportAction(
+    public ContainerNode applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final NonTransitiveAttributesFilter bgpActions) {
-        return filterAttributes(attributes);
+        throw new UnsupportedOperationException();
     }
 
     private Attributes filterAttributes(final Attributes attributes) {

@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.CommunitiesBuilder;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Prepend / Replace / Remove a set of communities.
@@ -37,12 +38,12 @@ public final class SetCommunityHandler extends AbstractCommunityHandler implemen
     }
 
     @Override
-    public Attributes applyImportAction(
+    public ContainerNode applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final SetCommunity bgpActions) {
-        return setComm(attributes, bgpActions.getSetCommunityMethod(), bgpActions.getOptions());
+        throw new UnsupportedOperationException();
     }
 
     @Override

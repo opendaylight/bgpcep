@@ -354,21 +354,20 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             case WRITE:
                 CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
                 // Lookup per-table attributes from RIBSupport
-                final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(),
+                final ContainerNode routeAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(),
                     ribSupport.routeAttributesIdentifier()).orElse(null);
-                final Attributes routeAttrs = ribSupport.attributeFromContainerNode(advertisedAttrs);
-                final Optional<Attributes> optEffAtt;
+                final Optional<ContainerNode> optEffAtt;
                 // In case we want to add LLGR_STALE we do not process route through policies since it may be
                 // considered as received with LLGR_STALE from peer which is not true.
                 final boolean longLivedStale = false;
                 if (longLivedStale) {
                     // LLGR procedures are in effect. If the route is tagged with NO_LLGR, it needs to be removed.
-                    final List<Communities> effCommunities = routeAttrs.getCommunities();
+                    /*final List<Communities> effCommunities = routeAttrs.getCommunities();
                     if (effCommunities != null && effCommunities.contains(CommunityUtil.NO_LLGR)) {
                         deleteRoute(tx, ribSupport, routePath, route.getDataBefore().orElse(null), tablesKey);
                         return;
                     }
-                    optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
+                    optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));*/
                 } else {
                     final Class<? extends AfiSafiType> afiSafiType
                         = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get();
@@ -385,11 +384,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
 
                 final YangInstanceIdentifier attPath = routePath.node(ribSupport.routeAttributesIdentifier());
-                final Attributes attToStore = optEffAtt.get();
-                if(!attToStore.equals(routeAttrs)) {
-                    final ContainerNode finalAttribute = ribSupport.attributeToContainerNode(attPath, attToStore);
-                    tx.put(LogicalDatastoreType.OPERATIONAL, attPath, finalAttribute);
-                }
+                tx.put(LogicalDatastoreType.OPERATIONAL, attPath, optEffAtt.get());
                 break;
             default:
                 LOG.warn("Ignoring unhandled route {}", route);

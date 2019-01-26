@@ -48,10 +48,10 @@ public interface StatementRegistryConsumer {
      * @return modified Route attributes
      */
     @Nonnull
-    RouteAttributeContainer applyImportStatement(
+    RouteAttributeImportPolicyContainer applyImportStatement(
             @Nonnull RouteEntryBaseAttributes routeEntryInfo,
             @Nonnull Class<? extends AfiSafiType> afiSafi,
             @Nonnull BGPRouteEntryImportParameters routeBaseParameters,
-            @Nonnull RouteAttributeContainer attributes,
+            @Nonnull RouteAttributeImportPolicyContainer attributes,
             @Nonnull Statement statement);
 }

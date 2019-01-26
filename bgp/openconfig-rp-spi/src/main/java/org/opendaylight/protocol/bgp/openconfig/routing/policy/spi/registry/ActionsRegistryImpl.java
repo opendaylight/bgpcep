@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class ActionsRegistryImpl {
     @GuardedBy("this")
@@ -250,15 +251,15 @@ final class ActionsRegistryImpl {
     }
 
     @SuppressWarnings("unchecked")
-    Attributes applyImportAction(
+    ContainerNode applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final Actions actions) {
         if (actions.getRouteDisposition() instanceof RejectRoute) {
             return null;
         }
-        Attributes attributesUpdated = attributes;
+        ContainerNode attributesUpdated = attributes;
         final Actions1 augmentation = actions.augmentation(Actions1.class);
 
         if (augmentation != null && augmentation.getBgpActions() != null) {

@@ -15,6 +15,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.originator.id.set.OriginatorIdSetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.routing.policy.defined.sets.bgp.defined.sets.OriginatorIdSets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Match an Originator Id(ANY, INVERT).
@@ -89,6 +91,11 @@ public final class MatchOriginatorIdSetHandler
             final MatchOriginatorIdSetCondition conditions) {
         return matchOriginatorCondition(routeEntryInfo.getOriginatorId(), originatorId,
                 conditions.getMatchOriginatorIdSetCondition());
+    }
+
+    @Override
+    public OriginatorId getConditionImportParameter(@Nonnull final ContainerNode attributes) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

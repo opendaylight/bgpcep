@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameter
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Condition Policy: Check if route matches defined condition.
@@ -53,6 +54,15 @@ public interface ConditionsPolicy<T, N> {
             @Nonnull BGPRouteEntryExportParameters routeEntryExportParameters,
             @Nullable N attributes,
             T conditions);
+
+    /**
+     * Returns the specific attribute to check if match condition.
+     *
+     * @param attributes route attributes
+     * @return specific attribute
+     */
+    @Nullable
+    N getConditionImportParameter(@Nonnull ContainerNode attributes);
 
     /**
      * Returns the specific attribute to check if match condition.

@@ -11,6 +11,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Interface for BGP RIB Routing Policy. Apply Import/Export Routing Policy to route attributes.
@@ -25,9 +26,9 @@ public interface BGPRibRoutingPolicy {
      * @return modified route attributes after apply policies
      */
     @Nonnull
-    Optional<Attributes> applyImportPolicies(
+    Optional<ContainerNode> applyImportPolicies(
             @Nonnull BGPRouteEntryImportParameters policyParameters,
-            @Nonnull Attributes attributes,
+            @Nonnull ContainerNode attributes,
             @Nonnull Class<? extends AfiSafiType> afiSafiType
     );
 

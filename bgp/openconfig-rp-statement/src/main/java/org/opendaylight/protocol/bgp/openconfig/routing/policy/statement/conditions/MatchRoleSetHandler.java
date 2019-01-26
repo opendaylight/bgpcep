@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.role.set.RoleSetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.routing.policy.defined.sets.bgp.defined.sets.RoleSets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Match a Peer Role (FROM, TO).
@@ -127,6 +128,11 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
             final MatchRoleSetCondition conditions) {
         return matchNeighborRoleSetCondition(exportParameters.getFromPeerRole(),
                 exportParameters.getToPeerRole(), conditions.getMatchRoleSet());
+    }
+
+    @Override
+    public Void getConditionImportParameter(final ContainerNode attributes) {
+        return null;
     }
 
     @Override

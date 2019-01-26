@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.condit
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
@@ -22,6 +23,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Match a set of Communities (ALL, ANY, INVERT).
@@ -51,6 +53,11 @@ public final class MatchCommunitySetHandler
             final List<Communities> communities,
             final MatchCommunitySet conditions) {
         return matchCondition(communities, conditions.getCommunitySet(), conditions.getMatchSetOptions());
+    }
+
+    @Override
+    public List<Communities> getConditionImportParameter(@Nonnull final ContainerNode attributes) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

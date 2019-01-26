@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetClusterIdPrepend;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Prepend Cluster Id.
@@ -34,14 +35,12 @@ public final class SetClusterIdPrependHandler implements BgpActionAugPolicy<SetC
     }
 
     @Override
-    public Attributes applyImportAction(
+    public ContainerNode applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters importParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final SetClusterIdPrepend bgpActions) {
-        final ClusterIdentifier clusterIdLocal = importParameters.getFromClusterId() == null
-                ? routeEntryInfo.getClusterId() : importParameters.getFromClusterId();
-        return prependClusterId(attributes, clusterIdLocal);
+        throw new UnsupportedOperationException();
     }
 
     private Attributes prependClusterId(final Attributes attributes, final ClusterIdentifier clusterId) {

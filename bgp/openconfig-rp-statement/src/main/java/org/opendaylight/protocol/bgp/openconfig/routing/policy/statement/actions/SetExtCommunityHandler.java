@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunitiesBuilder;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Prepend External Community.
@@ -38,12 +39,12 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
     }
 
     @Override
-    public Attributes applyImportAction(
+    public ContainerNode applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final SetExtCommunity bgpActions) {
-        return setExtComm(attributes, bgpActions.getSetExtCommunityMethod(), bgpActions.getOptions());
+        throw new UnsupportedOperationException();
     }
 
     @Override

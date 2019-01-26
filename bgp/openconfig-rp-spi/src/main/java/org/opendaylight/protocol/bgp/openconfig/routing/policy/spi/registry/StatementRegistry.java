@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public final class StatementRegistry implements StatementRegistryConsumer, StatementRegistryProvider {
     private final ConditionsRegistryImpl conditionsRegistry;
@@ -64,13 +65,13 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
     }
 
     @Override
-    public RouteAttributeContainer applyImportStatement(
+    public RouteAttributeImportPolicyContainer applyImportStatement(
             final RouteEntryBaseAttributes routeEntryInfo,
             final Class<? extends AfiSafiType> afiSafi,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final RouteAttributeContainer attributes,
+            final RouteAttributeImportPolicyContainer attributes,
             final Statement statement) {
-        final Attributes att = attributes.getAttributes();
+        final ContainerNode att = attributes.getAttributes();
         if (att == null || !this.conditionsRegistry.matchImportConditions(
                 afiSafi,
                 routeEntryInfo,
@@ -79,7 +80,8 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
                 statement.getConditions())) {
             return attributes;
         }
-        return routeAttributeContainerTrue(this.actionsRegistry.applyImportAction(
+        return RouteAttributeImportPolicyContainer.routeAttributeContainerTrue(
+            this.actionsRegistry.applyImportAction(
                 routeEntryInfo,
                 routeEntryImportParameters,
                 att,

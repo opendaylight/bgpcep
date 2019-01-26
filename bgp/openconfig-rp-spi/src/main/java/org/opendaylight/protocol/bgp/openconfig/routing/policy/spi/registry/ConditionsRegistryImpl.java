@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 @SuppressFBWarnings("NM_CONFUSING")
 final class ConditionsRegistryImpl {
@@ -105,7 +106,7 @@ final class ConditionsRegistryImpl {
     boolean matchImportConditions(
             final Class<? extends AfiSafiType> afiSafi, final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final Conditions conditions) {
         if (!this.bgpConditionsRegistry
                 .matchImportConditions(afiSafi, entryInfo, routeEntryImportParameters, attributes, conditions)) {
@@ -121,7 +122,7 @@ final class ConditionsRegistryImpl {
                 if (handler != null) {
                     final Augmentation<Conditions> conditionConfig = (Augmentation<Conditions>) entry.getValue();
                     if (!handler.matchImportCondition(afiSafi, entryInfo, routeEntryImportParameters,
-                            handler.getConditionParameter(attributes), conditionConfig)) {
+                            handler.getConditionImportParameter(attributes), conditionConfig)) {
                         return false;
                     }
                 }

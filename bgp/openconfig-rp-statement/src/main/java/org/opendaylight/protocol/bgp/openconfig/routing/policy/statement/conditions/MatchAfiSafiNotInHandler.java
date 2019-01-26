@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameter
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.MatchAfiSafiNotInCondition;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Match NLRI does not pertain to specific AFI/SAFI.
@@ -61,6 +62,11 @@ public final class MatchAfiSafiNotInHandler implements
 
     @Override
     public Void getConditionParameter(final Attributes attributes) {
+        return null;
+    }
+
+    @Override
+    public Void getConditionImportParameter(final ContainerNode attributes) {
         return null;
     }
 }

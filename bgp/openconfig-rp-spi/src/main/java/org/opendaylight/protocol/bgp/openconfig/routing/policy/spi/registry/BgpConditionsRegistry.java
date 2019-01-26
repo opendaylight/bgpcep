@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class BgpConditionsRegistry {
     @GuardedBy("this")
@@ -112,7 +113,7 @@ final class BgpConditionsRegistry {
             final Class<? extends AfiSafiType> afiSafi,
             final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final Conditions conditions) {
 
         final Conditions1 bgpConditionsAug = conditions.augmentation(Conditions1.class);
@@ -132,7 +133,7 @@ final class BgpConditionsRegistry {
                     continue;
                 }
                 if (!handler.matchImportCondition(afiSafi, entryInfo, routeEntryImportParameters,
-                        handler.getConditionParameter(attributes), entry.getValue())) {
+                        handler.getConditionImportParameter(attributes), entry.getValue())) {
                     return false;
                 }
             }
@@ -145,10 +146,10 @@ final class BgpConditionsRegistry {
             final Class<? extends AfiSafiType> afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final BgpConditions conditions) {
 
-        if (!BgpAttributeConditionsUtil.matchConditions(afiSafi, attributes, conditions)) {
+        if (!BgpAttributeConditionsUtil.matchImportConditions(afiSafi, attributes, conditions)) {
             return false;
         }
 
@@ -156,7 +157,7 @@ final class BgpConditionsRegistry {
         if (matchCond != null) {
             final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchCommunitySet.class);
             if (!handler.matchImportCondition(afiSafi, routeEntryInfo, routeEntryImportParameters,
-                    handler.getConditionParameter(attributes), matchCond)) {
+                    handler.getConditionImportParameter(attributes), matchCond)) {
                 return false;
             }
         }
@@ -165,7 +166,7 @@ final class BgpConditionsRegistry {
         if (matchCond != null) {
             final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchAsPathSet.class);
             if (!handler.matchImportCondition(afiSafi, routeEntryInfo, routeEntryImportParameters,
-                    handler.getConditionParameter(attributes), matchAsPathSet)) {
+                    handler.getConditionImportParameter(attributes), matchAsPathSet)) {
                 return false;
             }
         }
@@ -174,7 +175,7 @@ final class BgpConditionsRegistry {
         if (matchExtCommSet != null) {
             final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchAsPathSet.class);
             if (!handler.matchImportCondition(afiSafi, routeEntryInfo, routeEntryImportParameters,
-                    handler.getConditionParameter(attributes), matchExtCommSet)) {
+                    handler.getConditionImportParameter(attributes), matchExtCommSet)) {
                 return false;
             }
         }

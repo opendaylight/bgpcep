@@ -17,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.OriginatorIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev180329.SetOriginatorIdPrepend;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Prepend Originator Id.
@@ -33,15 +34,12 @@ public final class SetOriginatorIdPrependHandler implements BgpActionAugPolicy<S
     }
 
     @Override
-    public Attributes applyImportAction(
+    public ContainerNode applyImportAction(
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+            final ContainerNode attributes,
             final SetOriginatorIdPrepend bgpActions) {
-
-        final Ipv4Address defOri = bgpActions.getSetOriginatorIdPrepend().getOriginatorId();
-        return prependOriginatorId(attributes, defOri == null
-                ? routeEntryInfo.getOriginatorId() : defOri);
+        throw new UnsupportedOperationException();
     }
 
     private Attributes prependOriginatorId(final Attributes attributes, final Ipv4Address originatorId) {
