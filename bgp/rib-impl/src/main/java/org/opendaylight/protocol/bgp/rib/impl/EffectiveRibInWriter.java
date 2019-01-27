@@ -67,6 +67,7 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -76,6 +77,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +109,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             .xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder()
             .setCommunities(STALE_LLGR_COMMUNUTIES)
             .build();
+    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder().withNodeIdentifier(ROUTES).build();
 
     private final RIBSupportContextRegistry registry;
     private final YangInstanceIdentifier peerIId;
@@ -308,7 +311,47 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void modifyTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Modify Effective Table {}", effectiveTablePath);
-        processTableChildren(tx, ribContext.getRibSupport(), effectiveTablePath, table.getChildNodes());
+
+        final DataTreeCandidateNode modifiedAttrs = table.getModifiedChild(ATTRIBUTES);
+        if (modifiedAttrs != null) {
+            final Optional<NormalizedNode<?, ?>> attrsAfter = modifiedAttrs.getDataAfter();
+            final YangInstanceIdentifier effAttrsPath = effectiveTablePath.node(ATTRIBUTES);
+            if (attrsAfter.isPresent()) {
+                tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath, attrsAfter.get());
+            } else {
+                tx.delete(LogicalDatastoreType.OPERATIONAL, effAttrsPath);
+            }
+        }
+
+        final DataTreeCandidateNode modifiedRoutes = table.getModifiedChild(ROUTES);
+        if (modifiedRoutes != null) {
+            final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
+            switch (modifiedRoutes.getModificationType()) {
+                case APPEARED:
+                case WRITE:
+                    deleteRoutesBefore(tx, ribSupport, effectiveTablePath, modifiedRoutes);
+                    // XXX: YANG Tools seems to have an issue stacking DELETE with child WRITE
+                    tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES), EMPTY_ROUTES);
+                    writeRoutesAfter(tx, ribSupport, effectiveTablePath, modifiedRoutes.getDataAfter());
+                    break;
+                case DELETE:
+                case DISAPPEARED:
+                    deleteRoutesBefore(tx, ribSupport, effectiveTablePath, modifiedRoutes);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES));
+                    break;
+                case SUBTREE_MODIFIED:
+                    for (DataTreeCandidateNode modifiedRoute : ribSupport.changedRoutes(modifiedRoutes)) {
+                        processRoute(tx, ribSupport, effectiveTablePath, modifiedRoute);
+                    }
+                    break;
+                case UNMODIFIED:
+                    // No-op
+                    return;
+                default:
+                    LOG.warn("Ignoring modified routes {}", modifiedRoutes);
+                    break;
+            }
+        }
     }
 
     private void writeTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
@@ -327,17 +370,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES), attrsAfter);
             }
 
-            final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
-            final Optional<NormalizedNode<?, ?>> maybeRoutesAfter = NormalizedNodes.findNode(
-                NormalizedNodes.findNode(tableAfter, ROUTES), ribSupport.relativeRoutesPath());
-            if (maybeRoutesAfter.isPresent()) {
-                final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
-                    ribSupport.relativeRoutesPath());
-                for (MapEntryNode routeAfter : extractMap(maybeRoutesAfter).getValue()) {
-                    writeRoute(tx, ribSupport, routesPath.node(routeAfter.getIdentifier()), Optional.empty(),
-                        routeAfter);
-                }
-            }
+            writeRoutesAfter(tx, ribContext.getRibSupport(), effectiveTablePath,
+                NormalizedNodes.findNode(tableAfter, ROUTES));
         }
     }
 
@@ -348,95 +382,45 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
                 NormalizedNodes.findNode(tableBefore, ROUTES), ribSupport.relativeRoutesPath());
         if (maybeRoutesBefore.isPresent()) {
-            final Collection<MapEntryNode> deletedRoutes = extractMap(maybeRoutesBefore).getValue();
-            if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
-                final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
-                    ribSupport.relativeRoutesPath());
-                for (MapEntryNode routeBefore : deletedRoutes) {
-                    deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
-                }
-                this.rtMembershipsUpdated = true;
-            }
-
-            final TablesKey tablesKey = ribSupport.getTablesKey();
-            CountersUtil.add(prefixesInstalled.get(tablesKey), tablesKey, -deletedRoutes.size());
+            onRoutesDeleted(ribSupport, effectiveTablePath, extractMap(maybeRoutesBefore).getValue());
         }
     }
 
-    private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
-            final YangInstanceIdentifier effectiveTablePath, final Collection<DataTreeCandidateNode> children) {
-        for (final DataTreeCandidateNode child : children) {
-            final PathArgument childIdentifier = child.getIdentifier();
-            final ModificationType childModType = child.getModificationType();
-            final Optional<NormalizedNode<?, ?>> childDataAfter = child.getDataAfter();
-            LOG.debug("Process table {} type {}, dataAfter {}, dataBefore {}", childIdentifier, childModType,
-                childDataAfter, child.getDataBefore());
-            final YangInstanceIdentifier routesPath = effectiveTablePath.node(childIdentifier);
-            switch (childModType) {
-                case DELETE:
-                case DISAPPEARED:
-                    processTableChildrenDelete(child, childIdentifier, tx, ribSupport, routesPath);
-                    break;
-                case UNMODIFIED:
-                    // No-op
-                    break;
-                case SUBTREE_MODIFIED:
-                    processModifiedRouteTables(child, childIdentifier, tx, ribSupport, routesPath, childDataAfter);
-                    break;
-                case APPEARED:
-                case WRITE:
-                    writeRouteTables(child, childIdentifier, tx, ribSupport, routesPath, childDataAfter);
-                    break;
-                default:
-                    LOG.warn("Ignoring unhandled child {}", child);
-                    break;
+    private void deleteRoutesBefore(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
+            final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode modifiedRoutes) {
+        final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
+            modifiedRoutes.getDataBefore(), ribSupport.relativeRoutesPath());
+        if (maybeRoutesBefore.isPresent()) {
+            onRoutesDeleted(ribSupport, effectiveTablePath, extractMap(maybeRoutesBefore).getValue());
+        }
+    }
+
+    private void writeRoutesAfter(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
+            final YangInstanceIdentifier effectiveTablePath, final Optional<NormalizedNode<?, ?>> routesAfter) {
+        final Optional<NormalizedNode<?, ?>> maybeRoutesAfter = NormalizedNodes.findNode(routesAfter,
+            ribSupport.relativeRoutesPath());
+        if (maybeRoutesAfter.isPresent()) {
+            final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
+                ribSupport.relativeRoutesPath());
+            for (MapEntryNode routeAfter : extractMap(maybeRoutesAfter).getValue()) {
+                writeRoute(tx, ribSupport, routesPath.node(routeAfter.getIdentifier()), Optional.empty(), routeAfter);
             }
         }
     }
 
-    private void processTableChildrenDelete(final DataTreeCandidateNode child, final PathArgument childIdentifier,
-            final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
-            final YangInstanceIdentifier routesPath) {
-        if (ROUTES.equals(childIdentifier)) {
-            for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                final Optional<NormalizedNode<?, ?>> routeBefore = route.getDataBefore();
-                if (routeBefore.isPresent()) {
-                    final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.getIdentifier());
-                    handleRouteTarget(ModificationType.DELETE, ribSupport, routePath, routeBefore.get());
-                    final TablesKey tablesKey = ribSupport.getTablesKey();
-                    CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
-                }
+    private void onRoutesDeleted(final RIBSupport<?, ?, ?, ?> ribSupport,
+            final YangInstanceIdentifier effectiveTablePath, final Collection<MapEntryNode> deletedRoutes) {
+        if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
+            final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
+                ribSupport.relativeRoutesPath());
+            for (MapEntryNode routeBefore : deletedRoutes) {
+                deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
             }
+            this.rtMembershipsUpdated = true;
         }
-        tx.delete(LogicalDatastoreType.OPERATIONAL, routesPath);
-    }
 
-    private void processModifiedRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier,
-            final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
-            final YangInstanceIdentifier routesPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
-        if (ROUTES.equals(childIdentifier)) {
-            for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                processRoute(tx, ribSupport, routesPath.getParent(), route);
-            }
-        } else {
-            tx.put(LogicalDatastoreType.OPERATIONAL, routesPath, childDataAfter.get());
-        }
-    }
-
-    private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier,
-            final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
-            final YangInstanceIdentifier routesPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
-        if (ROUTES.equals(childIdentifier)) {
-            final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
-            if (!changedRoutes.isEmpty()) {
-                tx.put(LogicalDatastoreType.OPERATIONAL, routesPath, childDataAfter.get());
-                // Routes are special, as they may end up being filtered. The previous put conveniently
-                // ensured that we have them in at target, so a subsequent delete will not fail :)
-                for (final DataTreeCandidateNode route : changedRoutes) {
-                    processRoute(tx, ribSupport, routesPath.getParent(), route);
-                }
-            }
-        }
+        final TablesKey tablesKey = ribSupport.getTablesKey();
+        CountersUtil.add(prefixesInstalled.get(tablesKey), tablesKey, -deletedRoutes.size());
     }
 
     private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
