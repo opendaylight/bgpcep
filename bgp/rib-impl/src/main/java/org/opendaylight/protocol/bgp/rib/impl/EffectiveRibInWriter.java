@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
@@ -66,7 +67,9 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -205,6 +208,60 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
+    @Override
+    public synchronized void close() {
+        if (this.reg != null) {
+            this.reg.close();
+            this.reg = null;
+        }
+        if (this.submitted != null) {
+            try {
+                this.submitted.get();
+            } catch (final InterruptedException | ExecutionException throwable) {
+                LOG.error("Write routes failed", throwable);
+            }
+        }
+        if (this.chain != null) {
+            this.chain.close();
+            this.chain = null;
+        }
+        this.prefixesReceived.values().forEach(LongAdder::reset);
+        this.prefixesInstalled.values().forEach(LongAdder::reset);
+    }
+
+    @Override
+    public long getPrefixedReceivedCount(final TablesKey tablesKey) {
+        final LongAdder counter = this.prefixesReceived.get(tablesKey);
+        if (counter == null) {
+            return 0;
+        }
+        return counter.longValue();
+    }
+
+    @Override
+    public Set<TablesKey> getTableKeys() {
+        return ImmutableSet.copyOf(this.prefixesReceived.keySet());
+    }
+
+    @Override
+    public boolean isSupported(final TablesKey tablesKey) {
+        return this.prefixesReceived.containsKey(tablesKey);
+    }
+
+    @Override
+    public long getPrefixedInstalledCount(final TablesKey tablesKey) {
+        final LongAdder counter = this.prefixesInstalled.get(tablesKey);
+        if (counter == null) {
+            return 0;
+        }
+        return counter.longValue();
+    }
+
+    @Override
+    public long getTotalPrefixesInstalled() {
+        return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+    }
+
     @GuardedBy("this")
     private void changeDataTree(final DOMDataWriteTransaction tx, final YangInstanceIdentifier rootPath,
             final DataTreeCandidateNode root, final DataTreeCandidateNode table) {
@@ -244,28 +301,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void deleteTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
-        // Routes are special in that we need to process the to keep our counters accurate
-        final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
-        final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
-                NormalizedNodes.findNode(table.getDataBefore(), ROUTES), ribSupport.relativeRoutesPath());
-        if (maybeRoutesBefore.isPresent()) {
-            final NormalizedNode<?, ?> routesBefore = maybeRoutesBefore.get();
-            verify(routesBefore instanceof MapNode, "Expected a MapNode, have %s", routesBefore);
-            final Collection<MapEntryNode> deletedRoutes = ((MapNode) routesBefore).getValue();
-            if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
-                final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
-                    ribSupport.relativeRoutesPath());
-                for (MapEntryNode routeBefore : deletedRoutes) {
-                    deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
-                }
-                this.rtMembershipsUpdated = true;
-            }
-
-            final TablesKey tablesKey = ribSupport.getTablesKey();
-            CountersUtil.add(prefixesInstalled.get(tablesKey), tablesKey, -deletedRoutes.size());
-        }
-
         LOG.debug("Delete Effective Table {}", effectiveTablePath);
+        onDeleteTable(ribContext.getRibSupport(), effectiveTablePath, table.getDataBefore());
         tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
     }
 
@@ -278,8 +315,53 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void writeTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Write Effective Table {}", effectiveTablePath);
-        ribContext.createEmptyTableStructure(tx, effectiveTablePath);
-        processTableChildren(tx, ribContext.getRibSupport(), effectiveTablePath, table.getChildNodes());
+        onDeleteTable(ribContext.getRibSupport(), effectiveTablePath, table.getDataBefore());
+
+        final Optional<NormalizedNode<?, ?>> maybeTableAfter = table.getDataAfter();
+        if (maybeTableAfter.isPresent()) {
+            final ContainerNode tableAfter = extractContainer(maybeTableAfter);
+            ribContext.createEmptyTableStructure(tx, effectiveTablePath);
+
+            final Optional<DataContainerChild<?, ?>> maybeAttrsAfter = tableAfter.getChild(ATTRIBUTES);
+            if (maybeAttrsAfter.isPresent()) {
+                final ContainerNode attrsAfter = extractContainer(maybeAttrsAfter);
+                tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES), attrsAfter);
+            }
+
+            final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
+            final Optional<NormalizedNode<?, ?>> maybeRoutesAfter = NormalizedNodes.findNode(
+                NormalizedNodes.findNode(tableAfter, ROUTES), ribSupport.relativeRoutesPath());
+            if (maybeRoutesAfter.isPresent()) {
+                final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
+                    ribSupport.relativeRoutesPath());
+                for (MapEntryNode routeAfter : extractMap(maybeRoutesAfter).getValue()) {
+                    writeRoute(tx, ribSupport, routesPath.node(routeAfter.getIdentifier()), Optional.empty(),
+                        routeAfter);
+                }
+            }
+        }
+    }
+
+    // Performs house-keeping when the contents of a table is deleted
+    private void onDeleteTable(final RIBSupport<?, ?, ?, ?> ribSupport, final YangInstanceIdentifier effectiveTablePath,
+            final Optional<NormalizedNode<?, ?>> tableBefore) {
+        // Routes are special in that we need to process the to keep our counters accurate
+        final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
+                NormalizedNodes.findNode(tableBefore, ROUTES), ribSupport.relativeRoutesPath());
+        if (maybeRoutesBefore.isPresent()) {
+            final Collection<MapEntryNode> deletedRoutes = extractMap(maybeRoutesBefore).getValue();
+            if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
+                final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
+                    ribSupport.relativeRoutesPath());
+                for (MapEntryNode routeBefore : deletedRoutes) {
+                    deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
+                }
+                this.rtMembershipsUpdated = true;
+            }
+
+            final TablesKey tablesKey = ribSupport.getTablesKey();
+            CountersUtil.add(prefixesInstalled.get(tablesKey), tablesKey, -deletedRoutes.size());
+        }
     }
 
     private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
@@ -362,11 +444,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
         LOG.debug("Process route {}", route.getIdentifier());
         final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.getIdentifier());
-        final TablesKey tablesKey = ribSupport.getTablesKey();
         switch (route.getModificationType()) {
             case DELETE:
             case DISAPPEARED:
-                deleteRoute(tx, ribSupport, routePath, route.getDataBefore().orElse(null), tablesKey);
+                deleteRoute(tx, ribSupport, routePath, route.getDataBefore().orElse(null));
                 break;
             case UNMODIFIED:
                 // No-op
@@ -374,45 +455,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             case APPEARED:
             case SUBTREE_MODIFIED:
             case WRITE:
-                CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
-                // Lookup per-table attributes from RIBSupport
-                final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(),
-                    ribSupport.routeAttributesIdentifier()).orElse(null);
-                final Attributes routeAttrs = ribSupport.attributeFromContainerNode(advertisedAttrs);
-                final Optional<Attributes> optEffAtt;
-                // In case we want to add LLGR_STALE we do not process route through policies since it may be
-                // considered as received with LLGR_STALE from peer which is not true.
-                final boolean longLivedStale = false;
-                if (longLivedStale) {
-                    // LLGR procedures are in effect. If the route is tagged with NO_LLGR, it needs to be removed.
-                    final List<Communities> effCommunities = routeAttrs.getCommunities();
-                    if (effCommunities != null && effCommunities.contains(CommunityUtil.NO_LLGR)) {
-                        deleteRoute(tx, ribSupport, routePath, route.getDataBefore().orElse(null), tablesKey);
-                        return;
-                    }
-                    optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
-                } else {
-                    final Class<? extends AfiSafiType> afiSafiType
-                        = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get();
-                    optEffAtt = this.ribPolicies
-                        .applyImportPolicies(this.peerImportParameters, routeAttrs, afiSafiType);
-                }
-                if (!optEffAtt.isPresent()) {
-                    deleteRoute(tx, ribSupport, routePath, route.getDataBefore().orElse(null), tablesKey);
-                    return;
-                }
-                final NormalizedNode<?, ?> routeChanged = route.getDataAfter().get();
-                handleRouteTarget(ModificationType.WRITE, ribSupport, routePath, routeChanged);
-                tx.put(LogicalDatastoreType.OPERATIONAL, routePath, routeChanged);
-                CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
-
-                final YangInstanceIdentifier attPath = routePath.node(ribSupport.routeAttributesIdentifier());
-                final Attributes attToStore = optEffAtt.get();
-                if(!attToStore.equals(routeAttrs)) {
-                    final ContainerNode finalAttribute = ribSupport.attributeToContainerNode(attPath, attToStore);
-                    tx.put(LogicalDatastoreType.OPERATIONAL, attPath, finalAttribute);
-                }
-                break;
+                writeRoute(tx, ribSupport, routePath, route.getDataBefore(), route.getDataAfter().get());
             default:
                 LOG.warn("Ignoring unhandled route {}", route);
                 break;
@@ -420,11 +463,55 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void deleteRoute(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
-            final YangInstanceIdentifier routeIdPath, final NormalizedNode<?, ?> route, final TablesKey tablesKey) {
-        handleRouteTarget(ModificationType.DELETE, ribSupport, routeIdPath, route);
+            final YangInstanceIdentifier routeIdPath, final NormalizedNode<?, ?> route) {
+        deleteRouteTarget(ribSupport, routeIdPath, route);
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIdPath);
         LOG.debug("Route deleted. routeId={}", routeIdPath);
+        final TablesKey tablesKey = ribSupport.getTablesKey();
         CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
+    }
+
+    private void writeRoute(final DOMDataWriteTransaction tx, final RIBSupport<?, ?, ?, ?> ribSupport,
+            final YangInstanceIdentifier routePath, final Optional<NormalizedNode<?, ?>> routeBefore,
+            final NormalizedNode<?, ?> routeAfter) {
+        final TablesKey tablesKey = ribSupport.getTablesKey();
+        CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
+        // Lookup per-table attributes from RIBSupport
+        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(routeAfter,
+            ribSupport.routeAttributesIdentifier()).orElse(null);
+        final Attributes routeAttrs = ribSupport.attributeFromContainerNode(advertisedAttrs);
+        final Optional<Attributes> optEffAtt;
+        // In case we want to add LLGR_STALE we do not process route through policies since it may be
+        // considered as received with LLGR_STALE from peer which is not true.
+        final boolean longLivedStale = false;
+        if (longLivedStale) {
+            // LLGR procedures are in effect. If the route is tagged with NO_LLGR, it needs to be removed.
+            final List<Communities> effCommunities = routeAttrs.getCommunities();
+            if (effCommunities != null && effCommunities.contains(CommunityUtil.NO_LLGR)) {
+                deleteRoute(tx, ribSupport, routePath, routeBefore.orElse(null));
+                return;
+            }
+            optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
+        } else {
+            final Class<? extends AfiSafiType> afiSafiType
+                = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get();
+            optEffAtt = this.ribPolicies
+                .applyImportPolicies(this.peerImportParameters, routeAttrs, afiSafiType);
+        }
+        if (!optEffAtt.isPresent()) {
+            deleteRoute(tx, ribSupport, routePath, routeBefore.orElse(null));
+            return;
+        }
+        handleRouteTarget(ModificationType.WRITE, ribSupport, routePath, routeAfter);
+        tx.put(LogicalDatastoreType.OPERATIONAL, routePath, routeAfter);
+        CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
+
+        final YangInstanceIdentifier attPath = routePath.node(ribSupport.routeAttributesIdentifier());
+        final Attributes attToStore = optEffAtt.get();
+        if (!attToStore.equals(routeAttrs)) {
+            final ContainerNode finalAttribute = ribSupport.attributeToContainerNode(attPath, attToStore);
+            tx.put(LogicalDatastoreType.OPERATIONAL, attPath, finalAttribute);
+        }
     }
 
     private void addRouteTarget(final RouteTargetConstrainRoute rtc) {
@@ -495,57 +582,21 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return this.effRibTables.node(TABLES).node(tableKey);
     }
 
-    @Override
-    public synchronized void close() {
-        if (this.reg != null) {
-            this.reg.close();
-            this.reg = null;
-        }
-        if (this.submitted != null) {
-            try {
-                this.submitted.get();
-            } catch (final InterruptedException | ExecutionException throwable) {
-                LOG.error("Write routes failed", throwable);
-            }
-        }
-        if (this.chain != null) {
-            this.chain.close();
-            this.chain = null;
-        }
-        this.prefixesReceived.values().forEach(LongAdder::reset);
-        this.prefixesInstalled.values().forEach(LongAdder::reset);
+    private static ChoiceNode extractChoice(final Optional<? extends NormalizedNode<?, ?>> optNode) {
+        final NormalizedNode<?, ?> node = optNode.get();
+        verify(node instanceof ChoiceNode, "Expected ContainerNode, got %s", node);
+        return (ChoiceNode) node;
     }
 
-    @Override
-    public long getPrefixedReceivedCount(final TablesKey tablesKey) {
-        final LongAdder counter = this.prefixesReceived.get(tablesKey);
-        if (counter == null) {
-            return 0;
-        }
-        return counter.longValue();
+    private static ContainerNode extractContainer(final Optional<? extends NormalizedNode<?, ?>> optNode) {
+        final NormalizedNode<?, ?> node = optNode.get();
+        verify(node instanceof ContainerNode, "Expected ContainerNode, got %s", node);
+        return (ContainerNode) node;
     }
 
-    @Override
-    public Set<TablesKey> getTableKeys() {
-        return ImmutableSet.copyOf(this.prefixesReceived.keySet());
-    }
-
-    @Override
-    public boolean isSupported(final TablesKey tablesKey) {
-        return this.prefixesReceived.containsKey(tablesKey);
-    }
-
-    @Override
-    public long getPrefixedInstalledCount(final TablesKey tablesKey) {
-        final LongAdder counter = this.prefixesInstalled.get(tablesKey);
-        if (counter == null) {
-            return 0;
-        }
-        return counter.longValue();
-    }
-
-    @Override
-    public long getTotalPrefixesInstalled() {
-        return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+    private static MapNode extractMap(final Optional<? extends NormalizedNode<?, ?>> optNode) {
+        final NormalizedNode<?, ?> node = optNode.get();
+        verify(node instanceof MapNode, "Expected MapNode, got %s", node);
+        return (MapNode) node;
     }
 }
