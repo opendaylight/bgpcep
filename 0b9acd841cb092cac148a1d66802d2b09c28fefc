@@ -22,6 +22,30 @@
       "revId": "0b9acd841cb092cac148a1d66802d2b09c28fefc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df7e92a7_17b501d6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/CountersUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-01-27T21:57:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "348fd888_98630b48",
+      "range": {
+        "startLine": 49,
+        "startChar": 29,
+        "endLine": 49,
+        "endChar": 30
+      },
+      "revId": "0b9acd841cb092cac148a1d66802d2b09c28fefc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
