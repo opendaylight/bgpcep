@@ -39,7 +39,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -176,7 +175,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class),
                 any(String.class),
                 any(ChannelHandler.class));
-        doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(),
+        doReturn(null).when(this.pipeline).replace(any(ChannelHandler.class),
                 any(String.class),
                 any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));
