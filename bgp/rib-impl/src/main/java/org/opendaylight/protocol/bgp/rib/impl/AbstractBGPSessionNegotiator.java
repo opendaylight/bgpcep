@@ -107,11 +107,10 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
 
             final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
 
-            int as = preferences.getMyAs().getValue().intValue();
-            // Set as AS_TRANS if the value is bigger than 2B
-            if (as > Values.UNSIGNED_SHORT_MAX_VALUE) {
-                as = AS_TRANS;
-            }
+            // Set as AS_TRANS if the value is bigger than 2B.
+            final long longAs = preferences.getMyAs().getValue().longValue();
+            final int as = longAs > Values.UNSIGNED_SHORT_MAX_VALUE ? AS_TRANS : (int) longAs;
+
             sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
                     preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
             if (this.state != State.FINISHED) {
