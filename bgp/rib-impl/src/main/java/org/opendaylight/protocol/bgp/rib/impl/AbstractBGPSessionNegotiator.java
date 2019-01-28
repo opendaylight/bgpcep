@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
@@ -48,7 +47,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     private static final int INITIAL_HOLDTIMER = 4;
 
     // <a href="http://tools.ietf.org/html/rfc6793">BGP Support for 4-Octet AS Number Space</a>
-    private static final int AS_TRANS = 23456;
+    @VisibleForTesting
+    static final int AS_TRANS = 23456;
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
     private final BGPPeerRegistry registry;
     private final Promise<BGPSessionImpl> promise;
@@ -105,12 +105,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
             }
 
             final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
-
-            int as = preferences.getMyAs().getValue().intValue();
-            // Set as AS_TRANS if the value is bigger than 2B
-            if (as > Values.UNSIGNED_SHORT_MAX_VALUE) {
-                as = AS_TRANS;
-            }
+            final int as = openASNumber(preferences.getMyAs().getValue().longValue());
             sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
                     preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
             if (this.state != State.FINISHED) {
@@ -304,5 +299,11 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         LOG.info("Unexpected error during negotiation", cause);
         negotiationFailedCloseChannel(cause);
+    }
+
+    @VisibleForTesting
+    static int openASNumber(final long configuredASNumber) {
+        // Return AS_TRANS if the value is bigger than 2B.
+        return configuredASNumber > Values.UNSIGNED_SHORT_MAX_VALUE ? AS_TRANS : (int) configuredASNumber;
     }
 }
