@@ -8,12 +8,17 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FluentFuture;
@@ -32,17 +37,16 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
+import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.SupportedTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -88,9 +92,9 @@ public class AdjRibsInWriterTest {
     public void testTransform() {
         this.writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, this.ptc);
         assertNotNull(this.writer);
-        final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(Rib.QNAME)
+        final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(RIB_NID)
                 .node(Peer.QNAME).nodeWithKey(Peer.QNAME,
-                        AdjRibInWriter.PEER_ID_QNAME, this.peerIp).build();
+                        RIBQNames.PEER_ID_QNAME, this.peerIp).build();
         this.writer.transform(new PeerId(this.peerIp), peerPath, this.registry, this.tableTypes, ADD_PATH_TABLE_MAPS);
         verifyPeerSkeletonInsertedCorrectly(peerPath);
         // verify supported tables were inserted for ipv4
@@ -100,11 +104,11 @@ public class AdjRibsInWriterTest {
     }
 
     private void verifyUptodateSetToFalse(final YangInstanceIdentifier peerPath) {
-        final YangInstanceIdentifier path = peerPath.node(AdjRibIn.QNAME)
-                .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(K4))
-                .node(Attributes.QNAME).node(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE.getNodeType());
+        final YangInstanceIdentifier path = peerPath.node(ADJRIBIN_NID)
+                .node(TABLES_NID).node(RibSupportUtils.toYangTablesKey(K4))
+                .node(ATTRIBUTES_NID).node(UPTODATE_NID);
         verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(path),
-                eq(AdjRibInWriter.ATTRIBUTES_UPTODATE_FALSE));
+                eq(RIBNormalizedNodes.ATTRIBUTES_UPTODATE_FALSE));
     }
 
     private void verifyPeerSkeletonInsertedCorrectly(final YangInstanceIdentifier peerPath) {

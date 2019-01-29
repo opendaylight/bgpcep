@@ -9,11 +9,11 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import com.google.common.annotations.Beta;
 import com.google.common.cache.CacheBuilder;
@@ -178,13 +178,13 @@ public abstract class AbstractRIBSupport<
         this.rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
         this.routeDefaultYii =
                 YangInstanceIdentifier.builder()
-                        .node(BGPRIB)
-                        .node(RIB)
-                        .node(RIB)
-                        .node(LOCRIB)
-                        .node(TABLES)
-                        .node(TABLES)
-                        .node(ROUTES)
+                        .node(BGPRIB_NID)
+                        .node(RIB_NID)
+                        .node(RIB_NID)
+                        .node(LOCRIB_NID)
+                        .node(TABLES_NID)
+                        .node(TABLES_NID)
+                        .node(ROUTES_NID)
                         .node(this.routesContainerIdentifier)
                         .node(this.routesListIdentifier)
                         .node(this.routesListIdentifier).build();
@@ -390,7 +390,7 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public final YangInstanceIdentifier routesPath(final YangInstanceIdentifier routesTablePaths) {
-        return routesYangInstanceIdentifier(routesTablePaths.node(ROUTES));
+        return routesYangInstanceIdentifier(routesTablePaths.node(ROUTES_NID));
     }
 
     @Override
@@ -408,7 +408,7 @@ public abstract class AbstractRIBSupport<
     @Override
     public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri) {
-        deleteRoutes(tx, tablePath, nlri, ROUTES);
+        deleteRoutes(tx, tablePath, nlri, ROUTES_NID);
     }
 
     @Override
@@ -416,7 +416,7 @@ public abstract class AbstractRIBSupport<
                                                                     final YangInstanceIdentifier tablePath,
                                                                     final ContainerNode nlri,
                                                                     final ContainerNode attributes) {
-        return putRoutes(tx, tablePath, nlri, attributes, ROUTES);
+        return putRoutes(tx, tablePath, nlri, attributes, ROUTES_NID);
     }
 
     @Override

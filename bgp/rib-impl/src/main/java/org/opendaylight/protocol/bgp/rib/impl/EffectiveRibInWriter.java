@@ -9,11 +9,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -109,7 +109,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             .xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder()
             .setCommunities(STALE_LLGR_COMMUNUTIES)
             .build();
-    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder().withNodeIdentifier(ROUTES).build();
+    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder().withNodeIdentifier(ROUTES_NID).build();
 
     private final RIBSupportContextRegistry registry;
     private final YangInstanceIdentifier peerIId;
@@ -141,7 +141,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.registry = requireNonNull(rib.getRibSupportContext());
         this.chain = requireNonNull(chain);
         this.peerIId = requireNonNull(peerIId);
-        this.effRibTables = this.peerIId.node(EFFRIBIN);
+        this.effRibTables = this.peerIId.node(EFFRIBIN_NID);
         this.prefixesInstalled = buildPrefixesTables(tables);
         this.prefixesReceived = buildPrefixesTables(tables);
         this.ribPolicies = requireNonNull(rib.getRibPolicies());
@@ -155,7 +155,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     public void init() {
         final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
-            this.peerIId.node(ADJRIBIN).node(TABLES));
+            this.peerIId.node(ADJRIBIN_NID).node(TABLES_NID));
         LOG.debug("Registered Effective RIB on {}", this.peerIId);
         this.reg = requireNonNull(this.service).registerDataTreeChangeListener(treeId, this);
     }
@@ -312,10 +312,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Modify Effective Table {}", effectiveTablePath);
 
-        final DataTreeCandidateNode modifiedAttrs = table.getModifiedChild(ATTRIBUTES);
+        final DataTreeCandidateNode modifiedAttrs = table.getModifiedChild(ATTRIBUTES_NID);
         if (modifiedAttrs != null) {
             final Optional<NormalizedNode<?, ?>> attrsAfter = modifiedAttrs.getDataAfter();
-            final YangInstanceIdentifier effAttrsPath = effectiveTablePath.node(ATTRIBUTES);
+            final YangInstanceIdentifier effAttrsPath = effectiveTablePath.node(ATTRIBUTES_NID);
             if (attrsAfter.isPresent()) {
                 tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath, attrsAfter.get());
             } else {
@@ -323,7 +323,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             }
         }
 
-        final DataTreeCandidateNode modifiedRoutes = table.getModifiedChild(ROUTES);
+        final DataTreeCandidateNode modifiedRoutes = table.getModifiedChild(ROUTES_NID);
         if (modifiedRoutes != null) {
             final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
             switch (modifiedRoutes.getModificationType()) {
@@ -331,13 +331,13 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 case WRITE:
                     deleteRoutesBefore(tx, ribSupport, effectiveTablePath, modifiedRoutes);
                     // XXX: YANG Tools seems to have an issue stacking DELETE with child WRITE
-                    tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES), EMPTY_ROUTES);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES_NID), EMPTY_ROUTES);
                     writeRoutesAfter(tx, ribSupport, effectiveTablePath, modifiedRoutes.getDataAfter());
                     break;
                 case DELETE:
                 case DISAPPEARED:
                     deleteRoutesBefore(tx, ribSupport, effectiveTablePath, modifiedRoutes);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES));
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES_NID));
                     break;
                 case SUBTREE_MODIFIED:
                     for (DataTreeCandidateNode modifiedRoute : ribSupport.changedRoutes(modifiedRoutes)) {
@@ -364,14 +364,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final MapEntryNode tableAfter = extractMapEntry(maybeTableAfter);
             ribContext.createEmptyTableStructure(tx, effectiveTablePath);
 
-            final Optional<DataContainerChild<?, ?>> maybeAttrsAfter = tableAfter.getChild(ATTRIBUTES);
+            final Optional<DataContainerChild<?, ?>> maybeAttrsAfter = tableAfter.getChild(ATTRIBUTES_NID);
             if (maybeAttrsAfter.isPresent()) {
                 final ContainerNode attrsAfter = extractContainer(maybeAttrsAfter);
-                tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES), attrsAfter);
+                tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES_NID), attrsAfter);
             }
 
             writeRoutesAfter(tx, ribContext.getRibSupport(), effectiveTablePath,
-                NormalizedNodes.findNode(tableAfter, ROUTES));
+                NormalizedNodes.findNode(tableAfter, ROUTES_NID));
         }
     }
 
@@ -380,7 +380,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final Optional<NormalizedNode<?, ?>> tableBefore) {
         // Routes are special in that we need to process the to keep our counters accurate
         final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
-                NormalizedNodes.findNode(tableBefore, ROUTES), ribSupport.relativeRoutesPath());
+                NormalizedNodes.findNode(tableBefore, ROUTES_NID), ribSupport.relativeRoutesPath());
         if (maybeRoutesBefore.isPresent()) {
             onRoutesDeleted(ribSupport, effectiveTablePath, extractMap(maybeRoutesBefore).getValue());
         }
@@ -400,7 +400,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         final Optional<NormalizedNode<?, ?>> maybeRoutesAfter = NormalizedNodes.findNode(routesAfter,
             ribSupport.relativeRoutesPath());
         if (maybeRoutesAfter.isPresent()) {
-            final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
+            final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES_NID),
                 ribSupport.relativeRoutesPath());
             for (MapEntryNode routeAfter : extractMap(maybeRoutesAfter).getValue()) {
                 writeRoute(tx, ribSupport, routesPath.node(routeAfter.getIdentifier()), Optional.empty(), routeAfter);
@@ -411,7 +411,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void onRoutesDeleted(final RIBSupport<?, ?, ?, ?> ribSupport,
             final YangInstanceIdentifier effectiveTablePath, final Collection<MapEntryNode> deletedRoutes) {
         if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
-            final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES),
+            final YangInstanceIdentifier routesPath = concat(effectiveTablePath.node(ROUTES_NID),
                 ribSupport.relativeRoutesPath());
             for (MapEntryNode routeBefore : deletedRoutes) {
                 deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
@@ -562,7 +562,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
-        return this.effRibTables.node(TABLES).node(tableKey);
+        return this.effRibTables.node(TABLES_NID).node(tableKey);
     }
 
     private static ContainerNode extractContainer(final Optional<? extends NormalizedNode<?, ?>> optNode) {
