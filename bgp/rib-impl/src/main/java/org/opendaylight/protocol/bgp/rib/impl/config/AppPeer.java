@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -132,7 +132,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
             this.isServiceInstantiated = true;
             final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(APPRIB)
                     .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue())
-                    .node(TABLES).node(TABLES).build();
+                    .node(TABLES_NID).node(TABLES_NID).build();
             this.applicationPeer.instantiateServiceInstance(this.dataTreeChangeService,
                     new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
         }
