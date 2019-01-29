@@ -193,9 +193,8 @@ public final class RIBImpl extends BGPRIBStateImpl implements RIB, TransactionCh
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
-        final LocRibWriter locRibWriter = LocRibWriter.create(
+        final LocRibWriter<C, S, R, I> locRibWriter = LocRibWriter.create(
                 ribSupport,
-                key,
                 this.tableTypeRegistry.getAfiSafiType(key).get(),
                 txChain,
                 getInstanceIdentifier(),

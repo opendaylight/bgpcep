@@ -88,12 +88,11 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private final RouteEntryDependenciesContainerImpl entryDep;
     private final BGPPeerTracker peerTracker;
     private final KeyedInstanceIdentifier<Rib, RibKey> ribIId;
-    private final TablesKey tk;
     private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTableIID;
 
     private BindingTransactionChain chain;
     @GuardedBy("this")
-    private ListenerRegistration<LocRibWriter> reg;
+    private ListenerRegistration<?> reg;
 
     private LocRibWriter(final RIBSupport<C, S, R, I> ribSupport,
             final BindingTransactionChain chain,
@@ -102,21 +101,19 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker peerTracker,
-            final TablesKey tablesKey,
             final Class<? extends AfiSafiType> afiSafiType,
             final PathSelectionMode pathSelectionMode) {
         this.chain = requireNonNull(chain);
         this.ribIId = requireNonNull(ribIId);
-        this.tk = requireNonNull(tablesKey);
-        this.locRibTableIID = ribIId.child(LocRib.class).child(Tables.class, this.tk);
+        this.ribSupport = requireNonNull(ribSupport);
+        this.locRibTableIID = ribIId.child(LocRib.class).child(Tables.class, ribSupport.getTablesKey());
         this.ourAs = ourAs;
         this.dataBroker = requireNonNull(dataBroker);
-        this.ribSupport = requireNonNull(ribSupport);
         this.peerTracker = peerTracker;
         this.pathSelectionMode = pathSelectionMode;
 
         this.entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport, this.peerTracker, ribPolicies,
-                tablesKey, afiSafiType, this.locRibTableIID);
+                afiSafiType, this.locRibTableIID);
         init();
     }
 
@@ -124,7 +121,6 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                 R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
                 LocRibWriter<C, S, R, I> create(
             @Nonnull final RIBSupport<C, S, R, I> ribSupport,
-            @Nonnull final TablesKey tablesKey,
             @Nonnull final Class<? extends AfiSafiType> afiSafiType,
             @Nonnull final BindingTransactionChain chain,
             @Nonnull final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
@@ -134,7 +130,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             @Nonnull final BGPPeerTracker peerTracker,
             @Nonnull final PathSelectionMode pathSelectionStrategy) {
         return new LocRibWriter<>(ribSupport, chain, ribIId, ourAs.getValue(), dataBroker, ribPolicies,
-                peerTracker, tablesKey, afiSafiType, pathSelectionStrategy);
+                peerTracker, afiSafiType, pathSelectionStrategy);
     }
 
     private synchronized void init() {
@@ -155,7 +151,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         }, MoreExecutors.directExecutor());
 
         final InstanceIdentifier<Tables> tableId = this.ribIId.builder().child(Peer.class)
-                .child(EffectiveRibIn.class).child(Tables.class, this.tk).build();
+                .child(EffectiveRibIn.class).child(Tables.class, getTableKey()).build();
         this.reg = this.dataBroker.registerDataTreeChangeListener(
                 new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
@@ -383,7 +379,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     TablesKey getTableKey() {
-        return this.tk;
+        return this.ribSupport.getTablesKey();
     }
 
     @Override
