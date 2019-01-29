@@ -27,7 +27,6 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
     private final RIBSupport<?, ?, ?, ?> ribSupport;
-    private final TablesKey tablesKey;
     private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget;
     private final BGPRibRoutingPolicy routingPolicies;
     private final Class<? extends AfiSafiType> afiSafiType;
@@ -37,12 +36,10 @@ final class RouteEntryDependenciesContainerImpl implements RouteEntryDependencie
             final RIBSupport<?, ?, ?, ?> ribSupport,
             final BGPPeerTracker peerTracker,
             final BGPRibRoutingPolicy routingPolicies,
-            final TablesKey tablesKey,
             final Class<? extends AfiSafiType> afiSafiType,
             final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget) {
         this.ribSupport = requireNonNull(ribSupport);
         this.peerTracker = requireNonNull(peerTracker);
-        this.tablesKey = requireNonNull(tablesKey);
         this.afiSafiType = requireNonNull(afiSafiType);
         this.routingPolicies = requireNonNull(routingPolicies);
         this.locRibTarget = requireNonNull(locRibTarget);
@@ -58,7 +55,7 @@ final class RouteEntryDependenciesContainerImpl implements RouteEntryDependencie
 
     @Override
     public TablesKey getLocalTablesKey() {
-        return this.tablesKey;
+        return this.ribSupport.getTablesKey();
     }
 
     @Override
