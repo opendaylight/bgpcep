@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER;
+
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -140,8 +142,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     synchronized YangInstanceIdentifier createPeerPath() {
-        return this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                .rev180329.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(this.peerId));
+        return this.rib.getYangRibId().node(PEER).node(IdentifierUtils.domPeerId(this.peerId));
     }
 
     @Override

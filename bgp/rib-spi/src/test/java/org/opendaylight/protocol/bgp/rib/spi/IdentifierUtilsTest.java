@@ -8,12 +8,14 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import static org.junit.Assert.assertEquals;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBQNames.PEER_ID_QNAME;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -24,7 +26,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public class IdentifierUtilsTest {
-    private static final QName PEER_ID_QNAME = QName.create(Peer.QNAME, "peer-id").intern();
     private static final QName TABLES_KEY_QNAME = QName.create(Tables.QNAME, "tables-key").intern();
     private static final TablesKey TK = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final PeerId PEER_ID = new PeerId("127.0.0.1");
@@ -36,9 +37,9 @@ public class IdentifierUtilsTest {
     private static final YangInstanceIdentifier YII_TABLE;
 
     static {
-        YII_PEER = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Peer.QNAME)
+        YII_PEER = YangInstanceIdentifier.builder().node(BGPRIB_NID).node(PEER)
                 .nodeWithKey(Peer.QNAME, PEER_ID_QNAME, PEER_ID.getValue()).build();
-        YII_TABLE = YangInstanceIdentifier.builder().node(LocRib.QNAME).node(Tables.QNAME)
+        YII_TABLE = YangInstanceIdentifier.builder().node(LOCRIB_NID).node(Tables.QNAME)
                 .nodeWithKey(Tables.QNAME, TABLES_KEY_QNAME, TK).build();
     }
 

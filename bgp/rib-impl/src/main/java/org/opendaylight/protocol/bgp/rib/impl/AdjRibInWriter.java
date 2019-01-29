@@ -8,11 +8,12 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -47,6 +48,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
+import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
+import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
@@ -56,14 +59,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -84,27 +85,20 @@ final class AdjRibInWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
 
-    @VisibleForTesting
-    static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME,
-            "uptodate"), Boolean.FALSE);
-    @VisibleForTesting
-    static final QName PEER_ID_QNAME = QName.create(Peer.QNAME, "peer-id").intern();
-    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE =
-            ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
     private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
-    private static final NodeIdentifier PEER_ID = NodeIdentifier.create(PEER_ID_QNAME);
+    private static final NodeIdentifier PEER_ID = NodeIdentifier.create(RIBQNames.PEER_ID_QNAME);
     private static final NodeIdentifier PEER_ROLE = NodeIdentifier.create(PEER_ROLE_QNAME);
     private static final NodeIdentifier PEER_TABLES = NodeIdentifier.create(SupportedTables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
 
     // FIXME: is there a utility method to construct this?
-    private static final MapNode EMPTY_TABLES = ImmutableNodes.mapNodeBuilder(TABLES).build();
+    private static final MapNode EMPTY_TABLES = ImmutableNodes.mapNodeBuilder(TABLES_NID).build();
     private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder()
-            .withNodeIdentifier(ADJRIBIN).addChild(EMPTY_TABLES).build();
+            .withNodeIdentifier(ADJRIBIN_NID).addChild(EMPTY_TABLES).build();
     private static final ContainerNode EMPTY_EFFRIBIN = Builders.containerBuilder()
-            .withNodeIdentifier(EFFRIBIN).addChild(EMPTY_TABLES).build();
+            .withNodeIdentifier(EFFRIBIN_NID).addChild(EMPTY_TABLES).build();
     private static final ContainerNode EMPTY_ADJRIBOUT = Builders.containerBuilder()
-            .withNodeIdentifier(ADJRIBOUT).addChild(EMPTY_TABLES).build();
+            .withNodeIdentifier(ADJRIBOUT_NID).addChild(EMPTY_TABLES).build();
 
     private final Map<TablesKey, TableContext> tables;
     private final YangInstanceIdentifier ribPath;
@@ -213,14 +207,14 @@ final class AdjRibInWriter {
             final DOMDataWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath
-                .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
+                .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES_NID));
         idb.nodeWithKey(instanceIdentifierKey.getNodeType(), instanceIdentifierKey.getKeyValues());
 
         final TableContext ctx = new TableContext(rs, idb.build());
         ctx.createEmptyTableStructure(tx);
 
-        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(ATTRIBUTES)
-                .node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
+        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(ATTRIBUTES_NID).node(UPTODATE_NID),
+            RIBNormalizedNodes.ATTRIBUTES_UPTODATE_FALSE);
         LOG.debug("Created table instance {}", ctx.getTableId());
         tb.put(tableKey, ctx);
     }
@@ -239,7 +233,7 @@ final class AdjRibInWriter {
         }
         tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
         rs.createEmptyTableStructure(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier())
-                .node(TABLES).node(instanceIdentifierKey));
+                .node(TABLES_NID).node(instanceIdentifierKey));
     }
 
     private void createEmptyPeerStructure(final PeerId newPeerId,
@@ -266,8 +260,8 @@ final class AdjRibInWriter {
     void markTableUptodate(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
         final TableContext ctx = this.tables.get(tableTypes);
-        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(ATTRIBUTES)
-                .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
+        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(ATTRIBUTES_NID).node(UPTODATE_NID),
+            RIBNormalizedNodes.ATTRIBUTES_UPTODATE_TRUE);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {

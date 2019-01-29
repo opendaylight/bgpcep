@@ -8,9 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import com.google.common.base.Verify;
 import com.google.common.cache.CacheBuilder;
@@ -130,9 +131,9 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
-        this.adjRibsInId = targetRib.getYangRibId().node(Peer.QNAME)
+        this.adjRibsInId = targetRib.getYangRibId().node(PEER)
                 .node(IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress)))
-                .node(ADJRIBIN).node(TABLES);
+                .node(ADJRIBIN_NID).node(TABLES_NID);
         this.peerId = RouterIds.createPeerId(ipAddress);
         this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                 .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
@@ -204,7 +205,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                         // No-op
                         break;
                     case SUBTREE_MODIFIED:
-                        if (ROUTES.equals(childIdentifier)) {
+                        if (ROUTES_NID.equals(childIdentifier)) {
                             processRoutesTable(child, tableId, tx, tableId);
                             break;
                         }
