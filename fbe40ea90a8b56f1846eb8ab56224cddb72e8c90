@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4900e644_b127258f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2019-01-30T20:16:50Z",
+      "side": 1,
+      "message": "too many parameters, maybe we could use some wrapper",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 64
+      },
+      "revId": "fbe40ea90a8b56f1846eb8ab56224cddb72e8c90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "779e7967_16527cc1",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImplTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2019-01-30T20:16:50Z",
+      "side": 1,
+      "message": "final",
+      "revId": "fbe40ea90a8b56f1846eb8ab56224cddb72e8c90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d1bb5ca_96e7cc94",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImplTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2019-01-30T20:16:50Z",
+      "side": 1,
+      "message": "I think we could get a real instance from parent, cpuld you take a look?",
+      "range": {
+        "startLine": 134,
+        "startChar": 8,
+        "endLine": 134,
+        "endChar": 53
+      },
+      "revId": "fbe40ea90a8b56f1846eb8ab56224cddb72e8c90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
