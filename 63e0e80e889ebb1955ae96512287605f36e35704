@@ -79,6 +79,30 @@
       "revId": "63e0e80e889ebb1955ae96512287605f36e35704",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3bffd3ee_7eebcad3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-01-30T20:15:08Z",
+      "side": 1,
+      "message": "for two of these methods, there is just a single caller, so it does not matter. extractMap() has two callers, so it saves duplication.\n\nI wanted to keep the utils orthogonal, in case we end up needing them.",
+      "parentUuid": "f7c06d4f_4454b158",
+      "range": {
+        "startLine": 584,
+        "startChar": 0,
+        "endLine": 599,
+        "endChar": 35
+      },
+      "revId": "63e0e80e889ebb1955ae96512287605f36e35704",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
