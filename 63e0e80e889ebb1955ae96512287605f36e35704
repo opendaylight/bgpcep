@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "22d19b5b_96d96ebd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-01-31T00:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc6cc9c2_fa702079",
+      "revId": "63e0e80e889ebb1955ae96512287605f36e35704",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe046761_189baa0e",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
         "patchSetId": 13
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "3df42bfb_13e9c7fa",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-01-31T00:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe046761_189baa0e",
+      "range": {
+        "startLine": 348,
+        "startChar": 8,
+        "endLine": 349,
+        "endChar": 96
+      },
+      "revId": "63e0e80e889ebb1955ae96512287605f36e35704",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08a2d56e_45ea1bcf",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
         "patchSetId": 13
@@ -53,6 +95,24 @@
       "writtenOn": "2019-01-30T20:08:39Z",
       "side": 1,
       "message": "final",
+      "revId": "63e0e80e889ebb1955ae96512287605f36e35704",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01d612f7_aec419f6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-01-31T00:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08a2d56e_45ea1bcf",
       "revId": "63e0e80e889ebb1955ae96512287605f36e35704",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
