@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "248578b3_81dc2b87",
+        "filename": "features/bgp/odl-bgpcep-bgp-parser-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2019-02-01T20:46:40Z",
+      "side": 1,
+      "message": "It\u0027s needed to install the ODL blueprint extensions otherwise SFT fails.",
+      "parentUuid": "037d1073_b716e1ed",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 21
+      },
+      "revId": "0b93a91cd42fb920f301e28f7ed39cd4ade553f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07bb364e_d9cd0b97",
         "filename": "features/rsvp/odl-bgpcep-rsvp-api/pom.xml",
         "patchSetId": 2
