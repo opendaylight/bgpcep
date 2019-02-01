@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "037d1073_b716e1ed",
+        "filename": "features/bgp/odl-bgpcep-bgp-parser-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2019-02-01T19:33:59Z",
+      "side": 1,
+      "message": "I don\u0027t see this missing on generated features",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 21
+      },
+      "revId": "0b93a91cd42fb920f301e28f7ed39cd4ade553f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07bb364e_d9cd0b97",
+        "filename": "features/rsvp/odl-bgpcep-rsvp-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2019-02-01T19:33:59Z",
+      "side": 1,
+      "message": "I don\u0027t see this missing on generated features",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 21
+      },
+      "revId": "0b93a91cd42fb920f301e28f7ed39cd4ade553f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
