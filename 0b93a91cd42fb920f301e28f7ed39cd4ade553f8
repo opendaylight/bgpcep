@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "33bda044_32247f57",
+        "filename": "features/bgp/odl-bgpcep-bgp-parser-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2019-02-01T20:52:54Z",
+      "side": 1,
+      "message": "Prior, SFT didn\u0027t actually test the blueprint XML b/c the ODL blueprint extensions weren\u0027t installed in order to process the XML file under org/opendaylight/blueprint. Now that the XML files are under the standard OSGI-INF path, they\u0027re processed by the Aries extender thus odl-mdsal-broker has to be installed either directly or transitively.",
+      "parentUuid": "248578b3_81dc2b87",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 21
+      },
+      "revId": "0b93a91cd42fb920f301e28f7ed39cd4ade553f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07bb364e_d9cd0b97",
         "filename": "features/rsvp/odl-bgpcep-rsvp-api/pom.xml",
         "patchSetId": 2
