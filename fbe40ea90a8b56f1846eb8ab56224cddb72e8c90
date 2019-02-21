@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a5c83351_7af77006",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2019-02-21T13:54:25Z",
+      "side": 1,
+      "message": "constructor signature is coming from blueprint, there will be always this number of parameters somewhere",
+      "parentUuid": "4900e644_b127258f",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 64
+      },
+      "revId": "fbe40ea90a8b56f1846eb8ab56224cddb72e8c90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "779e7967_16527cc1",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImplTest.java",
         "patchSetId": 4
@@ -53,6 +77,30 @@
       "writtenOn": "2019-01-30T20:16:50Z",
       "side": 1,
       "message": "I think we could get a real instance from parent, cpuld you take a look?",
+      "range": {
+        "startLine": 134,
+        "startChar": 8,
+        "endLine": 134,
+        "endChar": 53
+      },
+      "revId": "fbe40ea90a8b56f1846eb8ab56224cddb72e8c90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "616b179e_0a68a7e8",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImplTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 4674
+      },
+      "writtenOn": "2019-02-21T13:54:25Z",
+      "side": 1,
+      "message": "yes we can, but we need mocked dataTreeRegistration for testing",
+      "parentUuid": "2d1bb5ca_96e7cc94",
       "range": {
         "startLine": 134,
         "startChar": 8,
