@@ -330,7 +330,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final YangInstanceIdentifier effAttrsPath = effectiveTablePath.node(ATTRIBUTES_NID);
             final Optional<NormalizedNode<?, ?>> optAttrsAfter = modifiedAttrs.getDataAfter();
             if (optAttrsAfter.isPresent()) {
-                tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath, effectiveAttributes(optAttrsAfter));
+                tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath, effectiveAttributes(
+                    NormalizedNodes.findNode(optAttrsAfter.get(), UPTODATE_NID)));
             } else {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, effAttrsPath);
             }
