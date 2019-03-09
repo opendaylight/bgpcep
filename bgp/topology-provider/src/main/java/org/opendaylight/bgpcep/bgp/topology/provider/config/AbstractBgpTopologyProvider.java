@@ -47,7 +47,7 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
 
     @Override
     public final void onTopologyBuilderCreated(final Topology topology) {
-        LOG.debug("Cretaing topology builder instance {}", topology);
+        LOG.debug("Creating topology builder instance {}", topology);
         final TopologyReferenceSingletonService currentInstance = this.topologyBuilders.get(topology.getTopologyId());
         if (currentInstance == null || !currentInstance.getConfiguration().equals(topology)) {
             final TopologyReferenceSingletonService topologyBuilder = createInstance(topology);
