@@ -50,6 +50,8 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
 
     @GuardedBy("this")
     private final Set<BgpTopologyProvider> topologyProviders = new HashSet<>();
+    @GuardedBy("this")
+    private final Set<Topology> topologies = new HashSet<>();
     private final DataBroker dataBroker;
     private final BundleContext context;
     private final ClusterSingletonServiceProvider singletonProvider;
@@ -86,16 +88,20 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
                 case DELETE:
                     filterTopologyBuilders(dataBefore)
                             .forEach(provider -> provider.onTopologyBuilderRemoved(dataBefore));
+                    this.topologies.remove(dataBefore);
                     break;
                 case SUBTREE_MODIFIED:
                     filterTopologyBuilders(dataBefore).forEach(provider
                         -> provider.onTopologyBuilderRemoved(dataBefore));
+                    this.topologies.remove(dataBefore);
                     filterTopologyBuilders(dataAfter).forEach(provider
                         -> provider.onTopologyBuilderCreated(dataAfter));
+                    this.topologies.add(dataAfter);
                     break;
                 case WRITE:
                     filterTopologyBuilders(dataAfter).forEach(provider
                         -> provider.onTopologyBuilderCreated(dataAfter));
+                    this.topologies.add(dataAfter);
                     break;
                 default:
                     break;
@@ -105,11 +111,14 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
 
     @Override
     public synchronized AbstractRegistration registerTopologyProvider(final BgpTopologyProvider topologyBuilder) {
+        filterTopologies(topologyBuilder).forEach(topology -> topologyBuilder.onTopologyBuilderCreated(topology));
         this.topologyProviders.add(topologyBuilder);
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (BgpTopologyDeployerImpl.this) {
+                    filterTopologies(topologyBuilder)
+                            .forEach(topology -> topologyBuilder.onTopologyBuilderRemoved(topology));
                     BgpTopologyDeployerImpl.this.topologyProviders.remove(topologyBuilder);
                 }
             }
@@ -160,6 +169,11 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
 
     private Iterable<BgpTopologyProvider> filterTopologyBuilders(final Topology topology) {
         return this.topologyProviders.stream().filter(input -> input.topologyTypeFilter(topology))
+                .collect(Collectors.toList());
+    }
+
+    private Iterable<Topology> filterTopologies(final BgpTopologyProvider topologyBuilder) {
+        return this.topologies.stream().filter(topology -> topologyBuilder.topologyTypeFilter(topology))
                 .collect(Collectors.toList());
     }
 
