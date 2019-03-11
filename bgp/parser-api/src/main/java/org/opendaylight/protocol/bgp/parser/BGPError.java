@@ -21,6 +21,10 @@ import java.util.Map;
  */
 public enum BGPError {
     /**
+     * Unspecific header error. 1/0, <a href="https://www.rfc-editor.org/errata_search.php?eid=4493">Errata 4493</a>.
+     */
+    UNSPECIFIC_HEADER_ERROR((short) 1, (short) 0),
+        /**
      * Connection Not Synchronized. 1/1
      */
     CONNECTION_NOT_SYNC((short) 1, (short) 1),
@@ -33,7 +37,7 @@ public enum BGPError {
      */
     BAD_MSG_TYPE((short) 1, (short) 3),
     /**
-     * Unspecific Open Message error.
+     * Unspecific Open Message error, <a href="https://www.rfc-editor.org/errata_search.php?eid=4493">Errata 4493</a>.
      */
     UNSPECIFIC_OPEN_ERROR((short) 2, (short) 0),
     /**
@@ -56,6 +60,10 @@ public enum BGPError {
      * Unacceptable Hold Time. 2/6
      */
     HOLD_TIME_NOT_ACC((short) 2, (short) 6),
+    /**
+     * Unspecific UPDATE error. 3/0, <a href="https://www.rfc-editor.org/errata_search.php?eid=4493">Errata 4493</a>.
+     */
+    UNSPECIFIC_UPDATE_ERROR((short) 3, (short) 0),
     /**
      * Malformed Attribute List. 3/1
      */
