@@ -241,8 +241,12 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             if (!filterRoutes(fromPeerId, ribSupport.getTablesKey())) {
                 continue;
             }
+            final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
+            if (fromPeer == null) {
+                LOG.debug("Failed to acquire peer structure for {}, ignoring route {}", fromPeerId, initializingRoute);
+                continue;
+            }
             final R route = initializingRoute.getRoute();
-
             final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer,
                     this, route.getRouteKey(), this.rtCache);
             final Optional<Attributes> effAttr = entryDep.getRoutingPolicies()
