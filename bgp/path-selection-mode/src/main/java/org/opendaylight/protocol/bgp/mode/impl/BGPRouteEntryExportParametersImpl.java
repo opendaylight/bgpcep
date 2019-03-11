@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -26,8 +28,8 @@ public final class BGPRouteEntryExportParametersImpl implements BGPRouteEntryExp
 
     public BGPRouteEntryExportParametersImpl(final Peer fromPeer, final Peer toPeer,
             final String routeKey, final RTCCache rtCache) {
-        this.fromPeer = fromPeer;
-        this.toPeer = toPeer;
+        this.fromPeer = requireNonNull(fromPeer);
+        this.toPeer = requireNonNull(toPeer);
         this.routeKey = routeKey;
         this.rtCache = rtCache;
     }
