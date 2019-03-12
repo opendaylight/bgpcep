@@ -41,8 +41,8 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
 
     AbstractBgpTopologyProvider(final BgpTopologyDeployer deployer) {
         this.deployer = deployer;
-        this.registration = deployer.registerTopologyProvider(this);
         this.dataBroker = deployer.getDataBroker();
+        this.registration = deployer.registerTopologyProvider(this);
     }
 
     @Override
