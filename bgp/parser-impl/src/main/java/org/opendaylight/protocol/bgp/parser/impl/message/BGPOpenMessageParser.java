@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -70,7 +70,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
-        Preconditions.checkArgument(msg instanceof Open, "Message needs to be of type Open");
+        checkArgument(msg instanceof Open, "Message needs to be of type Open, not %s", msg);
         final Open open = (Open) msg;
         final ByteBuf msgBody = Unpooled.buffer();
 
@@ -86,12 +86,22 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         msgBody.writeBytes(Ipv4Util.bytesForAddress(open.getBgpIdentifier()));
 
         final ByteBuf paramsBuffer = Unpooled.buffer();
-        if (open.getBgpParameters() != null) {
-            for (final BgpParameters param : open.getBgpParameters()) {
+        final List<BgpParameters> params = open.getBgpParameters();
+        if (params != null) {
+            for (final BgpParameters param : params) {
                 this.reg.serializeParameter(param, paramsBuffer);
             }
         }
-        msgBody.writeByte(paramsBuffer.writerIndex());
+        final int paramsLength = paramsBuffer.writerIndex();
+        if (paramsLength > 255) {
+            LOG.error("OPEN message message optional parameter length %s exceeds maximum length supported by BGP. "
+                + "Adjust advertized capabilities toward the peer to fit into limit of 255 bytes by trimming %s",
+                paramsLength, params);
+            throw new IllegalArgumentException(String.format(
+                "Cannot encode OPEN message because optional parameter length %s exceeds length field size.",
+                paramsLength));
+        }
+        msgBody.writeByte(paramsLength);
         msgBody.writeBytes(paramsBuffer);
 
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
@@ -108,7 +118,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
     @Override
     public Open parseMessageBody(final ByteBuf body, final int messageLength,
             final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
-        Preconditions.checkArgument(body != null, "Buffer cannot be null.");
+        checkArgument(body != null, "Buffer cannot be null.");
 
         if (body.readableBytes() < MIN_MSG_LENGTH) {
             throw BGPDocumentedException.badMessageLength("Open message too small.", messageLength);
@@ -142,8 +152,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
     }
 
     private void fillParams(final ByteBuf buffer, final List<BgpParameters> params) throws BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-                "Buffer cannot be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Buffer cannot be null or empty.");
         if (LOG.isTraceEnabled()) {
             LOG.trace("Started parsing of BGP parameter: {}", ByteBufUtil.hexDump(buffer));
         }
