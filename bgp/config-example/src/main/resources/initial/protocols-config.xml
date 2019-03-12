@@ -143,11 +143,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -156,11 +156,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -169,11 +169,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -182,11 +182,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -195,11 +195,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -208,11 +208,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -221,11 +221,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -234,11 +234,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -247,11 +247,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -260,11 +260,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -273,11 +273,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -286,11 +286,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -299,11 +299,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -312,11 +312,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -325,11 +325,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -338,11 +338,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -351,11 +351,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -389,11 +389,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -402,11 +402,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -415,11 +415,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -428,11 +428,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -441,11 +441,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -454,11 +454,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -467,11 +467,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -480,11 +480,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -493,11 +493,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -506,11 +506,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -519,11 +519,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -532,11 +532,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -545,11 +545,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -558,11 +558,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -571,11 +571,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -584,11 +584,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
@@ -597,11 +597,11 @@
                             <graceful-restart>
                                 <config>
                                     <enabled>true</enabled>
-                                    <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                                    <!--ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
                                         <config>
                                             <long-lived-stale-time>180</long-lived-stale-time>
                                         </config>
-                                    </ll-graceful-restart>
+                                    </ll-graceful-restart-->
                                 </config>
                             </graceful-restart>
                         </afi-safi>
