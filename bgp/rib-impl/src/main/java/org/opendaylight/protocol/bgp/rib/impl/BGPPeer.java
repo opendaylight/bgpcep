@@ -112,7 +112,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final TablesKey IPV4_UCAST_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
         UnicastSubsequentAddressFamily.class);
 
-    private Set<TablesKey> tables = Collections.emptySet();
+    private ImmutableSet<TablesKey> tables = ImmutableSet.of();
+    private ImmutableSet<TablesKey> advertizedTables = ImmutableSet.of();
     private final RIB rib;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
@@ -339,7 +340,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 createEffRibInWriter();
                 this.effRibInWriter.init();
                 registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
-                for (final TablesKey key : this.tables) {
+                for (final TablesKey key : this.advertizedTables) {
                     createAdjRibOutListener(key, true);
                 }
                 setLocalRestartingState(false);
@@ -372,6 +373,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
                 .collect(Collectors.toSet());
         this.tables = ImmutableSet.copyOf(setTables);
+        this.advertizedTables = ImmutableSet.copyOf(Sets.intersection(tables, getAfiSafisAdvertized()));
+
         this.addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         final boolean restartingLocally = isLocalRestarting();
 
@@ -449,7 +452,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         if (!restartingLocally) {
             addBgp4Support();
-            for (final TablesKey key : this.tables) {
+            for (final TablesKey key : this.advertizedTables) {
                 createAdjRibOutListener(key, true);
             }
         }
@@ -576,7 +579,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (this.effRibInWriter != null) {
             this.effRibInWriter.close();
         }
-        this.tables = Collections.emptySet();
+        this.tables = ImmutableSet.of();
         this.addPathTableMaps = Collections.emptyMap();
         future = removePeer(this.peerPath);
         resetState();
@@ -632,7 +635,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
-        return this.tables.contains(tableKey) && this.sessionUp;
+        return this.advertizedTables.contains(tableKey) && this.sessionUp;
     }
 
     @Override
