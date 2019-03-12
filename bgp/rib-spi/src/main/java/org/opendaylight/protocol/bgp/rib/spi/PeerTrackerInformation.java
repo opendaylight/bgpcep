@@ -53,10 +53,11 @@ public interface PeerTrackerInformation {
     SendReceive getSupportedAddPathTables(@Nonnull TablesKey tableKey);
 
     /**
-     * Returns true if peer supports table.
+     * Returns true if peer supports table and we have advertized support for it, i.e. any prefix from this table should
+     * be subject to export towards the peer.
      *
      * @param tableKey table
-     * @return true if Additional Path is supported for defined table
+     * @return true if the table is supported by the peer and we have advertized support for it.
      */
     boolean supportsTable(@Nonnull TablesKey tableKey);
 
