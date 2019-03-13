@@ -220,19 +220,20 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     }
 
     private synchronized void rebootNeighbors(final DataObjectModification<PeerGroups> dataObjectModification) {
-        PeerGroups peerGroups = dataObjectModification.getDataAfter();
-        if (peerGroups == null) {
-            peerGroups = dataObjectModification.getDataBefore();
+        PeerGroups extPeerGroups = dataObjectModification.getDataAfter();
+        if (extPeerGroups == null) {
+            extPeerGroups = dataObjectModification.getDataBefore();
         }
-        if (peerGroups == null) {
+        if (extPeerGroups == null) {
             return;
         }
-        for (final PeerGroup peerGroup : peerGroups.getPeerGroup()) {
+        for (final PeerGroup peerGroup : extPeerGroups.getPeerGroup()) {
             this.bgpCss.values().forEach(css -> css.restartNeighbors(peerGroup.getPeerGroupName()));
         }
     }
 
     @Override
+    @SuppressWarnings("checkstyle:illegalCatch")
     public synchronized void close() {
         LOG.info("Closing BGP Deployer.");
         if (this.registration != null) {
@@ -245,10 +246,9 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
             try {
                 service.close();
             } catch (Exception e) {
-                LOG.warn("Failed to close BGP Cluster Singleton Service.");
+                LOG.warn("Failed to close BGP Cluster Singleton Service.", e);
             }
         });
-
     }
 
     private static FluentFuture<? extends CommitInfo> initializeNetworkInstance(
