@@ -38,7 +38,7 @@ public class SimpleFlowspecTypeRegistry {
     public FlowspecType parseFlowspecType(final ByteBuf buffer) {
         final short type = buffer.readUnsignedByte();
         final FlowspecTypeParser parser = getFlowspecTypeParser(type);
-        requireNonNull(parser, "parser for flowspec type "+ type +" is not registered");
+        requireNonNull(parser, "parser for flowspec type " + type + " is not registered");
         return parser.parseType(buffer);
     }
 
