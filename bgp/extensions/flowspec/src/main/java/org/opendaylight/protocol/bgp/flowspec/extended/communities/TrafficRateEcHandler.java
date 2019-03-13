@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.flowspec.extended.communities;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ByteArray;
@@ -33,9 +31,12 @@ public class TrafficRateEcHandler implements ExtendedCommunityParser, ExtendedCo
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.TrafficRateExtendedCommunity,
+        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+            .flowspec.rev180329.TrafficRateExtendedCommunity,
                 "The extended community %s is not TrafficRateExtendedCommunity type.", extendedCommunity);
-        final TrafficRateExtendedCommunity trafficRate = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.TrafficRateExtendedCommunity) extendedCommunity).getTrafficRateExtendedCommunity();
+        final TrafficRateExtendedCommunity trafficRate = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                .yang.bgp.flowspec.rev180329.TrafficRateExtendedCommunity) extendedCommunity)
+                .getTrafficRateExtendedCommunity();
         ByteBufWriteUtil.writeShort(trafficRate.getInformativeAs().getValue().shortValue(), byteAggregator);
         byteAggregator.writeBytes(trafficRate.getLocalAdministrator().getValue());
     }
@@ -52,7 +53,7 @@ public class TrafficRateEcHandler implements ExtendedCommunityParser, ExtendedCo
     }
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         final ShortAsNumber as = new ShortAsNumber((long) buffer.readUnsignedShort());
         final Bandwidth value = new Bandwidth(ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE));
         return new TrafficRateExtendedCommunityCaseBuilder().setTrafficRateExtendedCommunity(

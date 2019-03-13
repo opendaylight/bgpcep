@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.flowspec.extended.communities;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.BitArray;
@@ -36,9 +34,12 @@ public class TrafficActionEcHandler implements ExtendedCommunityParser, Extended
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.TrafficActionExtendedCommunity,
+        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+            .flowspec.rev180329.TrafficActionExtendedCommunity,
                 "The extended community %s is not TrafficActionExtendedCommunityCase type.", extendedCommunity);
-        final TrafficActionExtendedCommunity trafficAction = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.TrafficActionExtendedCommunity) extendedCommunity).getTrafficActionExtendedCommunity();
+        final TrafficActionExtendedCommunity trafficAction = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
+                .ns.yang.bgp.flowspec.rev180329.TrafficActionExtendedCommunity) extendedCommunity)
+                .getTrafficActionExtendedCommunity();
         byteAggregator.writeZero(RESERVED);
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(SAMPLE_BIT, trafficAction.isSample());
@@ -58,7 +59,7 @@ public class TrafficActionEcHandler implements ExtendedCommunityParser, Extended
     }
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         buffer.skipBytes(RESERVED);
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         final boolean sample = flags.get(SAMPLE_BIT);
@@ -69,5 +70,4 @@ public class TrafficActionEcHandler implements ExtendedCommunityParser, Extended
                     .setTerminalAction(terminal)
                     .build()).build();
     }
-
 }

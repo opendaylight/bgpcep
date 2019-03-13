@@ -32,16 +32,6 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
     private static final int GREATER_THAN = 6;
     private static final int EQUAL = 7;
 
-    /**
-     * Serializes specific numeric operand type depending on the length field value.
-     *
-     * @param list of operands to be serialized
-     * @param nlriByteBuf where the operands will be serialized
-     */
-    protected abstract <T extends N> void serialize(final List<T> list, final ByteBuf nlriByteBuf);
-
-    protected abstract <T extends N> String toString(final List<T> list);
-
     @Override
     public final NumericOperand create(final Set<String> operandValues) {
         return new NumericOperand(
@@ -65,6 +55,14 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
         final byte byteLength = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
         buffer.writeByte(operandValues.toByte() | byteLength);
     }
+
+    /**
+     * Serializes specific numeric operand type depending on the length field value.
+     *
+     * @param list of operands to be serialized
+     * @param nlriByteBuf where the operands will be serialized
+     */
+    protected abstract <T extends N> void serialize(List<T> list, ByteBuf nlriByteBuf);
 
     @Override
     public final NumericOperand parse(final byte operand) {
@@ -105,4 +103,6 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
         }
         return buffer.toString();
     }
+
+    protected abstract <T extends N> String toString(List<T> list);
 }

@@ -69,8 +69,8 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update
             .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case UNREACH_NLRI
             = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update
-            .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.
-            DestinationFlowspecL3vpnIpv4CaseBuilder().setDestinationFlowspecL3vpnIpv4(DEST_FLOW).build();
+            .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4CaseBuilder()
+            .setDestinationFlowspecL3vpnIpv4(DEST_FLOW).build();
     private FlowspecL3vpnIpv4RIBSupport ribSupport;
 
     static {
@@ -110,7 +110,8 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(
-            new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()), ATTRIBUTES);
+            new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()),
+            ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(Attributes1.class));
@@ -119,8 +120,10 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(createRoutes(
-            new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()), Collections.emptyList(), ATTRIBUTES);
-        final AdvertizedRoutes advertised = update.getAttributes().augmentation(Attributes1.class).getMpReachNlri().getAdvertizedRoutes();
+            new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()),
+            Collections.emptyList(), ATTRIBUTES);
+        final AdvertizedRoutes advertised = update.getAttributes().augmentation(Attributes1.class).getMpReachNlri()
+                .getAdvertizedRoutes();
         assertEquals(REACH_NLRI, advertised.getDestinationType());
         assertNull(update.getAttributes().augmentation(Attributes2.class));
     }

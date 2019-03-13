@@ -101,8 +101,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
     @Test
     public void testPutRoutes() {
         this.ribSupport.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
-        final FlowspecRoute route = (FlowspecRoute) this.insertedRoutes.get(0).getValue();
-        assertEquals(this.route, route);
+        assertEquals(this.route, this.insertedRoutes.get(0).getValue());
     }
 
     @Test
@@ -185,10 +184,9 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
         Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
 
-        final Routes routes = new FlowspecIpv6RoutesCaseBuilder()
-                .setFlowspecIpv6Routes(new FlowspecIpv6RoutesBuilder()
-            .setFlowspecRoute(Collections.singletonList(this.route)).build()).build();
-        tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
+        tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(new FlowspecIpv6RoutesCaseBuilder()
+            .setFlowspecIpv6Routes(new FlowspecIpv6RoutesBuilder()
+                .setFlowspecRoute(Collections.singletonList(this.route)).build()).build())).getRootNode();
         final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }

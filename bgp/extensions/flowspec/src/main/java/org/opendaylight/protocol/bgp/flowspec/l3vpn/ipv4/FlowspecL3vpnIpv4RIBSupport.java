@@ -58,7 +58,7 @@ public final class FlowspecL3vpnIpv4RIBSupport
     public static synchronized FlowspecL3vpnIpv4RIBSupport getInstance(
             final SimpleFlowspecExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        if(SINGLETON == null){
+        if (SINGLETON == null) {
             SINGLETON = new FlowspecL3vpnIpv4RIBSupport(context, mappingService);
         }
         return SINGLETON;

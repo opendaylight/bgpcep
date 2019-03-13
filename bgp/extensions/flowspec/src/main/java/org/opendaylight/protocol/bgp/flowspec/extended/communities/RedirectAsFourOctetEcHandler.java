@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.flowspec.extended.communities;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
@@ -29,15 +27,17 @@ public final class RedirectAsFourOctetEcHandler implements ExtendedCommunityPars
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.RedirectAs4ExtendedCommunity,
+        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+            .flowspec.rev180329.RedirectAs4ExtendedCommunity,
                 "The extended community %s is not RedirectAs4ExtendedCommunityCase type.", extendedCommunity);
-        final RedirectAs4 redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.RedirectAs4ExtendedCommunity) extendedCommunity).getRedirectAs4();
+        final RedirectAs4 redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec
+                .rev180329.RedirectAs4ExtendedCommunity) extendedCommunity).getRedirectAs4();
         ByteBufWriteUtil.writeUnsignedInt(redirect.getGlobalAdministrator().getValue(), byteAggregator);
         ByteBufWriteUtil.writeUnsignedShort(redirect.getLocalAdministrator(), byteAggregator);
     }
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         final RedirectAs4Builder builder = new RedirectAs4Builder();
         builder.setGlobalAdministrator(new AsNumber(buffer.readUnsignedInt()));
         builder.setLocalAdministrator(buffer.readUnsignedShort());
@@ -53,5 +53,4 @@ public final class RedirectAsFourOctetEcHandler implements ExtendedCommunityPars
     public int getSubType() {
         return SUBTYPE;
     }
-
 }

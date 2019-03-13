@@ -14,8 +14,8 @@ public class SimpleFlowspecExtensionProviderContext {
 
         public final int index;
 
-        AFI(int i) {
-            this.index = i;
+        AFI(int index) {
+            this.index = index;
         }
     }
 
@@ -25,12 +25,12 @@ public class SimpleFlowspecExtensionProviderContext {
 
         public final int index;
 
-        SAFI(int i) {
-            this.index = i;
+        SAFI(int index) {
+            this.index = index;
         }
     }
 
-    private final SimpleFlowspecTypeRegistry flowspecTypeRegistries[][] = new SimpleFlowspecTypeRegistry[2][2];
+    private final SimpleFlowspecTypeRegistry[][] flowspecTypeRegistries = new SimpleFlowspecTypeRegistry[2][2];
 
     public SimpleFlowspecExtensionProviderContext() {
         for (AFI afi : AFI.values()) {
