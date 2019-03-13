@@ -459,6 +459,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             case WRITE:
                 writeRoute(tx, ribSupport, routePath, route.getDataBefore(), route.getDataAfter().get(),
                     longLivedStale);
+                break;
             default:
                 LOG.warn("Ignoring unhandled route {}", route);
                 break;
