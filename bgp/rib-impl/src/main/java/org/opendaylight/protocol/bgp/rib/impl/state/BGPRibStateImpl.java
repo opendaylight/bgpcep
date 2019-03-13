@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-public class BGPRIBStateImpl extends DefaultRibReference implements BGPRibState, BGPRibStateConsumer {
+public class BGPRibStateImpl extends DefaultRibReference implements BGPRibState, BGPRibStateConsumer {
     private final BgpId routeId;
     private final AsNumber localAs;
     @GuardedBy("this")
@@ -36,7 +36,7 @@ public class BGPRIBStateImpl extends DefaultRibReference implements BGPRibState,
     @GuardedBy("this")
     private boolean active;
 
-    protected BGPRIBStateImpl(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
+    protected BGPRibStateImpl(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
         @Nonnull final BgpId routeId, @Nonnull final AsNumber localAs) {
         super(instanceIdentifier);
         this.routeId = requireNonNull(routeId);
