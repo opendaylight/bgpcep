@@ -35,7 +35,7 @@ public abstract class AbstractBmpMessageParser implements BmpMessageParser, BmpM
 
     @Override
     public final Notification parseMessage(final ByteBuf bytes) throws BmpDeserializationException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable());
+        //Preconditions.checkArgument(bytes != null && bytes.isReadable());
         final Notification parsedMessage = parseMessageBody(bytes);
         LOG.trace("Parsed BMP message: {}", parsedMessage);
         return parsedMessage;

@@ -18,9 +18,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.InitiationMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.description.tlv.DescriptionTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.description.tlv.DescriptionTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.initiation.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.initiation.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.name.tlv.NameTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.name.tlv.NameTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.string.informations.StringInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.string.informations.StringInformationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.string.tlv.StringTlv;
@@ -51,10 +53,14 @@ public class InitiationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuild
         parseTlvs(tlvsBuilder, bytes);
 
         if (tlvsBuilder.getDescriptionTlv() == null || tlvsBuilder.getDescriptionTlv().getDescription() == null) {
-            throw new BmpDeserializationException("Inclusion of sysDescr TLV is mandatory.");
+            DescriptionTlv descriptionTlv = new DescriptionTlvBuilder().setDescription("default description").build();
+            tlvsBuilder.setDescriptionTlv(descriptionTlv);
+            //throw new BmpDeserializationException("Inclusion of sysDescr TLV is mandatory.");
         }
         if (tlvsBuilder.getNameTlv() == null || tlvsBuilder.getNameTlv().getName() == null) {
-            throw new BmpDeserializationException("Inclusion of sysName TLV is mandatory.");
+            NameTlv nameTlv = new NameTlvBuilder().setName("default name").build();
+            tlvsBuilder.setNameTlv(nameTlv);
+            //throw new BmpDeserializationException("Inclusion of sysName TLV is mandatory.");
         }
 
         return initiationBuilder.setTlvs(tlvsBuilder.build()).build();
