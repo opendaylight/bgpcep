@@ -180,7 +180,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("Creating RIB instance with configuration: {}", global);
         this.ribImpl = new RibImpl(ribExtensionContext, dispatcher, policyFactory, codecFactory, domBroker, dataBroker,
                 schemaService);
-        initiateRibInstance(global, this.ribImpl);
+        initiateRibInstance(global);
         LOG.debug("RIB instance created: {}", this.ribImpl);
     }
 
@@ -188,7 +188,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("Modifying RIB instance with configuration: {}", global);
         final List<PeerBean> closedPeers = closeAllBindedPeers();
         closeRibService();
-        initiateRibInstance(global, this.ribImpl);
+        initiateRibInstance(global);
         for (final PeerBean peer : closedPeers) {
             peer.restart(this.ribImpl, this.bgpIid, this.peerGroupLoader, this.tableTypeRegistry);
         }
@@ -198,6 +198,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("RIB instance created: {}", this.ribImpl);
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     private void closeRibService() {
         try {
             this.ribImpl.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
@@ -207,7 +208,8 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         this.ribImpl.close();
     }
 
-    private synchronized void initiateRibInstance(final Global global, final RibImpl ribImpl) {
+    @GuardedBy("this")
+    private void initiateRibInstance(final Global global) {
         final String ribInstanceName = getRibInstanceName(this.bgpIid);
         ribImpl.start(global, ribInstanceName, this.tableTypeRegistry);
         if (this.instantiated.get()) {
@@ -215,6 +217,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     private synchronized List<PeerBean> closeAllBindedPeers() {
         final List<PeerBean> filtered = new ArrayList<>();
         this.peers.forEach((key, peer) -> {
@@ -308,6 +311,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("Peer instance updated {}", bgpPeer);
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     private static void closePeer(final PeerBean bgpPeer) {
         if (bgpPeer != null) {
             try {
@@ -325,9 +329,9 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         final PeerBean bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(this.bgpIid, neighbor.key()));
 
         final Optional<String> groupName = getPeerGroupName(neighbor.getConfig());
-        groupName.ifPresent(s -> this.peersGroups.computeIfPresent(s, (k, peers) -> {
-            peers.remove(bgpPeer);
-            return peers.isEmpty() ? null : peers;
+        groupName.ifPresent(s -> this.peersGroups.computeIfPresent(s, (k, groupPeers) -> {
+            groupPeers.remove(bgpPeer);
+            return groupPeers.isEmpty() ? null : groupPeers;
         }));
         closePeer(bgpPeer);
     }
@@ -342,6 +346,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     synchronized void restartNeighbors(final String peerGroupName) {
         final List<PeerBean> peerGroup = this.peersGroups.get(peerGroupName);
         if (peerGroup == null) {
