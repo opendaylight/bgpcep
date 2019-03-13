@@ -9,10 +9,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -218,10 +220,12 @@ public class BGPSessionImplTest {
 
     @Test
     public void testSessionRecoveryOnException() throws Exception {
-        final BGPSessionListener listener = mock(BGPSessionListener.class);
-        doThrow(new RuntimeException("Mocked runtime exception."))
-                .when(listener).onSessionUp(any());
-        this.bgpSession = spy(new BGPSessionImpl(listener, this.speakerListener, this.classicOpen,
+        final BGPSessionListener mockListener = mock(BGPSessionListener.class);
+        final IllegalStateException mockedEx = new IllegalStateException("Mocked runtime exception.");
+
+        doThrow(mockedEx).when(mockListener).onSessionUp(any());
+        doNothing().when(mockListener).onSessionTerminated(any(), any());
+        this.bgpSession = spy(new BGPSessionImpl(mockListener, this.speakerListener, this.classicOpen,
                 this.classicOpen.getHoldTimer(), null));
         this.bgpSession.setChannelExtMsgCoder(this.classicOpen);
 
@@ -230,14 +234,15 @@ public class BGPSessionImplTest {
         verify(this.bgpSession, never()).terminate(any(BGPDocumentedException.class));
         try {
             this.bgpSession.sessionUp();
-            fail();  // expect the exception to be populated
-        } catch (final RuntimeException ignored) {
-            // Ignored
+            // expect the exception to be populated
+            fail();
+        } catch (final IllegalStateException e) {
+            assertSame(mockedEx, e);
         }
         assertNotEquals(State.UP, this.bgpSession.getState());
         verify(this.bgpSession).handleException(any());
         verify(this.bgpSession).writeAndFlush(any(Notification.class));
         verify(this.bgpSession).terminate(any(BGPDocumentedException.class));
-        verify(listener).onSessionTerminated(this.bgpSession, new BGPTerminationReason(BGPError.CEASE));
+        verify(mockListener).onSessionTerminated(this.bgpSession, new BGPTerminationReason(BGPError.CEASE));
     }
 }
