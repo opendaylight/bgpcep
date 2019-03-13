@@ -192,11 +192,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     @Override
     public void close() {
         if (this.ribImpl != null) {
-            try {
-                this.ribImpl.close();
-            } catch (final Exception e) {
-                LOG.warn("Failed to close {} rib instance", this, e);
-            }
+            this.ribImpl.close();
             this.ribImpl = null;
         }
         if (this.schemaContextRegistration != null) {

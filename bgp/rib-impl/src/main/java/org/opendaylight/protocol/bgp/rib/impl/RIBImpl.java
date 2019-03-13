@@ -215,7 +215,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         if (this.registration != null) {
             this.registration.close();
             this.registration = null;
