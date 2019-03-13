@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -19,15 +18,17 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.prefix._case.PrefixDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<IpPrefix>, LinkstateTlvParser<IpPrefix> {
-    public static final QName IP_REACHABILITY_QNAME = QName.create(PrefixDescriptors.QNAME, "ip-reachability-information").intern();
+public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<IpPrefix>,
+        LinkstateTlvParser<IpPrefix> {
+    public static final QName IP_REACHABILITY_QNAME = QName.create(PrefixDescriptors.QNAME,
+        "ip-reachability-information").intern();
     @VisibleForTesting
-    public static final YangInstanceIdentifier.NodeIdentifier IP_REACH_NID = new YangInstanceIdentifier.NodeIdentifier(IP_REACHABILITY_QNAME);
+    public static final NodeIdentifier IP_REACH_NID = NodeIdentifier.create(IP_REACHABILITY_QNAME);
     private static final Logger LOG = LoggerFactory.getLogger(ReachTlvParser.class);
     private static final int IP_REACHABILITY = 265;
 

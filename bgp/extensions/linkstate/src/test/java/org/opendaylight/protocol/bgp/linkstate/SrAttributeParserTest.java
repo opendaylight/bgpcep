@@ -14,18 +14,14 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.BindingSidLabelParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.Ipv6SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.RangeTlvParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SidLabelIndexParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrPrefixAttributesParser;
@@ -93,8 +89,11 @@ public class SrAttributeParserTest {
     private static final byte[] IPV6_B_BYTES = { 0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 };
     private static final Ipv6Address IPV6_B = new Ipv6Address("2001:db8::2");
 
-    private static final IsisPrefixFlagsCase ISIS_PREFIX_FLAGS = new IsisPrefixFlagsCaseBuilder().setReadvertisement(Boolean.TRUE).setNodeSid(Boolean.FALSE).setNoPhp(Boolean.TRUE).setExplicitNull(Boolean.FALSE).build();
-    private static final OspfPrefixFlagsCase OSPF_PREFIX_FLAGS = new OspfPrefixFlagsCaseBuilder().setNoPhp(Boolean.FALSE).setMappingServer(Boolean.TRUE).setExplicitNull(Boolean.FALSE).build();
+    private static final IsisPrefixFlagsCase ISIS_PREFIX_FLAGS = new IsisPrefixFlagsCaseBuilder()
+            .setReadvertisement(Boolean.TRUE).setNodeSid(Boolean.FALSE).setNoPhp(Boolean.TRUE)
+            .setExplicitNull(Boolean.FALSE).build();
+    private static final OspfPrefixFlagsCase OSPF_PREFIX_FLAGS = new OspfPrefixFlagsCaseBuilder()
+            .setNoPhp(Boolean.FALSE).setMappingServer(Boolean.TRUE).setExplicitNull(Boolean.FALSE).build();
 
     private static final IsisBindingFlagsCase BINDING_FLAGS = new IsisBindingFlagsCaseBuilder()
         .setAddressFamily(Boolean.FALSE)
@@ -116,7 +115,8 @@ public class SrAttributeParserTest {
 
     @Before
     public void setUp() throws Exception {
-        final BGPActivator act = new BGPActivator(true, ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
+        final BGPActivator act = new BGPActivator(true,
+            ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
     }
@@ -124,7 +124,8 @@ public class SrAttributeParserTest {
     @Test
     public void testSrAlgorithm() {
         final byte[] bytes = { 0 };
-        final SrAlgorithm alg = new SrAlgorithmBuilder().setAlgorithms(Lists.newArrayList(Algorithm.ShortestPathFirst)).build();
+        final SrAlgorithm alg = new SrAlgorithmBuilder().setAlgorithms(Lists.newArrayList(Algorithm.ShortestPathFirst))
+                .build();
         final SrAlgorithm empty = new SrAlgorithmBuilder().setAlgorithms(Collections.emptyList()).build();
         assertEquals(alg, SrNodeAttributesParser.parseSrAlgorithms(Unpooled.wrappedBuffer(bytes)));
         final ByteBuf b = Unpooled.buffer();
@@ -141,10 +142,16 @@ public class SrAttributeParserTest {
     public void testSrCapabilities() {
         final byte[] bytesIsis = { (byte)0xC0, 0, 0, 0, 10, 4, (byte)0x89, 0, 4, 1, 2, 3, 4 };
         final byte[] bytesOspf = { 0, 0, 0, 0, 10, 4, (byte)0x89, 0, 4, 1, 2, 3, 4 };
-        final SrCapabilities capsIsis = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.TRUE).setMplsIpv6(Boolean.TRUE).setSrIpv6(Boolean.FALSE).setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).setRangeSize((long) 10).build();
-        final SrCapabilities capsOspf = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.FALSE).setMplsIpv6(Boolean.FALSE).setSrIpv6(Boolean.FALSE).setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).setRangeSize((long) 10).build();
-        assertEquals(capsIsis, SrNodeAttributesParser.parseSrCapabilities(Unpooled.wrappedBuffer(bytesIsis), ProtocolId.IsisLevel1));
-        assertEquals(capsOspf, SrNodeAttributesParser.parseSrCapabilities(Unpooled.wrappedBuffer(bytesIsis), ProtocolId.Ospf));
+        final SrCapabilities capsIsis = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.TRUE).setMplsIpv6(Boolean.TRUE)
+                .setSrIpv6(Boolean.FALSE).setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build())
+                .setRangeSize((long) 10).build();
+        final SrCapabilities capsOspf = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.FALSE)
+                .setMplsIpv6(Boolean.FALSE).setSrIpv6(Boolean.FALSE).setSidLabelIndex(new SidCaseBuilder()
+                    .setSid(16909060L).build()).setRangeSize((long) 10).build();
+        assertEquals(capsIsis,
+            SrNodeAttributesParser.parseSrCapabilities(Unpooled.wrappedBuffer(bytesIsis), ProtocolId.IsisLevel1));
+        assertEquals(capsOspf,
+            SrNodeAttributesParser.parseSrCapabilities(Unpooled.wrappedBuffer(bytesIsis), ProtocolId.Ospf));
         final ByteBuf encodedIsis = Unpooled.buffer();
         final ByteBuf encodedOspf = Unpooled.buffer();
         SrNodeAttributesParser.serializeSrCapabilities(capsIsis, encodedIsis);
@@ -160,12 +167,16 @@ public class SrAttributeParserTest {
         final byte[] bytesOspf = { (byte)0x20, 0, 0, 0, 1, 2, 3, 4 };
         final SrPrefix prefixIsis = new SrPrefixBuilder()
             .setFlags(ISIS_PREFIX_FLAGS)
-            .setAlgorithm(Algorithm.ShortestPathFirst).setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).build();
+            .setAlgorithm(Algorithm.ShortestPathFirst).setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build())
+            .build();
         final SrPrefix prefixOspf = new SrPrefixBuilder()
             .setFlags(OSPF_PREFIX_FLAGS)
-            .setAlgorithm(Algorithm.ShortestPathFirst).setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).build();
-        assertEquals(prefixIsis, SrPrefixAttributesParser.parseSrPrefix(Unpooled.wrappedBuffer(bytes), ProtocolId.IsisLevel1));
-        assertEquals(prefixOspf, SrPrefixAttributesParser.parseSrPrefix(Unpooled.wrappedBuffer(bytes), ProtocolId.Ospf));
+            .setAlgorithm(Algorithm.ShortestPathFirst).setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build())
+            .build();
+        assertEquals(prefixIsis,
+            SrPrefixAttributesParser.parseSrPrefix(Unpooled.wrappedBuffer(bytes), ProtocolId.IsisLevel1));
+        assertEquals(prefixOspf,
+            SrPrefixAttributesParser.parseSrPrefix(Unpooled.wrappedBuffer(bytes), ProtocolId.Ospf));
         final ByteBuf serializedPrefix = Unpooled.buffer();
         final ByteBuf serializedPrefixOspf = Unpooled.buffer();
         SrPrefixAttributesParser.serializeSrPrefix(prefixIsis, serializedPrefix);
@@ -206,7 +217,8 @@ public class SrAttributeParserTest {
 
         final List<SubTlvs> rangeSubTlvs = new ArrayList<>();
         addSubTlvs(rangeSubTlvs);
-        final SrRange expected = new SrRangeBuilder().setInterArea(Boolean.FALSE).setRangeSize(5).setSubTlvs(rangeSubTlvs).build();
+        final SrRange expected = new SrRangeBuilder().setInterArea(Boolean.FALSE).setRangeSize(5)
+                .setSubTlvs(rangeSubTlvs).build();
 
         assertEquals(expected, parsedRange);
 
@@ -223,7 +235,8 @@ public class SrAttributeParserTest {
             new PrefixSidTlvCaseBuilder()
                 .setFlags(ISIS_PREFIX_FLAGS)
                 .setAlgorithm(Algorithm.StrictShortestPathFirst)
-                .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(66048L)).build()).build()).build());
+                .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(66048L)).build()).build())
+            .build());
         final List<BindingSubTlvs> bindingSubTlvs = new ArrayList<>();
         addBindingSubTlvs(bindingSubTlvs);
         rangeSubTlvs.add(new SubTlvsBuilder().setRangeSubTlv(
@@ -241,17 +254,21 @@ public class SrAttributeParserTest {
                 .setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build())
                 .build()).build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new SidLabelCaseBuilder().setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).build()).build());
+            new SidLabelCaseBuilder().setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).build())
+            .build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
             new EroMetricCaseBuilder().setEroMetric(new TeMetric(6L)).build()).build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
             new Ipv4EroCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv4Address("9.8.7.6")).build()).build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new UnnumberedInterfaceIdEroCaseBuilder().setLoose(Boolean.FALSE).setRouterId(16843009L).setInterfaceId(33686018L).build()).build());
+            new UnnumberedInterfaceIdEroCaseBuilder().setLoose(Boolean.FALSE).setRouterId(16843009L)
+            .setInterfaceId(33686018L).build()).build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new Ipv4EroBackupCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv4Address("3.4.5.6")).build()).build());
+            new Ipv4EroBackupCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv4Address("3.4.5.6")).build())
+            .build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new UnnumberedInterfaceIdBackupEroCaseBuilder().setLoose(Boolean.FALSE).setRouterId(50529027L).setInterfaceId(67372036L).build()).build());
+            new UnnumberedInterfaceIdBackupEroCaseBuilder().setLoose(Boolean.FALSE).setRouterId(50529027L)
+            .setInterfaceId(67372036L).build()).build());
     }
 
     @Test
@@ -271,13 +288,15 @@ public class SrAttributeParserTest {
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
             new Ipv6EroCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_A)).build()).build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new Ipv6EroBackupCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_B)).build()).build());
+            new Ipv6EroBackupCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_B)).build())
+            .build());
         rangeSubTlvs.add(new SubTlvsBuilder().setRangeSubTlv(
             new BindingSidTlvCaseBuilder()
                 .setWeight(new Weight((short) 5))
                 .setFlags(BINDING_FLAGS)
                 .setBindingSubTlvs(bindingSubTlvs).build()).build());
-        final SrRange expected = new SrRangeBuilder().setInterArea(Boolean.FALSE).setRangeSize(5).setSubTlvs(rangeSubTlvs).build();
+        final SrRange expected = new SrRangeBuilder().setInterArea(Boolean.FALSE).setRangeSize(5)
+                .setSubTlvs(rangeSubTlvs).build();
 
         assertEquals(expected, parsedRange);
 
@@ -295,14 +314,18 @@ public class SrAttributeParserTest {
         final SrAdjIds srAdjId = new SrAdjIdsBuilder()
             .setFlags(ISIS_ADJ_FLAGS)
             .setWeight(new Weight((short) 10))
-            .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
+            .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(
+                Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
         final SrAdjIds ospfAdj = new SrAdjIdsBuilder()
             .setFlags(OSPF_ADJ_FLAGS)
             .setWeight(new Weight((short) 10))
-            .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
+            .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(
+                Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
 
-        assertEquals(srAdjId, new SrAdjIdsBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1)).build());
-        assertEquals(ospfAdj, new SrAdjIdsBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(testedOspf), ProtocolId.Ospf)).build());
+        assertEquals(srAdjId, new SrAdjIdsBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(
+            Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1)).build());
+        assertEquals(ospfAdj, new SrAdjIdsBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(
+            Unpooled.wrappedBuffer(testedOspf), ProtocolId.Ospf)).build());
         final ByteBuf serializedData = SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(srAdjId);
         final ByteBuf serializedOspf = SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(ospfAdj);
         assertArrayEquals(tested, ByteArray.readAllBytes(serializedData));
@@ -317,100 +340,27 @@ public class SrAttributeParserTest {
             .setWeight(new Weight((short)10))
             .setNeighborId(new Ipv4Address("1.2.3.4"))
             .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(24000L)).build()).build();
-        assertEquals(srLanAdjId, SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(tested), ProtocolId.Ospf));
+        assertEquals(srLanAdjId, SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(
+            Unpooled.wrappedBuffer(tested), ProtocolId.Ospf));
         final ByteBuf serializedData = SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifier(srLanAdjId);
         assertArrayEquals(tested, ByteArray.readAllBytes(serializedData));
     }
 
     @Test
     public void testSrLanAdjIdIsis() {
-        final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+        final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+            15, 16 };
         final byte[] sidLabel = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
         final byte[] systemId = { 1, 2, 3, 4, 5, 6 };
         final SrLanAdjIds srLanAdjId = new SrLanAdjIdsBuilder()
             .setFlags(ISIS_ADJ_FLAGS)
             .setWeight(new Weight((short)10))
             .setIsoSystemId(new IsoSystemIdentifier(systemId))
-            .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
-        assertEquals(srLanAdjId, SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1));
+            .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(
+                Unpooled.copiedBuffer(sidLabel))).build()).build();
+        assertEquals(srLanAdjId, SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(
+            Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1));
         final ByteBuf serializedData = SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifier(srLanAdjId);
         assertArrayEquals(tested, ByteArray.readAllBytes(serializedData));
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testSrLinkAttributesPrivateConstructor() throws Throwable {
-        final Constructor<SrLinkAttributesParser> c = SrLinkAttributesParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testSrNodeAttributesPrivateConstructor() throws Throwable {
-        final Constructor<SrNodeAttributesParser> c = SrNodeAttributesParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testSrPrefixAttributesPrivateConstructor() throws Throwable {
-        final Constructor<SrPrefixAttributesParser> c = SrPrefixAttributesParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testIpv6SrPrefixAttributesPrivateConstructor() throws Throwable {
-        final Constructor<Ipv6SrPrefixAttributesParser> c = Ipv6SrPrefixAttributesParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testBindingParserPrivateConstructor() throws Throwable {
-        final Constructor<BindingSidLabelParser> c = BindingSidLabelParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testRangeTlvParserPrivateConstructor() throws Throwable {
-        final Constructor<RangeTlvParser> c = RangeTlvParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testSidLabelIndexParserPrivateConstructor() throws Throwable {
-        final Constructor<SidLabelIndexParser> c = SidLabelIndexParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 }

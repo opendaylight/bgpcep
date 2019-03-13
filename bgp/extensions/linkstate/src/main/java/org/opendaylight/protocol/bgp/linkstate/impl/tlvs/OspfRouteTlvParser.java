@@ -8,16 +8,13 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import io.netty.buffer.ByteBuf;
-import java.util.Optional;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.OspfRouteType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.prefix._case.PrefixDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 
 public final class OspfRouteTlvParser implements LinkstateTlvParser<OspfRouteType>,
         LinkstateTlvParser.LinkstateTlvSerializer<OspfRouteType> {
@@ -48,31 +45,28 @@ public final class OspfRouteTlvParser implements LinkstateTlvParser<OspfRouteTyp
     }
 
     public static OspfRouteType serializeModel(final ContainerNode prefixDesc) {
-        final Optional<DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>> ospfRoute
-                = prefixDesc.getChild(OSPF_ROUTE_NID);
-        return ospfRoute.map(dataContainerChild
-                -> OspfRouteType.forValue(domOspfRouteTypeValue((String) dataContainerChild.getValue())))
-                .orElse(null);
+        return prefixDesc.getChild(OSPF_ROUTE_NID).map(
+            dataContainerChild -> OspfRouteType.forValue(domOspfRouteTypeValue((String) dataContainerChild.getValue())))
+            .orElse(null);
     }
-
 
     // FIXME : use codec
     private static int domOspfRouteTypeValue(final String ospfRouteType) {
         switch (ospfRouteType) {
-        case "intra-area":
-            return OspfRouteType.IntraArea.getIntValue();
-        case "inter-area":
-            return OspfRouteType.InterArea.getIntValue();
-        case "external1":
-            return OspfRouteType.External1.getIntValue();
-        case "external2":
-            return OspfRouteType.External2.getIntValue();
-        case "nssa1":
-            return OspfRouteType.Nssa1.getIntValue();
-        case "nssa2":
-            return OspfRouteType.Nssa2.getIntValue();
-        default:
-            return 0;
+            case "intra-area":
+                return OspfRouteType.IntraArea.getIntValue();
+            case "inter-area":
+                return OspfRouteType.InterArea.getIntValue();
+            case "external1":
+                return OspfRouteType.External1.getIntValue();
+            case "external2":
+                return OspfRouteType.External2.getIntValue();
+            case "nssa1":
+                return OspfRouteType.Nssa1.getIntValue();
+            case "nssa2":
+                return OspfRouteType.Nssa2.getIntValue();
+            default:
+                return 0;
         }
     }
 }

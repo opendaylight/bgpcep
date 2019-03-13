@@ -31,7 +31,7 @@ public final class SrNodeAttributesParser {
     private static final int RESERVERED = 1;
 
     private SrNodeAttributesParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     public static SrCapabilities parseSrCapabilities(final ByteBuf buffer, final ProtocolId protocol) {

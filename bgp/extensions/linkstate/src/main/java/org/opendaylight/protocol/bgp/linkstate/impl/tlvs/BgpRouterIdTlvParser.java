@@ -15,12 +15,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.epe.rev150622.EpeNodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 
-public final class BgpRouterIdTlvParser implements LinkstateTlvParser<Ipv4Address>, LinkstateTlvParser.LinkstateTlvSerializer<Ipv4Address> {
+public final class BgpRouterIdTlvParser implements LinkstateTlvParser<Ipv4Address>,
+        LinkstateTlvParser.LinkstateTlvSerializer<Ipv4Address> {
 
     private static final int BGP_ROUTER_ID = 516;
 
     public static final QName BGP_ROUTER_ID_QNAME = QName.create(EpeNodeDescriptors.QNAME, "bgp-router-id").intern();
-
 
     @Override
     public void serializeTlvBody(final Ipv4Address tlv, final ByteBuf body) {
@@ -41,5 +41,4 @@ public final class BgpRouterIdTlvParser implements LinkstateTlvParser<Ipv4Addres
     public QName getTlvQName() {
         return BGP_ROUTER_ID_QNAME;
     }
-
 }

@@ -32,7 +32,7 @@ public final class SidLabelIndexParser {
     private static final int LABEL_MASK = 0xfffff;
 
     private SidLabelIndexParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     public enum Size {
@@ -81,15 +81,15 @@ public final class SidLabelIndexParser {
 
     public static SidLabelIndex parseSidLabelIndex(final Size length, final ByteBuf buffer) {
         switch (length) {
-        case LABEL:
-            return new LocalLabelCaseBuilder()
-                    .setLocalLabel(new MplsLabel(Long.valueOf(buffer.readUnsignedMedium() & LABEL_MASK))).build();
-        case SID:
-            return new SidCaseBuilder().setSid(buffer.readUnsignedInt()).build();
-        case IPV6_ADD:
-            return new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(buffer)).build();
-        default:
-            return null;
+            case LABEL:
+                return new LocalLabelCaseBuilder()
+                        .setLocalLabel(new MplsLabel(Long.valueOf(buffer.readUnsignedMedium() & LABEL_MASK))).build();
+            case SID:
+                return new SidCaseBuilder().setSid(buffer.readUnsignedInt()).build();
+            case IPV6_ADD:
+                return new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(buffer)).build();
+            default:
+                return null;
         }
     }
 

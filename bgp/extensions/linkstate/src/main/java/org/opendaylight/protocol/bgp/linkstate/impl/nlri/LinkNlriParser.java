@@ -38,15 +38,21 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
 
     /* Link Descriptor QNames */
     @VisibleForTesting
-    public static final NodeIdentifier IPV4_IFACE_NID = new NodeIdentifier(Ipv4InterfaceTlvParser.IPV4_IFACE_ADDRESS_QNAME);
+    public static final NodeIdentifier IPV4_IFACE_NID = NodeIdentifier.create(
+        Ipv4InterfaceTlvParser.IPV4_IFACE_ADDRESS_QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier IPV4_NEIGHBOR_NID = new NodeIdentifier(Ipv4NeighborTlvParser.IPV4_NEIGHBOR_ADDRESS_QNAME);
+    public static final NodeIdentifier IPV4_NEIGHBOR_NID = NodeIdentifier.create(
+        Ipv4NeighborTlvParser.IPV4_NEIGHBOR_ADDRESS_QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier LINK_LOCAL_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "link-local-identifier").intern());
+    public static final NodeIdentifier LINK_LOCAL_NID = NodeIdentifier.create(
+        QName.create(LinkDescriptors.QNAME, "link-local-identifier").intern());
     @VisibleForTesting
-    public static final NodeIdentifier LINK_REMOTE_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "link-remote-identifier").intern());
-    private static final NodeIdentifier IPV6_IFACE_NID = new NodeIdentifier(Ipv6InterfaceTlvParser.IPV6_IFACE_ADDRESS_QNAME);
-    private static final NodeIdentifier IPV6_NEIGHBOR_NID = new NodeIdentifier(Ipv6NeighborTlvParser.IPV6_NEIGHBOR_ADDRESS_QNAME);
+    public static final NodeIdentifier LINK_REMOTE_NID = NodeIdentifier.create(
+        QName.create(LinkDescriptors.QNAME, "link-remote-identifier").intern());
+    private static final NodeIdentifier IPV6_IFACE_NID = NodeIdentifier.create(
+        Ipv6InterfaceTlvParser.IPV6_IFACE_ADDRESS_QNAME);
+    private static final NodeIdentifier IPV6_NEIGHBOR_NID = NodeIdentifier.create(
+        Ipv6NeighborTlvParser.IPV6_NEIGHBOR_ADDRESS_QNAME);
 
     @FunctionalInterface
     private interface SerializerInterface {
@@ -60,15 +66,21 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
             linkDescBuilder.setLinkLocalIdentifier((Long) descriptors.getChild(LINK_LOCAL_NID).get().getValue());
             linkDescBuilder.setLinkRemoteIdentifier((Long) descriptors.getChild(LINK_REMOTE_NID).get().getValue());
         }
-        ifPresentApply(descriptors, IPV4_IFACE_NID, value -> linkDescBuilder.setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier((String) value)));
-        ifPresentApply(descriptors, IPV6_IFACE_NID, value -> linkDescBuilder.setIpv6InterfaceAddress(new Ipv6InterfaceIdentifier((String) value)));
-        ifPresentApply(descriptors, IPV4_NEIGHBOR_NID, value -> linkDescBuilder.setIpv4NeighborAddress(new Ipv4InterfaceIdentifier((String) value)));
-        ifPresentApply(descriptors, IPV6_NEIGHBOR_NID, value -> linkDescBuilder.setIpv6NeighborAddress(new Ipv6InterfaceIdentifier((String) value)));
-        ifPresentApply(descriptors, TlvUtil.MULTI_TOPOLOGY_NID, value -> linkDescBuilder.setMultiTopologyId(new TopologyIdentifier((Integer) value)));
+        ifPresentApply(descriptors, IPV4_IFACE_NID,
+            value -> linkDescBuilder.setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier((String) value)));
+        ifPresentApply(descriptors, IPV6_IFACE_NID,
+            value -> linkDescBuilder.setIpv6InterfaceAddress(new Ipv6InterfaceIdentifier((String) value)));
+        ifPresentApply(descriptors, IPV4_NEIGHBOR_NID,
+            value -> linkDescBuilder.setIpv4NeighborAddress(new Ipv4InterfaceIdentifier((String) value)));
+        ifPresentApply(descriptors, IPV6_NEIGHBOR_NID,
+            value -> linkDescBuilder.setIpv6NeighborAddress(new Ipv6InterfaceIdentifier((String) value)));
+        ifPresentApply(descriptors, TlvUtil.MULTI_TOPOLOGY_NID,
+            value -> linkDescBuilder.setMultiTopologyId(new TopologyIdentifier((Integer) value)));
         return linkDescBuilder.build();
     }
 
-    private static void ifPresentApply(final ContainerNode descriptors, final NodeIdentifier nid, final SerializerInterface serializer) {
+    private static void ifPresentApply(final ContainerNode descriptors, final NodeIdentifier nid,
+            final SerializerInterface serializer) {
         if (descriptors.getChild(nid).isPresent()) {
             serializer.check(descriptors.getChild(nid).get().getValue());
         }
@@ -83,10 +95,14 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
             builder.setLinkLocalIdentifier(linkIdentifiers.getLinkLocalIdentifier());
             builder.setLinkRemoteIdentifier(linkIdentifiers.getLinkRemoteIdentifier());
         }
-        builder.setIpv4InterfaceAddress((Ipv4InterfaceIdentifier) tlvs.get(Ipv4InterfaceTlvParser.IPV4_IFACE_ADDRESS_QNAME));
-        builder.setIpv4NeighborAddress((Ipv4InterfaceIdentifier) tlvs.get(Ipv4NeighborTlvParser.IPV4_NEIGHBOR_ADDRESS_QNAME));
-        builder.setIpv6InterfaceAddress((Ipv6InterfaceIdentifier) tlvs.get(Ipv6InterfaceTlvParser.IPV6_IFACE_ADDRESS_QNAME));
-        builder.setIpv6NeighborAddress((Ipv6InterfaceIdentifier) tlvs.get(Ipv6NeighborTlvParser.IPV6_NEIGHBOR_ADDRESS_QNAME));
+        builder.setIpv4InterfaceAddress(
+            (Ipv4InterfaceIdentifier) tlvs.get(Ipv4InterfaceTlvParser.IPV4_IFACE_ADDRESS_QNAME));
+        builder.setIpv4NeighborAddress(
+            (Ipv4InterfaceIdentifier) tlvs.get(Ipv4NeighborTlvParser.IPV4_NEIGHBOR_ADDRESS_QNAME));
+        builder.setIpv6InterfaceAddress(
+            (Ipv6InterfaceIdentifier) tlvs.get(Ipv6InterfaceTlvParser.IPV6_IFACE_ADDRESS_QNAME));
+        builder.setIpv6NeighborAddress(
+            (Ipv6InterfaceIdentifier) tlvs.get(Ipv6NeighborTlvParser.IPV6_NEIGHBOR_ADDRESS_QNAME));
         builder.setMultiTopologyId((TopologyIdentifier) tlvs.get(MultiTopoIdTlvParser.MULTI_TOPOLOGY_ID_QNAME));
 
         return builder.build();
@@ -119,10 +135,14 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
         if (linkDescriptor.getLinkLocalIdentifier() != null && linkDescriptor.getLinkRemoteIdentifier() != null) {
             reg.serializeTlv(LinkLrIdentifiers.QNAME, linkDescriptor, body);
         }
-        reg.serializeTlv(Ipv4InterfaceTlvParser.IPV4_IFACE_ADDRESS_QNAME, linkDescriptor.getIpv4InterfaceAddress(), body);
-        reg.serializeTlv(Ipv4NeighborTlvParser.IPV4_NEIGHBOR_ADDRESS_QNAME, linkDescriptor.getIpv4NeighborAddress(), body);
-        reg.serializeTlv(Ipv6InterfaceTlvParser.IPV6_IFACE_ADDRESS_QNAME, linkDescriptor.getIpv6InterfaceAddress(), body);
-        reg.serializeTlv(Ipv6NeighborTlvParser.IPV6_NEIGHBOR_ADDRESS_QNAME, linkDescriptor.getIpv6NeighborAddress(), body);
+        reg.serializeTlv(Ipv4InterfaceTlvParser.IPV4_IFACE_ADDRESS_QNAME, linkDescriptor.getIpv4InterfaceAddress(),
+            body);
+        reg.serializeTlv(Ipv4NeighborTlvParser.IPV4_NEIGHBOR_ADDRESS_QNAME, linkDescriptor.getIpv4NeighborAddress(),
+            body);
+        reg.serializeTlv(Ipv6InterfaceTlvParser.IPV6_IFACE_ADDRESS_QNAME, linkDescriptor.getIpv6InterfaceAddress(),
+            body);
+        reg.serializeTlv(Ipv6NeighborTlvParser.IPV6_NEIGHBOR_ADDRESS_QNAME, linkDescriptor.getIpv6NeighborAddress(),
+            body);
         reg.serializeTlv(MultiTopoIdTlvParser.MULTI_TOPOLOGY_ID_QNAME, linkDescriptor.getMultiTopologyId(), body);
     }
 

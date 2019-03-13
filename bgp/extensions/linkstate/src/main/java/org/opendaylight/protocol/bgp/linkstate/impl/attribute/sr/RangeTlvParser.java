@@ -44,7 +44,7 @@ public final class RangeTlvParser {
     private static final int RESERVED = 1;
 
     private RangeTlvParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     public static SrRange parseSrRange(final ByteBuf buffer, final ProtocolId protocolId) {
@@ -69,22 +69,27 @@ public final class RangeTlvParser {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
             switch (type) {
-            case PREFIX_SID:
-                subTlvCase = new PrefixSidTlvCaseBuilder(SrPrefixAttributesParser.parseSrPrefix(buffer.readSlice(length), protocolId)).build();
-                break;
-            case IPV6_PREFIX_SID:
-                subTlvCase = new Ipv6PrefixSidTlvCaseBuilder(Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(buffer.readSlice(length))).build();
-                break;
-            case BINDING_SID:
-                subTlvCase = new BindingSidTlvCaseBuilder(BindingSidLabelParser.parseBindingSidLabel(buffer.readSlice(length), protocolId)).build();
-                break;
-            case SID_TYPE:
-                subTlvCase = new SidLabelTlvCaseBuilder().setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndex(Size.forValue(length), buffer.readSlice(length))).build();
-                break;
-            default:
-                LOG.info("Unknown type of range sub-tlv: {}", type);
-                buffer.skipBytes(length);
-                continue;
+                case PREFIX_SID:
+                    subTlvCase = new PrefixSidTlvCaseBuilder(
+                        SrPrefixAttributesParser.parseSrPrefix(buffer.readSlice(length), protocolId)).build();
+                    break;
+                case IPV6_PREFIX_SID:
+                    subTlvCase = new Ipv6PrefixSidTlvCaseBuilder(
+                        Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(buffer.readSlice(length))).build();
+                    break;
+                case BINDING_SID:
+                    subTlvCase = new BindingSidTlvCaseBuilder(
+                        BindingSidLabelParser.parseBindingSidLabel(buffer.readSlice(length), protocolId)).build();
+                    break;
+                case SID_TYPE:
+                    subTlvCase = new SidLabelTlvCaseBuilder().setSidLabelIndex(
+                        SidLabelIndexParser.parseSidLabelIndex(Size.forValue(length), buffer.readSlice(length)))
+                    .build();
+                    break;
+                default:
+                    LOG.info("Unknown type of range sub-tlv: {}", type);
+                    buffer.skipBytes(length);
+                    continue;
             }
             subTlvs.add(subTlv.setRangeSubTlv(subTlvCase).build());
         }

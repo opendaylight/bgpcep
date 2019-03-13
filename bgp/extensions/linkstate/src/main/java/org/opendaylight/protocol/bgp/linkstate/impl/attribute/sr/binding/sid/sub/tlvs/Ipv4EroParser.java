@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsParser;
@@ -41,7 +41,8 @@ public final class Ipv4EroParser implements BindingSubTlvsParser, BindingSubTlvs
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof Ipv4EroCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
+        checkArgument(bindingSubTlv instanceof Ipv4EroCase, "Wrong BindingSubTlv instance expected",
+            bindingSubTlv);
         final Ipv4EroCase ipv4Ero = (Ipv4EroCase) bindingSubTlv;
         TlvUtil.writeTLV(getType(), serializeIpv4EroCase(ipv4Ero.isLoose(), ipv4Ero.getAddress()), aggregator);
     }

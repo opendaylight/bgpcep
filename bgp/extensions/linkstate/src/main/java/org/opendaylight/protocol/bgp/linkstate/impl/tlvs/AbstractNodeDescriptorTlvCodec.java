@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import io.netty.buffer.ByteBuf;
@@ -32,18 +31,22 @@ abstract class AbstractNodeDescriptorTlvCodec {
             public Class<? extends DataContainer> getImplementedInterface() {
                 return NodeIdentifier.class;
             }
+
             @Override
             public AsNumber getAsNumber() {
                 return asNumber;
             }
+
             @Override
             public DomainIdentifier getDomainId() {
                 return domainId;
             }
+
             @Override
             public AreaIdentifier getAreaId() {
                 return areaId;
             }
+
             @Override
             public CRouterIdentifier getCRouterIdentifier() {
                 return routerId;
@@ -58,5 +61,4 @@ abstract class AbstractNodeDescriptorTlvCodec {
         tlvReg.serializeTlv(AreaIdTlvParser.AREA_ID_QNAME, tlv.getAreaId(), body);
         tlvReg.serializeTlv(CRouterIdentifier.QNAME, tlv.getCRouterIdentifier(), body);
     }
-
 }

@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SidLabelIndexParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsParser;
@@ -25,7 +25,8 @@ public final class SIDParser implements BindingSubTlvsParser, BindingSubTlvsSeri
 
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
-        final SidLabelIndex sid = SidLabelIndexParser.parseSidLabelIndex(SidLabelIndexParser.Size.forValue(slice.readableBytes()), slice);
+        final SidLabelIndex sid = SidLabelIndexParser.parseSidLabelIndex(SidLabelIndexParser.Size.forValue(
+            slice.readableBytes()), slice);
         return new SidLabelCaseBuilder().setSidLabelIndex(sid).build();
     }
 
@@ -36,7 +37,9 @@ public final class SIDParser implements BindingSubTlvsParser, BindingSubTlvsSeri
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof SidLabelCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
-        TlvUtil.writeTLV(getType(), SidLabelIndexParser.serializeSidValue(((SidLabelCase) bindingSubTlv).getSidLabelIndex()), aggregator);
+        checkArgument(bindingSubTlv instanceof SidLabelCase, "Wrong BindingSubTlv instance expected",
+            bindingSubTlv);
+        TlvUtil.writeTLV(getType(), SidLabelIndexParser.serializeSidValue(
+            ((SidLabelCase) bindingSubTlv).getSidLabelIndex()), aggregator);
     }
 }

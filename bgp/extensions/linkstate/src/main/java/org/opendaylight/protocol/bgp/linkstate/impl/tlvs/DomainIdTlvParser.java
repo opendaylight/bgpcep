@@ -14,7 +14,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 
-public final class DomainIdTlvParser implements LinkstateTlvParser<DomainIdentifier>, LinkstateTlvParser.LinkstateTlvSerializer<DomainIdentifier> {
+public final class DomainIdTlvParser implements LinkstateTlvParser<DomainIdentifier>,
+        LinkstateTlvParser.LinkstateTlvSerializer<DomainIdentifier> {
 
     private static final int BGP_LS_ID = 513;
 
@@ -39,5 +40,4 @@ public final class DomainIdTlvParser implements LinkstateTlvParser<DomainIdentif
     public QName getTlvQName() {
         return DOMAIN_ID_QNAME;
     }
-
 }

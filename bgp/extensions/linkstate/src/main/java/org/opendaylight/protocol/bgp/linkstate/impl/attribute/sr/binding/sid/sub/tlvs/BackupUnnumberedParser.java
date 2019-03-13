@@ -5,13 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.UnnumberedEroParser.parseUnnumberedEroCase;
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.UnnumberedEroParser.serializeUnnumberedIdEro;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsSerializer;
@@ -39,9 +38,10 @@ public final class BackupUnnumberedParser implements BindingSubTlvsParser, Bindi
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof UnnumberedInterfaceIdBackupEroCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
+        checkArgument(bindingSubTlv instanceof UnnumberedInterfaceIdBackupEroCase,
+            "Wrong BindingSubTlv instance expected", bindingSubTlv);
         final UnnumberedInterfaceIdBackupEroCase unnumberedBackup = (UnnumberedInterfaceIdBackupEroCase) bindingSubTlv;
-        TlvUtil.writeTLV(BACKUP_UNNUMBERED_ERO, serializeUnnumberedIdEro(unnumberedBackup.isLoose(), unnumberedBackup.getRouterId(),
-            unnumberedBackup.getInterfaceId()), aggregator);
+        TlvUtil.writeTLV(BACKUP_UNNUMBERED_ERO, serializeUnnumberedIdEro(unnumberedBackup.isLoose(),
+            unnumberedBackup.getRouterId(), unnumberedBackup.getInterfaceId()), aggregator);
     }
 }

@@ -94,6 +94,15 @@ public final class SimpleNlriTypeRegistry {
         return parseTlv(buffer, getParser(buffer));
     }
 
+    private static <T> T parseTlv(final ByteBuf buffer, final LinkstateTlvParser<T> parser) {
+        if (parser == null) {
+            return null;
+        }
+        checkArgument(buffer != null && buffer.isReadable());
+        final int length = buffer.readUnsignedShort();
+        return parser.parseTlvBody(buffer.readSlice(length));
+    }
+
     public Map<QName, Object> parseSubTlvs(final ByteBuf buffer) {
         final Map<QName, Object> tlvs = new HashMap<>();
         while (buffer.isReadable()) {
@@ -115,16 +124,6 @@ public final class SimpleNlriTypeRegistry {
         }
         return parser;
     }
-
-    private static <T> T parseTlv(final ByteBuf buffer, final LinkstateTlvParser<T> parser) {
-        if (parser == null) {
-            return null;
-        }
-        checkArgument(buffer != null && buffer.isReadable());
-        final int length = buffer.readUnsignedShort();
-        return parser.parseTlvBody(buffer.readSlice(length));
-    }
-
 
     public <T> void serializeTlv(final QName tlvQName, final T tlv, final ByteBuf buffer) {
         if (tlv == null) {

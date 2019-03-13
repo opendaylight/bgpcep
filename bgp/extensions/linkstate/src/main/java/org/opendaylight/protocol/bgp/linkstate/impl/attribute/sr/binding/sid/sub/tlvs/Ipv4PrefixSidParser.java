@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrPrefixAttributesParser;
@@ -38,10 +38,12 @@ public final class Ipv4PrefixSidParser implements BindingSubTlvsParser, BindingS
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof PrefixSidCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
+        checkArgument(bindingSubTlv instanceof PrefixSidCase, "Wrong BindingSubTlv instance expected",
+            bindingSubTlv);
         final PrefixSidCase prefix = (PrefixSidCase) bindingSubTlv;
         final ByteBuf buffer = Unpooled.buffer();
-        SrPrefixAttributesParser.serializePrefixAttributes(prefix.getFlags(), prefix.getAlgorithm(), prefix.getSidLabelIndex(), buffer);
+        SrPrefixAttributesParser.serializePrefixAttributes(prefix.getFlags(), prefix.getAlgorithm(),
+            prefix.getSidLabelIndex(), buffer);
         TlvUtil.writeTLV(getType(), buffer, aggregator);
     }
 }

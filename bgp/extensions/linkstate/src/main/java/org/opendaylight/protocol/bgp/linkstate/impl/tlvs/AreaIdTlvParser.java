@@ -14,7 +14,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 
-public final class AreaIdTlvParser implements LinkstateTlvParser<AreaIdentifier>, LinkstateTlvParser.LinkstateTlvSerializer<AreaIdentifier> {
+public final class AreaIdTlvParser implements LinkstateTlvParser<AreaIdentifier>,
+        LinkstateTlvParser.LinkstateTlvSerializer<AreaIdentifier> {
 
     private static final int AREA_ID = 514;
 
@@ -39,5 +40,4 @@ public final class AreaIdTlvParser implements LinkstateTlvParser<AreaIdentifier>
     public QName getTlvQName() {
         return AREA_ID_QNAME;
     }
-
 }

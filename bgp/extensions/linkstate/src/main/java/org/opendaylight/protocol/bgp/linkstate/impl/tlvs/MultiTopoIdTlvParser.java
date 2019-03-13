@@ -16,9 +16,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
-public final class MultiTopoIdTlvParser implements LinkstateTlvParser<TopologyIdentifier>, LinkstateTlvParser.LinkstateTlvSerializer<TopologyIdentifier> {
+public final class MultiTopoIdTlvParser implements LinkstateTlvParser<TopologyIdentifier>,
+        LinkstateTlvParser.LinkstateTlvSerializer<TopologyIdentifier> {
 
-    public static final QName MULTI_TOPOLOGY_ID_QNAME = QName.create(LinkDescriptors.QNAME, "multi-topology-id").intern();
+    public static final QName MULTI_TOPOLOGY_ID_QNAME = QName.create(LinkDescriptors.QNAME, "multi-topology-id")
+            .intern();
 
     @Override
     public void serializeTlvBody(final TopologyIdentifier tlv, final ByteBuf body) {

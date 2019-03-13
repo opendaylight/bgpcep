@@ -5,9 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
-
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.prefix.state.Ipv6SrPrefix;
@@ -18,7 +16,7 @@ public final class Ipv6SrPrefixAttributesParser {
     private static final int FLAGS_SIZE = 2;
 
     private Ipv6SrPrefixAttributesParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     public static Ipv6SrPrefix parseSrIpv6Prefix(final ByteBuf buffer) {

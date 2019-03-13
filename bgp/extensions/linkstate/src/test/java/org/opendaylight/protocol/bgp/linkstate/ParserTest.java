@@ -95,10 +95,8 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class ParserTest {
 
-    /**
-     * Used by other tests as well
-     */
-    private static final List<byte[]> inputBytes = new ArrayList<>();
+    // Used by other tests as well
+    private static final List<byte[]> INPUT_BYTES = new ArrayList<>();
 
     private static final int COUNTER = 4;
 
@@ -114,19 +112,19 @@ public class ParserTest {
             .getSingletonInstance().getAttributeRegistry(), mock(NlriRegistry.class));
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
-            try (final InputStream is = ParserTest.class.getResourceAsStream(name)){
+            try (InputStream is = ParserTest.class.getResourceAsStream(name)) {
                 if (is == null) {
                     throw new IOException("Failed to get resource " + name);
                 }
                 final ByteArrayOutputStream bis = new ByteArrayOutputStream();
                 final byte[] data = new byte[MAX_SIZE];
-                int nRead;
-                while ((nRead = is.read(data, 0, data.length)) != -1) {
-                    bis.write(data, 0, nRead);
+                int numRead;
+                while ((numRead = is.read(data, 0, data.length)) != -1) {
+                    bis.write(data, 0, numRead);
                 }
                 bis.flush();
 
-                inputBytes.add(bis.toByteArray());
+                INPUT_BYTES.add(bis.toByteArray());
                 is.close();
             }
         }
@@ -135,7 +133,7 @@ public class ParserTest {
 
     @Test
     public void testResource() {
-        assertNotNull(inputBytes);
+        assertNotNull(INPUT_BYTES);
     }
 
     /*
@@ -154,8 +152,8 @@ public class ParserTest {
      */
     @Test
     public void testEORLS() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(0), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0),
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(0), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(0),
             MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -170,7 +168,7 @@ public class ParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         ParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(0), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(0), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -324,8 +322,8 @@ public class ParserTest {
      */
     @Test
     public void testBGPLink() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(1), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1),
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(1), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(1),
             MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
@@ -415,9 +413,9 @@ public class ParserTest {
 
         paBuilder.addAugmentation(Attributes1.class, lsBuilder.build());
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.
-            Attributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.
-            bgp.linkstate.rev180329.Attributes1Builder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329
+            .Attributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .bgp.linkstate.rev180329.Attributes1Builder();
 
         lsAttrBuilder.setLinkStateAttribute(
             new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder()
@@ -444,7 +442,7 @@ public class ParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         ParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(1), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(1), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -532,9 +530,9 @@ public class ParserTest {
      */
     @Test
     public void testBGPNode() throws Exception {
-        final byte[] body = ByteArray.cutBytes(inputBytes.get(2), MessageUtil.COMMON_HEADER_LENGTH);
+        final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(2), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray
-            .bytesToInt(ByteArray.subByte(inputBytes.get(2), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+            .bytesToInt(ByteArray.subByte(INPUT_BYTES.get(2), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
 
@@ -623,7 +621,7 @@ public class ParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         ParserTest.updateParser.serializeMessage(message, buffer);
-        assertArrayEquals(inputBytes.get(2), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(2), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -660,13 +658,13 @@ public class ParserTest {
     public void testOpenMessage() throws Exception {
         final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext
             .getSingletonInstance().getMessageRegistry();
-        final Notification o = msgReg.parseMessage(Unpooled.copiedBuffer(inputBytes.get(3)), null);
+        final Notification o = msgReg.parseMessage(Unpooled.copiedBuffer(INPUT_BYTES.get(3)), null);
         final Open open = (Open) o;
         final Set<BgpTableType> types = Sets.newHashSet();
         for (final BgpParameters param : open.getBgpParameters()) {
             for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                 final CParameters cParam = optCapa.getCParameters();
-                if(cParam != null && cParam.augmentation(CParameters1.class) != null
+                if (cParam != null && cParam.augmentation(CParameters1.class) != null
                         && cParam.augmentation(CParameters1.class).getMultiprotocolCapability() != null) {
                     final MultiprotocolCapability mp = cParam.augmentation(CParameters1.class)
                             .getMultiprotocolCapability();
@@ -683,6 +681,6 @@ public class ParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         msgReg.serializeMessage(o, buffer);
-        assertArrayEquals(inputBytes.get(3), ByteArray.readAllBytes(buffer));
+        assertArrayEquals(INPUT_BYTES.get(3), ByteArray.readAllBytes(buffer));
     }
 }

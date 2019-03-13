@@ -18,7 +18,7 @@ public interface LinkstateTlvParser<T> {
 
     interface LinkstateTlvSerializer<T> {
 
-        void serializeTlvBody(final T tlv, final ByteBuf body);
+        void serializeTlvBody(T tlv, ByteBuf body);
 
         int getType();
 

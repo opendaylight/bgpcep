@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
@@ -42,7 +41,8 @@ abstract class AbstractPrefixNlriParser extends AbstractNlriTypeCodec {
     @Override
     protected final void serializeObjectType(final ObjectType objectType, final ByteBuf buffer) {
         final PrefixCase prefix = (PrefixCase) objectType;
-        SimpleNlriTypeRegistry.getInstance().serializeTlv(AdvertisingNodeDescriptors.QNAME, prefix.getAdvertisingNodeDescriptors(), buffer);
+        SimpleNlriTypeRegistry.getInstance().serializeTlv(AdvertisingNodeDescriptors.QNAME,
+            prefix.getAdvertisingNodeDescriptors(), buffer);
         serializePrefixDescriptor(prefix.getPrefixDescriptors(), buffer);
     }
 

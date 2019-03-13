@@ -36,7 +36,7 @@ public final class BindingSidLabelParser {
     private static final int RESERVED_BINDING_SID = 2;
 
     private BindingSidLabelParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     public static SrBindingSidLabels parseBindingSidLabel(final ByteBuf buffer, final ProtocolId protocolId) {
@@ -45,25 +45,29 @@ public final class BindingSidLabelParser {
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         bindingSid.setFlags(parseBindingSidFlags(flags, protocolId));
         buffer.skipBytes(RESERVED_BINDING_SID);
-        bindingSid.setBindingSubTlvs(SimpleBindingSubTlvsRegistry.getInstance().parseBindingSubTlvs(buffer, protocolId));
+        bindingSid.setBindingSubTlvs(
+            SimpleBindingSubTlvsRegistry.getInstance().parseBindingSubTlvs(buffer, protocolId));
         return bindingSid.build();
     }
 
     private static Flags parseBindingSidFlags(final BitArray flags, final ProtocolId protocol) {
         switch (protocol) {
-        case IsisLevel1:
-        case IsisLevel2:
-            return new IsisBindingFlagsCaseBuilder().setAddressFamily(flags.get(AFI)).setMirrorContext(flags.get(MIRROR_CONTEXT))
-                .setSpreadTlv(flags.get(SPREAD_TLV)).setLeakedFromLevel2(flags.get(LEAKED)).setAttachedFlag(flags.get(ATTACHED)).build();
-        case Ospf:
-        case OspfV3:
-            return new OspfBindingFlagsCaseBuilder().setMirroring(flags.get(MIRROR_CONTEXT_OSPF)).build();
-        default:
-            return null;
+            case IsisLevel1:
+            case IsisLevel2:
+                return new IsisBindingFlagsCaseBuilder().setAddressFamily(flags.get(AFI))
+                        .setMirrorContext(flags.get(MIRROR_CONTEXT))
+                        .setSpreadTlv(flags.get(SPREAD_TLV)).setLeakedFromLevel2(flags.get(LEAKED))
+                        .setAttachedFlag(flags.get(ATTACHED)).build();
+            case Ospf:
+            case OspfV3:
+                return new OspfBindingFlagsCaseBuilder().setMirroring(flags.get(MIRROR_CONTEXT_OSPF)).build();
+            default:
+                return null;
         }
     }
 
-    public static void serializeBindingSidAttributes(final Weight weight, final Flags flags, final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
+    public static void serializeBindingSidAttributes(final Weight weight, final Flags flags,
+            final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
         aggregator.writeByte(weight.getValue());
         final BitArray bitFlags = serializeBindingSidFlags(flags);
         bitFlags.toByteBuf(aggregator);

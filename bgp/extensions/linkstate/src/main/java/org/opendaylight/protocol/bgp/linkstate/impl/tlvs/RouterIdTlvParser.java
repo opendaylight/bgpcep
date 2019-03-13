@@ -33,7 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 
-public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdentifier>, LinkstateTlvParser.LinkstateTlvSerializer<CRouterIdentifier> {
+public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdentifier>,
+        LinkstateTlvParser.LinkstateTlvSerializer<CRouterIdentifier> {
 
     private static final int OSPF_PSEUDONODE_ROUTER_ID_LENGTH = 8;
     private static final int OSPF_ROUTER_ID_LENGTH = 4;
@@ -62,14 +63,17 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
 
     @Override
     public CRouterIdentifier parseTlvBody(final ByteBuf value) {
-        if (value.readableBytes() == ISO_SYSTEM_ID_LENGTH || (value.readableBytes() == ISO_SYSTEM_ID_LENGTH + PSN_LENGTH && value.getByte(ISO_SYSTEM_ID_LENGTH) == 0)) {
+        if (value.readableBytes() == ISO_SYSTEM_ID_LENGTH || value.readableBytes() == ISO_SYSTEM_ID_LENGTH + PSN_LENGTH
+                && value.getByte(ISO_SYSTEM_ID_LENGTH) == 0) {
             return new IsisNodeCaseBuilder().setIsisNode(
-                    new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.readBytes(value, ISO_SYSTEM_ID_LENGTH))).build()).build();
+                    new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(
+                        ByteArray.readBytes(value, ISO_SYSTEM_ID_LENGTH))).build()).build();
         }
         if (value.readableBytes() == ISO_SYSTEM_ID_LENGTH + PSN_LENGTH) {
             final IsIsRouterIdentifier iri = new IsIsRouterIdentifierBuilder().setIsoSystemId(
                     new IsoSystemIdentifier(ByteArray.readBytes(value, ISO_SYSTEM_ID_LENGTH))).build();
-            return new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn((short) value.readByte()).build()).build();
+            return new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder()
+                .setIsIsRouterIdentifier(iri).setPsn((short) value.readByte()).build()).build();
         }
         if (value.readableBytes() == OSPF_ROUTER_ID_LENGTH) {
             return new OspfNodeCaseBuilder().setOspfNode(
@@ -78,7 +82,8 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
         }
         if (value.readableBytes() == OSPF_PSEUDONODE_ROUTER_ID_LENGTH) {
             return new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                    new OspfPseudonodeBuilder().setOspfRouterId(value.readUnsignedInt()).setLanInterface(new OspfInterfaceIdentifier(value.readUnsignedInt())).build()).build();
+                    new OspfPseudonodeBuilder().setOspfRouterId(value.readUnsignedInt())
+                    .setLanInterface(new OspfInterfaceIdentifier(value.readUnsignedInt())).build()).build();
         }
         return null;
     }
@@ -92,6 +97,5 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
     public QName getTlvQName() {
         return CRouterIdentifier.QNAME;
     }
-
 }
 

@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsParser;
@@ -26,8 +26,9 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
         final UnnumberedInterfaceIdEroCase unnumbered = parseUnnumberedEroCase(slice);
-        return new UnnumberedInterfaceIdEroCaseBuilder().setLoose(unnumbered.isLoose()).setRouterId(unnumbered.getRouterId())
-            .setInterfaceId(unnumbered.getInterfaceId()).build();
+        return new UnnumberedInterfaceIdEroCaseBuilder().setLoose(unnumbered.isLoose())
+                .setRouterId(unnumbered.getRouterId())
+                .setInterfaceId(unnumbered.getInterfaceId()).build();
     }
 
     @Override
@@ -37,9 +38,11 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof UnnumberedInterfaceIdEroCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
+        checkArgument(bindingSubTlv instanceof UnnumberedInterfaceIdEroCase,
+            "Wrong BindingSubTlv instance expected", bindingSubTlv);
         final UnnumberedInterfaceIdEroCase unnumberedEro = (UnnumberedInterfaceIdEroCase) bindingSubTlv;
-        TlvUtil.writeTLV(getType(), serializeUnnumberedIdEro(unnumberedEro.isLoose(), unnumberedEro.getRouterId(), unnumberedEro.getInterfaceId()), aggregator);
+        TlvUtil.writeTLV(getType(), serializeUnnumberedIdEro(unnumberedEro.isLoose(), unnumberedEro.getRouterId(),
+            unnumberedEro.getInterfaceId()), aggregator);
     }
 
     static UnnumberedInterfaceIdEroCase parseUnnumberedEroCase(final ByteBuf buffer) {

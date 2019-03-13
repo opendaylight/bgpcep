@@ -99,7 +99,7 @@ public final class LinkAttributesParser {
     private static final int UTILIZED_BANDWIDTH = 1120;
 
     private LinkAttributesParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     @FunctionalInterface
@@ -114,7 +114,8 @@ public final class LinkAttributesParser {
      * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parseLinkAttributes(final Multimap<Integer, ByteBuf> attributes, final ProtocolId protocolId) {
+    static LinkStateAttribute parseLinkAttributes(final Multimap<Integer, ByteBuf> attributes,
+            final ProtocolId protocolId) {
         final LinkAttributesBuilder builder = new LinkAttributesBuilder();
         final List<SrAdjIds> srAdjIds = new ArrayList<>();
         final List<SrLanAdjIds> srLanAdjIds = new ArrayList<>();
@@ -124,117 +125,121 @@ public final class LinkAttributesParser {
             final int key = entry.getKey();
             final ByteBuf value = entry.getValue();
             switch (key) {
-            case TlvUtil.LOCAL_IPV4_ROUTER_ID:
-                builder.setLocalIpv4RouterId(new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value)));
-                LOG.debug("Parsed IPv4 Router-ID of local node: {}", builder.getLocalIpv4RouterId());
-                break;
-            case TlvUtil.LOCAL_IPV6_ROUTER_ID:
-                builder.setLocalIpv6RouterId(new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value)));
-                LOG.debug("Parsed IPv6 Router-ID of local node: {}", builder.getLocalIpv6RouterId());
-                break;
-            case REMOTE_IPV4_ROUTER_ID:
-                builder.setRemoteIpv4RouterId(new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value)));
-                LOG.debug("Parsed IPv4 Router-ID of remote node: {}", builder.getRemoteIpv4RouterId());
-                break;
-            case REMOTE_IPV6_ROUTER_ID:
-                builder.setRemoteIpv6RouterId(new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value)));
-                LOG.debug("Parsed IPv6 Router-ID of remote node: {}", builder.getRemoteIpv6RouterId());
-                break;
-            case ADMIN_GROUP:
-                builder.setAdminGroup(new AdministrativeGroup(value.readUnsignedInt()));
-                LOG.debug("Parsed Administrative Group {}", builder.getAdminGroup());
-                break;
-            case MAX_BANDWIDTH:
-                builder.setMaxLinkBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
-                LOG.debug("Parsed Max Bandwidth {}", builder.getMaxLinkBandwidth());
-                break;
-            case MAX_RESERVABLE_BANDWIDTH:
-                builder.setMaxReservableBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
-                LOG.debug("Parsed Max Reservable Bandwidth {}", builder.getMaxReservableBandwidth());
-                break;
-            case UNRESERVED_BANDWIDTH:
-                parseUnreservedBandwidth(value, builder);
-                break;
-            case TE_METRIC:
-                builder.setTeMetric(new TeMetric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
-                LOG.debug("Parsed Metric {}", builder.getTeMetric());
-                break;
-            case LINK_PROTECTION_TYPE:
-                builder.setLinkProtection(LinkProtectionType.forValue(value.readShort()));
-                LOG.debug("Parsed Link Protection Type {}", builder.getLinkProtection());
-                break;
-            case MPLS_PROTOCOL:
-                final BitArray bits = BitArray.valueOf(value, FLAGS_SIZE);
-                builder.setMplsProtocol(new MplsProtocolMask(bits.get(LDP_BIT), bits.get(RSVP_BIT)));
-                LOG.debug("Parsed MPLS Protocols: {}", builder.getMplsProtocol());
-                break;
-            case METRIC:
-                // length can 3, 2 or 1
-                builder.setMetric(new Metric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
-                LOG.debug("Parsed Metric {}", builder.getMetric());
-                break;
-            case SHARED_RISK_LINK_GROUP:
-                parseSrlg(value, builder);
-                break;
-            case LINK_OPAQUE:
-                LOG.debug("Parsed Opaque value : {}", ByteBufUtil.hexDump(value));
-                break;
-            case LINK_NAME:
-                builder.setLinkName(new String(ByteArray.readAllBytes(value), StandardCharsets.US_ASCII));
-                LOG.debug("Parsed Link Name : {}", builder.getLinkName());
-                break;
-            case SR_ADJ_ID:
-                srAdjIds.add(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocolId));
-                LOG.debug("Parsed Adjacency Segment Identifier :{}", srAdjIds.get(srAdjIds.size() - 1));
-                break;
-            case SR_LAN_ADJ_ID:
-                srLanAdjIds.add(SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value, protocolId));
-                LOG.debug("Parsed Adjacency Segment Identifier :{}", srLanAdjIds.get(srLanAdjIds.size() - 1));
-                break;
-            case PEER_NODE_SID_CODE:
-                builder.setPeerNodeSid(new PeerNodeSidBuilder(SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
-                LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerNodeSid());
-                break;
-            case PEER_ADJ_SID_CODE:
-                builder.setPeerAdjSid(new PeerAdjSidBuilder(SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
-                LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerAdjSid());
-                break;
-            case PEER_SET_SID_CODE:
-                peerSetSids.add(new PeerSetSidsBuilder(SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
-                LOG.debug("Parsed Peer Set Sid :{}", peerSetSids.get(peerSetSids.size() - 1));
-                break;
-            // Performance Metrics
-            case LINK_DELAY:
-                builder.setLinkDelay(new Delay(value.readUnsignedInt()));
-                LOG.debug("Parsed Link Delay {}", builder.getLinkDelay());
-                break;
-            case LINK_MIN_MAX_DELAY:
-                builder.setLinkMinMaxDelay(new LinkMinMaxDelayBuilder().setMinDelay(new Delay(value.readUnsignedInt()))
+                case TlvUtil.LOCAL_IPV4_ROUTER_ID:
+                    builder.setLocalIpv4RouterId(new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value)));
+                    LOG.debug("Parsed IPv4 Router-ID of local node: {}", builder.getLocalIpv4RouterId());
+                    break;
+                case TlvUtil.LOCAL_IPV6_ROUTER_ID:
+                    builder.setLocalIpv6RouterId(new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value)));
+                    LOG.debug("Parsed IPv6 Router-ID of local node: {}", builder.getLocalIpv6RouterId());
+                    break;
+                case REMOTE_IPV4_ROUTER_ID:
+                    builder.setRemoteIpv4RouterId(new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value)));
+                    LOG.debug("Parsed IPv4 Router-ID of remote node: {}", builder.getRemoteIpv4RouterId());
+                    break;
+                case REMOTE_IPV6_ROUTER_ID:
+                    builder.setRemoteIpv6RouterId(new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value)));
+                    LOG.debug("Parsed IPv6 Router-ID of remote node: {}", builder.getRemoteIpv6RouterId());
+                    break;
+                case ADMIN_GROUP:
+                    builder.setAdminGroup(new AdministrativeGroup(value.readUnsignedInt()));
+                    LOG.debug("Parsed Administrative Group {}", builder.getAdminGroup());
+                    break;
+                case MAX_BANDWIDTH:
+                    builder.setMaxLinkBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
+                    LOG.debug("Parsed Max Bandwidth {}", builder.getMaxLinkBandwidth());
+                    break;
+                case MAX_RESERVABLE_BANDWIDTH:
+                    builder.setMaxReservableBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
+                    LOG.debug("Parsed Max Reservable Bandwidth {}", builder.getMaxReservableBandwidth());
+                    break;
+                case UNRESERVED_BANDWIDTH:
+                    parseUnreservedBandwidth(value, builder);
+                    break;
+                case TE_METRIC:
+                    builder.setTeMetric(new TeMetric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
+                    LOG.debug("Parsed Metric {}", builder.getTeMetric());
+                    break;
+                case LINK_PROTECTION_TYPE:
+                    builder.setLinkProtection(LinkProtectionType.forValue(value.readShort()));
+                    LOG.debug("Parsed Link Protection Type {}", builder.getLinkProtection());
+                    break;
+                case MPLS_PROTOCOL:
+                    final BitArray bits = BitArray.valueOf(value, FLAGS_SIZE);
+                    builder.setMplsProtocol(new MplsProtocolMask(bits.get(LDP_BIT), bits.get(RSVP_BIT)));
+                    LOG.debug("Parsed MPLS Protocols: {}", builder.getMplsProtocol());
+                    break;
+                case METRIC:
+                    // length can 3, 2 or 1
+                    builder.setMetric(new Metric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
+                    LOG.debug("Parsed Metric {}", builder.getMetric());
+                    break;
+                case SHARED_RISK_LINK_GROUP:
+                    parseSrlg(value, builder);
+                    break;
+                case LINK_OPAQUE:
+                    LOG.debug("Parsed Opaque value : {}", ByteBufUtil.hexDump(value));
+                    break;
+                case LINK_NAME:
+                    builder.setLinkName(new String(ByteArray.readAllBytes(value), StandardCharsets.US_ASCII));
+                    LOG.debug("Parsed Link Name : {}", builder.getLinkName());
+                    break;
+                case SR_ADJ_ID:
+                    srAdjIds.add(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocolId));
+                    LOG.debug("Parsed Adjacency Segment Identifier :{}", srAdjIds.get(srAdjIds.size() - 1));
+                    break;
+                case SR_LAN_ADJ_ID:
+                    srLanAdjIds.add(SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value, protocolId));
+                    LOG.debug("Parsed Adjacency Segment Identifier :{}", srLanAdjIds.get(srLanAdjIds.size() - 1));
+                    break;
+                case PEER_NODE_SID_CODE:
+                    builder.setPeerNodeSid(new PeerNodeSidBuilder(
+                        SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
+                    LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerNodeSid());
+                    break;
+                case PEER_ADJ_SID_CODE:
+                    builder.setPeerAdjSid(new PeerAdjSidBuilder(
+                        SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
+                    LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerAdjSid());
+                    break;
+                case PEER_SET_SID_CODE:
+                    peerSetSids.add(new PeerSetSidsBuilder(
+                        SrLinkAttributesParser.parseEpeAdjacencySegmentIdentifier(value)).build());
+                    LOG.debug("Parsed Peer Set Sid :{}", peerSetSids.get(peerSetSids.size() - 1));
+                    break;
+                    // Performance Metrics
+                case LINK_DELAY:
+                    builder.setLinkDelay(new Delay(value.readUnsignedInt()));
+                    LOG.debug("Parsed Link Delay {}", builder.getLinkDelay());
+                    break;
+                case LINK_MIN_MAX_DELAY:
+                    builder.setLinkMinMaxDelay(new LinkMinMaxDelayBuilder()
+                        .setMinDelay(new Delay(value.readUnsignedInt()))
                         .setMaxDelay(new Delay(value.readUnsignedInt())).build());
-                LOG.debug("Parsed Link Min/Max Delay {}", builder.getLinkMinMaxDelay());
-                break;
-            case DELAY_VARIATION:
-                builder.setDelayVariation(new Delay(value.readUnsignedInt()));
-                LOG.debug("Parsed Delay Variation {}", builder.getDelayVariation());
-                break;
-            case LINK_LOSS:
-                builder.setLinkLoss(new Loss(value.readUnsignedInt()));
-                LOG.debug("Parsed Link Loss {}", builder.getLinkLoss());
-                break;
-            case RESIDUAL_BANDWIDTH:
-                builder.setResidualBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
-                LOG.debug("Parsed Residual Bandwidth {}", builder.getResidualBandwidth());
-                break;
-            case AVAILABLE_BANDWIDTH:
-                builder.setAvailableBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
-                LOG.debug("Parsed Available Bandwidth {}", builder.getAvailableBandwidth());
-                break;
-            case UTILIZED_BANDWIDTH:
-                builder.setUtilizedBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
-                LOG.debug("Parsed Utilized Bandwidth {}", builder.getUtilizedBandwidth());
-                break;
-            default:
-                LOG.warn("TLV {} is not a valid link attribute, ignoring it", key);
+                    LOG.debug("Parsed Link Min/Max Delay {}", builder.getLinkMinMaxDelay());
+                    break;
+                case DELAY_VARIATION:
+                    builder.setDelayVariation(new Delay(value.readUnsignedInt()));
+                    LOG.debug("Parsed Delay Variation {}", builder.getDelayVariation());
+                    break;
+                case LINK_LOSS:
+                    builder.setLinkLoss(new Loss(value.readUnsignedInt()));
+                    LOG.debug("Parsed Link Loss {}", builder.getLinkLoss());
+                    break;
+                case RESIDUAL_BANDWIDTH:
+                    builder.setResidualBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
+                    LOG.debug("Parsed Residual Bandwidth {}", builder.getResidualBandwidth());
+                    break;
+                case AVAILABLE_BANDWIDTH:
+                    builder.setAvailableBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
+                    LOG.debug("Parsed Available Bandwidth {}", builder.getAvailableBandwidth());
+                    break;
+                case UTILIZED_BANDWIDTH:
+                    builder.setUtilizedBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
+                    LOG.debug("Parsed Utilized Bandwidth {}", builder.getUtilizedBandwidth());
+                    break;
+                default:
+                    LOG.warn("TLV {} is not a valid link attribute, ignoring it", key);
             }
         }
         if (!srAdjIds.isEmpty()) {
@@ -251,10 +256,12 @@ public final class LinkAttributesParser {
     }
 
     private static void parseUnreservedBandwidth(final ByteBuf value, final LinkAttributesBuilder builder) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.UnreservedBandwidth> unreservedBandwidth = new ArrayList<>(UNRESERVED_BW_COUNT);
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate
+            .attribute.UnreservedBandwidth> unreservedBandwidth = new ArrayList<>(UNRESERVED_BW_COUNT);
         for (int i = 0; i < UNRESERVED_BW_COUNT; i++) {
             final ByteBuf v = value.readSlice(BANDWIDTH_LENGTH);
-            unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(ByteArray.readAllBytes(v))).setPriority((short) i).build());
+            unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(
+                new Bandwidth(ByteArray.readAllBytes(v))).setPriority((short) i).build());
         }
         builder.setUnreservedBandwidth(unreservedBandwidth);
         LOG.debug("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());
@@ -279,33 +286,57 @@ public final class LinkAttributesParser {
     static void serializeLinkAttributes(final LinkAttributesCase linkAttributesCase, final ByteBuf output) {
         final LinkAttributes linkAttributes = linkAttributesCase.getLinkAttributes();
         LOG.trace("Started serializing Link Attributes");
-        ifPresentApply(linkAttributes.getLocalIpv4RouterId(), value -> TlvUtil.writeTLV(TlvUtil.LOCAL_IPV4_ROUTER_ID, Ipv4Util.byteBufForAddress((Ipv4Address) value), output));
-        ifPresentApply(linkAttributes.getLocalIpv6RouterId(), value -> TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress((Ipv6Address) value), output));
-        ifPresentApply(linkAttributes.getRemoteIpv4RouterId(), value -> TlvUtil.writeTLV(REMOTE_IPV4_ROUTER_ID, Ipv4Util.byteBufForAddress((Ipv4Address) value), output));
-        ifPresentApply(linkAttributes.getRemoteIpv6RouterId(), value -> TlvUtil.writeTLV(REMOTE_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress((Ipv6Address) value), output));
-        ifPresentApply(linkAttributes.getAdminGroup(), value -> TlvUtil.writeTLV(ADMIN_GROUP, Unpooled.copyInt((((AdministrativeGroup) value).getValue()).intValue()), output));
-        ifPresentApply(linkAttributes.getMaxLinkBandwidth(), value -> TlvUtil.writeTLV(MAX_BANDWIDTH, Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
-        ifPresentApply(linkAttributes.getMaxReservableBandwidth(), value -> TlvUtil.writeTLV(MAX_RESERVABLE_BANDWIDTH, Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
+        ifPresentApply(linkAttributes.getLocalIpv4RouterId(), value -> TlvUtil.writeTLV(TlvUtil.LOCAL_IPV4_ROUTER_ID,
+            Ipv4Util.byteBufForAddress((Ipv4Address) value), output));
+        ifPresentApply(linkAttributes.getLocalIpv6RouterId(), value -> TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID,
+            Ipv6Util.byteBufForAddress((Ipv6Address) value), output));
+        ifPresentApply(linkAttributes.getRemoteIpv4RouterId(), value -> TlvUtil.writeTLV(REMOTE_IPV4_ROUTER_ID,
+            Ipv4Util.byteBufForAddress((Ipv4Address) value), output));
+        ifPresentApply(linkAttributes.getRemoteIpv6RouterId(), value -> TlvUtil.writeTLV(REMOTE_IPV6_ROUTER_ID,
+            Ipv6Util.byteBufForAddress((Ipv6Address) value), output));
+        ifPresentApply(linkAttributes.getAdminGroup(), value -> TlvUtil.writeTLV(ADMIN_GROUP,
+            Unpooled.copyInt(((AdministrativeGroup) value).getValue().intValue()), output));
+        ifPresentApply(linkAttributes.getMaxLinkBandwidth(), value -> TlvUtil.writeTLV(MAX_BANDWIDTH,
+            Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
+        ifPresentApply(linkAttributes.getMaxReservableBandwidth(), value -> TlvUtil.writeTLV(MAX_RESERVABLE_BANDWIDTH,
+            Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
         serializeUnreservedBw(linkAttributes.getUnreservedBandwidth(), output);
-        ifPresentApply(linkAttributes.getTeMetric(), value -> TlvUtil.writeTLV(TE_METRIC, Unpooled.copyLong(((TeMetric) value).getValue()), output));
-        ifPresentApply(linkAttributes.getLinkProtection(), value -> TlvUtil.writeTLV(LINK_PROTECTION_TYPE, Unpooled.copyShort(((LinkProtectionType) value).getIntValue()), output));
+        ifPresentApply(linkAttributes.getTeMetric(), value -> TlvUtil.writeTLV(TE_METRIC,
+            Unpooled.copyLong(((TeMetric) value).getValue()), output));
+        ifPresentApply(linkAttributes.getLinkProtection(), value -> TlvUtil.writeTLV(LINK_PROTECTION_TYPE,
+            Unpooled.copyShort(((LinkProtectionType) value).getIntValue()), output));
         serializeMplsProtocolMask(linkAttributes.getMplsProtocol(), output);
-        ifPresentApply(linkAttributes.getMetric(), value -> TlvUtil.writeTLV(METRIC, Unpooled.copyMedium(((Metric) value).getValue().intValue()), output));
+        ifPresentApply(linkAttributes.getMetric(), value -> TlvUtil.writeTLV(METRIC,
+            Unpooled.copyMedium(((Metric) value).getValue().intValue()), output));
         serializeSrlg(linkAttributes.getSharedRiskLinkGroups(), output);
-        ifPresentApply(linkAttributes.getLinkName(), value -> TlvUtil.writeTLV(LINK_NAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode((String) value)), output));
-        ifPresentApply(linkAttributes.getSrAdjIds(), value -> SrLinkAttributesParser.serializeAdjacencySegmentIdentifiers((List<SrAdjIds>) value, SR_ADJ_ID, output));
-        ifPresentApply(linkAttributes.getSrLanAdjIds(), value -> SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifiers((List<SrLanAdjIds>) value, output));
-        ifPresentApply(linkAttributes.getPeerNodeSid(), value -> TlvUtil.writeTLV(PEER_NODE_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerNodeSid) value), output));
-        ifPresentApply(linkAttributes.getPeerAdjSid(), value -> TlvUtil.writeTLV(PEER_ADJ_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerAdjSid) value), output));
-        ifPresentApply(linkAttributes.getPeerSetSids(), value -> SrLinkAttributesParser.serializeAdjacencySegmentIdentifiers((List<PeerSetSids>) value, PEER_SET_SID_CODE, output));
+        ifPresentApply(linkAttributes.getLinkName(), value -> TlvUtil.writeTLV(LINK_NAME,
+            Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode((String) value)), output));
+        ifPresentApply(linkAttributes.getSrAdjIds(),
+            value -> SrLinkAttributesParser.serializeAdjacencySegmentIdentifiers((List<SrAdjIds>) value, SR_ADJ_ID,
+                output));
+        ifPresentApply(linkAttributes.getSrLanAdjIds(),
+            value -> SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifiers((List<SrLanAdjIds>) value, output));
+        ifPresentApply(linkAttributes.getPeerNodeSid(), value -> TlvUtil.writeTLV(PEER_NODE_SID_CODE,
+            SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerNodeSid) value), output));
+        ifPresentApply(linkAttributes.getPeerAdjSid(), value -> TlvUtil.writeTLV(PEER_ADJ_SID_CODE,
+            SrLinkAttributesParser.serializeAdjacencySegmentIdentifier((PeerAdjSid) value), output));
+        ifPresentApply(linkAttributes.getPeerSetSids(),
+            value -> SrLinkAttributesParser.serializeAdjacencySegmentIdentifiers((List<PeerSetSids>) value,
+                PEER_SET_SID_CODE, output));
         // Performance Metrics
-        ifPresentApply(linkAttributes.getLinkDelay(), value -> TlvUtil.writeTLV(LINK_DELAY, Unpooled.copyInt((((Delay) value).getValue()).intValue()), output));
+        ifPresentApply(linkAttributes.getLinkDelay(), value -> TlvUtil.writeTLV(LINK_DELAY,
+            Unpooled.copyInt(((Delay) value).getValue().intValue()), output));
         serializeLinkMinMaxDelay(linkAttributes.getLinkMinMaxDelay(), output);
-        ifPresentApply(linkAttributes.getDelayVariation(), value -> TlvUtil.writeTLV(DELAY_VARIATION, Unpooled.copyInt((((Delay) value).getValue()).intValue()), output));
-        ifPresentApply(linkAttributes.getLinkLoss(), value -> TlvUtil.writeTLV(LINK_LOSS, Unpooled.copyInt((((Loss) value).getValue()).intValue()), output));
-        ifPresentApply(linkAttributes.getResidualBandwidth(), value -> TlvUtil.writeTLV(RESIDUAL_BANDWIDTH, Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
-        ifPresentApply(linkAttributes.getAvailableBandwidth(), value -> TlvUtil.writeTLV(AVAILABLE_BANDWIDTH, Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
-        ifPresentApply(linkAttributes.getUtilizedBandwidth(), value -> TlvUtil.writeTLV(UTILIZED_BANDWIDTH, Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
+        ifPresentApply(linkAttributes.getDelayVariation(), value -> TlvUtil.writeTLV(DELAY_VARIATION,
+            Unpooled.copyInt(((Delay) value).getValue().intValue()), output));
+        ifPresentApply(linkAttributes.getLinkLoss(), value -> TlvUtil.writeTLV(LINK_LOSS,
+            Unpooled.copyInt(((Loss) value).getValue().intValue()), output));
+        ifPresentApply(linkAttributes.getResidualBandwidth(), value -> TlvUtil.writeTLV(RESIDUAL_BANDWIDTH,
+            Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
+        ifPresentApply(linkAttributes.getAvailableBandwidth(), value -> TlvUtil.writeTLV(AVAILABLE_BANDWIDTH,
+            Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
+        ifPresentApply(linkAttributes.getUtilizedBandwidth(), value -> TlvUtil.writeTLV(UTILIZED_BANDWIDTH,
+            Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
         LOG.trace("Finished serializing Link Attributes");
     }
 
@@ -330,7 +361,8 @@ public final class LinkAttributesParser {
         }
     }
 
-    private static void serializeMplsProtocolMask(final MplsProtocolMask mplsProtocolMask, final ByteBuf byteAggregator) {
+    private static void serializeMplsProtocolMask(final MplsProtocolMask mplsProtocolMask,
+            final ByteBuf byteAggregator) {
         if (mplsProtocolMask != null) {
             final ByteBuf mplsProtocolMaskBuf = Unpooled.buffer(1);
             final BitArray mask = new BitArray(FLAGS_SIZE);

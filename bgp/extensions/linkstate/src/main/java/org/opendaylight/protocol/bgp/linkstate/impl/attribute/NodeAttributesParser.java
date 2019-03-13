@@ -12,10 +12,10 @@ import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.nio.charset.StandardCharsets;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -58,9 +58,9 @@ public final class NodeAttributesParser {
     /* Segment routing TLVs */
     private static final int SR_CAPABILITIES = 1034;
     private static final int SR_ALGORITHMS = 1035;
-    
+
     private NodeAttributesParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     /**
@@ -70,7 +70,8 @@ public final class NodeAttributesParser {
      * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, ByteBuf> attributes, final ProtocolId protocolId) {
+    static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, ByteBuf> attributes,
+            final ProtocolId protocolId) {
         final List<TopologyIdentifier> topologyMembership = new ArrayList<>();
         final List<IsisAreaIdentifier> areaMembership = new ArrayList<>();
         final NodeAttributesBuilder builder = new NodeAttributesBuilder();
@@ -79,48 +80,48 @@ public final class NodeAttributesParser {
             final ByteBuf value = entry.getValue();
             LOG.trace("Node attribute TLV {}", key);
             switch (key) {
-            case TlvUtil.MULTI_TOPOLOGY_ID:
-                parseTopologyId(topologyMembership, value);
-                break;
-            case NODE_FLAG_BITS:
-                parseNodeFlags(value, builder);
-                break;
-            case NODE_OPAQUE:
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring opaque value: {}.", ByteBufUtil.hexDump(value));
-                }
-                break;
-            case DYNAMIC_HOSTNAME:
-                builder.setDynamicHostname(new String(ByteArray.readAllBytes(value), StandardCharsets.US_ASCII));
-                LOG.debug("Parsed Node Name {}", builder.getDynamicHostname());
-                break;
-            case ISIS_AREA_IDENTIFIER:
-                final IsisAreaIdentifier ai = new IsisAreaIdentifier(ByteArray.readAllBytes(value));
-                areaMembership.add(ai);
-                LOG.debug("Parsed AreaIdentifier {}", ai);
-                break;
-            case TlvUtil.LOCAL_IPV4_ROUTER_ID:
-                final Ipv4RouterIdentifier ip4 = new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value));
-                builder.setIpv4RouterId(ip4);
-                LOG.debug("Parsed IPv4 Router Identifier {}", ip4);
-                break;
-            case TlvUtil.LOCAL_IPV6_ROUTER_ID:
-                final Ipv6RouterIdentifier ip6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
-                builder.setIpv6RouterId(ip6);
-                LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
-                break;
-            case SR_CAPABILITIES:
-                final SrCapabilities caps = SrNodeAttributesParser.parseSrCapabilities(value, protocolId);
-                builder.setSrCapabilities(caps);
-                LOG.debug("Parsed SR Capabilities {}", caps);
-                break;
-            case SR_ALGORITHMS:
-                final SrAlgorithm algs = SrNodeAttributesParser.parseSrAlgorithms(value);
-                builder.setSrAlgorithm(algs);
-                LOG.debug("Parsed SR Algorithms {}", algs);
-                break;
-            default:
-                LOG.warn("TLV {} is not a valid node attribute, ignoring it", key);
+                case TlvUtil.MULTI_TOPOLOGY_ID:
+                    parseTopologyId(topologyMembership, value);
+                    break;
+                case NODE_FLAG_BITS:
+                    parseNodeFlags(value, builder);
+                    break;
+                case NODE_OPAQUE:
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Ignoring opaque value: {}.", ByteBufUtil.hexDump(value));
+                    }
+                    break;
+                case DYNAMIC_HOSTNAME:
+                    builder.setDynamicHostname(new String(ByteArray.readAllBytes(value), StandardCharsets.US_ASCII));
+                    LOG.debug("Parsed Node Name {}", builder.getDynamicHostname());
+                    break;
+                case ISIS_AREA_IDENTIFIER:
+                    final IsisAreaIdentifier ai = new IsisAreaIdentifier(ByteArray.readAllBytes(value));
+                    areaMembership.add(ai);
+                    LOG.debug("Parsed AreaIdentifier {}", ai);
+                    break;
+                case TlvUtil.LOCAL_IPV4_ROUTER_ID:
+                    final Ipv4RouterIdentifier ip4 = new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value));
+                    builder.setIpv4RouterId(ip4);
+                    LOG.debug("Parsed IPv4 Router Identifier {}", ip4);
+                    break;
+                case TlvUtil.LOCAL_IPV6_ROUTER_ID:
+                    final Ipv6RouterIdentifier ip6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
+                    builder.setIpv6RouterId(ip6);
+                    LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
+                    break;
+                case SR_CAPABILITIES:
+                    final SrCapabilities caps = SrNodeAttributesParser.parseSrCapabilities(value, protocolId);
+                    builder.setSrCapabilities(caps);
+                    LOG.debug("Parsed SR Capabilities {}", caps);
+                    break;
+                case SR_ALGORITHMS:
+                    final SrAlgorithm algs = SrNodeAttributesParser.parseSrAlgorithms(value);
+                    builder.setSrAlgorithm(algs);
+                    LOG.debug("Parsed SR Algorithms {}", algs);
+                    break;
+                default:
+                    LOG.warn("TLV {} is not a valid node attribute, ignoring it", key);
             }
         }
         LOG.trace("Finished parsing Node Attributes.");
@@ -131,15 +132,16 @@ public final class NodeAttributesParser {
 
     private static void parseNodeFlags(final ByteBuf value, final NodeAttributesBuilder builder) {
         final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
-        builder.setNodeFlags(new NodeFlagBits(flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get
-            (EXTERNAL_BIT), flags.get(ABBR_BIT), flags.get(ROUTER_BIT), flags.get(V6_BIT)));
+        builder.setNodeFlags(new NodeFlagBits(flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT),
+            flags.get(ABBR_BIT), flags.get(ROUTER_BIT), flags.get(V6_BIT)));
         LOG.debug("Parsed Overload bit: {}, attached bit: {}, external bit: {}, area border router: {}.",
             flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
     }
 
     private static void parseTopologyId(final List<TopologyIdentifier> topologyMembership, final ByteBuf value) {
         while (value.isReadable()) {
-            final TopologyIdentifier topId = new TopologyIdentifier(value.readUnsignedShort() & TlvUtil.TOPOLOGY_ID_OFFSET);
+            final TopologyIdentifier topId = new TopologyIdentifier(
+                value.readUnsignedShort() & TlvUtil.TOPOLOGY_ID_OFFSET);
             topologyMembership.add(topId);
             LOG.debug("Parsed Topology Identifier: {}", topId);
         }
@@ -151,19 +153,23 @@ public final class NodeAttributesParser {
         serializeTopologyId(nodeAttributes.getTopologyIdentifier(), byteAggregator);
         serializeNodeFlagBits(nodeAttributes.getNodeFlags(), byteAggregator);
         if (nodeAttributes.getDynamicHostname() != null) {
-            TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode(nodeAttributes.getDynamicHostname())), byteAggregator);
+            TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode(
+                nodeAttributes.getDynamicHostname())), byteAggregator);
         }
         final List<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
         if (isisList != null) {
             for (final IsisAreaIdentifier isisAreaIdentifier : isisList) {
-                TlvUtil.writeTLV(ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()), byteAggregator);
+                TlvUtil.writeTLV(ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()),
+                    byteAggregator);
             }
         }
         if (nodeAttributes.getIpv4RouterId() != null) {
-            TlvUtil.writeTLV(TlvUtil.LOCAL_IPV4_ROUTER_ID, Ipv4Util.byteBufForAddress(nodeAttributes.getIpv4RouterId()), byteAggregator);
+            TlvUtil.writeTLV(TlvUtil.LOCAL_IPV4_ROUTER_ID, Ipv4Util.byteBufForAddress(nodeAttributes.getIpv4RouterId()),
+                byteAggregator);
         }
         if (nodeAttributes.getIpv6RouterId() != null) {
-            TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress(nodeAttributes.getIpv6RouterId()), byteAggregator);
+            TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress(nodeAttributes.getIpv6RouterId()),
+                byteAggregator);
         }
         if (nodeAttributes.getSrCapabilities() != null) {
             final ByteBuf capBuffer = Unpooled.buffer();

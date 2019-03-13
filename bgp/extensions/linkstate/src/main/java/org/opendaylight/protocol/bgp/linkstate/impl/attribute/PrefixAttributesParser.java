@@ -70,7 +70,7 @@ public final class PrefixAttributesParser {
     private static final int RANGE = 1159;
 
     private PrefixAttributesParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     /**
@@ -80,7 +80,8 @@ public final class PrefixAttributesParser {
      * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, ByteBuf> attributes, final ProtocolId protocolId) {
+    static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, ByteBuf> attributes,
+            final ProtocolId protocolId) {
         final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
         final List<RouteTag> routeTags = new ArrayList<>();
         final List<ExtendedRouteTag> exRouteTags = new ArrayList<>();
@@ -96,64 +97,69 @@ public final class PrefixAttributesParser {
         return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
     }
 
-    private static void parseAttribute(final int key, final ByteBuf value, final ProtocolId protocolId, final PrefixAttributesBuilder builder, final List<RouteTag> routeTags, final List<ExtendedRouteTag> exRouteTags) {
+    private static void parseAttribute(final int key, final ByteBuf value, final ProtocolId protocolId,
+            final PrefixAttributesBuilder builder, final List<RouteTag> routeTags,
+            final List<ExtendedRouteTag> exRouteTags) {
         switch (key) {
-        case IGP_FLAGS:
-            parseIgpFags(builder, value);
-            break;
-        case ROUTE_TAG:
-            parseRouteTags(routeTags, value);
-            break;
-        case EXTENDED_ROUTE_TAG:
-            parseExtendedRouteTags(exRouteTags, value);
-            break;
-        case PREFIX_METRIC:
-            final IgpMetric metric = new IgpMetric(value.readUnsignedInt());
-            builder.setPrefixMetric(metric);
-            LOG.debug("Parsed Metric: {}", metric);
-            break;
-        case FORWARDING_ADDRESS:
-            final IpAddress fwdAddress = parseForwardingAddress(value);
-            builder.setOspfForwardingAddress(fwdAddress);
-            LOG.debug("Parsed FWD Address: {}", fwdAddress);
-            break;
-        case PREFIX_OPAQUE:
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
-            }
-            break;
-        case PREFIX_SID:
-            final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value, protocolId);
-            builder.setSrPrefix(prefix);
-            LOG.debug("Parsed SR Prefix: {}", prefix);
-            break;
-        case IPV6_PREFIX_SID:
-            final Ipv6SrPrefix ipv6Prefix = Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(value);
-            builder.setIpv6SrPrefix(ipv6Prefix);
-            LOG.debug("Parsed Ipv6 SR Prefix: {}", ipv6Prefix);
-            break;
-        case RANGE:
-            final SrRange range = RangeTlvParser.parseSrRange(value, protocolId);
-            builder.setSrRange(range);
-            LOG.debug("Parsed SR Range: {}", range);
-            break;
-        case BINDING_SID:
-            parseBindingSid(builder, value, protocolId);
-            break;
-        default:
-            LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
+            case IGP_FLAGS:
+                parseIgpFags(builder, value);
+                break;
+            case ROUTE_TAG:
+                parseRouteTags(routeTags, value);
+                break;
+            case EXTENDED_ROUTE_TAG:
+                parseExtendedRouteTags(exRouteTags, value);
+                break;
+            case PREFIX_METRIC:
+                final IgpMetric metric = new IgpMetric(value.readUnsignedInt());
+                builder.setPrefixMetric(metric);
+                LOG.debug("Parsed Metric: {}", metric);
+                break;
+            case FORWARDING_ADDRESS:
+                final IpAddress fwdAddress = parseForwardingAddress(value);
+                builder.setOspfForwardingAddress(fwdAddress);
+                LOG.debug("Parsed FWD Address: {}", fwdAddress);
+                break;
+            case PREFIX_OPAQUE:
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
+                }
+                break;
+            case PREFIX_SID:
+                final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value, protocolId);
+                builder.setSrPrefix(prefix);
+                LOG.debug("Parsed SR Prefix: {}", prefix);
+                break;
+            case IPV6_PREFIX_SID:
+                final Ipv6SrPrefix ipv6Prefix = Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(value);
+                builder.setIpv6SrPrefix(ipv6Prefix);
+                LOG.debug("Parsed Ipv6 SR Prefix: {}", ipv6Prefix);
+                break;
+            case RANGE:
+                final SrRange range = RangeTlvParser.parseSrRange(value, protocolId);
+                builder.setSrRange(range);
+                LOG.debug("Parsed SR Range: {}", range);
+                break;
+            case BINDING_SID:
+                parseBindingSid(builder, value, protocolId);
+                break;
+            default:
+                LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
         }
     }
 
     private static void parseIgpFags(final PrefixAttributesBuilder builder, final ByteBuf value) {
         final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
         final boolean upDownBit = flags.get(UP_DOWN_BIT);
-        builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).setIsIsUpDown(upDownBit).setOspfNoUnicast(flags.get(OSPF_NO_UNICAST))
-            .setOspfLocalAddress(flags.get(OSPF_LOCAL_ADDRESS)).setOspfPropagateNssa(flags.get(OSPF_PROPAGATE_ADDRESS)).build());
+        builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).setIsIsUpDown(upDownBit)
+            .setOspfNoUnicast(flags.get(OSPF_NO_UNICAST))
+            .setOspfLocalAddress(flags.get(OSPF_LOCAL_ADDRESS))
+            .setOspfPropagateNssa(flags.get(OSPF_PROPAGATE_ADDRESS)).build());
         LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
     }
 
-    private static void parseBindingSid(final PrefixAttributesBuilder builder, final ByteBuf value, final ProtocolId protocolId) {
+    private static void parseBindingSid(final PrefixAttributesBuilder builder, final ByteBuf value,
+            final ProtocolId protocolId) {
         final List<SrBindingSidLabels> labels;
         if (builder.getSrBindingSidLabels() != null) {
             labels = builder.getSrBindingSidLabels();
@@ -176,28 +182,27 @@ public final class PrefixAttributesParser {
 
     private static void parseExtendedRouteTags(final List<ExtendedRouteTag> exRouteTags, final ByteBuf value) {
         while (value.isReadable()) {
-            final ExtendedRouteTag exRouteTag = new ExtendedRouteTag(ByteArray.readBytes(value, EXTENDED_ROUTE_TAG_LENGTH));
+            final ExtendedRouteTag exRouteTag = new ExtendedRouteTag(ByteArray.readBytes(value,
+                EXTENDED_ROUTE_TAG_LENGTH));
             exRouteTags.add(exRouteTag);
             LOG.debug("Parsed Extended Route Tag: {}", exRouteTag);
         }
     }
 
     private static IpAddress parseForwardingAddress(final ByteBuf value) {
-        IpAddress fwdAddress = null;
         switch (value.readableBytes()) {
-        case Ipv4Util.IP4_LENGTH:
-            fwdAddress = new IpAddress(Ipv4Util.addressForByteBuf(value));
-            break;
-        case Ipv6Util.IPV6_LENGTH:
-            fwdAddress = new IpAddress(Ipv6Util.addressForByteBuf(value));
-            break;
-        default:
-            LOG.debug("Ignoring unsupported forwarding address length {}", value.readableBytes());
+            case Ipv4Util.IP4_LENGTH:
+                return new IpAddress(Ipv4Util.addressForByteBuf(value));
+            case Ipv6Util.IPV6_LENGTH:
+                return new IpAddress(Ipv6Util.addressForByteBuf(value));
+            default:
+                LOG.debug("Ignoring unsupported forwarding address length {}", value.readableBytes());
+                return null;
         }
-        return fwdAddress;
     }
 
-    static void serializePrefixAttributes(final PrefixAttributesCase prefixAttributesCase, final ByteBuf byteAggregator) {
+    static void serializePrefixAttributes(final PrefixAttributesCase prefixAttributesCase,
+            final ByteBuf byteAggregator) {
         final PrefixAttributes prefixAtrributes = prefixAttributesCase.getPrefixAttributes();
         if (prefixAtrributes.getIgpBits() != null) {
             final BitArray igpBit = new BitArray(FLAGS_SIZE);
@@ -218,11 +223,13 @@ public final class PrefixAttributesParser {
         serializeSrBindingLabel(prefixAtrributes.getSrBindingSidLabels(), byteAggregator);
     }
 
-    private static void serializeSrBindingLabel(final List<SrBindingSidLabels> srBindingSidLabels, final ByteBuf byteAggregator) {
+    private static void serializeSrBindingLabel(final List<SrBindingSidLabels> srBindingSidLabels,
+            final ByteBuf byteAggregator) {
         if (srBindingSidLabels != null) {
             for (final SrBindingSidLabels bindingSid : srBindingSidLabels) {
                 final ByteBuf sidBuffer = Unpooled.buffer();
-                BindingSidLabelParser.serializeBindingSidAttributes(bindingSid.getWeight(), bindingSid.getFlags(), bindingSid.getBindingSubTlvs(), sidBuffer);
+                BindingSidLabelParser.serializeBindingSidAttributes(bindingSid.getWeight(), bindingSid.getFlags(),
+                    bindingSid.getBindingSubTlvs(), sidBuffer);
                 TlvUtil.writeTLV(PrefixAttributesParser.BINDING_SID, sidBuffer, byteAggregator);
             }
         }
@@ -268,7 +275,8 @@ public final class PrefixAttributesParser {
         }
     }
 
-    private static void serializeExtendedRouteTags(final List<ExtendedRouteTag> exRouteTags, final ByteBuf byteAggregator) {
+    private static void serializeExtendedRouteTags(final List<ExtendedRouteTag> exRouteTags,
+            final ByteBuf byteAggregator) {
         if (exRouteTags != null) {
             final ByteBuf extendedBuf = Unpooled.buffer();
             for (final ExtendedRouteTag exRouteTag : exRouteTags) {

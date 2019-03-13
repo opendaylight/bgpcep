@@ -15,12 +15,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 
-public final class Ipv6NeighborTlvParser implements LinkstateTlvParser<Ipv6InterfaceIdentifier>, LinkstateTlvParser.LinkstateTlvSerializer<Ipv6InterfaceIdentifier> {
+public final class Ipv6NeighborTlvParser implements LinkstateTlvParser<Ipv6InterfaceIdentifier>,
+        LinkstateTlvParser.LinkstateTlvSerializer<Ipv6InterfaceIdentifier> {
 
     private static final int IPV6_NEIGHBOR_ADDRESS = 262;
 
-    public static final QName IPV6_NEIGHBOR_ADDRESS_QNAME = QName.create(LinkDescriptors.QNAME, "ipv6-neighbor-address").intern();
-
+    public static final QName IPV6_NEIGHBOR_ADDRESS_QNAME = QName.create(LinkDescriptors.QNAME, "ipv6-neighbor-address")
+            .intern();
 
     @Override
     public void serializeTlvBody(final Ipv6InterfaceIdentifier tlv, final ByteBuf body) {
@@ -41,7 +42,4 @@ public final class Ipv6NeighborTlvParser implements LinkstateTlvParser<Ipv6Inter
     public QName getTlvQName() {
         return IPV6_NEIGHBOR_ADDRESS_QNAME;
     }
-
 }
-
-

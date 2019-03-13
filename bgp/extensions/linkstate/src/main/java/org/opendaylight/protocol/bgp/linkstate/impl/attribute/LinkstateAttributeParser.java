@@ -92,16 +92,20 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
         }
         final ObjectType nlriType = lsDestination.getObjectType();
         final ProtocolId protocolId = lsDestination.getProtocolId();
-        final Attributes1 a = new Attributes1Builder().setLinkStateAttribute(parseLinkState(nlriType, protocolId, buffer)).build();
+        final Attributes1 a = new Attributes1Builder().setLinkStateAttribute(
+            parseLinkState(nlriType, protocolId, buffer)).build();
         builder.addAugmentation(Attributes1.class, a);
     }
 
     private static CLinkstateDestination getNlriType(final AttributesBuilder pab) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1 mpr = pab.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1.class);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329
+            .Attributes1 mpr = pab.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                .multiprotocol.rev180329.Attributes1.class);
         if (mpr != null && mpr.getMpReachNlri() != null) {
             final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
             if (dt instanceof DestinationLinkstateCase) {
-                for (final CLinkstateDestination d : ((DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
+                for (final CLinkstateDestination d : ((DestinationLinkstateCase) dt).getDestinationLinkstate()
+                        .getCLinkstateDestination()) {
                     return d;
                 }
             }
@@ -109,9 +113,11 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
         final Attributes2 mpu = pab.augmentation(Attributes2.class);
         if (mpu != null && mpu.getMpUnreachNlri() != null) {
             final DestinationType dt = mpu.getMpUnreachNlri().getWithdrawnRoutes().getDestinationType();
-            if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
-                for(final CLinkstateDestination d :((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.
-                    routes.destination.type.DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
+            if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329
+                    .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
+                for (final CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                        .bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                        .DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
                     return d;
                 }
             }
@@ -119,8 +125,8 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
         return null;
     }
 
-    private LinkStateAttribute parseLinkState(final ObjectType nlri, final ProtocolId protocolId, final ByteBuf buffer) throws BGPParsingException {
-
+    private LinkStateAttribute parseLinkState(final ObjectType nlri, final ProtocolId protocolId, final ByteBuf buffer)
+            throws BGPParsingException {
         if (nlri instanceof PrefixCase) {
             return PrefixAttributesParser.parsePrefixAttributes(getAttributesMap(buffer), protocolId);
         } else if (nlri instanceof LinkCase) {
@@ -157,7 +163,8 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
         } else if (linkState instanceof PrefixAttributesCase) {
             PrefixAttributesParser.serializePrefixAttributes((PrefixAttributesCase) linkState, lsBuffer);
         } else if (linkState instanceof TeLspAttributesCase) {
-            TeLspAttributesParser.serializeLspAttributes(this.rsvpTeObjectRegistry, (TeLspAttributesCase) linkState, lsBuffer);
+            TeLspAttributesParser.serializeLspAttributes(this.rsvpTeObjectRegistry, (TeLspAttributesCase) linkState,
+                lsBuffer);
             byteAggregator.writeBytes(lsBuffer);
             return;
         }

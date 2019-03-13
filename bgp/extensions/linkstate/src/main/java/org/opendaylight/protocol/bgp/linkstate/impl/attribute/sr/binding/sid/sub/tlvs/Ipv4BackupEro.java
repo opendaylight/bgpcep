@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsSerializer;
@@ -25,7 +25,8 @@ public final class Ipv4BackupEro implements BindingSubTlvsParser, BindingSubTlvs
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
         final Ipv4EroCase ipv4Backup = Ipv4EroParser.parseIpv4EroCase(slice);
-        return new Ipv4EroBackupCaseBuilder().setAddress(ipv4Backup.getAddress()).setLoose(ipv4Backup.isLoose()).build();
+        return new Ipv4EroBackupCaseBuilder().setAddress(ipv4Backup.getAddress()).setLoose(ipv4Backup.isLoose())
+                .build();
     }
 
     @Override
@@ -35,8 +36,10 @@ public final class Ipv4BackupEro implements BindingSubTlvsParser, BindingSubTlvs
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof Ipv4EroBackupCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
+        checkArgument(bindingSubTlv instanceof Ipv4EroBackupCase, "Wrong BindingSubTlv instance expected",
+            bindingSubTlv);
         final Ipv4EroBackupCase ipv4Backup = (Ipv4EroBackupCase) bindingSubTlv;
-        TlvUtil.writeTLV(getType(), Ipv4EroParser.serializeIpv4EroCase(ipv4Backup.isLoose(), ipv4Backup.getAddress()), aggregator);
+        TlvUtil.writeTLV(getType(), Ipv4EroParser.serializeIpv4EroCase(ipv4Backup.isLoose(), ipv4Backup.getAddress()),
+            aggregator);
     }
 }

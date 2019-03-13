@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.spi;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -26,32 +25,32 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
 public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
 
     @VisibleForTesting
-    public static final YangInstanceIdentifier.NodeIdentifier LSP_ID = new YangInstanceIdentifier.NodeIdentifier(
+    public static final NodeIdentifier LSP_ID = NodeIdentifier.create(
         QName.create(CLinkstateDestination.QNAME, "lsp-id").intern());
     @VisibleForTesting
-    public static final YangInstanceIdentifier.NodeIdentifier TUNNEL_ID = new YangInstanceIdentifier.NodeIdentifier(
+    public static final NodeIdentifier TUNNEL_ID = NodeIdentifier.create(
         QName.create(CLinkstateDestination.QNAME, "tunnel-id").intern());
     @VisibleForTesting
-    public static final YangInstanceIdentifier.NodeIdentifier IPV4_TUNNEL_SENDER_ADDRESS = new YangInstanceIdentifier.NodeIdentifier(
+    public static final NodeIdentifier IPV4_TUNNEL_SENDER_ADDRESS = NodeIdentifier.create(
         QName.create(CLinkstateDestination.QNAME, "ipv4-tunnel-sender-address").intern());
     @VisibleForTesting
-    public static final YangInstanceIdentifier.NodeIdentifier IPV4_TUNNEL_ENDPOINT_ADDRESS = new YangInstanceIdentifier
-        .NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "ipv4-tunnel-endpoint-address").intern());
+    public static final NodeIdentifier IPV4_TUNNEL_ENDPOINT_ADDRESS = NodeIdentifier.create(
+        QName.create(CLinkstateDestination.QNAME, "ipv4-tunnel-endpoint-address").intern());
     @VisibleForTesting
-    private static final YangInstanceIdentifier.NodeIdentifier IPV6_TUNNEL_SENDER_ADDRESS = new YangInstanceIdentifier
-        .NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-sender-address").intern());
+    private static final NodeIdentifier IPV6_TUNNEL_SENDER_ADDRESS = NodeIdentifier.create(
+        QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-sender-address").intern());
     @VisibleForTesting
-    private static final YangInstanceIdentifier.NodeIdentifier IPV6_TUNNEL_ENDPOINT_ADDRESS = new YangInstanceIdentifier
-        .NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-endpoint-address").intern());
+    private static final NodeIdentifier IPV6_TUNNEL_ENDPOINT_ADDRESS = NodeIdentifier.create(
+        QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-endpoint-address").intern());
 
     @VisibleForTesting
-    public static final YangInstanceIdentifier.NodeIdentifier ADDRESS_FAMILY = new YangInstanceIdentifier.NodeIdentifier(AddressFamily.QNAME);
+    public static final NodeIdentifier ADDRESS_FAMILY = NodeIdentifier.create(AddressFamily.QNAME);
 
     public static boolean isTeLsp(final ChoiceNode objectType) {
         return objectType.getChild(ADDRESS_FAMILY).isPresent();
@@ -62,7 +61,8 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
         teLsp.setLspId(new LspId((Long) objectType.getChild(LSP_ID).get().getValue()));
         teLsp.setTunnelId(new TunnelId((Integer) objectType.getChild(TUNNEL_ID).get().getValue()));
         final ChoiceNode addressFamily = (ChoiceNode) objectType.getChild(ADDRESS_FAMILY).get();
-        teLsp.setAddressFamily(serializeAddressFamily(addressFamily, addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).isPresent()));
+        teLsp.setAddressFamily(serializeAddressFamily(addressFamily,
+            addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).isPresent()));
 
         return teLsp.build();
     }
@@ -70,14 +70,18 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
     private static AddressFamily serializeAddressFamily(final ChoiceNode addressFamily, final boolean ipv4Case) {
         if (ipv4Case) {
             return new Ipv4CaseBuilder()
-                .setIpv4TunnelSenderAddress(new Ipv4Address((String) addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).get().getValue()))
-                .setIpv4TunnelEndpointAddress(new Ipv4Address((String) addressFamily.getChild(IPV4_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
+                .setIpv4TunnelSenderAddress(
+                    new Ipv4Address((String) addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).get().getValue()))
+                .setIpv4TunnelEndpointAddress(
+                    new Ipv4Address((String) addressFamily.getChild(IPV4_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
                 .build();
         }
 
         return new Ipv6CaseBuilder()
-            .setIpv6TunnelSenderAddress(new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_SENDER_ADDRESS).get().getValue()))
-            .setIpv6TunnelEndpointAddress(new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
+            .setIpv6TunnelSenderAddress(
+                new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_SENDER_ADDRESS).get().getValue()))
+            .setIpv6TunnelEndpointAddress(
+                new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
             .build();
     }
 

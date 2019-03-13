@@ -63,29 +63,29 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
 
     @VisibleForTesting
-    public static final NodeIdentifier OBJECT_TYPE_NID = new NodeIdentifier(ObjectType.QNAME);
+    public static final NodeIdentifier OBJECT_TYPE_NID = NodeIdentifier.create(ObjectType.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier NODE_DESCRIPTORS_NID = new NodeIdentifier(NodeDescriptors.QNAME);
+    public static final NodeIdentifier NODE_DESCRIPTORS_NID = NodeIdentifier.create(NodeDescriptors.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier LOCAL_NODE_DESCRIPTORS_NID = new NodeIdentifier(LocalNodeDescriptors.QNAME);
+    public static final NodeIdentifier LOCAL_NODE_DESCRIPTORS_NID = NodeIdentifier.create(LocalNodeDescriptors.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier REMOTE_NODE_DESCRIPTORS_NID = new NodeIdentifier(RemoteNodeDescriptors.QNAME);
+    public static final NodeIdentifier REMOTE_NODE_DESCRIPTORS_NID = NodeIdentifier.create(RemoteNodeDescriptors.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier ADVERTISING_NODE_DESCRIPTORS_NID
-            = new NodeIdentifier(AdvertisingNodeDescriptors.QNAME);
+    public static final NodeIdentifier ADVERTISING_NODE_DESCRIPTORS_NID = NodeIdentifier.create(
+        AdvertisingNodeDescriptors.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier PREFIX_DESCRIPTORS_NID = new NodeIdentifier(PrefixDescriptors.QNAME);
+    public static final NodeIdentifier PREFIX_DESCRIPTORS_NID = NodeIdentifier.create(PrefixDescriptors.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier LINK_DESCRIPTORS_NID = new NodeIdentifier(LinkDescriptors.QNAME);
+    public static final NodeIdentifier LINK_DESCRIPTORS_NID = NodeIdentifier.create(LinkDescriptors.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier PROTOCOL_ID_NID = new NodeIdentifier(
-            QName.create(CLinkstateDestination.QNAME.getModule(), "protocol-id"));
+    public static final NodeIdentifier PROTOCOL_ID_NID = NodeIdentifier.create(
+            QName.create(CLinkstateDestination.QNAME.getModule(), "protocol-id").intern());
     @VisibleForTesting
-    public static final NodeIdentifier IDENTIFIER_NID = new NodeIdentifier(
-            QName.create(CLinkstateDestination.QNAME.getModule(), "identifier"));
+    public static final NodeIdentifier IDENTIFIER_NID = NodeIdentifier.create(
+            QName.create(CLinkstateDestination.QNAME.getModule(), "identifier").intern());
     @VisibleForTesting
-    private static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(
-            QName.create(CLinkstateDestination.QNAME.getModule(), "route-distinguisher"));
+    private static final NodeIdentifier DISTINGUISHER_NID = NodeIdentifier.create(
+            QName.create(CLinkstateDestination.QNAME.getModule(), "route-distinguisher").intern());
     private final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();
 
 
@@ -152,9 +152,9 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         if (withdrawnRoutes != null && withdrawnRoutes.getDestinationType() instanceof DestinationLinkstateCase) {
             final DestinationLinkstateCase linkstateCase
                     = (DestinationLinkstateCase) withdrawnRoutes.getDestinationType();
-            for (final CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate()
+            for (final CLinkstateDestination linkstateDestinationCase : linkstateCase.getDestinationLinkstate()
                     .getCLinkstateDestination()) {
-                this.nlriTypeReg.serializeNlriType(cLinkstateDestination, byteAggregator);
+                this.nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
             }
         }
     }
@@ -170,9 +170,9 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
                     .rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type
                     .DestinationLinkstateCase) advertizedRoutes.getDestinationType();
 
-            for (final CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate()
+            for (final CLinkstateDestination linkstateDestinationCase : linkstateCase.getDestinationLinkstate()
                     .getCLinkstateDestination()) {
-                this.nlriTypeReg.serializeNlriType(cLinkstateDestination, byteAggregator);
+                this.nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
             }
         }
     }
@@ -180,26 +180,26 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     // FIXME : use codec
     private static int domProtocolIdValue(final String protocolId) {
         switch (protocolId) {
-        case "isis-level1":
-            return ProtocolId.IsisLevel1.getIntValue();
-        case "isis-level2":
-            return ProtocolId.IsisLevel2.getIntValue();
-        case "ospf":
-            return ProtocolId.Ospf.getIntValue();
-        case "direct":
-            return ProtocolId.Direct.getIntValue();
-        case "static":
-            return ProtocolId.Static.getIntValue();
-        case "ospf-v3":
-            return ProtocolId.OspfV3.getIntValue();
-        case "rsvp-te":
-            return ProtocolId.RsvpTe.getIntValue();
-        case "bgp-epe":
-            return ProtocolId.BgpEpe.getIntValue();
-        case "segment-routing":
-            return ProtocolId.SegmentRouting.getIntValue();
-        default:
-            return 0;
+            case "isis-level1":
+                return ProtocolId.IsisLevel1.getIntValue();
+            case "isis-level2":
+                return ProtocolId.IsisLevel2.getIntValue();
+            case "ospf":
+                return ProtocolId.Ospf.getIntValue();
+            case "direct":
+                return ProtocolId.Direct.getIntValue();
+            case "static":
+                return ProtocolId.Static.getIntValue();
+            case "ospf-v3":
+                return ProtocolId.OspfV3.getIntValue();
+            case "rsvp-te":
+                return ProtocolId.RsvpTe.getIntValue();
+            case "bgp-epe":
+                return ProtocolId.BgpEpe.getIntValue();
+            case "segment-routing":
+                return ProtocolId.SegmentRouting.getIntValue();
+            default:
+                return 0;
         }
     }
 

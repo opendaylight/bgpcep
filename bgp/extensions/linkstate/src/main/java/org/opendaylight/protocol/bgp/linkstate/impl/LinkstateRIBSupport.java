@@ -75,8 +75,8 @@ public final class LinkstateRIBSupport
                 DestinationLinkstate.QNAME);
     }
 
-    public synchronized static LinkstateRIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if(SINGLETON == null){
+    public static synchronized LinkstateRIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
+        if (SINGLETON == null) {
             SINGLETON = new LinkstateRIBSupport(mappingService);
         }
         return SINGLETON;

@@ -77,9 +77,11 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
 
 
     private static final NodeCase OBJECT_TYPE2 = new NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder()
-        .setAreaId(new AreaIdentifier(2697513L)).setAsNumber(new AsNumber(72L)).setCRouterIdentifier(new IsisPseudonodeCaseBuilder()
+        .setAreaId(new AreaIdentifier(2697513L)).setAsNumber(new AsNumber(72L)).setCRouterIdentifier(
+            new IsisPseudonodeCaseBuilder()
             .setIsisPseudonode(new IsisPseudonodeBuilder().setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder()
-                .setIsoSystemId(new IsoSystemIdentifier(new byte[]{0, 0, 0, 0, 0, (byte) 0x39})).build()).setPsn((short) 5).build()).build())
+                .setIsoSystemId(new IsoSystemIdentifier(new byte[]{0, 0, 0, 0, 0, (byte) 0x39})).build())
+                .setPsn((short) 5).build()).build())
         .setDomainId(new DomainIdentifier(28282828L)).build()).build();
 
     private static final RouteDistinguisher RD = new RouteDistinguisher(new RdTwoOctetAs("0:5:3"));
@@ -90,20 +92,25 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
         .setObjectType(OBJECT_TYPE2)
         .setProtocolId(ProtocolId.IsisLevel1).build();
 
-    private static final DestinationLinkstateCase REACH_NLRI = new DestinationLinkstateCaseBuilder().setDestinationLinkstate(new DestinationLinkstateBuilder()
-        .setCLinkstateDestination(Collections.singletonList(LINKSTATE_DESTINATION)).build()).build();
-    private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase UNREACH_NLRI =
-        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn
-            .routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight
-            .params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate
-            ._case.DestinationLinkstateBuilder().setCLinkstateDestination(Collections.singletonList(LINKSTATE_DESTINATION)).build()).build();
+    private static final DestinationLinkstateCase REACH_NLRI = new DestinationLinkstateCaseBuilder()
+            .setDestinationLinkstate(new DestinationLinkstateBuilder()
+                .setCLinkstateDestination(Collections.singletonList(LINKSTATE_DESTINATION)).build()).build();
+    private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update
+            .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase UNREACH_NLRI =
+        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes
+            .mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder()
+                .setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                    .linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination
+                    .linkstate._case.DestinationLinkstateBuilder()
+                    .setCLinkstateDestination(Collections.singletonList(LINKSTATE_DESTINATION)).build()).build();
 
     static {
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
         assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
-        assertEquals(LinkstateSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(71));
+        assertEquals(LinkstateSubsequentAddressFamily.class,
+            context.getSubsequentAddressFamilyRegistry().classForFamily(71));
         final ByteBuf buffer = Unpooled.buffer();
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(LINKSTATE_DESTINATION, buffer);
         ROUTE_KEY = new LinkstateRouteKey(PATH_ID, ByteArray.encodeBase64(buffer));
@@ -180,8 +187,8 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
     @Test
     public void testRouteAttributesIdentifier() {
         Assert.assertEquals(new NodeIdentifier(QName.create(LinkstateRoutes.QNAME,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes.QNAME.getLocalName().intern())),
-            this.ribSupport.routeAttributesIdentifier());
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes
+            .QNAME.getLocalName().intern())), this.ribSupport.routeAttributesIdentifier());
     }
 
     @Test
@@ -201,7 +208,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
 
     @Test
     public void testChangedRoutes() {
-       final Routes emptyCase = new LinkstateRoutesCaseBuilder().build();
+        final Routes emptyCase = new LinkstateRoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
         Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());

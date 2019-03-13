@@ -14,7 +14,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 
-public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<LinkLrIdentifiers>, LinkstateTlvParser<LinkLrIdentifiers> {
+public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<LinkLrIdentifiers>,
+        LinkstateTlvParser<LinkLrIdentifiers> {
 
     private static final int LINK_LR_IDENTIFIERS = 258;
 
@@ -33,10 +34,12 @@ public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSer
             public Class<? extends DataContainer> getImplementedInterface() {
                 return LinkLrIdentifiers.class;
             }
+
             @Override
             public Long getLinkRemoteIdentifier() {
                 return remoteId;
             }
+
             @Override
             public Long getLinkLocalIdentifier() {
                 return localId;

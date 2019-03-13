@@ -60,7 +60,8 @@ final class TeLspAttributesParser {
         throw new UnsupportedOperationException();
     }
 
-    static LinkStateAttribute parseTeLspAttributes(final RSVPTeObjectRegistry registry, final ByteBuf attributes) throws BGPParsingException {
+    static LinkStateAttribute parseTeLspAttributes(final RSVPTeObjectRegistry registry, final ByteBuf attributes)
+            throws BGPParsingException {
 
         final TeLspAttributesBuilder builder = new TeLspAttributesBuilder();
         LOG.trace("Initiated parsing TE LSP Objects.");
@@ -72,8 +73,9 @@ final class TeLspAttributesParser {
             try {
                 addObject(builder, registry.parseRSPVTe(classNum, cType, value));
             } catch (final RSVPParsingException e) {
-                LOG.debug("Parsering TE LSP Object error. class number: {} cType: {} value: {}", classNum, cType, value, e);
-                throw new BGPParsingException(e.getMessage());
+                LOG.debug("Parsering TE LSP Object error. class number: {} cType: {} value: {}", classNum, cType, value,
+                    e);
+                throw new BGPParsingException(e.getMessage(), e);
             }
         }
         LOG.trace("Finished parsing TE LSP Objects.");
@@ -123,7 +125,8 @@ final class TeLspAttributesParser {
     }
 
 
-    static void serializeLspAttributes(final RSVPTeObjectRegistry registry, final TeLspAttributesCase linkState, final ByteBuf output) {
+    static void serializeLspAttributes(final RSVPTeObjectRegistry registry, final TeLspAttributesCase linkState,
+            final ByteBuf output) {
         LOG.trace("Started serializing TE LSP Objects");
         final ByteBuf byteBuf = Unpooled.buffer();
 

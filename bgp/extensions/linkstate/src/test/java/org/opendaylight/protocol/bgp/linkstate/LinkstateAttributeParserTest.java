@@ -16,15 +16,10 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.NodeAttributesParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.PrefixAttributesParser;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.rsvp.parser.impl.RSVPActivator;
@@ -78,7 +73,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class LinkstateAttributeParserTest {
 
-    private static final byte[] TE_LSP_ATTR = {0x00, (byte) 0x63, 0x00, (byte) 0x30, // TE LSP Attribute Type, length, value
+    private static final byte[] TE_LSP_ATTR = {
+        0x00, (byte) 0x63, 0x00, (byte) 0x30, // TE LSP Attribute Type, length, value
         0x00, (byte) 0x20, (byte) 0x0c, 0x02,  // Length, Class, Ctype
         0x00, 0x00, 0x00, 0x07,
         0x01, 0x00, 0x00, 0x06,
@@ -90,14 +86,16 @@ public class LinkstateAttributeParserTest {
         0x00, 0x00, 0x00, 0x05, //Maximum Packet Size
         0x00, (byte) 0x08, (byte) 0xc7, 0x01,  // Length, Class, Ctype
         0x00, 0x01, 0x00, 0x02,
-        0x01, 0x02, 0x03, 0x04,};
+        0x01, 0x02, 0x03, 0x04
+    };
 
-    private static final byte[] LINK_ATTR = {0x04, 0x04, 0, 0x04, 0x2a, 0x2a, 0x2a, 0x2a, 0x04, 0x06, 0, 0x04, 0x2b, 0x2b, 0x2b, 0x2b,
-        0x04, 0x40, 0, 0x04, 0, 0, 0, 0, 0x04, 0x41, 0, 0x04, 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80, 0x04, 0x42, 0, 0x04,
-        0x46, 0x43, 0x50, 0, 0x04, 0x43, 0, 0x20, 0x46, 0x43, 0x50, 0, 0x46, 0x43, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x44, 0, 0x08, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x45, 0, 0x02, 0, 0x08, 0x04, 0x46, 0, 0x01,
-        (byte) 0xc0, 0x04, 0x47, 0, 0x03, 0, 0, 0x0a, 0x04, 0x48, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70, 0x04, 0x4a,
-        0, 0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32,
+    private static final byte[] LINK_ATTR = {
+        0x04, 0x04, 0, 0x04, 0x2a, 0x2a, 0x2a, 0x2a, 0x04, 0x06, 0, 0x04, 0x2b, 0x2b, 0x2b, 0x2b, 0x04, 0x40, 0, 0x04,
+        0, 0, 0, 0, 0x04, 0x41, 0, 0x04, 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80, 0x04, 0x42, 0, 0x04, 0x46, 0x43,
+        0x50, 0, 0x04, 0x43, 0, 0x20, 0x46, 0x43, 0x50, 0, 0x46, 0x43, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x44, 0, 0x08, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x45, 0, 0x02, 0, 0x08,
+        0x04, 0x46, 0, 0x01, (byte) 0xc0, 0x04, 0x47, 0, 0x03, 0, 0, 0x0a, 0x04, 0x48, 0, 0x08, 0x12, 0x34, 0x56, 0x78,
+        0x10, 0x30, 0x50, 0x70, 0x04, 0x4a, 0, 0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32,
         0x04, 0x4b, 0, 0x07, (byte)-80, 10, 0, 0, (byte)0x0f, (byte)0xff, (byte)0xff, // sr-adj
         0x04, 0x4b, 0, 0x07, (byte)-80, 10, 0, 0, (byte)0x0f, (byte)0xff, (byte)0xef, // sr-adj
         0x04, 0x4c, 0, 0x0d, (byte)-80, 10, 0, 0, 1, 2, 3, 4, 5, 6, (byte)0x0f, (byte)0xff, (byte)0xff, // sr-lan-adj
@@ -113,29 +111,32 @@ public class LinkstateAttributeParserTest {
         0x04, 0x5e, 0, 0x04, 0x46, 0x43, 0x50, 0, // Residual Bandwidth
         0x04, 0x5f, 0, 0x04, 0x46, 0x43, 0x50, 0, // Available Bandwidth
         0x04, 0x60, 0, 0x04, 0, 0, 0, 0,  // Utilized Bandwidth
-        0x04, (byte) 0x88, 0, 0x01, 0x0a };
+        0x04, (byte) 0x88, 0, 0x01, 0x0a
+    };
 
-    private static final byte[] NODE_ATTR = { 0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0,
-        0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04,
-        0x29, 0x29, 0x29, 0x29, 0x04, (byte) 0x88, 0, 0x01, 0x0a,
+    private static final byte[] NODE_ATTR = {
+        0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0, 0x05, 0x31, 0x32, 0x4b,
+        0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04, 0x29, 0x29, 0x29, 0x29,
+        0x04, (byte) 0x88, 0, 0x01, 0x0a,
         4, 0x0a, 0, 0x0c, (byte)0xe0, 0, 1, 2, 3, 4, (byte)0x89, 0, 3, 1, 2, 0, // sr-caps
         4, 0x0b, 0, 2, 0, 1 // sr-algorythms
-        };
+    };
 
-    private static final byte[] NODE_ATTR_S = { 0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0,
-        0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04,
-        0x29, 0x29, 0x29, 0x29,
+    private static final byte[] NODE_ATTR_S = {
+        0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0, 0x05, 0x31, 0x32, 0x4b,
+        0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04, 0x29, 0x29, 0x29, 0x29,
         4, 0x0a, 0, 0x0c, (byte)0xe0, 0, 1, 2, 3, 4, (byte)0x89, 0, 3, 1, 2, 0, // sr-caps
         4, 0x0b, 0, 2, 0, 1 // sr-algorythms
-        };
+    };
 
-    private static final byte[] P4_ATTR = { 0x04, (byte) 0x80, 0, 0x01, (byte) 0xF0, 0x04, (byte) 0x81, 0, 0x08, 0x12, 0x34, 0x56, 0x78,
+    private static final byte[] P4_ATTR = {
+        0x04, (byte) 0x80, 0, 0x01, (byte) 0xF0, 0x04, (byte) 0x81, 0, 0x08, 0x12, 0x34, 0x56, 0x78,
         0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70,
         0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a, 0x04, (byte) 0x84, 0, 0x04, 0x0a, 0x19, 0x02, 0x1b,
         4, (byte)0x86, 0,8, (byte)0xf0, 0, 0,0, 1,2,3,4, // prefix-sid tlv
         4, (byte)0x87, 0,0x0c, 0, 0, 0, 5, 4, (byte)0x89, 0, 4, 1,2,3,4, // range tlv
         4, (byte)0x88, 0, 4, 1, (byte)0xf0, 0, 0 // binding sid tlv
-        };
+    };
 
     private RSVPExtensionProviderContext context;
     private RSVPActivator rsvpActivator;
@@ -148,26 +149,34 @@ public class LinkstateAttributeParserTest {
         this.rsvpActivator.start(this.context);
         this.parser = new LinkstateAttributeParser(false,this.context.getRsvpRegistry());
     }
+
     private static AttributesBuilder createBuilder(final ObjectType type) {
-        return new AttributesBuilder().addAugmentation(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1.class,
-            new Attributes1Builder().setMpReachNlri(
-                new MpReachNlriBuilder().setAfi(LinkstateAddressFamily.class).setSafi(LinkstateSubsequentAddressFamily.class).setAdvertizedRoutes(
-                    new AdvertizedRoutesBuilder().setDestinationType(
-                        new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                            new DestinationLinkstateBuilder().setCLinkstateDestination(
-                                Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type).setProtocolId(ProtocolId.IsisLevel1).build())).build()).build()).build()).build()).build());
+        return new AttributesBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .bgp.multiprotocol.rev180329.Attributes1.class, new Attributes1Builder().setMpReachNlri(
+                new MpReachNlriBuilder().setAfi(LinkstateAddressFamily.class)
+                .setSafi(LinkstateSubsequentAddressFamily.class)
+                .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+                    new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                        new DestinationLinkstateBuilder().setCLinkstateDestination(
+                            Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type)
+                                .setProtocolId(ProtocolId.IsisLevel1).build())).build()).build()).build()).build())
+            .build());
     }
 
     private static AttributesBuilder createUnreachBuilder(final ObjectType type) {
-        return new AttributesBuilder().addAugmentation(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2.class,
-            new Attributes2Builder().setMpUnreachNlri(
-                new MpUnreachNlriBuilder().setAfi(LinkstateAddressFamily.class).setSafi(LinkstateSubsequentAddressFamily.class).setWithdrawnRoutes(
-                    new WithdrawnRoutesBuilder().setDestinationType(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
-                                Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type).setProtocolId(ProtocolId.IsisLevel1).build())).build()).build()).build()).build()).build());
+        return new AttributesBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .bgp.multiprotocol.rev180329.Attributes2.class, new Attributes2Builder().setMpUnreachNlri(
+                new MpUnreachNlriBuilder().setAfi(LinkstateAddressFamily.class)
+                .setSafi(LinkstateSubsequentAddressFamily.class)
+                .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.update
+                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder()
+                        .setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                            .bgp.linkstate.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                            .destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
+                                Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type)
+                                    .setProtocolId(ProtocolId.IsisLevel1).build())).build()).build()).build()).build())
+            .build());
     }
 
     @Test
@@ -265,7 +274,7 @@ public class LinkstateAttributeParserTest {
         buff.skipBytes(4);
         // there is unresolved TLV at the end, that needs to be cut off
 
-        assertArrayEquals(ByteArray.subByte(LINK_ATTR, 0, LINK_ATTR.length -5), ByteArray.getAllBytes(buff));
+        assertArrayEquals(ByteArray.subByte(LINK_ATTR, 0, LINK_ATTR.length - 5), ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -322,8 +331,9 @@ public class LinkstateAttributeParserTest {
         assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }, ls.getRouteTags().get(0)
             .getValue());
         assertEquals(1, ls.getExtendedTags().size());
-        assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x10, (byte) 0x30,
-                (byte) 0x50, (byte) 0x70 }, ls.getExtendedTags().get(0).getValue());
+        assertArrayEquals(new byte[] {
+            (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x10, (byte) 0x30, (byte) 0x50, (byte) 0x70
+        }, ls.getExtendedTags().get(0).getValue());
         assertEquals(10, ls.getPrefixMetric().getValue().intValue());
         assertEquals("10.25.2.27", ls.getOspfForwardingAddress().getIpv4Address().getValue());
 
@@ -368,38 +378,5 @@ public class LinkstateAttributeParserTest {
         this.parser.serializeAttribute(builder.build(), buff);
         assertArrayEquals(TE_LSP_ATTR, ByteArray.getAllBytes(buff));
         assertTrue(Arrays.equals(TE_LSP_ATTR, ByteArray.getAllBytes(buff)));
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testLinkAttributesPrivateConstructor() throws Throwable {
-        final Constructor<LinkAttributesParser> c = LinkAttributesParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testNodeAttributesPrivateConstructor() throws Throwable {
-        final Constructor<NodeAttributesParser> c = NodeAttributesParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void testPrefixAttributesPrivateConstructor() throws Throwable {
-        final Constructor<PrefixAttributesParser> c = PrefixAttributesParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
     }
 }

@@ -36,7 +36,7 @@ public final class SrPrefixAttributesParser {
     private static final int RESERVED_PREFIX = 2;
 
     private SrPrefixAttributesParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     public static SrPrefix parseSrPrefix(final ByteBuf buffer, final ProtocolId protocol) {
@@ -50,24 +50,27 @@ public final class SrPrefixAttributesParser {
 
     private static Flags parsePrefixFlags(final BitArray flags, final ProtocolId protocol) {
         switch (protocol) {
-        case IsisLevel1:
-        case IsisLevel2:
-            return new IsisPrefixFlagsCaseBuilder().setReadvertisement(flags.get(RE_ADVERTISEMENT))
-                .setNodeSid(flags.get(NODE_SID)).setNoPhp(flags.get(NO_PHP)).setExplicitNull(flags.get(EXPLICIT_NULL)).build();
-        case Ospf:
-        case OspfV3:
-            return new OspfPrefixFlagsCaseBuilder().setExplicitNull(flags.get(EXPLICIT_NULL))
-                .setMappingServer(flags.get(MAPPING_SERVER)).setNoPhp(flags.get(NO_PHP_OSPF)).build();
-        default:
-            return null;
+            case IsisLevel1:
+            case IsisLevel2:
+                return new IsisPrefixFlagsCaseBuilder().setReadvertisement(flags.get(RE_ADVERTISEMENT))
+                        .setNodeSid(flags.get(NODE_SID)).setNoPhp(flags.get(NO_PHP))
+                        .setExplicitNull(flags.get(EXPLICIT_NULL)).build();
+            case Ospf:
+            case OspfV3:
+                return new OspfPrefixFlagsCaseBuilder().setExplicitNull(flags.get(EXPLICIT_NULL))
+                        .setMappingServer(flags.get(MAPPING_SERVER)).setNoPhp(flags.get(NO_PHP_OSPF)).build();
+            default:
+                return null;
         }
     }
 
     public static void serializeSrPrefix(final SrPrefix srPrefix, final ByteBuf aggregator) {
-        serializePrefixAttributes(srPrefix.getFlags(), srPrefix.getAlgorithm(), srPrefix.getSidLabelIndex(), aggregator);
+        serializePrefixAttributes(srPrefix.getFlags(), srPrefix.getAlgorithm(), srPrefix.getSidLabelIndex(),
+            aggregator);
     }
 
-    public static void serializePrefixAttributes(final Flags flags, final Algorithm algorithm, final SidLabelIndex sidLabelIndex, final ByteBuf buffer) {
+    public static void serializePrefixAttributes(final Flags flags, final Algorithm algorithm,
+            final SidLabelIndex sidLabelIndex, final ByteBuf buffer) {
         final BitArray bitFlags = serializePrefixFlags(flags, sidLabelIndex);
         bitFlags.toByteBuf(buffer);
         buffer.writeByte(algorithm.getIntValue());

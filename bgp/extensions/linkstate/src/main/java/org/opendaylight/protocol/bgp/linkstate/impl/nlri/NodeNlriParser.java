@@ -63,41 +63,41 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
 
     /* Node Descriptor QNames */
     @VisibleForTesting
-    public static final NodeIdentifier AS_NUMBER_NID = new NodeIdentifier(AsNumTlvParser.AS_NUMBER_QNAME);
+    public static final NodeIdentifier AS_NUMBER_NID = NodeIdentifier.create(AsNumTlvParser.AS_NUMBER_QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier AREA_NID = new NodeIdentifier(AreaIdTlvParser.AREA_ID_QNAME);
+    public static final NodeIdentifier AREA_NID = NodeIdentifier.create(AreaIdTlvParser.AREA_ID_QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier DOMAIN_NID = new NodeIdentifier(DomainIdTlvParser.DOMAIN_ID_QNAME);
+    public static final NodeIdentifier DOMAIN_NID = NodeIdentifier.create(DomainIdTlvParser.DOMAIN_ID_QNAME);
     @VisibleForTesting
-    private static final NodeIdentifier ROUTER_NID = new NodeIdentifier(CRouterIdentifier.QNAME);
+    private static final NodeIdentifier ROUTER_NID = NodeIdentifier.create(CRouterIdentifier.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier BGP_ROUTER_NID = new NodeIdentifier(BgpRouterIdTlvParser.BGP_ROUTER_ID_QNAME);
+    public static final NodeIdentifier BGP_ROUTER_NID = NodeIdentifier.create(BgpRouterIdTlvParser.BGP_ROUTER_ID_QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier MEMBER_ASN_NID = new NodeIdentifier(MemAsNumTlvParser.MEMBER_AS_NUMBER_QNAME);
+    public static final NodeIdentifier MEMBER_ASN_NID = NodeIdentifier.create(MemAsNumTlvParser.MEMBER_AS_NUMBER_QNAME);
 
     /* Router Identifier QNames */
     @VisibleForTesting
-    public static final NodeIdentifier ISIS_NODE_NID = new NodeIdentifier(IsisNode.QNAME);
+    public static final NodeIdentifier ISIS_NODE_NID = NodeIdentifier.create(IsisNode.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier ISIS_PSEUDONODE_NID = new NodeIdentifier(IsisPseudonode.QNAME);
+    public static final NodeIdentifier ISIS_PSEUDONODE_NID = NodeIdentifier.create(IsisPseudonode.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier OSPF_NODE_NID = new NodeIdentifier(OspfNode.QNAME);
+    public static final NodeIdentifier OSPF_NODE_NID = NodeIdentifier.create(OspfNode.QNAME);
     @VisibleForTesting
-    private static final NodeIdentifier OSPF_PSEUDONODE_NID = new NodeIdentifier(OspfPseudonode.QNAME);
+    private static final NodeIdentifier OSPF_PSEUDONODE_NID = NodeIdentifier.create(OspfPseudonode.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier ISO_SYSTEM_NID = new NodeIdentifier(
-            QName.create(NodeDescriptors.QNAME.getModule(), "iso-system-id"));
+    public static final NodeIdentifier ISO_SYSTEM_NID = NodeIdentifier.create(
+            QName.create(NodeDescriptors.QNAME, "iso-system-id"));
     @VisibleForTesting
-    public static final NodeIdentifier ISIS_ROUTER_NID = new NodeIdentifier(
-            QName.create(NodeDescriptors.QNAME.getModule(),"is-is-router-identifier"));
+    public static final NodeIdentifier ISIS_ROUTER_NID = NodeIdentifier.create(
+            QName.create(NodeDescriptors.QNAME, "is-is-router-identifier").intern());
     @VisibleForTesting
-    public static final NodeIdentifier PSN_NID = new NodeIdentifier(
-            QName.create(NodeDescriptors.QNAME.getModule(),"psn"));
+    public static final NodeIdentifier PSN_NID = NodeIdentifier.create(
+            QName.create(NodeDescriptors.QNAME, "psn").intern());
     @VisibleForTesting
-    public static final NodeIdentifier OSPF_ROUTER_NID = new NodeIdentifier(
-            QName.create(NodeDescriptors.QNAME.getModule(),"ospf-router-id"));
-    private static final NodeIdentifier LAN_IFACE_NID = new NodeIdentifier(
-            QName.create(NodeDescriptors.QNAME.getModule(),"lan-interface"));
+    public static final NodeIdentifier OSPF_ROUTER_NID = NodeIdentifier.create(
+            QName.create(NodeDescriptors.QNAME, "ospf-router-id").intern());
+    private static final NodeIdentifier LAN_IFACE_NID = NodeIdentifier.create(
+            QName.create(NodeDescriptors.QNAME, "lan-interface").intern());
 
     @Override
     protected ObjectType parseObjectType(final ByteBuf buffer) {
@@ -120,11 +120,10 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
     }
 
     private static IsisNodeCase serializeIsisNode(final ContainerNode isis) {
-        final IsisNodeCaseBuilder builder = new IsisNodeCaseBuilder();
-        final IsisNodeBuilder isisBuilder = new IsisNodeBuilder();
-        isisBuilder.setIsoSystemId(new IsoSystemIdentifier((byte[]) isis.getChild(ISO_SYSTEM_NID).get().getValue()));
-        builder.setIsisNode(isisBuilder.build());
-        return builder.build();
+        return new IsisNodeCaseBuilder()
+                .setIsisNode(new IsisNodeBuilder().setIsoSystemId(
+                    new IsoSystemIdentifier((byte[]) isis.getChild(ISO_SYSTEM_NID).get().getValue())).build())
+                .build();
     }
 
     private static IsisPseudonodeCase serializeIsisPseudoNode(final ContainerNode pseudoIsisNode) {
@@ -174,92 +173,86 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
     }
 
     private static CRouterIdentifier serializeRouterId(final ContainerNode descriptorsData) {
-        CRouterIdentifier cRouterId = null;
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRouterId
-                = descriptorsData.getChild(ROUTER_NID);
+        CRouterIdentifier ret = null;
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRouterId =
+                descriptorsData.getChild(ROUTER_NID);
         if (maybeRouterId.isPresent()) {
             final ChoiceNode routerId = (ChoiceNode) maybeRouterId.get();
             if (routerId.getChild(ISIS_NODE_NID).isPresent()) {
-                cRouterId = serializeIsisNode((ContainerNode) routerId.getChild(ISIS_NODE_NID).get());
+                ret = serializeIsisNode((ContainerNode) routerId.getChild(ISIS_NODE_NID).get());
             } else if (routerId.getChild(ISIS_PSEUDONODE_NID).isPresent()) {
-                cRouterId = serializeIsisPseudoNode((ContainerNode) routerId.getChild(ISIS_PSEUDONODE_NID).get());
+                ret = serializeIsisPseudoNode((ContainerNode) routerId.getChild(ISIS_PSEUDONODE_NID).get());
             } else if (routerId.getChild(OSPF_NODE_NID).isPresent()) {
-                cRouterId = serializeOspfNode((ContainerNode) routerId.getChild(OSPF_NODE_NID).get());
+                ret = serializeOspfNode((ContainerNode) routerId.getChild(OSPF_NODE_NID).get());
             } else if (routerId.getChild(OSPF_PSEUDONODE_NID).isPresent()) {
-                cRouterId = serializeOspfPseudoNode((ContainerNode) routerId.getChild(OSPF_PSEUDONODE_NID).get());
+                ret = serializeOspfPseudoNode((ContainerNode) routerId.getChild(OSPF_PSEUDONODE_NID).get());
             }
         }
-        return cRouterId;
+        return ret;
     }
 
     private static AsNumber serializeAsNumber(final ContainerNode descriptorsData) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> asNumber
-                = descriptorsData.getChild(AS_NUMBER_NID);
-        return asNumber.map(dataContainerChild -> new AsNumber((Long) dataContainerChild.getValue())).orElse(null);
+        return descriptorsData.getChild(AS_NUMBER_NID).map(
+            dataContainerChild -> new AsNumber((Long) dataContainerChild.getValue())).orElse(null);
     }
 
     private static DomainIdentifier serializeDomainId(final ContainerNode descriptorsData) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> domainId = descriptorsData.getChild(DOMAIN_NID);
-        return domainId.map(dataContainerChild
-                -> new DomainIdentifier((Long) dataContainerChild.getValue())).orElse(null);
+        return descriptorsData.getChild(DOMAIN_NID).map(
+            dataContainerChild -> new DomainIdentifier((Long) dataContainerChild.getValue())).orElse(null);
     }
 
     private static AreaIdentifier serializeAreaId(final ContainerNode descriptorsData) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> areaId = descriptorsData.getChild(AREA_NID);
-        return areaId.map(dataContainerChild
-                -> new AreaIdentifier((Long) dataContainerChild.getValue())).orElse(null);
+        return descriptorsData.getChild(AREA_NID).map(
+            dataContainerChild -> new AreaIdentifier((Long) dataContainerChild.getValue())).orElse(null);
     }
 
     private static Ipv4Address serializeBgpRouterId(final ContainerNode descriptorsData) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> bgpRouterId
-                = descriptorsData.getChild(BGP_ROUTER_NID);
-        return bgpRouterId.map(dataContainerChild
-                -> new Ipv4Address((String) dataContainerChild.getValue())).orElse(null);
+        return descriptorsData.getChild(BGP_ROUTER_NID).map(
+            dataContainerChild -> new Ipv4Address((String) dataContainerChild.getValue())).orElse(null);
     }
 
     private static AsNumber serializeMemberAsn(final ContainerNode descriptorsData) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> memberAsn
-                = descriptorsData.getChild(MEMBER_ASN_NID);
-        return memberAsn.map(dataContainerChild -> new AsNumber((Long) dataContainerChild.getValue())).orElse(null);
+        return descriptorsData.getChild(MEMBER_ASN_NID).map(
+            dataContainerChild -> new AsNumber((Long) dataContainerChild.getValue())).orElse(null);
     }
 
     static LocalNodeDescriptors serializeLocalNodeDescriptors(final ContainerNode descriptorsData) {
-        final LocalNodeDescriptorsBuilder builder = new LocalNodeDescriptorsBuilder();
-        builder.setAsNumber(serializeAsNumber(descriptorsData));
-        builder.setDomainId(serializeDomainId(descriptorsData));
-        builder.setAreaId(serializeAreaId(descriptorsData));
-        builder.setCRouterIdentifier(serializeRouterId(descriptorsData));
-        builder.setBgpRouterId(serializeBgpRouterId(descriptorsData));
-        builder.setMemberAsn(serializeMemberAsn(descriptorsData));
-        return builder.build();
+        return new LocalNodeDescriptorsBuilder()
+                .setAsNumber(serializeAsNumber(descriptorsData))
+                .setDomainId(serializeDomainId(descriptorsData))
+                .setAreaId(serializeAreaId(descriptorsData))
+                .setCRouterIdentifier(serializeRouterId(descriptorsData))
+                .setBgpRouterId(serializeBgpRouterId(descriptorsData))
+                .setMemberAsn(serializeMemberAsn(descriptorsData))
+                .build();
     }
 
     static RemoteNodeDescriptors serializeRemoteNodeDescriptors(final ContainerNode descriptorsData) {
-        final RemoteNodeDescriptorsBuilder builder = new RemoteNodeDescriptorsBuilder();
-        builder.setAsNumber(serializeAsNumber(descriptorsData));
-        builder.setDomainId(serializeDomainId(descriptorsData));
-        builder.setAreaId(serializeAreaId(descriptorsData));
-        builder.setCRouterIdentifier(serializeRouterId(descriptorsData));
-        builder.setBgpRouterId(serializeBgpRouterId(descriptorsData));
-        builder.setMemberAsn(serializeMemberAsn(descriptorsData));
-        return builder.build();
+        return new RemoteNodeDescriptorsBuilder()
+                .setAsNumber(serializeAsNumber(descriptorsData))
+                .setDomainId(serializeDomainId(descriptorsData))
+                .setAreaId(serializeAreaId(descriptorsData))
+                .setCRouterIdentifier(serializeRouterId(descriptorsData))
+                .setBgpRouterId(serializeBgpRouterId(descriptorsData))
+                .setMemberAsn(serializeMemberAsn(descriptorsData))
+                .build();
     }
 
     static AdvertisingNodeDescriptors serializeAdvNodeDescriptors(final ContainerNode descriptorsData) {
-        final AdvertisingNodeDescriptorsBuilder builder = new AdvertisingNodeDescriptorsBuilder();
-        builder.setAsNumber(serializeAsNumber(descriptorsData));
-        builder.setDomainId(serializeDomainId(descriptorsData));
-        builder.setAreaId(serializeAreaId(descriptorsData));
-        builder.setCRouterIdentifier(serializeRouterId(descriptorsData));
-        return builder.build();
+        return new AdvertisingNodeDescriptorsBuilder()
+                .setAsNumber(serializeAsNumber(descriptorsData))
+                .setDomainId(serializeDomainId(descriptorsData))
+                .setAreaId(serializeAreaId(descriptorsData))
+                .setCRouterIdentifier(serializeRouterId(descriptorsData))
+                .build();
     }
 
     static NodeDescriptors serializeNodeDescriptors(final ContainerNode descriptorsData) {
-        final NodeDescriptorsBuilder builder = new NodeDescriptorsBuilder();
-        builder.setAsNumber(serializeAsNumber(descriptorsData));
-        builder.setDomainId(serializeDomainId(descriptorsData));
-        builder.setAreaId(serializeAreaId(descriptorsData));
-        builder.setCRouterIdentifier(serializeRouterId(descriptorsData));
-        return builder.build();
+        return new NodeDescriptorsBuilder()
+                .setAsNumber(serializeAsNumber(descriptorsData))
+                .setDomainId(serializeDomainId(descriptorsData))
+                .setAreaId(serializeAreaId(descriptorsData))
+                .setCRouterIdentifier(serializeRouterId(descriptorsData))
+                .build();
     }
 }

@@ -53,7 +53,8 @@ public final class SrLinkAttributesParser {
     private static final int FLAGS_BITS_SIZE = 8;
     private static final int FLAGS_BYTE_SIZE = 1;
 
-    /** OSPF flags
+    /*
+       OSPF flags
        0 1 2 3 4 5 6 7
       +-+-+-+-+-+-+-+-+
       |B|V|L|S|       |
@@ -67,7 +68,7 @@ public final class SrLinkAttributesParser {
      */
 
     private SrLinkAttributesParser() {
-        throw new UnsupportedOperationException();
+
     }
 
     public static SrAdjIds parseAdjacencySegmentIdentifier(final ByteBuf buffer, final ProtocolId protocolId) {
@@ -105,10 +106,12 @@ public final class SrLinkAttributesParser {
             public Class<? extends DataContainer> getImplementedInterface() {
                 return EpeAdjSidTlv.class;
             }
+
             @Override
             public Weight getWeight() {
                 return weight;
             }
+
             @Override
             public SidLabelIndex getSidLabelIndex() {
                 return sidValue;
@@ -126,19 +129,21 @@ public final class SrLinkAttributesParser {
         srLanAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
         buffer.skipBytes(RESERVED);
         switch (protocolId) {
-        case IsisLevel1:
-        case IsisLevel2:
-            srLanAdjIdBuilder.setIsoSystemId(new IsoSystemIdentifier(ByteArray.readBytes(buffer, ISO_SYSTEM_ID_SIZE)));
-            break;
-        case Ospf:
-        case OspfV3:
-            srLanAdjIdBuilder.setNeighborId(Ipv4Util.addressForByteBuf(buffer));
-            break;
-        default:
-            return null;
+            case IsisLevel1:
+            case IsisLevel2:
+                srLanAdjIdBuilder.setIsoSystemId(new IsoSystemIdentifier(
+                    ByteArray.readBytes(buffer, ISO_SYSTEM_ID_SIZE)));
+                break;
+            case Ospf:
+            case OspfV3:
+                srLanAdjIdBuilder.setNeighborId(Ipv4Util.addressForByteBuf(buffer));
+                break;
+            default:
+                return null;
         }
         // length determines a type of next field, which is used for parsing
-        srLanAdjIdBuilder.setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndex(Size.forValue(buffer.readableBytes()), buffer));
+        srLanAdjIdBuilder.setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndex(
+            Size.forValue(buffer.readableBytes()), buffer));
         return srLanAdjIdBuilder.build();
     }
 
@@ -147,28 +152,31 @@ public final class SrLinkAttributesParser {
             return null;
         }
         switch (protocol) {
-        case IsisLevel1:
-        case IsisLevel2:
-            return new IsisAdjFlagsCaseBuilder().setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG)).setBackup(flags.get(BACKUP_ISIS))
-                .setSet(flags.get(SET_ISIS)).build();
-        case Ospf:
-        case OspfV3:
-            return new OspfAdjFlagsCaseBuilder().setBackup(flags.get(BACKUP_OSPF)).setSet(flags.get(SET_OSPF)).build();
-        default:
-            return null;
+            case IsisLevel1:
+            case IsisLevel2:
+                return new IsisAdjFlagsCaseBuilder().setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG))
+                        .setBackup(flags.get(BACKUP_ISIS))
+                        .setSet(flags.get(SET_ISIS)).build();
+            case Ospf:
+            case OspfV3:
+                return new OspfAdjFlagsCaseBuilder().setBackup(flags.get(BACKUP_OSPF)).setSet(flags.get(SET_OSPF))
+                        .build();
+            default:
+                return null;
         }
     }
 
-    public static <T extends EpeAdjSidTlv> void serializeAdjacencySegmentIdentifiers(final List<T> adjSids, final int type, final ByteBuf byteAggregator) {
+    public static <T extends EpeAdjSidTlv> void serializeAdjacencySegmentIdentifiers(final List<T> adjSids,
+            final int type, final ByteBuf byteAggregator) {
         adjSids.forEach(id -> TlvUtil.writeTLV(type, serializeAdjacencySegmentIdentifier(id), byteAggregator));
     }
 
     public static <T extends EpeAdjSidTlv> ByteBuf serializeAdjacencySegmentIdentifier(final T adjSid) {
         final ByteBuf value = Unpooled.buffer();
-        if(adjSid instanceof SrAdjIds) {
+        if (adjSid instanceof SrAdjIds) {
             final BitArray flags = serializeAdjFlags(((SrAdjIds) adjSid).getFlags(), adjSid.getSidLabelIndex());
             flags.toByteBuf(value);
-        }else {
+        } else {
             value.writeZero(FLAGS_BYTE_SIZE);
         }
         value.writeByte(adjSid.getWeight().getValue());
@@ -177,7 +185,8 @@ public final class SrLinkAttributesParser {
         return value;
     }
 
-    public static void serializeLanAdjacencySegmentIdentifiers(final List<SrLanAdjIds> srLanAdjIds, final ByteBuf byteAggregator) {
+    public static void serializeLanAdjacencySegmentIdentifiers(final List<SrLanAdjIds> srLanAdjIds,
+            final ByteBuf byteAggregator) {
         for (final SrLanAdjIds id : srLanAdjIds) {
             TlvUtil.writeTLV(SR_LAN_ADJ_ID, serializeLanAdjacencySegmentIdentifier(id), byteAggregator);
         }
@@ -211,10 +220,9 @@ public final class SrLinkAttributesParser {
             bitFlags.set(BACKUP_ISIS, isisFlags.isBackup());
             bitFlags.set(SET_ISIS, isisFlags.isSet());
             SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE_ISIS, LOCAL_ISIS);
-        } else if (flags == null){
+        } else if (flags == null) {
             SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE_EPE, LOCAL_EPE);
         }
         return bitFlags;
     }
-
 }

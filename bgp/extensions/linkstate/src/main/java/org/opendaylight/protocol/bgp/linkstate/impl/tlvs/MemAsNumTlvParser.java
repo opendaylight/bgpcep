@@ -14,7 +14,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.epe.rev150622.EpeNodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 
-public final class MemAsNumTlvParser implements LinkstateTlvParser<AsNumber>, LinkstateTlvParser.LinkstateTlvSerializer<AsNumber> {
+public final class MemAsNumTlvParser implements LinkstateTlvParser<AsNumber>,
+        LinkstateTlvParser.LinkstateTlvSerializer<AsNumber> {
 
     private static final int MEMBER_AS_NUMBER = 517;
 
@@ -39,5 +40,4 @@ public final class MemAsNumTlvParser implements LinkstateTlvParser<AsNumber>, Li
     public QName getTlvQName() {
         return MEMBER_AS_NUMBER_QNAME;
     }
-
 }
