@@ -72,9 +72,9 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
         });
     }
 
-    private BGPProtocolSessionPromise<S> connectSessionPromise(final InetSocketAddress address, final int retryTimer,
-            final Bootstrap bootstrap, final BGPPeerRegistry peerRegistry,
-            final ChannelPipelineInitializer<S> initializer) {
+    private static <S extends BGPSession> BGPProtocolSessionPromise<S> connectSessionPromise(
+            final InetSocketAddress address, final int retryTimer, final Bootstrap bootstrap,
+            final BGPPeerRegistry peerRegistry, final ChannelPipelineInitializer<S> initializer) {
         final BGPProtocolSessionPromise<S> sessionPromise = new BGPProtocolSessionPromise<>(address, retryTimer,
                 bootstrap, peerRegistry);
         final ChannelHandler chInit = new ChannelInitializer<SocketChannel>() {
