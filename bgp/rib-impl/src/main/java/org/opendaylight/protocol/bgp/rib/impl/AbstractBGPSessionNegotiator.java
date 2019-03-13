@@ -88,6 +88,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         this.registry = registry;
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     private synchronized void startNegotiation() {
         if (!(this.state == State.IDLE || this.state == State.OPEN_CONFIRM)) {
             return;
@@ -154,7 +155,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
                 break;
             case OPEN_CONFIRM:
                 if (msg instanceof Keepalive) {
-                    negotiationSuccessful(this.session);
+                    negotiationSuccessful();
                     LOG.info("BGP Session with peer {} established successfully.", this.channel);
                 } else if (msg instanceof Notify) {
                     final Notify ntf = (Notify) msg;
@@ -210,19 +211,19 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         }
     }
 
-    private synchronized void negotiationFailed(final Throwable e) {
-        LOG.warn("Channel {} negotiation failed: {}", this.channel, e.getMessage());
-        if (e instanceof BGPDocumentedException) {
+    private synchronized void negotiationFailed(final Throwable cause) {
+        LOG.warn("Channel {} negotiation failed: {}", this.channel, cause.getMessage());
+        if (cause instanceof BGPDocumentedException) {
             // although sendMessage() can also result in calling this method, it won't create a cycle.
             // In case sendMessage() fails to deliver the message, this method gets called with different
             // exception (definitely not with BGPDocumentedException).
-            sendMessage(buildErrorNotify(((BGPDocumentedException) e).getError(),
-                    ((BGPDocumentedException) e).getData()));
+            sendMessage(buildErrorNotify(((BGPDocumentedException) cause).getError(),
+                    ((BGPDocumentedException) cause).getData()));
         }
         if (this.state == State.OPEN_CONFIRM) {
             this.registry.removePeerSession(getRemoteIp());
         }
-        negotiationFailedCloseChannel(e);
+        negotiationFailedCloseChannel(cause);
         this.state = State.FINISHED;
     }
 
@@ -248,7 +249,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         return this.state;
     }
 
-    private void negotiationSuccessful(final BGPSessionImpl session) {
+    @GuardedBy("this")
+    private void negotiationSuccessful() {
         LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
         this.channel.pipeline().replace(this, "session", session);
         this.promise.setSuccess(session);
@@ -284,6 +286,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     }
 
     @Override
+    @SuppressWarnings("checkstyle:illegalCatch")
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         LOG.debug("Negotiation read invoked on channel {}", this.channel);
         try {
