@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
@@ -28,8 +29,10 @@ public class ActivatorTest {
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_SAFI));
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_VPN_SAFI));
         act.start(context);
-        assertEquals(FlowspecSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_SAFI));
-        assertEquals(FlowspecL3vpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_VPN_SAFI));
+        assertEquals(FlowspecSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
+            .classForFamily(FLOWSPEC_SAFI));
+        assertEquals(FlowspecL3vpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
+            .classForFamily(FLOWSPEC_VPN_SAFI));
         act.close();
     }
 }

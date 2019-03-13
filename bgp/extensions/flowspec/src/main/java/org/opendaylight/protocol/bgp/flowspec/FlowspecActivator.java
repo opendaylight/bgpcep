@@ -149,7 +149,8 @@ public final class FlowspecActivator implements AutoCloseable {
         final FSIpv4FragmentHandler fragmentHandler = new FSIpv4FragmentHandler();
         this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeParser(FSIpv4FragmentHandler.FRAGMENT_VALUE,
             fragmentHandler));
-        this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeSerializer(FragmentCase.class, fragmentHandler));
+        this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeSerializer(FragmentCase.class,
+            fragmentHandler));
     }
 
     private void registerIpv6FlowspecTypeHandlers(
@@ -173,7 +174,8 @@ public final class FlowspecActivator implements AutoCloseable {
         final FSIpv6NextHeaderHandler nextHeaderHandler = new FSIpv6NextHeaderHandler();
         this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeParser(
             FSIpv6NextHeaderHandler.NEXT_HEADER_VALUE, nextHeaderHandler));
-        this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeSerializer(NextHeaderCase.class, nextHeaderHandler));
+        this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeSerializer(NextHeaderCase.class,
+            nextHeaderHandler));
 
         final FSIpv6FragmentHandler fragmentHandler = new FSIpv6FragmentHandler();
         this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeParser(FSIpv6FragmentHandler.FRAGMENT_VALUE,

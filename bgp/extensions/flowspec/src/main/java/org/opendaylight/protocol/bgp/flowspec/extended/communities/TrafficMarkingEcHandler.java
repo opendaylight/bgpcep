@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.flowspec.extended.communities;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
@@ -31,9 +29,12 @@ public class TrafficMarkingEcHandler implements ExtendedCommunityParser, Extende
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.TrafficMarkingExtendedCommunity,
+        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+            .flowspec.rev180329.TrafficMarkingExtendedCommunity,
                 "The extended community %s is not TrafficMarkingExtendedCommunity type.", extendedCommunity);
-        final TrafficMarkingExtendedCommunity trafficMarking = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.TrafficMarkingExtendedCommunity) extendedCommunity).getTrafficMarkingExtendedCommunity();
+        final TrafficMarkingExtendedCommunity trafficMarking = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params
+                .xml.ns.yang.bgp.flowspec.rev180329.TrafficMarkingExtendedCommunity) extendedCommunity)
+                .getTrafficMarkingExtendedCommunity();
         byteAggregator.writeZero(RESERVED);
         ByteBufWriteUtil.writeUnsignedByte(trafficMarking.getGlobalAdministrator().getValue(), byteAggregator);
     }
@@ -50,12 +51,11 @@ public class TrafficMarkingEcHandler implements ExtendedCommunityParser, Extende
     }
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         buffer.skipBytes(RESERVED);
         final Dscp dscp = new Dscp(buffer.readUnsignedByte());
         return new TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(
                 new TrafficMarkingExtendedCommunityBuilder()
                     .setGlobalAdministrator(dscp).build()).build();
     }
-
 }

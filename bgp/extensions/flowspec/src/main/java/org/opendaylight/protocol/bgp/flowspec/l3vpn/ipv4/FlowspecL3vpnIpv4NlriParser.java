@@ -25,6 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
 /**
+ * L3 VPN IPv4 flowspec parser.
+ *
  * @author Kevin Wang
  */
 public final class FlowspecL3vpnIpv4NlriParser extends AbstractFlowspecL3vpnNlriParser {
@@ -34,31 +36,31 @@ public final class FlowspecL3vpnIpv4NlriParser extends AbstractFlowspecL3vpnNlri
     }
 
     @Override
-    public DestinationType createWithdrawnDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId) {
+    public DestinationType createWithdrawnDestinationType(@Nonnull final Object[] nlriFields,
+            @Nullable final PathId pathId) {
         final RouteDistinguisher rd = (RouteDistinguisher) nlriFields[0];
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4CaseBuilder()
-            .setDestinationFlowspecL3vpnIpv4(
-                new DestinationFlowspecL3vpnIpv4Builder()
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update
+                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4CaseBuilder()
+                .setDestinationFlowspecL3vpnIpv4(new DestinationFlowspecL3vpnIpv4Builder()
                     .setRouteDistinguisher(rd)
                     .setFlowspec(flowspecList)
                     .setPathId(pathId)
-                    .build()
-            ).build();
+                    .build()).build();
     }
 
     @Override
-    public DestinationType createAdvertizedRoutesDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId) {
+    public DestinationType createAdvertizedRoutesDestinationType(@Nonnull final Object[] nlriFields,
+            @Nullable final PathId pathId) {
         final RouteDistinguisher rd = (RouteDistinguisher) nlriFields[0];
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4CaseBuilder()
-            .setDestinationFlowspecL3vpnIpv4(
-                new DestinationFlowspecL3vpnIpv4Builder()
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update
+                .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4CaseBuilder()
+                .setDestinationFlowspecL3vpnIpv4(new DestinationFlowspecL3vpnIpv4Builder()
                     .setRouteDistinguisher(rd)
                     .setFlowspec(flowspecList)
                     .setPathId(pathId)
-                    .build()
-            ).build();
+                    .build()).build();
     }
 
     @Override
@@ -73,9 +75,11 @@ public final class FlowspecL3vpnIpv4NlriParser extends AbstractFlowspecL3vpnNlri
 
     @Override
     protected void serializeMpReachNlri(final DestinationType dstType, final ByteBuf byteAggregator) {
-        if (dstType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) {
-            final DestinationFlowspecL3vpnIpv4 destFlowspec = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) dstType)
-                .getDestinationFlowspecL3vpnIpv4();
+        if (dstType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329
+                .update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) {
+            final DestinationFlowspecL3vpnIpv4 destFlowspec = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
+                    .ns.yang.bgp.flowspec.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type
+                    .DestinationFlowspecL3vpnIpv4Case) dstType).getDestinationFlowspecL3vpnIpv4();
             serializeNlri(
                 new Object[] {
                     destFlowspec.getRouteDistinguisher(),
@@ -89,9 +93,11 @@ public final class FlowspecL3vpnIpv4NlriParser extends AbstractFlowspecL3vpnNlri
 
     @Override
     protected void serializeMpUnreachNlri(final DestinationType dstType, final ByteBuf byteAggregator) {
-        if (dstType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) {
-            final DestinationFlowspecL3vpnIpv4 destFlowspec = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) dstType)
-                .getDestinationFlowspecL3vpnIpv4();
+        if (dstType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329
+                .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4Case) {
+            final DestinationFlowspecL3vpnIpv4 destFlowspec = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
+                    .ns.yang.bgp.flowspec.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                    .DestinationFlowspecL3vpnIpv4Case) dstType).getDestinationFlowspecL3vpnIpv4();
             serializeNlri(
                 new Object[] {
                     destFlowspec.getRouteDistinguisher(),

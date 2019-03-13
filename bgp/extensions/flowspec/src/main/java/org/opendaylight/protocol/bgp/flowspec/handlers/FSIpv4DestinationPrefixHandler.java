@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -22,7 +22,7 @@ public final class FSIpv4DestinationPrefixHandler implements FlowspecTypeParser,
 
     @Override
     public void serializeType(final FlowspecType value, final ByteBuf output) {
-        Preconditions.checkArgument(value instanceof DestinationPrefixCase, "DestinationPrefixCase class is mandatory!");
+        checkArgument(value instanceof DestinationPrefixCase, "DestinationPrefixCase class is mandatory!");
         output.writeByte(DESTINATION_PREFIX_VALUE);
         ByteBufWriteUtil.writeMinimalPrefix(((DestinationPrefixCase) value).getDestinationPrefix(), output);
     }

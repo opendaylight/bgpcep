@@ -15,7 +15,8 @@ public class FSIpv4FragmentHandler extends AbstractFSFragmentHandler {
     @Override
     protected final Fragment parseFragment(final byte fragment) {
         final BitArray bs = BitArray.valueOf(fragment);
-        return new Fragment(bs.get(DONT_FRAGMENT), bs.get(FIRST_FRAGMENT), bs.get(IS_A_FRAGMENT), bs.get(LAST_FRAGMENT));
+        return new Fragment(bs.get(DONT_FRAGMENT), bs.get(FIRST_FRAGMENT), bs.get(IS_A_FRAGMENT),
+            bs.get(LAST_FRAGMENT));
     }
 
     @Override

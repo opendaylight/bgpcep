@@ -63,72 +63,84 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final SimpleFlowspecExtensionProviderContext flowspecContext = this.activator.getContext();
 
         regs.add(context.registerSubsequentAddressFamily(FlowspecSubsequentAddressFamily.class, FLOWSPEC_SAFI));
-        regs.add(context.registerSubsequentAddressFamily(FlowspecL3vpnSubsequentAddressFamily.class, FLOWSPEC_L3VPN_SAFI));
+        regs.add(context.registerSubsequentAddressFamily(FlowspecL3vpnSubsequentAddressFamily.class,
+            FLOWSPEC_L3VPN_SAFI));
 
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
 
-        final SimpleFlowspecIpv4NlriParser fsIpv4Handler = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
-        final SimpleFlowspecIpv6NlriParser fsIpv6Handler = new SimpleFlowspecIpv6NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
-        regs.add(
-                context.registerNlriParser(
-                        Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class, fsIpv4Handler, ipv4NextHopParser, Ipv4NextHopCase.class
-                        )
-                );
-        regs.add(
-                context.registerNlriParser(
-                        Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class, fsIpv6Handler, ipv6NextHopParser, Ipv6NextHopCase.class
-                        )
-                );
+        final SimpleFlowspecIpv4NlriParser fsIpv4Handler = new SimpleFlowspecIpv4NlriParser(
+            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
+                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv6NlriParser fsIpv6Handler = new SimpleFlowspecIpv6NlriParser(
+            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6,
+                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class,
+            fsIpv4Handler, ipv4NextHopParser, Ipv4NextHopCase.class));
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class,
+            fsIpv6Handler, ipv6NextHopParser, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(FlowspecRoutes.class, fsIpv4Handler));
         regs.add(context.registerNlriSerializer(FlowspecIpv6Routes.class, fsIpv6Handler));
 
-        final FlowspecL3vpnIpv4NlriParser fsL3vpnIpv4Handler = new FlowspecL3vpnIpv4NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
-        final FlowspecL3vpnIpv6NlriParser fsL3vpnIpv6Handler = new FlowspecL3vpnIpv6NlriParser(flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
-        regs.add(
-                context.registerNlriParser(
-                        Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class, fsL3vpnIpv4Handler, ipv4NextHopParser, Ipv4NextHopCase.class
-                        )
-                );
-        regs.add(
-                context.registerNlriParser(
-                        Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class, fsL3vpnIpv6Handler, ipv6NextHopParser, Ipv6NextHopCase.class
-                        )
-                );
+        final FlowspecL3vpnIpv4NlriParser fsL3vpnIpv4Handler = new FlowspecL3vpnIpv4NlriParser(
+            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
+                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv6NlriParser fsL3vpnIpv6Handler = new FlowspecL3vpnIpv6NlriParser(
+            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6,
+                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
+            fsL3vpnIpv4Handler, ipv4NextHopParser, Ipv4NextHopCase.class));
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
+            fsL3vpnIpv6Handler, ipv6NextHopParser, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(FlowspecL3vpnIpv4Routes.class, fsL3vpnIpv4Handler));
         regs.add(context.registerNlriSerializer(FlowspecL3vpnIpv6Routes.class, fsL3vpnIpv6Handler));
 
         final RedirectAsTwoOctetEcHandler redirect2bHandler = new RedirectAsTwoOctetEcHandler();
-        regs.add(context.registerExtendedCommunityParser(redirect2bHandler.getType(true), redirect2bHandler.getSubType(), redirect2bHandler));
+        regs.add(context.registerExtendedCommunityParser(redirect2bHandler.getType(true),
+            redirect2bHandler.getSubType(), redirect2bHandler));
         regs.add(context.registerExtendedCommunitySerializer(RedirectExtendedCommunityCase.class, redirect2bHandler));
 
         final TrafficActionEcHandler trafficActionHandler = new TrafficActionEcHandler();
-        regs.add(context.registerExtendedCommunityParser(trafficActionHandler.getType(true), trafficActionHandler.getSubType(), trafficActionHandler));
-        regs.add(context.registerExtendedCommunitySerializer(TrafficActionExtendedCommunityCase.class, trafficActionHandler));
+        regs.add(context.registerExtendedCommunityParser(trafficActionHandler.getType(true),
+            trafficActionHandler.getSubType(), trafficActionHandler));
+        regs.add(context.registerExtendedCommunitySerializer(TrafficActionExtendedCommunityCase.class,
+            trafficActionHandler));
 
         final TrafficMarkingEcHandler trafficMarkingHandler = new TrafficMarkingEcHandler();
-        regs.add(context.registerExtendedCommunityParser(trafficMarkingHandler.getType(true), trafficMarkingHandler.getSubType(), trafficMarkingHandler));
-        regs.add(context.registerExtendedCommunitySerializer(TrafficMarkingExtendedCommunityCase.class, trafficMarkingHandler));
+        regs.add(context.registerExtendedCommunityParser(trafficMarkingHandler.getType(true),
+            trafficMarkingHandler.getSubType(), trafficMarkingHandler));
+        regs.add(context.registerExtendedCommunitySerializer(TrafficMarkingExtendedCommunityCase.class,
+            trafficMarkingHandler));
 
         final TrafficRateEcHandler trafficRateEcHandler = new TrafficRateEcHandler();
-        regs.add(context.registerExtendedCommunityParser(trafficRateEcHandler.getType(true), trafficRateEcHandler.getSubType(), trafficRateEcHandler));
-        regs.add(context.registerExtendedCommunitySerializer(TrafficRateExtendedCommunityCase.class, trafficRateEcHandler));
+        regs.add(context.registerExtendedCommunityParser(trafficRateEcHandler.getType(true),
+            trafficRateEcHandler.getSubType(), trafficRateEcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(TrafficRateExtendedCommunityCase.class,
+            trafficRateEcHandler));
 
         final RedirectIpv6EcHandler redirectIpv6EcHandler = new RedirectIpv6EcHandler();
-        regs.add(context.registerExtendedCommunityParser(redirectIpv6EcHandler.getType(true), redirectIpv6EcHandler.getSubType(), redirectIpv6EcHandler));
-        regs.add(context.registerExtendedCommunitySerializer(RedirectIpv6ExtendedCommunityCase.class, redirectIpv6EcHandler));
+        regs.add(context.registerExtendedCommunityParser(redirectIpv6EcHandler.getType(true),
+            redirectIpv6EcHandler.getSubType(), redirectIpv6EcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(RedirectIpv6ExtendedCommunityCase.class,
+            redirectIpv6EcHandler));
 
         final RedirectAsFourOctetEcHandler redirect4bHandler = new RedirectAsFourOctetEcHandler();
-        regs.add(context.registerExtendedCommunityParser(redirect4bHandler.getType(true), redirect4bHandler.getSubType(), redirect4bHandler));
-        regs.add(context.registerExtendedCommunitySerializer(RedirectAs4ExtendedCommunityCase.class, redirect4bHandler));
+        regs.add(context.registerExtendedCommunityParser(redirect4bHandler.getType(true),
+            redirect4bHandler.getSubType(), redirect4bHandler));
+        regs.add(context.registerExtendedCommunitySerializer(RedirectAs4ExtendedCommunityCase.class,
+            redirect4bHandler));
 
         final RedirectIpv4EcHandler redirectIpv4Handler = new RedirectIpv4EcHandler();
-        regs.add(context.registerExtendedCommunityParser(redirectIpv4Handler.getType(true), redirectIpv4Handler.getSubType(), redirectIpv4Handler));
-        regs.add(context.registerExtendedCommunitySerializer(RedirectIpv4ExtendedCommunityCase.class, redirectIpv4Handler));
+        regs.add(context.registerExtendedCommunityParser(redirectIpv4Handler.getType(true),
+            redirectIpv4Handler.getSubType(), redirectIpv4Handler));
+        regs.add(context.registerExtendedCommunitySerializer(RedirectIpv4ExtendedCommunityCase.class,
+            redirectIpv4Handler));
 
         final RedirectIpNextHopEcHandler redirectIpNhHandler = new RedirectIpNextHopEcHandler();
-        regs.add(context.registerExtendedCommunityParser(redirectIpNhHandler.getType(true), redirectIpNhHandler.getSubType(), redirectIpNhHandler));
-        regs.add(context.registerExtendedCommunitySerializer(RedirectIpNhExtendedCommunityCase.class, redirectIpNhHandler));
+        regs.add(context.registerExtendedCommunityParser(redirectIpNhHandler.getType(true),
+            redirectIpNhHandler.getSubType(), redirectIpNhHandler));
+        regs.add(context.registerExtendedCommunitySerializer(RedirectIpNhExtendedCommunityCase.class,
+            redirectIpNhHandler));
 
         return regs;
     }

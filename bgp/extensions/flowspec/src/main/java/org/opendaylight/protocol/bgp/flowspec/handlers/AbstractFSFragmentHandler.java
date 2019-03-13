@@ -29,8 +29,9 @@ public abstract class AbstractFSFragmentHandler implements FlowspecTypeParser, F
     static final int IS_A_FRAGMENT = 6;
     static final int DONT_FRAGMENT = 7;
 
-    protected abstract Fragment parseFragment(final byte fragment);
-    protected abstract byte serializeFragment(final Fragment fragment);
+    protected abstract Fragment parseFragment(byte fragment);
+
+    protected abstract byte serializeFragment(Fragment fragment);
 
     @Override
     public void serializeType(final FlowspecType fsType, final ByteBuf output) {

@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
 
 /**
@@ -33,7 +32,7 @@ abstract class AbstractNumericByteOperandParser<N, V extends Number> extends Abs
         return buffer.toString();
     }
 
-    abstract <T extends N> V getValue(final T item);
+    abstract <T extends N> V getValue(T item);
 
-    abstract <T extends N> NumericOperand getOp(final T item);
+    abstract <T extends N> NumericOperand getOp(T item);
 }

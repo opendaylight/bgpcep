@@ -43,7 +43,7 @@ public abstract class AbstractOperandParser<T> {
      * @param opValues set of operand values
      * @return specific type of operand
      */
-    protected abstract T create(final Set<String> opValues);
+    protected abstract T create(Set<String> opValues);
 
     /**
      * Serializes operand to bytes.
@@ -53,8 +53,7 @@ public abstract class AbstractOperandParser<T> {
      * @param endOfList if this operand is at the end of the list
      * @param buffer where the operand will be serialized to
      */
-    protected abstract void serialize(final T op, final int length, final boolean endOfList,
-            final ByteBuf buffer);
+    protected abstract void serialize(T op, int length, boolean endOfList, ByteBuf buffer);
 
     /**
      * Parses operand from byte value.
@@ -62,7 +61,7 @@ public abstract class AbstractOperandParser<T> {
      * @param op byte representation of an operand
      * @return operand object
      */
-    protected abstract T parse(final byte op);
+    protected abstract T parse(byte op);
 
     /**
      * Creates a string representation of the operand.
@@ -72,5 +71,5 @@ public abstract class AbstractOperandParser<T> {
      * @param isFirst true if this operand is the first in list of operands
      * @return String representation of the operand
      */
-    protected abstract String toString(final T op, final boolean isFirst);
+    protected abstract String toString(T op, boolean isFirst);
 }

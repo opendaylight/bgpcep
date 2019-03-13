@@ -23,9 +23,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 
 public class NumericOperandParserTest {
     private static final byte[] ONE_BYTE_CODE_LIST = new byte[]{
-            0x01, 0x64,
-            0x01, 0x65,
-            (byte) 0x81, 0x66,    // last port in the list should have end-of-list set
+        0x01, 0x64,
+        0x01, 0x65,
+        (byte) 0x81, 0x66,    // last port in the list should have end-of-list set
     };
 
     @Test

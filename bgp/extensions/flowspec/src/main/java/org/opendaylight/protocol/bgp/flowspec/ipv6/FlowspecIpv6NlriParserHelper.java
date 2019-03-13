@@ -87,8 +87,8 @@ public final class FlowspecIpv6NlriParserHelper {
                     .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
                     = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
-            valueNode.ifPresent(dataContainerChild
-                    -> nextHeadersBuilder.setValue((Short) dataContainerChild.getValue()));
+            valueNode.ifPresent(
+                dataContainerChild -> nextHeadersBuilder.setValue((Short) dataContainerChild.getValue()));
             nextHeaders.add(nextHeadersBuilder.build());
         }
 
@@ -106,8 +106,8 @@ public final class FlowspecIpv6NlriParserHelper {
                     .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
                     = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
-            valueNode.ifPresent(dataContainerChild
-                    -> flowLabelsBuilder.setValue((Long) dataContainerChild.getValue()));
+            valueNode.ifPresent(
+                dataContainerChild -> flowLabelsBuilder.setValue((Long) dataContainerChild.getValue()));
             flowLabels.add(flowLabelsBuilder.build());
         }
 

@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.FlowspecType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv6.flowspec.flowspec.type.DestinationIpv6PrefixCase;
@@ -20,7 +20,7 @@ public final class FSIpv6DestinationPrefixHandler implements FlowspecTypeParser,
 
     @Override
     public void serializeType(final FlowspecType value, final ByteBuf output) {
-        Preconditions.checkArgument(value instanceof DestinationIpv6PrefixCase, "DestinationIpv6PrefixCase class is mandatory!");
+        checkArgument(value instanceof DestinationIpv6PrefixCase, "DestinationIpv6PrefixCase class is mandatory!");
         output.writeByte(IPV6_DESTINATION_PREFIX_VALUE);
 
         FSIpv6SourcePrefixHandler.writePrefix(((DestinationIpv6PrefixCase) value).getDestinationPrefix(), output);

@@ -8,10 +8,9 @@
 
 package org.opendaylight.protocol.bgp.flowspec.extended.communities;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ByteArray;
@@ -32,9 +31,11 @@ public class RedirectAsTwoOctetEcHandler implements ExtendedCommunityParser, Ext
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.RedirectExtendedCommunity,
+        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+            .flowspec.rev180329.RedirectExtendedCommunity,
                 "The extended community %s is not RedirectExtendedCommunityCase type.", extendedCommunity);
-        final RedirectExtendedCommunity redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.RedirectExtendedCommunity) extendedCommunity).getRedirectExtendedCommunity();
+        final RedirectExtendedCommunity redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .bgp.flowspec.rev180329.RedirectExtendedCommunity) extendedCommunity).getRedirectExtendedCommunity();
         ByteBufWriteUtil.writeUnsignedShort(redirect.getGlobalAdministrator().getValue().intValue(), byteAggregator);
         byteAggregator.writeBytes(redirect.getLocalAdministrator());
     }
@@ -51,7 +52,7 @@ public class RedirectAsTwoOctetEcHandler implements ExtendedCommunityParser, Ext
     }
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         final ShortAsNumber as1 = new ShortAsNumber((long) buffer.readUnsignedShort());
         final byte[] byteValue = ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE);
         return new RedirectExtendedCommunityCaseBuilder().setRedirectExtendedCommunity(

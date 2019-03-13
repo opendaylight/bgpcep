@@ -46,7 +46,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     }
 
     /**
-     * For flowspec-l3vpn, there is a route distinguisher field at the beginning of NLRI (8 bytes)
+     * For flowspec-l3vpn, there is a route distinguisher field at the beginning of NLRI (8 bytes).
      */
     private static RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
         final RouteDistinguisher rd = RouteDistinguisherUtil.parseRouteDistinguisher(nlri);

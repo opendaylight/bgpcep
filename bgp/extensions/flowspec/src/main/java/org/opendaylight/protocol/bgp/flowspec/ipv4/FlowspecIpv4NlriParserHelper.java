@@ -32,6 +32,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
 /**
+ * Helper for parsing IPv4 Flowspec.
+ *
  * @author Kevin Wang
  */
 public final class FlowspecIpv4NlriParserHelper {
