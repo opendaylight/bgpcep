@@ -196,6 +196,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
      * @param changes on supported table
      */
     @Override
+    @SuppressWarnings("checkstyle:illegalCatch")
     public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Tables>> changes) {
         if (this.chain == null) {
             LOG.trace("Chain closed, ignoring received data change {} to LocRib {}", changes, this);
