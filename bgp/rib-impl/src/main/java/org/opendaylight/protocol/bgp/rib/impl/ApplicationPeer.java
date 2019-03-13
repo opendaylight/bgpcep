@@ -207,16 +207,13 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                     case SUBTREE_MODIFIED:
                         if (ROUTES_NID.equals(childIdentifier)) {
                             processRoutesTable(child, tableId, tx, tableId);
-                            break;
+                        } else {
+                            processWrite(child, tableId, tx);
                         }
+                        break;
                     case WRITE:
                     case APPEARED:
-                        if (child.getDataAfter().isPresent()) {
-                            final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
-                            LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
-                            LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
-                            tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
-                        }
+                        processWrite(child, tableId, tx);
                         break;
                     default:
                         break;
@@ -234,6 +231,16 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 LOG.error("Failed commit", trw);
             }
         }, MoreExecutors.directExecutor());
+    }
+
+    private static void processWrite(final DataTreeCandidateNode child, final YangInstanceIdentifier tableId,
+            final DOMDataWriteTransaction tx) {
+        if (child.getDataAfter().isPresent()) {
+            final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
+            LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
+            LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+            tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
+        }
     }
 
     private synchronized void processRoutesTable(final DataTreeCandidateNode node,
@@ -254,19 +261,26 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                     // routes, we need to go deeper three levels
                     if (!routeTableIdentifier.equals(childIdentifier.getParent().getParent().getParent())) {
                         processRoutesTable(child, childIdentifier, tx, routeTableIdentifier);
-                        break;
+                    } else {
+                        processRouteWrite(child, childIdentifier, tx);
                     }
+                    break;
                 case WRITE:
-                    if (child.getDataAfter().isPresent()) {
-                        final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
-                        LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
-                        LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
-                        tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
-                    }
+                    processRouteWrite(child, childIdentifier, tx);
                     break;
                 default:
                     break;
             }
+        }
+    }
+
+    private static void processRouteWrite(final DataTreeCandidateNode child,
+            final YangInstanceIdentifier childIdentifier, final DOMDataWriteTransaction tx) {
+        if (child.getDataAfter().isPresent()) {
+            final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
+            LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
+            LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+            tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
         }
     }
 
