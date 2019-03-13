@@ -57,6 +57,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
                 new PeerRegistrySessionListenerImpl(StrictBGPPeerRegistry.getIpAddress(this.address)));
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     public synchronized void connect() {
         if (this.peerSessionPresent) {
             LOG.debug("Connection to {} already exists", this.address);
@@ -122,6 +123,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
         return false;
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     private synchronized void closePeerSessionListener() {
         try {
             this.listenerRegistration.close();
