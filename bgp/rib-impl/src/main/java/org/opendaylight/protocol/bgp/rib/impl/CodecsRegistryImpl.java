@@ -59,6 +59,7 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
         return codecs;
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     void onSchemaContextUpdated(final SchemaContext context) {
         final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(this.classContext, context);
         this.latestCodecTree  = this.codecFactory.create(runtimeContext);
@@ -66,7 +67,7 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
             try {
                 codecs.onCodecTreeUpdated(this.latestCodecTree);
             } catch (final Exception e) {
-                LOG.error("Codec creation threw {}", e);
+                LOG.error("Failed to propagate SchemaContext to codec {}", codecs, e);
             }
         }
     }
