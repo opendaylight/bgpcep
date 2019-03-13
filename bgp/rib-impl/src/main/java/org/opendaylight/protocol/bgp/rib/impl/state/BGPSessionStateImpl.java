@@ -78,7 +78,7 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     }
 
     @Override
-    public synchronized void advertizeCapabilities(final int holdTimerValue, final SocketAddress remoteAddress,
+    public synchronized void advertizeCapabilities(final int newHoldTimerValue, final SocketAddress newRemoteAddress,
         final SocketAddress localAddress, final Set<BgpTableType> tableTypes, final List<BgpParameters> bgpParameters) {
         if (bgpParameters != null && !bgpParameters.isEmpty()) {
             for (final BgpParameters parameters : bgpParameters) {
@@ -107,9 +107,9 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
             }
         }
 
-        this.holdTimerValue = holdTimerValue;
-        this.remoteAddress = StrictBGPPeerRegistry.getIpAddress(remoteAddress);
-        this.remotePort = new PortNumber(((InetSocketAddress) remoteAddress).getPort());
+        this.holdTimerValue = newHoldTimerValue;
+        this.remoteAddress = StrictBGPPeerRegistry.getIpAddress(newRemoteAddress);
+        this.remotePort = new PortNumber(((InetSocketAddress) newRemoteAddress).getPort());
         this.localPort = new PortNumber(((InetSocketAddress) localAddress).getPort());
     }
 
