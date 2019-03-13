@@ -146,8 +146,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
         this.ribPolicies = requireNonNull(ribPolicies);
         this.codecsRegistry = codecsRegistry;
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
-        final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BGPRIB_NID).node(RIB_NID);
-        this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
+        this.yangRibId = YangInstanceIdentifier.builder().node(BGPRIB_NID).node(RIB_NID)
+                .nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
         this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
         this.ribId = ribId;
 
