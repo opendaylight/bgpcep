@@ -138,15 +138,9 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
 
-    private static ModuleInfoBackedContext createClassLoadingStrategy() {
+    private static ModuleInfoBackedContext createClassLoadingStrategy() throws Exception {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
-        try {
-            ctx.registerModuleInfo(BindingReflections.getModuleInfo(Ipv4Route.class));
-        } catch (final RuntimeException e) {
-            throw e;
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        ctx.registerModuleInfo(BindingReflections.getModuleInfo(Ipv4Route.class));
         return ctx;
     }
 
@@ -195,7 +189,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private void mockedMethods() throws Exception {
         MockitoAnnotations.initMocks(this);
         final ReadOnlyTransaction readTx = mock(ReadOnlyTransaction.class);
-        doReturn(new listenerRegistration()).when(this.service)
+        doReturn(new TestListenerRegistration()).when(this.service)
                 .registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class),
                         any(ClusteredDOMDataTreeChangeListener.class));
         final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> map = new HashMap<>();
@@ -279,7 +273,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         this.a1.close();
     }
 
-    private class listenerRegistration implements ListenerRegistration<EventListener> {
+    private class TestListenerRegistration implements ListenerRegistration<EventListener> {
         @Override
         public EventListener getInstance() {
             return null;
