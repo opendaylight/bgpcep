@@ -158,16 +158,16 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         this.flowspecTypeRegistry = requireNonNull(flowspecTypeRegistry);
     }
 
-    protected abstract void serializeMpReachNlri(final DestinationType dstType, final ByteBuf byteAggregator);
+    protected abstract void serializeMpReachNlri(DestinationType dstType, ByteBuf byteAggregator);
 
-    protected abstract void serializeMpUnreachNlri(final DestinationType dstType, final ByteBuf byteAggregator);
+    protected abstract void serializeMpUnreachNlri(DestinationType dstType, ByteBuf byteAggregator);
 
-    public abstract void extractSpecificFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder);
+    public abstract void extractSpecificFlowspec(ChoiceNode fsType, FlowspecBuilder fsBuilder);
 
-    protected abstract void stringSpecificFSNlriType(final FlowspecType value, final StringBuilder buffer);
+    protected abstract void stringSpecificFSNlriType(FlowspecType value, StringBuilder buffer);
 
     /**
-     * Create withdrawn destination type
+     * Create withdrawn destination type.
      *
      * @param nlriFields a list of NLRI fields to be included in the destination type
      * @param pathId     associated path id with given NLRI
@@ -177,13 +177,14 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             @Nullable PathId pathId);
 
     /**
-     * Create advertized destination type
+     * Create advertized destination type.
      *
      * @param nlriFields a list of NLRI fields to be included in the destination type
      * @param pathId     associated path id with given NLRI
      * @return created destination type
      */
-    public abstract DestinationType createAdvertizedRoutesDestinationType(@Nonnull Object[] nlriFields, @Nullable PathId pathId);
+    public abstract DestinationType createAdvertizedRoutesDestinationType(@Nonnull Object[] nlriFields,
+            @Nullable PathId pathId);
 
     @Override
     public final void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
@@ -222,8 +223,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * Serializes Flowspec NLRI to ByteBuf.
      *
      * @param nlriFields NLRI fields to be serialized
-     * @param pathId
-     * @param buffer     where flowspec NLRI will be serialized
+     * @param pathId path ID
+     * @param buffer where flowspec NLRI will be serialized
      */
     protected final void serializeNlri(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId,
             @Nonnull final ByteBuf buffer) {
@@ -244,6 +245,13 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     public String stringNlri(final DataContainerNode<?> flowspec) {
         return stringNlri(extractFlowspec(flowspec));
+    }
+
+    protected final String stringNlri(final List<Flowspec> flows) {
+        final StringBuilder buffer = new StringBuilder("all packets ");
+        final Joiner joiner = Joiner.on(FLOW_SEPARATOR);
+        joiner.appendTo(buffer, flows.stream().map(this::encodeFlow).collect(Collectors.toList()));
+        return buffer.toString().replace("  ", " ");
     }
 
     public final List<Flowspec> extractFlowspec(final DataContainerNode<?> route) {
@@ -305,9 +313,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : portsData.getValue()) {
             final PortsBuilder portsBuilder = new PortsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> portsBuilder
-                    .setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
+            node.getChild(OP_NID).ifPresent(
+                dataContainerChild -> portsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create(
+                    (Set<String>) dataContainerChild.getValue())));
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             valueNode.ifPresent(dataContainerChild -> portsBuilder.setValue((Integer) dataContainerChild.getValue()));
             ports.add(portsBuilder.build());
@@ -321,12 +329,10 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : destinationPortsData.getValue()) {
             final DestinationPortsBuilder destPortsBuilder = new DestinationPortsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> destPortsBuilder.setOp(NumericTwoByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild
-                    -> destPortsBuilder.setValue((Integer) dataContainerChild.getValue()));
+            node.getChild(OP_NID).ifPresent(dataContainerChild -> destPortsBuilder.setOp(
+                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
+            node.getChild(VALUE_NID).ifPresent(
+                dataContainerChild -> destPortsBuilder.setValue((Integer) dataContainerChild.getValue()));
             destinationPorts.add(destPortsBuilder.build());
         }
 
@@ -338,12 +344,10 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : sourcePortsData.getValue()) {
             final SourcePortsBuilder sourcePortsBuilder = new SourcePortsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> sourcePortsBuilder.setOp(NumericTwoByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild
-                    -> sourcePortsBuilder.setValue((Integer) dataContainerChild.getValue()));
+            node.getChild(OP_NID).ifPresent(dataContainerChild -> sourcePortsBuilder.setOp(
+                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
+            node.getChild(VALUE_NID).ifPresent(
+                dataContainerChild -> sourcePortsBuilder.setValue((Integer) dataContainerChild.getValue()));
             sourcePorts.add(sourcePortsBuilder.build());
         }
 
@@ -355,9 +359,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : typesData.getValue()) {
             final TypesBuilder typesBuilder = new TypesBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> typesBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
+            node.getChild(OP_NID).ifPresent(dataContainerChild -> typesBuilder.setOp(
+                NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             valueNode.ifPresent(dataContainerChild -> typesBuilder.setValue((Short) dataContainerChild.getValue()));
             types.add(typesBuilder.build());
@@ -387,12 +390,10 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : tcpFlagsData.getValue()) {
             final TcpFlagsBuilder tcpFlagsBuilder = new TcpFlagsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> tcpFlagsBuilder
+            node.getChild(OP_NID).ifPresent(dataContainerChild -> tcpFlagsBuilder
                     .setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild
-                    -> tcpFlagsBuilder.setValue((Integer) dataContainerChild.getValue()));
+            node.getChild(VALUE_NID).ifPresent(
+                dataContainerChild -> tcpFlagsBuilder.setValue((Integer) dataContainerChild.getValue()));
             tcpFlags.add(tcpFlagsBuilder.build());
         }
 
@@ -404,12 +405,10 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : packetLengthsData.getValue()) {
             final PacketLengthsBuilder packetLengthsBuilder = new PacketLengthsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> packetLengthsBuilder.setOp(NumericTwoByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild
-                    -> packetLengthsBuilder.setValue((Integer) dataContainerChild.getValue()));
+            node.getChild(OP_NID).ifPresent(dataContainerChild -> packetLengthsBuilder.setOp(
+                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
+            node.getChild(VALUE_NID).ifPresent(
+                dataContainerChild -> packetLengthsBuilder.setValue((Integer) dataContainerChild.getValue()));
             packetLengths.add(packetLengthsBuilder.build());
         }
 
@@ -421,12 +420,10 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : dscpLengthsData.getValue()) {
             final DscpsBuilder dscpsLengthsBuilder = new DscpsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> dscpsLengthsBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild
-                    -> dscpsLengthsBuilder.setValue(new Dscp((Short) dataContainerChild.getValue())));
+            node.getChild(OP_NID).ifPresent(dataContainerChild -> dscpsLengthsBuilder.setOp(
+                NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
+            node.getChild(VALUE_NID).ifPresent(
+                dataContainerChild -> dscpsLengthsBuilder.setValue(new Dscp((Short) dataContainerChild.getValue())));
             dscpsLengths.add(dscpsLengthsBuilder.build());
         }
 
@@ -438,12 +435,10 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : fragmentsData.getValue()) {
             final FragmentsBuilder fragmentsBuilder = new FragmentsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> fragmentsBuilder.setOp(BitmaskOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild
-                    -> fragmentsBuilder.setValue(createFragment((Set<String>) dataContainerChild.getValue())));
+            node.getChild(OP_NID).ifPresent(dataContainerChild -> fragmentsBuilder.setOp(
+                BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
+            node.getChild(VALUE_NID).ifPresent(dataContainerChild -> fragmentsBuilder.setValue(
+                createFragment((Set<String>) dataContainerChild.getValue())));
             fragments.add(fragmentsBuilder.build());
         }
 
@@ -455,13 +450,6 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
                 data.contains(LAST_VALUE));
     }
 
-    protected final String stringNlri(final List<Flowspec> flows) {
-        final StringBuilder buffer = new StringBuilder("all packets ");
-        final Joiner joiner = Joiner.on(FLOW_SEPARATOR);
-        joiner.appendTo(buffer, flows.stream().map(this::encodeFlow).collect(Collectors.toList()));
-        return buffer.toString().replace("  ", " ");
-    }
-
     @VisibleForTesting
     final String encodeFlow(final Flowspec flow) {
         final StringBuilder buffer = new StringBuilder();
@@ -471,8 +459,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((PortCase) value).getPorts()));
         } else if (value instanceof DestinationPortCase) {
             buffer.append("where destination port ");
-            buffer.append(NumericTwoByteOperandParser
-                    .INSTANCE.toString(((DestinationPortCase) value).getDestinationPorts()));
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(
+                ((DestinationPortCase) value).getDestinationPorts()));
         } else if (value instanceof SourcePortCase) {
             buffer.append("where source port ");
             buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((SourcePortCase) value).getSourcePorts()));
@@ -601,7 +589,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     /**
-     * Override this function to parse additional NLRI fields
+     * Override this function to parse additional NLRI fields.
      *
      * @param nlri NLRI buffer
      * @return Parsed additional fields
@@ -613,8 +601,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     @Override
     public final void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpReachNlriBuilder builder,
-            @Nullable final PeerSpecificParserConstraint constraint)
-        throws BGPParsingException {
+            @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
@@ -628,19 +615,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         );
     }
 
-    @Nullable
-    protected static PathId readPathId(@Nonnull final ByteBuf nlri, final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final PeerSpecificParserConstraint constraint) {
-        if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
-            return PathIdUtil.readPathId(nlri);
-        }
-        return null;
-    }
-
     @Override
     public final void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpUnreachNlriBuilder builder,
-            @Nullable final PeerSpecificParserConstraint constraint)
-        throws BGPParsingException {
+            @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
@@ -652,6 +629,15 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
                     createWithdrawnDestinationType(nlriFields, pathId)
                 ).build()
         );
+    }
+
+    @Nullable
+    protected static PathId readPathId(@Nonnull final ByteBuf nlri, final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi, final PeerSpecificParserConstraint constraint) {
+        if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
+            return PathIdUtil.readPathId(nlri);
+        }
+        return null;
     }
 }
 
