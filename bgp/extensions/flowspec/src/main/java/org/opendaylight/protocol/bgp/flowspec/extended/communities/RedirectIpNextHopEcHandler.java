@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.flowspec.extended.communities;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
@@ -34,22 +32,25 @@ public class RedirectIpNextHopEcHandler implements ExtendedCommunityParser, Exte
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.RedirectIpNhExtendedCommunity,
+        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+            .flowspec.rev180329.RedirectIpNhExtendedCommunity,
                 "The extended community %s is not RedirectIpNhExtendedCommunityCase type.", extendedCommunity);
-        final RedirectIpNhExtendedCommunity redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.RedirectIpNhExtendedCommunity) extendedCommunity).getRedirectIpNhExtendedCommunity();
+        final RedirectIpNhExtendedCommunity redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                .yang.bgp.flowspec.rev180329.RedirectIpNhExtendedCommunity) extendedCommunity)
+                .getRedirectIpNhExtendedCommunity();
         final IpAddress nextHopAddress = redirect.getNextHopAddress();
         if (nextHopAddress.getIpv4Address() != null) {
             ByteBufWriteUtil.writeIpv4Address(nextHopAddress.getIpv4Address(), byteAggregator);
         } else {
             ByteBufWriteUtil.writeIpv6Address(nextHopAddress.getIpv6Address(), byteAggregator);
         }
-        ByteBufWriteUtil.writeUnsignedShort((redirect.isCopy() == null || !redirect.isCopy()) ? 0 : 1, byteAggregator);
+        ByteBufWriteUtil.writeUnsignedShort(redirect.isCopy() == null || !redirect.isCopy() ? 0 : 1, byteAggregator);
     }
 
     @Override
-    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         final RedirectIpNhExtendedCommunityBuilder builder = new RedirectIpNhExtendedCommunityBuilder();
-        if (buffer.readableBytes() > Ipv6Util.IPV6_LENGTH ) {
+        if (buffer.readableBytes() > Ipv6Util.IPV6_LENGTH) {
             builder.setNextHopAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer)));
         } else {
             builder.setNextHopAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer)));
@@ -67,5 +68,4 @@ public class RedirectIpNextHopEcHandler implements ExtendedCommunityParser, Exte
     public int getSubType() {
         return SUBTYPE;
     }
-
 }
