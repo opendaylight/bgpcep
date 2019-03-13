@@ -188,11 +188,11 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         return this.peerRestarting;
     }
 
-    public final synchronized void setAfiSafiGracefulRestartState(final int peerRestartTime,
-            final boolean peerRestarting, final boolean localRestarting) {
-        this.peerRestartTime = peerRestartTime;
-        this.peerRestarting = peerRestarting;
-        this.localRestarting = localRestarting;
+    public final synchronized void setAfiSafiGracefulRestartState(final int newPeerRestartTime,
+            final boolean newPeerRestarting, final boolean newLocalRestarting) {
+        this.peerRestartTime = newPeerRestartTime;
+        this.peerRestarting = newPeerRestarting;
+        this.localRestarting = newLocalRestarting;
     }
 
     protected final synchronized void setAdvertizedGracefulRestartTableTypes(final List<TablesKey> receivedGraceful) {
@@ -205,10 +205,11 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         this.prefixesSent.put(tablesKey, prefixesSentCounter);
     }
 
-    protected final synchronized void registerPrefixesCounters(@Nonnull final PrefixesReceivedCounters prefixesReceived,
-        @Nonnull final PrefixesInstalledCounters prefixesInstalled) {
-        this.prefixesReceived = prefixesReceived;
-        this.prefixesInstalled = prefixesInstalled;
+    protected final synchronized void registerPrefixesCounters(
+            @Nonnull final PrefixesReceivedCounters newPrefixesReceived,
+            @Nonnull final PrefixesInstalledCounters newPrefixesInstalled) {
+        this.prefixesReceived = newPrefixesReceived;
+        this.prefixesInstalled = newPrefixesInstalled;
     }
 
     protected final synchronized void resetState() {
