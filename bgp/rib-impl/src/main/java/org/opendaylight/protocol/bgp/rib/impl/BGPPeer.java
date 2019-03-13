@@ -135,7 +135,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             });
 
     @GuardedBy("this")
-    private BGPSession session;
+    private BGPSession currentSession;
     @GuardedBy("this")
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
@@ -146,7 +146,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private boolean sessionUp;
     private boolean llgrSupport;
     private Stopwatch peerRestartStopwatch;
-    private long selectionDeferralTimerSeconds;
+    private long currentSelectionDeferralTimerSeconds;
     private final List<TablesKey> missingEOT = new ArrayList<>();
 
     public BGPPeer(
@@ -351,11 +351,11 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public synchronized void onSessionUp(final BGPSession session) {
-        this.session = session;
+        this.currentSession = session;
         this.sessionUp = true;
         this.bindingChain = this.rib.createPeerChain(this);
-        if (this.session instanceof BGPSessionStateProvider) {
-            ((BGPSessionStateProvider) this.session).registerMessagesCounter(this);
+        if (this.currentSession instanceof BGPSessionStateProvider) {
+            ((BGPSessionStateProvider) this.currentSession).registerMessagesCounter(this);
         }
         final GracefulRestartCapability advertisedGracefulRestartCapability =
                 session.getAdvertisedGracefulRestartCapability();
@@ -460,7 +460,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         // SpotBugs does not grok Optional.ifPresent() and thinks we are using unsynchronized access
         final Optional<RevisedErrorHandlingSupport> errorHandling = this.bgpPeer.getErrorHandling();
         if (errorHandling.isPresent()) {
-            this.session.addDecoderConstraint(RevisedErrorHandlingSupport.class, errorHandling.get());
+            this.currentSession.addDecoderConstraint(RevisedErrorHandlingSupport.class, errorHandling.get());
         }
     }
 
@@ -492,8 +492,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final RIBSupport<?, ?, ?, ?> ribSupport = this.rib.getRibSupportContext().getRIBSupport(key);
 
         // not particularly nice
-        if (ribSupport != null && this.session instanceof BGPSessionImpl) {
-            final ChannelOutputLimiter limiter = ((BGPSessionImpl) this.session).getLimiter();
+        if (ribSupport != null && this.currentSession instanceof BGPSessionImpl) {
+            final ChannelOutputLimiter limiter = ((BGPSessionImpl) this.currentSession).getLimiter();
             final AdjRibOutListener adjRibOut = AdjRibOutListener.create(this.peerId, key,
                     this.rib.getYangRibId(), this.rib.getCodecsRegistry(), ribSupport,
                     this.rib.getService(), limiter, mpSupport);
@@ -503,11 +503,11 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @Override
-    public synchronized void onSessionDown(final BGPSession session, final Exception e) {
-        if (e.getMessage().equals(BGPSessionImpl.END_OF_INPUT)) {
+    public synchronized void onSessionDown(final BGPSession session, final Exception exc) {
+        if (exc.getMessage().equals(BGPSessionImpl.END_OF_INPUT)) {
             LOG.info("Session with peer {} went down", this.name);
         } else {
-            LOG.info("Session with peer {} went down", this.name, e);
+            LOG.info("Session with peer {} went down", this.name, exc);
         }
         releaseConnectionGracefully();
     }
@@ -543,19 +543,25 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         releaseBindingChain();
 
-        if (this.session != null) {
+        closeSession();
+        return future;
+    }
+
+    @GuardedBy("this")
+    @SuppressWarnings("checkstyle:illegalCatch")
+    private void closeSession() {
+        if (this.currentSession != null) {
             try {
                 if (isRestartingGracefully()) {
-                    this.session.closeWithoutMessage();
+                    this.currentSession.closeWithoutMessage();
                 } else {
-                    this.session.close();
+                    this.currentSession.close();
                 }
             } catch (final Exception e) {
                 LOG.warn("Error closing session with peer", e);
             }
-            this.session = null;
+            this.currentSession = null;
         }
-        return future;
     }
 
     private Set<TablesKey> getGracefulTables() {
@@ -599,10 +605,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final long elapsedNanos = this.peerRestartStopwatch.elapsed(TimeUnit.NANOSECONDS);
         if (elapsedNanos >= peerRestartTimeNanos) {
             setAfiSafiGracefulRestartState(0, false, false);
-            onSessionTerminated(this.session, new BGPTerminationReason(BGPError.HOLD_TIMER_EXPIRED));
+            onSessionTerminated(this.currentSession, new BGPTerminationReason(BGPError.HOLD_TIMER_EXPIRED));
         }
 
-        this.session.schedule(this::handleRestartTimer, peerRestartTimeNanos - elapsedNanos, TimeUnit.NANOSECONDS);
+        currentSession.schedule(this::handleRestartTimer, peerRestartTimeNanos - elapsedNanos, TimeUnit.NANOSECONDS);
     }
 
     private synchronized void handleSelectionReferralTimer() {
@@ -610,13 +616,13 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             return;
         }
 
-        final long referalTimerNanos = TimeUnit.SECONDS.toNanos(this.selectionDeferralTimerSeconds);
+        final long referalTimerNanos = TimeUnit.SECONDS.toNanos(this.currentSelectionDeferralTimerSeconds);
         final long elapsedNanos = this.peerRestartStopwatch.elapsed(TimeUnit.NANOSECONDS);
         if (elapsedNanos >= referalTimerNanos) {
             this.missingEOT.clear();
             handleGracefulEndOfRib();
         }
-        this.session.schedule(this::handleSelectionReferralTimer, referalTimerNanos - elapsedNanos,
+        currentSession.schedule(this::handleSelectionReferralTimer, referalTimerNanos - elapsedNanos,
             TimeUnit.NANOSECONDS);
     }
 
@@ -657,24 +663,24 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public synchronized BGPSessionState getBGPSessionState() {
-        if (this.session instanceof BGPSessionStateProvider) {
-            return ((BGPSessionStateProvider) this.session).getBGPSessionState();
+        if (this.currentSession instanceof BGPSessionStateProvider) {
+            return ((BGPSessionStateProvider) this.currentSession).getBGPSessionState();
         }
         return null;
     }
 
     @Override
     public synchronized BGPTimersState getBGPTimersState() {
-        if (this.session instanceof BGPSessionStateProvider) {
-            return ((BGPSessionStateProvider) this.session).getBGPTimersState();
+        if (this.currentSession instanceof BGPSessionStateProvider) {
+            return ((BGPSessionStateProvider) this.currentSession).getBGPTimersState();
         }
         return null;
     }
 
     @Override
     public synchronized BGPTransportState getBGPTransportState() {
-        if (this.session instanceof BGPSessionStateProvider) {
-            return ((BGPSessionStateProvider) this.session).getBGPTransportState();
+        if (this.currentSession instanceof BGPSessionStateProvider) {
+            return ((BGPSessionStateProvider) this.currentSession).getBGPTransportState();
         }
         return null;
     }
@@ -693,7 +699,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     "Peer is not capable of graceful restart"));
         }
         setGracefulPreferences(true, tablesToPreserve);
-        this.selectionDeferralTimerSeconds = selectionDeferralTimerSeconds;
+        this.currentSelectionDeferralTimerSeconds = selectionDeferralTimerSeconds;
         setLocalRestartingState(true);
         return releaseConnection();
     }
