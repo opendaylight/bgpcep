@@ -31,9 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class BgpPeerUtilTest {
 
-    private final TablesKey IPV4_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
+    private static final TablesKey IPV4_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
-    private final TablesKey IPV6_TABLE_KEY = new TablesKey(Ipv6AddressFamily.class,
+    private static final TablesKey IPV6_TABLE_KEY = new TablesKey(Ipv6AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
 
     @Test

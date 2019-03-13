@@ -81,9 +81,9 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     private final BgpParameters parameters = createParameter(false, true, Collections.singletonMap(TABLES_KEY, true));
     private static final int DEFERRAL_TIMER = 5;
     private static final RibId RIBID = new RibId("test-rib");
-    private final Ipv4Prefix PREFIX2 = new Ipv4Prefix("2.2.2.2/32");
-    private final Ipv6Prefix PREFIX3 = new Ipv6Prefix("dead:beef::/64");
-    private final Ipv6Address IPV6_NEXT_HOP = new Ipv6Address("dead:beef::1");
+    private static final Ipv4Prefix PREFIX2 = new Ipv4Prefix("2.2.2.2/32");
+    private static final Ipv6Prefix PREFIX3 = new Ipv6Prefix("dead:beef::/64");
+    private static final Ipv6Address IPV6_NEXT_HOP = new Ipv6Address("dead:beef::1");
     private static final TablesKey IPV6_TABLES_KEY = new TablesKey(Ipv6AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
 
@@ -344,16 +344,16 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages(this.listener, 6);
         // verify sending of Ipv4 update with route, Ipv4 EOT and Ipv6 EOT; order can vary based on ODTC order
         final List<Notification> subList = this.listener.getListMsg().subList(3, 6);
-        int EOTCount = 0;
+        int eotCount = 0;
         int routeUpdateCount = 0;
         for (Notification message : subList) {
             if (BgpPeerUtil.isEndOfRib((Update) message)) {
-                EOTCount++;
+                eotCount++;
             } else {
                 routeUpdateCount++;
             }
         }
-        assertEquals(2, EOTCount);
+        assertEquals(2, eotCount);
         assertEquals(1, routeUpdateCount);
     }
 
