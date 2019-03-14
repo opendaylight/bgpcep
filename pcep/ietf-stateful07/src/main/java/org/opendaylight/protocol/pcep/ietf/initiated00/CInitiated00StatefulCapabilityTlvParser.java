@@ -16,7 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.StatefulBuilder;
 
 /**
- * Parser for {@link Stateful}
+ * Parser for {@link Stateful}.
  */
 public class CInitiated00StatefulCapabilityTlvParser extends Stateful07StatefulCapabilityTlvParser {
 

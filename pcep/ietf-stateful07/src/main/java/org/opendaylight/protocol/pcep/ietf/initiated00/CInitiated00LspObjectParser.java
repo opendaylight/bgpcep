@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.LspBuilder;
 
 /**
- * Parser for {@link Lsp}
+ * Parser for {@link Lsp}.
  */
 public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
 
@@ -37,11 +37,11 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
         builder.setRemove(flags.get(REMOVE));
         builder.setAdministrative(flags.get(ADMINISTRATIVE));
         builder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(flags.get(CREATE_FLAG_OFFSET)).build());
-        short s = 0;
-        s |= flags.get(OPERATIONAL + 2) ? 1 : 0;
-        s |= (flags.get(OPERATIONAL + 1) ? 1 : 0) << 1;
-        s |= (flags.get(OPERATIONAL) ? 1 : 0) << 2;
-        builder.setOperational(OperationalStatus.forValue(s));
+        short oper = 0;
+        oper |= flags.get(OPERATIONAL + 2) ? 1 : 0;
+        oper |= (flags.get(OPERATIONAL + 1) ? 1 : 0) << 1;
+        oper |= (flags.get(OPERATIONAL) ? 1 : 0) << 2;
+        builder.setOperational(OperationalStatus.forValue(oper));
     }
 
     @Override

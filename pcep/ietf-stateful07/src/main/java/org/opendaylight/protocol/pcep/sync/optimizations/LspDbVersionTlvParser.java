@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.sync.optimizations;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedLong;
-import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
@@ -27,7 +28,7 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof LspDbVersion, "Tlv object is not instance of LspDbVersion.");
+        checkArgument(tlv instanceof LspDbVersion, "Tlv object is not instance of LspDbVersion.");
         final ByteBuf body = Unpooled.buffer();
         writeUnsignedLong(((LspDbVersion) tlv).getLspDbVersionValue(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);

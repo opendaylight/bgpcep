@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 
 /**
- * Parser for {@link Stateful}
+ * Parser for {@link Stateful}.
  */
 public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
 
@@ -36,8 +36,8 @@ public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSeri
             return null;
         }
         if (buffer.readableBytes() < FLAGS_F_LENGTH / Byte.SIZE) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >= "
-                    + FLAGS_F_LENGTH / Byte.SIZE + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + "; Expected: >= " + FLAGS_F_LENGTH / Byte.SIZE + ".");
         }
         final StatefulBuilder sb = new StatefulBuilder();
         parseFlags(sb, buffer);

@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 
 /**
- * Parser for Open object
+ * Parser for Open object.
  */
 public class Stateful07OpenObjectParser extends PCEPOpenObjectParser {
 

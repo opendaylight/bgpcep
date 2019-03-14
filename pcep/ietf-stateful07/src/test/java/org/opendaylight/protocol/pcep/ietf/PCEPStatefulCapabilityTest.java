@@ -23,17 +23,19 @@ public class PCEPStatefulCapabilityTest {
     private static final Tlvs EXPECTED_TLVS =
         new TlvsBuilder().addAugmentation(
             Tlvs1.class, new Tlvs1Builder()
-                .setStateful( new StatefulBuilder().setLspUpdateCapability(true)
+                .setStateful(new StatefulBuilder().setLspUpdateCapability(true)
                     .addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(true).build())
-                    .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1Builder()
-                        .setTriggeredInitialSync(true)
-                        .setTriggeredResync(false)
-                        .setDeltaLspSyncCapability(true)
-                        .setIncludeDbVersion(true)
-                        .build())
+                    .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep
+                        .sync.optimizations.rev181109.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight
+                            .params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1Builder()
+                            .setTriggeredInitialSync(true)
+                            .setTriggeredResync(false)
+                            .setDeltaLspSyncCapability(true)
+                            .setIncludeDbVersion(true)
+                            .build())
                     .build())
                 .build())
-            .build();
+        .build();
 
     @Test
     public void testPCEPStatefulCapability() {

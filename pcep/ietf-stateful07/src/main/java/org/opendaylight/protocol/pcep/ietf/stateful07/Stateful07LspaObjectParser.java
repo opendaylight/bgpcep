@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa.object.lspa.TlvsBuilder;
 
 /**
- * Parser for Lspa object
+ * Parser for Lspa object.
  */
 public class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
 

@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -38,7 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.Metric;
 
 /**
- * Parser for {@link Pcupd}
+ * Parser for {@link Pcupd}.
  */
 public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParser {
 
@@ -50,7 +51,8 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcupd, "Wrong instance of Message. Passed instance of %s. Need Pcupd.", message.getClass());
+        checkArgument(message instanceof Pcupd, "Wrong instance of Message. Passed instance of %s. Need Pcupd.",
+            message.getClass());
         final Pcupd msg = (Pcupd) message;
         final List<Updates> updates = msg.getPcupdMessage().getUpdates();
         final ByteBuf buffer = Unpooled.buffer();
@@ -79,8 +81,9 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
+    protected Message validate(final List<Object> objects, final List<Message> errors)
+            throws PCEPDeserializerException {
+        checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcup message cannot be empty.");
         }
@@ -151,54 +154,60 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         return true;
     }
 
-    private static void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
+    private static void parsePath(final List<Object> objects, final PathBuilder pathBuilder) {
         final List<Metrics> pathMetrics = Lists.newArrayList();
         Object obj;
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
-            state = insertObject(state,obj, pBuilder, pathMetrics);
+            state = insertObject(state,obj, pathBuilder, pathMetrics);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
         }
         if (!pathMetrics.isEmpty()) {
-            pBuilder.setMetrics(pathMetrics);
+            pathBuilder.setMetrics(pathMetrics);
         }
     }
 
-    private static State insertObject(final State state, final Object obj, final PathBuilder pBuilder,
+    private static State insertObject(final State state, final Object obj, final PathBuilder pathBuilder,
             final List<Metrics> pathMetrics) {
         switch (state) {
-        case INIT:
-            if (obj instanceof Lspa) {
-                pBuilder.setLspa((Lspa) obj);
-                return State.LSPA_IN;
-            }
-        case LSPA_IN:
-            if (obj instanceof Bandwidth) {
-                pBuilder.setBandwidth((Bandwidth) obj);
-                return State.LSPA_IN;
-            }
-            if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
-                pBuilder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
-                return State.LSPA_IN;
-            }
-        case BANDWIDTH_IN:
-            if (obj instanceof Metric) {
-                pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return State.BANDWIDTH_IN;
-            }
-        case METRIC_IN:
-            if (obj instanceof Iro) {
-                pBuilder.setIro((Iro) obj);
-                return State.IRO_IN;
-            }
-        case IRO_IN:
-        case END:
-            return State.END;
-        default:
-            return state;
+            case INIT:
+                if (obj instanceof Lspa) {
+                    pathBuilder.setLspa((Lspa) obj);
+                    return State.LSPA_IN;
+                }
+                // fall through
+            case LSPA_IN:
+                if (obj instanceof Bandwidth) {
+                    pathBuilder.setBandwidth((Bandwidth) obj);
+                    return State.LSPA_IN;
+                }
+                if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                        .reoptimization.bandwidth.object.ReoptimizationBandwidth) {
+                    pathBuilder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                            .yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
+                    return State.LSPA_IN;
+                }
+                // fall through
+            case BANDWIDTH_IN:
+                if (obj instanceof Metric) {
+                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return State.BANDWIDTH_IN;
+                }
+                // fall through
+            case METRIC_IN:
+                if (obj instanceof Iro) {
+                    pathBuilder.setIro((Iro) obj);
+                    return State.IRO_IN;
+                }
+                // fall through
+            case IRO_IN:
+            case END:
+                return State.END;
+            default:
+                return state;
         }
     }
 

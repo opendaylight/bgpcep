@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import com.google.common.base.Preconditions;
@@ -30,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yangtools.concepts.Codec;
 
 /**
- * Parser for {@link PathBinding}
+ * Parser for {@link PathBinding}.
  */
 public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
 
@@ -162,14 +161,14 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         int getBindingType();
     }
 
-    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel getMplsLabel(
-            final long mplsStackEntry) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel(
-                mplsStackEntry >> LABEL_SHIFT & LABEL_MASK);
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel
+        getMplsLabel(final long mplsStackEntry) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125
+                .MplsLabel(mplsStackEntry >> LABEL_SHIFT & LABEL_MASK);
     }
 
-    private static long getMplsStackEntry(
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel mplsLabel) {
+    private static long getMplsStackEntry(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network
+            .concepts.rev131125.MplsLabel mplsLabel) {
         return mplsLabel.getValue() << LABEL_SHIFT;
     }
 
