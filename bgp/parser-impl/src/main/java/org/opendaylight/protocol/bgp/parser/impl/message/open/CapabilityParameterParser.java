@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -19,6 +19,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterLengthOverflowException;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterUtil;
@@ -46,8 +47,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 
     @Override
     public BgpParameters parseParameter(final ByteBuf buffer) throws BGPParsingException, BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0,
-                "Byte array cannot be null or empty.");
+        checkArgument(buffer != null && buffer.readableBytes() != 0, "Byte array cannot be null or empty.");
 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Started parsing of BGP Capabilities: {}", Arrays.toString(ByteArray.getAllBytes(buffer)));
@@ -77,15 +77,33 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
     }
 
     @Override
-    public void serializeParameter(final BgpParameters parameter, final ByteBuf byteAggregator) {
-        if (parameter.getOptionalCapabilities() != null) {
-            final ByteBuf buffer = Unpooled.buffer();
-            for (final OptionalCapabilities optionalCapa : parameter.getOptionalCapabilities()) {
-                LOG.trace("Started serializing BGP Capability: {}", optionalCapa);
-                serializeOptionalCapability(optionalCapa, buffer);
-            }
-            ParameterUtil.formatParameter(TYPE, buffer, byteAggregator);
+    public void serializeParameter(final BgpParameters parameter, final ByteBuf output)
+            throws ParameterLengthOverflowException {
+        final ByteBuf buffer = serializeOptionalCapabilities(parameter.getOptionalCapabilities());
+        if (buffer != null) {
+            ParameterUtil.formatParameter(TYPE, buffer, output);
         }
+    }
+
+    @Override
+    public void serializeExtendedParameter(final BgpParameters parameter, final ByteBuf output) {
+        final ByteBuf buffer = serializeOptionalCapabilities(parameter.getOptionalCapabilities());
+        if (buffer != null) {
+            ParameterUtil.formatExtendedParameter(TYPE, buffer, output);
+        }
+    }
+
+    private ByteBuf serializeOptionalCapabilities(final List<OptionalCapabilities> capabilities) {
+        if (capabilities == null) {
+            return null;
+        }
+
+        final ByteBuf buffer = Unpooled.buffer();
+        for (final OptionalCapabilities optionalCapa : capabilities) {
+            LOG.trace("Started serializing BGP Capability: {}", optionalCapa);
+            serializeOptionalCapability(optionalCapa, buffer);
+        }
+        return buffer;
     }
 
     private void serializeOptionalCapability(final OptionalCapabilities optionalCapa, final ByteBuf byteAggregator) {
@@ -93,7 +111,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
             final CParameters cap = optionalCapa.getCParameters();
             final ByteBuf bytes = Unpooled.buffer();
             this.reg.serializeCapability(cap, bytes);
-            Preconditions.checkArgument(bytes != null, "Unhandled capability class %s", cap.getImplementedInterface());
+            checkArgument(bytes != null, "Unhandled capability class %s", cap.getImplementedInterface());
 
             if (LOG.isTraceEnabled()) {
                 LOG.trace("BGP capability serialized to: {}", ByteBufUtil.hexDump(bytes));
