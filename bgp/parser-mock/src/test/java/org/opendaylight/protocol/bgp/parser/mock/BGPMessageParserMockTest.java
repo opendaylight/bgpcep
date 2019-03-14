@@ -11,13 +11,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,7 +85,7 @@ public class BGPMessageParserMockTest {
      */
     @Test
     public void testGetUpdateMessage() throws BGPParsingException, BGPDocumentedException {
-        final Map<ByteBuf, Notification> updateMap = Maps.newHashMap();
+        final Map<ByteBuf, Notification> updateMap = new HashMap<>();
         for (int i = 0; i < this.inputBytes.length; i++) {
             updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
         }
@@ -105,7 +105,7 @@ public class BGPMessageParserMockTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testGetUpdateMessageException() throws BGPParsingException, BGPDocumentedException {
-        final Map<ByteBuf, Notification> updateMap = Maps.newHashMap();
+        final Map<ByteBuf, Notification> updateMap = new HashMap<>();
         for (int i = 0; i < this.inputBytes.length; i++) {
             updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
         }
@@ -176,9 +176,9 @@ public class BGPMessageParserMockTest {
 
     @Test
     public void testGetOpenMessage() throws BGPParsingException, BGPDocumentedException {
-        final Map<ByteBuf, Notification> openMap = Maps.newHashMap();
+        final Map<ByteBuf, Notification> openMap = new HashMap<>();
 
-        final Set<BgpTableType> type = Sets.newHashSet();
+        final Set<BgpTableType> type = new HashSet<>();
         type.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class));
 
         final List<BgpParameters> params = new ArrayList<>();
@@ -196,7 +196,7 @@ public class BGPMessageParserMockTest {
 
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
-        final Set<BgpTableType> result = Sets.newHashSet();
+        final Set<BgpTableType> result = new HashSet<>();
         for (final BgpParameters p : ((Open) mockParser.parseMessage(Unpooled.copiedBuffer(input), null))
                 .getBgpParameters()) {
             for (final OptionalCapabilities capa : p.getOptionalCapabilities()) {

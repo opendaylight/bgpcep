@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -57,7 +57,7 @@ public class BGPSynchronization {
     }
 
     @VisibleForTesting
-    public final Map<TablesKey, SyncVariables> syncStorage = Maps.newHashMap();
+    public final Map<TablesKey, SyncVariables> syncStorage = new HashMap<>();
 
     private final BGPSessionListener listener;
 

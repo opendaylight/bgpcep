@@ -14,7 +14,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
@@ -23,6 +22,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -660,7 +660,7 @@ public class ParserTest {
             .getSingletonInstance().getMessageRegistry();
         final Notification o = msgReg.parseMessage(Unpooled.copiedBuffer(INPUT_BYTES.get(3)), null);
         final Open open = (Open) o;
-        final Set<BgpTableType> types = Sets.newHashSet();
+        final Set<BgpTableType> types = new HashSet<>();
         for (final BgpParameters param : open.getBgpParameters()) {
             for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                 final CParameters cParam = optCapa.getCParameters();
@@ -673,7 +673,7 @@ public class ParserTest {
                 }
             }
         }
-        final Set<BgpTableType> expected = Sets.newHashSet();
+        final Set<BgpTableType> expected = new HashSet<>();
         expected.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         expected.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
         expected.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
