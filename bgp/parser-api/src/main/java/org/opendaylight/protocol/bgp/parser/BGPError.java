@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import java.io.Serializable;
-import java.util.Map;
+import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import java.io.Serializable;
 
 /**
  * Possible errors from implemented RFCs and drafts. Each error consists of error code and error subcode
@@ -155,13 +155,15 @@ public enum BGPError {
 
     public static final String MANDATORY_ATTR_MISSING_MSG = "Well known mandatory attribute missing: ";
 
-    private static final Map<BGPErrorIdentifier, BGPError> VALUE_MAP;
+    private static final ImmutableMap<BGPErrorIdentifier, BGPError> VALUE_MAP;
 
     static {
-        VALUE_MAP = Maps.newHashMap();
+        final Builder<BGPErrorIdentifier, BGPError> builder = ImmutableMap.builder();
+
         for (final BGPError enumItem : BGPError.values()) {
-            VALUE_MAP.put(enumItem.getErrorIdentifier(), enumItem);
+            builder.put(enumItem.getErrorIdentifier(), enumItem);
         }
+        VALUE_MAP = builder.build();
     }
 
     private final BGPErrorIdentifier errorId;
@@ -172,8 +174,7 @@ public enum BGPError {
 
     public static BGPError forValue(final int code, final int subcode) {
         final BGPError e = VALUE_MAP.get(new BGPErrorIdentifier((short) code, (short) subcode));
-        Preconditions.checkArgument(e != null, "BGP Error code %s and subcode %s not recognized.",
-                code, subcode);
+        checkArgument(e != null, "BGP Error code %s and subcode %s not recognized.", code, subcode);
         return e;
     }
 
