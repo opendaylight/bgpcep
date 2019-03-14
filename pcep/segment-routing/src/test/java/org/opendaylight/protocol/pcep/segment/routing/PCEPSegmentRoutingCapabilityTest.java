@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.segment.routing;
 
 import org.junit.Assert;
@@ -17,11 +16,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public class PCEPSegmentRoutingCapabilityTest {
 
     private static final Tlvs EXPECTED_TLVS =
-        new TlvsBuilder()
-            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.Tlvs1.class,
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.Tlvs1Builder()
-                    .setSrPceCapability(new SrPceCapabilityBuilder().setMsd((short) 0).build()).build())
-            .build();
+        new TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment
+            .routing.rev181109.Tlvs1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
+                .segment.routing.rev181109.Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder()
+                    .setMsd((short) 0).build()).build()).build();
 
     @Test
     public void testSegmentRoutingCapability() {

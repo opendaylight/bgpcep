@@ -18,7 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 
-public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
+public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements EROSubobjectParser,
+        EROSubobjectSerializer {
 
     private static final int LEGACY_TYPE = 5;
     private static final int PROPOSED_TYPE = 36;
@@ -26,7 +27,7 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
     private final int type;
 
     SrEroSubobjectParser(final boolean isIanaAssignedType) {
-        this.type = (isIanaAssignedType) ? PROPOSED_TYPE : LEGACY_TYPE;
+        this.type = isIanaAssignedType ? PROPOSED_TYPE : LEGACY_TYPE;
     }
 
     @Override

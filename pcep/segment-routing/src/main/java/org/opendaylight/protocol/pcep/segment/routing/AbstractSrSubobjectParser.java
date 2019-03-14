@@ -5,15 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.segment.routing;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -46,17 +45,16 @@ public abstract class AbstractSrSubobjectParser   {
     private static final int SID_TYPE_BITS_OFFSET = 4;
 
     private static class SrSubobjectImpl implements SrSubobject {
-
-        private final boolean m;
-        private final boolean c;
+        private final boolean mflag;
+        private final boolean cflag;
         private final SidType sidType;
         private final Long sid;
         private final Nai nai;
 
-        public SrSubobjectImpl(final boolean m, final boolean c, final SidType sidType,
-            final Long sid, final Nai nai) {
-            this.m = m;
-            this.c = c;
+        SrSubobjectImpl(final boolean mflag, final boolean cflag, final SidType sidType, final Long sid,
+                final Nai nai) {
+            this.mflag = mflag;
+            this.cflag = cflag;
             this.sidType = sidType;
             this.sid = sid;
             this.nai = nai;
@@ -69,12 +67,12 @@ public abstract class AbstractSrSubobjectParser   {
 
         @Override
         public Boolean isMFlag() {
-            return this.m;
+            return this.mflag;
         }
 
         @Override
         public Boolean isCFlag() {
-            return this.c;
+            return this.cflag;
         }
 
         @Override
@@ -110,7 +108,8 @@ public abstract class AbstractSrSubobjectParser   {
         // bits
         bits.toByteBuf(buffer);
         // sid
-        Preconditions.checkArgument(srSubobject.getNai() != null || srSubobject.getSid() != null, "Both SID and NAI are absent in SR subobject.");
+        checkArgument(srSubobject.getNai() != null || srSubobject.getSid() != null,
+                "Both SID and NAI are absent in SR subobject.");
         if (srSubobject.getSid() != null) {
             if (srSubobject.isMFlag()) {
                 writeUnsignedInt(srSubobject.getSid() << MPLS_LABEL_OFFSET, buffer);
@@ -128,54 +127,54 @@ public abstract class AbstractSrSubobjectParser   {
 
     private static void serializeNai(final Nai nai, final SidType sidType, final ByteBuf buffer) {
         switch (sidType) {
-        case Ipv4NodeId:
-            writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4AddressNoZone(), buffer);
-            break;
-        case Ipv6NodeId:
-            writeIpv6Address(((IpNodeId) nai).getIpAddress().getIpv6AddressNoZone(), buffer);
-            break;
-        case Ipv4Adjacency:
-            writeIpv4Address(((IpAdjacency) nai).getLocalIpAddress().getIpv4AddressNoZone(), buffer);
-            writeIpv4Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv4AddressNoZone(), buffer);
-            break;
-        case Ipv6Adjacency:
-            writeIpv6Address(((IpAdjacency) nai).getLocalIpAddress().getIpv6AddressNoZone(), buffer);
-            writeIpv6Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv6AddressNoZone(), buffer);
-            break;
-        case Unnumbered:
-            final UnnumberedAdjacency unnumbered = (UnnumberedAdjacency) nai;
-            ByteBufWriteUtil.writeUnsignedInt(unnumbered.getLocalNodeId(), buffer);
-            ByteBufWriteUtil.writeUnsignedInt(unnumbered.getLocalInterfaceId(), buffer);
-            ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteNodeId(), buffer);
-            ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteInterfaceId(), buffer);
-            break;
-        default:
-            break;
+            case Ipv4NodeId:
+                writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4AddressNoZone(), buffer);
+                break;
+            case Ipv6NodeId:
+                writeIpv6Address(((IpNodeId) nai).getIpAddress().getIpv6AddressNoZone(), buffer);
+                break;
+            case Ipv4Adjacency:
+                writeIpv4Address(((IpAdjacency) nai).getLocalIpAddress().getIpv4AddressNoZone(), buffer);
+                writeIpv4Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv4AddressNoZone(), buffer);
+                break;
+            case Ipv6Adjacency:
+                writeIpv6Address(((IpAdjacency) nai).getLocalIpAddress().getIpv6AddressNoZone(), buffer);
+                writeIpv6Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv6AddressNoZone(), buffer);
+                break;
+            case Unnumbered:
+                final UnnumberedAdjacency unnumbered = (UnnumberedAdjacency) nai;
+                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getLocalNodeId(), buffer);
+                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getLocalInterfaceId(), buffer);
+                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteNodeId(), buffer);
+                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteInterfaceId(), buffer);
+                break;
+            default:
+                break;
         }
     }
 
     private static Nai parseNai(final SidType sidType, final ByteBuf buffer) {
         switch (sidType) {
-        case Ipv4NodeId:
-            return new IpNodeIdBuilder().setIpAddress(
+            case Ipv4NodeId:
+                return new IpNodeIdBuilder().setIpAddress(
                     new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer))).build();
-        case Ipv6NodeId:
-            return new IpNodeIdBuilder().setIpAddress(
+            case Ipv6NodeId:
+                return new IpNodeIdBuilder().setIpAddress(
                     new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
-        case Ipv4Adjacency:
-            return new IpAdjacencyBuilder()
-                    .setLocalIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer)))
-                    .setRemoteIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer))).build();
-        case Ipv6Adjacency:
-            return new IpAdjacencyBuilder()
-                    .setLocalIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)))
-                    .setRemoteIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
-        case Unnumbered:
-            return new UnnumberedAdjacencyBuilder().setLocalNodeId(buffer.readUnsignedInt())
-                    .setLocalInterfaceId(buffer.readUnsignedInt()).setRemoteNodeId(buffer.readUnsignedInt())
-                    .setRemoteInterfaceId(buffer.readUnsignedInt()).build();
-        default:
-            return null;
+            case Ipv4Adjacency:
+                return new IpAdjacencyBuilder()
+                        .setLocalIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer)))
+                        .setRemoteIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer))).build();
+            case Ipv6Adjacency:
+                return new IpAdjacencyBuilder()
+                        .setLocalIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)))
+                        .setRemoteIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
+            case Unnumbered:
+                return new UnnumberedAdjacencyBuilder().setLocalNodeId(buffer.readUnsignedInt())
+                        .setLocalInterfaceId(buffer.readUnsignedInt()).setRemoteNodeId(buffer.readUnsignedInt())
+                        .setRemoteInterfaceId(buffer.readUnsignedInt()).build();
+            default:
+                return null;
         }
     }
 

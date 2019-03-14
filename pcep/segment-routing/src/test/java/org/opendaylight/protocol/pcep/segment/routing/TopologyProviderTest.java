@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.segment.routing;
 
 import static org.junit.Assert.assertEquals;
@@ -117,17 +116,21 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         });
     }
 
-    private static Pcrpt createSrPcRpt(final String nai, final String pathName, final long plspId, final boolean hasLspIdTlv) {
+    private static Pcrpt createSrPcRpt(final String nai, final String pathName, final long plspId,
+            final boolean hasLspIdTlv) {
         final TlvsBuilder lspTlvBuilder = new TlvsBuilder();
         if (hasLspIdTlv) {
             lspTlvBuilder.setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(plspId)).build());
         }
-        return new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(Lists.newArrayList(new ReportsBuilder()
-            .setLsp(new LspBuilder().setPlspId(new PlspId(plspId)).setRemove(false).setSync(true).setAdministrative(true).setDelegate(true)
-                    .setTlvs(lspTlvBuilder
-                        .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(pathName.getBytes(StandardCharsets.UTF_8))).build()).build()).build())
+        return new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(Lists.newArrayList(
+            new ReportsBuilder().setLsp(new LspBuilder().setPlspId(new PlspId(plspId)).setRemove(false).setSync(true)
+                .setAdministrative(true).setDelegate(true)
+                .setTlvs(lspTlvBuilder.setSymbolicPathName(new SymbolicPathNameBuilder()
+                    .setPathName(new SymbolicPathName(pathName.getBytes(StandardCharsets.UTF_8))).build()).build())
+                .build())
             .setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).setTlvs(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.srp.TlvsBuilder()
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109
+                    .srp.object.srp.TlvsBuilder()
                         .setPathSetupType(new PathSetupTypeBuilder().setPst((short) 1).build()).build()).build())
             .setPath(new PathBuilder().setEro(createSrEroObject(nai)).build())
             .build())).build()).build();
@@ -139,8 +142,10 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         srEroBuilder.setMFlag(false);
         srEroBuilder.setSidType(SidType.Ipv4NodeId);
         srEroBuilder.setSid(123456L);
-        srEroBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(nai))).build());
-        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroBuilder.build()).setLoose(false);
+        srEroBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(nai)))
+            .build());
+        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroBuilder.build())
+                .setLoose(false);
 
         final List<Subobject> subobjects = Lists.newArrayList(subobjBuilder.build());
         return new EroBuilder().setProcessingRule(false).setIgnore(false).setSubobject(subobjects).build();

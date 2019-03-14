@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.segment.routing;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -30,13 +29,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class SrRroSubobjectParserTest {
 
-    private static final byte[] srRroSubobjectWithIpv4NodeID  = {
+    private static final byte[] SR_RRO_SUBOBJECT_WITH_IPV4_NODEID  = {
         0x06,0x0c,(byte) 0x10,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         0x4A,0x7D,0x2b,0x63,
     };
 
-    private static final byte[] srRroSubobjectWithIpv6NodeID  = {
+    private static final byte[] SR_RROR_SUBOBJECT_WITH_IPV6_NODEID  = {
         0x06,0x18,(byte) 0x20,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         (byte) 0xFE,(byte) 0x80,(byte) 0xCD,0x00,
@@ -45,14 +44,14 @@ public class SrRroSubobjectParserTest {
         0x21,0x1E,0x72,(byte) 0x9C,
     };
 
-    private static final byte[] srRroSubobjectWithIpv4Adjacency  = {
+    private static final byte[] SR_RRO_SUBOBJECT_WITH_IPV4_ADJ  = {
         0x06,0x10,(byte) 0x30,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         0x4A,0x7D,0x2b,0x63,
         0x4A,0x7D,0x2b,0x64,
     };
 
-    private static final byte[] srRroSubobjectWithIpv6Adjacency  = {
+    private static final byte[] SR_RRO_SUBOBJECT_WITH_IPV6_ADJ  = {
         0x06,0x28,(byte) 0x40,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         (byte) 0xFE,(byte) 0x80,(byte) 0xCD,0x00,
@@ -65,7 +64,7 @@ public class SrRroSubobjectParserTest {
         0x21,0x1E,0x72,(byte) 0x9D,
     };
 
-    private static final byte[] srRroSubobjectWithUnnumbered  = {
+    private static final byte[] SR_RRO_SUBOBJECT_WIT_UNNUMBERED  = {
         0x06,0x18,(byte) 0x50,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         0x00,0x00,0x00,0x01,
@@ -74,12 +73,12 @@ public class SrRroSubobjectParserTest {
         0x00,0x00,0x00,0x04
     };
 
-    private static final byte[] srRroSubobjectWithoutNAI  = {
+    private static final byte[] SR_RRO_SUBOBJECT_WITHOUT_NAI  = {
         0x06,0x08, (byte) 0x10,0xb,
         0x1e,0x24,(byte)-32, 0x00,
     };
 
-    private static final byte[] srRroSubobjectWithoutSID  = {
+    private static final byte[] SR_RRO_SUBOBJECT_WITHOUT_SID  = {
         0x06,0x08,(byte) 0x10,0x04,
         0x4A,0x7D,0x2b,0x63,
     };
@@ -105,13 +104,15 @@ public class SrRroSubobjectParserTest {
         builder.setSid(123456L);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99"))).build());
+        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
+            .build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
-        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithIpv4NodeID, 2))));
+        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
+            ByteArray.cutBytes(SR_RRO_SUBOBJECT_WITH_IPV4_NODEID, 2))));
         final ByteBuf buffer = Unpooled.buffer();
         this.parser.serializeSubobject(subobjBuilder.build(), buffer);
-        assertArrayEquals(srRroSubobjectWithIpv4NodeID, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(SR_RRO_SUBOBJECT_WITH_IPV4_NODEID, ByteArray.getAllBytes(buffer));
     }
 
     @Test
@@ -121,13 +122,15 @@ public class SrRroSubobjectParserTest {
         builder.setCFlag(false);
         builder.setMFlag(false);
         builder.setSid(123456L);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("fe80:cd00::211e:729c"))).build());
+        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
+            new Ipv6AddressNoZone("fe80:cd00::211e:729c"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
-        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithIpv6NodeID, 2))));
+        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
+            ByteArray.cutBytes(SR_RROR_SUBOBJECT_WITH_IPV6_NODEID, 2))));
         final ByteBuf buffer = Unpooled.buffer();
         this.parser.serializeSubobject(subobjBuilder.build(), buffer);
-        assertArrayEquals(srRroSubobjectWithIpv6NodeID, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(SR_RROR_SUBOBJECT_WITH_IPV6_NODEID, ByteArray.getAllBytes(buffer));
     }
 
     @Test
@@ -137,14 +140,16 @@ public class SrRroSubobjectParserTest {
         builder.setSid(123456L);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
+        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(
+            new Ipv4AddressNoZone("74.125.43.99")))
                 .setRemoteIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.100"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
-        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithIpv4Adjacency, 2))));
+        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
+            ByteArray.cutBytes(SR_RRO_SUBOBJECT_WITH_IPV4_ADJ, 2))));
         final ByteBuf buffer = Unpooled.buffer();
         this.parser.serializeSubobject(subobjBuilder.build(), buffer);
-        assertArrayEquals(srRroSubobjectWithIpv4Adjacency, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(SR_RRO_SUBOBJECT_WITH_IPV4_ADJ, ByteArray.getAllBytes(buffer));
     }
 
     @Test
@@ -154,14 +159,16 @@ public class SrRroSubobjectParserTest {
         builder.setSid(123456L);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("fe80:cd00::211e:729c")))
+        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(
+            new Ipv6AddressNoZone("fe80:cd00::211e:729c")))
                 .setRemoteIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("fe80:cd00::211e:729d"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
-        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithIpv6Adjacency, 2))));
+        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
+            ByteArray.cutBytes(SR_RRO_SUBOBJECT_WITH_IPV6_ADJ, 2))));
         final ByteBuf buffer = Unpooled.buffer();
         this.parser.serializeSubobject(subobjBuilder.build(), buffer);
-        assertArrayEquals(srRroSubobjectWithIpv6Adjacency, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(SR_RRO_SUBOBJECT_WITH_IPV6_ADJ, ByteArray.getAllBytes(buffer));
     }
 
     @Test
@@ -171,13 +178,15 @@ public class SrRroSubobjectParserTest {
         builder.setSid(123456L);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new UnnumberedAdjacencyBuilder().setLocalNodeId(1L).setLocalInterfaceId(2L).setRemoteNodeId(3L).setRemoteInterfaceId(4L).build());
+        builder.setNai(new UnnumberedAdjacencyBuilder().setLocalNodeId(1L).setLocalInterfaceId(2L).setRemoteNodeId(3L)
+            .setRemoteInterfaceId(4L).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
-        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithUnnumbered, 2))));
+        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
+            ByteArray.cutBytes(SR_RRO_SUBOBJECT_WIT_UNNUMBERED, 2))));
         final ByteBuf buffer = Unpooled.buffer();
         this.parser.serializeSubobject(subobjBuilder.build(), buffer);
-        assertArrayEquals(srRroSubobjectWithUnnumbered, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(SR_RRO_SUBOBJECT_WIT_UNNUMBERED, ByteArray.getAllBytes(buffer));
     }
 
     @Test
@@ -189,10 +198,11 @@ public class SrRroSubobjectParserTest {
         builder.setMFlag(true);
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
-        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithoutNAI, 2))));
+        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
+            ByteArray.cutBytes(SR_RRO_SUBOBJECT_WITHOUT_NAI, 2))));
         final ByteBuf buffer = Unpooled.buffer();
         this.parser.serializeSubobject(subobjBuilder.build(), buffer);
-        assertArrayEquals(srRroSubobjectWithoutNAI, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(SR_RRO_SUBOBJECT_WITHOUT_NAI, ByteArray.getAllBytes(buffer));
     }
 
     @Test
@@ -201,12 +211,14 @@ public class SrRroSubobjectParserTest {
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setCFlag(false);
         builder.setMFlag(false);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99"))).build());
+        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
+            .build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
-        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srRroSubobjectWithoutSID, 2))));
+        assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
+            ByteArray.cutBytes(SR_RRO_SUBOBJECT_WITHOUT_SID, 2))));
         final ByteBuf buffer = Unpooled.buffer();
         this.parser.serializeSubobject(subobjBuilder.build(), buffer);
-        assertArrayEquals(srRroSubobjectWithoutSID, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(SR_RRO_SUBOBJECT_WITHOUT_SID, ByteArray.getAllBytes(buffer));
     }
 }
