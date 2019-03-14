@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -41,7 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.Rro;
 
 /**
- * Parser for {@link Pcrpt}
+ * Parser for {@link Pcrpt}.
  */
 public class Stateful07PCReportMessageParser extends AbstractMessageParser {
 
@@ -53,7 +54,8 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcrpt, "Wrong instance of Message. Passed instance of %s. Need Pcrpt.", message.getClass());
+        checkArgument(message instanceof Pcrpt, "Wrong instance of Message. Passed instance of %s. Need Pcrpt.",
+            message.getClass());
         final Pcrpt msg = (Pcrpt) message;
         final List<Reports> reports = msg.getPcrptMessage().getReports();
         final ByteBuf buffer = Unpooled.buffer();
@@ -86,7 +88,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
 
     @Override
     public Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
+        checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrpt message cannot be empty.");
         }
@@ -137,7 +139,8 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             final ReportsBuilder builder) {
         if (object instanceof Lsp) {
             final Lsp lsp = (Lsp) object;
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp
+                .object.lsp.Tlvs tlvs = lsp.getTlvs();
             if (!lspViaSR && lsp.getPlspId().getValue() != 0 && (tlvs == null || tlvs.getLspIdentifiers() == null)) {
                 final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.empty());
                 errors.add(errorMsg);
@@ -186,40 +189,47 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
     private static State insertObject(final State state, final Object obj, final PathBuilder builder,
             final List<Metrics> pathMetrics) {
         switch (state) {
-        case INIT:
-            if (obj instanceof Lspa) {
-                builder.setLspa((Lspa) obj);
-                return State.LSPA_IN;
-            }
-        case LSPA_IN:
-            if (obj instanceof Bandwidth) {
-                builder.setBandwidth((Bandwidth) obj);
-                return State.LSPA_IN;
-            }
-            if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
-                builder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
-                return State.LSPA_IN;
-            }
-        case BANDWIDTH_IN:
-            if (obj instanceof Metric) {
-                pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return State.BANDWIDTH_IN;
-            }
-        case METRIC_IN:
-            if (obj instanceof Iro) {
-                builder.setIro((Iro) obj);
-                return State.IRO_IN;
-            }
-        case IRO_IN:
-            if (obj instanceof Rro) {
-                builder.setRro((Rro) obj);
-                return State.RRO_IN;
-            }
-        case RRO_IN:
-        case END:
-            return State.END;
-        default:
-            return state;
+            case INIT:
+                if (obj instanceof Lspa) {
+                    builder.setLspa((Lspa) obj);
+                    return State.LSPA_IN;
+                }
+                // fall through
+            case LSPA_IN:
+                if (obj instanceof Bandwidth) {
+                    builder.setBandwidth((Bandwidth) obj);
+                    return State.LSPA_IN;
+                }
+                if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                        .reoptimization.bandwidth.object.ReoptimizationBandwidth) {
+                    builder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                            .pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
+                    return State.LSPA_IN;
+                }
+                // fall through
+            case BANDWIDTH_IN:
+                if (obj instanceof Metric) {
+                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return State.BANDWIDTH_IN;
+                }
+                // fall through
+            case METRIC_IN:
+                if (obj instanceof Iro) {
+                    builder.setIro((Iro) obj);
+                    return State.IRO_IN;
+                }
+                // fall through
+            case IRO_IN:
+                if (obj instanceof Rro) {
+                    builder.setRro((Rro) obj);
+                    return State.RRO_IN;
+                }
+                // fall through
+            case RRO_IN:
+            case END:
+                return State.END;
+            default:
+                return state;
         }
     }
 

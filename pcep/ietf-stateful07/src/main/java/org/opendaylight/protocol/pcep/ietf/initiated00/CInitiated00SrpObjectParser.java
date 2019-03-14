@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.SrpBuilder;
 
 /**
- * Parser for {@link Srp}
+ * Parser for {@link Srp}.
  */
 public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
 

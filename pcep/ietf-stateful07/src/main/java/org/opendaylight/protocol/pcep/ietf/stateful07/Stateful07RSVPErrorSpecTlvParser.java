@@ -42,7 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ErrorSpec.Flags;
 
 /**
- * Parser for {@link RsvpErrorSpec}
+ * Parser for {@link RsvpErrorSpec}.
  */
 public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 
@@ -107,7 +107,8 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     }
 
     private static void serializerUserError(final UserError ue, final ByteBuf body) {
-        final byte[] desc = ue.getDescription() == null ? new byte[0] : ue.getDescription().getBytes(StandardCharsets.UTF_8);
+        final byte[] desc = ue.getDescription() == null ? new byte[0]
+                : ue.getDescription().getBytes(StandardCharsets.UTF_8);
         final ByteBuf userErrorBuf = Unpooled.buffer();
         Preconditions.checkArgument(ue.getEnterprise() != null, "EnterpriseNumber is mandatory");
         writeUnsignedInt(ue.getEnterprise().getValue(), userErrorBuf);

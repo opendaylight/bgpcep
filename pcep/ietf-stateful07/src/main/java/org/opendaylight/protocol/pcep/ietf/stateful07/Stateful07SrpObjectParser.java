@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link Srp}
+ * Parser for {@link Srp}.
  */
 public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
@@ -50,10 +50,10 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 
     @Override
     public Srp parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() < MIN_SIZE) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: >="
-                    + MIN_SIZE + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes()
+                + "; Expected: >=" + MIN_SIZE + ".");
         }
         final SrpBuilder builder = new SrpBuilder();
         builder.setIgnore(header.isIgnore());
@@ -82,12 +82,13 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Srp, "Wrong instance of PCEPObject. Passed %s . Needed SrpObject.", object.getClass());
+        checkArgument(object instanceof Srp, "Wrong instance of PCEPObject. Passed %s . Needed SrpObject.",
+            object.getClass());
         final Srp srp = (Srp) object;
         final ByteBuf body = Unpooled.buffer();
         serializeFlags(srp, body);
         final SrpIdNumber srpId = srp.getOperationId();
-        Preconditions.checkArgument(srpId != null, "SrpId is mandatory.");
+        checkArgument(srpId != null, "SrpId is mandatory.");
         writeUnsignedInt(srpId.getValue(), body);
         serializeTlvs(srp.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

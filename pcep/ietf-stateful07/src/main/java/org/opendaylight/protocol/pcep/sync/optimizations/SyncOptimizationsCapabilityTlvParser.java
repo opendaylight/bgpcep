@@ -29,7 +29,9 @@ public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCa
         if (flags.get(I_FLAG_OFFSET)) {
             sb.addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build());
         }
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1Builder syncOptBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1Builder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations
+            .rev181109.Stateful1Builder syncOptBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                .yang.controller.pcep.sync.optimizations.rev181109.Stateful1Builder();
         if (flags.get(S_FLAG_OFFSET)) {
             syncOptBuilder.setIncludeDbVersion(Boolean.TRUE);
         }
@@ -42,14 +44,17 @@ public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCa
         if (flags.get(F_FLAG_OFFSET)) {
             syncOptBuilder.setTriggeredInitialSync(Boolean.TRUE);
         }
-        sb.addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1.class, syncOptBuilder.build());
+        sb.addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
+            .optimizations.rev181109.Stateful1.class, syncOptBuilder.build());
     }
 
     @Override
     protected BitArray serializeFlags(final Stateful sct) {
         final BitArray flags = new BitArray(FLAGS_F_LENGTH);
         final Stateful1 sfi = sct.augmentation(Stateful1.class);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1 sf2 = sct.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1.class);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations
+            .rev181109.Stateful1 sf2 = sct.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .controller.pcep.sync.optimizations.rev181109.Stateful1.class);
         if (sf2 != null) {
             flags.set(F_FLAG_OFFSET, sf2.isTriggeredInitialSync());
             flags.set(D_FLAG_OFFSET, sf2.isDeltaLspSyncCapability());

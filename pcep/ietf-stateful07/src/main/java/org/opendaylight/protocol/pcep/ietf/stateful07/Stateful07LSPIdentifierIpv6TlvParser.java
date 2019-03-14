@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
 
 /**
- * Parser for {@link LspIdentifiers}
+ * Parser for {@link LspIdentifiers}.
  */
 public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, TlvSerializer {
 
@@ -45,7 +45,8 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
         if (buffer == null) {
             return null;
         }
-        Preconditions.checkArgument(buffer.readableBytes() == V6_LENGTH, "Length %s does not match LSP Identifiers Ipv6 tlv length.", buffer.readableBytes());
+        checkArgument(buffer.readableBytes() == V6_LENGTH, "Length %s does not match LSP Identifiers Ipv6 tlv length.",
+                buffer.readableBytes());
         final Ipv6Builder builder = new Ipv6Builder();
         builder.setIpv6TunnelSenderAddress(Ipv6Util.noZoneAddressForByteBuf(buffer));
         final LspId lspId = new LspId((long) buffer.readUnsignedShort());
@@ -58,19 +59,19 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof LspIdentifiers, "LspIdentifiersTlv is mandatory.");
+        checkArgument(tlv instanceof LspIdentifiers, "LspIdentifiersTlv is mandatory.");
         final LspIdentifiers lsp = (LspIdentifiers) tlv;
         final ByteBuf body = Unpooled.buffer();
         final Ipv6 ipv6 = ((Ipv6Case) lsp.getAddressFamily()).getIpv6();
-        Preconditions.checkArgument(ipv6.getIpv6TunnelSenderAddress() != null, "Ipv6TunnelSenderAddress is mandatory.");
+        checkArgument(ipv6.getIpv6TunnelSenderAddress() != null, "Ipv6TunnelSenderAddress is mandatory.");
         writeIpv6Address(ipv6.getIpv6TunnelSenderAddress(), body);
-        Preconditions.checkArgument(lsp.getLspId() != null, "LspId is mandatory.");
+        checkArgument(lsp.getLspId() != null, "LspId is mandatory.");
         writeShort(lsp.getLspId().getValue().shortValue(), body);
-        Preconditions.checkArgument(lsp.getTunnelId() != null, "TunnelId is mandatory.");
+        checkArgument(lsp.getTunnelId() != null, "TunnelId is mandatory.");
         writeUnsignedShort(lsp.getTunnelId().getValue(), body);
-        Preconditions.checkArgument(ipv6.getIpv6ExtendedTunnelId() != null, "Ipv6ExtendedTunnelId is mandatory.");
+        checkArgument(ipv6.getIpv6ExtendedTunnelId() != null, "Ipv6ExtendedTunnelId is mandatory.");
         writeIpv6Address(ipv6.getIpv6ExtendedTunnelId(), body);
-        Preconditions.checkArgument(ipv6.getIpv6TunnelEndpointAddress() != null, "Ipv6TunnelEndpointAddress is mandatory.");
+        checkArgument(ipv6.getIpv6TunnelEndpointAddress() != null, "Ipv6TunnelEndpointAddress is mandatory.");
         writeIpv6Address(ipv6.getIpv6TunnelEndpointAddress(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }

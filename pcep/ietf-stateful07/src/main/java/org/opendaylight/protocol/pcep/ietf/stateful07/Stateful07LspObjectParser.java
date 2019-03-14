@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeMedium;
-import com.google.common.base.Preconditions;
+
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -37,7 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vs.tlv.VsTlv;
 
 /**
- * Parser for {@link Lsp}
+ * Parser for {@link Lsp}.
  */
 public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
@@ -63,15 +64,14 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 
     @Override
     public Lsp parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final LspBuilder builder = new LspBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         final int[] plspIdRaw
             = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
-        builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << FLAGS_SIZE) | (plspIdRaw[1] << FOUR_BITS_SHIFT)
-            | (plspIdRaw[2] >> FOUR_BITS_SHIFT))));
+        builder.setPlspId(new PlspId((long) (plspIdRaw[0] << FLAGS_SIZE | plspIdRaw[1] << FOUR_BITS_SHIFT
+            | plspIdRaw[2] >> FOUR_BITS_SHIFT)));
         parseFlags(builder, bytes);
         final TlvsBuilder b = new TlvsBuilder();
         parseTlvs(b, bytes.slice());
@@ -85,11 +85,11 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         builder.setSync(flags.get(SYNC));
         builder.setRemove(flags.get(REMOVE));
         builder.setAdministrative(flags.get(ADMINISTRATIVE));
-        short s = 0;
-        s |= flags.get(OPERATIONAL + 2) ? 1 : 0;
-        s |= (flags.get(OPERATIONAL + 1) ? 1 : 0) << 1;
-        s |= (flags.get(OPERATIONAL) ? 1 : 0) << 2;
-        builder.setOperational(OperationalStatus.forValue(s));
+        short oper = 0;
+        oper |= flags.get(OPERATIONAL + 2) ? 1 : 0;
+        oper |= (flags.get(OPERATIONAL + 1) ? 1 : 0) << 1;
+        oper |= (flags.get(OPERATIONAL) ? 1 : 0) << 2;
+        builder.setOperational(OperationalStatus.forValue(oper));
     }
 
     @Override
@@ -111,10 +111,11 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Lsp, "Wrong instance of PCEPObject. Passed %s . Needed LspObject.", object.getClass());
+        checkArgument(object instanceof Lsp, "Wrong instance of PCEPObject. Passed %s . Needed LspObject.",
+            object.getClass());
         final Lsp specObj = (Lsp) object;
         final ByteBuf body = Unpooled.buffer();
-        Preconditions.checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
+        checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
         writeMedium(specObj.getPlspId().getValue().intValue() << FOUR_BITS_SHIFT, body);
         final BitArray flags = serializeFlags(specObj);
         byte op = 0;
@@ -123,8 +124,8 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             op = (byte) (op << FOUR_BITS_SHIFT);
         }
         final byte[] res = flags.array();
-        res[res.length -1] = (byte) (res[res.length -1] | op);
-        body.writeByte(res[res.length -1]);
+        res[res.length - 1] = (byte) (res[res.length - 1] | op);
+        body.writeByte(res[res.length - 1]);
         serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

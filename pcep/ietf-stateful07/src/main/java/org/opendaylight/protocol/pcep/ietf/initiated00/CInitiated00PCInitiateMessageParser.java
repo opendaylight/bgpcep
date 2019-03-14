@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.initiated00;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -15,7 +16,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.PcinitiateMessageBuilder;
@@ -35,7 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.Metric;
 
 /**
- * Parser for {@link Pcinitiate}
+ * Parser for {@link Pcinitiate}.
  */
 public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
 
@@ -47,8 +47,10 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcinitiate, "Wrong instance of Message. Passed instance of %s. Need PcinitiateMessage.", message.getClass());
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.PcinitiateMessage init = ((Pcinitiate) message).getPcinitiateMessage();
+        checkArgument(message instanceof Pcinitiate,
+            "Wrong instance of Message. Passed instance of %s. Need PcinitiateMessage.", message.getClass());
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109
+            .pcinitiate.message.PcinitiateMessage init = ((Pcinitiate) message).getPcinitiateMessage();
         final ByteBuf buffer = Unpooled.buffer();
         for (final Requests req : init.getRequests()) {
             serializeRequest(req, buffer);
@@ -72,8 +74,8 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
+    protected Message validate(final List<Object> objects, final List<Message> errors) {
+        checkArgument(objects != null, "Passed list can't be null.");
         final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
         final List<Requests> reqs = Lists.newArrayList();
         while (!objects.isEmpty()) {
@@ -109,41 +111,47 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
     private static State insertObject(final State state, final Object obj, final RequestsBuilder builder,
             final List<Metrics> metrics) {
         switch (state) {
-        case INIT:
-            if (obj instanceof EndpointsObj) {
-                builder.setEndpointsObj((EndpointsObj) obj);
-                return State.ENDPOINTS_IN;
-            }
-        case ENDPOINTS_IN:
-            if (obj instanceof Ero) {
-                builder.setEro((Ero) obj);
-                return State.ERO_IN;
-            }
-        case ERO_IN:
-            if (obj instanceof Lspa) {
-                builder.setLspa((Lspa) obj);
-                return State.LSPA_IN;
-            }
-        case LSPA_IN:
-            if (obj instanceof Bandwidth) {
-                builder.setBandwidth((Bandwidth) obj);
-                return State.BANDWIDTH_IN;
-            }
-        case BANDWIDTH_IN:
-            if (obj instanceof Metric) {
-                metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return State.BANDWIDTH_IN;
-            }
-        case METRIC_IN:
-            if (obj instanceof Iro) {
-                builder.setIro((Iro) obj);
-                return State.IRO_IN;
-            }
-        case IRO_IN:
-        case END:
-            return State.END;
-        default:
-            return state;
+            case INIT:
+                if (obj instanceof EndpointsObj) {
+                    builder.setEndpointsObj((EndpointsObj) obj);
+                    return State.ENDPOINTS_IN;
+                }
+                // fall through
+            case ENDPOINTS_IN:
+                if (obj instanceof Ero) {
+                    builder.setEro((Ero) obj);
+                    return State.ERO_IN;
+                }
+                // fall through
+            case ERO_IN:
+                if (obj instanceof Lspa) {
+                    builder.setLspa((Lspa) obj);
+                    return State.LSPA_IN;
+                }
+                // fall through
+            case LSPA_IN:
+                if (obj instanceof Bandwidth) {
+                    builder.setBandwidth((Bandwidth) obj);
+                    return State.BANDWIDTH_IN;
+                }
+                // fall through
+            case BANDWIDTH_IN:
+                if (obj instanceof Metric) {
+                    metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return State.BANDWIDTH_IN;
+                }
+                // fall through
+            case METRIC_IN:
+                if (obj instanceof Iro) {
+                    builder.setIro((Iro) obj);
+                    return State.IRO_IN;
+                }
+                // fall through
+            case IRO_IN:
+            case END:
+                return State.END;
+            default:
+                return state;
         }
     }
 

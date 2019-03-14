@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 
 /**
- * Parser for {@link LspErrorCode}
+ * Parser for {@link LspErrorCode}.
  */
 public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSerializer {
 
