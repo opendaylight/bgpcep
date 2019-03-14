@@ -7,13 +7,24 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import java.util.Optional;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 
 public interface ParameterRegistry {
-    BgpParameters parseParameter(int parameterType, ByteBuf bytes) throws BGPParsingException, BGPDocumentedException;
+    /**
+     * Find a parser for specified parameter type.
+     *
+     * @param parameterType Parameter type
+     * @return Parser, if registered
+     */
+    Optional<ParameterParser> findParser(int parameterType);
 
-    void serializeParameter(BgpParameters parameter, ByteBuf bytes);
+    /**
+     * Find a serializer for specified parameter
+     *
+     * @param parameter Parameter to serialize
+     * @throws NullPointerException if any argument is null
+     * @return Serializer, if registered
+     */
+    Optional<ParameterSerializer> findSerializer(BgpParameters parameter);
 }
