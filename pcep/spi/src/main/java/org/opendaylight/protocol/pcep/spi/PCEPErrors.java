@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import com.google.common.collect.Maps;
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 
 /**
  * Possible errors listed in RFC5440, RFC 5455 and stateful draft.
@@ -346,15 +346,17 @@ public enum PCEPErrors {
      */
     INVALID_LSP_DB_VERSION(20, 7);
 
-    private PCEPErrorIdentifier errorId;
-    private static final Map<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
+    private static final ImmutableMap<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
 
     static {
-        VALUE_MAP = Maps.newHashMap();
+        Builder<PCEPErrorIdentifier, PCEPErrors> builder = ImmutableMap.builder();
         for (final PCEPErrors enumItem : PCEPErrors.values()) {
-            VALUE_MAP.put(enumItem.getErrorIdentifier(), enumItem);
+            builder.put(enumItem.getErrorIdentifier(), enumItem);
         }
+        VALUE_MAP = builder.build();
     }
+
+    private PCEPErrorIdentifier errorId;
 
     public static PCEPErrors forValue(final short errorType, final short errorValue) {
         return VALUE_MAP.get(new PCEPErrorIdentifier(errorType, errorValue));
