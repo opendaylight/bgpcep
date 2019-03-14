@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
+import org.opendaylight.protocol.util.Values;
 
 /**
  * Utility class which is intended for formatting parameter.
@@ -18,23 +20,38 @@ public final class ParameterUtil {
     }
 
     /**
-     * Adds header to parameter value.
+     * Adds header to parameter value in RFC4271 format.
      *
      * @param type of the parameter
      * @param value parameter value
      * @param buffer ByteBuf where the parameter will be copied with its header
      * @throws IllegalArgumentException if value length exceeds 255 bytes
      */
-    public static void formatParameter(final int type, final ByteBuf value, final ByteBuf buffer) {
+    public static void formatParameter(final int type, final ByteBuf value, final ByteBuf buffer)
+            throws ParameterLengthOverflowException {
         final int valueLength = value.writerIndex();
-        if (valueLength > 255) {
-            throw new IllegalArgumentException(String.format(
-                "Cannot encode parameter %s because value length %s exceeds parameter length field size (value %s)",
-                type, valueLength, ByteBufUtil.hexDump(value)));
-        }
+        ParameterLengthOverflowException.throwIf(valueLength > Values.UNSIGNED_BYTE_MAX_VALUE,
+            "Cannot encode %s-byte value", valueLength);
 
         buffer.writeByte(type);
         buffer.writeByte(valueLength);
+        buffer.writeBytes(value);
+    }
+
+    /**
+     * Adds header to parameter value in draft-ietf-idr-ext-opt-param-05 format.
+     *
+     * @param type of the parameter
+     * @param value parameter value
+     * @param buffer ByteBuf where the parameter will be copied with its header
+     * @throws IllegalArgumentException if value length exceeds 65535 bytes
+     */
+    public static void formatExtendedParameter(final int type, final ByteBuf value, final ByteBuf buffer) {
+        final int valueLength = value.writerIndex();
+        checkArgument(valueLength < Values.UNSIGNED_SHORT_MAX_VALUE, "Cannot encode %s-byte value", valueLength);
+
+        buffer.writeByte(type);
+        buffer.writeShort(valueLength);
         buffer.writeBytes(value);
     }
 }
