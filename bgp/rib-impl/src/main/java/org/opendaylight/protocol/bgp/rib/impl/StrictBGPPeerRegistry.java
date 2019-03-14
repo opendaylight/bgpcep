@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedInts;
 import io.netty.buffer.ByteBuf;
@@ -23,6 +22,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,11 +67,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
     @GuardedBy("this")
-    private final Map<IpAddress, BGPSessionListener> peers = Maps.newHashMap();
+    private final Map<IpAddress, BGPSessionListener> peers = new HashMap<>();
     @GuardedBy("this")
-    private final Map<IpAddress, BGPSessionId> sessionIds = Maps.newHashMap();
+    private final Map<IpAddress, BGPSessionId> sessionIds = new HashMap<>();
     @GuardedBy("this")
-    private final Map<IpAddress, BGPSessionPreferences> peerPreferences = Maps.newHashMap();
+    private final Map<IpAddress, BGPSessionPreferences> peerPreferences = new HashMap<>();
     @GuardedBy("this")
     private final Set<PeerRegistryListener> listeners = new HashSet<>();
     @GuardedBy("this")
