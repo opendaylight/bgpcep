@@ -21,6 +21,7 @@ import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
@@ -120,7 +121,8 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
                 .opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.data.notification
                 .NotificationBuilder();
         try {
-            final Notification not = this.msgRegistry.parseMessage(bytes, null);
+            final Notification not = this.msgRegistry.parseMessage(bytes.readSlice(getBgpMessageLength(bytes)),
+                    null);
             requireNonNull(not, "Notify message may not be null.");
             Preconditions.checkArgument(not instanceof NotifyMessage,
                     "An instance of NotifyMessage is required");
@@ -131,6 +133,10 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         }
 
         return notificationCBuilder.build();
+    }
+
+    private static int getBgpMessageLength(final ByteBuf buffer) {
+        return buffer.getUnsignedShort(buffer.readerIndex() + MessageUtil.MARKER_LENGTH);
     }
 
     @Override
