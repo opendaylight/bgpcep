@@ -5,19 +5,18 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -35,6 +34,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterLengthOverflowException;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
@@ -158,46 +158,42 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
     private void initMock() {
         MockitoAnnotations.initMocks(this);
         try {
-            Mockito.doNothing().when(this.attrParser).parseAttribute(any(ByteBuf.class), any(AttributesBuilder.class),
+            doNothing().when(this.attrParser).parseAttribute(any(ByteBuf.class), any(AttributesBuilder.class),
                 any(RevisedErrorHandling.class), any(PeerSpecificParserConstraint.class));
             doReturn(EMPTY).when(this.attrParser).toString();
-            Mockito.doNothing().when(this.attrSerializer).serializeAttribute(any(Attributes.class), any(ByteBuf.class));
+            doNothing().when(this.attrSerializer).serializeAttribute(any(Attributes.class), any(ByteBuf.class));
             doReturn(EMPTY).when(this.attrSerializer).toString();
 
             doReturn(null).when(this.paramParser).parseParameter(any(ByteBuf.class));
             doReturn(EMPTY).when(this.paramParser).toString();
-            Mockito.doNothing().when(this.paramSerializer).serializeParameter(any(BgpParameters.class),
-                any(ByteBuf.class));
+            doNothing().when(this.paramSerializer).serializeParameter(any(BgpParameters.class), any(ByteBuf.class));
             doReturn(EMPTY).when(this.paramSerializer).toString();
 
             doReturn(null).when(this.capaParser).parseCapability(any(ByteBuf.class));
             doReturn(EMPTY).when(this.capaParser).toString();
-            Mockito.doNothing().when(this.capaSerializer).serializeCapability(any(CParameters.class),
-                any(ByteBuf.class));
+            doNothing().when(this.capaSerializer).serializeCapability(any(CParameters.class), any(ByteBuf.class));
             doReturn(EMPTY).when(this.capaSerializer).toString();
 
             doReturn(null).when(this.sidTlvParser).parseBgpPrefixSidTlv(any(ByteBuf.class));
             doReturn(EMPTY).when(this.sidTlvParser).toString();
-            Mockito.doNothing().when(this.sidTlvSerializer).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class),
+            doNothing().when(this.sidTlvSerializer).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class),
                 any(ByteBuf.class));
             doReturn(EMPTY).when(this.sidTlvSerializer).toString();
             doReturn(0).when(this.sidTlvSerializer).getType();
 
-            doReturn(mock(Notification.class)).when(this.msgParser).parseMessageBody(any(ByteBuf.class),
-                Mockito.anyInt(), any(PeerSpecificParserConstraint.class));
+            doReturn(mock(Notification.class)).when(this.msgParser).parseMessageBody(any(ByteBuf.class), anyInt(),
+                any(PeerSpecificParserConstraint.class));
             doReturn(EMPTY).when(this.msgParser).toString();
-            Mockito.doNothing().when(this.msgSerializer).serializeMessage(any(Notification.class),
-                any(ByteBuf.class));
+            doNothing().when(this.msgSerializer).serializeMessage(any(Notification.class), any(ByteBuf.class));
             doReturn(EMPTY).when(this.msgSerializer).toString();
 
-            Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class),
-                any());
-            Mockito.doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class),
-                any());
+            doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
+            doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class), any());
             doReturn(EMPTY).when(this.nlriParser).toString();
 
-        } catch (BGPDocumentedException | BGPParsingException | BGPTreatAsWithdrawException e) {
-            Assert.fail();
+        } catch (BGPDocumentedException | BGPParsingException | BGPTreatAsWithdrawException
+                | ParameterLengthOverflowException e) {
+            throw new IllegalStateException("Mock setup failed", e);
         }
     }
 }
