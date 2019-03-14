@@ -9,24 +9,26 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.doReturn;
 
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 import java.util.Optional;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class UtilsTest {
 
     @Mock private AddressFamilyRegistry afiReg;
@@ -34,14 +36,13 @@ public class UtilsTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(1).when(this.afiReg).numberForClass(Ipv4AddressFamily.class);
-        Mockito.doReturn(Ipv4AddressFamily.class).when(this.afiReg).classForFamily(1);
-        Mockito.doReturn(null).when(this.afiReg).classForFamily(2);
+        doReturn(1).when(this.afiReg).numberForClass(Ipv4AddressFamily.class);
+        doReturn(Ipv4AddressFamily.class).when(this.afiReg).classForFamily(1);
+        doReturn(null).when(this.afiReg).classForFamily(2);
 
-        Mockito.doReturn(1).when(this.safiReg).numberForClass(UnicastSubsequentAddressFamily.class);
-        Mockito.doReturn(UnicastSubsequentAddressFamily.class).when(this.safiReg).classForFamily(1);
-        Mockito.doReturn(null).when(this.safiReg).classForFamily(3);
+        doReturn(1).when(this.safiReg).numberForClass(UnicastSubsequentAddressFamily.class);
+        doReturn(UnicastSubsequentAddressFamily.class).when(this.safiReg).classForFamily(1);
+        doReturn(null).when(this.safiReg).classForFamily(3);
     }
 
     @Test
@@ -65,7 +66,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testParameterUtil() {
+    public void testParameterUtil() throws ParameterLengthOverflowException {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
         final ByteBuf aggregator = Unpooled.buffer();
         ParameterUtil.formatParameter(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }), aggregator);
@@ -114,7 +115,7 @@ public class UtilsTest {
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
         final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
             this.safiReg);
-        Assert.assertFalse(parsedAfiSafi.isPresent());
+        assertFalse(parsedAfiSafi.isPresent());
     }
 
     @Test
@@ -123,6 +124,31 @@ public class UtilsTest {
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
         final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
             this.safiReg);
-        Assert.assertFalse(parsedAfiSafi.isPresent());
+        assertFalse(parsedAfiSafi.isPresent());
+    }
+
+    @Test(expected = ParameterLengthOverflowException.class)
+    public void testFormatParameterOverflow() throws ParameterLengthOverflowException {
+        ParameterUtil.formatParameter(2, Unpooled.buffer().writeZero(256), Unpooled.buffer());
+    }
+
+    @Test
+    public void testFormatParameter() throws ParameterLengthOverflowException {
+        final ByteBuf output = Unpooled.buffer();
+        ParameterUtil.formatParameter(2, Unpooled.buffer().writeZero(255), output);
+
+        assertEquals(257, output.readableBytes());
+        assertEquals(2, output.readUnsignedByte());
+        assertEquals(255, output.readUnsignedByte());
+    }
+
+    @Test
+    public void testFormatExtendedParameter() {
+        final ByteBuf output = Unpooled.buffer();
+        ParameterUtil.formatExtendedParameter(2, Unpooled.buffer().writeZero(256), output);
+
+        assertEquals(259, output.readableBytes());
+        assertEquals(2, output.readUnsignedByte());
+        assertEquals(256, output.readUnsignedShort());
     }
 }

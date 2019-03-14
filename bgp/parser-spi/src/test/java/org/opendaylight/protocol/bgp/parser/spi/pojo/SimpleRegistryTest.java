@@ -18,6 +18,7 @@ import static org.mockito.Mockito.verify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,15 +100,9 @@ public class SimpleRegistryTest {
         final ParameterRegistry paramReg = this.ctx.getParameterRegistry();
         final BgpParameters param = mock(BgpParameters.class);
         Mockito.doReturn(BgpParameters.class).when(param).implementedInterface();
-        final byte[] paramBytes = {
-            0x00, 0x00
-        };
-        final ByteBuf buffer = Unpooled.buffer(paramBytes.length);
-        paramReg.serializeParameter(param, buffer);
-        paramReg.parseParameter(0, Unpooled.wrappedBuffer(paramBytes));
-        verify(this.activator.paramParser, times(1)).parseParameter(any(ByteBuf.class));
-        verify(this.activator.paramSerializer, times(1)).serializeParameter(any(BgpParameters.class),
-            any(ByteBuf.class));
+
+        assertEquals(Optional.of(activator.paramParser), paramReg.findParser(0));
+        assertEquals(Optional.of(activator.paramSerializer), paramReg.findSerializer(param));
     }
 
     @Test
