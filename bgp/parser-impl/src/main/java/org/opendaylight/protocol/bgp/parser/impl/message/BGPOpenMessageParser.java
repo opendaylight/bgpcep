@@ -8,20 +8,29 @@
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Verify.verify;
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterLengthOverflowException;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Values;
@@ -48,6 +57,9 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
     private static final int HOLD_TIME_SIZE = 2;
     private static final int BGP_ID_SIZE = 4;
     private static final int OPT_PARAM_LENGTH_SIZE = 1;
+
+    // Optional Parameter Type for Extended Optional Parameters Length
+    private static final int OPT_PARAM_EXT_PARAM = 255;
 
     private static final int MIN_MSG_LENGTH = VERSION_SIZE + AS_SIZE
             + HOLD_TIME_SIZE + BGP_ID_SIZE + OPT_PARAM_LENGTH_SIZE;
@@ -85,26 +97,72 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         msgBody.writeShort(open.getHoldTimer());
         msgBody.writeBytes(Ipv4Util.bytesForAddress(open.getBgpIdentifier()));
 
-        final ByteBuf paramsBuffer = Unpooled.buffer();
-        final List<BgpParameters> params = open.getBgpParameters();
-        if (params != null) {
-            for (final BgpParameters param : params) {
-                this.reg.serializeParameter(param, paramsBuffer);
-            }
-        }
-        final int paramsLength = paramsBuffer.writerIndex();
-        if (paramsLength > 255) {
-            LOG.error("OPEN message message optional parameter length {} exceeds maximum length supported by BGP. "
-                + "Adjust advertized capabilities toward the peer to fit into limit of 255 bytes by trimming {}",
-                paramsLength, params);
-            throw new IllegalArgumentException(String.format(
-                "Cannot encode OPEN message because optional parameter length %s exceeds length field size.",
-                paramsLength));
-        }
-        msgBody.writeByte(paramsLength);
-        msgBody.writeBytes(paramsBuffer);
+        serializeParameters(open.getBgpParameters(), msgBody);
 
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
+    }
+
+    private void serializeParameters(final List<BgpParameters> params, final ByteBuf msgBody) {
+        if (params == null || params.isEmpty()) {
+            msgBody.writeByte(0);
+            return;
+        }
+
+        final ByteBuf normal = normalSerializeParameters(params);
+        if (normal != null) {
+            final int length = normal.writerIndex();
+            verify(length <= Values.UNSIGNED_BYTE_MAX_VALUE);
+            msgBody.writeByte(length);
+            msgBody.writeBytes(normal);
+            return;
+        }
+
+        final ByteBuf buffer = Unpooled.buffer();
+        for (final BgpParameters param : params) {
+            final Optional<ParameterSerializer> optSer = reg.findSerializer(param);
+            if (optSer.isPresent()) {
+                optSer.get().serializeExtendedParameter(param, buffer);
+            } else {
+                LOG.debug("Ingnoring unregistered parameter {}", param);
+            }
+        }
+
+        final int length = buffer.writerIndex();
+        checkState(length <= Values.UNSIGNED_SHORT_MAX_VALUE);
+
+        // The non-extended Optional Parameters Length field MUST be set to 255
+        msgBody.writeByte(Values.UNSIGNED_BYTE_MAX_VALUE);
+        // The subsequent one-octet field, that in the non-extended format would
+        // be the first Optional Parameter Type field, MUST be set to 255
+        msgBody.writeByte(OPT_PARAM_EXT_PARAM);
+        // Extended Optional Parameters Length
+        msgBody.writeShort(length);
+        msgBody.writeBytes(buffer);
+    }
+
+    private ByteBuf normalSerializeParameters(final List<BgpParameters> params) {
+        final ByteBuf buffer = Unpooled.buffer();
+        for (final BgpParameters param : params) {
+            final Optional<ParameterSerializer> optSer = reg.findSerializer(param);
+            if (optSer.isPresent()) {
+                try {
+                    optSer.get().serializeParameter(param, buffer);
+                } catch (ParameterLengthOverflowException e) {
+                    LOG.debug("Forcing extended parameter serialization", e);
+                    return null;
+                }
+            } else {
+                LOG.debug("Ingnoring unregistered parameter {}", param);
+            }
+        }
+
+        final int length = buffer.writerIndex();
+        if (length > Values.UNSIGNED_BYTE_MAX_VALUE) {
+            LOG.debug("Final parameter size is {}, forcing extended serialization", length);
+            return null;
+        }
+
+        return buffer;
     }
 
     /**
@@ -140,43 +198,89 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
             throw new BGPDocumentedException("BGP Identifier is not a valid IPv4 Address", BGPError.BAD_BGP_ID, e);
         }
         final int optLength = body.readUnsignedByte();
-
-        final List<BgpParameters> optParams = new ArrayList<>();
-        if (optLength > 0) {
-            fillParams(body.slice(), optParams);
-        }
+        final List<BgpParameters> optParams = parseParameters(body.slice(), optLength);
         LOG.debug("BGP Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as,
                 holdTime, bgpId, optParams);
         return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer(holdTime)
                 .setBgpIdentifier(bgpId).setBgpParameters(optParams).build();
     }
 
-    private void fillParams(final ByteBuf buffer, final List<BgpParameters> params) throws BGPDocumentedException {
-        checkArgument(buffer != null && buffer.isReadable(), "Buffer cannot be null or empty.");
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Started parsing of BGP parameter: {}", ByteBufUtil.hexDump(buffer));
+    private List<BgpParameters> parseParameters(final ByteBuf buffer, final int length) throws BGPDocumentedException {
+        if (length == 0) {
+            return ImmutableList.of();
         }
-        while (buffer.isReadable()) {
-            if (buffer.readableBytes() <= 2) {
-                throw new BGPDocumentedException("Malformed parameter encountered (" + buffer.readableBytes()
-                        + " bytes left)", BGPError.OPT_PARAM_NOT_SUPPORTED);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Started parsing of BGP parameter: {} length {}", ByteBufUtil.hexDump(buffer), length);
+        }
+
+        final int realLength;
+        final OptionalInt extendedLength = extractExtendedLength(buffer, length);
+        if (extendedLength.isPresent()) {
+            realLength = extendedLength.getAsInt();
+            if (realLength < Values.UNSIGNED_BYTE_MAX_VALUE) {
+                LOG.debug("Peer used Extended Optional Parameters Length to encode length {}", realLength);
             }
+        } else {
+            realLength = length;
+        }
+
+        // We have determined the real length, we can trim the buffer now
+        if (buffer.readableBytes() > realLength) {
+            buffer.writerIndex(buffer.readerIndex() + realLength);
+            LOG.trace("Truncated BGP parameter buffer to length {}: {}", realLength, ByteBufUtil.hexDump(buffer));
+        }
+
+        final int lengthSize = extendedLength.isPresent() ? 1 : 2;
+        final List<BgpParameters> params = new ArrayList<>();
+        while (buffer.isReadable()) {
             final int paramType = buffer.readUnsignedByte();
-            final int paramLength = buffer.readUnsignedByte();
+            final Optional<ParameterParser> parser = reg.findParser(paramType);
+            if (!parser.isPresent()) {
+                throw new BGPDocumentedException("Parameter " + paramType + " not supported",
+                    BGPError.OPT_PARAM_NOT_SUPPORTED);
+            }
+            if (buffer.readableBytes() <= lengthSize) {
+                throw new BGPDocumentedException("Malformed parameter encountered (" + buffer.readableBytes()
+                        + " bytes left)", BGPError.UNSPECIFIC_OPEN_ERROR);
+            }
+            final int paramLength = extendedLength.isPresent() ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
             final ByteBuf paramBody = buffer.readSlice(paramLength);
 
             final BgpParameters param;
             try {
-                param = this.reg.parseParameter(paramType, paramBody);
+                param = parser.get().parseParameter(paramBody);
             } catch (final BGPParsingException e) {
                 throw new BGPDocumentedException("Optional parameter not parsed", BGPError.UNSPECIFIC_OPEN_ERROR, e);
             }
-            if (param != null) {
-                params.add(param);
-            } else {
-                LOG.debug("Ignoring BGP Parameter type: {}", paramType);
-            }
+
+            params.add(verifyNotNull(param));
         }
+
         LOG.trace("Parsed BGP parameters: {}", params);
+        return params;
+    }
+
+    private static OptionalInt extractExtendedLength(final ByteBuf buffer, final int length)
+            throws BGPDocumentedException {
+        final int type = buffer.markReaderIndex().readUnsignedByte();
+        if (type != OPT_PARAM_EXT_PARAM) {
+            // Not extended length
+            buffer.resetReaderIndex();
+            return OptionalInt.empty();
+        }
+        if (length != Values.UNSIGNED_BYTE_MAX_VALUE) {
+            LOG.debug("Peer uses Extended Optional Parameters Length, but indicated RFC4271 length as {}", length);
+        }
+        if (length < 3) {
+            throw new BGPDocumentedException("Malformed Extended Length parameter encountered ("
+                    + (length - 1) + " bytes left)", BGPError.UNSPECIFIC_OPEN_ERROR);
+        }
+        final int avail = buffer.readableBytes();
+        if (avail < 2) {
+            throw new BGPDocumentedException("Buffer underrun: require 2 bytes, only " + avail + " bytes left",
+                BGPError.UNSPECIFIC_OPEN_ERROR);
+        }
+
+        return OptionalInt.of(buffer.readUnsignedShort());
     }
 }
