@@ -23,7 +23,8 @@ final class SimpleParameterRegistry implements ParameterRegistry {
     private final HandlerRegistry<DataContainer, ParameterParser, ParameterSerializer> handlers = new HandlerRegistry<>();
 
     AutoCloseable registerParameterParser(final int messageType, final ParameterParser parser) {
-        Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
+        // 255 is explicitly excluded because it is handled in OPEN message parser
+        Preconditions.checkArgument(messageType >= 0 && messageType < Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(messageType, parser);
     }
 
