@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
@@ -37,11 +37,11 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
     }
 
     protected final void parseTlvs(final T builder, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null, "Array of bytes is mandatory. Can't be null.");
+        checkArgument(bytes != null, "Array of bytes is mandatory. Can't be null.");
         if (!bytes.isReadable()) {
             return;
         }
-        final List<VendorInformationTlv> viTlvs = Lists.newArrayList();
+        final List<VendorInformationTlv> viTlvs = new ArrayList<>();
         while (bytes.isReadable()) {
             final int type = bytes.readUnsignedShort();
             final int length = bytes.readUnsignedShort();

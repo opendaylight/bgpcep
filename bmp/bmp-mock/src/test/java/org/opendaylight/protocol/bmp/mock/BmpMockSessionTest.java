@@ -12,12 +12,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class BmpMockSessionTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.messages = Lists.newArrayList();
+        this.messages = new ArrayList<>();
         this.session = new BmpMockSession(1, 1, 1);
         this.channel = Mockito.mock(Channel.class);
         Mockito.doReturn(REMOTE_ADDRESS).when(this.channel).remoteAddress();

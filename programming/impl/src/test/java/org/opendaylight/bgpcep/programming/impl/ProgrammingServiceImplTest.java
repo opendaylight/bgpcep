@@ -22,6 +22,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.After;
@@ -342,7 +343,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final SubmitInstructionInput mockedSubmitInstruction = mock(SubmitInstructionInput.class);
 
         doReturn(PcepUpdateTunnelInput.class).when(mockedSubmitInstruction).getImplementedInterface();
-        final List<InstructionId> dependencies = Lists.newArrayList();
+        final List<InstructionId> dependencies = new ArrayList<>();
         for (final String dependencyId : dependencyIds) {
             dependencies.add(new InstructionId(dependencyId));
         }

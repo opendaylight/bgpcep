@@ -17,6 +17,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +69,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 public class BGPMessageParserMockTest {
 
     private final byte[][] inputBytes = new byte[11][];
-    private final List<Update> messages = Lists.newArrayList();
+    private final List<Update> messages = new ArrayList<>();
 
     @Before
     public void init() throws Exception {
@@ -140,7 +141,7 @@ public class BGPMessageParserMockTest {
 
         final UpdateBuilder builder = new UpdateBuilder();
 
-        final List<Segments> asPath = Lists.newArrayList();
+        final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(Lists.newArrayList(new AsNumber(asn))).build());
         final CNextHop nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
                 new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1"))
@@ -180,7 +181,7 @@ public class BGPMessageParserMockTest {
         final Set<BgpTableType> type = Sets.newHashSet();
         type.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class));
 
-        final List<BgpParameters> params = Lists.newArrayList();
+        final List<BgpParameters> params = new ArrayList<>();
 
         final CParameters par = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
                 .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
