@@ -65,7 +65,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testParameterUtil() {
+    public void testParameterUtil() throws ParameterLengthOverflowException {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
         final ByteBuf aggregator = Unpooled.buffer();
         ParameterUtil.formatParameter(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }), aggregator);

@@ -9,9 +9,7 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import java.util.Optional;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
@@ -26,7 +24,8 @@ final class SimpleParameterRegistry implements ParameterRegistry {
             new HandlerRegistry<>();
 
     Registration registerParameterParser(final int messageType, final ParameterParser parser) {
-        checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
+        // 255 is explicitly excluded because it is handled in OPEN message parser
+        checkArgument(messageType >= 0 && messageType < Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(messageType, parser);
     }
 
@@ -36,21 +35,12 @@ final class SimpleParameterRegistry implements ParameterRegistry {
     }
 
     @Override
-    public BgpParameters parseParameter(final int parameterType, final ByteBuf buffer) throws BGPParsingException,
-            BGPDocumentedException {
-        final ParameterParser parser = this.handlers.getParser(parameterType);
-        if (parser == null) {
-            return null;
-        }
-        return parser.parseParameter(buffer);
+    public Optional<ParameterParser> findParser(final int parameterType) {
+        return Optional.ofNullable(handlers.getParser(parameterType));
     }
 
     @Override
-    public void serializeParameter(final BgpParameters parameter, final ByteBuf bytes) {
-        final ParameterSerializer serializer = this.handlers.getSerializer(parameter.getImplementedInterface());
-        if (serializer == null) {
-            return;
-        }
-        serializer.serializeParameter(parameter,bytes);
+    public Optional<ParameterSerializer> findSerializer(final BgpParameters parameter) {
+        return Optional.ofNullable(handlers.getSerializer(parameter.getImplementedInterface()));
     }
 }
