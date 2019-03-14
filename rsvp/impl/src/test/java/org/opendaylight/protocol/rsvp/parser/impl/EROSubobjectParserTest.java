@@ -9,9 +9,9 @@ package org.opendaylight.protocol.rsvp.parser.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
@@ -295,7 +295,7 @@ public class EROSubobjectParserTest {
         final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
         subs.setLoose(true);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
-            .subobjects.subobject.type.exrs._case.exrs.Exrs> list = Lists.newArrayList();
+            .subobjects.subobject.type.exrs._case.exrs.Exrs> list = new ArrayList<>();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
             .subobjects.subobject.type.exrs._case.exrs.ExrsBuilder builder =
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp

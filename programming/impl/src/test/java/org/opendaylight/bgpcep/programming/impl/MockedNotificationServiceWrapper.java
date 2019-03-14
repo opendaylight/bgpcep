@@ -14,7 +14,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
@@ -24,11 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 final class MockedNotificationServiceWrapper {
-    private final List<Notification> publishedNotifications;
-
-    MockedNotificationServiceWrapper() {
-        this.publishedNotifications = Lists.newArrayList();
-    }
+    private final List<Notification> publishedNotifications = new ArrayList<>();
 
     NotificationPublishService getMockedNotificationService() throws InterruptedException {
         final NotificationPublishService mockedNotificationService = mock(NotificationPublishService.class);

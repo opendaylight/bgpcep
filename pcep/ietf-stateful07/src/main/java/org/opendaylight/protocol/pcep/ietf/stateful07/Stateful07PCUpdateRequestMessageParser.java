@@ -9,9 +9,9 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
@@ -88,7 +88,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
             throw new PCEPDeserializerException("Pcup message cannot be empty.");
         }
 
-        final List<Updates> updateRequests = Lists.newArrayList();
+        final List<Updates> updateRequests = new ArrayList<>();
 
         while (!objects.isEmpty()) {
             final Updates upd = getValidUpdates(objects, errors);
@@ -155,7 +155,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
     }
 
     private static void parsePath(final List<Object> objects, final PathBuilder pathBuilder) {
-        final List<Metrics> pathMetrics = Lists.newArrayList();
+        final List<Metrics> pathMetrics = new ArrayList<>();
         Object obj;
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {

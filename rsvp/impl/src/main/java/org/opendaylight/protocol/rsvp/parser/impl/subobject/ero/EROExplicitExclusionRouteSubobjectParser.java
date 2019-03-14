@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.ero;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route
             .object.exclude.route.object.SubobjectContainer> list = localParseSubobject(buffer);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
-            .subobjects.subobject.type.exrs._case.exrs.Exrs> exrss = Lists.newArrayList();
+            .subobjects.subobject.type.exrs._case.exrs.Exrs> exrss = new ArrayList<>();
         for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route
             .object.exclude.route.object.SubobjectContainer s : list) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route

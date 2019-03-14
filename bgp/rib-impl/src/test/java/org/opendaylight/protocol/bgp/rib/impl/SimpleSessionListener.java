@@ -9,10 +9,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Uninterruptibles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +34,7 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
     @GuardedBy("this")
-    private final List<Notification> listMsg = Lists.newArrayList();
+    private final List<Notification> listMsg = new ArrayList<>();
     private BGPSession bgpSession;
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
