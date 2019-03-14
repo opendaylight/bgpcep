@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.testtool;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -59,7 +59,7 @@ final class CommunitiesBuilder {
     }
 
     static List<ExtendedCommunities> createExtComm(final List<String> extCom) {
-        final List<ExtendedCommunities> extendedCommunities = Lists.newArrayList();
+        final List<ExtendedCommunities> extendedCommunities = new ArrayList<>();
         for (String ec : extCom) {
             ExtendedCommunity community = null;
             switch (ec) {

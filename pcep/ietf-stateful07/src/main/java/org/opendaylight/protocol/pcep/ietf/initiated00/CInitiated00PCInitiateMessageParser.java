@@ -9,9 +9,9 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -77,7 +77,7 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
     protected Message validate(final List<Object> objects, final List<Message> errors) {
         checkArgument(objects != null, "Passed list can't be null.");
         final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
-        final List<Requests> reqs = Lists.newArrayList();
+        final List<Requests> reqs = new ArrayList<>();
         while (!objects.isEmpty()) {
             reqs.add(this.getValidRequest(objects));
         }
@@ -93,7 +93,7 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
         builder.setLsp((Lsp) objects.get(0));
         objects.remove(0);
 
-        final List<Metrics> metrics = Lists.newArrayList();
+        final List<Metrics> metrics = new ArrayList<>();
 
         Object obj;
         State state = State.INIT;
