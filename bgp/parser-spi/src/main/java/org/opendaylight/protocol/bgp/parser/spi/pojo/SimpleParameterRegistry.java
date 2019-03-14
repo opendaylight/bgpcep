@@ -26,7 +26,8 @@ final class SimpleParameterRegistry implements ParameterRegistry {
             new HandlerRegistry<>();
 
     Registration registerParameterParser(final int messageType, final ParameterParser parser) {
-        checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
+        // 255 is explicitly excluded because it is handled in OPEN message parser
+        checkArgument(messageType >= 0 && messageType < Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(messageType, parser);
     }
 
