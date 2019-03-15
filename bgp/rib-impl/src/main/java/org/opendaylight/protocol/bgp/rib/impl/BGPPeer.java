@@ -113,7 +113,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         UnicastSubsequentAddressFamily.class);
 
     private ImmutableSet<TablesKey> tables = ImmutableSet.of();
-    private ImmutableSet<TablesKey> advertizedTables = ImmutableSet.of();
     private final RIB rib;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
@@ -340,7 +339,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 createEffRibInWriter();
                 this.effRibInWriter.init();
                 registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
-                for (final TablesKey key : this.advertizedTables) {
+                for (final TablesKey key : getAfiSafisAdvertized()) {
                     createAdjRibOutListener(key, true);
                 }
                 setLocalRestartingState(false);
@@ -373,7 +372,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
                 .collect(Collectors.toSet());
         this.tables = ImmutableSet.copyOf(setTables);
-        this.advertizedTables = ImmutableSet.copyOf(Sets.intersection(tables, getAfiSafisAdvertized()));
 
         this.addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         final boolean restartingLocally = isLocalRestarting();
@@ -452,7 +450,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         if (!restartingLocally) {
             addBgp4Support();
-            for (final TablesKey key : this.advertizedTables) {
+            for (final TablesKey key : getAfiSafisAdvertized()) {
                 createAdjRibOutListener(key, true);
             }
         }
@@ -635,7 +633,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
-        return this.advertizedTables.contains(tableKey) && this.sessionUp;
+        return this.sessionUp && getAfiSafisAdvertized().contains(tableKey);
     }
 
     @Override
