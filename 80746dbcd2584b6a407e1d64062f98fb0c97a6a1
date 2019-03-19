@@ -16,6 +16,24 @@
       "revId": "80746dbcd2584b6a407e1d64062f98fb0c97a6a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdc4692f_acc59c0c",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-03-19T14:43:47Z",
+      "side": 1,
+      "message": "I think mandatory leaf enforcement now works for CONFIG DS across the board with the delivery of https://jira.opendaylight.org/browse/YANGTOOLS-617",
+      "parentUuid": "9a245df4_a34f6cbc",
+      "revId": "80746dbcd2584b6a407e1d64062f98fb0c97a6a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
