@@ -1,0 +1,63 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module pcep-topology-stats-rpc {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:pcep:topology:stats:rpc";
+    prefix ptsr;
+
+    import network-topology { prefix nt; revision-date 2013-10-21; }
+    import pcep-session-stats { prefix pss; revision-date 2017-11-13; }
+
+    description
+        "This module contains rpc for fetching PCEP session statistics.
+    	
+         Copyright (c) 2019 Lumina Networks, Inc. and others. All rights reserved.;
+
+         This program and the accompanying materials are made available
+         under the terms of the Eclipse Public License v1.0 which
+         accompanies this distribution, and is available at
+         http://www.eclipse.org/legal/epl-v10.html";
+
+    organization "Lumina Networks, Inc.";
+    contact "Ajay Lele <alele@luminanetworks.com>";
+
+    revision "2019-03-21" {
+        description
+            "Initial revision.";
+    }
+
+    rpc get-stats {
+        description
+            "Fetch PCEP session statistics for given PCEP topology and node.
+            If topology and/or node details are absent, statistics for all
+            nodes under the context are returned.";
+        input {
+            list topology {
+                key "topology-id";
+                leaf topology-id {
+                    type nt:topology-id;
+                }
+                list node {
+                    key "node-id";
+                    leaf node-id {
+                        type nt:node-id;
+                    }
+                }
+            }
+        }
+        output {
+            list topology {
+                key "topology-id";
+                leaf topology-id {
+                    type nt:topology-id;
+                }
+                list node {
+                    key "node-id";
+                    leaf node-id {
+                        type nt:node-id;
+                    }
+                    uses pss:pcep-session-state-grouping;
+                }
+            }
+        }
+    }
+}

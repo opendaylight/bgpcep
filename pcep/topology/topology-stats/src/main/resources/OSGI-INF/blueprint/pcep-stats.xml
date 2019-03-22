@@ -14,6 +14,13 @@
     <odl:clustered-app-config id="pcepStatsConfig"
         binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev171113.PcepProvider"/>
 
+    <bean id="topologyStatsRpcService"
+          class="org.opendaylight.bgpcep.pcep.topology.stats.rpc.TopologyStatsRpcServiceImpl"
+          init-method="init" destroy-method="close">
+        <argument ref="dataBroker"/>
+    </bean>
+    <odl:rpc-implementation ref="topologyStatsRpcService"/>
+
     <bean id="topologyStatsRegistry"
           class="org.opendaylight.bgpcep.pcep.topology.stats.provider.TopologyStatsProviderImpl"
           init-method="init" destroy-method="close">
