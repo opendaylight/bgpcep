@@ -112,3 +112,91 @@ Usage
 @line 36: **delegated-lsps-count** - The number of delegated LSPs (tunnels) from PCC.
 
 @line 37: **synchronized** - Represents synchronization status.
+
+
+Following RPC can be used to fetch PCEP session statistics. If PCEP topology and/or PCC node is not specified in input,
+statistics for all PCEP sessions under the context are returned.
+
+Usage
+'''''
+
+**URL:** ``/restconf/operations/pcep-topology-stats-rpc:get-stats``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/xml``
+
+**Request Body:**
+
+.. code-block:: xml
+
+   <input xmlns="urn:opendaylight:params:xml:ns:yang:pcep:topology:stats:rpc">
+      <topology>
+         <topology-id>pcep-topology</topology-id>
+         <node>
+            <node-id>pcc://43.43.43.43</node-id>
+         </node>
+      </topology>
+   </input>
+
+**Response Body:**
+
+.. code-block:: xml
+
+   <output xmlns="urn:opendaylight:params:xml:ns:yang:pcep:topology:stats:rpc">
+      <topology>
+         <topology-id>pcep-topology</topology-id>
+         <node>
+            <node-id>pcc://43.43.43.43</node-id>
+            <pcep-session-state>
+               <synchronized>true</synchronized>
+               <peer-capabilities>
+                  <stateful xmlns="urn:opendaylight:params:xml:ns:yang:pcep:stateful:stats">true</stateful>
+                  <instantiation xmlns="urn:opendaylight:params:xml:ns:yang:pcep:stateful:stats">true</instantiation>
+                  <active xmlns="urn:opendaylight:params:xml:ns:yang:pcep:stateful:stats">true</active>
+               </peer-capabilities>
+               <local-pref>
+                  <keepalive>30</keepalive>
+                  <deadtimer>120</deadtimer>
+                  <session-id>1</session-id>
+                  <ip-address>127.0.0.1</ip-address>
+               </local-pref>
+               <session-duration>4:01:59:46</session-duration>
+               <messages>
+                  <unknown-msg-received>0</unknown-msg-received>
+                  <received-msg-count>11752</received-msg-count>
+                  <error-messages>
+                     <last-sent-error>
+                        <error-type>0</error-type>
+                        <error-value>0</error-value>
+                     </last-sent-error>
+                     <received-error-msg-count>0</received-error-msg-count>
+                     <last-received-error>
+                        <error-type>0</error-type>
+                        <error-value>0</error-value>
+                     </last-received-error>
+                     <sent-error-msg-count>0</sent-error-msg-count>
+                  </error-messages>
+                  <sent-msg-count>11759</sent-msg-count>
+                  <last-sent-msg-timestamp>1553547804</last-sent-msg-timestamp>
+                  <reply-time>
+                     <average-time>0</average-time>
+                     <min-time>0</min-time>
+                     <max-time>0</max-time>
+                  </reply-time>
+                  <received-rpt-msg-count xmlns="urn:opendaylight:params:xml:ns:yang:pcep:stateful:stats">1</received-rpt-msg-count>
+                  <sent-init-msg-count xmlns="urn:opendaylight:params:xml:ns:yang:pcep:stateful:stats">0</sent-init-msg-count>
+                  <last-received-rpt-msg-timestamp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:stateful:stats">1553195032</last-received-rpt-msg-timestamp>
+                  <sent-upd-msg-count xmlns="urn:opendaylight:params:xml:ns:yang:pcep:stateful:stats">0</sent-upd-msg-count>
+               </messages>
+               <peer-pref>
+                  <keepalive>30</keepalive>
+                  <deadtimer>120</deadtimer>
+                  <session-id>8</session-id>
+                  <ip-address>127.0.0.1</ip-address>
+               </peer-pref>
+               <delegated-lsps-count>0</delegated-lsps-count>
+            </pcep-session-state>
+         </node>
+      </topology>
+   </output>
