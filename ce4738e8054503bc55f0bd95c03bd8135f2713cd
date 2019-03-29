@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7bcafd74_5b7d3339",
+        "filename": "pcep/topology/topology-api/src/main/yang/pcep-topology-stats-rpc.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2019-03-29T16:05:35Z",
+      "side": 1,
+      "message": "topology-id is not mandatory here, idea is that if not specified, information for all pcep topologies which are visible will be returned (e.g. in clusterd env)",
+      "parentUuid": "82461847_761531f7",
+      "revId": "ce4738e8054503bc55f0bd95c03bd8135f2713cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c95106d_7b2a164c",
         "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/rpc/TopologyStatsRpcServiceImpl.java",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2019-03-29T15:19:59Z",
       "side": 1,
       "message": "why storing it instead of read the information when required?\nIf required some Cache could be used to keep the information for a short period of time",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 38
+      },
+      "revId": "ce4738e8054503bc55f0bd95c03bd8135f2713cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d43adaca_ca15c944",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/rpc/TopologyStatsRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2019-03-29T16:05:35Z",
+      "side": 1,
+      "message": "Cache for session stats (small) is used to avoid having to read entire pcep node data as it could be very large in size",
+      "parentUuid": "6c95106d_7b2a164c",
       "range": {
         "startLine": 68,
         "startChar": 0,
