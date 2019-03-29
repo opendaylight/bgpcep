@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82461847_761531f7",
+        "filename": "pcep/topology/topology-api/src/main/yang/pcep-topology-stats-rpc.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2019-03-29T15:19:59Z",
+      "side": 1,
+      "message": "mandatory ?",
+      "revId": "ce4738e8054503bc55f0bd95c03bd8135f2713cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c95106d_7b2a164c",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/rpc/TopologyStatsRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2019-03-29T15:19:59Z",
+      "side": 1,
+      "message": "why storing it instead of read the information when required?\nIf required some Cache could be used to keep the information for a short period of time",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 38
+      },
+      "revId": "ce4738e8054503bc55f0bd95c03bd8135f2713cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
