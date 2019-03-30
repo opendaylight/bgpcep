@@ -45,7 +45,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final LabelIndexTlvParser labelHandler = new LabelIndexTlvParser();
         final OriginatorSrgbTlvParser originatorHandler = new OriginatorSrgbTlvParser();
         regs.add(context.registerBgpPrefixSidTlvParser(labelHandler.getType(), labelHandler));
-        regs.add(context.registerBgpPrefixSidTlvParser(labelHandler.getType(), originatorHandler));
+        regs.add(context.registerBgpPrefixSidTlvParser(originatorHandler.getType(), originatorHandler));
         regs.add(context.registerBgpPrefixSidTlvSerializer(LuLabelIndexTlv.class, labelHandler));
         regs.add(context.registerBgpPrefixSidTlvSerializer(LuOriginatorSrgbTlv.class, originatorHandler));
 
