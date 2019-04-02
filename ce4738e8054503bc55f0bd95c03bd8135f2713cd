@@ -81,6 +81,30 @@
       "revId": "ce4738e8054503bc55f0bd95c03bd8135f2713cd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f07546f9_5ccd09f3",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/rpc/TopologyStatsRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2019-04-02T06:29:34Z",
+      "side": 1,
+      "message": "Statistics are updated every 5 sec by default. So in case this rpc is less consumed than that, it will consume more resources this type of cache than reading and processing when consumed.",
+      "parentUuid": "d43adaca_ca15c944",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 38
+      },
+      "revId": "ce4738e8054503bc55f0bd95c03bd8135f2713cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
