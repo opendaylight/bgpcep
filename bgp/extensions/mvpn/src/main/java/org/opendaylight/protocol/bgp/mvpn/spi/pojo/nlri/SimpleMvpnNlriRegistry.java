@@ -57,7 +57,7 @@ public final class SimpleMvpnNlriRegistry implements MvpnRegistry {
 
     @Override
     public ByteBuf serializeMvpn(final MvpnChoice mvpn) {
-        final MvpnSerializer serializer = this.handlers.getSerializer(mvpn.getImplementedInterface());
+        final MvpnSerializer serializer = this.handlers.getSerializer(mvpn.implementedInterface());
         if (serializer == null) {
             return Unpooled.buffer();
         }

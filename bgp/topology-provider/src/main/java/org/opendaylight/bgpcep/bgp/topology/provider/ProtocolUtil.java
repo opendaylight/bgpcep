@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.InternalBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.PseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.prefix.attributes.OspfPrefixAttributesBuilder;
+import org.opendaylight.yangtools.yang.common.Empty;
 
 public final class ProtocolUtil {
     private ProtocolUtil() {
@@ -188,16 +189,17 @@ public final class ProtocolUtil {
             if (ri instanceof OspfPseudonodeCase) {
                 final OspfPseudonode pn = ((OspfPseudonodeCase) ri).getOspfPseudonode();
 
-                ab.setRouterType(new PseudonodeBuilder().setPseudonode(Boolean.TRUE).build());
+                ab.setRouterType(new PseudonodeBuilder().setPseudonode(Empty.getInstance()).build());
                 ab.setDrInterfaceId(pn.getLanInterface().getValue());
             } else if (ri instanceof OspfNodeCase && na.getNodeFlags() != null) {
                 // TODO: what should we do with in.getOspfRouterId()?
 
                 final NodeFlagBits nf = na.getNodeFlags();
                 if (nf.isAbr() != null) {
-                    ab.setRouterType(new AbrBuilder().setAbr(nf.isAbr()).build());
+                    ab.setRouterType(new AbrBuilder().setAbr(nf.isAbr() ? Empty.getInstance() : null).build());
                 } else if (nf.isExternal() != null) {
-                    ab.setRouterType(new InternalBuilder().setInternal(!nf.isExternal()).build());
+                    ab.setRouterType(new InternalBuilder().setInternal(nf.isExternal() ? null : Empty.getInstance())
+                        .build());
                 }
             }
         }

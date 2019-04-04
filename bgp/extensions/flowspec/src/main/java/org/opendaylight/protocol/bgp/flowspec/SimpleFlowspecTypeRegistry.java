@@ -26,7 +26,7 @@ public class SimpleFlowspecTypeRegistry {
     }
 
     public FlowspecTypeSerializer getFlowspecTypeSerializer(final FlowspecType fsType) {
-        return this.handlers.getSerializer(fsType.getImplementedInterface());
+        return this.handlers.getSerializer(fsType.implementedInterface());
     }
 
     public void serializeFlowspecType(final FlowspecType fsType, final ByteBuf output) {

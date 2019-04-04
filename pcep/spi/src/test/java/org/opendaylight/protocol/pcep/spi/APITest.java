@@ -51,7 +51,7 @@ public class APITest {
 
         final Object o = new CCloseBuilder().build();
         UnknownObject unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);
-        assertEquals(Object.class, unknown.getImplementedInterface());
+        assertEquals(Object.class, unknown.implementedInterface());
         assertEquals(o, unknown.getInvalidObject());
     }
 }
