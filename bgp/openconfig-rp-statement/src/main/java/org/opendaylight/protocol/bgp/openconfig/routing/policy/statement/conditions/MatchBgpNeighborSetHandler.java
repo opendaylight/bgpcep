@@ -18,8 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -100,8 +98,8 @@ public final class MatchBgpNeighborSetHandler
     }
 
     private boolean matchBgpNeighborSetCondition(
-            @Nonnull final PeerId fromPeerId,
-            @Nullable final PeerId toPeerId,
+            final PeerId fromPeerId,
+            final PeerId toPeerId,
             final MatchBgpNeighborSet matchBgpNeighborSet) {
 
         final BgpNeighbor from = matchBgpNeighborSet.getFromNeighbor();
