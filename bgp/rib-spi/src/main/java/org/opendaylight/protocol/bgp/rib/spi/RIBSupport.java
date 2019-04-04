@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -96,12 +97,12 @@ public interface RIBSupport<
     Class<R> routesListClass();
 
     @Nonnull
-    default ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
+    default ImmutableCollection<Class<? extends BindingObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
     }
 
     @Nonnull
-    default ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+    default ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
         return ImmutableSet.of();
     }
 

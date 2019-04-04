@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -53,7 +54,7 @@ abstract class AbstractIPRibSupport<
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;
-    private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
+    private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects;
 
     AbstractIPRibSupport(
             final BindingNormalizedNodeSerializer mappingService,
@@ -75,7 +76,7 @@ abstract class AbstractIPRibSupport<
     }
 
     @Override
-    public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+    public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
         return this.cacheableNlriObjects;
     }
 

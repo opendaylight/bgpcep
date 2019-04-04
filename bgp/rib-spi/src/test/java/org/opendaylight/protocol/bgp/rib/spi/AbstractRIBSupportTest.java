@@ -161,7 +161,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     }
 
     protected final Collection<MapEntryNode> createRoutes(final S routes) {
-        Preconditions.checkArgument(routes.getImplementedInterface()
+        Preconditions.checkArgument(routes.implementedInterface()
                 .equals(this.abstractRIBSupport.routesContainerClass()));
         final InstanceIdentifier<S> routesIId = routesIId();
         final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService

@@ -80,9 +80,9 @@ public final class SimpleNlriTypeRegistry {
         requireNonNull(byteAggregator);
         final ObjectType objectType = nlri.getObjectType();
         final NlriTypeCaseSerializer serializer = this.nlriRegistry
-                .getSerializer((Class<? extends ObjectType>) objectType.getImplementedInterface());
+                .getSerializer((Class<? extends ObjectType>) objectType.implementedInterface());
         if (serializer == null) {
-            LOG.warn("Linkstate NLRI serializer for Type: {} was not found.", objectType.getImplementedInterface());
+            LOG.warn("Linkstate NLRI serializer for Type: {} was not found.", objectType.implementedInterface());
             return;
         }
         final ByteBuf nlriType = Unpooled.buffer();

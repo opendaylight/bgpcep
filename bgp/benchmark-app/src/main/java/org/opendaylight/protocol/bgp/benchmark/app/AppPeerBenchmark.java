@@ -102,7 +102,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderService rpcProviderRegistry,
             final String appRibId) {
         this.appRibId = requireNonNull(appRibId);
-        this.txChain = bindingDataBroker.createTransactionChain(this);
+        this.txChain = bindingDataBroker.createMergingTransactionChain(this);
 
         this.appIID = InstanceIdentifier.builder(ApplicationRib.class,
             new ApplicationRibKey(new ApplicationRibId(appRibId))).build();

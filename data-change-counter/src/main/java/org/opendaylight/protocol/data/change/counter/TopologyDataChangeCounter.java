@@ -52,7 +52,7 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
 
     TopologyDataChangeCounter(final DataBroker dataBroker, final String counterId, final String topologyName) {
         this.dataBroker = dataBroker;
-        this.transactionChain = this.dataBroker.createTransactionChain(this);
+        this.transactionChain = this.dataBroker.createMergingTransactionChain(this);
         this.counterId = counterId;
         this.counterInstanceId = InstanceIdentifier.builder(DataChangeCounter.class)
                 .child(Counter.class, new CounterKey(this.counterId)).build();
@@ -109,7 +109,7 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
         LOG.warn("Transaction chain failure. Transaction: {}", transaction, cause);
         if (!closed.get()) {
             this.transactionChain.close();
-            this.transactionChain = dataBroker.createTransactionChain(this);
+            this.transactionChain = dataBroker.createMergingTransactionChain(this);
         }
     }
 

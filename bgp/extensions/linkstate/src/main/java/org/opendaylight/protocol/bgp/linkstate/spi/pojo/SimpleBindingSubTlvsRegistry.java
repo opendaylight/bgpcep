@@ -49,7 +49,7 @@ public final class SimpleBindingSubTlvsRegistry {
         for (final BindingSubTlvs subTlv : bindingSubTlvs) {
             final BindingSubTlv bindingSubTlv = subTlv.getBindingSubTlv();
             final BindingSubTlvsSerializer serializer = this.handlers.getSerializer(
-                bindingSubTlv.getImplementedInterface());
+                bindingSubTlv.implementedInterface());
             if (serializer == null) {
                 LOG.info("Unknown binding sub Tlv type {}", subTlv);
                 return;

@@ -81,7 +81,7 @@ public final class SimpleObjectRegistry implements ObjectRegistry {
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        final ObjectSerializer serializer = this.handlers.getSerializer(object.getImplementedInterface());
+        final ObjectSerializer serializer = this.handlers.getSerializer(object.implementedInterface());
         if (serializer == null) {
             return;
         }

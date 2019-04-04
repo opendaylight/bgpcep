@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
+import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -54,7 +55,7 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
         S extends ChildOf<? super C> & MvpnRoutes> extends AbstractRIBSupport<C, S, MvpnRoute, MvpnRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMvpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesList;
-    private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
+    private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -83,7 +84,7 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
     }
 
     @Override
-    public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+    public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
         return this.cacheableNlriObjects;
     }
 
