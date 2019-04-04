@@ -98,7 +98,7 @@ public class SimpleRegistryTest {
     public void testSimpleParameter() throws Exception {
         final ParameterRegistry paramReg = this.ctx.getParameterRegistry();
         final BgpParameters param = mock(BgpParameters.class);
-        Mockito.doReturn(BgpParameters.class).when(param).getImplementedInterface();
+        Mockito.doReturn(BgpParameters.class).when(param).implementedInterface();
         final byte[] paramBytes = {
             0x00, 0x00
         };
@@ -128,7 +128,7 @@ public class SimpleRegistryTest {
         };
 
         final BgpPrefixSidTlv tlv = mock(BgpPrefixSidTlv.class);
-        doReturn(BgpPrefixSidTlv.class).when(tlv).getImplementedInterface();
+        doReturn(BgpPrefixSidTlv.class).when(tlv).implementedInterface();
 
         final ByteBuf buffer = Unpooled.buffer(tlvBytes.length);
         sidTlvReg.serializeBgpPrefixSidTlv(tlv, buffer);
@@ -151,7 +151,7 @@ public class SimpleRegistryTest {
             (byte) 0x00, (byte) 0x13, (byte) 0x00
         };
         final Notification msg = mock(Notification.class);
-        doReturn(Notification.class).when(msg).getImplementedInterface();
+        doReturn(Notification.class).when(msg).implementedInterface();
 
         final ByteBuf buffer = Unpooled.buffer(msgBytes.length);
         msgRegistry.serializeMessage(msg, buffer);
