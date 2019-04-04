@@ -81,7 +81,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -375,17 +374,12 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
-        final DataTreeCandidateNode myRoutes = routes.getModifiedChild(this.routesContainerIdentifier);
-        if (myRoutes == null) {
-            return Collections.emptySet();
-        }
-        final DataTreeCandidateNode routesMap = myRoutes.getModifiedChild(routeNid());
-        if (routesMap == null) {
-            return Collections.emptySet();
-        }
-        // Well, given the remote possibility of augmentation, we should perform a filter here,
-        // to make sure the type matches what routeType() reports.
-        return routesMap.getChildNodes();
+        return routes.getModifiedChild(this.routesContainerIdentifier)
+            .flatMap(myRoutes -> myRoutes.getModifiedChild(routeNid()))
+            // Well, given the remote possibility of augmentation, we should perform a filter here,
+            // to make sure the type matches what routeType() reports.
+            .map(DataTreeCandidateNode::getChildNodes)
+            .orElse(Collections.emptySet());
     }
 
     @Override
@@ -500,7 +494,7 @@ public abstract class AbstractRIBSupport<
 
             route.getValue().forEach(b::withChild);
             // Add attributes
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb =
+            final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> cb =
                     Builders.containerBuilder(attributes);
             cb.withNodeIdentifier(routeAttributesIdentifier());
             b.withChild(cb.build());
