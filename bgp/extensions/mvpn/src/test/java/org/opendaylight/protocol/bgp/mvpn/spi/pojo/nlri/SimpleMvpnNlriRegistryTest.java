@@ -18,7 +18,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.mvpn.impl.NlriActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class SimpleMvpnNlriRegistryTest {
     @Before
@@ -40,7 +39,7 @@ public final class SimpleMvpnNlriRegistryTest {
 
     private class NotRegistered implements MvpnChoice {
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<NotRegistered> implementedInterface() {
             return NotRegistered.class;
         }
     }
