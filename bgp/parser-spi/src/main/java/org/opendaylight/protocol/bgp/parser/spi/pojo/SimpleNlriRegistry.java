@@ -178,7 +178,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
         final CNextHop cNextHop = mpReachNlri.getCNextHop();
         if (cNextHop != null) {
             final Entry<Class<? extends CNextHop>, BgpTableType> key = new SimpleEntry(
-                    cNextHop.getImplementedInterface(), new BgpTableTypeImpl(afi, safi));
+                    cNextHop.implementedInterface(), new BgpTableTypeImpl(afi, safi));
             final NextHopParserSerializer nextHopSerializer = this.nextHopSerializers.get(key);
             final ByteBuf nextHopBuffer = Unpooled.buffer();
             nextHopSerializer.serializeNextHop(cNextHop, nextHopBuffer);

@@ -60,7 +60,7 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunities extendedCommunity, final ByteBuf byteAggregator) {
         final ExtendedCommunitySerializer serializer = this.handlers.getSerializer(extendedCommunity
-            .getExtendedCommunity().getImplementedInterface());
+            .getExtendedCommunity().implementedInterface());
         if (serializer == null) {
             return;
         }

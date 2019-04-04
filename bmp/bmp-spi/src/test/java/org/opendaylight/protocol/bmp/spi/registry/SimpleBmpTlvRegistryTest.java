@@ -24,7 +24,6 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.Tlv;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleBmpTlvRegistryTest {
 
@@ -81,7 +80,7 @@ public class SimpleBmpTlvRegistryTest {
 
     private final class MockDescriptionTlv implements Tlv {
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<MockDescriptionTlv> implementedInterface() {
             return MockDescriptionTlv.class;
         }
     }
@@ -89,7 +88,7 @@ public class SimpleBmpTlvRegistryTest {
     private final class MockTlv implements Tlv {
 
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<MockTlv> implementedInterface() {
             return MockTlv.class;
         }
 

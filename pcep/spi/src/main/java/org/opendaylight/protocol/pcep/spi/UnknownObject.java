@@ -52,7 +52,7 @@ public final class UnknownObject implements Object {
     }
 
     @Override
-    public Class<? extends DataContainer> getImplementedInterface() {
+    public Class<Object> implementedInterface() {
         return Object.class;
     }
 
