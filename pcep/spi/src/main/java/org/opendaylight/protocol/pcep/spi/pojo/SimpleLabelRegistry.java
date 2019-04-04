@@ -46,7 +46,7 @@ public class SimpleLabelRegistry implements LabelRegistry {
     @Override
     public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType label,
             final ByteBuf buffer) {
-        final LabelSerializer serializer = this.handlers.getSerializer(label.getImplementedInterface());
+        final LabelSerializer serializer = this.handlers.getSerializer(label.implementedInterface());
         if (serializer != null) {
             serializer.serializeLabel(unidirectional, global, label, buffer);
         }

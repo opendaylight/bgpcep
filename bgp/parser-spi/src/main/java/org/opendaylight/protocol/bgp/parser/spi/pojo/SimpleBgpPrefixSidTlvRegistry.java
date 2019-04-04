@@ -51,7 +51,7 @@ public final class SimpleBgpPrefixSidTlvRegistry implements BgpPrefixSidTlvRegis
 
     @Override
     public void serializeBgpPrefixSidTlv(final BgpPrefixSidTlv tlv, final ByteBuf bytes) {
-        final BgpPrefixSidTlvSerializer serializer = this.handlers.getSerializer(tlv.getImplementedInterface());
+        final BgpPrefixSidTlvSerializer serializer = this.handlers.getSerializer(tlv.implementedInterface());
         if (serializer == null) {
             return;
         }

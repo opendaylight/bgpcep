@@ -22,7 +22,6 @@ import org.opendaylight.protocol.bgp.evpn.impl.esi.types.RouterIdParserTest;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.EvpnRoute;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -34,7 +33,7 @@ public class SimpleEsiTypeRegistryTest {
 
     private class NotRegistered implements Esi {
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<NotRegistered> implementedInterface() {
             return NotRegistered.class;
         }
     }

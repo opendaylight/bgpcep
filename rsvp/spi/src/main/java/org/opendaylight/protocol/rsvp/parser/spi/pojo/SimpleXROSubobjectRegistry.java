@@ -49,7 +49,7 @@ public class SimpleXROSubobjectRegistry implements XROSubobjectRegistry {
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
         final XROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType()
-            .getImplementedInterface());
+            .implementedInterface());
         if (serializer == null) {
             return;
         }
