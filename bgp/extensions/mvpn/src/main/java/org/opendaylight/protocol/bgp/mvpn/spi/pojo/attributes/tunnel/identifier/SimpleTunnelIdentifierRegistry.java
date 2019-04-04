@@ -42,7 +42,7 @@ public final class SimpleTunnelIdentifierRegistry {
 
     public int serialize(final TunnelIdentifier tunnel, final ByteBuf tunnelBuffer) {
         if (tunnel == null) {
-            LOG.debug("Skipping serialization of PMSI Tunnel Attribute {}");
+            LOG.debug("Skipping serialization of null PMSI Tunnel Attribute");
             return NO_TUNNEL_INFORMATION_PRESENT;
         }
         final TunnelIdentifierSerializer serializer = this.handlers.getSerializer(tunnel.getImplementedInterface());

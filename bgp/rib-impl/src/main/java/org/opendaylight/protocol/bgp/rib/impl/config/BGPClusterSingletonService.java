@@ -139,7 +139,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.warn("Failed removing peers {}", throwable);
+                LOG.warn("Failed removing peers", throwable);
             }
         }, MoreExecutors.directExecutor());
         return done;
