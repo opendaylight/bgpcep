@@ -12,7 +12,7 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
@@ -108,13 +108,13 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
         this.subTree = Mockito.mock(DataTreeCandidateNode.class);
         final DataTreeCandidateNode emptyNode = Mockito.mock(DataTreeCandidateNode.class);
         final DataTreeCandidateNode node = Mockito.mock(DataTreeCandidateNode.class);
-        doReturn(null).when(this.emptyTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
+        doReturn(Optional.empty()).when(this.emptyTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
 
-        doReturn(emptyNode).when(this.emptySubTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
-        doReturn(null).when(emptyNode).getModifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
+        doReturn(Optional.of(emptyNode)).when(this.emptySubTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
+        doReturn(Optional.empty()).when(emptyNode).getModifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
 
-        doReturn(node).when(this.subTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
-        doReturn(node).when(node).getModifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
+        doReturn(Optional.of(node)).when(this.subTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
+        doReturn(Optional.of(node)).when(node).getModifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
         final Collection<DataTreeCandidateNode> emptyCollection = new HashSet<>();
         doReturn(emptyCollection).when(node).getChildNodes();
 
