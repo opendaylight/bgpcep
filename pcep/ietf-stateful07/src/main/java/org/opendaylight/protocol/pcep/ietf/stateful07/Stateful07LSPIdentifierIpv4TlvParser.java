@@ -64,7 +64,7 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
         final LspIdentifiers lsp = (LspIdentifiers) tlv;
         final AddressFamily afi = lsp.getAddressFamily();
         final ByteBuf body = Unpooled.buffer();
-        if (afi.getImplementedInterface().equals(Ipv6Case.class)) {
+        if (afi.implementedInterface().equals(Ipv6Case.class)) {
             new Stateful07LSPIdentifierIpv6TlvParser().serializeTlv(tlv, buffer);
         }
         final Ipv4 ipv4 = ((Ipv4Case) afi).getIpv4();

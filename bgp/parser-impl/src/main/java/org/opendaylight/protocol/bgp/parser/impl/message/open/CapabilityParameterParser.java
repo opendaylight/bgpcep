@@ -93,7 +93,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
             final CParameters cap = optionalCapa.getCParameters();
             final ByteBuf bytes = Unpooled.buffer();
             this.reg.serializeCapability(cap, bytes);
-            Preconditions.checkArgument(bytes != null, "Unhandled capability class %s", cap.getImplementedInterface());
+            Preconditions.checkArgument(bytes != null, "Unhandled capability class %s", cap.implementedInterface());
 
             if (LOG.isTraceEnabled()) {
                 LOG.trace("BGP capability serialized to: {}", ByteBufUtil.hexDump(bytes));

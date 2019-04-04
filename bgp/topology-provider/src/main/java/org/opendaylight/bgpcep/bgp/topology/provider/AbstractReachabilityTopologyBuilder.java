@@ -83,7 +83,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
             return new NodeId(ipv6.getGlobal().getValue());
         } else {
-            LOG.warn("Unhandled next hop class {}", nh.getImplementedInterface());
+            LOG.warn("Unhandled next hop class {}", nh.implementedInterface());
             return null;
         }
     }
