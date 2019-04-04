@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeSchemaAwareBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
 
@@ -47,7 +47,7 @@ public final class EvpnTestUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> createContBuilder(
+    public static DataContainerNodeBuilder<NodeIdentifier, ContainerNode> createContBuilder(
             final NodeIdentifier nid) {
         return ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(nid);
     }
