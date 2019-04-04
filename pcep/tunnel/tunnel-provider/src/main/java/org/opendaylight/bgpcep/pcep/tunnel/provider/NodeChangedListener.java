@@ -252,7 +252,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             srcIp = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
             dstIp = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
         } else {
-            throw new IllegalArgumentException("Unsupported address family: " + af.getImplementedInterface());
+            throw new IllegalArgumentException("Unsupported address family: " + af.implementedInterface());
         }
 
         final Path path0 = value.getPath().get(0);

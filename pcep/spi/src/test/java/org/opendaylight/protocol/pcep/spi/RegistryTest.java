@@ -134,7 +134,7 @@ public class RegistryTest {
 
         doReturn(this.es).when(this.viTlv).getEnterpriseSpecificInformation();
 
-        doReturn(EnterpriseSpecificInformation.class).when(this.es).getImplementedInterface();
+        doReturn(EnterpriseSpecificInformation.class).when(this.es).implementedInterface();
     }
 
     @Test

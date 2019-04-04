@@ -45,7 +45,7 @@ public final class SimpleTlvRegistry implements TlvRegistry {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        final TlvSerializer serializer = this.handlers.getSerializer(tlv.getImplementedInterface());
+        final TlvSerializer serializer = this.handlers.getSerializer(tlv.implementedInterface());
         if (serializer == null) {
             return;
         }

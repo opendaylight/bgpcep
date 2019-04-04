@@ -49,7 +49,7 @@ public final class SimpleEROSubobjectRegistry implements EROSubobjectRegistry {
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         final EROSubobjectSerializer serializer = this.handlers.getSerializer(
-            subobject.getSubobjectType().getImplementedInterface());
+            subobject.getSubobjectType().implementedInterface());
         if (serializer == null) {
             return;
         }

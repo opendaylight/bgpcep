@@ -31,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.OspfAdjFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.SidLabelIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class SrLinkAttributesParser {
 
@@ -103,7 +102,7 @@ public final class SrLinkAttributesParser {
         }
         return new EpeAdjSidTlv() {
             @Override
-            public Class<? extends DataContainer> getImplementedInterface() {
+            public Class<EpeAdjSidTlv> implementedInterface() {
                 return EpeAdjSidTlv.class;
             }
 

@@ -52,7 +52,7 @@ public final class SimpleRSVPObjectRegistry implements RSVPTeObjectRegistry {
         if (parameter == null) {
             return;
         }
-        final RSVPTeObjectSerializer serializer = this.serializerHandler.get(parameter.getImplementedInterface());
+        final RSVPTeObjectSerializer serializer = this.serializerHandler.get(parameter.implementedInterface());
         if (serializer == null) {
             return;
         }
