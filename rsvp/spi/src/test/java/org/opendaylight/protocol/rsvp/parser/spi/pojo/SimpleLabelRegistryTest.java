@@ -25,7 +25,6 @@ import org.opendaylight.protocol.rsvp.parser.spi.LabelParser;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleLabelRegistryTest {
     private final short ctype = 1;
@@ -92,14 +91,14 @@ public class SimpleLabelRegistryTest {
 
     private final class MockLabelClass implements LabelType {
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<? extends LabelType> implementedInterface() {
             return MockLabelClass.class;
         }
     }
 
     private final class MockLabel implements LabelType {
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<? extends LabelType> implementedInterface() {
             return MockLabel.class;
         }
     }

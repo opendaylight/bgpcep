@@ -10,7 +10,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"
-               odl:type="pingpong"/>
+               odl:type="default"/>
     <odl:clustered-app-config id="pcepStatsConfig"
         binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev171113.PcepProvider"/>
 

@@ -48,7 +48,7 @@ public class SimpleVendorInformationTlvRegistry implements VendorInformationTlvR
     @Override
     public void serializeVendorInformationTlv(final VendorInformationTlv viTlv, final ByteBuf buffer) {
         final TlvSerializer serializer = this.handlers.getSerializer(
-            viTlv.getEnterpriseSpecificInformation().getImplementedInterface());
+            viTlv.getEnterpriseSpecificInformation().implementedInterface());
         if (serializer == null) {
             return;
         }

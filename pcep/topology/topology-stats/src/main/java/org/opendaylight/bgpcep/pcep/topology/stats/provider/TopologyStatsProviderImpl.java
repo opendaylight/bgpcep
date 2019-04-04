@@ -62,7 +62,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
 
     public synchronized void init() {
         LOG.info("Initializing TopologyStatsProvider service.");
-        this.transactionChain = this.dataBroker.createTransactionChain(this);
+        this.transactionChain = this.dataBroker.createMergingTransactionChain(this);
         final TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -127,7 +127,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
 
         if (!closed.get()) {
             transactionChain.close();
-            transactionChain = dataBroker.createTransactionChain(this);
+            transactionChain = dataBroker.createMergingTransactionChain(this);
         }
     }
 

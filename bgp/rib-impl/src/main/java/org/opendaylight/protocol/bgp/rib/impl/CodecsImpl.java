@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import java.util.Set;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeNode;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeCachingCodec;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ExtendedCommunity;
+import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -84,7 +85,7 @@ public final class CodecsImpl implements Codecs {
         ATTRIBUTE_CACHEABLES = acb.build();
     }
 
-    private final ImmutableSet<Class<? extends DataObject>> cacheableAttributes;
+    private final ImmutableSet<Class<? extends BindingObject>> cacheableAttributes;
     private BindingNormalizedNodeCachingCodec<Attributes> attributesCodec;
     private BindingNormalizedNodeCachingCodec<MpReachNlri> reachNlriCodec;
     private BindingNormalizedNodeCachingCodec<MpUnreachNlri> unreachNlriCodec;
@@ -93,7 +94,7 @@ public final class CodecsImpl implements Codecs {
 
     public CodecsImpl(final RIBSupport<?, ?, ?, ?> ribSupport) {
         this.ribSupport = requireNonNull(ribSupport);
-        final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
+        final Builder<Class<? extends BindingObject>> acb = ImmutableSet.builder();
         acb.addAll(ATTRIBUTE_CACHEABLES);
         acb.addAll(this.ribSupport.cacheableAttributeObjects());
         this.cacheableAttributes = acb.build();
@@ -104,8 +105,8 @@ public final class CodecsImpl implements Codecs {
     public void onCodecTreeUpdated(final BindingCodecTree tree) {
 
         @SuppressWarnings("rawtypes")
-        final BindingCodecTreeNode tableCodecContext = tree.getSubtreeCodec(TABLE_BASE_II);
-        final BindingCodecTreeNode<? extends Route> routeListCodec = tableCodecContext
+        final BindingDataObjectCodecTreeNode tableCodecContext = tree.getSubtreeCodec(TABLE_BASE_II);
+        final BindingDataObjectCodecTreeNode<? extends Route> routeListCodec = tableCodecContext
             .streamChild(Routes.class)
             .streamChild(this.ribSupport.routesCaseClass())
             .streamChild(this.ribSupport.routesContainerClass())
