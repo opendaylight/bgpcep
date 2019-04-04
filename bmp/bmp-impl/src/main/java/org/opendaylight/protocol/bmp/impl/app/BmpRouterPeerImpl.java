@@ -71,7 +71,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,7 +278,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private ContainerNode createPeerSessionUp(final PeerUp peerUp, final Timestamp timestamp) {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder = Builders.containerBuilder()
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> builder = Builders.containerBuilder()
                 .withNodeIdentifier(new NodeIdentifier(PeerSession.QNAME))
                 .withChild(ImmutableNodes.leafNode(PEER_LOCAL_ADDRESS_QNAME,
                         getStringIpAddress(peerUp.getLocalAddress())))
@@ -300,7 +300,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
     private MapEntryNode createPeerEntry(final PeerUpNotification peerUp) {
         final PeerHeader peerHeader = peerUp.getPeerHeader();
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder =
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder =
                 Builders.mapEntryBuilder()
                         .withNodeIdentifier(new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME,
                                 this.peerId.getValue()))
@@ -326,7 +326,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private static ContainerNode createStats(final Stat stat, final Timestamp timestamp) {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder =
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> builder =
                 Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Stats.QNAME));
         builder.withChild(ImmutableNodes.leafNode(PEER_STATS_TIMESTAMP_QNAME, timestamp.getValue()));
         final Tlvs tlvs = stat.getTlvs();
@@ -337,7 +337,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private static void statsForTlvs(final Tlvs tlvs,
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder) {
+            final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> builder) {
         if (tlvs.getRejectedPrefixesTlv() != null) {
             builder.withChild(ImmutableNodes.leafNode(STAT0_QNAME,
                     tlvs.getRejectedPrefixesTlv().getCount().getValue()));
@@ -408,7 +408,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private static ContainerNode createMirrors(final Mirror mirror, final Timestamp timestamp) {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder =
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> builder =
                 Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Mirrors.QNAME));
         builder.withChild(ImmutableNodes.leafNode(PEER_MIRROR_INFORMATION_QNAME, toDom(MirrorInformationCode.forValue(
                 mirror.getTlvs().getMirrorInformationTlv().getCode().getIntValue()))));
