@@ -342,7 +342,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
             final Optional<Nanotime> deadline, final String... dependencyIds) {
         final SubmitInstructionInput mockedSubmitInstruction = mock(SubmitInstructionInput.class);
 
-        doReturn(PcepUpdateTunnelInput.class).when(mockedSubmitInstruction).getImplementedInterface();
+        doReturn(PcepUpdateTunnelInput.class).when(mockedSubmitInstruction).implementedInterface();
         final List<InstructionId> dependencies = new ArrayList<>();
         for (final String dependencyId : dependencyIds) {
             dependencies.add(new InstructionId(dependencyId));

@@ -21,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.operation.result.Error;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.operation.result.ErrorBuilder;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 final class OperationResults implements OperationResult {
     static final OperationResults NOACK = new OperationResults(FailureType.NoAck);
@@ -78,7 +77,7 @@ final class OperationResults implements OperationResult {
     }
 
     @Override
-    public Class<? extends DataContainer> getImplementedInterface() {
+    public Class<OperationResult> implementedInterface() {
         return OperationResult.class;
     }
 }
