@@ -34,7 +34,7 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
 
     @Override
     protected void serializeMessageImpl(final Notification message, final ByteBuf buffer) {
-        final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
+        final MessageSerializer serializer = this.handlers.getSerializer(message.implementedInterface());
         if (serializer == null) {
             return;
         }

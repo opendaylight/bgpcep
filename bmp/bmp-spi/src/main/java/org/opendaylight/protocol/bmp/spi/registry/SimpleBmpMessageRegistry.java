@@ -56,7 +56,7 @@ public class SimpleBmpMessageRegistry implements BmpMessageRegistry {
 
     @Override
     public void serializeMessage(final Notification message, final ByteBuf buffer)  {
-        final BmpMessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
+        final BmpMessageSerializer serializer = this.handlers.getSerializer(message.implementedInterface());
         if (serializer == null) {
             LOG.warn("BMP serializer for message type {} is not registered.", message.getClass());
             return;

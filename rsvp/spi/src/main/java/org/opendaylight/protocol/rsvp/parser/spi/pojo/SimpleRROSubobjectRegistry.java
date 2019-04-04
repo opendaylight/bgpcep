@@ -48,7 +48,7 @@ public final class SimpleRROSubobjectRegistry implements RROSubobjectRegistry {
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
         final RROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType()
-            .getImplementedInterface());
+            .implementedInterface());
         if (serializer == null) {
             return;
         }

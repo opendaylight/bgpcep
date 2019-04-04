@@ -15,7 +15,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.ErrorsBuilder;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 /**
  * Placeholder object. This object should be injected by in positions where an object is either completely unknown or
@@ -52,7 +51,7 @@ public final class UnknownObject implements Object {
     }
 
     @Override
-    public Class<? extends DataContainer> getImplementedInterface() {
+    public Class<Object> implementedInterface() {
         return Object.class;
     }
 

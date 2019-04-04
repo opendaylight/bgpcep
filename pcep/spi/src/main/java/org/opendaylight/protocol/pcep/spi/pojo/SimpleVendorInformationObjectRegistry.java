@@ -56,7 +56,7 @@ public class SimpleVendorInformationObjectRegistry implements VendorInformationO
     @Override
     public void serializeVendorInformationObject(final VendorInformationObject viObject, final ByteBuf buffer) {
         final ObjectSerializer serializer = this.handlers.getSerializer(
-            viObject.getEnterpriseSpecificInformation().getImplementedInterface());
+            viObject.getEnterpriseSpecificInformation().implementedInterface());
         if (serializer == null) {
             return;
         }

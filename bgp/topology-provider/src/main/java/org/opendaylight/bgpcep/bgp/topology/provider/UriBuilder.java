@@ -131,7 +131,7 @@ final class UriBuilder {
             return r.getOspfRouterId().toString() + ':' + r.getLanInterface().getValue();
         }
         LOG.warn("Unhandled router identifier type {}, fallback to toString()",
-                routerIdentifier.getImplementedInterface());
+                routerIdentifier.implementedInterface());
         return routerIdentifier.toString();
     }
 
