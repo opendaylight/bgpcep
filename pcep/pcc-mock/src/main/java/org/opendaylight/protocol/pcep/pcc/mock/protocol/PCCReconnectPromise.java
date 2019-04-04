@@ -96,7 +96,8 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
             synchronized (this.lock) {
                 if (PCCReconnectPromise.this.isCancelled()) {
                     if (cf.isSuccess()) {
-                        PCCReconnectPromise.LOG.debug("Closing channels for cancelled promise {}");
+                        PCCReconnectPromise.LOG.debug("Closing channels for cancelled promise {}",
+                                PCCReconnectPromise.this);
                         cf.channel().close();
                     }
                 } else if (cf.isSuccess()) {
