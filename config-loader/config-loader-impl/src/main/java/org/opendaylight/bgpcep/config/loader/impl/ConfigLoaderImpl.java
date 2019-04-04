@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -126,8 +125,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
                     .findDataSchemaNode(this.schemaContext, config.getSchemaPath());
             try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext, schemaNode)) {
                 xmlParser.parse(reader);
-            } catch (final URISyntaxException | XMLStreamException | IOException | ParserConfigurationException
-                    | SAXException e) {
+            } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
                 LOG.warn("Failed to parse xml", e);
             } finally {
                 reader.close();
