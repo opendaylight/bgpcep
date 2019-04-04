@@ -15,7 +15,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.DomainIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.identifier.CRouterIdentifier;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 
 abstract class AbstractNodeDescriptorTlvCodec {
@@ -28,7 +27,7 @@ abstract class AbstractNodeDescriptorTlvCodec {
 
         return new NodeIdentifier() {
             @Override
-            public Class<? extends DataContainer> getImplementedInterface() {
+            public Class<NodeIdentifier> implementedInterface() {
                 return NodeIdentifier.class;
             }
 

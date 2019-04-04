@@ -84,7 +84,7 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
 
     @Override
     public void serializeEsi(final Esi esi, final ByteBuf buffer) {
-        final EsiSerializer serializer = this.handlers.getSerializer(esi.getImplementedInterface());
+        final EsiSerializer serializer = this.handlers.getSerializer(esi.implementedInterface());
         if (serializer == null) {
             return;
         }

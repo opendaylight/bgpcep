@@ -70,7 +70,7 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
     @Before
     public void setUp() throws RSVPParsingException {
         Mockito.doReturn(this.parsedRsvpTeObj).when(this.rsvpTeParser).parseObject(Mockito.any(ByteBuf.class));
-        Mockito.doReturn(RsvpTeObject.class).when(this.parsedRsvpTeObj).getImplementedInterface();
+        Mockito.doReturn(RsvpTeObject.class).when(this.parsedRsvpTeObj).implementedInterface();
         Mockito.doReturn("parsedRsvpTeObj").when(this.parsedRsvpTeObj).toString();
         Mockito.doNothing().when(this.rsvpTeSerializer).serializeObject(Mockito.any(RsvpTeObject.class),
             Mockito.any(ByteBuf.class));
@@ -79,7 +79,7 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
             Mockito.any(Boolean.class));
         Mockito.doReturn(this.subObjType).when(this.subObj).getSubobjectType();
         Mockito.doReturn("SubobjectContainer").when(this.subObj).toString();
-        Mockito.doReturn(SubobjectType.class).when(this.subObjType).getImplementedInterface();
+        Mockito.doReturn(SubobjectType.class).when(this.subObjType).implementedInterface();
         Mockito.doNothing().when(this.xroObjSerializer).serializeSubobject(Mockito.any(SubobjectContainer.class),
             Mockito.any(ByteBuf.class));
 
@@ -87,7 +87,7 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
         Mockito.doReturn(this.rroSubObjType).when(this.rroSubObj).getSubobjectType();
         Mockito.doReturn("SubobjectContainer").when(this.rroSubObj).toString();
         Mockito.doReturn(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route
-            .subobjects.SubobjectType.class).when(this.rroSubObjType).getImplementedInterface();
+            .subobjects.SubobjectType.class).when(this.rroSubObjType).implementedInterface();
         Mockito.doNothing().when(this.rroSerializer).serializeSubobject(Mockito.any(org.opendaylight.yang.gen.v1.urn
                 .opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer.class),
             Mockito.any(ByteBuf.class));
@@ -96,13 +96,13 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
             Mockito.any(Boolean.class));
         Mockito.doReturn(this.subObjType).when(this.eroSubObj).getSubobjectType();
         Mockito.doReturn("EROSubobjectContainer").when(this.eroSubObj).toString();
-        Mockito.doReturn(SubobjectType.class).when(this.subObjType).getImplementedInterface();
+        Mockito.doReturn(SubobjectType.class).when(this.subObjType).implementedInterface();
         Mockito.doNothing().when(this.eroSerializer).serializeSubobject(Mockito.any(org.opendaylight.yang.gen.v1.urn
             .opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainer.class),
             Mockito.any(ByteBuf.class));
 
         Mockito.doReturn(this.labelType).when(this.labelParser).parseLabel(Mockito.any(ByteBuf.class));
-        Mockito.doReturn(LabelType.class).when(this.labelType).getImplementedInterface();
+        Mockito.doReturn(LabelType.class).when(this.labelType).implementedInterface();
         Mockito.doReturn("LabelType").when(this.labelType).toString();
         Mockito.doNothing().when(this.labelSerializer).serializeLabel(Mockito.anyBoolean(), Mockito.anyBoolean(),
             Mockito.any(LabelType.class), Mockito.any(ByteBuf.class));

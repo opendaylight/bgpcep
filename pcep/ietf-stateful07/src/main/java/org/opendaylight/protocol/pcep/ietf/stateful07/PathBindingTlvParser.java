@@ -78,9 +78,9 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         Preconditions.checkArgument(bindingTypeValue != null,
             "Missing Binding Value in Path Bidning TLV: %s", pTlv);
         final ByteBuf body = Unpooled.buffer(MPLS_BINDING_LENGTH);
-        final PathBindingTlvCodec codec = BT_SERIALIZERS.get(bindingTypeValue.getImplementedInterface());
+        final PathBindingTlvCodec codec = BT_SERIALIZERS.get(bindingTypeValue.implementedInterface());
         Preconditions.checkArgument(codec != null,
-            "Unsupported Path Binding Type: %s", bindingTypeValue.getImplementedInterface());
+            "Unsupported Path Binding Type: %s", bindingTypeValue.implementedInterface());
         ByteBufWriteUtil.writeUnsignedShort(codec.getBindingType(), body);
         body.writeBytes(codec.serialize(bindingTypeValue));
 
