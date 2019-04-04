@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.route.target.constrain.advertized._case.DestinationRouteTargetConstrainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationRouteTargetConstrainWithdrawnCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -80,7 +81,7 @@ public final class RouteTargetConstrainRIBSupport
             new RouteTargetConstrainRoutesCaseBuilder().setRouteTargetConstrainRoutes(EMPTY_CONTAINER).build();
     private static final String ORIGIN_AS = "origin-as";
     private static RouteTargetConstrainRIBSupport SINGLETON;
-    private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects
+    private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects
             = ImmutableSet.of(RouteTargetConstrainRoutesCase.class);
     private final NodeIdentifier originAsNid;
 
@@ -112,7 +113,7 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
-    public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+    public ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
         return this.cacheableNlriObjects;
     }
 
@@ -232,7 +233,7 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
-    public List<RouteTargetConstrainRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<RouteTargetConstrainRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target
             .constrain.rev180618.bgp.rib.rib.peer.adj.rib.in.tables.routes.RouteTargetConstrainRoutesCase,
             "Unrecognized routes %s", routes);

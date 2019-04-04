@@ -48,7 +48,7 @@ final class SimpleParameterRegistry implements ParameterRegistry {
 
     @Override
     public void serializeParameter(final BgpParameters parameter, final ByteBuf bytes) {
-        final ParameterSerializer serializer = this.handlers.getSerializer(parameter.getImplementedInterface());
+        final ParameterSerializer serializer = this.handlers.getSerializer(parameter.implementedInterface());
         if (serializer == null) {
             return;
         }

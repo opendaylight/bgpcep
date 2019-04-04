@@ -18,7 +18,6 @@ import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class SimpleBmpMessageRegistryTest {
@@ -104,7 +103,7 @@ public class SimpleBmpMessageRegistryTest {
         }
 
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<BmpTestMessage> implementedInterface() {
             return BmpTestMessage.class;
         }
 

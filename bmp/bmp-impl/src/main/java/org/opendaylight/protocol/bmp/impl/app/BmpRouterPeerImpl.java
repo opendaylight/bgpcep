@@ -22,7 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeNode;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.impl.spi.BmpRouterPeer;
@@ -130,8 +130,8 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private final YangInstanceIdentifier peerYangIId;
     private final BmpRibInWriter prePolicyWriter;
     private final BmpRibInWriter postPolicyWriter;
-    private final BindingCodecTreeNode<SentOpen> sentOpenCodec;
-    private final BindingCodecTreeNode<ReceivedOpen> receivedOpenCodec;
+    private final BindingDataObjectCodecTreeNode<SentOpen> sentOpenCodec;
+    private final BindingDataObjectCodecTreeNode<ReceivedOpen> receivedOpenCodec;
     private boolean up = true;
 
     private BmpRouterPeerImpl(final DOMTransactionChain domTxChain, final YangInstanceIdentifier peersYangIId,

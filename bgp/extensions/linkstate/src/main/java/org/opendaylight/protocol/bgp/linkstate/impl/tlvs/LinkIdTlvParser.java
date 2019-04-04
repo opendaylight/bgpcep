@@ -11,7 +11,6 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkLrIdentifiers;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 
 public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<LinkLrIdentifiers>,
@@ -31,7 +30,7 @@ public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSer
         final long remoteId = value.readUnsignedInt();
         return new LinkLrIdentifiers() {
             @Override
-            public Class<? extends DataContainer> getImplementedInterface() {
+            public Class<LinkLrIdentifiers> implementedInterface() {
                 return LinkLrIdentifiers.class;
             }
 
