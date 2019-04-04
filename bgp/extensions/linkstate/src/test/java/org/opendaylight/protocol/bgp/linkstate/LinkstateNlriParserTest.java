@@ -83,7 +83,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUnkeyedListEntryNodeBuilder;
@@ -198,7 +197,7 @@ public class LinkstateNlriParserTest {
         assertArrayEquals(this.nodeNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
-        final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
+        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
                 ImmutableUnkeyedListEntryNodeBuilder.create();
         linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
 
@@ -215,7 +214,7 @@ public class LinkstateNlriParserTest {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> objectType = Builders.choiceBuilder();
         objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
 
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> nodeDescriptors = Builders.containerBuilder();
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> nodeDescriptors = Builders.containerBuilder();
         nodeDescriptors.withNodeIdentifier(LinkstateNlriParser.NODE_DESCRIPTORS_NID);
 
         final ImmutableLeafNodeBuilder<Long> asNumber = new ImmutableLeafNodeBuilder<>();
@@ -236,14 +235,14 @@ public class LinkstateNlriParserTest {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId = Builders.choiceBuilder();
         crouterId.withNodeIdentifier(C_ROUTER_ID_NID);
 
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
         isisNode.withNodeIdentifier(NodeNlriParser.ISIS_PSEUDONODE_NID);
 
         final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
         isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
         isoSystemID.withValue(new byte[]{0, 0, 0, 0, 0, (byte) 0x39});
 
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisPseudoRouter =
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> isisPseudoRouter =
                 Builders.containerBuilder();
         isisPseudoRouter.withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID);
         isisPseudoRouter.addChild(isoSystemID.build());
@@ -300,7 +299,7 @@ public class LinkstateNlriParserTest {
         assertArrayEquals(this.linkNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
-        final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
+        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
                 ImmutableUnkeyedListEntryNodeBuilder.create();
         linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
 
@@ -318,7 +317,7 @@ public class LinkstateNlriParserTest {
         objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
 
         // local node descriptors
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> localNodeDescriptors =
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> localNodeDescriptors =
                 Builders.containerBuilder();
         localNodeDescriptors.withNodeIdentifier(LinkstateNlriParser.LOCAL_NODE_DESCRIPTORS_NID);
 
@@ -335,7 +334,7 @@ public class LinkstateNlriParserTest {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId = Builders.choiceBuilder();
         crouterId.withNodeIdentifier(C_ROUTER_ID_NID);
 
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
         isisNode.withNodeIdentifier(NodeNlriParser.ISIS_NODE_NID);
 
         final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
@@ -358,7 +357,7 @@ public class LinkstateNlriParserTest {
         localNodeDescriptors.addChild(memberAsn.build());
 
         // remote descriptors
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> remoteNodeDescriptors =
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> remoteNodeDescriptors =
                 Builders.containerBuilder();
         remoteNodeDescriptors.withNodeIdentifier(LinkstateNlriParser.REMOTE_NODE_DESCRIPTORS_NID);
         remoteNodeDescriptors.addChild(asNumber.build());
@@ -367,7 +366,7 @@ public class LinkstateNlriParserTest {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId2 = Builders.choiceBuilder();
         crouterId2.withNodeIdentifier(C_ROUTER_ID_NID);
 
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> ospfNode = Builders.containerBuilder();
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> ospfNode = Builders.containerBuilder();
         ospfNode.withNodeIdentifier(NodeNlriParser.OSPF_NODE_NID);
 
         final ImmutableLeafNodeBuilder<Long> ospfRouterId = new ImmutableLeafNodeBuilder<>();
@@ -387,7 +386,7 @@ public class LinkstateNlriParserTest {
         remoteNodeDescriptors.addChild(memberAsnRemote.build());
 
         // link descritpors
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> linkDescriptors = Builders.containerBuilder();
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> linkDescriptors = Builders.containerBuilder();
         linkDescriptors.withNodeIdentifier(LinkstateNlriParser.LINK_DESCRIPTORS_NID);
 
         final ImmutableLeafNodeBuilder<Long> linkLocalIdentifier = new ImmutableLeafNodeBuilder<>();
@@ -453,7 +452,7 @@ public class LinkstateNlriParserTest {
         assertArrayEquals(this.prefixNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
-        final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
+        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
                 ImmutableUnkeyedListEntryNodeBuilder.create();
         linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
 
@@ -471,7 +470,7 @@ public class LinkstateNlriParserTest {
         objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
 
         // advertising node descriptors
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> advertisingNodeDescriptors =
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> advertisingNodeDescriptors =
                 Builders.containerBuilder();
         advertisingNodeDescriptors.withNodeIdentifier(LinkstateNlriParser.ADVERTISING_NODE_DESCRIPTORS_NID);
 
@@ -488,7 +487,7 @@ public class LinkstateNlriParserTest {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId = Builders.choiceBuilder();
         crouterId.withNodeIdentifier(C_ROUTER_ID_NID);
 
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
         isisNode.withNodeIdentifier(NodeNlriParser.ISIS_NODE_NID);
 
         final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
@@ -500,7 +499,7 @@ public class LinkstateNlriParserTest {
         advertisingNodeDescriptors.addChild(crouterId.build());
 
         // prefix descriptors
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> prefixDescriptors =
+        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> prefixDescriptors =
                 Builders.containerBuilder();
         prefixDescriptors.withNodeIdentifier(LinkstateNlriParser.PREFIX_DESCRIPTORS_NID);
         prefixDescriptors.addChild(asNumber.build());
@@ -546,7 +545,7 @@ public class LinkstateNlriParserTest {
         assertEquals(new Ipv4Address("4.3.2.1"), ((Ipv4Case) teCase.getAddressFamily()).getIpv4TunnelEndpointAddress());
 
         // test BI form
-        final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
+        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
                 ImmutableUnkeyedListEntryNodeBuilder.create();
         linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
 

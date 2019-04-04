@@ -43,7 +43,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUnkeyedListEntryNodeBuilder;
 
@@ -132,7 +131,7 @@ public class EvpnNlriParserTest {
 
     @Test
     public void testExtractEvpnDestination() {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
+        final DataContainerNodeBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
                 ImmutableUnkeyedListEntryNodeBuilder.create();
         evpnBI.withNodeIdentifier(EVPN_NID);
         evpnBI.withChild(createMACIpAdvChoice());
@@ -146,7 +145,7 @@ public class EvpnNlriParserTest {
 
     @Test
     public void testExtractRouteKey() {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
+        final DataContainerNodeBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
                 ImmutableUnkeyedListEntryNodeBuilder.create();
         evpnBI.withNodeIdentifier(EVPN_CHOICE_NID);
         evpnBI.withChild(createValueBuilder(RD_MODEL, RD_NID).build());
