@@ -94,7 +94,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         final TerminationPointType dpt = dp1.getIgpTerminationPointAttributes().getTerminationPointType();
 
         // The types have to match
-        Preconditions.checkArgument(spt.getImplementedInterface().equals(dpt.getImplementedInterface()));
+        Preconditions.checkArgument(spt.implementedInterface().equals(dpt.implementedInterface()));
 
         // And they have to actually be Ip
         final Ip sips = (Ip) spt;

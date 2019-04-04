@@ -30,7 +30,7 @@ public class SimpleBmpTlvRegistry implements BmpTlvRegistry {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        final BmpTlvSerializer serializer = this.handlers.getSerializer(tlv.getImplementedInterface());
+        final BmpTlvSerializer serializer = this.handlers.getSerializer(tlv.implementedInterface());
         if (serializer == null) {
             LOG.warn("BMP serializer for TLV type {} is not registered.", tlv.getClass());
             return;

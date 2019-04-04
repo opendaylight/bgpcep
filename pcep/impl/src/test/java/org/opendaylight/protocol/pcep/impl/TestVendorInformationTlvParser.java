@@ -13,7 +13,6 @@ import org.opendaylight.protocol.pcep.parser.tlv.AbstractVendorInformationTlvPar
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.EnterpriseSpecificInformation;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class TestVendorInformationTlvParser extends AbstractVendorInformationTlvParser {
 
@@ -50,7 +49,7 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
         }
 
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<TestEnterpriseSpecificInformation> implementedInterface() {
             return TestEnterpriseSpecificInformation.class;
         }
 

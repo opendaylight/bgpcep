@@ -30,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpNodeIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacencyBuilder;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public abstract class AbstractSrSubobjectParser   {
 
@@ -61,7 +60,7 @@ public abstract class AbstractSrSubobjectParser   {
         }
 
         @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
+        public Class<SrSubobject> implementedInterface() {
             return SrSubobject.class;
         }
 

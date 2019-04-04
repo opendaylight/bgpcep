@@ -70,7 +70,7 @@ public final class SimpleRouteTargetConstrainNlriRegistry implements RouteTargeC
     @SuppressWarnings("unchecked")
     public ByteBuf serializeRouteTargetConstrain(final RouteTargetConstrainChoice routeTarget) {
         final RouteTargetConstrainSerializer serializer
-                = this.handlers.getSerializer(routeTarget.getImplementedInterface());
+                = this.handlers.getSerializer(routeTarget.implementedInterface());
         if (serializer == null || serializer.getType() == null) {
             return Unpooled.buffer();
         }
