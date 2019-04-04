@@ -703,7 +703,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         }
 
         @Override
-        public ListenableFuture<OperationResult> apply(@Nonnull final Optional<ReportedLsp> rep) {
+        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
             if (rep.isPresent()) {
                 LOG.debug("Node {} already contains lsp {} at {}", this.input.getNode(), this.input.getName(),
                         this.lsp);
