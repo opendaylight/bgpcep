@@ -67,7 +67,7 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
 
     @Override
     public ByteBuf serializeEvpn(final EvpnChoice evpn, final ByteBuf common) {
-        final EvpnSerializer serializer = this.handlers.getSerializer(evpn.getImplementedInterface());
+        final EvpnSerializer serializer = this.handlers.getSerializer(evpn.implementedInterface());
         if (serializer == null) {
             return common;
         }

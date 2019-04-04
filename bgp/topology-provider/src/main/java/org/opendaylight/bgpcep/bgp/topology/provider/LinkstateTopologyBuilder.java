@@ -647,7 +647,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         } else if (t instanceof PrefixCase) {
             createPrefix(trans, base, value, (PrefixCase) t, value.getAttributes());
         } else {
-            LOG.debug(UNHANDLED_OBJECT_CLASS, t.getImplementedInterface());
+            LOG.debug(UNHANDLED_OBJECT_CLASS, t.implementedInterface());
         }
     }
 
@@ -669,7 +669,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         } else if (t instanceof PrefixCase) {
             removePrefix(trans, base, (PrefixCase) t);
         } else {
-            LOG.debug(UNHANDLED_OBJECT_CLASS, t.getImplementedInterface());
+            LOG.debug(UNHANDLED_OBJECT_CLASS, t.implementedInterface());
         }
     }
 
