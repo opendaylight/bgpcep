@@ -35,7 +35,7 @@ public final class BgpTableTypeImpl implements BgpTableType {
     }
 
     @Override
-    public Class<BgpTableType> getImplementedInterface() {
+    public Class<BgpTableType> implementedInterface() {
         return BgpTableType.class;
     }
 

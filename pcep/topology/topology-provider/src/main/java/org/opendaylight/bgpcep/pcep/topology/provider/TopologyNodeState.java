@@ -59,7 +59,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         Preconditions.checkArgument(holdStateNanos >= 0);
         this.nodeId = topology.child(Node.class, new NodeKey(id));
         this.holdStateNanos = holdStateNanos;
-        this.chain = broker.createTransactionChain(this);
+        this.chain = broker.createMergingTransactionChain(this);
     }
 
     @Nonnull
