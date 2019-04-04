@@ -72,7 +72,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public class FlowspecL3vpnIpv6NlriParserTest {
     private static final NodeIdentifier NEXT_HEADER_NID = new NodeIdentifier(NextHeaders.QNAME);
@@ -380,7 +380,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecFragments() {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
@@ -413,7 +413,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecNextHeaders() {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
@@ -458,7 +458,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecFlowLabels() {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
@@ -493,7 +493,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecDestPrefix() {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
@@ -514,7 +514,7 @@ public class FlowspecL3vpnIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecSourcePrefix() {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()

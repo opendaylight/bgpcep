@@ -325,8 +325,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             return;
         }
 
-        final DataTreeCandidateNode modifiedAttrs = table.getModifiedChild(ATTRIBUTES_NID);
-        if (modifiedAttrs != null) {
+        table.getModifiedChild(ATTRIBUTES_NID).ifPresent(modifiedAttrs -> {
             final YangInstanceIdentifier effAttrsPath = effectiveTablePath.node(ATTRIBUTES_NID);
             final Optional<NormalizedNode<?, ?>> optAttrsAfter = modifiedAttrs.getDataAfter();
             if (optAttrsAfter.isPresent()) {
@@ -335,10 +334,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             } else {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, effAttrsPath);
             }
-        }
+        });
 
-        final DataTreeCandidateNode modifiedRoutes = table.getModifiedChild(ROUTES_NID);
-        if (modifiedRoutes != null) {
+        table.getModifiedChild(ROUTES_NID).ifPresent(modifiedRoutes -> {
             final RIBSupport<?, ?, ?, ?> ribSupport = ribContext.getRibSupport();
             switch (modifiedRoutes.getModificationType()) {
                 case APPEARED:
@@ -365,7 +363,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                     LOG.warn("Ignoring modified routes {}", modifiedRoutes);
                     break;
             }
-        }
+        });
     }
 
     private void writeTable(final DOMDataWriteTransaction tx, final RIBSupportContext ribContext,
