@@ -12,7 +12,6 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.concurrent.Immutable;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
  * (http://www.ripe.net/data-tools/stats/ris/ris-raw-data) The parser detects BGP messages by searching for 16 FF bytes,
  * everything else before or after is ignored.
  */
-@Immutable
 public final class BinaryBGPDumpFileParser {
     private static final Logger LOG = LoggerFactory.getLogger(BinaryBGPDumpFileParser.class);
     private static final int MINIMAL_LENGTH = 19;

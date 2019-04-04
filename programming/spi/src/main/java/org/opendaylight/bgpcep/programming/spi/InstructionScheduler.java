@@ -8,7 +8,7 @@
 package org.opendaylight.bgpcep.programming.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 import org.opendaylight.yangtools.concepts.Identifiable;
@@ -30,6 +30,5 @@ public interface InstructionScheduler extends Identifiable<ServiceGroupIdentifie
      *
      * @return Instruction ID
      */
-    @Nonnull
-    String getInstructionID();
+    @NonNull String getInstructionID();
 }

@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.pcep.testtool;
 
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
@@ -21,7 +20,7 @@ public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherD
     private final KeyMapping keys = KeyMapping.getKeyMapping();
     private final SpeakerIdMapping speakerIds = SpeakerIdMapping.getSpeakerIdMap();
 
-    TestToolPCEPDispatcherDependencies(@Nonnull final InetSocketAddress address) {
+    TestToolPCEPDispatcherDependencies(final InetSocketAddress address) {
         this.address = address;
     }
 

@@ -183,35 +183,38 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         Mockito.doReturn(true).when(this.instruction).checkedExecutionStart();
         Mockito.doNothing().when(this.instruction).executionCompleted(InstructionStatus.Failed, null);
         Mockito.doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            final Runnable callback = invocation.getArgument(0);
             callback.run();
             return null;
         }).when(this.instructionFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
+        Mockito.doReturn(false).when(this.futureAddLspOutput).isCancelled();
         Mockito.doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            final Runnable callback = invocation.getArgument(0);
             callback.run();
             return null;
         }).when(this.futureAddLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
+        Mockito.doReturn(false).when(this.futureUpdateLspOutput).isCancelled();
         Mockito.doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            final Runnable callback = invocation.getArgument(0);
             callback.run();
             return null;
         }).when(this.futureUpdateLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
+        Mockito.doReturn(false).when(this.futureRemoveLspOutput).isCancelled();
         Mockito.doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
+            final Runnable callback = invocation.getArgument(0);
             callback.run();
             return null;
         }).when(this.futureRemoveLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doAnswer(invocation -> {
-            TunnelProgrammingTest.this.addLspInput = (AddLspInput) invocation.getArguments()[0];
+            TunnelProgrammingTest.this.addLspInput = invocation.getArgument(0);
             return TunnelProgrammingTest.this.futureAddLspOutput;
         }).when(this.topologyService).addLsp(Mockito.any(AddLspInput.class));
         Mockito.doAnswer(invocation -> {
-            TunnelProgrammingTest.this.updateLspInput = (UpdateLspInput) invocation.getArguments()[0];
+            TunnelProgrammingTest.this.updateLspInput = invocation.getArgument(0);
             return TunnelProgrammingTest.this.futureUpdateLspOutput;
         }).when(this.topologyService).updateLsp(Mockito.any(UpdateLspInput.class));
         Mockito.doAnswer(invocation -> {
-            TunnelProgrammingTest.this.removeLspInput = (RemoveLspInput) invocation.getArguments()[0];
+            TunnelProgrammingTest.this.removeLspInput = invocation.getArgument(0);
             return TunnelProgrammingTest.this.futureRemoveLspOutput;
         }).when(this.topologyService).removeLsp(Mockito.any(RemoveLspInput.class));
         Mockito.doReturn(this.instruction).when(this.instructionFuture).get();
@@ -230,7 +233,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void testTunnelProgramming() throws InterruptedException, ExecutionException {
-        final Bandwidth bwd = new Bandwidth(new byte[]{0x00, 0x00, 0x00, (byte) 0xff});
+        final Bandwidth bwd = new Bandwidth(new byte[] { 0x00, 0x00, 0x00, (byte) 0xff });
         final ClassType classType = new ClassType((short) 1);
         final String tunnelName = "create-tunnel";
         final NetworkTopologyRef topologyRef = new NetworkTopologyRef(TOPO_IID);
