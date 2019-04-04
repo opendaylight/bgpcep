@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Locale;
-import javax.annotation.concurrent.Immutable;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
  * Read text file, parse BGP messages. File can contain comments or other data. BGP messages are detected using 16 ff
  * marker. New lines and spaces are ignored.
  */
-@Immutable
 public final class HexDumpBGPFileParser {
     private static final int MINIMAL_LENGTH = 19;
     private static final Logger LOG = LoggerFactory.getLogger(HexDumpBGPFileParser.class);
