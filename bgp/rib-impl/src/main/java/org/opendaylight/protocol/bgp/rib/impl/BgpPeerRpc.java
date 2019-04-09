@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
@@ -89,17 +88,19 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     public ListenableFuture<RpcResult<RouteRefreshRequestOutput>> routeRefreshRequest(
             final RouteRefreshRequestInput input) {
         final ChannelFuture f = sendRRMessage(input);
-        if (f != null) {
-            return Futures.transform(JdkFutureAdapters.listenInPoolThread(f), input1 -> {
-                if (f.isSuccess()) {
-                    return RpcResultBuilder.success(new RouteRefreshRequestOutputBuilder().build()).build();
-                }
-                return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG)
-                        .build();
-            }, MoreExecutors.directExecutor());
+        if (f == null) {
+            return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC,
+                FAILURE_MSG + " due to unsupported address families.").buildFuture();
         }
-        return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC,
-            FAILURE_MSG + " due to unsupported address families.").buildFuture();
+
+        final SettableFuture<RpcResult<RouteRefreshRequestOutput>> ret = SettableFuture.create();
+        f.addListener(future -> {
+            ret.set(future.isSuccess()
+                ? RpcResultBuilder.success(new RouteRefreshRequestOutputBuilder().build()).build()
+                        : RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG)
+                        .build());
+        });
+        return ret;
     }
 
     private ChannelFuture sendRRMessage(final RouteRefreshRequestInput input) {
