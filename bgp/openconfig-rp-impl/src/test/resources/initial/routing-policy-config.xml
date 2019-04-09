@@ -36,12 +36,12 @@
     </policy-definitions>
     <defined-sets>
         <bgp-defined-sets xmlns="http://openconfig.net/yang/bgp-policy">
-            <roles-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                <role-sets>
+            <role-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                <role-set>
                     <role-set-name>ebgp-only</role-set-name>
                     <role>ebgp</role>
-                </role-sets>
-            </roles-sets>
+                </role-set>
+            </role-sets>
         </bgp-defined-sets>
         <prefix-sets>
             <prefix-set>
