@@ -38,6 +38,9 @@ final class PCEPTopologyProviderUtil {
 
     static KeyMapping contructKeys(@Nonnull final Topology topology) {
         final KeyMapping ret = KeyMapping.getKeyMapping();
+        if (topology.getNode() == null) {
+            return ret;
+        }
         topology.getNode().stream()
                 .filter(Objects::nonNull)
                 .filter(node -> node.augmentation(PcepNodeConfig.class) != null)
@@ -72,6 +75,9 @@ final class PCEPTopologyProviderUtil {
 
     static SpeakerIdMapping contructSpeakersId(final Topology topology) {
         final SpeakerIdMapping ret = SpeakerIdMapping.getSpeakerIdMap();
+        if (topology.getNode() == null) {
+            return ret;
+        }
         topology.getNode().stream()
                 .filter(Objects::nonNull)
                 .filter(node -> node.augmentation(PcepNodeConfig.class) != null)
