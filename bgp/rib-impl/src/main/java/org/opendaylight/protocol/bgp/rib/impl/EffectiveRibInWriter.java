@@ -109,7 +109,6 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             .xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder()
             .setCommunities(STALE_LLGR_COMMUNUTIES)
             .build();
-    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder().withNodeIdentifier(ROUTES_NID).build();
 
     private final RIBSupportContextRegistry registry;
     private final YangInstanceIdentifier peerIId;
@@ -330,8 +329,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 case APPEARED:
                 case WRITE:
                     deleteRoutesBefore(tx, ribSupport, effectiveTablePath, modifiedRoutes);
-                    // XXX: YANG Tools seems to have an issue stacking DELETE with child WRITE
-                    tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES_NID), EMPTY_ROUTES);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES_NID));
                     writeRoutesAfter(tx, ribSupport, effectiveTablePath, modifiedRoutes.getDataAfter());
                     break;
                 case DELETE:
