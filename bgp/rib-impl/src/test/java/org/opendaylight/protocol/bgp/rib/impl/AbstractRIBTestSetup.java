@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -44,14 +43,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.dom.codec.gen.impl.DataObjectSerializerGenerator;
-import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
 import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.mdsal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
-import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
@@ -144,14 +139,6 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return ctx;
     }
 
-    private static BindingCodecTreeFactory createCodecFactory(final ClassLoadingStrategy str, final SchemaContext ctx) {
-        final DataObjectSerializerGenerator generator = StreamWriterGenerator
-                .create(JavassistUtils.forClassPool(ClassPool.getDefault()));
-        final BindingNormalizedNodeCodecRegistry codec = new BindingNormalizedNodeCodecRegistry(generator);
-        codec.onBindingRuntimeContextUpdated(BindingRuntimeContext.create(str, ctx));
-        return codec;
-    }
-
     @Override
     @Before
     public void setUp() throws Exception {
@@ -163,7 +150,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
         final ModuleInfoBackedContext strategy = createClassLoadingStrategy();
         final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
-        this.codecFactory = createCodecFactory(strategy, schemaContext);
+        this.codecFactory = new BindingNormalizedNodeCodecRegistry(
+            BindingRuntimeContext.create(strategy, schemaContext));
         final List<BgpTableType> localTables = new ArrayList<>();
         localTables.add(new BgpTableTypeImpl(IPV4_AFI, SAFI));
         localTables.add(new BgpTableTypeImpl(IPV6_AFI, SAFI));
