@@ -425,13 +425,23 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
 
         final long ct = System.nanoTime();
-        long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
+        final long keepNanos = TimeUnit.SECONDS.toNanos(this.keepAlive);
+        long nextKeepalive = this.lastMessageSentAt + keepNanos;
 
         if (ct >= nextKeepalive) {
-            this.writeAndFlush(KEEP_ALIVE);
-            nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
+            final ChannelFuture future = this.writeAndFlush(KEEP_ALIVE);
+            LOG.debug("Enqueued session {} keepalive as {}", this, future);
+            nextKeepalive = ct + keepNanos;
+            if (LOG.isDebugEnabled()) {
+                future.addListener(compl -> LOG.debug("Session {} keepalive completed as {}", compl));
+            }
+        } else {
+            LOG.debug("Skipping keepalive on session {}", this);
         }
-        this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextKeepalive - ct, TimeUnit.NANOSECONDS);
+
+        final long nextNanos = nextKeepalive - ct;
+        LOG.debug("Scheduling next keepalive on {} in {} nanos", this, nextNanos);
+        this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextNanos, TimeUnit.NANOSECONDS);
     }
 
     @Override
