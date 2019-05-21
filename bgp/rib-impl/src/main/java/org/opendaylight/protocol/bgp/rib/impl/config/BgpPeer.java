@@ -67,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,8 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
     private final RpcProviderRegistry rpcRegistry;
+    @GuardedBy("this")
+    private ServiceRegistration<?> serviceRegistration;
     @GuardedBy("this")
     private Neighbor currentConfiguration;
     @GuardedBy("this")
@@ -147,8 +150,11 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
-    public void close() {
-        // No-op
+    public synchronized void close() {
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
     }
 
     @Override
@@ -199,6 +205,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             return null;
         }
         return this.bgpPeerSingletonService.getPeerState();
+    }
+
+    synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
     }
 
     synchronized void removePeer(final BGPPeerRegistry bgpPeerRegistry) {
