@@ -130,6 +130,10 @@
             <artifactId>jsr305</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
