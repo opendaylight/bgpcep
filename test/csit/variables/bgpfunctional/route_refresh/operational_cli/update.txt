@@ -2,7 +2,7 @@ Messages state         $DIVIDER
 ====================== $DIVIDER
 Messages Received      $DIVIDER
 NOTIFICATION           $DIVIDER $NOT_COUNT
-UPDATE                 $DIVIDER $UPD_COUNT
+UPDATE                 $DIVIDER $RECV_COUNT
 Messages Sent          $DIVIDER
 NOTIFICATION           $DIVIDER 0
-UPDATE                 $DIVIDER $RCV_COUNT
+UPDATE                 $DIVIDER $SEND_COUNT

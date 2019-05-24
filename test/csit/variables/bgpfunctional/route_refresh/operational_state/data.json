@@ -3,11 +3,11 @@
         "messages": {
             "received": {
                 "NOTIFICATION": $NOT_COUNT,
-                "UPDATE": $UPD_COUNT
+                "UPDATE": $RECV_COUNT
             },
             "sent": {
                 "NOTIFICATION": 0,
-                "UPDATE": $RCV_COUNT
+                "UPDATE": $SEND_COUNT
             }
         },
         "session-state": "ESTABLISHED",
