@@ -23,10 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 
 public final class MPReachAttributeParser extends ReachAttributeParser {
-
     public static final int TYPE = 14;
 
     private final NlriRegistry reg;
@@ -40,9 +38,9 @@ public final class MPReachAttributeParser extends ReachAttributeParser {
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException {
         try {
-            final MpReachNlri mpReachNlri = this.reg.parseMpReach(buffer, constraint);
-            final Attributes1 a = new Attributes1Builder().setMpReachNlri(mpReachNlri).build();
-            builder.addAugmentation(Attributes1.class, a);
+            builder.addAugmentation(Attributes1.class, new Attributes1Builder()
+                .setMpReachNlri(reg.parseMpReach(buffer, constraint))
+                .build());
         } catch (final BGPParsingException e) {
             throw new BGPDocumentedException("Could not parse MP_REACH_NLRI", BGPError.OPT_ATTR_ERROR, e);
         }
@@ -51,16 +49,14 @@ public final class MPReachAttributeParser extends ReachAttributeParser {
     @Override
     public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
-        if (pathAttributes1 == null) {
-            return;
-        }
-        final MpReachNlri mpReachNlri = pathAttributes1.getMpReachNlri();
-        final ByteBuf reachBuffer = Unpooled.buffer();
-        this.reg.serializeMpReach(mpReachNlri, reachBuffer);
+        if (pathAttributes1 != null) {
+            final ByteBuf reachBuffer = Unpooled.buffer();
+            reg.serializeMpReach(pathAttributes1.getMpReachNlri(), reachBuffer);
 
-        for (final NlriSerializer nlriSerializer : this.reg.getSerializers()) {
-            nlriSerializer.serializeAttribute(pathAttributes, reachBuffer);
+            for (final NlriSerializer nlriSerializer : reg.getSerializers()) {
+                nlriSerializer.serializeAttribute(pathAttributes, reachBuffer);
+            }
+            AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, reachBuffer, byteAggregator);
         }
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, reachBuffer, byteAggregator);
     }
 }

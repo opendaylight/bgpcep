@@ -78,10 +78,9 @@ public class AigpAttributeParser implements AttributeParser, AttributeSerializer
         if (tlv == null) {
             return Unpooled.EMPTY_BUFFER;
         }
-        final ByteBuf value = Unpooled.buffer(AIGP_TLV_SIZE);
-        value.writeByte(AIGP_TLV_TYPE);
-        value.writeShort(AIGP_TLV_SIZE);
-        value.writeLong(tlv.getMetric().getValue().longValue());
-        return value;
+        return Unpooled.buffer(AIGP_TLV_SIZE)
+                .writeByte(AIGP_TLV_TYPE)
+                .writeShort(AIGP_TLV_SIZE)
+                .writeLong(tlv.getMetric().getValue().longValue());
     }
 }
