@@ -22,13 +22,10 @@ abstract class AbstractEsiType implements EsiParser, EsiSerializer {
 
     @Override
     public final void serializeEsi(final Esi esi, final ByteBuf buffer) {
-        final ByteBuf body = Unpooled.buffer(BODY_LENGTH);
-        serializeBody(esi, body);
-        buffer.writeByte(getType().getIntValue());
-        buffer.writeBytes(body);
+        buffer.writeBytes(serializeBody(esi, Unpooled.buffer(BODY_LENGTH)).writeByte(getType().getIntValue()));
     }
 
-    protected abstract void serializeBody(Esi esi, ByteBuf buffer);
+    protected abstract ByteBuf serializeBody(Esi esi, ByteBuf buffer);
 
     protected abstract EsiType getType();
 }
