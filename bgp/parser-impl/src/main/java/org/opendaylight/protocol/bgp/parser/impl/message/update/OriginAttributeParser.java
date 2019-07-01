@@ -64,11 +64,10 @@ public final class OriginAttributeParser extends AbstractAttributeParser impleme
     @Override
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
         final Origin origin = attribute.getOrigin();
-        if (origin == null) {
-            return;
-        }
-        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE,
-                Unpooled.wrappedBuffer(new byte[]{UnsignedBytes.checkedCast(origin.getValue().getIntValue())}),
+        if (origin != null) {
+            AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE,
+                Unpooled.wrappedBuffer(new byte[]{ UnsignedBytes.checkedCast(origin.getValue().getIntValue()) }),
                 byteAggregator);
+        }
     }
 }

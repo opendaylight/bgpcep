@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
             return EMPTY;
         }
 
-        final ArrayList<Segments> ases = new ArrayList<>();
+        final List<Segments> ases = new ArrayList<>();
         boolean isSequence = false;
         for (int readable = buffer.readableBytes(); readable != 0; readable = buffer.readableBytes()) {
             if (readable < 2) {
@@ -134,7 +135,6 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
                 "AS_SEQUENCE must be present in AS_PATH attribute.");
         }
 
-        ases.trimToSize();
-        return new AsPathBuilder().setSegments(ases).build();
+        return new AsPathBuilder().setSegments(ImmutableList.copyOf(ases)).build();
     }
 }
