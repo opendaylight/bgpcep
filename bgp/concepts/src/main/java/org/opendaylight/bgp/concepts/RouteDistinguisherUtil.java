@@ -48,14 +48,14 @@ public final class RouteDistinguisherUtil {
         Preconditions.checkState(byteAggregator != null && byteAggregator.isWritable(RD_LENGTH),
                 "Cannot write Route Distinguisher to provided buffer.");
         if (distinguisher.getRdTwoOctetAs() != null) {
-            final String[] values = distinguisher.getRdTwoOctetAs().getValue().split(SEPARATOR);
             byteAggregator.writeShort(RDType.AS_2BYTE.value);
+            final String[] values = distinguisher.getRdTwoOctetAs().getValue().split(SEPARATOR);
             ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
             final long assignedNumber = Integer.parseUnsignedInt(values[2]);
             ByteBufWriteUtil.writeUnsignedInt(assignedNumber, byteAggregator);
         } else if (distinguisher.getRdAs() != null) {
-            final String[] values = distinguisher.getRdAs().getValue().split(SEPARATOR);
             byteAggregator.writeShort(RDType.AS_4BYTE.value);
+            final String[] values = distinguisher.getRdAs().getValue().split(SEPARATOR);
             final long admin = Integer.parseUnsignedInt(values[0]);
             ByteBufWriteUtil.writeUnsignedInt(admin, byteAggregator);
             ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
@@ -78,28 +78,30 @@ public final class RouteDistinguisherUtil {
                 "Cannot read Route Distinguisher from provided buffer.");
         final int type = buffer.readUnsignedShort();
         final RDType rdType = RDType.valueOf(type);
-        final StringBuilder routeDistiguisher = new StringBuilder();
         switch (rdType) {
             case AS_2BYTE:
-                routeDistiguisher.append(type);
-                routeDistiguisher.append(SEPARATOR);
-                routeDistiguisher.append(buffer.readUnsignedShort());
-                routeDistiguisher.append(SEPARATOR);
-                routeDistiguisher.append(buffer.readUnsignedInt());
-                return new RouteDistinguisher(new RdTwoOctetAs(routeDistiguisher.toString()));
+                return new RouteDistinguisher(new RdTwoOctetAs(new StringBuilder().append(type)
+                    .append(SEPARATOR)
+                    .append(buffer.readUnsignedShort())
+                    .append(SEPARATOR)
+                    .append(buffer.readUnsignedInt())
+                    .toString()));
             case IPV4:
-                routeDistiguisher.append(Ipv4Util.addressForByteBuf(buffer).getValue());
-                routeDistiguisher.append(SEPARATOR);
-                routeDistiguisher.append(buffer.readUnsignedShort());
-                return new RouteDistinguisher(new RdIpv4(routeDistiguisher.toString()));
+
+                return new RouteDistinguisher(new RdIpv4(new StringBuilder()
+                    .append(Ipv4Util.addressForByteBuf(buffer).getValue())
+                    .append(SEPARATOR)
+                    .append(buffer.readUnsignedShort()).toString()));
             case AS_4BYTE:
-                routeDistiguisher.append(buffer.readUnsignedInt());
-                routeDistiguisher.append(SEPARATOR);
-                routeDistiguisher.append(buffer.readUnsignedShort());
-                return new RouteDistinguisher(new RdAs(routeDistiguisher.toString()));
+                return new RouteDistinguisher(new RdAs(new StringBuilder()
+                    .append(buffer.readUnsignedInt())
+                    .append(SEPARATOR)
+                    .append(buffer.readUnsignedShort())
+                    .toString()));
             default:
                 // now that this RD type is not supported, we want to read the remain 6 bytes
                 // in order to get the byte index correct
+                final StringBuilder routeDistiguisher = new StringBuilder();
                 for (int i = 0; i < 6; i++) {
                     routeDistiguisher.append("0x").append(Integer.toHexString(buffer.readByte() & 0xFF)).append(" ");
                 }
