@@ -5,16 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.spi;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
+@NonNullByDefault
 public interface EvpnRegistry {
     /**
      * Decode input buffer to BGP Evpn.
@@ -23,7 +23,7 @@ public interface EvpnRegistry {
      * @param buffer encoded EvpnChoice body in Bytebuf
      * @return EvpnChoice
      */
-    @Nullable EvpnChoice parseEvpn(@Nonnull NlriType type, @Nonnull ByteBuf buffer);
+    @Nullable EvpnChoice parseEvpn(NlriType type, ByteBuf buffer);
 
     /**
      * Encode input BGP Evpn to output buffer.
@@ -32,7 +32,7 @@ public interface EvpnRegistry {
      * @param common encoded common Evpn
      * @return encoded EvpnChoice body in Bytebuf
      */
-    @Nonnull ByteBuf serializeEvpn(@Nonnull EvpnChoice evpn, @Nonnull ByteBuf common);
+    ByteBuf serializeEvpn(EvpnChoice evpn, ByteBuf common);
 
     /**
      * Decode Evpn Model to Evpn.
@@ -40,7 +40,7 @@ public interface EvpnRegistry {
      * @param evpnChoice ChoiceNode containing Evpn
      * @return EvpnChoice
      */
-    @Nullable EvpnChoice serializeEvpnModel(@Nonnull ChoiceNode evpnChoice);
+    @Nullable EvpnChoice serializeEvpnModel(ChoiceNode evpnChoice);
 
     /**
      * Create Route key from Evpn model.
@@ -48,5 +48,5 @@ public interface EvpnRegistry {
      * @param evpnChoice ChoiceNode containing Evpn
      * @return EvpnChoice
      */
-    @Nullable EvpnChoice serializeEvpnRouteKey(@Nonnull ChoiceNode evpnChoice);
+    @Nullable EvpnChoice serializeEvpnRouteKey(ChoiceNode evpnChoice);
 }

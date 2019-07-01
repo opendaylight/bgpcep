@@ -13,7 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.submit.instruction.output.result.FailureCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.submit.instruction.output.result.FailureCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.FailureType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.OperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public abstract class AbstractInstructionExecutor implements FutureCallback<Inst
 
     private final SubmitInstructionInput input;
 
-    protected AbstractInstructionExecutor(@Nonnull final SubmitInstructionInput input) {
+    protected AbstractInstructionExecutor(final @NonNull SubmitInstructionInput input) {
         this.input = requireNonNull(input);
     }
 
@@ -71,23 +72,26 @@ public abstract class AbstractInstructionExecutor implements FutureCallback<Inst
 
         private final Instruction insn;
 
-        InstructionCallback(@Nonnull final Instruction insn) {
+        InstructionCallback(final @NonNull Instruction insn) {
             this.insn = requireNonNull(insn);
         }
 
         @Override
         public void onSuccess(final OperationResult result) {
-            if (result != null && result.getFailure() != null) {
-                switch (result.getFailure()) {
-                    case Failed:
-                    case NoAck:
-                        this.insn.executionCompleted(InstructionStatus.Failed, null);
-                        break;
-                    case Unsent:
-                        this.insn.executionCompleted(InstructionStatus.Cancelled, null);
-                        break;
-                    default:
-                        break;
+            if (result != null) {
+                final FailureType failure = result.getFailure();
+                if (failure != null) {
+                    switch (failure) {
+                        case Failed:
+                        case NoAck:
+                            this.insn.executionCompleted(InstructionStatus.Failed, null);
+                            break;
+                        case Unsent:
+                            this.insn.executionCompleted(InstructionStatus.Cancelled, null);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             } else {
                 this.insn.executionCompleted(InstructionStatus.Successful, null);

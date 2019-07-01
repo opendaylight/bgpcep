@@ -114,9 +114,8 @@
             <artifactId>mdsal-binding-dom-codec</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <optional>true</optional>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
         </dependency>
         <!-- Test dependencies -->
         <dependency>

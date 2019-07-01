@@ -5,14 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3;
@@ -31,7 +30,7 @@ final class PCCSyncOptimization {
     private BigInteger lspDBVersion = BigInteger.ONE;
     private Boolean resynchronizing = Boolean.FALSE;
 
-    PCCSyncOptimization(@Nonnull final PCCSession session) {
+    PCCSyncOptimization(final @NonNull PCCSession session) {
         requireNonNull(session);
         final Tlvs remote = session.getRemoteTlvs();
         final Tlvs local = session.localSessionCharacteristics();

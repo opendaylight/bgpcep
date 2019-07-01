@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -35,14 +35,14 @@ public interface BGPPeerRegistry extends AutoCloseable {
      *
      * @param ip address of remote peer
      */
-    void removePeer(@Nonnull IpAddress ip);
+    void removePeer(@NonNull IpAddress ip);
 
     /**
      * Remove peer session from registry.
      *
      * @param ip address of remote peer
      */
-    void removePeerSession(@Nonnull IpAddress ip);
+    void removePeerSession(@NonNull IpAddress ip);
 
     /**
      * Check whether peer on provided IP address is present in this registry.
@@ -50,7 +50,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param ip address of remote peer
      * @return true if peer is present false otherwise
      */
-    boolean isPeerConfigured(@Nonnull IpAddress ip);
+    boolean isPeerConfigured(@NonNull IpAddress ip);
 
     /**
      * Get configured peer after BGP session was successfully established. Called by negotiators.
@@ -84,7 +84,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param listener The PeerRegistryListener to be registered.
      * @return Registration ticked, used for closing of registration.
      */
-    @Nonnull Registration registerPeerRegisterListener(@Nonnull PeerRegistryListener listener);
+    @NonNull Registration registerPeerRegisterListener(@NonNull PeerRegistryListener listener);
 
     /**
      * Register PeerRegistrySessionListener, which listens to the changes in sessions
@@ -94,7 +94,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param listener The PeerRegistrySessionListener to be registered.
      * @return Registration ticked, used for closing of registration.
      */
-    @Nonnull Registration registerPeerSessionListener(PeerRegistrySessionListener listener);
+    @NonNull Registration registerPeerSessionListener(PeerRegistrySessionListener listener);
 
     /**
      * Set new preferences. In case of graceful restart execution we need to send

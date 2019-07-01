@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectAsFourOctetEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectIpNextHopEcHandler;
@@ -53,7 +53,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     private final FlowspecActivator activator;
 
-    public BGPActivator(@Nonnull final FlowspecActivator activator) {
+    public BGPActivator(final @NonNull FlowspecActivator activator) {
         this.activator = requireNonNull(activator);
     }
 

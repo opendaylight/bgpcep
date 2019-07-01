@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
@@ -59,11 +59,10 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
      * @param object Object to be serialized, may be null
      * @param buffer ByteBuf where the object should be serialized
      */
-    protected void serializeObject(@Nullable final Object object, final ByteBuf buffer) {
-        if (object == null) {
-            return;
+    protected void serializeObject(final @Nullable Object object, final ByteBuf buffer) {
+        if (object != null) {
+            this.registry.serializeObject(object, buffer);
         }
-        this.registry.serializeObject(object, buffer);
     }
 
     private List<Object> parseObjects(final ByteBuf bytes) throws PCEPDeserializerException {

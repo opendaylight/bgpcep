@@ -26,7 +26,7 @@ import io.netty.util.concurrent.Future;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -48,7 +48,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     private final PCEPHandlerFactory factory;
     private final EventLoopGroup workerGroup;
 
-    public PCCDispatcherImpl(@Nonnull final MessageRegistry registry) {
+    public PCCDispatcherImpl(final @NonNull MessageRegistry registry) {
         if (Epoll.isAvailable()) {
             this.workerGroup = new EpollEventLoopGroup();
         } else {

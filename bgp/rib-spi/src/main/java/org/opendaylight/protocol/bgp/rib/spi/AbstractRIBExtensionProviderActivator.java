@@ -11,7 +11,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.Registration;
 
@@ -19,10 +20,9 @@ public abstract class AbstractRIBExtensionProviderActivator implements AutoClose
     @GuardedBy("this")
     private List<? extends Registration> registrations;
 
-    @GuardedBy("this")
+    @Holding("this")
     protected abstract List<? extends Registration> startRIBExtensionProviderImpl(
-            RIBExtensionProviderContext context,
-            BindingNormalizedNodeSerializer mappingService);
+            RIBExtensionProviderContext context, BindingNormalizedNodeSerializer mappingService);
 
     @Override
     public final synchronized void startRIBExtensionProvider(

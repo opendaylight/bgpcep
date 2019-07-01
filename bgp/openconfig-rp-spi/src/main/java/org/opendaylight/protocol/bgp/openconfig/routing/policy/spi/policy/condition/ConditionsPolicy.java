@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
@@ -30,12 +29,10 @@ public interface ConditionsPolicy<T, N> {
      * @param conditions                 configured conditions
      * @return true if all defined condition matches
      */
-    boolean matchImportCondition(
-            @Nonnull Class<? extends AfiSafiType> afiSafiType,
-            @Nonnull RouteEntryBaseAttributes routeEntryInfo,
-            @Nonnull BGPRouteEntryImportParameters routeEntryImportParameters,
-            @Nullable N attributes,
-            @Nonnull T conditions);
+    boolean matchImportCondition(@NonNull Class<? extends AfiSafiType> afiSafiType,
+            @NonNull RouteEntryBaseAttributes routeEntryInfo,
+            @NonNull BGPRouteEntryImportParameters routeEntryImportParameters,
+            @Nullable N attributes, @NonNull T conditions);
 
     /**
      * Check if route matches defined condition (Export Policy).
@@ -47,10 +44,9 @@ public interface ConditionsPolicy<T, N> {
      * @param conditions                 configured conditions
      * @return true if all defined condition matches
      */
-    boolean matchExportCondition(
-            @Nonnull Class<? extends AfiSafiType> afiSafiType,
-            @Nonnull RouteEntryBaseAttributes routeEntryInfo,
-            @Nonnull BGPRouteEntryExportParameters routeEntryExportParameters,
+    boolean matchExportCondition(@NonNull Class<? extends AfiSafiType> afiSafiType,
+            @NonNull RouteEntryBaseAttributes routeEntryInfo,
+            @NonNull BGPRouteEntryExportParameters routeEntryExportParameters,
             @Nullable N attributes,
             T conditions);
 
@@ -60,6 +56,5 @@ public interface ConditionsPolicy<T, N> {
      * @param attributes route attributes
      * @return specific attribute
      */
-    @Nullable
-    N getConditionParameter(@Nonnull Attributes attributes);
+    @Nullable N getConditionParameter(@NonNull Attributes attributes);
 }

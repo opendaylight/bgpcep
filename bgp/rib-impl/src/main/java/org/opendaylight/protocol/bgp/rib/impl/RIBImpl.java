@@ -25,9 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
@@ -85,7 +83,7 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ThreadSafe
+// This class is thread-safe
 public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionChainListener,
         SchemaContextListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
@@ -232,7 +230,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
         return this.bgpIdentifier;
     }
 
-    @Nonnull
     @Override
     public Set<? extends BgpTableType> getLocalTables() {
         return this.localTables;

@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -104,7 +103,7 @@ public abstract class AbstractRIBSupport<
     private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath = CacheBuilder.newBuilder()
             .weakValues().build(new CacheLoader<YangInstanceIdentifier, YangInstanceIdentifier>() {
                 @Override
-                public YangInstanceIdentifier load(@Nonnull final YangInstanceIdentifier routesTablePaths) {
+                public YangInstanceIdentifier load(final YangInstanceIdentifier routesTablePaths) {
                     return routesTablePaths.node(routesContainerIdentifier()).node(routeQName());
                 }
             });

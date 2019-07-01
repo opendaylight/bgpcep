@@ -21,13 +21,12 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ThreadSafe
+// This class is thread-safe
 public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends DefaultPromise<S> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPProtocolSessionPromise.class);
     private InetSocketAddress address;
@@ -99,7 +98,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
                     PCEPProtocolSessionPromise.LOG.debug("Promise {} connection successful",
                             PCEPProtocolSessionPromise.this);
                 } else {
-                    PCEPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed", 
+                    PCEPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed",
                             PCEPProtocolSessionPromise.this.address, cf.cause());
 
                     if (PCEPProtocolSessionPromise.this.retryTimer == 0) {
