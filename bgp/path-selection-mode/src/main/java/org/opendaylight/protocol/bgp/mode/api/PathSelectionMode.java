@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.mode.api;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -23,8 +23,7 @@ public interface PathSelectionMode extends AutoCloseable {
      *
      * @return ComplexRouteEntry if is complex otherwise a SimpleRouteEntry
      */
-    @Nonnull
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>
-            > RouteEntry<C, S, R, I> createRouteEntry();
+        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+            @NonNull RouteEntry<C, S, R, I> createRouteEntry();
 }

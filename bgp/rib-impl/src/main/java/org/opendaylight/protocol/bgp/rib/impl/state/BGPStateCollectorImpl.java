@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
@@ -19,7 +18,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
 
-@ThreadSafe
+// This class is thread-safe
 public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer {
     private final List<BGPRibStateConsumer> bgpRibStates = new CopyOnWriteArrayList<>();
     private final List<BGPPeerStateConsumer> bgpPeerStates = new CopyOnWriteArrayList<>();

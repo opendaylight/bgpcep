@@ -20,8 +20,8 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistrySessionListener;
@@ -47,8 +47,8 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
     private boolean connectSkipped;
 
 
-    public BGPProtocolSessionPromise(@Nonnull final InetSocketAddress remoteAddress, final int retryTimer,
-            @Nonnull final Bootstrap bootstrap, @Nonnull final BGPPeerRegistry peerRegistry) {
+    public BGPProtocolSessionPromise(final @NonNull InetSocketAddress remoteAddress, final int retryTimer,
+            final @NonNull Bootstrap bootstrap, final @NonNull BGPPeerRegistry peerRegistry) {
         super(GlobalEventExecutor.INSTANCE);
         this.address = requireNonNull(remoteAddress);
         this.retryTimer = retryTimer;
@@ -170,7 +170,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
         }
 
         @Override
-        public void onSessionCreated(@Nonnull final IpAddress ip) {
+        public void onSessionCreated(final IpAddress ip) {
             if (!ip.equals(this.peerAddress)) {
                 return;
             }
@@ -181,7 +181,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
         }
 
         @Override
-        public void onSessionRemoved(@Nonnull final IpAddress ip) {
+        public void onSessionRemoved(final IpAddress ip) {
             if (!ip.equals(this.peerAddress)) {
                 return;
             }

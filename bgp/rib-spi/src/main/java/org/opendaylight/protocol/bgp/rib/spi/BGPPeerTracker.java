@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yangtools.concepts.Registration;
 
@@ -23,7 +23,7 @@ public interface BGPPeerTracker {
      * @param peer Peer
      * @return registration tickets
      */
-    Registration registerPeer(@Nonnull Peer peer);
+    Registration registerPeer(@NonNull Peer peer);
 
     /**
      * Returns Peer.
@@ -31,8 +31,7 @@ public interface BGPPeerTracker {
      * @param peerId peer ID
      * @return Peer
      */
-    @Nullable
-    Peer getPeer(@Nonnull PeerId peerId);
+    @Nullable Peer getPeer(@NonNull PeerId peerId);
 
     /**
      * Returns map of PeerId per PeerRole.
@@ -40,8 +39,7 @@ public interface BGPPeerTracker {
      *
      * @return Returns map of Peer group by PeerRole
      */
-    @Nonnull
-    List<Peer> getPeers();
+    @NonNull List<Peer> getPeers();
 
     /**
      * Returns map of PeerId per PeerRole, filtering internal Peers.
@@ -49,6 +47,5 @@ public interface BGPPeerTracker {
      *
      * @return Returns map of Peer group by PeerRole
      */
-    @Nonnull
-    List<Peer> getNonInternalPeers();
+    @NonNull List<Peer> getNonInternalPeers();
 }

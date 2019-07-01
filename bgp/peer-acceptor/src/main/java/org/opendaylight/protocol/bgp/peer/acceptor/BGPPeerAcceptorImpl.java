@@ -21,7 +21,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.AccessControlException;
-import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
@@ -101,7 +100,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         }
 
         @Override
-        public void onPeerAdded(@Nonnull final IpAddress ip, @Nonnull final BGPSessionPreferences prefs) {
+        public void onPeerAdded(final IpAddress ip, final BGPSessionPreferences prefs) {
             if (prefs.getMd5Password().isPresent()) {
                 this.keys.put(IetfInetUtil.INSTANCE.inetAddressFor(ip), prefs.getMd5Password().get());
                 this.channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, this.keys);
@@ -109,7 +108,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         }
 
         @Override
-        public void onPeerRemoved(@Nonnull final IpAddress ip) {
+        public void onPeerRemoved(final IpAddress ip) {
             if (this.keys.remove(IetfInetUtil.INSTANCE.inetAddressFor(ip)) != null) {
                 this.channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, this.keys);
             }

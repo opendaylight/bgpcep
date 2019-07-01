@@ -13,8 +13,8 @@ import com.google.common.collect.ListMultimap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -26,10 +26,12 @@ import org.slf4j.LoggerFactory;
  * When selecting the candidate, we evaluate the order of insertion, picking the value inserted first, but then we look
  * at all the other candidates and if there is one which is a subclass of the first one, we select that one.
  *
+ * <p>
+ * This class is thread-safe.
+ *
  * @param <K> key type
  * @param <V> value type
  */
-@ThreadSafe
 public final class MultiRegistry<K, V> {
     private static final Logger LOG = LoggerFactory.getLogger(MultiRegistry.class);
     private final ConcurrentMap<K, V> current = new ConcurrentHashMap<>();
@@ -37,7 +39,7 @@ public final class MultiRegistry<K, V> {
     @GuardedBy("this")
     private final ListMultimap<K, V> candidates = ArrayListMultimap.create();
 
-    @GuardedBy("this")
+    @Holding("this")
     private void updateCurrent(final K key) {
         final List<V> values = this.candidates.get(key);
 

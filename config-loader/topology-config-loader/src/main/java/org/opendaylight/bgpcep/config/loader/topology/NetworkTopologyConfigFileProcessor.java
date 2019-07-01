@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -70,7 +69,6 @@ public final class NetworkTopologyConfigFileProcessor implements ConfigFileProce
         }
     }
 
-    @Nonnull
     @Override
     public SchemaPath getSchemaPath() {
         return TOPOLOGY_SCHEMA_PATH;

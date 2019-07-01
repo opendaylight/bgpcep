@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.Messages;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerPref;
@@ -16,32 +16,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Exposes Session state.
  */
+@NonNullByDefault
 public interface PCEPSessionState {
     /**
      * The statistics of PCEP received/sent messages from the PCE point of view.
      *
      * @return messages
      */
-    @Nonnull Messages getMessages();
+    Messages getMessages();
 
     /**
      * The local (PCE) preferences.
      *
      * @return local preferences
      */
-    @Nonnull LocalPref getLocalPref();
+    LocalPref getLocalPref();
 
     /**
      * The remote peer (PCC) preferences.
      *
      * @return peer preferences
      */
-    @Nonnull PeerPref getPeerPref();
+    PeerPref getPeerPref();
 
     /**
      * The local (PCE) Open Message.
      *
      * @return Open
      */
-    @Nonnull Open getLocalOpen();
+    Open getLocalOpen();
 }

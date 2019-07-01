@@ -10,7 +10,9 @@ package org.opendaylight.protocol.bgp.evpn.spi.pojo;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.Iterables;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
+import java.util.Collection;
 import org.opendaylight.protocol.bgp.evpn.spi.EvpnParser;
 import org.opendaylight.protocol.bgp.evpn.spi.EvpnRegistry;
 import org.opendaylight.protocol.bgp.evpn.spi.EvpnSerializer;
@@ -22,8 +24,10 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 
 public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
     private static final SimpleEvpnNlriRegistry SINGLETON = new SimpleEvpnNlriRegistry();
@@ -56,22 +60,17 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public EvpnChoice parseEvpn(final NlriType type, final ByteBuf buffer) {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EvpnParser parser = this.handlers.getParser(type.getIntValue());
-        if (parser == null) {
-            return null;
-        }
-        return parser.parseEvpn(buffer);
+        return parser == null ? null : parser.parseEvpn(buffer);
     }
 
     @Override
     public ByteBuf serializeEvpn(final EvpnChoice evpn, final ByteBuf common) {
         final EvpnSerializer serializer = this.handlers.getSerializer(evpn.implementedInterface());
-        if (serializer == null) {
-            return common;
-        }
-        return serializer.serializeEvpn(evpn, common);
+        return serializer == null ? common : serializer.serializeEvpn(evpn, common);
     }
 
     @Override
@@ -85,13 +84,11 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
     }
 
     private EvpnChoice getEvpnCase(final ChoiceNode evpnChoice, final SerializerInterface serializerInterface) {
-        checkArgument(evpnChoice != null && !evpnChoice.getValue().isEmpty(),
-                "Evpn case is mandatory. Can't be null or empty.");
-        final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(evpnChoice.getValue());
+        checkArgument(evpnChoice != null, "Evpn case is mandatory, cannot be null");
+        final Collection<DataContainerChild<? extends PathArgument, ?>> value = evpnChoice.getValue();
+        checkArgument(!value.isEmpty(), "Evpn case is mandatyr, cannot be empty");
+        final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(value);
         final EvpnSerializer serializer = this.modelHandlers.get(cont.getIdentifier());
-        if (serializer == null) {
-            return null;
-        }
-        return serializerInterface.check(serializer, cont);
+        return serializer == null ? null : serializerInterface.check(serializer, cont);
     }
 }

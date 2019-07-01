@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Contains required dependencies for create SessionNegotiator.
@@ -20,16 +19,14 @@ public interface PCEPSessionNegotiatorFactoryDependencies {
      *
      * @return ListenerFactory
      */
-    @Nonnull
-    PCEPSessionListenerFactory getListenerFactory();
+    @NonNull PCEPSessionListenerFactory getListenerFactory();
 
     /**
      * PeerProposal information used in our Open message.
      *
      * @return peerProposal null by default since its not mandatory. Otherwise method should be override it.
      */
-    @Nullable
-    default PCEPPeerProposal getPeerProposal() {
+    default @Nullable PCEPPeerProposal getPeerProposal() {
         return null;
     }
 }

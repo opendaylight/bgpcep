@@ -5,10 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mode.spi;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.OriginatorId;
@@ -41,7 +40,7 @@ public class AbstractBestPathSelector {
      * @param state attributes of the new route
      * @return true if the existing path is better, false if the new path is better
      */
-    protected boolean isExistingPathBetter(@Nonnull final BestPathState state) {
+    protected boolean isExistingPathBetter(final @NonNull BestPathState state) {
         // 0. draft-uttaro-idr-bgp-persistence-04 defines "depreferenced" paths
         final boolean stateDepref = state.isDepreferenced();
         if (this.bestState.isDepreferenced() != stateDepref) {

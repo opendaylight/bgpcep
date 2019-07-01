@@ -5,15 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.spi.registry;
 
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ public abstract class AbstractBmpExtensionProviderActivator implements AutoClose
     @GuardedBy("this")
     private List<AutoCloseable> registrations;
 
-    @GuardedBy("this")
+    @Holding("this")
     protected abstract List<AutoCloseable> startImpl(BmpExtensionProviderContext context);
 
     @Override
@@ -32,7 +31,7 @@ public abstract class AbstractBmpExtensionProviderActivator implements AutoClose
     }
 
     @Override
-    public final synchronized void start(@Nonnull final BmpExtensionProviderContext context) {
+    public final synchronized void start(final BmpExtensionProviderContext context) {
         Preconditions.checkState(this.registrations == null);
         this.registrations = requireNonNull(startImpl(context));
     }

@@ -12,8 +12,6 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
@@ -247,8 +245,8 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpUnreachNlriBuilder builder,
-            @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }

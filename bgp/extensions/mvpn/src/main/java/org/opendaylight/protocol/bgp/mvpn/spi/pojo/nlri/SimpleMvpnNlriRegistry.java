@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.mvpn.spi.pojo.nlri;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.mvpn.spi.nlri.MvpnParser;
@@ -46,21 +47,16 @@ public final class SimpleMvpnNlriRegistry implements MvpnRegistry {
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public MvpnChoice parseMvpn(final NlriType type, final ByteBuf nlriBuf) {
         checkArgument(nlriBuf != null && nlriBuf.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-        final MvpnParser parser = this.handlers.getParser(type.getIntValue());
-        if (parser == null) {
-            return null;
-        }
-        return parser.parseMvpn(nlriBuf);
+        final MvpnParser<MvpnChoice> parser = this.handlers.getParser(type.getIntValue());
+        return parser == null ? null : parser.parseMvpn(nlriBuf);
     }
 
     @Override
     public ByteBuf serializeMvpn(final MvpnChoice mvpn) {
-        final MvpnSerializer serializer = this.handlers.getSerializer(mvpn.implementedInterface());
-        if (serializer == null) {
-            return Unpooled.buffer();
-        }
-        return serializer.serializeMvpn(mvpn);
+        final MvpnSerializer<MvpnChoice> serializer = this.handlers.getSerializer(mvpn.implementedInterface());
+        return serializer == null ? Unpooled.EMPTY_BUFFER : serializer.serializeMvpn(mvpn);
     }
 }

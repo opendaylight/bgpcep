@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
@@ -33,7 +34,7 @@ public final class GracefulRestartUtil {
     /**
      * GR capability advertizing inactive GR.
      */
-    public static final GracefulRestartCapability EMPTY_GR_CAPABILITY = new GracefulRestartCapabilityBuilder()
+    public static final @NonNull GracefulRestartCapability EMPTY_GR_CAPABILITY = new GracefulRestartCapabilityBuilder()
             .setTables(ImmutableList.of())
             .setRestartFlags(new RestartFlags(Boolean.FALSE))
             .setRestartTime(0)
@@ -42,27 +43,26 @@ public final class GracefulRestartUtil {
     /**
      * LLGR capability advertizing no tables.
      */
-    public static final LlGracefulRestartCapability EMPTY_LLGR_CAPABILITY = new LlGracefulRestartCapabilityBuilder()
-            .setTables(ImmutableList.of())
-            .build();
+    public static final @NonNull LlGracefulRestartCapability EMPTY_LLGR_CAPABILITY =
+            new LlGracefulRestartCapabilityBuilder().setTables(ImmutableList.of()).build();
 
     private GracefulRestartUtil() {
 
     }
 
     @Beta
-    public static Tables gracefulRestartTable(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final boolean forwardingState) {
+    public static @NonNull Tables gracefulRestartTable(final @NonNull Class<? extends AddressFamily> afi,
+            final @NonNull Class<? extends SubsequentAddressFamily> safi, final boolean forwardingState) {
         return gracefulRestartTable(new TablesKey(afi, safi), forwardingState);
     }
 
     @Beta
-    public static Tables gracefulRestartTable(final TablesKey table, final boolean forwardingState) {
+    public static @NonNull Tables gracefulRestartTable(final @NonNull TablesKey table, final boolean forwardingState) {
         return new TablesBuilder().withKey(table).setAfiFlags(new AfiFlags(forwardingState)).build();
     }
 
     @Beta
-    public static CParameters gracefulRestartCapability(final List<Tables> tables, final int restartTime,
+    public static @NonNull CParameters gracefulRestartCapability(final List<Tables> tables, final int restartTime,
             final boolean localRestarting) {
         return new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
             .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()

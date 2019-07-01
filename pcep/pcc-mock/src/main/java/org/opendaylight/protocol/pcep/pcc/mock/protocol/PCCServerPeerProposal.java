@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3Builder;
@@ -22,13 +22,12 @@ public class PCCServerPeerProposal implements PCEPPeerProposal {
     private boolean isAfterReconnection;
     private final BigInteger dbVersion;
 
-    public PCCServerPeerProposal(@Nonnull final BigInteger dbVersion) {
+    public PCCServerPeerProposal(final @NonNull BigInteger dbVersion) {
         this.dbVersion = dbVersion;
     }
 
     @Override
-    public void setPeerSpecificProposal(@Nonnull final InetSocketAddress address,
-            @Nonnull final TlvsBuilder openBuilder) {
+    public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         requireNonNull(address);
         final LspDbVersionBuilder lspDbVersionBuilder = new LspDbVersionBuilder();
         if (this.isAfterReconnection) {

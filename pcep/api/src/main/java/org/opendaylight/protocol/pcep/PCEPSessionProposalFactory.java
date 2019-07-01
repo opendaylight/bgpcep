@@ -9,8 +9,8 @@ package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 
 /**
@@ -26,14 +26,13 @@ public interface PCEPSessionProposalFactory {
      * @param peerProposal for including information from peer to our Open message
      * @return specific session proposal
      */
-    @Nonnull
-    Open getSessionProposal(@Nonnull InetSocketAddress address, int sessionId, @Nullable PCEPPeerProposal peerProposal);
+    @NonNull Open getSessionProposal(@NonNull InetSocketAddress address, int sessionId,
+            @Nullable PCEPPeerProposal peerProposal);
 
     /**
      * Returns list containing PCEP Capabilities.
      *
      * @return PCEPCapabilities
      */
-    @Nonnull
-    List<PCEPCapability> getCapabilities();
+    @NonNull List<PCEPCapability> getCapabilities();
 }

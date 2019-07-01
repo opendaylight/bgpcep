@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 
 public interface RTCCache {
@@ -18,6 +17,5 @@ public interface RTCCache {
      *
      * @return rtc cache
      */
-    @Nonnull
-    List<Route> getClientRouteTargetContrainCache();
+    @NonNull List<Route> getClientRouteTargetContrainCache();
 }

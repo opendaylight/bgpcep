@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -31,7 +31,7 @@ public interface AttributeParser {
      * @throws BGPDocumentedException when an irrecoverable error occurred which has a {@link BGPError} assigned
      * @throws BGPParsingException when a general unspecified parsing error occurs.
      */
-    void parseAttribute(@Nonnull ByteBuf buffer, @Nonnull AttributesBuilder builder,
+    void parseAttribute(@NonNull ByteBuf buffer, @NonNull AttributesBuilder builder,
             @Nullable PeerSpecificParserConstraint constraint) throws BGPDocumentedException, BGPParsingException;
 
     /**
@@ -49,8 +49,8 @@ public interface AttributeParser {
      * @throws BGPTreatAsWithdrawException when parsing according to revised error handling indicates the
      *                                              message should be treated as withdraw.
      */
-    default void parseAttribute(@Nonnull final ByteBuf buffer, @Nonnull final AttributesBuilder builder,
-            @Nonnull final RevisedErrorHandling errorHandling, @Nullable final PeerSpecificParserConstraint constraint)
+    default void parseAttribute(final @NonNull ByteBuf buffer, final @NonNull AttributesBuilder builder,
+            final @NonNull RevisedErrorHandling errorHandling, final @Nullable PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException, BGPParsingException, BGPTreatAsWithdrawException {
         parseAttribute(buffer, builder, constraint);
     }
@@ -63,7 +63,7 @@ public interface AttributeParser {
      * @param errorHandling Revised error handling type
      * @return True if the duplicate attribute should be ignored, false if a BGPError should be raised.
      */
-    default boolean ignoreDuplicates(final @Nonnull RevisedErrorHandling errorHandling) {
+    default boolean ignoreDuplicates(final @NonNull RevisedErrorHandling errorHandling) {
         return true;
     }
 }

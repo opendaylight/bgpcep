@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.mode.api;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
@@ -26,8 +26,7 @@ public interface BestPath {
      *
      * @return the routerId converted to a PeerId
      */
-    @Nonnull
-    default PeerId getPeerId() {
+    default @NonNull PeerId getPeerId() {
         return getRouterId().getPeerId();
     }
 
@@ -36,8 +35,7 @@ public interface BestPath {
      *
      * @return the path attributes
      */
-    @Nonnull
-    Attributes getAttributes();
+    @NonNull Attributes getAttributes();
 
     /**
      * PathId.

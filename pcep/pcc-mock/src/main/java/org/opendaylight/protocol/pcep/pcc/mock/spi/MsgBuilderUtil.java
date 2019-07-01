@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs1;
@@ -160,13 +160,13 @@ public final class MsgBuilderUtil {
         return tlvs.build();
     }
 
-    public static Optional<Tlvs> createLspTlvsEndofSync(@Nonnull final BigInteger bigInteger) {
+    public static Optional<Tlvs> createLspTlvsEndofSync(final @NonNull BigInteger bigInteger) {
         final Tlvs tlvs = new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setLspDbVersion(
             new LspDbVersionBuilder().setLspDbVersionValue(bigInteger).build()).build()).build();
         return Optional.of(tlvs);
     }
 
-    public static Pcerr createErrorMsg(@Nonnull final PCEPErrors pcepErrors, final long srpId) {
+    public static Pcerr createErrorMsg(final @NonNull PCEPErrors pcepErrors, final long srpId) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         return new PcerrBuilder().setPcerrMessage(
             msgBuilder

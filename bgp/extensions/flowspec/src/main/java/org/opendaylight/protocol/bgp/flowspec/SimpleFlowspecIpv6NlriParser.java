@@ -9,8 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import io.netty.buffer.ByteBuf;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.flowspec.ipv6.FlowspecIpv6NlriParserHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.FlowspecBuilder;
@@ -28,8 +26,7 @@ public final class SimpleFlowspecIpv6NlriParser extends AbstractFlowspecNlriPars
     }
 
     @Override
-    public DestinationType createWithdrawnDestinationType(@Nonnull final Object[] nlriFields,
-            @Nullable final PathId pathId) {
+    public DestinationType createWithdrawnDestinationType(final Object[] nlriFields, final PathId pathId) {
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[0];
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update
                 .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecIpv6CaseBuilder()
@@ -42,8 +39,7 @@ public final class SimpleFlowspecIpv6NlriParser extends AbstractFlowspecNlriPars
     }
 
     @Override
-    public DestinationType createAdvertizedRoutesDestinationType(@Nonnull final Object[] nlriFields,
-            @Nullable final PathId pathId) {
+    public DestinationType createAdvertizedRoutesDestinationType(final Object[] nlriFields, final PathId pathId) {
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[0];
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update
                 .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecIpv6CaseBuilder()

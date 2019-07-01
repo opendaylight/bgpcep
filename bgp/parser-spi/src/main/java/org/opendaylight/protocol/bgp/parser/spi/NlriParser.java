@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 /**
  * Common interface for NLRI parser implementation.
  */
+@NonNullByDefault
 public interface NlriParser {
     /**
      * Parse MP UN_REACH NLRI from buffer.
@@ -27,8 +28,8 @@ public interface NlriParser {
      * @param constraint Peer specific constraints.
      * @throws BGPParsingException exception.
      */
-    void parseNlri(@Nonnull ByteBuf nlri, @Nonnull MpReachNlriBuilder builder,
-            @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+    void parseNlri(ByteBuf nlri, MpReachNlriBuilder builder, @Nullable PeerSpecificParserConstraint constraint)
+            throws BGPParsingException;
 
     /**
      * Parse MP UN_REACH NLRI from buffer.
@@ -38,8 +39,8 @@ public interface NlriParser {
      * @param constraint Peer specific constraints.
      * @throws BGPParsingException exception.
      */
-    void parseNlri(@Nonnull ByteBuf nlri, @Nonnull MpUnreachNlriBuilder builder,
-            @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+    void parseNlri(ByteBuf nlri, MpUnreachNlriBuilder builder, @Nullable PeerSpecificParserConstraint constraint)
+            throws BGPParsingException;
 
     /**
      * Convert MP_REACH attribute and merge it to existing MpUnreachNlriBuilder.
@@ -48,8 +49,7 @@ public interface NlriParser {
      * @param builder to which converted routing information should be added
      * @return True if the conversion was successful, false otherwise
      */
-    default boolean convertMpReachToMpUnReach(@Nonnull final MpReachNlri mpReachNlri,
-            @Nonnull final MpUnreachNlriBuilder builder) {
+    default boolean convertMpReachToMpUnReach(final MpReachNlri mpReachNlri, final MpUnreachNlriBuilder builder) {
         return false;
     }
 }

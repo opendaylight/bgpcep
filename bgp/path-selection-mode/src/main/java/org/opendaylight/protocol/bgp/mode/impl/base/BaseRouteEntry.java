@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -30,7 +29,6 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@NotThreadSafe
 final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> implements RouteEntry<C, S, R, I> {

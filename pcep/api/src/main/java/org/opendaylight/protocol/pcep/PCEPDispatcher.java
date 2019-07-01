@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep;
 
 import io.netty.channel.ChannelFuture;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Dispatcher class for creating servers and clients.
@@ -20,9 +20,7 @@ public interface PCEPDispatcher {
      * @param dispatcherDependencies contains required dependencies for instantiate a PCEP Server
      * @return instance of PCEPServer
      */
-    @Nonnull
-    ChannelFuture createServer(@Nonnull PCEPDispatcherDependencies dispatcherDependencies);
+    @NonNull ChannelFuture createServer(@NonNull PCEPDispatcherDependencies dispatcherDependencies);
 
-    @Nonnull
-    PCEPSessionNegotiatorFactory<?> getPCEPSessionNegotiatorFactory();
+    @NonNull PCEPSessionNegotiatorFactory<?> getPCEPSessionNegotiatorFactory();
 }

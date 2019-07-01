@@ -16,9 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.Transaction;
@@ -42,7 +41,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ThreadSafe
+// This class is thread-safe
 final class TopologyNodeState implements AutoCloseable, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
     private final Map<String, Metadata> metadata = new HashMap<>();
@@ -62,8 +61,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         this.chain = broker.createMergingTransactionChain(this);
     }
 
-    @Nonnull
-    KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
+    @NonNull KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
         return this.nodeId;
     }
 

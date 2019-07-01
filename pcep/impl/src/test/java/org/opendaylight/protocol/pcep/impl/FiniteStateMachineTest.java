@@ -15,7 +15,6 @@ import com.google.common.base.Ticker;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.util.Queue;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
@@ -50,8 +49,6 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     /**
      * Both PCEs accept session characteristics. Also tests KeepAliveTimer and error message and when pce attempts to
      * establish pce session for the 2nd time.
-     *
-     * @throws Exception exception
      */
     @Test
     public void testSessionCharsAccBoth() {
@@ -87,8 +84,6 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
     /**
      * As Tls is not configured properly, PCE will send error PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS
-     *
-     * @throws Exception exception
      */
     @Test
     public void testFailedToEstablishTLS() {
@@ -125,8 +120,6 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
     /**
      * Mock PCE does not accept session characteristics the first time.
-     *
-     * @throws Exception exception
      */
     @Test
     public void testSessionCharsAccMe() {
@@ -137,7 +130,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         this.serverSession.handleMessage(this.openMsg);
         assertEquals(2, this.msgsSend.size());
         assertTrue(this.msgsSend.get(1) instanceof Keepalive);
-        this.serverSession.handleMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, remote.getOpenMessage().getOpen()));
+        this.serverSession.handleMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR,
+            remote.getOpenMessage().getOpen()));
         assertEquals(3, this.msgsSend.size());
         assertTrue(this.msgsSend.get(2) instanceof Open);
         this.serverSession.handleMessage(this.kaMsg);
@@ -247,6 +241,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         TestTicker() {
         }
 
+        @Override
         public long read() {
             if (this.counter == 8) {
                 this.counter++;

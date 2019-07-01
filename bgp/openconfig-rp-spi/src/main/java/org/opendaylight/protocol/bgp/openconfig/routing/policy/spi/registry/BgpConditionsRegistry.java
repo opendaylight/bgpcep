@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;

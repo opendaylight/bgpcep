@@ -77,6 +77,7 @@ public final class RouteTargetConstrainRIBSupport
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(RouteTargetConstrainDestination.QNAME);
     private static final RouteTargetConstrainRoutes EMPTY_CONTAINER
             = new RouteTargetConstrainRoutesBuilder().setRouteTargetConstrainRoute(Collections.emptyList()).build();
+    @Deprecated
     private static final RouteTargetConstrainRoutesCase EMPTY_CASE =
             new RouteTargetConstrainRoutesCaseBuilder().setRouteTargetConstrainRoutes(EMPTY_CONTAINER).build();
     private static final String ORIGIN_AS = "origin-as";
@@ -207,6 +208,7 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
+    @Deprecated
     public RouteTargetConstrainRoutesCase emptyRoutesCase() {
         return EMPTY_CASE;
     }
