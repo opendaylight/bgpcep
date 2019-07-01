@@ -65,6 +65,6 @@ public final class ASGenParserTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongCaseTest() {
-        this.parser.serializeEsi(new ArbitraryCaseBuilder().build(), null);
+        this.parser.serializeEsi(new ArbitraryCaseBuilder().build(), Unpooled.buffer());
     }
 }
