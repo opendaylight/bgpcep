@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.spi.nlri;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
 
 public interface MvpnParser<T extends MvpnChoice> {
@@ -19,8 +18,7 @@ public interface MvpnParser<T extends MvpnChoice> {
      * @param buffer encoded Mvpn body in Bytebuf
      * @return Mvpn
      */
-    @Nonnull
-    T parseMvpn(@Nonnull ByteBuf buffer);
+    @NonNull T parseMvpn(@NonNull ByteBuf buffer);
 
     /**
      * Returns NlriType handled by parser.

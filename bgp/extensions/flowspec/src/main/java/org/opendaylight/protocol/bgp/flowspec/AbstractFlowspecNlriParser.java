@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericTwoByteOperandParser;
@@ -173,7 +173,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param pathId     associated path id with given NLRI
      * @return created destination type
      */
-    public abstract DestinationType createWithdrawnDestinationType(@Nonnull Object[] nlriFields,
+    public abstract DestinationType createWithdrawnDestinationType(Object @NonNull[] nlriFields,
             @Nullable PathId pathId);
 
     /**
@@ -183,7 +183,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param pathId     associated path id with given NLRI
      * @return created destination type
      */
-    public abstract DestinationType createAdvertizedRoutesDestinationType(@Nonnull Object[] nlriFields,
+    public abstract DestinationType createAdvertizedRoutesDestinationType(Object @NonNull[] nlriFields,
             @Nullable PathId pathId);
 
     @Override
@@ -206,12 +206,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         }
     }
 
-    protected void serializeNlri(@Nonnull final Object[] nlriFields, @Nonnull final ByteBuf buffer) {
+    protected void serializeNlri(final Object @NonNull [] nlriFields, final @NonNull ByteBuf buffer) {
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[0];
         serializeNlri(flowspecList, buffer);
     }
 
-    protected final void serializeNlri(final List<Flowspec> flowspecList, @Nonnull final ByteBuf buffer) {
+    protected final void serializeNlri(final List<Flowspec> flowspecList, final @NonNull ByteBuf buffer) {
         if (flowspecList != null) {
             for (final Flowspec flow : flowspecList) {
                 this.flowspecTypeRegistry.serializeFlowspecType(flow.getFlowspecType(), buffer);
@@ -226,8 +226,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param pathId path ID
      * @param buffer where flowspec NLRI will be serialized
      */
-    protected final void serializeNlri(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId,
-            @Nonnull final ByteBuf buffer) {
+    protected final void serializeNlri(final Object @NonNull[] nlriFields, final @Nullable PathId pathId,
+            final @NonNull ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         PathIdUtil.writePathId(pathId, buffer);
 
@@ -543,7 +543,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return buffer.toString();
     }
 
-    public static int readNlriLength(@Nonnull final ByteBuf nlri) {
+    public static int readNlriLength(final @NonNull ByteBuf nlri) {
         requireNonNull(nlri, "NLRI information cannot be null");
         Preconditions.checkState(nlri.isReadable(), "NLRI Byte buffer is not readable.");
         int length = nlri.readUnsignedByte();
@@ -561,7 +561,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param nlri byte representation of NLRI which will be parsed
      * @return list of Flowspec
      */
-    protected final List<Flowspec> parseNlriFlowspecList(@Nonnull final ByteBuf nlri) throws BGPParsingException {
+    protected final List<Flowspec> parseNlriFlowspecList(final @NonNull ByteBuf nlri) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return null;
         }
@@ -594,14 +594,13 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param nlri NLRI buffer
      * @return Parsed additional fields
      */
-    @Nonnull
-    protected Object[] parseNlri(@Nonnull final ByteBuf nlri) throws BGPParsingException {
+    protected Object @NonNull[] parseNlri(final @NonNull ByteBuf nlri) throws BGPParsingException {
         return new Object[] {parseNlriFlowspecList(nlri)};
     }
 
     @Override
-    public final void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpReachNlriBuilder builder,
-            @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+    public final void parseNlri(final @NonNull ByteBuf nlri, final @NonNull MpReachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
@@ -616,8 +615,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     @Override
-    public final void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpUnreachNlriBuilder builder,
-            @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+    public final void parseNlri(final @NonNull ByteBuf nlri, final @NonNull MpUnreachNlriBuilder builder,
+            final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
@@ -631,8 +630,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         );
     }
 
-    @Nullable
-    protected static PathId readPathId(@Nonnull final ByteBuf nlri, final Class<? extends AddressFamily> afi,
+    protected static @Nullable PathId readPathId(final @NonNull ByteBuf nlri, final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi, final PeerSpecificParserConstraint constraint) {
         if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
             return PathIdUtil.readPathId(nlri);

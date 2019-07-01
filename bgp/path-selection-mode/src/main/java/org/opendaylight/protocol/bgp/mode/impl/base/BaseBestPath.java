@@ -11,15 +11,15 @@ import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPath;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 
 final class BaseBestPath extends AbstractBestPath {
-    private final RouterId routerId;
+    private final @NonNull RouterId routerId;
 
-    BaseBestPath(@Nonnull final RouterId routerId, @Nonnull final BestPathState state) {
+    BaseBestPath(final @NonNull RouterId routerId, final @NonNull BestPathState state) {
         super(state);
         this.routerId = requireNonNull(routerId);
     }

@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
@@ -30,12 +29,9 @@ public interface ActionsPolicy<T> {
      * @param actions             configured Actions
      * @return Filtered attributes, or null if the advertisement should be ignored.
      */
-    @Nullable
-    Attributes applyImportAction(
-            @Nonnull RouteEntryBaseAttributes routeEntryInfo,
-            @Nonnull BGPRouteEntryImportParameters routeBaseParameters,
-            @Nonnull Attributes attributes,
-            @Nonnull T actions);
+    @Nullable Attributes applyImportAction(@NonNull RouteEntryBaseAttributes routeEntryInfo,
+            @NonNull BGPRouteEntryImportParameters routeBaseParameters, @NonNull Attributes attributes,
+            @NonNull T actions);
 
     /**
      * Applies action to Route Attributes container (Export Policy).
@@ -46,10 +42,7 @@ public interface ActionsPolicy<T> {
      * @param actions          configured Actions
      * @return Filtered attributes, or null if the advertisement should be ignored.
      */
-    @Nullable
-    Attributes applyExportAction(
-            @Nonnull RouteEntryBaseAttributes routeEntryInfo,
-            @Nonnull BGPRouteEntryExportParameters exportParameters,
-            @Nonnull Attributes attributes,
-            @Nonnull T actions);
+    @Nullable Attributes applyExportAction(@NonNull RouteEntryBaseAttributes routeEntryInfo,
+            @NonNull BGPRouteEntryExportParameters exportParameters, @NonNull Attributes attributes,
+            @NonNull T actions);
 }

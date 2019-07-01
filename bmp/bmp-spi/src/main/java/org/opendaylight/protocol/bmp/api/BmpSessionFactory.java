@@ -5,12 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.api;
 
 import io.netty.channel.Channel;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
+@NonNullByDefault
 public interface BmpSessionFactory {
     /**
      * Creates Bmp Session.
@@ -19,7 +19,5 @@ public interface BmpSessionFactory {
      * @param sessionListenerFactory listener factory
      * @return bmp session
      */
-    @Nonnull
-    BmpSession getSession(@Nonnull Channel channel,
-            @Nonnull BmpSessionListenerFactory sessionListenerFactory);
+    BmpSession getSession(Channel channel, BmpSessionListenerFactory sessionListenerFactory);
 }

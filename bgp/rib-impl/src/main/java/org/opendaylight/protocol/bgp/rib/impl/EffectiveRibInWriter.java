@@ -32,9 +32,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.NotThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -97,8 +96,10 @@ import org.slf4j.LoggerFactory;
  * 2) check if a route is admissible based on attributes attached to it, as well as the
  * advertising peer's role
  * 3) output admitting routes with edited attributes into /bgp-rib/rib/peer/effective-rib-in/tables/routes
+ *
+ * <p>
+ * This class is NOT thread-safe.
  */
-@NotThreadSafe
 final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesInstalledCounters,
         AutoCloseable, ClusteredDOMDataTreeChangeListener {
 
@@ -171,7 +172,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @Override
-    public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeCandidate> changes) {
+    public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         if (this.chain == null) {
             LOG.trace("Chain closed. Ignoring Changes : {}", changes);
             return;
@@ -268,7 +269,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     private void changeDataTree(final DOMDataWriteTransaction tx, final YangInstanceIdentifier rootPath,
             final DataTreeCandidateNode root, final DataTreeCandidateNode table) {
         final PathArgument lastArg = table.getIdentifier();

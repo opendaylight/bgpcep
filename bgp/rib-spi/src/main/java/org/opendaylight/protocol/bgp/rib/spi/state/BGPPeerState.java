@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
@@ -36,16 +35,14 @@ public interface BGPPeerState extends RibReference {
      *
      * @return PeerGroup Id
      */
-    @Nullable
-    String getGroupId();
+    @Nullable String getGroupId();
 
     /**
      * Return Neighbor Key/Address.
      *
      * @return neighbor Address
      */
-    @Nonnull
-    IpAddress getNeighborAddress();
+    @NonNull IpAddress getNeighborAddress();
 
     /**
      * Paths installed under Effective-Rib-In for a BGP neighbor.
@@ -70,54 +67,47 @@ public interface BGPPeerState extends RibReference {
      *
      * @return ErrorHandlingState
      */
-    @Nonnull
-    BGPErrorHandlingState getBGPErrorHandlingState();
+    @NonNull BGPErrorHandlingState getBGPErrorHandlingState();
 
     /**
      * Afi Safi Operational State.
      *
      * @return AfiSafiState
      */
-    @Nonnull
-    BGPAfiSafiState getBGPAfiSafiState();
+    @NonNull BGPAfiSafiState getBGPAfiSafiState();
 
     /**
      * BGP Session Operational State.
      *
      * @return BGPSessionState
      */
-    @Nullable
-    BGPSessionState getBGPSessionState();
+    @Nullable BGPSessionState getBGPSessionState();
 
     /**
      * BGP Message Operational State.
      *
      * @return BGPPeerMessagesState
      */
-    @Nullable
-    BGPPeerMessagesState getBGPPeerMessagesState();
+    @Nullable BGPPeerMessagesState getBGPPeerMessagesState();
 
     /**
      * BGP Operation Timers State.
      *
      * @return BGPTimersState
      */
-    @Nullable
-    BGPTimersState getBGPTimersState();
+    @Nullable BGPTimersState getBGPTimersState();
 
     /**
      * BGP Operational Transport State.
      *
      * @return BGPTransportState
      */
-    @Nullable
-    BGPTransportState getBGPTransportState();
+    @Nullable BGPTransportState getBGPTransportState();
 
     /**
      * BGP Operational GracelfulRestart State.
      *
      * @return BGPGracelfulRestartState
      */
-    @Nonnull
-    BGPGracelfulRestartState getBGPGracelfulRestart();
+    @NonNull BGPGracelfulRestartState getBGPGracelfulRestart();
 }

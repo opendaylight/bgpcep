@@ -5,23 +5,22 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
  * Contains all required dependencies for instantiate a PCEPDispatcher.
  */
+@NonNullByDefault
 public interface PCEPDispatcherDependencies extends PCEPSessionNegotiatorFactoryDependencies {
     /**
      * Return the address to be bound with the server.
      *
      * @return ip address
      */
-    @Nonnull
     InetSocketAddress getAddress();
 
     /**
@@ -29,7 +28,6 @@ public interface PCEPDispatcherDependencies extends PCEPSessionNegotiatorFactory
      *
      * @return map containing Keys
      */
-    @Nonnull
     KeyMapping getKeys();
 
     /**
@@ -37,6 +35,5 @@ public interface PCEPDispatcherDependencies extends PCEPSessionNegotiatorFactory
      *
      * @return map containing Keys
      */
-    @Nonnull
     SpeakerIdMapping getSpeakerIdMapping();
 }

@@ -8,7 +8,9 @@
 
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.nlri.RouteTargeConstraintNlriRegistry;
@@ -30,10 +32,9 @@ public final class SimpleRouteTargetConstrainNlriRegistry implements RouteTargeC
     private static final short RT_SUBTYPE = 2;
     private final HandlerRegistry<DataContainer, RouteTargetConstrainParser, RouteTargetConstrainSerializer> handlers =
             new HandlerRegistry<>();
-    private final RouteTargetDefaultHandler defaultHandler;
+    private final RouteTargetDefaultHandler defaultHandler = new RouteTargetDefaultHandler();
 
     private SimpleRouteTargetConstrainNlriRegistry() {
-        this.defaultHandler = new RouteTargetDefaultHandler();
         this.handlers.registerSerializer(this.defaultHandler.getClazz(), this.defaultHandler);
     }
 
@@ -52,32 +53,25 @@ public final class SimpleRouteTargetConstrainNlriRegistry implements RouteTargeC
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public RouteTargetConstrainChoice parseRouteTargetConstrain(final Integer type, final ByteBuf nlriBuf) {
-        Preconditions.checkArgument(nlriBuf != null
-                        && (nlriBuf.isReadable() || type == null && !nlriBuf.isReadable()),
+        checkArgument(nlriBuf != null && (nlriBuf.isReadable() || type == null && !nlriBuf.isReadable()),
                 "Array of bytes is mandatory. Can't be null or empty.");
-        if (type == null) {
-            return this.defaultHandler.parseRouteTargetConstrain(nlriBuf);
+        if (type != null) {
+            final RouteTargetConstrainParser<?> parser = this.handlers.getParser(type);
+            return parser == null ? null : parser.parseRouteTargetConstrain(nlriBuf);
         }
-        final RouteTargetConstrainParser<?> parser = this.handlers.getParser(type);
-        if (parser == null) {
-            return null;
-        }
-        return parser.parseRouteTargetConstrain(nlriBuf);
+        return this.defaultHandler.parseRouteTargetConstrain(nlriBuf);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public ByteBuf serializeRouteTargetConstrain(final RouteTargetConstrainChoice routeTarget) {
-        final RouteTargetConstrainSerializer serializer
-                = this.handlers.getSerializer(routeTarget.implementedInterface());
-        if (serializer == null || serializer.getType() == null) {
-            return Unpooled.buffer();
-        }
-        final ByteBuf body = Unpooled.buffer();
-        body.writeByte(serializer.getType());
-        body.writeByte(RT_SUBTYPE);
-        body.writeBytes(serializer.serializeRouteTargetConstrain(routeTarget));
-        return body;
+        final RouteTargetConstrainSerializer<RouteTargetConstrainChoice> serializer =
+                this.handlers.getSerializer(routeTarget.implementedInterface());
+        return serializer == null || serializer.getType() == null ? Unpooled.EMPTY_BUFFER
+                : Unpooled.buffer()
+                .writeByte(serializer.getType())
+                .writeByte(RT_SUBTYPE)
+                .writeBytes(serializer.serializeRouteTargetConstrain(routeTarget));
     }
 }

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import com.google.common.collect.Lists;
@@ -17,8 +16,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
@@ -51,9 +50,9 @@ final class PCCsBuilder {
     private PCCDispatcherImpl pccDispatcher;
 
     PCCsBuilder(final int lsps, final boolean pcError, final int pccCount,
-            @Nonnull final InetSocketAddress localAddress, @Nonnull final List<InetSocketAddress> remoteAddress,
-            final short keepAlive, final short deadTimer, @Nullable final String password, final long reconnectTime,
-            final int redelegationTimeout, final int stateTimeout, @Nonnull final PCEPCapability pcepCapabilities) {
+            final @NonNull InetSocketAddress localAddress, final @NonNull List<InetSocketAddress> remoteAddress,
+            final short keepAlive, final short deadTimer, final @Nullable String password, final long reconnectTime,
+            final int redelegationTimeout, final int stateTimeout, final @NonNull PCEPCapability pcepCapabilities) {
         this.lsps = lsps;
         this.pcError = pcError;
         this.pccCount = pccCount;
@@ -85,7 +84,7 @@ final class PCCsBuilder {
         }
     }
 
-    private void createPCC(@Nonnull final InetSocketAddress plocalAddress,
+    private void createPCC(final @NonNull InetSocketAddress plocalAddress,
             final PCCTunnelManager tunnelManager, final BigInteger initialDBVersion) {
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         for (final InetSocketAddress pceAddress : this.remoteAddress) {

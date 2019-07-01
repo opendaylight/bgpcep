@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -83,7 +82,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
     }
 
     @Override
-    public synchronized void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Topology>> changes) {
+    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Topology>> changes) {
         final List<DataObjectModification<Topology>> topoChanges = changes.stream()
                 .map(DataTreeModification::getRootNode)
                 .collect(Collectors.toList());

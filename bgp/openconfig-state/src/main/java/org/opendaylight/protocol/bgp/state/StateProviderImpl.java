@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.state;
 
 import static java.util.Objects.requireNonNull;
@@ -24,9 +23,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -59,7 +57,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ThreadSafe
+// This class is thread-safe
 public final class StateProviderImpl implements TransactionChainListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(StateProviderImpl.class);
     private final BGPStateConsumer stateCollector;
@@ -76,19 +74,17 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     private final ScheduledExecutorService scheduler;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
-            @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
-            @Nonnull final BGPStateConsumer stateCollector,
-            @Nonnull final String networkInstanceName) {
+    public StateProviderImpl(final @NonNull DataBroker dataBroker, final int timeout,
+            final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
+            final @NonNull BGPStateConsumer stateCollector, final @NonNull String networkInstanceName) {
         this(dataBroker, timeout, bgpTableTypeRegistry, stateCollector, networkInstanceName,
                 Executors.newScheduledThreadPool(1));
     }
 
-    public StateProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout,
-            @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
-            @Nonnull final BGPStateConsumer stateCollector,
-            @Nonnull final String networkInstanceName,
-            @Nonnull final ScheduledExecutorService scheduler) {
+    public StateProviderImpl(final @NonNull DataBroker dataBroker, final int timeout,
+            final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
+            final @NonNull BGPStateConsumer stateCollector,
+            final @NonNull String networkInstanceName, final @NonNull ScheduledExecutorService scheduler) {
         this.dataBroker = requireNonNull(dataBroker);
         this.bgpTableTypeRegistry = requireNonNull(bgpTableTypeRegistry);
         this.stateCollector = requireNonNull(stateCollector);

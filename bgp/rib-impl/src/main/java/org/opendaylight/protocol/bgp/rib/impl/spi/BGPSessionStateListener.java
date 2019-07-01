@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -28,14 +28,14 @@ public interface BGPSessionStateListener extends BGPMessagesListener {
      * @param tableTypes supported families
      * @param bgpParameters bgp capabilities
      */
-    void advertizeCapabilities(int holdTimerValue, @Nonnull SocketAddress remoteAddress,
-        @Nonnull SocketAddress localAddress, @Nonnull Set<BgpTableType> tableTypes,
-        @Nonnull List<BgpParameters> bgpParameters);
+    void advertizeCapabilities(int holdTimerValue, @NonNull SocketAddress remoteAddress,
+        @NonNull SocketAddress localAddress, @NonNull Set<BgpTableType> tableTypes,
+        @NonNull List<BgpParameters> bgpParameters);
 
     /**
      * Fired when session state changes.
      *
      * @param state session state
      */
-    void setSessionState(@Nonnull State state);
+    void setSessionState(@NonNull State state);
 }

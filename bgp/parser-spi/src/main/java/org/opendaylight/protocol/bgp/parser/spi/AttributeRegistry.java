@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 /**
  * Attribute serializer/deserializer registry, exposing the capability to parse BGP attributes as a whole.
  */
+@NonNullByDefault
 public interface AttributeRegistry {
     /**
      * Parse BGP Attribute from buffer.
@@ -28,8 +29,8 @@ public interface AttributeRegistry {
      * @throws BGPDocumentedException when an unrecoverable error occurs, which is documented via {@link BGPError}
      * @throws BGPParsingException when a general unrecoverable parsing error occurs
      */
-    @Nonnull ParsedAttributes parseAttributes(@Nonnull ByteBuf buffer,
-            @Nullable PeerSpecificParserConstraint constraints) throws BGPDocumentedException, BGPParsingException;
+    ParsedAttributes parseAttributes(ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraints)
+            throws BGPDocumentedException, BGPParsingException;
 
     /**
      * Serialize BGP Attribute to buffer.
@@ -37,5 +38,5 @@ public interface AttributeRegistry {
      * @param attribute Input BGP Attribute.
      * @param byteAggregator Output buffer.
      */
-    void serializeAttribute(@Nonnull Attributes attribute, @Nonnull ByteBuf byteAggregator);
+    void serializeAttribute(Attributes attribute, ByteBuf byteAggregator);
 }

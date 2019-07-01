@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -56,10 +55,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Instantiated for each peer and table, listens on a particular peer's adj-rib-out,
- * performs transcoding to BA form (message) and sends it down the channel.
+ * Instantiated for each peer and table, listens on a particular peer's adj-rib-out, performs transcoding to BA form
+ * (message) and sends it down the channel. This class is NOT thread-safe.
  */
-@NotThreadSafe
 final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, PrefixesSentCounters {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
@@ -101,13 +99,13 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     static AdjRibOutListener create(
-            @Nonnull final PeerId peerId,
-            @Nonnull final TablesKey tablesKey,
-            @Nonnull final YangInstanceIdentifier ribId,
-            @Nonnull final CodecsRegistry registry,
-            @Nonnull final RIBSupport<?, ?, ?, ?> support,
-            @Nonnull final DOMDataTreeChangeService service,
-            @Nonnull final ChannelOutputLimiter session,
+            final @NonNull PeerId peerId,
+            final @NonNull TablesKey tablesKey,
+            final @NonNull YangInstanceIdentifier ribId,
+            final @NonNull CodecsRegistry registry,
+            final @NonNull RIBSupport<?, ?, ?, ?> support,
+            final @NonNull DOMDataTreeChangeService service,
+            final @NonNull ChannelOutputLimiter session,
             final boolean mpSupport) {
         return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport);
     }
@@ -186,9 +184,9 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     private Update buildUpdate(
-            @Nonnull final Collection<MapEntryNode> advertised,
-            @Nonnull final Collection<MapEntryNode> withdrawn,
-            @Nonnull final Attributes attr) {
+            final @NonNull Collection<MapEntryNode> advertised,
+            final @NonNull Collection<MapEntryNode> withdrawn,
+            final @NonNull Attributes attr) {
         final UpdateBuilder ub = new UpdateBuilder().setWithdrawnRoutes(extractWithdrawnRoutes(withdrawn))
                 .setNlri(extractNlris(advertised));
         ub.setAttributes(attr);

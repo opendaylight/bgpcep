@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
@@ -32,43 +32,37 @@ public interface RouteEntryDependenciesContainer {
      *
      * @return RIBSupport
      */
-    @Nonnull
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> RIBSupport<C, S, R, I> getRIBSupport();
+            I extends Identifier<R>> @NonNull RIBSupport<C, S, R, I> getRIBSupport();
 
     /**
      * Returns the table key(AFI/SAFI) corresponding to the Route Entry.
      *
      * @return TablesKey
      */
-    @Nonnull
-    TablesKey getLocalTablesKey();
+    @NonNull TablesKey getLocalTablesKey();
 
     /**
      * Returns the AfiSafiType(AFI/SAFI) corresponding to the Route Entry.
      *
      * @return TablesKey
      */
-    @Nonnull
-    Class<? extends AfiSafiType> getAfiSafType();
+    @NonNull Class<? extends AfiSafiType> getAfiSafType();
 
     /**
      * Returns the loc-rib table to be updated and to which  corresponds this Route Entry.
      *
      * @return InstanceIdentifier containing the path to loc-rib table.
      */
-    @Nonnull
-    KeyedInstanceIdentifier<Tables, TablesKey> getLocRibTableTarget();
+    @NonNull KeyedInstanceIdentifier<Tables, TablesKey> getLocRibTableTarget();
 
     /**
      * Return routing policies defined per RIB.
      *
      * @return BGPRibRoutingPolicy
      */
-    @Nonnull
-    BGPRibRoutingPolicy getRoutingPolicies();
+    @NonNull BGPRibRoutingPolicy getRoutingPolicies();
 
-    @Nonnull
-    BGPPeerTracker getPeerTracker();
+    @NonNull BGPPeerTracker getPeerTracker();
 }

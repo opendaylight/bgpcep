@@ -5,13 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
@@ -23,10 +22,8 @@ public final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDepen
     private final ServerSessionManager manager;
     private final PCEPTopologyConfiguration topologyConfigDependencies;
 
-    public PCEPDispatcherDependenciesImpl(
-            @Nonnull final ServerSessionManager manager,
-            @Nonnull final PCEPTopologyConfiguration topologyConfigDependencies
-    ) {
+    public PCEPDispatcherDependenciesImpl(final @NonNull ServerSessionManager manager,
+            final @NonNull PCEPTopologyConfiguration topologyConfigDependencies) {
         this.manager = requireNonNull(manager);
         this.topologyConfigDependencies = requireNonNull(topologyConfigDependencies);
     }

@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -25,6 +24,5 @@ public interface PeerGroupConfigLoader {
      * @param neighbor           peer Group name.
      * @return peer group or null.
      */
-    @Nullable
-    PeerGroup getPeerGroup(@Nonnull InstanceIdentifier<Bgp> instanceIdentifier, @Nonnull String neighbor);
+    @Nullable PeerGroup getPeerGroup(@NonNull InstanceIdentifier<Bgp> instanceIdentifier, @NonNull String neighbor);
 }

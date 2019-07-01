@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -17,6 +17,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 /**
  * BGP Message codec registry, provides services to encode/decode messages.
  */
+@NonNullByDefault
 public interface MessageRegistry {
     /**
      * Decode input buffer to BGP Message.
@@ -24,7 +25,7 @@ public interface MessageRegistry {
      * @param constraint Peer specific constraint.
      * @return Parsed BGP message.
      */
-    @Nonnull Notification parseMessage(@Nonnull ByteBuf bytes, @Nullable PeerSpecificParserConstraint constraint)
+    Notification parseMessage(ByteBuf bytes, @Nullable PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException;
 
     /**
@@ -32,5 +33,5 @@ public interface MessageRegistry {
      * @param message Input BGP Message to be serialized.
      * @param buffer Output buffer where message is to be written.
      */
-    void serializeMessage(@Nonnull Notification message, @Nonnull ByteBuf buffer);
+    void serializeMessage(Notification message, ByteBuf buffer);
 }

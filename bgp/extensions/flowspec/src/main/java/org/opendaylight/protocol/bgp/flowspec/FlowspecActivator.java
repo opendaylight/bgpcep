@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FSIpv4DestinationPrefixHandler;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FSIpv4FragmentHandler;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FSIpv4SourcePrefixHandler;
@@ -44,7 +44,7 @@ public final class FlowspecActivator implements AutoCloseable {
         return this.context;
     }
 
-    public FlowspecActivator(@Nonnull final SimpleFlowspecExtensionProviderContext context) {
+    public FlowspecActivator(final @NonNull SimpleFlowspecExtensionProviderContext context) {
         this.context = requireNonNull(context);
 
         for (SimpleFlowspecExtensionProviderContext.SAFI safi : SimpleFlowspecExtensionProviderContext.SAFI.values()) {

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
@@ -19,8 +18,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
@@ -134,10 +133,8 @@ final class OpenConfigMappingUtil {
         return new ClusterIdentifier(globalConfig.getRouterId());
     }
 
-    @Nullable
-    static ClusterIdentifier getNeighborClusterIdentifier(
-            @Nullable final RouteReflector routeReflector,
-            @Nullable final PeerGroup peerGroup) {
+    static @Nullable ClusterIdentifier getNeighborClusterIdentifier(
+            final @Nullable RouteReflector routeReflector, final @Nullable PeerGroup peerGroup) {
         if (peerGroup != null) {
             final ClusterIdentifier clusteriId = extractClusterId(peerGroup.getRouteReflector());
             if (clusteriId != null) {
@@ -246,29 +243,24 @@ final class OpenConfigMappingUtil {
     }
 
     static boolean isActive(final Neighbor neighbor, final PeerGroup peerGroup) {
-        Boolean activeConnection = null;
-        if (peerGroup != null) {
-            activeConnection = isActive(peerGroup.getTransport());
-        }
-
-        if (activeConnection == null) {
+        Optional<Boolean> activeConnection = peerGroup == null ? Optional.empty() : isActive(peerGroup.getTransport());
+        if (!activeConnection.isPresent()) {
             activeConnection = isActive(neighbor.getTransport());
         }
-        if (activeConnection == null) {
-            return true;
-        }
-        return activeConnection;
+        return activeConnection.orElse(Boolean.TRUE);
     }
 
-    @Nullable
-    private static Boolean isActive(final Transport transport) {
+    private static Optional<Boolean> isActive(final Transport transport) {
         if (transport != null) {
             final Config config = transport.getConfig();
-            if (config != null && config.isPassiveMode() != null) {
-                return !config.isPassiveMode();
+            if (config != null) {
+                final Boolean passive = config.isPassiveMode();
+                if (passive != null) {
+                    return Optional.of(!passive);
+                }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     static PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
@@ -287,8 +279,7 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    @Nonnull
-    static PeerRole toPeerRole(final Neighbor neighbor, final PeerGroup peerGroup) {
+    static @NonNull PeerRole toPeerRole(final Neighbor neighbor, final PeerGroup peerGroup) {
         PeerRole role = null;
         if (peerGroup != null) {
             role = toPeerRole(peerGroup);
@@ -321,8 +312,7 @@ final class OpenConfigMappingUtil {
         return hold;
     }
 
-    @Nullable
-    private static Integer getHoldTimer(final Timers timers) {
+    private static @Nullable Integer getHoldTimer(final Timers timers) {
         if (timers == null) {
             return null;
         }
@@ -355,8 +345,7 @@ final class OpenConfigMappingUtil {
         return timer;
     }
 
-    @Nullable
-    private static Integer getGracefulRestartTimer(final GracefulRestart gracefulRestart) {
+    private static @Nullable Integer getGracefulRestartTimer(final GracefulRestart gracefulRestart) {
         if (gracefulRestart != null) {
             final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful
                     .restart.Config config = gracefulRestart.getConfig();
@@ -367,8 +356,7 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    @Nonnull
-    static AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
+    static @NonNull AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
             .bgp.neighbor.group.Config config, final PeerGroup peerGroup, final AsNumber localAs) {
         AsNumber neighborAs = null;
         if (peerGroup != null) {
@@ -385,15 +373,13 @@ final class OpenConfigMappingUtil {
         return neighborAs;
     }
 
-    @Nullable
     private static AsNumber getRemotePeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
-            .rev151009.bgp.neighbor.group.Config config) {
+            .rev151009.bgp.neighbor.group.@Nullable Config config) {
         return config == null ? null : config.getPeerAs();
     }
 
-    @Nonnull
-    static AsNumber getLocalPeerAs(@Nullable final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
-            .rev151009.bgp.neighbor.group.Config config, @Nonnull final AsNumber globalAs) {
+    static @NonNull AsNumber getLocalPeerAs(final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+            .rev151009.bgp.neighbor.group.@Nullable Config config, final @NonNull AsNumber globalAs) {
         if (config != null) {
             final AsNumber peerAs = config.getLocalAs();
             if (peerAs != null) {
@@ -420,8 +406,7 @@ final class OpenConfigMappingUtil {
         return retryTimer;
     }
 
-    @Nullable
-    private static Integer getRetryTimer(final Timers timers) {
+    private static @Nullable Integer getRetryTimer(final Timers timers) {
         if (timers == null) {
             return null;
         }
@@ -433,8 +418,7 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    @Nonnull
-    static PortNumber getPort(final Neighbor neighbor, final PeerGroup peerGroup) {
+    static @NonNull PortNumber getPort(final Neighbor neighbor, final PeerGroup peerGroup) {
         PortNumber port = null;
         if (peerGroup != null) {
             port = getPort(peerGroup.getTransport(), PeerGroupTransportConfig.class);
@@ -451,9 +435,8 @@ final class OpenConfigMappingUtil {
         return port;
     }
 
-    @Nullable
-    private static <T extends TransportConfig & Augmentation<Config>> PortNumber getPort(
-            @Nullable final Transport transport, final Class<T> augment) {
+    private static <T extends TransportConfig & Augmentation<Config>> @Nullable PortNumber getPort(
+            final @Nullable Transport transport, final Class<T> augment) {
         if (transport != null) {
             final Config config = transport.getConfig();
             if (config != null) {
@@ -466,8 +449,7 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    @Nullable
-    static IpAddress getLocalAddress(@Nullable final Transport transport) {
+    static @Nullable IpAddress getLocalAddress(@Nullable final Transport transport) {
         if (transport != null && transport.getConfig() != null) {
             final BgpNeighborTransportConfig.LocalAddress localAddress = transport.getConfig().getLocalAddress();
             if (localAddress != null) {
@@ -477,14 +459,13 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    @Nullable
-    static RevisedErrorHandlingSupport getRevisedErrorHandling(final PeerRole role,final PeerGroup peerGroup,
+    static @Nullable RevisedErrorHandlingSupport getRevisedErrorHandling(final PeerRole role,final PeerGroup peerGroup,
             final Neighbor neighbor) {
-        Boolean enabled = getRevisedErrorHandling(neighbor);
-        if (enabled == null) {
+        Optional<Boolean> enabled = getRevisedErrorHandling(neighbor);
+        if (!enabled.isPresent()) {
             enabled = getRevisedErrorHandling(peerGroup);
         }
-        if (!Boolean.TRUE.equals(enabled)) {
+        if (enabled.orElse(Boolean.FALSE)) {
             return null;
         }
         switch (role) {
@@ -499,17 +480,17 @@ final class OpenConfigMappingUtil {
         }
     }
 
-    @Nullable
-    private static @org.eclipse.jdt.annotation.Nullable Boolean getRevisedErrorHandling(final BgpNeighborGroup group) {
+
+    private static Optional<Boolean> getRevisedErrorHandling(final BgpNeighborGroup group) {
         if (group == null) {
-            return null;
+            return Optional.empty();
         }
         final ErrorHandling errorHandling = group.getErrorHandling();
         if (errorHandling == null) {
-            return null;
+            return Optional.empty();
         }
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling
             .Config config = errorHandling.getConfig();
-        return config == null ? null : config.isTreatAsWithdraw();
+        return config == null ? Optional.empty() : Optional.of(config.isTreatAsWithdraw());
     }
 }

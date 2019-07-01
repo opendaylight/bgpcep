@@ -5,22 +5,19 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mode.api;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
 
 public interface BestPathState {
-    @Nullable
-    Long getLocalPref();
+    @Nullable Long getLocalPref();
 
     long getMultiExitDisc();
 
-    @Nullable
-    BgpOrigin getOrigin();
+    @Nullable BgpOrigin getOrigin();
 
     long getPeerAs();
 
@@ -33,6 +30,5 @@ public interface BestPathState {
      */
     boolean isDepreferenced();
 
-    @Nonnull
-    Attributes getAttributes();
+    @NonNull Attributes getAttributes();
 }

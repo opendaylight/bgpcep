@@ -30,7 +30,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -212,7 +213,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * Tear down the given PCEP session. It's OK to call this method even after the session
      * is already down. It always clear up the current session status.
      */
-    @GuardedBy("this")
+    @Holding("this")
     @SuppressWarnings("checkstyle:IllegalCatch")
     private synchronized void tearDown(final PCEPSession psession) {
 

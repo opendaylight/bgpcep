@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.EventListener;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -17,21 +17,21 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 /**
  * Listener that receives session informations from the session.
  */
+@NonNullByDefault
 public interface BGPSessionListener extends PeerRPCs, EventListener {
-
     /**
      * Marks synchronization finished for given Table key.
      *
      * @param tablesKey of the table where synchronization finished
      */
-    void markUptodate(@Nonnull TablesKey tablesKey);
+    void markUptodate(TablesKey tablesKey);
 
     /**
      * Fired when the session was established successfully.
      *
      * @param session Peer address families which we accepted
      */
-    void onSessionUp(@Nonnull BGPSession session);
+    void onSessionUp(BGPSession session);
 
     /**
      * Fired when the session went down because of an IO error. Implementation should take care of closing underlying
@@ -40,8 +40,7 @@ public interface BGPSessionListener extends PeerRPCs, EventListener {
      * @param session that went down
      * @param exc     Exception that was thrown as the cause of session being down
      */
-
-    void onSessionDown(@Nonnull BGPSession session, @Nonnull Exception exc);
+    void onSessionDown(BGPSession session, Exception exc);
 
     /**
      * Fired when the session is terminated locally. The session has already been closed and transitioned to IDLE state.
@@ -49,12 +48,12 @@ public interface BGPSessionListener extends PeerRPCs, EventListener {
      *
      * @param reason the cause why the session went down
      */
-    void onSessionTerminated(@Nullable BGPSession session, @Nonnull BGPTerminationReason reason);
+    void onSessionTerminated(@Nullable BGPSession session, BGPTerminationReason reason);
 
     /**
      * Fired when a normal protocol message is received.
      *
      * @param notification Protocol message
      */
-    void onMessage(@Nonnull BGPSession session, @Nonnull Notification notification) throws BGPDocumentedException;
+    void onMessage(BGPSession session, Notification notification) throws BGPDocumentedException;
 }

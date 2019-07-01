@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.session;
 
 import static java.util.Objects.requireNonNull;
@@ -19,8 +18,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.InitiationMessage;
@@ -41,7 +40,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     @GuardedBy("this")
     private State state;
 
-    public BmpSessionImpl(@Nonnull final BmpSessionListener listener) {
+    public BmpSessionImpl(final @NonNull BmpSessionListener listener) {
         this.listener = requireNonNull(listener);
         this.state = State.IDLE;
     }

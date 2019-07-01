@@ -17,7 +17,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -249,7 +250,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         return this.state;
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     private void negotiationSuccessful() {
         LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
         this.channel.pipeline().replace(this, "session", session);

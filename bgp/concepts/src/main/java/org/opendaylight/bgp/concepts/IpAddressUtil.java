@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgp.concepts;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -38,8 +37,7 @@ public final class IpAddressUtil {
      * @param buffer containing ip address
      * @return IpAddress
      */
-    @Nonnull
-    public static IpAddress addressForByteBuf(@Nonnull final ByteBuf buffer) {
+    public static @NonNull IpAddress addressForByteBuf(final ByteBuf buffer) {
         final int ipLength = buffer.readUnsignedByte();
         if (ipLength == Ipv6Util.IPV6_BITS_LENGTH) {
             return new IpAddress(Ipv6Util.addressForByteBuf(buffer));
@@ -55,8 +53,7 @@ public final class IpAddressUtil {
      * @param buffer containing ip address
      * @return IpAddress
      */
-    @Nonnull
-    public static IpAddress addressForByteBufWOLength(@Nonnull final ByteBuf buffer) {
+    public static @NonNull IpAddress addressForByteBufWOLength(final ByteBuf buffer) {
         final int ipLength = buffer.readableBytes();
         if (ipLength == Ipv6Util.IPV6_LENGTH) {
             return new IpAddress(Ipv6Util.addressForByteBuf(buffer));
@@ -72,8 +69,7 @@ public final class IpAddressUtil {
      * @param address containing ipv4 or ipv6 address
      * @return byte array
      */
-    @Nonnull
-    public static ByteBuf bytesFor(@Nonnull final IpAddress address) {
+    public static @NonNull ByteBuf bytesFor(final IpAddress address) {
         final ByteBuf body = Unpooled.buffer();
         if (address.getIpv4Address() != null) {
             body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
@@ -93,8 +89,7 @@ public final class IpAddressUtil {
      * @param address containing ipv4 or ipv6 address
      * @return byte array
      */
-    @Nonnull
-    public static ByteBuf bytesWOLengthFor(@Nonnull final IpAddress address) {
+    public static @NonNull ByteBuf bytesWOLengthFor(final IpAddress address) {
         final ByteBuf body = Unpooled.buffer();
         if (address.getIpv4Address() != null) {
             body.writeBytes(Ipv4Util.bytesForAddress(address.getIpv4Address()));
@@ -106,9 +101,7 @@ public final class IpAddressUtil {
         return body;
     }
 
-
-    public static IpAddress extractIpAddress(@Nonnull final DataContainerNode<?> route,
-            @Nonnull final NodeIdentifier rdNid) {
+    public static IpAddress extractIpAddress(final DataContainerNode<?> route, final NodeIdentifier rdNid) {
         final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
         if (rdNode != null) {
             return IpAddressBuilder.getDefaultInstance((String) rdNode.getValue());
