@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
@@ -17,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 /**
  * Handles Next Hop, by default use {@link NextHopUtil} which is handles Ipv4 and Ipv6 Next hop.
  */
+@NonNullByDefault
 public interface NextHopParserSerializer {
     /**
      * Parse Next hop from buffer.
@@ -24,7 +24,7 @@ public interface NextHopParserSerializer {
      * @param buffer Encoded Next Hop in ByteBuf.
      * @return CNextHop
      */
-    default CNextHop parseNextHop(@Nonnull final ByteBuf buffer) throws BGPParsingException {
+    default CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
         return NextHopUtil.parseNextHop(buffer);
     }
 
@@ -34,7 +34,7 @@ public interface NextHopParserSerializer {
      * @param cnextHop Next Hop container
      * @param byteAggregator return Encoded Next Hop in ByteBuf
      */
-    default void serializeNextHop(@Nonnull final CNextHop cnextHop, @Nonnull final ByteBuf byteAggregator) {
+    default void serializeNextHop(final CNextHop cnextHop, final ByteBuf byteAggregator) {
         NextHopUtil.serializeNextHop(cnextHop, byteAggregator);
     }
 }
