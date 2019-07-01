@@ -5,16 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState.Mode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
 /**
  * BGP Operational Graceful Restart State.
  */
+@NonNullByDefault
 public interface BGPGracelfulRestartState {
     /**
      * is Graceful Restart Supported advertized to neighbor.
@@ -22,7 +22,7 @@ public interface BGPGracelfulRestartState {
      * @param tablesKey tables Key
      * @return true if Afi Safi was advertized to neighbor
      */
-    boolean isGracefulRestartAdvertized(@Nonnull TablesKey tablesKey);
+    boolean isGracefulRestartAdvertized(TablesKey tablesKey);
 
     /**
      * is Graceful Restart Supported advertized by neighbor.
@@ -30,7 +30,7 @@ public interface BGPGracelfulRestartState {
      * @param tablesKey tables Key
      * @return true if Afi Safi was advertized by neighbor
      */
-    boolean isGracefulRestartReceived(@Nonnull TablesKey tablesKey);
+    boolean isGracefulRestartReceived(TablesKey tablesKey);
 
     /**
      * This flag indicates whether the local neighbor is currently restarting.

@@ -13,8 +13,8 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
@@ -60,8 +60,7 @@ public interface RIBSupport<
      *
      * @return Protocol-specific case in the routes choice, may not be null.
      */
-    @Nonnull
-    MapEntryNode emptyTable();
+    @NonNull MapEntryNode emptyTable();
 
     /**
      * Return the localized identifier of the attributes route member, as expanded
@@ -69,40 +68,34 @@ public interface RIBSupport<
      *
      * @return The attributes identifier, may not be null.
      */
-    @Nonnull
-    NodeIdentifier routeAttributesIdentifier();
+    @NonNull NodeIdentifier routeAttributesIdentifier();
 
     /**
      * Return class object of the Routes Case statement.
      *
      * @return Class
      */
-    @Nonnull
-    Class<C> routesCaseClass();
+    @NonNull Class<C> routesCaseClass();
 
     /**
      * Return class object of the Routes Container statement.
      *
      * @return Class
      */
-    @Nonnull
-    Class<S> routesContainerClass();
+    @NonNull Class<S> routesContainerClass();
 
     /**
      * Return class object of the Routes List statement.
      *
      * @return Class
      */
-    @Nonnull
-    Class<R> routesListClass();
+    @NonNull Class<R> routesListClass();
 
-    @Nonnull
-    default ImmutableCollection<Class<? extends BindingObject>> cacheableAttributeObjects() {
+    default @NonNull ImmutableCollection<Class<? extends BindingObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
     }
 
-    @Nonnull
-    default ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
+    default @NonNull ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
         return ImmutableSet.of();
     }
 
@@ -114,9 +107,8 @@ public interface RIBSupport<
      * @param tablePath YangInstanceIdentifier
      * @param nlri      ContainerNode DOM representation of NLRI in Update message
      */
-    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
-            @Nonnull ContainerNode nlri);
-
+    void deleteRoutes(@NonNull DOMDataWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
+            @NonNull ContainerNode nlri);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract withdrawn routes
@@ -132,8 +124,8 @@ public interface RIBSupport<
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param routesNodeId NodeIdentifier of "routes" data node
      */
-    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath,
-            @Nonnull ContainerNode nlri, @Nonnull NodeIdentifier routesNodeId);
+    void deleteRoutes(@NonNull DOMDataWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
+            @NonNull ContainerNode nlri, @NonNull NodeIdentifier routesNodeId);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
@@ -145,8 +137,8 @@ public interface RIBSupport<
      * @param attributes ContainerNode
      * @return List of processed route Identifiers
      */
-    Collection<NodeIdentifierWithPredicates> putRoutes(@Nonnull DOMDataWriteTransaction tx,
-            @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
+    Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataWriteTransaction tx,
+            @NonNull YangInstanceIdentifier tablePath, @NonNull ContainerNode nlri, @NonNull ContainerNode attributes);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
@@ -164,9 +156,9 @@ public interface RIBSupport<
      * @param routesNodeId NodeIdentifier of "routes" data node
      * @return List of processed routes identifiers
      */
-    Collection<NodeIdentifierWithPredicates> putRoutes(@Nonnull DOMDataWriteTransaction tx,
-            @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes,
-            @Nonnull NodeIdentifier routesNodeId);
+    Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataWriteTransaction tx,
+            @NonNull YangInstanceIdentifier tablePath, @NonNull ContainerNode nlri, @NonNull ContainerNode attributes,
+            @NonNull NodeIdentifier routesNodeId);
 
     /**
      * Returns routes that were modified within this RIB support instance.
@@ -174,8 +166,7 @@ public interface RIBSupport<
      * @param routes DataTreeCandidateNode
      * @return collection of modified nodes or empty collection if no node was modified
      */
-    @Nonnull
-    Collection<DataTreeCandidateNode> changedRoutes(@Nonnull DataTreeCandidateNode routes);
+    @NonNull Collection<DataTreeCandidateNode> changedRoutes(@NonNull DataTreeCandidateNode routes);
 
     /**
      * Constructs an instance identifier path to routeId.
@@ -184,9 +175,8 @@ public interface RIBSupport<
      * @param routeId    PathArgument leaf path
      * @return YangInstanceIdentifier with routesPath + specific RIB support routes path + routeId
      */
-    @Nonnull
-    default YangInstanceIdentifier routePath(@Nonnull final YangInstanceIdentifier routesPath,
-                                             @Nonnull final PathArgument routeId) {
+    default @NonNull YangInstanceIdentifier routePath(final @NonNull YangInstanceIdentifier routesPath,
+                                             final @NonNull PathArgument routeId) {
         return routesPath(routesPath).node(routeId);
     }
 
@@ -196,16 +186,14 @@ public interface RIBSupport<
      * @param routesPath YangInstanceIdentifier base path
      * @return YangInstanceIdentifier with routesPath + specific RIB support routes path
      */
-    @Nonnull
-    YangInstanceIdentifier routesPath(@Nonnull YangInstanceIdentifier routesPath);
+    @NonNull YangInstanceIdentifier routesPath(@NonNull YangInstanceIdentifier routesPath);
 
     /**
      * Return the relative path from the generic routes container to the AFI/SAFI specific route list.
      *
      * @return Relative path.
      */
-    @Nonnull
-    List<PathArgument> relativeRoutesPath();
+    @NonNull List<PathArgument> relativeRoutesPath();
 
     /**
      * To send routes out, we'd need to transform the DOM representation of route to
@@ -218,17 +206,12 @@ public interface RIBSupport<
      *                   attributes and add MpReach
      * @return Update message ready to be sent out
      */
-    @Nonnull
-    Update buildUpdate(
-            @Nonnull Collection<MapEntryNode> advertised,
-            @Nonnull Collection<MapEntryNode> withdrawn,
-            @Nonnull Attributes attr);
+    @NonNull Update buildUpdate(@NonNull Collection<MapEntryNode> advertised,
+            @NonNull Collection<MapEntryNode> withdrawn, @NonNull Attributes attr);
 
-    @Nonnull
-    Class<? extends AddressFamily> getAfi();
+    @NonNull Class<? extends AddressFamily> getAfi();
 
-    @Nonnull
-    Class<? extends SubsequentAddressFamily> getSafi();
+    @NonNull Class<? extends SubsequentAddressFamily> getSafi();
 
     /**
      * Creates Route table Peer InstanceIdentifier.
@@ -237,10 +220,8 @@ public interface RIBSupport<
      * @param newRouteKey route key
      * @return InstanceIdentifier
      */
-    @Nonnull
-    InstanceIdentifier<R> createRouteIdentifier(
-            @Nonnull KeyedInstanceIdentifier<Tables, TablesKey> tableKey,
-            @Nonnull I newRouteKey);
+    @NonNull InstanceIdentifier<R> createRouteIdentifier(@NonNull KeyedInstanceIdentifier<Tables, TablesKey> tableKey,
+            @NonNull I newRouteKey);
 
     /**
      * Creates a route with new path Id and attributes.
@@ -250,8 +231,7 @@ public interface RIBSupport<
      * @param attributes route attributes
      * @return Route List key
      */
-    @Nonnull
-    R createRoute(@Nullable R route, @Nonnull I key, @Nonnull Attributes attributes);
+    @NonNull R createRoute(@Nullable R route, @NonNull I key, @NonNull Attributes attributes);
 
     /**
      * Returns TablesKey which we are providing support.
@@ -285,9 +265,9 @@ public interface RIBSupport<
     ContainerNode attributeToContainerNode(YangInstanceIdentifier routePath, Attributes attributes);
 
     interface ApplyRoute {
-        void apply(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier base,
-                   @Nonnull NodeIdentifierWithPredicates routeKey,
-                   @Nonnull DataContainerNode<?> route, ContainerNode attributes);
+        void apply(@NonNull DOMDataWriteTransaction tx, @NonNull YangInstanceIdentifier base,
+                @NonNull NodeIdentifierWithPredicates routeKey, @NonNull DataContainerNode<?> route,
+                ContainerNode attributes);
     }
 
     /**
@@ -297,9 +277,8 @@ public interface RIBSupport<
      *
      * @return Protocol-specific case in the routes choice, may not be null.
      */
-    @Nonnull
     @Deprecated
-    C emptyRoutesCase();
+    @NonNull C emptyRoutesCase();
 
     /**
      * Return the table-type-specific empty routes container, as augmented into the
@@ -308,8 +287,7 @@ public interface RIBSupport<
      *
      * @return Protocol-specific container in the routes, may not be null.
      */
-    @Nonnull
-    S emptyRoutesContainer();
+    @NonNull S emptyRoutesContainer();
 
     /**
      * Construct a Route List Key using new path Id for Families.
@@ -318,8 +296,7 @@ public interface RIBSupport<
      * @param routeKey RouteKey
      * @return route list Key (RouteKey + pathId)
      */
-    @Nonnull
-    I createRouteListKey(@Nonnull PathId pathId, @Nonnull String routeKey);
+    @NonNull I createRouteListKey(@NonNull PathId pathId, @NonNull String routeKey);
 
     /**
      * Construct a Route List Key.
@@ -327,8 +304,7 @@ public interface RIBSupport<
      * @param routeKey RouteKey
      * @return route list Key (RouteKey + empty pathId)
      */
-    @Nonnull
-    default I createRouteListKey(@Nonnull final String routeKey) {
+    default @NonNull I createRouteListKey(final @NonNull String routeKey) {
         return createRouteListKey(NON_PATH_ID, routeKey);
     }
 
@@ -338,8 +314,7 @@ public interface RIBSupport<
      * @param routeListKey Route list key
      * @return Path ID
      */
-    @Nonnull
-    PathId extractPathId(@Nonnull I routeListKey);
+    @NonNull PathId extractPathId(@NonNull I routeListKey);
 
     /**
      * Given a route list key, return the associated path ID.
@@ -347,8 +322,7 @@ public interface RIBSupport<
      * @param routeListKey Route list key
      * @return RouteKey
      */
-    @Nonnull
-    String extractRouteKey(@Nonnull I routeListKey);
+    @NonNull String extractRouteKey(@NonNull I routeListKey);
 
     /**
      * Extract a route list from the adj-rib-in instantiation of table routes.
@@ -356,6 +330,5 @@ public interface RIBSupport<
      * @param routes Table route choice
      * @return A potentially empty list of routes
      */
-    @Nonnull
-    List<R> extractAdjRibInRoutes(Routes routes);
+    @NonNull List<R> extractAdjRibInRoutes(Routes routes);
 }

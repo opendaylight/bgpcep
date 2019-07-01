@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +19,10 @@ import org.slf4j.LoggerFactory;
 /**
  * A best-effort output limiter. It does not provide any fairness, and acts as a blocking gate-keeper
  * for a sessions' channel.
+ *
+ * <p>
+ * This class is thread-safe.
  */
-@ThreadSafe
 public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(ChannelOutputLimiter.class);
     private final BGPSessionImpl session;

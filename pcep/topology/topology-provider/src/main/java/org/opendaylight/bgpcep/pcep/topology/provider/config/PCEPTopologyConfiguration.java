@@ -10,7 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 import static java.util.Objects.requireNonNull;
 
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
@@ -28,7 +28,7 @@ public final class PCEPTopologyConfiguration {
     private final SpeakerIdMapping speakerIds;
     private final InstanceIdentifier<Topology> topology;
 
-    public PCEPTopologyConfiguration(@Nonnull final SessionConfig config, @Nonnull final Topology topology) {
+    public PCEPTopologyConfiguration(final @NonNull SessionConfig config, final @NonNull Topology topology) {
         requireNonNull(topology);
         this.address = PCEPTopologyProviderUtil.getInetSocketAddress(requireNonNull(config.getListenAddress()),
                 requireNonNull(config.getListenPort()));
@@ -40,13 +40,11 @@ public final class PCEPTopologyConfiguration {
                 .child(Topology.class, new TopologyKey(this.topologyId)).build();
     }
 
-    @Nonnull
-    public TopologyId getTopologyId() {
+    public @NonNull TopologyId getTopologyId() {
         return this.topologyId;
     }
 
-    @Nonnull
-    public InstanceIdentifier<Topology> getTopology() {
+    public @NonNull InstanceIdentifier<Topology> getTopology() {
         return this.topology;
     }
 
@@ -54,18 +52,15 @@ public final class PCEPTopologyConfiguration {
         return this.rpcTimeout;
     }
 
-    @Nonnull
-    public InetSocketAddress getAddress() {
+    public @NonNull InetSocketAddress getAddress() {
         return this.address;
     }
 
-    @Nonnull
-    public KeyMapping getKeys() {
+    public @NonNull KeyMapping getKeys() {
         return this.keys;
     }
 
-    @Nonnull
-    public SpeakerIdMapping getSpeakerIds() {
+    public @NonNull SpeakerIdMapping getSpeakerIds() {
         return this.speakerIds;
     }
 }

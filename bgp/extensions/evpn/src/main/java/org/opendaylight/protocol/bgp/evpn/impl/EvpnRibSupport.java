@@ -58,6 +58,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
     private static final EvpnRoutes EMPTY_CONTAINER
             =  new EvpnRoutesBuilder().setEvpnRoute(Collections.emptyList()).build();
+    @Deprecated
     private static final EvpnRoutesCase EMPTY_CASE =
             new EvpnRoutesCaseBuilder().setEvpnRoutes(EMPTY_CONTAINER).build();
     private static EvpnRibSupport SINGLETON;
@@ -149,6 +150,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
+    @Deprecated
     public EvpnRoutesCase emptyRoutesCase() {
         return EMPTY_CASE;
     }

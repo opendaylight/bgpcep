@@ -64,7 +64,7 @@ final class EthADRParser extends AbstractEvpnNlri {
 
         final MplsLabel mpls = evpn.getMplsLabel();
         if (mpls != null) {
-            body.writeBytes(byteBufForMplsLabel(evpn.getMplsLabel()));
+            body.writeBytes(byteBufForMplsLabel(mpls));
         }
         return body;
     }

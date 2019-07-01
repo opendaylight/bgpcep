@@ -7,19 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 
 /**
  * RouteEntryInfo wrapper contains all related information from new best path.
  */
+@NonNullByDefault
 public interface RouteEntryInfo {
     /**
      * peer Id where best path will be advertized.
      *
      * @return PeerId
      */
-    @Nonnull
     Peer getToPeer();
 
     /**
@@ -27,6 +27,5 @@ public interface RouteEntryInfo {
      *
      * @return Route key
      */
-    @Nonnull
     String getRouteKey();
 }

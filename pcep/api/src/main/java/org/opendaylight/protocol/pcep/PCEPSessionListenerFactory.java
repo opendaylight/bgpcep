@@ -7,17 +7,17 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Factory for generating PCEP Session Listeners. Used by a server.
  */
+@NonNullByDefault
 public interface PCEPSessionListenerFactory {
     /**
      * Returns one session listener.
      *
      * @return specific session listener
      */
-    @Nonnull
     PCEPSessionListener getSessionListener();
 }

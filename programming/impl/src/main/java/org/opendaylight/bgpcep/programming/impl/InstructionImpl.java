@@ -17,7 +17,7 @@ import io.netty.util.Timeout;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelFailure;
@@ -82,7 +82,7 @@ final class InstructionImpl implements Instruction {
         }
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     private void cancelTimeout() {
         if (this.timeout != null) {
             this.timeout.cancel();
@@ -132,7 +132,7 @@ final class InstructionImpl implements Instruction {
         cancel(new DetailsBuilder().setUnmetDependencies(ids).build());
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     private void cancelDependants() {
         final Details details = new DetailsBuilder().setUnmetDependencies(ImmutableList.of(this.id)).build();
         for (final InstructionImpl instruction : this.dependants) {
@@ -140,7 +140,7 @@ final class InstructionImpl implements Instruction {
         }
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     private void cancel(final Details details) {
         cancelTimeout();
         this.schedulingFuture.cancel(false);

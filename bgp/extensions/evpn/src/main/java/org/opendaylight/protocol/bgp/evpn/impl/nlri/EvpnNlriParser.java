@@ -15,7 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.evpn.spi.EvpnRegistry;
 import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEvpnNlriRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -117,8 +117,8 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
                     .setEvpnDestination(dst).build()).build()).build());
     }
 
-    @Nullable
-    private static List<EvpnDestination> parseNlri(final ByteBuf nlri, final PeerSpecificParserConstraint constraints,
+    private static @Nullable List<EvpnDestination> parseNlri(final ByteBuf nlri,
+            final PeerSpecificParserConstraint constraints,
             final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
         if (!nlri.isReadable()) {
             return null;

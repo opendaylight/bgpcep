@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
@@ -27,9 +27,8 @@ public interface BGPDispatcher {
      * @param keys          for TCPMD5
      * @return Future promising a client session
      */
-    @Nonnull
-    Future<Void> createReconnectingClient(@Nonnull InetSocketAddress remoteAddress,
-            @Nullable InetSocketAddress localAddress, int retryTimer, @Nonnull KeyMapping keys);
+    @NonNull Future<Void> createReconnectingClient(@NonNull InetSocketAddress remoteAddress,
+            @Nullable InetSocketAddress localAddress, int retryTimer, @NonNull KeyMapping keys);
 
     /**
      * Create new BGP server to accept incoming bgp connections (bound to provided socket localAddress).
@@ -37,14 +36,12 @@ public interface BGPDispatcher {
      * @param localAddress Peer localAddress
      * @return ChannelFuture promising a client session
      */
-    @Nonnull
-    ChannelFuture createServer(InetSocketAddress localAddress);
+    @NonNull ChannelFuture createServer(InetSocketAddress localAddress);
 
     /**
      * Return BGP Peer Registry.
      *
      * @return BGPPeerRegistry
      */
-    @Nonnull
-    BGPPeerRegistry getBGPPeerRegistry();
+    @NonNull BGPPeerRegistry getBGPPeerRegistry();
 }

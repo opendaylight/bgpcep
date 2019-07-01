@@ -5,10 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock.api;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.pcupd.message.pcupd.message.Updates;
 
@@ -18,7 +17,7 @@ public interface PCCTunnelManager {
 
     void onSessionDown(PCCSession session);
 
-    void onMessagePcupd(@Nonnull Updates update, @Nonnull PCCSession session);
+    void onMessagePcupd(@NonNull Updates update, @NonNull PCCSession session);
 
-    void onMessagePcInitiate(@Nonnull Requests request, @Nonnull PCCSession session);
+    void onMessagePcInitiate(@NonNull Requests request, @NonNull PCCSession session);
 }

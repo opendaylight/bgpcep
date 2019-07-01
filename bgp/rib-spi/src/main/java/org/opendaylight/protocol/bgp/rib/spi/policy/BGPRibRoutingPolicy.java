@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 
@@ -24,12 +24,8 @@ public interface BGPRibRoutingPolicy {
      * @param afiSafiType       Afi Safi Type
      * @return modified route attributes after apply policies
      */
-    @Nonnull
-    Optional<Attributes> applyImportPolicies(
-            @Nonnull BGPRouteEntryImportParameters policyParameters,
-            @Nonnull Attributes attributes,
-            @Nonnull Class<? extends AfiSafiType> afiSafiType
-    );
+    @NonNull Optional<Attributes> applyImportPolicies(@NonNull BGPRouteEntryImportParameters policyParameters,
+            @NonNull Attributes attributes, @NonNull Class<? extends AfiSafiType> afiSafiType);
 
     /**
      * Apply export policy to route attributes.
@@ -39,10 +35,6 @@ public interface BGPRibRoutingPolicy {
      * @param afiSafType       Afi Safi Type
      * @return modified route attributes after apply policies
      */
-    @Nonnull
-    Optional<Attributes> applyExportPolicies(
-            @Nonnull BGPRouteEntryExportParameters policyParameters,
-            @Nonnull Attributes attributes,
-            @Nonnull Class<? extends AfiSafiType> afiSafType
-    );
+    @NonNull Optional<Attributes> applyExportPolicies(@NonNull BGPRouteEntryExportParameters policyParameters,
+            @NonNull Attributes attributes, @NonNull Class<? extends AfiSafiType> afiSafType);
 }

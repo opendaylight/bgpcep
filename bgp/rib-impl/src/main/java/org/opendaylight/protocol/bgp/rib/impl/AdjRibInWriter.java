@@ -34,10 +34,9 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.NotThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -76,10 +75,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Writer of Adjacency-RIB-In for a single peer. An instance of this object
- * is attached to each {@link BGPPeer} and {@link ApplicationPeer}.
+ * Writer of Adjacency-RIB-In for a single peer. An instance of this object is attached to each {@link BGPPeer} and
+ * {@link ApplicationPeer}. This class is NOT thread-safe.
  */
-@NotThreadSafe
 final class AdjRibInWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
@@ -122,8 +120,8 @@ final class AdjRibInWriter {
      * @param role                peer's role
      * @param chain               transaction chain  @return A fresh writer instance
      */
-    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role,
-            @Nonnull final PeerTransactionChain chain) {
+    static AdjRibInWriter create(final @NonNull YangInstanceIdentifier ribId, final @NonNull PeerRole role,
+            final @NonNull PeerTransactionChain chain) {
         return new AdjRibInWriter(ribId, chain, role, Collections.emptyMap());
     }
 
@@ -148,7 +146,7 @@ final class AdjRibInWriter {
     AdjRibInWriter transform(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
             final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
             final Map<TablesKey, SendReceive> addPathTablesType,
-            @Nullable final RegisterAppPeerListener registerAppPeerListener) {
+            final @Nullable RegisterAppPeerListener registerAppPeerListener) {
         final DOMDataWriteTransaction tx = this.chain.getDomChain().newWriteOnlyTransaction();
 
         createEmptyPeerStructure(newPeerId, peerPath, tx);

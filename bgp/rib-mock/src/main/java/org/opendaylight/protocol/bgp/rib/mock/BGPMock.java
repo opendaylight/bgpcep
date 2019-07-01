@@ -12,8 +12,7 @@ import io.netty.buffer.Unpooled;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -27,9 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Mock BGP session. It provides a way how to route a set of messages to BGPSessionListener.
+ * Mock BGP session. It provides a way how to route a set of messages to BGPSessionListener. This class is thread-safe.
  */
-@ThreadSafe
 public final class BGPMock implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPMock.class);

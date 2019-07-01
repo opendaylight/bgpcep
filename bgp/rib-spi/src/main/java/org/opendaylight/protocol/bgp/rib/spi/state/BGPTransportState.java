@@ -5,24 +5,23 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
-
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 
 /**
  * BGP Operational Transport State.
  */
+// FIXME: this could be YANG-modeled
+@NonNullByDefault
 public interface BGPTransportState {
     /**
      * Local Port.
      *
      * @return port
      */
-    @Nonnull
     PortNumber getLocalPort();
 
     /**
@@ -30,7 +29,6 @@ public interface BGPTransportState {
      *
      * @return IpAddress
      */
-    @Nonnull
     IpAddress getRemoteAddress();
 
     /**
@@ -38,6 +36,5 @@ public interface BGPTransportState {
      *
      * @return port
      */
-    @Nonnull
     PortNumber getRemotePort();
 }

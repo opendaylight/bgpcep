@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 
@@ -28,6 +28,6 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
      * @throws NullPointerException if any of the arguments is null
      */
     <T extends RIBSupport<?, ?, ?, ?>> RIBSupportRegistration<T> registerRIBSupport(
-            @Nonnull Class<? extends AddressFamily> afi,
-            @Nonnull Class<? extends SubsequentAddressFamily> safi, T support);
+            @NonNull Class<? extends AddressFamily> afi, @NonNull Class<? extends SubsequentAddressFamily> safi,
+            T support);
 }

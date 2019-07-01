@@ -5,10 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Interface for acquiring BGP Peer State.
@@ -19,6 +18,5 @@ public interface BGPPeerStateConsumer {
      *
      * @return BGP Peer State
      */
-    @Nullable
-    BGPPeerState getPeerState();
+    @Nullable BGPPeerState getPeerState();
 }
