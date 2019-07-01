@@ -5,14 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock.protocol;
 
 import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3Builder;
@@ -23,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public final class PCCPeerProposal implements PCEPPeerProposal {
     private final BigInteger dbVersion;
 
-    public PCCPeerProposal(@Nonnull final BigInteger dbVersion) {
+    public PCCPeerProposal(final @NonNull BigInteger dbVersion) {
         this.dbVersion = dbVersion;
     }
 
@@ -32,8 +31,7 @@ public final class PCCPeerProposal implements PCEPPeerProposal {
     }
 
     @Override
-    public void setPeerSpecificProposal(@Nonnull final InetSocketAddress address,
-            @Nonnull final TlvsBuilder openBuilder) {
+    public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         requireNonNull(address);
         final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(this.dbVersion).build();
         openBuilder.addAugmentation(Tlvs3.class, new Tlvs3Builder().setLspDbVersion(lspDbVersion).build());

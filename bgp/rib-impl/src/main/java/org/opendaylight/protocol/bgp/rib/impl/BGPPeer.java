@@ -33,7 +33,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
@@ -332,7 +333,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     private void handleGracefulEndOfRib() {
         if (isLocalRestarting()) {
             if (this.missingEOT.isEmpty()) {
@@ -475,7 +476,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
-    @GuardedBy("this")
+    @Holding("this")
     private void addBgp4Support() {
         if (!this.tables.contains(IPV4_UCAST_TABLE_KEY)) {
             final HashSet<TablesKey> newSet = new HashSet<>(this.tables);
@@ -485,7 +486,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     private void createAdjRibOutListener(final TablesKey key, final boolean mpSupport) {
         final RIBSupport<?, ?, ?, ?> ribSupport = this.rib.getRibSupportContext().getRIBSupport(key);
 
@@ -545,7 +546,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         return future;
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     @SuppressWarnings("checkstyle:illegalCatch")
     private void closeSession() {
         if (this.currentSession != null) {

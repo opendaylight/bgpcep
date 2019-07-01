@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
 import java.util.Map;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -33,16 +32,14 @@ public interface BGPRibState extends RibReference {
      *
      * @return Prefixes count
      */
-    @Nonnull
-    Map<TablesKey, Long> getTablesPrefixesCount();
+    @NonNull Map<TablesKey, Long> getTablesPrefixesCount();
 
     /**
      * Mapped Total Paths Count per TableKey.
      *
      * @return Prefixes count
      */
-    @Nonnull
-    Map<TablesKey, Long> getPathsCount();
+    @NonNull Map<TablesKey, Long> getPathsCount();
 
     /**
      * Total Paths Installed.
@@ -79,15 +76,13 @@ public interface BGPRibState extends RibReference {
      *
      * @return as
      */
-    @Nonnull
-    AsNumber getAs();
+    @NonNull AsNumber getAs();
 
     /**
      * BGP identifier.
      *
      * @return BGP identifier
      */
-    @Nonnull
-    BgpId getRouteId();
+    @NonNull BgpId getRouteId();
 }
 

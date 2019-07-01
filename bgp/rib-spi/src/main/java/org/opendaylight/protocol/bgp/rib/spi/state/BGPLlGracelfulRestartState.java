@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
 /**
  * BGP Operational Graceful Restart State.
  */
+@NonNullByDefault
 public interface BGPLlGracelfulRestartState extends BGPGracelfulRestartState {
     /**
      * is Long-lived Graceful Restart Support advertised to neighbor.
@@ -20,7 +21,7 @@ public interface BGPLlGracelfulRestartState extends BGPGracelfulRestartState {
      * @param tablesKey tables Key
      * @return true if Afi Safi was advertised to neighbor
      */
-    boolean isLlGracefulRestartAdvertised(@Nonnull TablesKey tablesKey);
+    boolean isLlGracefulRestartAdvertised(TablesKey tablesKey);
 
     /**
      * is Long-lived Graceful Restart Support advertised by neighbor.
@@ -28,7 +29,7 @@ public interface BGPLlGracelfulRestartState extends BGPGracelfulRestartState {
      * @param tablesKey tables Key
      * @return true if Afi Safi was advertised by neighbor
      */
-    boolean isLlGracefulRestartReceived(@Nonnull TablesKey tablesKey);
+    boolean isLlGracefulRestartReceived(TablesKey tablesKey);
 
     /**
      * If table is both advertised and received return timer with lower value.
@@ -37,5 +38,5 @@ public interface BGPLlGracelfulRestartState extends BGPGracelfulRestartState {
      * @param tablesKey tables key
      * @return effective value of timer in seconds
      */
-    int getLlGracefulRestartTimer(@Nonnull TablesKey tablesKey);
+    int getLlGracefulRestartTimer(TablesKey tablesKey);
 }

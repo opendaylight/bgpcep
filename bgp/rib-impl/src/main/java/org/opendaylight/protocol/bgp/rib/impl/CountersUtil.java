@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.concurrent.atomic.LongAdder;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public final class CountersUtil {
      * @param counter   counter
      * @param tablesKey tablesKey Type
      */
-    static void increment(@Nullable final LongAdder counter, @Nonnull final TablesKey tablesKey) {
+    static void increment(final @Nullable LongAdder counter, final @NonNull TablesKey tablesKey) {
         add(counter, tablesKey, 1);
     }
 
@@ -41,7 +41,7 @@ public final class CountersUtil {
      * @param counter   counter
      * @param tablesKey tablesKey Type
      */
-    static void decrement(@Nullable final LongAdder counter, @Nonnull final TablesKey tablesKey) {
+    static void decrement(final @Nullable LongAdder counter, final @NonNull TablesKey tablesKey) {
         add(counter, tablesKey, -1);
     }
 
@@ -51,7 +51,7 @@ public final class CountersUtil {
      * @param counter   counter
      * @param tablesKey tablesKey Type
      */
-    static void add(@Nullable final LongAdder counter, @Nonnull final TablesKey tablesKey, final long amount) {
+    static void add(final @Nullable LongAdder counter, final @NonNull TablesKey tablesKey, final long amount) {
         if (counter != null) {
             counter.add(amount);
         } else {

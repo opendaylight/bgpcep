@@ -114,9 +114,8 @@
             <artifactId>netty-transport</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <optional>true</optional>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
         </dependency>
 
         <dependency>
@@ -130,7 +129,6 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

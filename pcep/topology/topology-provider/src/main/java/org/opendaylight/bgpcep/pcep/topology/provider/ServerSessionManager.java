@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;

@@ -21,7 +21,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -124,7 +123,6 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
         return wTx.commit();
     }
 
-    @Nonnull
     @Override
     public ServiceGroupIdentifier getIdentifier() {
         return SERVICE_GROUP_IDENTIFIER;

@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
 
 public interface TunnelIdentifierSerializer<T extends TunnelIdentifier> {
@@ -20,7 +19,7 @@ public interface TunnelIdentifierSerializer<T extends TunnelIdentifier> {
      * @param buffer           Encoded Tunnel Identifier in ByteBuf
      * @return Tunnel identifier Type
      */
-    int serialize(@Nonnull T tunnelIdentifier, @Nonnull ByteBuf buffer);
+    int serialize(@NonNull T tunnelIdentifier, @NonNull ByteBuf buffer);
 
     Class<? extends TunnelIdentifier> getClazz();
 }

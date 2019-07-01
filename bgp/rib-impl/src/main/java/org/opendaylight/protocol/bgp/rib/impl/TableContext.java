@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -23,9 +22,11 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 
 /**
  * A context for a single RIB table instance. It is always bound to a particular {@link AdjRibInWriter}.
+ *
+ * <p>
+ * This class is NOT thread-safe.
  */
 // FIXME: need a better name once we local-rib and rib-out contexts
-@NotThreadSafe
 final class TableContext {
     private final YangInstanceIdentifier tableId;
     private final RIBSupportContext tableSupport;

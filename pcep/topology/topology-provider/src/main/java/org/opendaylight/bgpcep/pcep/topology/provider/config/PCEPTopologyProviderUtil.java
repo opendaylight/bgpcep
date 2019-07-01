@@ -12,8 +12,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -36,7 +36,7 @@ final class PCEPTopologyProviderUtil {
         throw new UnsupportedOperationException();
     }
 
-    static KeyMapping contructKeys(@Nonnull final Topology topology) {
+    static KeyMapping contructKeys(final @NonNull Topology topology) {
         final KeyMapping ret = KeyMapping.getKeyMapping();
         if (topology.getNode() == null) {
             return ret;
@@ -59,11 +59,11 @@ final class PCEPTopologyProviderUtil {
         return ret;
     }
 
-    static InetSocketAddress getInetSocketAddress(@Nonnull final IpAddress address, @Nonnull final PortNumber port) {
+    static InetSocketAddress getInetSocketAddress(final @NonNull IpAddress address, final @NonNull PortNumber port) {
         return new InetSocketAddress(IetfInetUtil.INSTANCE.inetAddressFor(address), port.getValue());
     }
 
-    static boolean filterPcepTopologies(@Nullable final TopologyTypes topologyTypes) {
+    static boolean filterPcepTopologies(final @Nullable TopologyTypes topologyTypes) {
         if (topologyTypes == null) {
             return false;
         }

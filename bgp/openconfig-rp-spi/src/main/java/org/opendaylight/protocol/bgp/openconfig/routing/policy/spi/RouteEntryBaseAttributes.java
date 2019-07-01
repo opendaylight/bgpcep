@@ -7,13 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 
 /**
  * Contains basic attributes of route entry (AS / originator id / cluster id).
  */
+@NonNullByDefault
 public interface RouteEntryBaseAttributes {
     /**
      * Returns AS.
@@ -27,7 +28,6 @@ public interface RouteEntryBaseAttributes {
      *
      * @return originator Id
      */
-    @Nonnull
     Ipv4Address getOriginatorId();
 
     /**
@@ -35,6 +35,5 @@ public interface RouteEntryBaseAttributes {
      *
      * @return Cluster Identifier
      */
-    @Nonnull
     ClusterIdentifier getClusterId();
 }

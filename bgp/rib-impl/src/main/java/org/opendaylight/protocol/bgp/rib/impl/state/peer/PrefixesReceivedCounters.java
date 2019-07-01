@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.state.peer;
 
 import java.util.Set;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
 /**
@@ -22,7 +21,7 @@ public interface PrefixesReceivedCounters {
      * @param tablesKey table
      * @return count
      */
-    long getPrefixedReceivedCount(@Nonnull TablesKey tablesKey);
+    long getPrefixedReceivedCount(@NonNull TablesKey tablesKey);
 
     /**
      * list of supported tables per Peer.
@@ -37,5 +36,5 @@ public interface PrefixesReceivedCounters {
      * @param tablesKey table type
      * @return true if supported
      */
-    boolean isSupported(@Nonnull TablesKey tablesKey);
+    boolean isSupported(@NonNull TablesKey tablesKey);
 }

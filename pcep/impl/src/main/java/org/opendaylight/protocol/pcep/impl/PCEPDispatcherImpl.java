@@ -30,8 +30,8 @@ import io.netty.util.concurrent.Promise;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
@@ -63,9 +63,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
      * @param bossGroup         accepts an incoming connection
      * @param workerGroup       handles the traffic of accepted connection
      */
-    public PCEPDispatcherImpl(@Nonnull final MessageRegistry registry,
-            @Nonnull final PCEPSessionNegotiatorFactory<PCEPSessionImpl> negotiatorFactory,
-            @Nonnull final EventLoopGroup bossGroup, @Nonnull final EventLoopGroup workerGroup) {
+    public PCEPDispatcherImpl(final @NonNull MessageRegistry registry,
+            final @NonNull PCEPSessionNegotiatorFactory<PCEPSessionImpl> negotiatorFactory,
+            final @NonNull EventLoopGroup bossGroup, final @NonNull EventLoopGroup workerGroup) {
         this.snf = requireNonNull(negotiatorFactory);
         this.hf = new PCEPHandlerFactory(registry);
         if (Epoll.isAvailable()) {

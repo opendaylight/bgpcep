@@ -11,7 +11,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -20,7 +21,7 @@ public abstract class AbstractPCEPExtensionProviderActivator implements AutoClos
     @GuardedBy("this")
     private List<? extends Registration> registrations;
 
-    @GuardedBy("this")
+    @Holding("this")
     protected abstract List<? extends Registration> startImpl(PCEPExtensionProviderContext context);
 
     @Override

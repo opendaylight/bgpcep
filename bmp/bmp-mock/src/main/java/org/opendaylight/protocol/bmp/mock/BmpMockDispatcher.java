@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.mock;
 
 import static java.util.Objects.requireNonNull;
@@ -22,8 +21,8 @@ import java.net.SocketAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherUtil;
 import org.opendaylight.protocol.bmp.impl.BmpHandlerFactory;
@@ -54,8 +53,8 @@ final class BmpMockDispatcher implements AutoCloseable {
         this.hf = new BmpHandlerFactory(registry);
     }
 
-    ChannelFuture createClient(@Nonnull final SocketAddress localAddress,
-            @Nonnull final InetSocketAddress remoteAddress) {
+    ChannelFuture createClient(final @NonNull SocketAddress localAddress,
+            final @NonNull InetSocketAddress remoteAddress) {
         final Bootstrap bootstrap = BmpDispatcherUtil.createClientBootstrap(this.sessionFactory, this.hf,
                 BmpDispatcherUtil::createChannelWithEncoder, this.slf, remoteAddress, localAddress, this.workerGroup,
                 CONNECT_TIMEOUT, KEY_MAPPING, true, false);
@@ -119,7 +118,7 @@ final class BmpMockDispatcher implements AutoCloseable {
                         createClient(BootstrapListener.this.localAddress,
                                 BmpMockDispatcher.BootstrapListener.this.remoteAddress);
                     }
-                }, (long) 5);
+                }, 5);
             }
         }
     }

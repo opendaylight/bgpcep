@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Contains all Peer RPC methods related.
@@ -17,8 +17,7 @@ public interface PeerRPCs {
     /**
      * Release Peer session.
      */
-    @Nonnull
-    ListenableFuture<?> releaseConnection();
+    @NonNull ListenableFuture<?> releaseConnection();
 
     /**
      * Perform graceful restart. Wait with route selection until EOR is received or
@@ -26,6 +25,5 @@ public interface PeerRPCs {
      *
      * @param selectionDeferralTimerSeconds time to wait in seconds
      */
-    @Nonnull
-    ListenableFuture<?> restartGracefully(long selectionDeferralTimerSeconds);
+    @NonNull ListenableFuture<?> restartGracefully(long selectionDeferralTimerSeconds);
 }

@@ -28,8 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -57,13 +56,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * BGP peer registry that allows only 1 session per BGP peer.
- * If second session with peer is established, one of the sessions will be dropped.
- * The session with lower source BGP id will be dropped.
+ * BGP peer registry that allows only 1 session per BGP peer. If a second session with peer is established, one of
+ * the sessions will be dropped. The session with lower source BGP id will be dropped. This class is thread-safe.
  */
-@ThreadSafe
 public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
-
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
     @GuardedBy("this")

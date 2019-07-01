@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.app;
 
 import static java.util.Objects.requireNonNull;
@@ -14,7 +13,6 @@ import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ROUTES_QNAME
 
 import com.google.common.base.Preconditions;
 import java.util.Map;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
@@ -41,7 +39,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableChoiceNodeBuilder;
 
-@NotThreadSafe
+// This class is NOT thread-safe
 final class TableContext {
 
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(BMP_ATTRIBUTES_QNAME);

@@ -16,10 +16,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 
-@ThreadSafe
+// This class is thread-safe
 final class PCEPPeerRegistry {
 
     /**
@@ -39,9 +38,10 @@ final class PCEPPeerRegistry {
      */
     private static final long PEER_CACHE_SIZE = 1024;
 
+    // FIXME: why do we hold a lock?!
     @GuardedBy("this")
-    private final Cache<ByteArrayWrapper, PeerRecord> formerClients = CacheBuilder.newBuilder().expireAfterAccess(PEER_CACHE_SECONDS,
-            TimeUnit.SECONDS).maximumSize(PEER_CACHE_SIZE).build();
+    private final Cache<ByteArrayWrapper, PeerRecord> formerClients = CacheBuilder.newBuilder()
+            .expireAfterAccess(PEER_CACHE_SECONDS, TimeUnit.SECONDS).maximumSize(PEER_CACHE_SIZE).build();
 
     @GuardedBy("this")
     private final Map<ByteArrayWrapper, SessionReference> sessions = new HashMap<>();
