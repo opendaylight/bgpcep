@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -63,17 +63,14 @@ public class AddPathCapabilityHandler implements CapabilityParser, CapabilitySer
             for (final AddressFamilies addressFamily : families) {
                 final Class<? extends AddressFamily> afi = addressFamily.getAfi();
                 final Integer afival = this.afiReg.numberForClass(afi);
-                Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
-                capBuffer.writeShort(afival);
-
+                checkArgument(afival != null, "Unhandled address family " + afi);
                 final Class<? extends SubsequentAddressFamily> safi = addressFamily.getSafi();
                 final Integer safival = this.safiReg.numberForClass(safi);
-                Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
-                capBuffer.writeByte(safival);
-
+                checkArgument(safival != null, "Unhandled subsequent address family " + safi);
                 final SendReceive sendReceive = addressFamily.getSendReceive();
-                Preconditions.checkArgument(sendReceive != null, "Unhandled Send/Receive value");
-                capBuffer.writeByte(sendReceive.getIntValue());
+                checkArgument(sendReceive != null, "Unhandled Send/Receive value");
+
+                capBuffer.writeShort(afival).writeByte(safival).writeByte(sendReceive.getIntValue());
             }
 
             CapabilityUtil.formatCapability(CODE, capBuffer, byteAggregator);

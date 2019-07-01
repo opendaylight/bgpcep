@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.BgpPrefixSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.bgp.prefix.sid.BgpPrefixSidTlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.bgp.prefix.sid.BgpPrefixSidTlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
 
 public final class BgpPrefixSidAttributeParser implements AttributeParser, AttributeSerializer {
 
@@ -53,8 +52,9 @@ public final class BgpPrefixSidAttributeParser implements AttributeParser, Attri
         final BgpPrefixSidBuilder sid = new BgpPrefixSidBuilder();
         final List<BgpPrefixSidTlvs> tlvList = new ArrayList<>();
         while (buffer.isReadable()) {
-            final BgpPrefixSidTlv tlv = this.reg.parseBgpPrefixSidTlv(buffer.readUnsignedByte(), buffer);
-            tlvList.add(new BgpPrefixSidTlvsBuilder().setBgpPrefixSidTlv(tlv).build());
+            tlvList.add(new BgpPrefixSidTlvsBuilder()
+                .setBgpPrefixSidTlv(this.reg.parseBgpPrefixSidTlv(buffer.readUnsignedByte(), buffer))
+                .build());
         }
         builder.setBgpPrefixSid(sid.setBgpPrefixSidTlvs(tlvList).build());
     }
