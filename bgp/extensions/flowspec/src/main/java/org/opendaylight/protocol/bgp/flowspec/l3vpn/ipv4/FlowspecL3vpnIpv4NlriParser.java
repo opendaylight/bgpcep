@@ -9,8 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4;
 
 import io.netty.buffer.ByteBuf;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecTypeRegistry;
 import org.opendaylight.protocol.bgp.flowspec.ipv4.FlowspecIpv4NlriParserHelper;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnNlriParser;
@@ -36,8 +34,7 @@ public final class FlowspecL3vpnIpv4NlriParser extends AbstractFlowspecL3vpnNlri
     }
 
     @Override
-    public DestinationType createWithdrawnDestinationType(@Nonnull final Object[] nlriFields,
-            @Nullable final PathId pathId) {
+    public DestinationType createWithdrawnDestinationType(final Object[] nlriFields, final PathId pathId) {
         final RouteDistinguisher rd = (RouteDistinguisher) nlriFields[0];
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update
@@ -50,8 +47,7 @@ public final class FlowspecL3vpnIpv4NlriParser extends AbstractFlowspecL3vpnNlri
     }
 
     @Override
-    public DestinationType createAdvertizedRoutesDestinationType(@Nonnull final Object[] nlriFields,
-            @Nullable final PathId pathId) {
+    public DestinationType createAdvertizedRoutesDestinationType(final Object[] nlriFields, final PathId pathId) {
         final RouteDistinguisher rd = (RouteDistinguisher) nlriFields[0];
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update

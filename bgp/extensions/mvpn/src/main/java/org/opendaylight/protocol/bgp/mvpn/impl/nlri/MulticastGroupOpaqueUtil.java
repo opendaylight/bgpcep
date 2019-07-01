@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.OpaqueUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -47,7 +46,7 @@ final class MulticastGroupOpaqueUtil {
         }
     }
 
-    static void bytesForMulticastGroup(@Nonnull final MulticastGroup group, final ByteBuf nlriByteBuf) {
+    static void bytesForMulticastGroup(final @NonNull MulticastGroup group, final ByteBuf nlriByteBuf) {
         if (group instanceof CGAddressCase) {
             nlriByteBuf.writeBytes(IpAddressUtil.bytesFor(((CGAddressCase) group).getCGAddress()));
         } else {

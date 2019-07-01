@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -40,13 +39,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A single route entry inside a route table. Maintains the attributes of
- * from all contributing peers. The information is stored in arrays with a
- * shared map of offsets for peers to allow lookups. This is needed to
- * maintain low memory overhead in face of large number of routes and peers,
- * where individual object overhead becomes the dominating factor.
+ * A single route entry inside a route table. Maintains the attributes from all contributing peers. The information is
+ * stored in arrays with a shared map of offsets for peers to allow lookups. This is needed to maintain low memory
+ * overhead in face of large number of routes and peers, where individual object overhead becomes the dominating factor.
+ *
+ * <p>
+ * This class is NOT thread-safe.
  */
-@NotThreadSafe
 public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
         implements RouteEntry<C, S, R, I> {

@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.Set;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
@@ -43,8 +43,7 @@ public interface RIB extends RibReference, RibOutRefresh {
      *
      * @return A set of identifiers.
      */
-    @Nonnull
-    Set<? extends BgpTableType> getLocalTables();
+    @NonNull Set<? extends BgpTableType> getLocalTables();
 
     BGPDispatcher getDispatcher();
 

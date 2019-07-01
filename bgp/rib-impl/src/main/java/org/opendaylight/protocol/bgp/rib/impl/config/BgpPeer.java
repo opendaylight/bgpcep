@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static java.util.Objects.requireNonNull;
@@ -23,9 +22,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
@@ -343,7 +341,6 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         return this.bgpPeerSingletonService.gracefulRestartTimer;
     }
 
-    @Nullable
     public synchronized Optional<RevisedErrorHandlingSupport> getErrorHandling() {
         return Optional.ofNullable(this.bgpPeerSingletonService.errorHandling);
     }

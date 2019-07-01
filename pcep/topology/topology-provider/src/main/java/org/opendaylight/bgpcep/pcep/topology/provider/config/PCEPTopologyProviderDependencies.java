@@ -8,7 +8,7 @@
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import com.google.common.annotations.Beta;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -19,13 +19,13 @@ import org.opendaylight.protocol.pcep.PCEPDispatcher;
  * Provides required dependencies for PCEPTopologyProviderProvider instantiation.
  */
 @Beta
+@NonNullByDefault
 public interface PCEPTopologyProviderDependencies {
     /**
      * PCEP Dispatcher.
      *
      * @return PCEPDispatcher
      */
-    @Nonnull
     PCEPDispatcher getPCEPDispatcher();
 
     /**
@@ -33,7 +33,6 @@ public interface PCEPTopologyProviderDependencies {
      *
      * @return RpcProviderRegistry
      */
-    @Nonnull
     RpcProviderService getRpcProviderRegistry();
 
     /**
@@ -41,7 +40,6 @@ public interface PCEPTopologyProviderDependencies {
      *
      * @return DataBroker
      */
-    @Nonnull
     DataBroker getDataBroker();
 
     /**
@@ -49,7 +47,6 @@ public interface PCEPTopologyProviderDependencies {
      *
      * @return TopologySessionListenerFactory
      */
-    @Nonnull
     TopologySessionListenerFactory getTopologySessionListenerFactory();
 
     /**
@@ -57,6 +54,5 @@ public interface PCEPTopologyProviderDependencies {
      *
      * @return TopologySessionStateRegistry
      */
-    @Nonnull
     TopologySessionStatsRegistry getStateRegistry();
 }

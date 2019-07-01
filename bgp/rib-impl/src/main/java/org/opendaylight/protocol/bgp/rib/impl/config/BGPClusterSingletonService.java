@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME;
@@ -26,9 +25,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -80,18 +80,18 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     private final RpcProviderRegistry rpcRegistry;
 
     BGPClusterSingletonService(
-            @Nonnull final PeerGroupConfigLoader peerGroupLoader,
-            @Nonnull final ClusterSingletonServiceProvider provider,
-            @Nonnull final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            @Nonnull final InstanceIdentifier<Bgp> bgpIid,
-            @Nonnull final RIBExtensionConsumerContext ribExtensionContext,
-            @Nonnull final BGPDispatcher dispatcher,
-            @Nonnull final BGPRibRoutingPolicyFactory policyFactory,
-            @Nonnull final BindingCodecTreeFactory codecFactory,
-            @Nonnull final DOMDataBroker domBroker,
-            @Nonnull final DataBroker dataBroker,
-            @Nonnull final DOMSchemaService schemaService,
-            @Nonnull final RpcProviderRegistry rpcRegistry) {
+            final @NonNull PeerGroupConfigLoader peerGroupLoader,
+            final @NonNull ClusterSingletonServiceProvider provider,
+            final @NonNull BGPTableTypeRegistryConsumer tableTypeRegistry,
+            final @NonNull InstanceIdentifier<Bgp> bgpIid,
+            final @NonNull RIBExtensionConsumerContext ribExtensionContext,
+            final @NonNull BGPDispatcher dispatcher,
+            final @NonNull BGPRibRoutingPolicyFactory policyFactory,
+            final @NonNull BindingCodecTreeFactory codecFactory,
+            final @NonNull DOMDataBroker domBroker,
+            final @NonNull DataBroker dataBroker,
+            final @NonNull DOMSchemaService schemaService,
+            final @NonNull RpcProviderRegistry rpcRegistry) {
         this.peerGroupLoader = peerGroupLoader;
         this.tableTypeRegistry = tableTypeRegistry;
         this.bgpIid = bgpIid;
@@ -145,7 +145,6 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         return done;
     }
 
-    @Nonnull
     @Override
     public ServiceGroupIdentifier getIdentifier() {
         return this.serviceGroupIdentifier;
@@ -208,7 +207,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         this.ribImpl.close();
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     private void initiateRibInstance(final Global global) {
         final String ribInstanceName = getRibInstanceName(this.bgpIid);
         ribImpl.start(global, ribInstanceName, this.tableTypeRegistry);

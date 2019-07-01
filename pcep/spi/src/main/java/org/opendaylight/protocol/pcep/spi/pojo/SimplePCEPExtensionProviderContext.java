@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
@@ -41,7 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 import org.opendaylight.yangtools.concepts.Registration;
 
-@ThreadSafe
+// This class is thread-safe
 public class SimplePCEPExtensionProviderContext implements PCEPExtensionProviderContext {
     private final SimpleLabelRegistry labelReg = new SimpleLabelRegistry();
     private final SimpleMessageRegistry msgReg = new SimpleMessageRegistry();

@@ -19,9 +19,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.NotThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -70,7 +69,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@NotThreadSafe
+// This class is NOT thread-safe
 final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
         implements AutoCloseable, RibOutRefresh, TotalPrefixesCounter, TotalPathsCounter,
@@ -120,15 +119,15 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     public static <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
                 R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
                 LocRibWriter<C, S, R, I> create(
-            @Nonnull final RIBSupport<C, S, R, I> ribSupport,
-            @Nonnull final Class<? extends AfiSafiType> afiSafiType,
-            @Nonnull final BindingTransactionChain chain,
-            @Nonnull final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
-            @Nonnull final AsNumber ourAs,
-            @Nonnull final DataBroker dataBroker,
+            final @NonNull RIBSupport<C, S, R, I> ribSupport,
+            final @NonNull Class<? extends AfiSafiType> afiSafiType,
+            final @NonNull BindingTransactionChain chain,
+            final @NonNull KeyedInstanceIdentifier<Rib, RibKey> ribIId,
+            final @NonNull AsNumber ourAs,
+            final @NonNull DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
-            @Nonnull final BGPPeerTracker peerTracker,
-            @Nonnull final PathSelectionMode pathSelectionStrategy) {
+            final @NonNull BGPPeerTracker peerTracker,
+            final @NonNull PathSelectionMode pathSelectionStrategy) {
         return new LocRibWriter<>(ribSupport, chain, ribIId, ourAs.getValue(), dataBroker, ribPolicies,
                 peerTracker, afiSafiType, pathSelectionStrategy);
     }
@@ -161,7 +160,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
      *
      * @param newChain new transaction chain
      */
-    synchronized void restart(@Nonnull final BindingTransactionChain newChain) {
+    synchronized void restart(final @NonNull BindingTransactionChain newChain) {
         requireNonNull(newChain);
         close();
         this.chain = newChain;
@@ -180,8 +179,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         }
     }
 
-    @Nonnull
-    private RouteEntry<C, S, R, I> createEntry(final String routeId) {
+    private @NonNull RouteEntry<C, S, R, I> createEntry(final String routeId) {
         final RouteEntry<C, S, R, I> ret = this.pathSelectionMode.createRouteEntry();
         this.routeEntries.put(routeId, ret);
         this.totalPrefixesCounter.increment();

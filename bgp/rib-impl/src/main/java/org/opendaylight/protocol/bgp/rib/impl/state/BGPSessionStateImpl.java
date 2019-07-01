@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.state;
 
 import com.google.common.base.Stopwatch;
@@ -14,9 +13,7 @@ import java.net.SocketAddress;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPMessagesListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStateListener;
@@ -34,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-@ThreadSafe
+// This class is thread-safe
 public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersState, BGPTransportState,
     BGPSessionStateListener {
     private static final PortNumber NON_DEFINED_PORT = new PortNumber(0);
@@ -119,7 +116,7 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     }
 
     @Override
-    public synchronized void setSessionState(@Nonnull final State state) {
+    public synchronized void setSessionState(final State state) {
         if (state == State.IDLE) {
             this.sessionStopwatch.reset();
         } else if (state == State.UP) {
@@ -163,7 +160,6 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
         return this.remoteAddress;
     }
 
-    @Nonnull
     @Override
     public synchronized PortNumber getRemotePort() {
         return this.remotePort;

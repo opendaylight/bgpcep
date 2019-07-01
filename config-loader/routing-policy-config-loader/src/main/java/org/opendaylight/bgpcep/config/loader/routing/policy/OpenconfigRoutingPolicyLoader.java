@@ -5,13 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.config.loader.routing.policy;
 
 import static java.util.Objects.requireNonNull;
 
 import java.util.concurrent.ExecutionException;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;

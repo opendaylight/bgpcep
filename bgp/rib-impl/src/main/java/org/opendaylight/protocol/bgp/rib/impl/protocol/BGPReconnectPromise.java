@@ -18,7 +18,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ChannelPipelineInitializer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -35,9 +35,9 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
     private final ChannelPipelineInitializer<S> initializer;
     private BGPProtocolSessionPromise<S> pending;
 
-    public BGPReconnectPromise(@Nonnull final EventExecutor executor, @Nonnull final InetSocketAddress address,
-        final int retryTimer, @Nonnull final Bootstrap bootstrap, @Nonnull final BGPPeerRegistry peerRegistry,
-        @Nonnull final ChannelPipelineInitializer<S> initializer) {
+    public BGPReconnectPromise(final @NonNull EventExecutor executor, final @NonNull InetSocketAddress address,
+            final int retryTimer, final @NonNull Bootstrap bootstrap, final @NonNull BGPPeerRegistry peerRegistry,
+            final @NonNull ChannelPipelineInitializer<S> initializer) {
         super(executor);
         this.bootstrap = bootstrap;
         this.initializer = requireNonNull(initializer);

@@ -14,8 +14,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
@@ -171,7 +170,6 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
             return CommitInfo.emptyFluentFuture();
         }
 
-        @Nonnull
         @Override
         public ServiceGroupIdentifier getIdentifier() {
             return this.sgi;

@@ -15,8 +15,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -122,7 +121,6 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
         return CommitInfo.emptyFluentFuture();
     }
 
-    @Nonnull
     @Override
     public ServiceGroupIdentifier getIdentifier() {
         return this.sgi;

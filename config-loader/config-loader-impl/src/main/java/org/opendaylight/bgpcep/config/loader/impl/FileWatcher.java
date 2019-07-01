@@ -5,19 +5,18 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.config.loader.impl;
 
 import java.nio.file.WatchService;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
+@NonNullByDefault
 public interface FileWatcher {
     /**
      * Path Folder watched.
      *
      * @return Path
      */
-    @Nonnull
     String getPathFile();
 
     /**
@@ -25,6 +24,5 @@ public interface FileWatcher {
      *
      * @return WatchService
      */
-    @Nonnull
     WatchService getWatchService();
 }

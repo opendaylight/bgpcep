@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.stats.provider;
 
 import static java.util.Objects.requireNonNull;
@@ -21,8 +20,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.Transaction;
@@ -55,7 +54,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public TopologyStatsProviderImpl(@Nonnull final DataBroker dataBroker, final int timeout) {
+    public TopologyStatsProviderImpl(final @NonNull DataBroker dataBroker, final int timeout) {
         this.dataBroker = requireNonNull(dataBroker);
         this.timeout = timeout;
     }
