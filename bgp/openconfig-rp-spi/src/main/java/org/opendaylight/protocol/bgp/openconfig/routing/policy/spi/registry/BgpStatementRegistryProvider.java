@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
@@ -27,10 +27,8 @@ public interface BgpStatementRegistryProvider {
      * @param conditionPolicy      Condition policy handler
      * @return registration ticket
      */
-    @Nonnull
-    <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
-            @Nonnull Class<T> conditionPolicyClass,
-            @Nonnull BgpConditionsPolicy<T, N> conditionPolicy);
+    <T extends ChildOf<BgpMatchConditions>, N> @NonNull AbstractRegistration registerBgpConditionsPolicy(
+            @NonNull Class<T> conditionPolicyClass, @NonNull BgpConditionsPolicy<T, N> conditionPolicy);
 
     /**
      * Register BGP Action Policy Augmentation handler.
@@ -39,10 +37,8 @@ public interface BgpStatementRegistryProvider {
      * @param bgpActionPolicy      BGP Actions policy handler
      * @return registration ticket
      */
-    @Nonnull
-    <T extends ChildOf<BgpActions>> AbstractRegistration registerBgpActionPolicy(
-            @Nonnull Class<T> bgpActionPolicyClass,
-            @Nonnull BgpActionPolicy<T> bgpActionPolicy);
+    <T extends ChildOf<BgpActions>> @NonNull AbstractRegistration registerBgpActionPolicy(
+            @NonNull Class<T> bgpActionPolicyClass, @NonNull BgpActionPolicy<T> bgpActionPolicy);
 
     /**
      * Register Bgp Condition Policy Augmentation handler.
@@ -51,10 +47,8 @@ public interface BgpStatementRegistryProvider {
      * @param conditionPolicy      Condition policy handler
      * @return registration ticket
      */
-    @Nonnull
-    <T extends Augmentation<BgpConditions>, N> AbstractRegistration registerBgpConditionsAugmentationPolicy(
-            @Nonnull Class<T> conditionPolicyClass,
-            @Nonnull BgpConditionsAugmentationPolicy<T, N> conditionPolicy);
+    <T extends Augmentation<BgpConditions>, N> @NonNull AbstractRegistration registerBgpConditionsAugmentationPolicy(
+            @NonNull Class<T> conditionPolicyClass, @NonNull BgpConditionsAugmentationPolicy<T, N> conditionPolicy);
 
     /**
      * Register BGP Action Policy Augmentation handler.
@@ -63,8 +57,6 @@ public interface BgpStatementRegistryProvider {
      * @param bgpActionPolicy      BGP Actions policy handler
      * @return registration ticket
      */
-    @Nonnull
-    <T extends Augmentation<BgpActions>> AbstractRegistration registerBgpActionAugmentationPolicy(
-            @Nonnull Class<T> bgpActionPolicyClass,
-            @Nonnull BgpActionAugPolicy<T> bgpActionPolicy);
+    <T extends Augmentation<BgpActions>> @NonNull AbstractRegistration registerBgpActionAugmentationPolicy(
+            @NonNull Class<T> bgpActionPolicyClass, @NonNull BgpActionAugPolicy<T> bgpActionPolicy);
 }

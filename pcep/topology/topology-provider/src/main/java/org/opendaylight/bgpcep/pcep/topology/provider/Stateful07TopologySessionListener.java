@@ -25,8 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
@@ -388,7 +387,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> addLsp(@Nonnull final AddLspArgs input) {
+    public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("AddLspArgs {}", input);
@@ -402,7 +401,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> removeLsp(@Nonnull final RemoveLspArgs input) {
+    public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null
                 && input.getNode() != null, MISSING_XML_TAG);
         LOG.trace("RemoveLspArgs {}", input);
@@ -478,7 +477,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> updateLsp(@Nonnull final UpdateLspArgs input) {
+    public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("UpdateLspArgs {}", input);
@@ -492,8 +491,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> ensureLspOperational(
-            @Nonnull final EnsureLspOperationalInput input) {
+    public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         final OperationalStatus op;
@@ -716,7 +714,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             // Build the request
             final RequestsBuilder rb = new RequestsBuilder();
             final Arguments2 args = this.input.getArguments().augmentation(Arguments2.class);
-            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
+            final Lsp inputLsp = args != null ? args.getLsp() : null;
             if (inputLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.LSP_MISSING).future();
             }
@@ -775,7 +773,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());
             srpBuilder.setProcessingRule(Boolean.TRUE);
-            if ((args != null && args.getPathSetupType() != null)) {
+            if (args != null && args.getPathSetupType() != null) {
                 if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
                     srpBuilder.setTlvs(
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
@@ -792,7 +790,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 }
             }
             final Srp srp = srpBuilder.build();
-            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
+            final Lsp inputLsp = args != null ? args.getLsp() : null;
             final LspBuilder lspBuilder = new LspBuilder().setPlspId(reportedLsp.getPlspId());
             if (inputLsp != null) {
                 lspBuilder.setDelegate(inputLsp.isDelegate() != null && inputLsp.isDelegate())

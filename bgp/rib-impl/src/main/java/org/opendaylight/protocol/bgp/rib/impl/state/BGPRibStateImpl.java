@@ -12,8 +12,8 @@ import static java.util.Objects.requireNonNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
@@ -37,7 +37,7 @@ public class BGPRibStateImpl extends DefaultRibReference implements BGPRibState,
     private boolean active;
 
     protected BGPRibStateImpl(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
-        @Nonnull final BgpId routeId, @Nonnull final AsNumber localAs) {
+        final @NonNull BgpId routeId, final @NonNull AsNumber localAs) {
         super(instanceIdentifier);
         this.routeId = requireNonNull(routeId);
         this.localAs = requireNonNull(localAs);
@@ -85,13 +85,13 @@ public class BGPRibStateImpl extends DefaultRibReference implements BGPRibState,
         return this.routeId;
     }
 
-    protected final synchronized void registerTotalPathCounter(@Nonnull final TablesKey key,
-        @Nonnull final TotalPathsCounter totalPathsCounter) {
+    protected final synchronized void registerTotalPathCounter(final @NonNull TablesKey key,
+            final @NonNull TotalPathsCounter totalPathsCounter) {
         this.totalPaths.put(key, totalPathsCounter);
     }
 
-    protected final synchronized void registerTotalPrefixesCounter(@Nonnull final TablesKey key,
-        @Nonnull final TotalPrefixesCounter totalPrefixesCounter) {
+    protected final synchronized void registerTotalPrefixesCounter(final @NonNull TablesKey key,
+            final @NonNull TotalPrefixesCounter totalPrefixesCounter) {
         this.totalPrefixes.put(key, totalPrefixesCounter);
     }
 

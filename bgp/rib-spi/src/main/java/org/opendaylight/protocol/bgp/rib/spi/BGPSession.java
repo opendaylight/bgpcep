@@ -12,7 +12,7 @@ import io.netty.util.concurrent.ScheduledFuture;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.parser.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -34,32 +34,28 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      *
      * @return Set of tables which it supports.
      */
-    @Nonnull
-    Set<BgpTableType> getAdvertisedTableTypes();
+    @NonNull Set<BgpTableType> getAdvertisedTableTypes();
 
     /**
      * Return the BGP router ID advertised by the peer.
      *
      * @return Peer's BGP Router ID.
      */
-    @Nonnull
-    Ipv4Address getBgpId();
+    @NonNull Ipv4Address getBgpId();
 
     /**
      * Return the AS number which the peer advertises.
      *
      * @return Peer's AS Number
      */
-    @Nonnull
-    AsNumber getAsNumber();
+    @NonNull AsNumber getAsNumber();
 
     /**
      * Return a list with Add Path tables supported advertised and corresponding SendReceive mode.
      *
      * @return AddPathTables supported
      */
-    @Nonnull
-    List<AddressFamilies> getAdvertisedAddPathTableTypes();
+    @NonNull List<AddressFamilies> getAdvertisedAddPathTableTypes();
 
     /**
      * Return advertised graceful capability containing the list of tables which the peer has advertised to support,
@@ -67,8 +63,7 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      *
      * @return Advertised graceful restart capability.
      */
-    @Nonnull
-    default GracefulRestartCapability getAdvertisedGracefulRestartCapability() {
+    default @NonNull GracefulRestartCapability getAdvertisedGracefulRestartCapability() {
         return GracefulRestartUtil.EMPTY_GR_CAPABILITY;
     }
 
@@ -78,8 +73,7 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      *
      * @return Advertised long-lived graceful restart capability.
      */
-    @Nonnull
-    default LlGracefulRestartCapability getAdvertisedLlGracefulRestartCapability() {
+    default @NonNull LlGracefulRestartCapability getAdvertisedLlGracefulRestartCapability() {
         return GracefulRestartUtil.EMPTY_LLGR_CAPABILITY;
     }
 

@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -36,7 +36,7 @@ public final class MultiPathSupportImpl implements MultiPathSupport {
      * @return MultiPathSupport instance.
      */
     public static MultiPathSupport createParserMultiPathSupport(
-            @Nonnull final List<AddressFamilies> addPathCapabilities) {
+            final @NonNull List<AddressFamilies> addPathCapabilities) {
         requireNonNull(addPathCapabilities);
         final Set<BgpTableType> support = addPathCapabilities
             .stream()

@@ -10,17 +10,17 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPath;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 
 public final class AddPathBestPath extends AbstractBestPath {
-    private final RouteKey routeKey;
-    private final Long pathId;
+    private final @NonNull RouteKey routeKey;
+    private final @NonNull Long pathId;
     private final int offset;
 
-    AddPathBestPath(@Nonnull final BestPathState state, @Nonnull final RouteKey key, final @Nonnull Long pathId,
+    AddPathBestPath(final @NonNull BestPathState state, final @NonNull RouteKey key, final @NonNull Long pathId,
             final int offset) {
         super(state);
         this.routeKey = requireNonNull(key);
@@ -91,7 +91,7 @@ public final class AddPathBestPath extends AbstractBestPath {
      *
      * @return Path Id as a {@link Long}
      */
-    @Nonnull Long getPathIdLong() {
+    @NonNull Long getPathIdLong() {
         return this.pathId;
     }
 }

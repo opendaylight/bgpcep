@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
@@ -33,8 +33,7 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
      *
      * @return symbolic name.
      */
-    @Nonnull
-    String getName();
+    @NonNull String getName();
 
     /**
      * Return the peer's BGP identifier as raw byte array.
@@ -48,8 +47,7 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
      *
      * @return future
      */
-    @Nonnull
-    FluentFuture<? extends Object> close();
+    @NonNull FluentFuture<? extends Object> close();
 
     /**
      * Update peers ribout after path selection processing.
@@ -60,10 +58,9 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
      */
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void refreshRibOut(
-            @Nonnull RouteEntryDependenciesContainer entryDep,
-            @Nonnull List<StaleBestPathRoute<C, S, R, I>> staleRoutes,
-            @Nonnull List<AdvertizedRoute<C, S, R, I>> newRoutes);
+            I extends Identifier<R>> void refreshRibOut(@NonNull RouteEntryDependenciesContainer entryDep,
+                    @NonNull List<StaleBestPathRoute<C, S, R, I>> staleRoutes,
+                    @NonNull List<AdvertizedRoute<C, S, R, I>> newRoutes);
 
     /**
      * Stores under peers rib Out already present routes, before proceed to process any new route advertizement.
@@ -73,9 +70,8 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
      */
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void initializeRibOut(
-            @Nonnull RouteEntryDependenciesContainer entryDep,
-            @Nonnull List<ActualBestPathRoutes<C, S, R, I>> routes);
+            I extends Identifier<R>> void initializeRibOut(@NonNull RouteEntryDependenciesContainer entryDep,
+                    @NonNull List<ActualBestPathRoutes<C, S, R, I>> routes);
 
     /**
      * Applies all policies through all present routes, and advertize/withdraws based on new results.
@@ -86,6 +82,6 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
      */
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void reEvaluateAdvertizement(@Nonnull RouteEntryDependenciesContainer entryDep,
-            @Nonnull List<ActualBestPathRoutes<C, S, R, I>> routes);
+            I extends Identifier<R>> void reEvaluateAdvertizement(@NonNull RouteEntryDependenciesContainer entryDep,
+                    @NonNull List<ActualBestPathRoutes<C, S, R, I>> routes);
 }

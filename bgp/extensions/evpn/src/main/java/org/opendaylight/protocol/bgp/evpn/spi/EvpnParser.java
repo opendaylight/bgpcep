@@ -5,13 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.spi;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
 
+@NonNullByDefault
 public interface EvpnParser {
     /**
      * Decode input buffer to BGP Evpn.
@@ -19,6 +19,5 @@ public interface EvpnParser {
      * @param buffer encoded Evpn body in Bytebuf
      * @return Evpn
      */
-    @Nonnull
-    EvpnChoice parseEvpn(@Nonnull ByteBuf buffer);
+    EvpnChoice parseEvpn(ByteBuf buffer);
 }

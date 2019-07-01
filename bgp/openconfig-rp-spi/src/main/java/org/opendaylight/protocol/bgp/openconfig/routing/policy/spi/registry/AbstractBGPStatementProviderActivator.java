@@ -11,14 +11,15 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.yangtools.concepts.Registration;
 
 public abstract class AbstractBGPStatementProviderActivator implements StatementProviderActivator, AutoCloseable {
     @GuardedBy("this")
     private List<? extends Registration> registrations;
 
-    @GuardedBy("this")
+    @Holding("this")
     protected abstract List<? extends Registration> startImpl(StatementRegistryProvider context);
 
     @Override

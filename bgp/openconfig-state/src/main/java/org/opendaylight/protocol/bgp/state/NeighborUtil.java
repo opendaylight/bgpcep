@@ -19,8 +19,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
@@ -86,7 +86,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
  * Util for create OpenConfig Neighbor with corresponding openConfig state.
  */
 public final class NeighborUtil {
-    private static final long TIMETICK_ROLLOVER_VALUE = (UnsignedInteger.MAX_VALUE.longValue() + 1);
+    private static final long TIMETICK_ROLLOVER_VALUE = UnsignedInteger.MAX_VALUE.longValue() + 1;
 
     private NeighborUtil() {
         throw new UnsupportedOperationException();
@@ -100,9 +100,8 @@ public final class NeighborUtil {
      * @param bgpTableTypeRegistry BGP TableType Registry
      * @return Openconfig Neighbors Stats
      */
-    @Nullable
-    public static Neighbors buildNeighbors(@Nonnull final List<BGPPeerState> peerStats,
-            @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
+    public static @Nullable Neighbors buildNeighbors(final @NonNull List<BGPPeerState> peerStats,
+            final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         if (peerStats.isEmpty()) {
             return null;
         }
@@ -118,9 +117,8 @@ public final class NeighborUtil {
      * @param neighbor containing Neighbor state counters
      * @return neighbor containing Neighbor State
      */
-    @Nullable
-    public static Neighbor buildNeighbor(@Nonnull final BGPPeerState neighbor,
-            @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
+    public static @NonNull Neighbor buildNeighbor(final @NonNull BGPPeerState neighbor,
+            final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         return new NeighborBuilder()
                 .setNeighborAddress(neighbor.getNeighborAddress())
                 .setState(buildNeighborState(neighbor.getBGPSessionState(), neighbor.getBGPPeerMessagesState()))
@@ -139,8 +137,7 @@ public final class NeighborUtil {
      * @param bgpPeerMessagesState message state
      * @return Neighbor State
      */
-    @Nullable
-    public static State buildNeighborState(@Nullable final BGPSessionState sessionState,
+    public static @Nullable State buildNeighborState(final @Nullable BGPSessionState sessionState,
             final BGPPeerMessagesState bgpPeerMessagesState) {
         if (sessionState == null && bgpPeerMessagesState == null) {
             return null;
@@ -161,14 +158,13 @@ public final class NeighborUtil {
      * @param neighbor BGPPeerState containing Operational state counters
      * @return Timer State
      */
-    @Nullable
-    public static Timers buildTimer(@Nullable final BGPTimersState neighbor) {
+    public static @Nullable Timers buildTimer(final @Nullable BGPTimersState neighbor) {
         if (neighbor == null) {
             return null;
         }
         // convert neighbor uptime which is in milliseconds to time-ticks which is
         // hundredth of a second, and handle roll-over scenario
-        final long uptimeTicks = ((neighbor.getUpTime() / 10) % TIMETICK_ROLLOVER_VALUE);
+        final long uptimeTicks = neighbor.getUpTime() / 10 % TIMETICK_ROLLOVER_VALUE;
         final NeighborTimersStateAugmentation timerState = new NeighborTimersStateAugmentationBuilder()
                 .setNegotiatedHoldTime(BigDecimal.valueOf(neighbor.getNegotiatedHoldTime()))
                 .setUptime(new Timeticks(uptimeTicks)).build();
@@ -184,8 +180,7 @@ public final class NeighborUtil {
      * @param neighbor BGPPeerState containing Operational state counters
      * @return Transport State
      */
-    @Nullable
-    public static Transport buildTransport(@Nullable final BGPTransportState neighbor) {
+    public static @Nullable Transport buildTransport(final @Nullable BGPTransportState neighbor) {
         if (neighbor == null) {
             return null;
         }
@@ -204,7 +199,7 @@ public final class NeighborUtil {
      * @param errorHandlingState BGPErrorHandlingState containing ErrorHandlingState Operational state counters
      * @return Error Handling State
      */
-    public static ErrorHandling buildErrorHandling(@Nullable final BGPErrorHandlingState errorHandlingState) {
+    public static ErrorHandling buildErrorHandling(final @Nullable BGPErrorHandlingState errorHandlingState) {
         if (errorHandlingState == null) {
             return null;
         }
@@ -220,8 +215,7 @@ public final class NeighborUtil {
      * @param neighbor BGPPeerState containing Operational state counters
      * @return Graceful Restart
      */
-    @Nonnull
-    public static GracefulRestart buildGracefulRestart(@Nonnull final BGPGracelfulRestartState neighbor) {
+    public static @NonNull GracefulRestart buildGracefulRestart(final @NonNull BGPGracelfulRestartState neighbor) {
         final NeighborGracefulRestartStateAugmentation gracefulRestartState =
                 new NeighborGracefulRestartStateAugmentationBuilder()
                         .setLocalRestarting(neighbor.isLocalRestarting())
@@ -240,8 +234,8 @@ public final class NeighborUtil {
      * @param neighbor BGPPeerState containing Operational state counters
      * @return Afi Safis
      */
-    public static AfiSafis buildAfisSafis(@Nonnull final BGPPeerState neighbor,
-            @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
+    public static AfiSafis buildAfisSafis(final @NonNull BGPPeerState neighbor,
+            final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         return new AfiSafisBuilder().setAfiSafi(buildAfisSafisState(neighbor.getBGPAfiSafiState(),
                 bgpTableTypeRegistry)).build();
     }
@@ -251,7 +245,7 @@ public final class NeighborUtil {
      *
      * @return Neighbor State
      */
-    public static NeighborStateAugmentation buildCapabilityState(@Nonnull final BGPSessionState neighbor) {
+    public static NeighborStateAugmentation buildCapabilityState(final @NonNull BGPSessionState neighbor) {
 
         final List<Class<? extends BgpCapability>> supportedCapabilities = buildSupportedCapabilities(neighbor);
         SessionState sessionState = null;
@@ -276,15 +270,15 @@ public final class NeighborUtil {
      *
      * @return BgpNeighborState containing Message State
      */
-    @Nonnull
-    public static BgpNeighborStateAugmentation buildMessageState(@Nonnull final BGPPeerMessagesState neighbor) {
+    public static @NonNull BgpNeighborStateAugmentation buildMessageState(
+            final @NonNull BGPPeerMessagesState neighbor) {
         return new BgpNeighborStateAugmentationBuilder()
                 .setMessages(new MessagesBuilder()
                         .setReceived(buildMessagesReceived(neighbor))
                         .setSent(buildMessagesSent(neighbor)).build()).build();
     }
 
-    private static Received buildMessagesReceived(@Nonnull final BGPPeerMessagesState neighbor) {
+    private static Received buildMessagesReceived(final @NonNull BGPPeerMessagesState neighbor) {
         return new ReceivedBuilder()
                 .setUPDATE(toBigInteger(neighbor.getUpdateMessagesReceivedCount()))
                 .setNOTIFICATION(toBigInteger(neighbor.getNotificationMessagesReceivedCount()))
@@ -295,7 +289,7 @@ public final class NeighborUtil {
         return UnsignedLong.valueOf(updateReceivedCounter).bigIntegerValue();
     }
 
-    private static Sent buildMessagesSent(@Nonnull final BGPPeerMessagesState neighbor) {
+    private static Sent buildMessagesSent(final @NonNull BGPPeerMessagesState neighbor) {
         return new SentBuilder()
                 .setUPDATE(toBigInteger(neighbor.getUpdateMessagesSentCount()))
                 .setNOTIFICATION(toBigInteger(neighbor.getNotificationMessagesSentCount()))
@@ -308,8 +302,8 @@ public final class NeighborUtil {
      * @param erroneousUpdateCount erroneous Update Count
      * @return Error Handling State
      */
-    @Nonnull
-    public static NeighborErrorHandlingStateAugmentation buildErrorHandlingState(final long erroneousUpdateCount) {
+    public static @NonNull NeighborErrorHandlingStateAugmentation buildErrorHandlingState(
+            final long erroneousUpdateCount) {
         return new NeighborErrorHandlingStateAugmentationBuilder()
                 .setErroneousUpdateMessages(erroneousUpdateCount).build();
     }
@@ -319,9 +313,8 @@ public final class NeighborUtil {
      *
      * @return AfiSafi List
      */
-    @Nonnull
-    public static List<AfiSafi> buildAfisSafisState(@Nonnull final BGPAfiSafiState neighbor,
-            @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
+    public static @NonNull List<AfiSafi> buildAfisSafisState(final @NonNull BGPAfiSafiState neighbor,
+            final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         final Set<TablesKey> afiSafiJoin = new HashSet<>(neighbor.getAfiSafisAdvertized());
         afiSafiJoin.addAll(neighbor.getAfiSafisReceived());
         return afiSafiJoin.stream().map(tableKey -> buildAfiSafi(neighbor, tableKey, bgpTableTypeRegistry))
@@ -329,8 +322,8 @@ public final class NeighborUtil {
                 .collect(Collectors.toList());
     }
 
-    private static AfiSafi buildAfiSafi(@Nonnull final BGPAfiSafiState neighbor,
-            @Nonnull final TablesKey tablesKey, @Nonnull final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
+    private static AfiSafi buildAfiSafi(final @NonNull BGPAfiSafiState neighbor,
+            final @NonNull TablesKey tablesKey, final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         final Optional<Class<? extends AfiSafiType>> afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
         return afiSafi.map(aClass -> new AfiSafiBuilder().setAfiSafiName(aClass)
                 .setState(buildAfiSafiState(neighbor, tablesKey, neighbor.isAfiSafiSupported(tablesKey)))
@@ -339,8 +332,8 @@ public final class NeighborUtil {
     }
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
-            .safi.list.afi.safi.State buildAfiSafiState(@Nonnull final BGPAfiSafiState neighbor,
-            @Nonnull final TablesKey tablesKey, final boolean afiSafiSupported) {
+            .safi.list.afi.safi.State buildAfiSafiState(final @NonNull BGPAfiSafiState neighbor,
+            final @NonNull TablesKey tablesKey, final boolean afiSafiSupported) {
         final NeighborAfiSafiStateAugmentationBuilder builder = new NeighborAfiSafiStateAugmentationBuilder();
         builder.setActive(afiSafiSupported);
         if (afiSafiSupported) {
@@ -356,7 +349,7 @@ public final class NeighborUtil {
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
             .safi.list.afi.safi.GracefulRestart buildAfiSafiGracefulRestartState(
-            @Nonnull final BGPLlGracelfulRestartState neighbor, @Nonnull final TablesKey tablesKey) {
+            final @NonNull BGPLlGracelfulRestartState neighbor, final @NonNull TablesKey tablesKey) {
         final NeighborAfiSafiGracefulRestartStateAugmentation builder =
                 new NeighborAfiSafiGracefulRestartStateAugmentationBuilder()
                         .setAdvertised(neighbor.isGracefulRestartAdvertized(tablesKey))
@@ -375,9 +368,8 @@ public final class NeighborUtil {
      *
      * @return List containing supported capabilities
      */
-    @Nonnull
-    public static List<Class<? extends BgpCapability>> buildSupportedCapabilities(
-            @Nonnull final BGPSessionState neighbor) {
+    public static @NonNull List<Class<? extends BgpCapability>> buildSupportedCapabilities(
+            final @NonNull BGPSessionState neighbor) {
         final List<Class<? extends BgpCapability>> supportedCapabilities = new ArrayList<>();
         if (neighbor.isAddPathCapabilitySupported()) {
             supportedCapabilities.add(ADDPATHS.class);

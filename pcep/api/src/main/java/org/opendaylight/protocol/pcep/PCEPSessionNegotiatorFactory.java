@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Factory for creating PCEP session negotiator.
@@ -26,17 +26,14 @@ public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
      * @param promise                       session promise
      * @return PCEPSessionNegotiator instance
      */
-    @Nonnull
-    SessionNegotiator getSessionNegotiator(
-            @Nonnull PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
-            @Nonnull Channel channel,
-            @Nonnull Promise<S> promise);
+    @NonNull SessionNegotiator getSessionNegotiator(
+            @NonNull PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
+            @NonNull Channel channel, @NonNull Promise<S> promise);
 
     /**
      * Returns a PCEPSessionProposalFactory.
      *
      * @return session factory
      */
-    @Nonnull
-    PCEPSessionProposalFactory getPCEPSessionProposalFactory();
+    @NonNull PCEPSessionProposalFactory getPCEPSessionProposalFactory();
 }
