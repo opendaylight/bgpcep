@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.app;
 
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ATTRIBUTES_QNAME;
@@ -18,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
@@ -85,10 +84,10 @@ final class BmpRibInWriter {
         }, MoreExecutors.directExecutor());
     }
 
-    public static BmpRibInWriter create(@Nonnull final YangInstanceIdentifier tablesRootPath,
-            @Nonnull final DOMTransactionChain chain,
-            @Nonnull final RIBExtensionConsumerContext extensions, @Nonnull final Set<TablesKey> tableTypes,
-            @Nonnull  final BindingCodecTree tree) {
+    public static BmpRibInWriter create(final @NonNull YangInstanceIdentifier tablesRootPath,
+            final @NonNull DOMTransactionChain chain,
+            final @NonNull RIBExtensionConsumerContext extensions, final @NonNull Set<TablesKey> tableTypes,
+            final @NonNull BindingCodecTree tree) {
         return new BmpRibInWriter(tablesRootPath, chain, extensions, tableTypes, tree);
     }
 

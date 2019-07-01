@@ -5,14 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.spi;
 
 import io.netty.buffer.ByteBuf;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
+@NonNullByDefault
 public interface EvpnSerializer {
     /**
      * Serialize Evpn.
@@ -21,8 +21,7 @@ public interface EvpnSerializer {
      * @param buffer Encode common Evpn parts to output buffer
      * @return Encode Evpn to output buffer
      */
-    @Nonnull
-    ByteBuf serializeEvpn(@Nonnull EvpnChoice evpn, @Nonnull ByteBuf buffer);
+    ByteBuf serializeEvpn(EvpnChoice evpn, ByteBuf buffer);
 
     /**
      * Serialize Evpn Model.
@@ -30,8 +29,7 @@ public interface EvpnSerializer {
      * @param evpn ChoiceNode containing Evpn
      * @return Evpn
      */
-    @Nonnull
-    EvpnChoice serializeEvpnModel(@Nonnull ContainerNode evpn);
+    EvpnChoice serializeEvpnModel(ContainerNode evpn);
 
     /**
      * create Route key from Evpn model.
@@ -39,6 +37,5 @@ public interface EvpnSerializer {
      * @param evpn ContainerNode containing Evpn
      * @return Evpn
      */
-    @Nonnull
-    EvpnChoice createRouteKey(@Nonnull ContainerNode evpn);
+    EvpnChoice createRouteKey(ContainerNode evpn);
 }

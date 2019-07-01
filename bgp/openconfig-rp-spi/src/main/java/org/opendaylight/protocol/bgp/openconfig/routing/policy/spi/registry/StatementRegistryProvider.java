@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.ActionsAugPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.ConditionsAugPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.statement.Actions;
@@ -27,10 +27,9 @@ public interface StatementRegistryProvider extends BgpStatementRegistryProvider 
      * @param conditionPolicy      Condition policy handler
      * @return registration ticket
      */
-    @Nonnull
-    AbstractRegistration registerConditionPolicy(
-            @Nonnull Class<? extends Augmentation<Conditions>> conditionPolicyClass,
-            @Nonnull ConditionsAugPolicy conditionPolicy);
+    @NonNull AbstractRegistration registerConditionPolicy(
+            @NonNull Class<? extends Augmentation<Conditions>> conditionPolicyClass,
+            @NonNull ConditionsAugPolicy conditionPolicy);
 
     /**
      * Register Action Policy Augmentation handler.
@@ -39,8 +38,7 @@ public interface StatementRegistryProvider extends BgpStatementRegistryProvider 
      * @param actionPolicy      IGP Actions policy handler
      * @return registration ticket
      */
-    @Nonnull
-    AbstractRegistration registerActionPolicy(
-            @Nonnull Class<? extends Augmentation<Actions>> actionPolicyClass,
-            @Nonnull ActionsAugPolicy actionPolicy);
+    @NonNull AbstractRegistration registerActionPolicy(
+            @NonNull Class<? extends Augmentation<Actions>> actionPolicyClass,
+            @NonNull ActionsAugPolicy actionPolicy);
 }

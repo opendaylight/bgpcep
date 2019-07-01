@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.state;
 
 import static java.util.Objects.requireNonNull;
@@ -18,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPMessagesListener;
 import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
@@ -75,11 +74,11 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     @GuardedBy("this")
     private boolean peerRestarting;
 
-    public BGPPeerStateImpl(@Nonnull final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
-        @Nullable final String groupId, @Nonnull final IpAddress neighborAddress,
-        @Nonnull final Set<TablesKey> afiSafisAdvertized,
-        @Nonnull final Set<TablesKey> afiSafisGracefulAdvertized,
-        @Nonnull final Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
+    public BGPPeerStateImpl(final @NonNull KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
+            final @Nullable String groupId, final @NonNull IpAddress neighborAddress,
+            final @NonNull Set<TablesKey> afiSafisAdvertized,
+            final @NonNull Set<TablesKey> afiSafisGracefulAdvertized,
+            final @NonNull Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
         super(instanceIdentifier);
         this.neighborAddress = requireNonNull(neighborAddress);
         this.groupId = groupId;
@@ -131,7 +130,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     @Override
-    public final synchronized long getPrefixesSentCount(@Nonnull final TablesKey tablesKey) {
+    public final synchronized long getPrefixesSentCount(final TablesKey tablesKey) {
         if (this.prefixesSent == null) {
             return 0;
         }
@@ -206,8 +205,8 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     protected final synchronized void registerPrefixesCounters(
-            @Nonnull final PrefixesReceivedCounters newPrefixesReceived,
-            @Nonnull final PrefixesInstalledCounters newPrefixesInstalled) {
+            final @NonNull PrefixesReceivedCounters newPrefixesReceived,
+            final @NonNull PrefixesInstalledCounters newPrefixesInstalled) {
         this.prefixesReceived = newPrefixesReceived;
         this.prefixesInstalled = newPrefixesInstalled;
     }
@@ -312,7 +311,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     @Override
-    public final synchronized int getLlGracefulRestartTimer(@Nonnull final TablesKey tablesKey) {
+    public final synchronized int getLlGracefulRestartTimer(final TablesKey tablesKey) {
         final int timerAdvertised = isLlGracefulRestartAdvertised(tablesKey)
                 ? this.afiSafisLlGracefulAdvertised.get(tablesKey) : 0;
         final int timerReceived = isLlGracefulRestartReceived(tablesKey)

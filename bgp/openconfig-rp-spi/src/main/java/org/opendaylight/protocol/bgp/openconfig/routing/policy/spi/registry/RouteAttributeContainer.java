@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 
 /**
@@ -44,8 +44,7 @@ public final class RouteAttributeContainer {
      *
      * @return Attributes
      */
-    @Nullable
-    public Attributes getAttributes() {
+    public @Nullable Attributes getAttributes() {
         return this.attributes;
     }
 }

@@ -7,10 +7,8 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.yangtools.concepts.Registration;
 
-@ThreadSafe
 public class HandlerRegistry<C, P, S> {
     private final MultiRegistry<Class<? extends C>, S> serializers = new MultiRegistry<>();
     private final MultiRegistry<Integer, P> parsers = new MultiRegistry<>();

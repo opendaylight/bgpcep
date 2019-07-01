@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -27,10 +27,9 @@ public interface RIBSupportContextRegistry {
      * @param key AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> RIBSupport<C, S, R, I> getRIBSupport(TablesKey key);
+        I extends Identifier<R>> @Nullable RIBSupport<C, S, R, I> getRIBSupport(TablesKey key);
 
     /**
      * Acquire a RIB Support Context for a AFI/SAFI combination.
@@ -38,10 +37,9 @@ public interface RIBSupportContextRegistry {
      * @param key Tables key with AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable
     default <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> RIBSupport<C, S, R, I> getRIBSupport(NodeIdentifierWithPredicates key) {
+        I extends Identifier<R>> @Nullable RIBSupport<C, S, R, I> getRIBSupport(NodeIdentifierWithPredicates key) {
         final RIBSupportContext support = getRIBSupportContext(key);
         return support == null ? null : support.getRibSupport();
     }
@@ -52,8 +50,7 @@ public interface RIBSupportContextRegistry {
      * @param key AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable
-    RIBSupportContext getRIBSupportContext(TablesKey key);
+    @Nullable RIBSupportContext getRIBSupportContext(TablesKey key);
 
     /**
      * Acquire a RIB Support Context for a AFI/SAFI combination.
@@ -61,6 +58,5 @@ public interface RIBSupportContextRegistry {
      * @param key Tables key with AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable
-    RIBSupportContext getRIBSupportContext(NodeIdentifierWithPredicates key);
+    @Nullable RIBSupportContext getRIBSupportContext(NodeIdentifierWithPredicates key);
 }

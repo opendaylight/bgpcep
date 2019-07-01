@@ -12,8 +12,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 public final class KeyMapping extends HashMap<InetAddress, byte[]> {
     private static final long serialVersionUID = 1L;
@@ -22,8 +22,8 @@ public final class KeyMapping extends HashMap<InetAddress, byte[]> {
         super();
     }
 
-    @Nonnull
-    public static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final String password) {
+    public static @NonNull KeyMapping getKeyMapping(final @NonNull InetAddress inetAddress,
+            final @Nullable String password) {
         final KeyMapping keyMapping = new KeyMapping();
         if (!isNullOrEmpty(password)) {
             keyMapping.put(inetAddress, password.getBytes(StandardCharsets.US_ASCII));

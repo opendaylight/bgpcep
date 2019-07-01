@@ -7,14 +7,16 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -25,8 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
@@ -82,6 +83,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.RemoveLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.TriggerSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.UpdateLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.ensure.lsp.operational.args.Arguments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client.attributes.path.computation.client.ReportedLsp;
@@ -157,7 +159,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (isTriggeredInitialSynchro() && !isSynchronized()) {
             return triggerSynchronization(input);
         } else if (isSessionSynchronized() && isTriggeredReSyncEnabled()) {
-            Preconditions.checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
+            checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
             if (input.getName() == null) {
                 return triggerResyncronization(input);
             } else {
@@ -388,41 +390,38 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> addLsp(@Nonnull final AddLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "SB does not grok TYPE_USE")
+    public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
+        checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("AddLspArgs {}", input);
         // Make sure there is no such LSP
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
-        if (f == null) {
-            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
-        }
-        return Futures.transformAsync(f, new AddFunction(input, lsp), MoreExecutors.directExecutor());
+        return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
+                : Futures.transformAsync(f, new AddFunction(input, lsp), MoreExecutors.directExecutor());
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> removeLsp(@Nonnull final RemoveLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null
-                && input.getNode() != null, MISSING_XML_TAG);
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "SB does not grok TYPE_USE")
+    public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
+        checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
         LOG.trace("RemoveLspArgs {}", input);
         // Make sure the LSP exists, we need it for PLSP-ID
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
-        if (f == null) {
-            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
-        }
-        return Futures.transformAsync(f, rep -> {
-            final Lsp reportedLsp = validateReportedLsp(rep, input);
-            if (reportedLsp == null) {
-                return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
-            }
-            final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-            final Requests rb = buildRequest(rep, reportedLsp);
-            ib.setRequests(Collections.singletonList(rb));
-            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
-                    rb.getSrp().getOperationId(), null);
-        }, MoreExecutors.directExecutor());
+        return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
+                : Futures.transformAsync(f, rep -> {
+                    final Lsp reportedLsp = validateReportedLsp(rep, input);
+                    if (reportedLsp == null) {
+                        return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
+                    }
+                    final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
+                    final Requests rb = buildRequest(rep, reportedLsp);
+                    ib.setRequests(Collections.singletonList(rb));
+                    return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
+                        rb.getSrp().getOperationId(), null);
+                }, MoreExecutors.directExecutor());
     }
 
     private Requests buildRequest(final Optional<ReportedLsp> rep, final Lsp reportedLsp) {
@@ -478,26 +477,27 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> updateLsp(@Nonnull final UpdateLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "SB does not grok TYPE_USE")
+
+    public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
+        checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("UpdateLspArgs {}", input);
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
-        if (f == null) {
-            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
-        }
-        return Futures.transformAsync(f, new UpdateFunction(input), MoreExecutors.directExecutor());
+        return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
+                : Futures.transformAsync(f, new UpdateFunction(input), MoreExecutors.directExecutor());
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> ensureLspOperational(
-            @Nonnull final EnsureLspOperationalInput input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null
-                && input.getArguments() != null, MISSING_XML_TAG);
+    public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
+        checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
+        final Arguments args = input.getArguments();
+        checkArgument(args != null, MISSING_XML_TAG);
+
         final OperationalStatus op;
-        final Arguments1 aa = input.getArguments().augmentation(Arguments1.class);
+        final Arguments1 aa = args.augmentation(Arguments1.class);
         if (aa != null) {
             op = aa.getOperational();
         } else {
@@ -508,14 +508,13 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         LOG.debug("Checking if LSP {} has operational state {}", lsp, op);
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
-        if (f == null) {
-            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
-        }
-        return listenableFuture(f, input, op);
+        return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
+                : listenableFuture(f, input, op);
     }
 
-    private ListenableFuture<OperationResult> listenableFuture(final ListenableFuture<Optional<ReportedLsp>> future,
-            final EnsureLspOperationalInput input, final OperationalStatus op) {
+    private static ListenableFuture<OperationResult> listenableFuture(
+            final ListenableFuture<Optional<ReportedLsp>> future, final EnsureLspOperationalInput input,
+            final OperationalStatus op) {
         return Futures.transform(future, rep -> {
             if (!rep.isPresent()) {
                 LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
@@ -544,13 +543,13 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         }
         // it doesn't matter how many lsps there are in the path list, we only need data that is the same in each path
         final Path1 ra = rep.get().getPath().get(0).augmentation(Path1.class);
-        Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
+        checkState(ra != null, "Reported LSP reported null from data-store.");
         final Lsp reportedLsp = ra.getLsp();
-        Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
+        checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
         return reportedLsp;
     }
 
-    private Optional<PathSetupType> getPST(final Optional<ReportedLsp> rep) {
+    private static Optional<PathSetupType> getPST(final Optional<ReportedLsp> rep) {
         if (rep.isPresent()) {
             final Path1 path1 = rep.get().getPath().get(0).augmentation(Path1.class);
             if (path1 != null) {
@@ -716,7 +715,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             // Build the request
             final RequestsBuilder rb = new RequestsBuilder();
             final Arguments2 args = this.input.getArguments().augmentation(Arguments2.class);
-            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
+            final Lsp inputLsp = args != null ? args.getLsp() : null;
             if (inputLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.LSP_MISSING).future();
             }
@@ -775,7 +774,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());
             srpBuilder.setProcessingRule(Boolean.TRUE);
-            if ((args != null && args.getPathSetupType() != null)) {
+            if (args != null && args.getPathSetupType() != null) {
                 if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
                     srpBuilder.setTlvs(
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
@@ -792,7 +791,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 }
             }
             final Srp srp = srpBuilder.build();
-            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
+            final Lsp inputLsp = args != null ? args.getLsp() : null;
             final LspBuilder lspBuilder = new LspBuilder().setPlspId(reportedLsp.getPlspId());
             if (inputLsp != null) {
                 lspBuilder.setDelegate(inputLsp.isDelegate() != null && inputLsp.isDelegate())

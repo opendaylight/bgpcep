@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.app;
 
 import static java.util.Objects.requireNonNull;
@@ -20,7 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -143,7 +143,7 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
         }
     }
 
-    @GuardedBy("this")
+    @Holding("this")
     @SuppressWarnings("checkstyle:IllegalCatch")
     private synchronized void tearDown() {
         // the session has been teared down before
@@ -195,7 +195,7 @@ public final class BmpRouterImpl implements BmpRouter, TransactionChainListener 
     }
 
     private synchronized boolean isDatastoreWritable() {
-        return (this.routerYangIId != null);
+        return this.routerYangIId != null;
     }
 
     private synchronized void createRouterEntry() {

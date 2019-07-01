@@ -5,10 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Serve as an entry gate for providers of {@link PeerSpecificParserConstraint} services.
@@ -22,6 +21,6 @@ public interface PeerSpecificParserConstraintProvider extends PeerSpecificParser
      * @param peerConstraint Peer constraint service to be added.
      * @return True if service was added, false if not (such service is already registered).
      */
-    <T extends PeerConstraint> boolean addPeerConstraint(@Nonnull Class<T> classType, @Nonnull T peerConstraint);
+    <T extends PeerConstraint> boolean addPeerConstraint(@NonNull Class<T> classType, @NonNull T peerConstraint);
 
 }

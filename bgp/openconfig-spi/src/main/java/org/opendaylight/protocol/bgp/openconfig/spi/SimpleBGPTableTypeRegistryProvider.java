@@ -5,15 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.spi;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import java.util.Optional;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -52,28 +50,21 @@ public final class SimpleBGPTableTypeRegistryProvider implements BGPTableTypeReg
 
     @Override
     public synchronized Optional<BgpTableType> getTableType(final Class<? extends AfiSafiType> afiSafiType) {
-        final BgpTableType tableType = this.tableTypes.inverse().get(afiSafiType);
-        return Optional.ofNullable(tableType);
+        return Optional.ofNullable(tableTypes.inverse().get(afiSafiType));
     }
 
-    @Nonnull
     @Override
-    public Optional<TablesKey> getTableKey(@Nonnull final Class<? extends AfiSafiType> afiSafiType) {
-        final TablesKey tableKey = this.tableKeys.inverse().get(afiSafiType);
-        return Optional.ofNullable(tableKey);
+    public Optional<TablesKey> getTableKey(final Class<? extends AfiSafiType> afiSafiType) {
+        return Optional.ofNullable(tableKeys.inverse().get(afiSafiType));
     }
 
     @Override
     public synchronized Optional<Class<? extends AfiSafiType>> getAfiSafiType(final BgpTableType bgpTableType) {
-        final Class<? extends AfiSafiType> afiSafi = this.tableTypes.get(bgpTableType);
-        return Optional.ofNullable(afiSafi);
+        return Optional.ofNullable(tableTypes.get(bgpTableType));
     }
 
-    @Nonnull
     @Override
-    public Optional<Class<? extends AfiSafiType>> getAfiSafiType(@Nonnull final TablesKey tablesKey) {
-        final Class<? extends AfiSafiType> afiSafi = this.tableKeys.get(tablesKey);
-        return Optional.ofNullable(afiSafi);
+    public Optional<Class<? extends AfiSafiType>> getAfiSafiType(final TablesKey tablesKey) {
+        return Optional.ofNullable(tableKeys.get(tablesKey));
     }
-
 }

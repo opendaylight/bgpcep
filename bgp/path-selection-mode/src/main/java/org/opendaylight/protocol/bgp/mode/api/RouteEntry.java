@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.mode.api;
 
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
@@ -41,7 +41,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param remotePathId remote path Id received
      * @return return true if it was the last route on entry
      */
-    boolean removeRoute(@Nonnull RouterId routerId, Long remotePathId);
+    boolean removeRoute(@NonNull RouterId routerId, Long remotePathId);
 
     /**
      * Indicates whether best has changed.
@@ -59,7 +59,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param route        route Data change
      * @return returns the offset
      */
-    int addRoute(@Nonnull RouterId routerId, Long remotePathId, @Nonnull R route);
+    int addRoute(@NonNull RouterId routerId, Long remotePathId, @NonNull R route);
 
     /**
      * Returns collections of present selected best path.
@@ -67,10 +67,8 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param ribSupport RIB Support
      * @param entryInfo  Route Entry Info wrapper
      */
-    @Nonnull
-    List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(
-            @Nonnull RIBSupport<C, S, R, I> ribSupport,
-            @Nonnull RouteEntryInfo entryInfo);
+    @NonNull List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(@NonNull RIBSupport<C, S, R, I> ribSupport,
+            @NonNull RouteEntryInfo entryInfo);
 
     /**
      * Returns list of stale best path.
@@ -79,11 +77,8 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param routeKey   of stale route
      * @return list containing list of stale best path
      */
-    @Nonnull
-    Optional<StaleBestPathRoute<C, S, R, I>
-            > removeStalePaths(
-            @Nonnull RIBSupport<C, S, R, I> ribSupport,
-            @Nonnull String routeKey);
+    @NonNull Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(@NonNull RIBSupport<C, S, R, I> ribSupport,
+            @NonNull String routeKey);
 
     /**
      * Returns collection of best path routes after processing update of stale and new advertisement of routes.
@@ -91,8 +86,6 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param ribSupport RIB Support
      * @param routeKey   route key
      */
-    @Nonnull
-    List<AdvertizedRoute<C, S, R, I>> newBestPaths(
-            @Nonnull RIBSupport<C, S, R, I> ribSupport,
-            @Nonnull String routeKey);
+    @NonNull List<AdvertizedRoute<C, S, R, I>> newBestPaths(@NonNull RIBSupport<C, S, R, I> ribSupport,
+            @NonNull String routeKey);
 }

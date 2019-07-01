@@ -9,7 +9,7 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.mdsal.binding.api.DataBroker;

@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.Errors;
@@ -42,37 +43,37 @@ final class OperationResults implements OperationResult {
         this.error = error;
     }
 
-    ListenableFuture<OperationResult> future() {
+    @NonNull ListenableFuture<OperationResult> future() {
         return Futures.immediateFuture(this);
     }
 
-    public static OperationResults createFailed(final List<Errors> errors) {
+    public static @NonNull OperationResults createFailed(final List<Errors> errors) {
         final List<Errors> e = errors != null ? errors : Collections.emptyList();
         return new OperationResults(FailureType.Failed, e.stream().map(CONVERT_ERRORS).collect(Collectors.toList()));
     }
 
-    public static OperationResults createUnsent(final PCEPErrors error) {
+    public static @NonNull OperationResults createUnsent(final PCEPErrors error) {
         final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error))
                 : Collections.emptyList();
         return new OperationResults(FailureType.Unsent, e.stream().map(CONVERT_ERRORS)
                 .collect(Collectors.toList()));
     }
 
-    private static Errors getErrorFor(final PCEPErrors error) {
-        final ErrorsBuilder builder = new ErrorsBuilder();
-        builder.setErrorObject(new ErrorObjectBuilder().setType(error.getErrorType())
-                .setValue(error.getErrorValue()).build());
-        return builder.build();
+    private static @NonNull Errors getErrorFor(final PCEPErrors error) {
+        return new ErrorsBuilder()
+                .setErrorObject(new ErrorObjectBuilder().setType(error.getErrorType())
+                .setValue(error.getErrorValue()).build())
+                .build();
     }
 
     @Override
     public FailureType getFailure() {
-        return this.failure;
+        return failure;
     }
 
     @Override
     public List<Error> getError() {
-        return this.error;
+        return error;
 
     }
 

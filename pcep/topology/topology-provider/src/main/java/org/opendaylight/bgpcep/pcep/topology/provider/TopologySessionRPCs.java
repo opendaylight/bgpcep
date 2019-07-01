@@ -8,7 +8,7 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.OperationResult;
@@ -19,21 +19,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 interface TopologySessionRPCs {
-    @Nonnull
-    ListenableFuture<OperationResult> addLsp(AddLspArgs input);
+    @NonNull ListenableFuture<OperationResult> addLsp(AddLspArgs input);
 
-    @Nonnull
-    ListenableFuture<OperationResult> removeLsp(RemoveLspArgs input);
+    @NonNull ListenableFuture<OperationResult> removeLsp(RemoveLspArgs input);
 
-    @Nonnull
-    ListenableFuture<OperationResult> updateLsp(UpdateLspArgs input);
+    @NonNull ListenableFuture<OperationResult> updateLsp(UpdateLspArgs input);
 
-    @Nonnull
-    ListenableFuture<OperationResult> ensureLspOperational(EnsureLspOperationalInput input);
+    @NonNull ListenableFuture<OperationResult> ensureLspOperational(EnsureLspOperationalInput input);
 
-    @Nonnull
-    ListenableFuture<OperationResult> triggerSync(TriggerSyncArgs input);
+    @NonNull ListenableFuture<OperationResult> triggerSync(TriggerSyncArgs input);
 
-    @Nonnull
-    ListenableFuture<RpcResult<Void>> tearDownSession(TearDownSessionInput input);
+    @NonNull ListenableFuture<RpcResult<Void>> tearDownSession(TearDownSessionInput input);
 }

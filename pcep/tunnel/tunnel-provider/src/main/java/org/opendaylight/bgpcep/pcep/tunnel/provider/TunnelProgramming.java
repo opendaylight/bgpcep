@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
@@ -34,9 +34,8 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
     private final InstructionScheduler scheduler;
     private final TunnelProviderDependencies dependencies;
 
-    TunnelProgramming(
-            @Nonnull final InstructionScheduler scheduler,
-            @Nonnull final TunnelProviderDependencies dependencies) {
+    TunnelProgramming(final @NonNull InstructionScheduler scheduler,
+            final @NonNull TunnelProviderDependencies dependencies) {
         this.scheduler = requireNonNull(scheduler);
         this.dependencies = requireNonNull(dependencies);
     }

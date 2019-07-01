@@ -5,13 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.state;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -38,8 +37,7 @@ public final class GlobalUtil {
      * @param bgpTableTypeRegistry BGP TableType Registry
      * @return Global containing state
      */
-    @Nonnull
-    public static Global buildGlobal(final BGPRibState ribState,
+    public static @NonNull Global buildGlobal(final BGPRibState ribState,
             final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         return new GlobalBuilder().setState(buildState(ribState))
                 .setAfiSafis(new AfiSafisBuilder().setAfiSafi(buildAfisSafis(ribState, bgpTableTypeRegistry)).build())

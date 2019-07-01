@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -92,8 +92,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final String peerName,
             final String groupId,
             final PeerRole role,
-            @Nullable final ClusterIdentifier clusterId,
-            @Nullable final AsNumber localAs,
+            final @Nullable ClusterIdentifier clusterId,
+            final @Nullable AsNumber localAs,
             final IpAddress neighborAddress,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized,
@@ -119,7 +119,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 rib.getLocalTablesKeys(), afiSafisGracefulAdvertized, Collections.emptyMap());
     }
 
-    final synchronized FluentFuture<? extends CommitInfo> removePeer(@Nullable final YangInstanceIdentifier peerPath) {
+    final synchronized FluentFuture<? extends CommitInfo> removePeer(final @Nullable YangInstanceIdentifier peerPath) {
         if (peerPath == null) {
             return CommitInfo.emptyFluentFuture();
         }

@@ -5,17 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.api;
 
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
  * Dispatcher class for creating servers and clients.
  */
+@NonNullByDefault
 public interface BmpDispatcher extends AutoCloseable {
     /**
      * Creates server. Each server needs three factories to pass their instances to client sessions.
@@ -25,8 +25,7 @@ public interface BmpDispatcher extends AutoCloseable {
      * @param keys    RFC2385 key mapping
      * @return instance of BmpServer
      */
-    ChannelFuture createServer(@Nonnull InetSocketAddress address, @Nonnull BmpSessionListenerFactory slf,
-            @Nonnull KeyMapping keys);
+    ChannelFuture createServer(InetSocketAddress address, BmpSessionListenerFactory slf, KeyMapping keys);
 
     /**
      * Creates reconnect clients. Make connection to all active monitored-routers.
@@ -36,6 +35,5 @@ public interface BmpDispatcher extends AutoCloseable {
      * @param keys    RFC2385 key mapping
      * @return void
      */
-    ChannelFuture createClient(@Nonnull InetSocketAddress address, @Nonnull BmpSessionListenerFactory slf,
-            @Nonnull KeyMapping keys);
+    ChannelFuture createClient(InetSocketAddress address, BmpSessionListenerFactory slf, KeyMapping keys);
 }

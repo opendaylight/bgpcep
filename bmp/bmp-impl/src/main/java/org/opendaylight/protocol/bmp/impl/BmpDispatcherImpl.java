@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl;
 
 import static java.util.Objects.requireNonNull;
@@ -24,7 +23,7 @@ import java.net.InetSocketAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.concurrent.GuardedBy;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
@@ -140,7 +139,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
                         createClient(BootstrapListener.this.remoteAddress, BootstrapListener.this.slf,
                                 BootstrapListener.this.keys);
                     }
-                }, (long) 5);
+                }, 5);
             }
         }
     }
