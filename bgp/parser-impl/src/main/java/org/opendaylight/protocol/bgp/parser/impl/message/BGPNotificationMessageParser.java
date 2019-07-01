@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -44,17 +45,19 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
-        Preconditions.checkArgument(msg instanceof Notify, "Message needs to be of type Notify");
+        checkArgument(msg instanceof Notify, "Message needs to be of type Notify");
         final Notify ntf = (Notify) msg;
 
-        final ByteBuf msgBody = Unpooled.buffer();
-        msgBody.writeByte(ntf.getErrorCode());
-        msgBody.writeByte(ntf.getErrorSubcode());
+        final ByteBuf msgBody = Unpooled.buffer()
+                .writeByte(ntf.getErrorCode())
+                .writeByte(ntf.getErrorSubcode());
         final byte[] data = ntf.getData();
         if (data != null) {
             msgBody.writeBytes(data);
         }
-        LOG.trace("Notification message serialized to: {}", ByteBufUtil.hexDump(msgBody));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Notification message serialized to: {}", ByteBufUtil.hexDump(msgBody));
+        }
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
     }
 
@@ -69,7 +72,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
     @Override
     public Notify parseMessageBody(final ByteBuf body, final int messageLength,
             final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
-        Preconditions.checkArgument(body != null, "Buffer cannot be null.");
+        checkArgument(body != null, "Buffer cannot be null.");
         if (body.readableBytes() < ERROR_SIZE) {
             throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
         }
@@ -80,8 +83,14 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
         if (body.isReadable()) {
             builder.setData(ByteArray.readAllBytes(body));
         }
-        LOG.debug("BGP Notification message was parsed: err = {}, data = {}.",
-                BGPError.forValue(errorCode, errorSubcode), Arrays.toString(builder.getData()));
-        return builder.build();
+
+        final Notify result = builder.build();
+        final BGPError err = BGPError.forValue(errorCode, errorSubcode);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("BGP Notification message was parsed: err = {}, data = {}.", err,
+                Arrays.toString(result.getData()));
+        }
+        return result;
     }
 }

@@ -10,9 +10,9 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import io.netty.buffer.ByteBuf;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -58,12 +58,17 @@ public final class AsPathSegmentParser {
         }
     }
 
-    static List<AsNumber> parseAsSegment(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
-        final List<AsNumber> coll = new ArrayList<>(count);
+    static ImmutableList<AsNumber> parseAsSegment(final ReferenceCache refCache, final int count,
+            final ByteBuf buffer) {
+        if (count == 0) {
+            return ImmutableList.of();
+        }
+
+        final Builder<AsNumber> coll = ImmutableList.builderWithExpectedSize(count);
         for (int i = 0; i < count; i++) {
             coll.add(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())));
         }
-        return coll.isEmpty() ? Collections.emptyList() : coll;
+        return coll.build();
     }
 
     static void serializeAsList(final List<AsNumber> asList, final SegmentType type, final ByteBuf byteAggregator) {

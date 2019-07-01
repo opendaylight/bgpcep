@@ -19,7 +19,6 @@ import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Aggregator;
@@ -51,10 +50,11 @@ public final class AggregatorAttributeParser extends AbstractAttributeParser imp
             return;
         }
 
-        // FIXME: above check should be expanded, so we report at least underflow errors
-        final AsNumber asNumber = this.refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt()));
-        final Ipv4Address address = Ipv4Util.addressForByteBuf(buffer);
-        builder.setAggregator(new AggregatorBuilder().setAsNumber(asNumber).setNetworkAddress(address).build());
+        builder.setAggregator(new AggregatorBuilder()
+            // FIXME: above check should be expanded, so we report at least underflow errors
+            .setAsNumber(this.refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())))
+            .setNetworkAddress(Ipv4Util.addressForByteBuf(buffer))
+            .build());
     }
 
     @Override
@@ -63,11 +63,11 @@ public final class AggregatorAttributeParser extends AbstractAttributeParser imp
         if (aggregator != null) {
             final AsNumber asNumber = aggregator.getAsNumber();
             if (asNumber != null) {
-                final ByteBuf buffer = Unpooled.buffer(AGGREGATOR_LENGTH);
-                buffer.writeInt(new ShortAsNumber(asNumber).getValue().intValue());
-                buffer.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
-                AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE,
-                        TYPE, buffer, byteAggregator);
+                AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE,
+                    Unpooled.buffer(AGGREGATOR_LENGTH)
+                        .writeInt(new ShortAsNumber(asNumber).getValue().intValue())
+                        .writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress())),
+                        byteAggregator);
             }
         }
     }
