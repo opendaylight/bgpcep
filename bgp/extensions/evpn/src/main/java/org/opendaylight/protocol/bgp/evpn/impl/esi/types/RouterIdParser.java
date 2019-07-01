@@ -5,13 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.extractLD;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.extractRD;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -26,13 +25,13 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 final class RouterIdParser extends AbstractEsiType {
 
     @Override
-    public void serializeBody(final Esi esi, final ByteBuf body) {
-        Preconditions.checkArgument(esi instanceof RouterIdGeneratedCase,
-                "Unknown esi instance. Passed %s. Needed RouterIdGeneratedCase.", esi.getClass());
+    public ByteBuf serializeBody(final Esi esi, final ByteBuf body) {
+        checkArgument(esi instanceof RouterIdGeneratedCase,
+            "Unknown esi instance. Passed %s. Needed RouterIdGeneratedCase.", esi);
         final RouterIdGenerated routerID = ((RouterIdGeneratedCase) esi).getRouterIdGenerated();
         ByteBufWriteUtil.writeIpv4Address(routerID.getRouterId(), body);
         ByteBufWriteUtil.writeUnsignedInt(routerID.getLocalDiscriminator(), body);
-        body.writeZero(ZERO_BYTE);
+        return body.writeZero(ZERO_BYTE);
     }
 
     @Override
@@ -42,17 +41,21 @@ final class RouterIdParser extends AbstractEsiType {
 
     @Override
     public Esi serializeEsi(final ContainerNode esi) {
-        final RouterIdGeneratedBuilder builder = new RouterIdGeneratedBuilder();
-        builder.setLocalDiscriminator(extractLD(esi));
-        builder.setRouterId(extractRD(esi));
-        return new RouterIdGeneratedCaseBuilder().setRouterIdGenerated(builder.build()).build();
+        return new RouterIdGeneratedCaseBuilder()
+                .setRouterIdGenerated(new RouterIdGeneratedBuilder()
+                    .setLocalDiscriminator(extractLD(esi))
+                    .setRouterId(extractRD(esi))
+                    .build())
+                .build();
     }
 
     @Override
     public Esi parseEsi(final ByteBuf buffer) {
-        final RouterIdGenerated routerID = new RouterIdGeneratedBuilder()
-                .setRouterId(Ipv4Util.addressForByteBuf(buffer))
-            .setLocalDiscriminator(buffer.readUnsignedInt()).build();
-        return new RouterIdGeneratedCaseBuilder().setRouterIdGenerated(routerID).build();
+        return new RouterIdGeneratedCaseBuilder()
+                .setRouterIdGenerated(new RouterIdGeneratedBuilder()
+                    .setRouterId(Ipv4Util.addressForByteBuf(buffer))
+                    .setLocalDiscriminator(buffer.readUnsignedInt())
+                    .build())
+                .build();
     }
 }
