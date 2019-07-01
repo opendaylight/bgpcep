@@ -8,9 +8,9 @@
 
 package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.extractArbitrary;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EsiType;
@@ -24,10 +24,10 @@ final class ArbitraryParser extends AbstractEsiType {
     static final int ARBITRARY_LENGTH = 9;
 
     @Override
-    public void serializeBody(final Esi esiCase, final ByteBuf body) {
-        Preconditions.checkArgument(esiCase instanceof ArbitraryCase,
-                "Unknown esi instance. Passed %s. Needed ArbitraryCase.", esiCase.getClass());
-        body.writeBytes(((ArbitraryCase) esiCase).getArbitrary().getArbitrary());
+    public ByteBuf serializeBody(final Esi esiCase, final ByteBuf body) {
+        checkArgument(esiCase instanceof ArbitraryCase, "Unknown esi instance. Passed %s. Needed ArbitraryCase.",
+            esiCase);
+        return body.writeBytes(((ArbitraryCase) esiCase).getArbitrary().getArbitrary());
     }
 
     @Override
@@ -39,7 +39,6 @@ final class ArbitraryParser extends AbstractEsiType {
     public Esi serializeEsi(final ContainerNode esi) {
         return new ArbitraryCaseBuilder().setArbitrary(extractArbitrary(esi)).build();
     }
-
 
     @Override
     public Esi parseEsi(final ByteBuf body) {
