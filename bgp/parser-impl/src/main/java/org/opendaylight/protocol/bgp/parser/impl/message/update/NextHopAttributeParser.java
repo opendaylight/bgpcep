@@ -56,11 +56,10 @@ public final class NextHopAttributeParser extends AbstractAttributeParser implem
     @Override
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
         final CNextHop cNextHop = attribute.getCNextHop();
-        if (cNextHop == null) {
-            return;
+        if (cNextHop != null) {
+            final ByteBuf nextHopBuffer = Unpooled.buffer();
+            NextHopUtil.serializeNextHop(cNextHop, nextHopBuffer);
+            AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE, nextHopBuffer, byteAggregator);
         }
-        final ByteBuf nextHopBuffer = Unpooled.buffer();
-        NextHopUtil.serializeNextHop(cNextHop, nextHopBuffer);
-        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE, nextHopBuffer, byteAggregator);
     }
 }
