@@ -84,18 +84,18 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
         checkArgument(msg instanceof Open, "Message needs to be of type Open, not %s", msg);
         final Open open = (Open) msg;
-        final ByteBuf msgBody = Unpooled.buffer();
-
-        msgBody.writeByte(BGP_VERSION);
+        final ByteBuf msgBody = Unpooled.buffer()
+                .writeByte(BGP_VERSION);
 
         // When our AS number does not fit into two bytes, we report it as AS_TRANS
         int openAS = open.getMyAsNumber();
         if (openAS > Values.UNSIGNED_SHORT_MAX_VALUE) {
             openAS = AS_TRANS;
         }
-        msgBody.writeShort(openAS);
-        msgBody.writeShort(open.getHoldTimer());
-        msgBody.writeBytes(Ipv4Util.bytesForAddress(open.getBgpIdentifier()));
+        msgBody
+            .writeShort(openAS)
+            .writeShort(open.getHoldTimer())
+            .writeBytes(Ipv4Util.bytesForAddress(open.getBgpIdentifier()));
 
         serializeParameters(open.getBgpParameters(), msgBody);
 

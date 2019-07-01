@@ -64,17 +64,15 @@ public final class ClusterIdAttributeParser extends AbstractAttributeParser impl
     @Override
     public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final ClusterId cid = pathAttributes.getClusterId();
-        if (cid == null) {
-            return;
+        if (cid != null) {
+            final List<ClusterIdentifier> cluster = cid.getCluster();
+            if (cluster != null && !cluster.isEmpty()) {
+                final ByteBuf clusterIdBuffer = Unpooled.buffer();
+                for (final ClusterIdentifier clusterIdentifier : cluster) {
+                    clusterIdBuffer.writeBytes(Ipv4Util.bytesForAddress(clusterIdentifier));
+                }
+                AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, clusterIdBuffer, byteAggregator);
+            }
         }
-        final List<ClusterIdentifier> cluster = cid.getCluster();
-        if (cluster == null || cluster.isEmpty()) {
-            return;
-        }
-        final ByteBuf clusterIdBuffer = Unpooled.buffer();
-        for (final ClusterIdentifier clusterIdentifier : cid.getCluster()) {
-            clusterIdBuffer.writeBytes(Ipv4Util.bytesForAddress(clusterIdentifier));
-        }
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, clusterIdBuffer, byteAggregator);
     }
 }
