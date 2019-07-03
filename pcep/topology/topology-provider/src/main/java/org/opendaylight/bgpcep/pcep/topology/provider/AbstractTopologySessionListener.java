@@ -30,6 +30,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
@@ -437,8 +438,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         this.lspData.put(name, rl);
     }
 
-    private List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous, final String name,
-            final boolean remove) {
+    private static List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
+            final String name, final boolean remove) {
         // just one path should be reported
         Preconditions.checkState(rlb.getPath().size() == 1);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId reportedLspId =
@@ -594,14 +595,19 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Override
     public int getDelegatedLspsCount() {
-        return Math.toIntExact(ImmutableList.copyOf(this.lspData.values()).stream()
-                .map(ReportedLsp::getPath).filter(Objects::nonNull).filter(pathList -> !pathList.isEmpty())
-                // pick the first path, as delegate status should be same in each path
-                .map(pathList -> pathList.get(0))
-                .map(path -> path.augmentation(Path1.class)).filter(Objects::nonNull)
-                .map(LspObject::getLsp).filter(Objects::nonNull)
-                .filter(Lsp::isDelegate)
-                .count());
+        final Stream<ReportedLsp> stream;
+        synchronized (this) {
+            stream = ImmutableList.copyOf(this.lspData.values()).stream();
+        }
+
+        return Math.toIntExact(stream
+            .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
+            // pick the first path, as delegate status should be same in each path
+            .map(pathList -> pathList.get(0))
+            .map(path -> path.augmentation(Path1.class)).filter(Objects::nonNull)
+            .map(LspObject::getLsp).filter(Objects::nonNull)
+            .filter(Lsp::isDelegate)
+            .count());
     }
 
     @Override
