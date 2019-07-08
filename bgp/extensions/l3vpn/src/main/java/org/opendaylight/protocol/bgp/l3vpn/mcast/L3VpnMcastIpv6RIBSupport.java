@@ -102,8 +102,8 @@ public final class L3VpnMcastIpv6RIBSupport
         L3vpnMcastNlriSerializer.serializeNlri(Collections.singletonList(dest), buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 l3vpn.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
-                pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
+                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
 
     @Override

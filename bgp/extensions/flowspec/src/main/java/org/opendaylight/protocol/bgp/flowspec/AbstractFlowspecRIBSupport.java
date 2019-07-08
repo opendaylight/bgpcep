@@ -96,8 +96,8 @@ public abstract class AbstractFlowspecRIBSupport<
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf
                 = destination.getChild(routePathIdNid());
         final String routeKeyValue = this.nlriParser.stringNlri(destination);
-        final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
-                pathIdQName(), routeKeyValue, maybePathIdLeaf);
+        final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
+                routeKeyValue, maybePathIdLeaf);
         function.apply(tx, base, routeKey, destination, attributes);
 
         return Collections.singletonList(routeKey);

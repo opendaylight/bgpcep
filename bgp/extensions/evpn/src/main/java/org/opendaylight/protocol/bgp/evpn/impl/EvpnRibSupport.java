@@ -130,8 +130,8 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
         EvpnNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 evpn.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
-                pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
+                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
 
     @Override

@@ -9,11 +9,11 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
+import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -66,13 +66,6 @@ public final class PathIdUtil {
         return (Long) NormalizedNodes.findNode(data, pathNii).map(NormalizedNode::getValue).orElse(null);
     }
 
-    public static NodeIdentifierWithPredicates createNodeIdentifierWithPredicates(final QName routeQname,
-            final QName pathidQname, final Object pathId,
-            final QName routeKeyQname, final Object keyObject) {
-        return NodeIdentifierWithPredicates.of(routeQname,
-            ImmutableMap.of(pathidQname, pathId, routeKeyQname, keyObject));
-    }
-
     /**
      * Build Path Id.
      *
@@ -90,20 +83,19 @@ public final class PathIdUtil {
      * Build Route Key for supporting mp.
      * Key is composed by 2 elements (route-key + path Id).
      *
-     * @param routeQname      route Qname
-     * @param routeKeyQname   route key Qname
-     * @param pathIdQname     path Id Qname
-     * @param routeKeyValue   route key value
-     * @param maybePathIdLeaf path id container, it might me supported or not, in that case default 0 value will
-     *                        be
-     *                        assigned
+     * @param routeQName       route QName
+     * @param routeKeyTemplate route key template
+     * @param routeKeyValue    route key value
+     * @param maybePathIdLeaf  path id container, it might me supported or not, in that case default 0 value will
+     *                         be assigned
      * @return Route Key Nid
      */
-    public static NodeIdentifierWithPredicates createNidKey(final QName routeQname, final QName routeKeyQname,
-            final QName pathIdQname, final Object routeKeyValue,
+    public static NodeIdentifierWithPredicates createNidKey(final QName routeQName,
+            final ImmutableOffsetMapTemplate<QName> routeKeyTemplate, final Object routeKeyValue,
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf) {
         // FIXME: a cache here would mean we instantiate the same identifier for each route making comparison quicker.
         final Object pathId = maybePathIdLeaf.isPresent() ? maybePathIdLeaf.get().getValue() : NON_PATH_ID_VALUE;
-        return createNodeIdentifierWithPredicates(routeQname, pathIdQname, pathId, routeKeyQname, routeKeyValue);
+        return NodeIdentifierWithPredicates.of(routeQName,
+            routeKeyTemplate.instantiateWithValues(pathId, routeKeyValue));
     }
 }

@@ -167,8 +167,8 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
 
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 l3vpn.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
-                pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
+                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
 
     @Override
