@@ -23,7 +23,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.MvpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.bgp.rib.rib.loc.rib.tables.routes.MvpnRoutesIpv6Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.bgp.rib.rib.loc.rib.tables.routes.MvpnRoutesIpv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.destination.MvpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6Builder;
@@ -49,8 +48,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv6Case, MvpnRoutesIpv6> {
     private static final MvpnRoutesIpv6 EMPTY_CONTAINER = new MvpnRoutesIpv6Builder()
             .setMvpnRoute(Collections.emptyList()).build();
-    private static final MvpnRoutesIpv6Case EMPTY_CASE =
-            new MvpnRoutesIpv6CaseBuilder().setMvpnRoutesIpv6(EMPTY_CONTAINER).build();
     private static MvpnIpv6RIBSupport SINGLETON;
 
     private MvpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
@@ -98,11 +95,6 @@ final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv6Case
     }
 
     @Override
-    public MvpnRoutesIpv6Case emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public MvpnRoutesIpv6 emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
@@ -120,7 +112,7 @@ final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv6Case
     }
 
     @Override
-    public List<MvpnRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<MvpnRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6
             .rev180417.bgp.rib.rib.peer.adj.rib.in.tables.routes.MvpnRoutesIpv6Case, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417

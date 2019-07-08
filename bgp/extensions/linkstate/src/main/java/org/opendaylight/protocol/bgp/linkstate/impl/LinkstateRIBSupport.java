@@ -27,7 +27,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.routes.LinkstateRoutesBuilder;
@@ -58,8 +57,6 @@ public final class LinkstateRIBSupport
 
     private static final LinkstateRoutes EMPTY_CONTAINER
             = new LinkstateRoutesBuilder().setLinkstateRoute(Collections.emptyList()).build();
-    private static final LinkstateRoutesCase EMPTY_CASE
-            = new LinkstateRoutesCaseBuilder().setLinkstateRoutes(EMPTY_CONTAINER).build();
     private static LinkstateRIBSupport SINGLETON;
     private final YangInstanceIdentifier.NodeIdentifier nlriRoutesList
             = new YangInstanceIdentifier.NodeIdentifier(CLinkstateDestination.QNAME);
@@ -162,11 +159,6 @@ public final class LinkstateRIBSupport
     }
 
     @Override
-    public LinkstateRoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public LinkstateRoutes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
@@ -187,7 +179,7 @@ public final class LinkstateRIBSupport
     }
 
     @Override
-    public List<LinkstateRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<LinkstateRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate
             .rev180329.bgp.rib.rib.peer.adj.rib.in.tables.routes.LinkstateRoutesCase, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329

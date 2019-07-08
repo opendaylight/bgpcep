@@ -14,7 +14,6 @@ import java.util.List;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.ipv6.DestinationFlowspecIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.ipv6.route.FlowspecRouteBuilder;
@@ -34,8 +33,6 @@ public final class FlowspecIpv6RIBSupport
         FlowspecRouteKey> {
     private static final FlowspecIpv6Routes EMPTY_CONTAINER = new FlowspecIpv6RoutesBuilder()
             .setFlowspecRoute(Collections.emptyList()).build();
-    private static final FlowspecIpv6RoutesCase EMPTY_CASE = new FlowspecIpv6RoutesCaseBuilder()
-            .setFlowspecIpv6Routes(EMPTY_CONTAINER).build();
     private static FlowspecIpv6RIBSupport SINGLETON;
 
     private FlowspecIpv6RIBSupport(final SimpleFlowspecExtensionProviderContext context,
@@ -76,11 +73,6 @@ public final class FlowspecIpv6RIBSupport
     }
 
     @Override
-    public FlowspecIpv6RoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public FlowspecIpv6Routes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
@@ -101,7 +93,7 @@ public final class FlowspecIpv6RIBSupport
     }
 
     @Override
-    public List<FlowspecRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<FlowspecRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329
             .bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecIpv6RoutesCase, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329

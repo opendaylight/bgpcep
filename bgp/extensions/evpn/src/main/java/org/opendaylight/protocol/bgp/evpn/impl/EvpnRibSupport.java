@@ -26,7 +26,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.L2vpnAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.destination.EvpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.EvpnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.EvpnRoutesBuilder;
@@ -58,9 +57,6 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
     private static final EvpnRoutes EMPTY_CONTAINER
             =  new EvpnRoutesBuilder().setEvpnRoute(Collections.emptyList()).build();
-    @Deprecated
-    private static final EvpnRoutesCase EMPTY_CASE =
-            new EvpnRoutesCaseBuilder().setEvpnRoutes(EMPTY_CONTAINER).build();
     private static EvpnRibSupport SINGLETON;
 
     private EvpnRibSupport(final BindingNormalizedNodeSerializer mappingService) {
@@ -150,12 +146,6 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
-    @Deprecated
-    public EvpnRoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public EvpnRoutes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
@@ -176,7 +166,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
-    public List<EvpnRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<EvpnRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329
             .bgp.rib.rib.peer.adj.rib.in.tables.routes.EvpnRoutesCase, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329

@@ -17,7 +17,6 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
@@ -44,7 +43,6 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
 
     private static final Ipv4Routes EMPTY_CONTAINER
             = new Ipv4RoutesBuilder().setIpv4Route(Collections.emptyList()).build();
-    private static final Ipv4RoutesCase EMPTY_CASE = new Ipv4RoutesCaseBuilder().setIpv4Routes(EMPTY_CONTAINER).build();
     private static IPv4RIBSupport SINGLETON = null;
 
     private IPv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
@@ -104,11 +102,6 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
     }
 
     @Override
-    public Ipv4RoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public Ipv4Routes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
@@ -129,7 +122,7 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
     }
 
     @Override
-    public List<Ipv4Route> extractAdjRibInRoutes(Routes routes) {
+    public List<Ipv4Route> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
             .bgp.rib.rib.peer.adj.rib.in.tables.routes.Ipv4RoutesCase, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.peer

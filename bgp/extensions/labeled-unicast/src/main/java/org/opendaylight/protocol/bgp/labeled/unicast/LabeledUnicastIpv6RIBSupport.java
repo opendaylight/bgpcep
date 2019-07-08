@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import static com.google.common.base.Verify.verify;
@@ -17,7 +16,6 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.bgp.rib.rib.loc.rib.tables.routes.LabeledUnicastIpv6RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.bgp.rib.rib.loc.rib.tables.routes.LabeledUnicastIpv6RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.ipv6.routes.LabeledUnicastIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.ipv6.routes.LabeledUnicastIpv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRoute;
@@ -36,8 +34,6 @@ final class LabeledUnicastIpv6RIBSupport
 
     private static final LabeledUnicastIpv6Routes EMPTY_CONTAINER
             = new LabeledUnicastIpv6RoutesBuilder().setLabeledUnicastRoute(Collections.emptyList()).build();
-    private static final LabeledUnicastIpv6RoutesCase EMPTY_CASE
-            = new LabeledUnicastIpv6RoutesCaseBuilder().setLabeledUnicastIpv6Routes(EMPTY_CONTAINER).build();
     private static LabeledUnicastIpv6RIBSupport SINGLETON;
 
     private LabeledUnicastIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
@@ -84,17 +80,12 @@ final class LabeledUnicastIpv6RIBSupport
     }
 
     @Override
-    public LabeledUnicastIpv6RoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public LabeledUnicastIpv6Routes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
 
     @Override
-    public List<LabeledUnicastRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<LabeledUnicastRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast
             .rev180329.bgp.rib.rib.peer.adj.rib.in.tables.routes.LabeledUnicastIpv6RoutesCase, "Unrecognized routes %s",
             routes);

@@ -16,7 +16,6 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.bgp.rib.rib.loc.rib.tables.routes.LabeledUnicastRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.bgp.rib.rib.loc.rib.tables.routes.LabeledUnicastRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.LabeledUnicastRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.LabeledUnicastRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRoute;
@@ -35,8 +34,6 @@ public final class LabeledUnicastIpv4RIBSupport
         extends AbstractLabeledUnicastRIBSupport<LabeledUnicastRoutesCase, LabeledUnicastRoutes> {
     private static final LabeledUnicastRoutes EMPTY_CONTAINER
             = new LabeledUnicastRoutesBuilder().setLabeledUnicastRoute(Collections.emptyList()).build();
-    private static final LabeledUnicastRoutesCase EMPTY_CASE
-            = new LabeledUnicastRoutesCaseBuilder().setLabeledUnicastRoutes(EMPTY_CONTAINER).build();
     private static LabeledUnicastIpv4RIBSupport SINGLETON;
 
     private LabeledUnicastIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
@@ -83,17 +80,12 @@ public final class LabeledUnicastIpv4RIBSupport
     }
 
     @Override
-    public LabeledUnicastRoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public LabeledUnicastRoutes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
 
     @Override
-    public List<LabeledUnicastRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<LabeledUnicastRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast
             .rev180329.bgp.rib.rib.peer.adj.rib.in.tables.routes.LabeledUnicastRoutesCase, "Unrecognized routes %s",
             routes);

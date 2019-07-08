@@ -32,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.bgp.rib.rib.loc.rib.tables.routes.RouteTargetConstrainRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.bgp.rib.rib.loc.rib.tables.routes.RouteTargetConstrainRoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.destination.RouteTargetConstrainDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.destination.RouteTargetConstrainDestinationBuilder;
@@ -77,9 +76,6 @@ public final class RouteTargetConstrainRIBSupport
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(RouteTargetConstrainDestination.QNAME);
     private static final RouteTargetConstrainRoutes EMPTY_CONTAINER
             = new RouteTargetConstrainRoutesBuilder().setRouteTargetConstrainRoute(Collections.emptyList()).build();
-    @Deprecated
-    private static final RouteTargetConstrainRoutesCase EMPTY_CASE =
-            new RouteTargetConstrainRoutesCaseBuilder().setRouteTargetConstrainRoutes(EMPTY_CONTAINER).build();
     private static final String ORIGIN_AS = "origin-as";
     private static RouteTargetConstrainRIBSupport SINGLETON;
     private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects
@@ -206,13 +202,6 @@ public final class RouteTargetConstrainRIBSupport
         }
         return builder.withKey(key).setAttributes(attributes).build();
     }
-
-    @Override
-    @Deprecated
-    public RouteTargetConstrainRoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
 
     @Override
     public RouteTargetConstrainRoutes emptyRoutesContainer() {

@@ -22,7 +22,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.bgp.rib.rib.loc.rib.tables.routes.L3vpnMcastRoutesIpv4Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.bgp.rib.rib.loc.rib.tables.routes.L3vpnMcastRoutesIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.destination.L3vpnMcastDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.L3vpnMcastRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.ipv4.L3vpnMcastRoutesIpv4;
@@ -50,8 +49,6 @@ public final class L3VpnMcastIpv4RIBSupport
         extends AbstractL3vpnMcastIpRIBSupport<L3vpnMcastRoutesIpv4Case, L3vpnMcastRoutesIpv4> {
     private static final L3vpnMcastRoutesIpv4 EMPTY_CONTAINER
             = new L3vpnMcastRoutesIpv4Builder().setL3vpnMcastRoute(Collections.emptyList()).build();
-    private static final L3vpnMcastRoutesIpv4Case EMPTY_CASE
-            = new L3vpnMcastRoutesIpv4CaseBuilder().setL3vpnMcastRoutesIpv4(EMPTY_CONTAINER).build();
     private static L3VpnMcastIpv4RIBSupport SINGLETON;
 
 
@@ -89,11 +86,6 @@ public final class L3VpnMcastIpv4RIBSupport
     }
 
     @Override
-    public L3vpnMcastRoutesIpv4Case emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public L3vpnMcastRoutesIpv4 emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
@@ -115,7 +107,7 @@ public final class L3VpnMcastIpv4RIBSupport
     }
 
     @Override
-    public List<L3vpnMcastRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<L3vpnMcastRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast
             .rev180417.bgp.rib.rib.peer.adj.rib.in.tables.routes.L3vpnMcastRoutesIpv4Case, "Unrecognized routes %s",
             routes);

@@ -82,11 +82,6 @@ public final class FlowspecL3vpnIpv6RIBSupport
     }
 
     @Override
-    public FlowspecL3vpnIpv6RoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public FlowspecL3vpnIpv6Routes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
@@ -102,7 +97,7 @@ public final class FlowspecL3vpnIpv6RIBSupport
     }
 
     @Override
-    public List<FlowspecL3vpnRoute> extractAdjRibInRoutes(Routes routes) {
+    public List<FlowspecL3vpnRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329
             .bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecL3vpnIpv6RoutesCase, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329

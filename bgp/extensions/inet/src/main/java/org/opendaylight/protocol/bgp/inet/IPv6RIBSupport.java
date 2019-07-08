@@ -17,7 +17,6 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv6RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv6RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.DestinationIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.DestinationIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.destination.ipv6.Ipv6Prefixes;
@@ -43,7 +42,6 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
 
     private static final Ipv6Routes EMPTY_CONTAINER
             = new Ipv6RoutesBuilder().setIpv6Route(Collections.emptyList()).build();
-    private static final Ipv6RoutesCase EMPTY_CASE = new Ipv6RoutesCaseBuilder().setIpv6Routes(EMPTY_CONTAINER).build();
     private static IPv6RIBSupport SINGLETON;
 
     private IPv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
@@ -100,11 +98,6 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
     }
 
     @Override
-    public Ipv6RoutesCase emptyRoutesCase() {
-        return EMPTY_CASE;
-    }
-
-    @Override
     public Ipv6Routes emptyRoutesContainer() {
         return EMPTY_CONTAINER;
     }
@@ -125,7 +118,7 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
     }
 
     @Override
-    public List<Ipv6Route> extractAdjRibInRoutes(Routes routes) {
+    public List<Ipv6Route> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
             .bgp.rib.rib.peer.adj.rib.in.tables.routes.Ipv6RoutesCase, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.peer
