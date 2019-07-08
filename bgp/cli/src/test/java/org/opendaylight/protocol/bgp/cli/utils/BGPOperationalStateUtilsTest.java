@@ -63,7 +63,7 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
         final InstanceIdentifier<Bgp> bgpIID = PROTOCOLS_IID
                 .child(Protocol.class, new ProtocolKey(BGP.class, RIB_ID))
                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
-        wt.put(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp, true);
+        wt.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp);
         wt.commit().get();
     }
 

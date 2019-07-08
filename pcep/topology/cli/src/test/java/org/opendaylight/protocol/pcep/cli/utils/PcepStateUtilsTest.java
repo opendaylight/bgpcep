@@ -86,11 +86,11 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
         final InstanceIdentifier<Node> topology = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(PCEP_TOPOLOGY)))
                 .child(Node.class, new NodeKey(new NodeId(NODE_ID))).build();
-        wt.put(LogicalDatastoreType.OPERATIONAL, topology, node, true);
+        wt.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, topology, node);
         wt.commit().get();
     }
 
-    private PcepSessionState createPcepSessionState() {
+    private static PcepSessionState createPcepSessionState() {
         final LocalPref pref = new LocalPrefBuilder()
                 .setKeepalive((short) 30)
                 .setDeadtimer((short) 120)

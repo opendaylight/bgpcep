@@ -238,10 +238,10 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     private synchronized void initOperationalTopology() {
         requireNonNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
-        trans.put(LogicalDatastoreType.OPERATIONAL, this.topology,
+        trans.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.topology,
                 new TopologyBuilder().withKey(this.topologyKey).setServerProvided(Boolean.TRUE)
                         .setTopologyTypes(this.topologyTypes)
-                        .setLink(Collections.emptyList()).setNode(Collections.emptyList()).build(), true);
+                        .setLink(Collections.emptyList()).setNode(Collections.emptyList()).build());
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {

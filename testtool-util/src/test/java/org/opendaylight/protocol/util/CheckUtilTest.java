@@ -72,7 +72,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     public void testWaitFutureSuccess() {
         when(this.future.isSuccess()).thenReturn(true);
         doAnswer(invocation -> {
-            ((GenericFutureListener)invocation.getArguments()[0]).operationComplete(CheckUtilTest.this.future);
+            ((GenericFutureListener)invocation.getArgument(0)).operationComplete(CheckUtilTest.this.future);
             return CheckUtilTest.this.future;
         }).when(this.future).addListener(any());
         waitFutureSuccess(this.future);
@@ -126,10 +126,10 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     private void storeTopo(final LogicalDatastoreType dsType) throws ExecutionException, InterruptedException {
         final WriteTransaction wt = getDataBroker().newWriteOnlyTransaction();
-        wt.put(dsType, this.topologyIIdKeyed,
+        wt.mergeParentStructurePut(dsType, this.topologyIIdKeyed,
                 new TopologyBuilder()
                         .setTopologyId(TOPOLOGY_ID)
-                        .build(), true);
+                        .build());
         wt.commit().get();
     }
 

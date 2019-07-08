@@ -109,7 +109,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
 
     private void updateIpv4Route(final Ipv4Route data) {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, this.ipv4RouteIID, data, true);
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.ipv4RouteIID, data);
         wTx.commit();
     }
 

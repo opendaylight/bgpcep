@@ -303,7 +303,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         topologyBuilder.setNode(Lists.newArrayList(createNode(NODE1_ID, TP1_ID, NODE1_IPV4),
                 createNode(NODE2_ID, TP2_ID, NODE2_IPV4)));
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID, topologyBuilder.build(), true);
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, TOPO_IID, topologyBuilder.build());
         wTx.commit().get();
     }
 
@@ -317,8 +317,8 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         linkBuilder.withKey(new LinkKey(LINK1_ID));
         linkBuilder.addAugmentation(Link1.class, new Link1Builder().setSymbolicPathName(LINK1_ID.getValue()).build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(),
-                linkBuilder.build(), true);
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL,
+            TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(), linkBuilder.build());
         wTx.commit().get();
     }
 

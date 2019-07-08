@@ -88,11 +88,11 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     @Before
     public void setUp() throws InterruptedException, ExecutionException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID, new TopologyBuilder()
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID, new TopologyBuilder()
                 .withKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Lists.newArrayList())
-                .setTopologyId(PCEP_TOPOLOGY_ID).build(), true);
-        wTx.put(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder()
-                .withKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build(), true);
+                .setTopologyId(PCEP_TOPOLOGY_ID).build());
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder()
+                .withKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build());
         wTx.commit().get();
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(),
                 PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);

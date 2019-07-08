@@ -108,7 +108,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
 
     private void updateIpv6Route(final Ipv6Route data) {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, this.ipv6RouteIID, data, true);
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.ipv6RouteIID, data);
         wTx.commit();
     }
 

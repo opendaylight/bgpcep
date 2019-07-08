@@ -66,7 +66,7 @@ public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, 
     private static void processProtocol(final Protocol protocol, final WriteTransaction wtx) {
         final KeyedInstanceIdentifier<Protocol, ProtocolKey> topologyIIdKeyed =
                 BGP_PROTOCOLS_IID.child(Protocol.class, protocol.key());
-        wtx.merge(LogicalDatastoreType.CONFIGURATION, topologyIIdKeyed, protocol, true);
+        wtx.mergeParentStructureMerge(LogicalDatastoreType.CONFIGURATION, topologyIIdKeyed, protocol);
     }
 
     public synchronized void init() {

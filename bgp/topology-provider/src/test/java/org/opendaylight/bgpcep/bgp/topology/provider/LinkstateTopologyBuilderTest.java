@@ -357,7 +357,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
     private void updateLinkstateRoute(final LinkstateRoute data) {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, this.linkstateRouteIID, data, true);
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.linkstateRouteIID, data);
         wTx.commit();
     }
 

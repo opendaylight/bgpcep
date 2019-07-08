@@ -57,13 +57,13 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
 
     synchronized void init() {
         final WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.OPERATIONAL, getTopologyReference().getInstanceIdentifier(),
+        tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, getTopologyReference().getInstanceIdentifier(),
                 new TopologyBuilder().setTopologyId(this.tunneltopologyId)
                         .setTopologyTypes(new TopologyTypesBuilder()
                                 .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder()
                                         .setTopologyTunnelPcep(
                                                 new TopologyTunnelPcepBuilder().build()).build()).build())
-                        .setNode(new ArrayList<>()).build(), true);
+                        .setNode(new ArrayList<>()).build());
         try {
             tx.commit().get();
         } catch (final InterruptedException | ExecutionException e) {
