@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.state;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -73,9 +72,9 @@ public class NeighborUtilTest {
         doReturn(false).when(this.bgpAfiSafiState).isAfiSafiSupported(eq(TABLES_KEY));
         doReturn(false).when(this.bgpAfiSafiState).isGracefulRestartAdvertized(eq(TABLES_KEY));
         doReturn(false).when(this.bgpAfiSafiState).isGracefulRestartReceived(eq(TABLES_KEY));
-        doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartAdvertised((eq(TABLES_KEY)));
-        doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartReceived((eq(TABLES_KEY)));
-        doReturn(0).when(this.bgpAfiSafiState).getLlGracefulRestartTimer((eq(TABLES_KEY)));
+        doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartAdvertised(eq(TABLES_KEY));
+        doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartReceived(eq(TABLES_KEY));
+        doReturn(0).when(this.bgpAfiSafiState).getLlGracefulRestartTimer(eq(TABLES_KEY));
 
 
     }

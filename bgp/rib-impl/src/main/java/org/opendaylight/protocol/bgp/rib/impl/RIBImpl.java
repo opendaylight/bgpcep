@@ -355,7 +355,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
                 .addChild(ImmutableNodes.mapNodeBuilder(RIB_NID).build()).build();
 
         final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
-                new NodeIdentifierWithPredicates(Rib.QNAME, RIB_ID_QNAME, this.ribId.getValue()))
+                NodeIdentifierWithPredicates.of(Rib.QNAME, RIB_ID_QNAME, this.ribId.getValue()))
                 .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, this.ribId.getValue()))
                 .addChild(ImmutableNodes.mapNodeBuilder(PEER_NID).build())
                 .addChild(Builders.containerBuilder().withNodeIdentifier(LOCRIB_NID)

@@ -13,7 +13,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBQNames.PEER_ID_QNAME;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
@@ -29,10 +28,10 @@ public class IdentifierUtilsTest {
     private static final QName TABLES_KEY_QNAME = QName.create(Tables.QNAME, "tables-key").intern();
     private static final TablesKey TK = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private static final PeerId PEER_ID = new PeerId("127.0.0.1");
-    private static final NodeIdentifierWithPredicates NIWP_PEER = new NodeIdentifierWithPredicates(Peer.QNAME,
-            ImmutableMap.of(PEER_ID_QNAME, PEER_ID.getValue()));
-    private static final NodeIdentifierWithPredicates NIWP_TABLE = new NodeIdentifierWithPredicates(Tables.QNAME,
-            ImmutableMap.of(TABLES_KEY_QNAME, TK));
+    private static final NodeIdentifierWithPredicates NIWP_PEER = NodeIdentifierWithPredicates.of(Peer.QNAME,
+            PEER_ID_QNAME, PEER_ID.getValue());
+    private static final NodeIdentifierWithPredicates NIWP_TABLE = NodeIdentifierWithPredicates.of(Tables.QNAME,
+            TABLES_KEY_QNAME, TK);
     private static final YangInstanceIdentifier YII_PEER;
     private static final YangInstanceIdentifier YII_TABLE;
 

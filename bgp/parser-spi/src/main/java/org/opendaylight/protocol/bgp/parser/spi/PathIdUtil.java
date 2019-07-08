@@ -69,8 +69,8 @@ public final class PathIdUtil {
     public static NodeIdentifierWithPredicates createNodeIdentifierWithPredicates(final QName routeQname,
             final QName pathidQname, final Object pathId,
             final QName routeKeyQname, final Object keyObject) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(pathidQname, pathId, routeKeyQname, keyObject);
-        return new NodeIdentifierWithPredicates(routeQname, keyValues);
+        return NodeIdentifierWithPredicates.of(routeQname,
+            ImmutableMap.of(pathidQname, pathId, routeKeyQname, keyObject));
     }
 
     /**

@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.state;
 
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.state.StateProviderImplTest.TABLES_KEY;
 
@@ -16,7 +16,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
@@ -30,7 +29,7 @@ public class GlobalUtilTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        doReturn(Optional.empty()).when(this.tableRegistry).getAfiSafiType(Mockito.eq(TABLES_KEY));
+        doReturn(Optional.empty()).when(this.tableRegistry).getAfiSafiType(eq(TABLES_KEY));
     }
 
     @Test

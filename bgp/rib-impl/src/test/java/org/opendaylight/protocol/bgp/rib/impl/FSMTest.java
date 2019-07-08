@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -138,7 +138,7 @@ public class FSMTest {
         doReturn(this.pipeline).when(this.speakerListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class),
                 any(ChannelHandler.class));
-        doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(), any(String.class),
+        doReturn(null).when(this.pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(), any(String.class),
                 any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));
         doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();

@@ -213,7 +213,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         final Collection<DataTreeCandidateNode> children = new HashSet<>();
         for (final Ipv4Prefix p : prefix) {
             final NodeIdentifierWithPredicates routekey =
-                    new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, p);
+                    NodeIdentifierWithPredicates.of(Ipv4Route.QNAME, PREFIX_QNAME, p);
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b =
                     ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routekey);
@@ -233,7 +233,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
     public PathArgument createIdentifier(final Ipv4Prefix prefix) {
         final NodeIdentifierWithPredicates routekey =
-                new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
+                NodeIdentifierWithPredicates.of(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
         return YangInstanceIdentifier.of(PREFIX_QNAME).node(routekey).getLastPathArgument();
     }
 

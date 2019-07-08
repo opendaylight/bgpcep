@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.app;
 
 import static java.util.Objects.requireNonNull;
@@ -74,7 +73,6 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
@@ -302,7 +300,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         final PeerHeader peerHeader = peerUp.getPeerHeader();
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder =
                 Builders.mapEntryBuilder()
-                        .withNodeIdentifier(new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME,
+                        .withNodeIdentifier(NodeIdentifierWithPredicates.of(Peer.QNAME, PEER_ID_QNAME,
                                 this.peerId.getValue()))
                         .withChild(ImmutableNodes.leafNode(PEER_ID_QNAME, this.peerId.getValue()))
                         .withChild(ImmutableNodes.leafNode(PEER_TYPE_QNAME,

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import static junit.framework.TestCase.assertFalse;
@@ -16,7 +15,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,8 +76,8 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
     private static final QName PATH_ID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
-    private static final NodeIdentifierWithPredicates PREFIX_NII = new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-        ImmutableMap.of(QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
+    private static final NodeIdentifierWithPredicates PREFIX_NII = NodeIdentifierWithPredicates.of(Ipv4Route.QNAME,
+        QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX);
     private RIBSupportTestImp ribSupportTestImp;
     private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);

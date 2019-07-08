@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -163,9 +163,9 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
         doReturn(true).when(this.speakerListener).isActive();
         doAnswer(invocation -> {
-            final Runnable command = (Runnable) invocation.getArguments()[0];
-            final long delay = (long) invocation.getArguments()[1];
-            final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
+            final Runnable command = invocation.getArgument(0);
+            final long delay = (long) invocation.getArgument(1);
+            final TimeUnit unit = invocation.getArgument(2);
             GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
             return null;
         }).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
@@ -179,7 +179,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class),
                 any(String.class),
                 any(ChannelHandler.class));
-        doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(),
+        doReturn(null).when(this.pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(),
                 any(String.class),
                 any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));

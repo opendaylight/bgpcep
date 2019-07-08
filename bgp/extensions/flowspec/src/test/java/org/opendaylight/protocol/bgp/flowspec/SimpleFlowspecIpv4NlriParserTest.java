@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -20,7 +22,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractNumericOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
@@ -163,8 +164,8 @@ public class SimpleFlowspecIpv4NlriParserTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(Mockito.any());
-        Mockito.doReturn(true).when(this.muliPathSupport).isTableTypeSupported(Mockito.any());
+        doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(any());
+        doReturn(true).when(this.muliPathSupport).isTableTypeSupported(any());
     }
 
     @Test
@@ -541,7 +542,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecDestPrefix() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -563,7 +564,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecSourcePrefix() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -585,7 +586,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecProtocolIps() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -631,7 +632,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecPorts() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -660,7 +661,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecDestinationPorts() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -690,7 +691,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecSourcePorts() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -722,7 +723,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecSourceTypes() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -753,7 +754,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecSourceCodes() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -781,7 +782,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecSourceTcpFlags() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -810,7 +811,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecPacketLengths() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -840,7 +841,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecDscps() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
@@ -870,7 +871,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     public void testExtractFlowspecFragments() {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
                 Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
+        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()

@@ -38,14 +38,13 @@ public class RibSupportUtilsTest {
                 "afi");
         final QName safi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2018-03-29",
                 "safi");
-        NII = new NodeIdentifierWithPredicates(SupportedTables.QNAME, ImmutableMap.of(afi, Ipv4AddressFamily.QNAME,
+        NII = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, ImmutableMap.of(afi, Ipv4AddressFamily.QNAME,
                 safi, UnicastSubsequentAddressFamily.QNAME));
-        NII_PATH = new NodeIdentifierWithPredicates(SupportedTables.QNAME, ImmutableMap.of(
-                QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol?revision=2018-03-29",
-                        "afi"), Ipv4AddressFamily.QNAME,
-                QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol?revision=2018-03-29",
-                        "safi"), UnicastSubsequentAddressFamily.QNAME)
-        );
+        NII_PATH = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, ImmutableMap.of(
+                QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol?revision=2018-03-29", "afi"),
+                Ipv4AddressFamily.QNAME,
+                QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol?revision=2018-03-29", "safi"),
+                UnicastSubsequentAddressFamily.QNAME));
     }
 
     @Test

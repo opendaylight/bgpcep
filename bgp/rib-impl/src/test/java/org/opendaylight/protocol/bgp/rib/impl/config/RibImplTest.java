@@ -16,7 +16,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Shorts;
 import java.util.ArrayList;
@@ -93,8 +92,8 @@ public class RibImplTest extends AbstractConfig {
         doReturn(ImmutableSet.of()).when(this.ribSupport).cacheableAttributeObjects();
         final MapEntryNode emptyTable = mock(MapEntryNode.class);
         doReturn(emptyTable).when(this.ribSupport).emptyTable();
-        final NodeIdentifierWithPredicates niie = new NodeIdentifierWithPredicates(Rib.QNAME,
-                ImmutableMap.of(QName.create("", "test").intern(), "t"));
+        final NodeIdentifierWithPredicates niie = NodeIdentifierWithPredicates.of(Rib.QNAME,
+                QName.create("", "test").intern(), "t");
         doReturn(niie).when(emptyTable).getIdentifier();
         doReturn(QName.create("", "test").intern()).when(emptyTable).getNodeType();
         doReturn(this.domTx).when(this.domDataBroker).createMergingTransactionChain(any());

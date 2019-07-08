@@ -201,7 +201,7 @@ public final class BmpRouterImpl implements BmpRouter, DOMTransactionChainListen
         final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
                 Builders.mapEntryBuilder()
-                .withNodeIdentifier(new NodeIdentifierWithPredicates(Router.QNAME, ROUTER_ID_QNAME, this.routerIp))
+                .withNodeIdentifier(NodeIdentifierWithPredicates.of(Router.QNAME, ROUTER_ID_QNAME, this.routerIp))
                 .withChild(ImmutableNodes.leafNode(ROUTER_ID_QNAME, this.routerIp))
                 .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, DOWN))
                 .withChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build()).build());
@@ -223,7 +223,7 @@ public final class BmpRouterImpl implements BmpRouter, DOMTransactionChainListen
         final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
                 Builders.mapEntryBuilder()
-                .withNodeIdentifier(new NodeIdentifierWithPredicates(Router.QNAME, ROUTER_ID_QNAME, this.routerIp))
+                .withNodeIdentifier(NodeIdentifierWithPredicates.of(Router.QNAME, ROUTER_ID_QNAME, this.routerIp))
                 .withChild(ImmutableNodes.leafNode(ROUTER_NAME_QNAME, initiation.getTlvs().getNameTlv().getName()))
                 .withChild(ImmutableNodes.leafNode(ROUTER_DESCRIPTION_QNAME, initiation.getTlvs().getDescriptionTlv()
                         .getDescription()))

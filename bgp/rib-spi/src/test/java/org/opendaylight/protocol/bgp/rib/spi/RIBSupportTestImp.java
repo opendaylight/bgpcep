@@ -5,10 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -37,8 +35,8 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
 
-    private static final NodeIdentifierWithPredicates PREFIX_NII = new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-            ImmutableMap.of(QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX));
+    private static final NodeIdentifierWithPredicates PREFIX_NII = NodeIdentifierWithPredicates.of(Ipv4Route.QNAME,
+            QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX);
 
     public RIBSupportTestImp(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService, Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, Ipv4AddressFamily.class,
@@ -96,7 +94,7 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     }
 
     @Override
-    public List<Ipv4Route> extractAdjRibInRoutes(Routes routes) {
+    public List<Ipv4Route> extractAdjRibInRoutes(final Routes routes) {
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.bgp.rib.rib.peer
                 .adj.rib.in.tables.routes.Ipv4RoutesCase) routes).getIpv4Routes().nonnullIpv4Route();
     }
