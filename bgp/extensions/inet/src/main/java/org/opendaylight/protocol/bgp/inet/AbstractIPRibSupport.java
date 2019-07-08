@@ -122,6 +122,6 @@ abstract class AbstractIPRibSupport<
                 prefixes.getChild(routePathIdNid());
         Preconditions.checkState(maybePrefixLeaf.isPresent());
         final Object prefixValue = maybePrefixLeaf.get().getValue();
-        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), prefixValue, maybePathIdLeaf);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), prefixValue, maybePathIdLeaf);
     }
 }
