@@ -130,7 +130,7 @@ abstract class AbstractLabeledUnicastRIBSupport<
         final String routeKeyValue = ByteArray.encodeBase64(buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf
                 = labeledUnicast.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), routeKeyValue, maybePathIdLeaf);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), routeKeyValue, maybePathIdLeaf);
     }
 
     /**
