@@ -160,28 +160,23 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void pathIdQName() {
-        assertEquals(PATH_ID_QNAME,this.ribSupportTestImp.pathIdQName());
-    }
-
-    @Test
     public void routesCaseClass() {
-        assertEquals(Ipv4RoutesCase.class,this.ribSupportTestImp.routesCaseClass());
+        assertEquals(Ipv4RoutesCase.class, this.ribSupportTestImp.routesCaseClass());
     }
 
     @Test
     public void routesContainerClass() {
-        assertEquals(Ipv4Routes.class,this.ribSupportTestImp.routesContainerClass());
+        assertEquals(Ipv4Routes.class, this.ribSupportTestImp.routesContainerClass());
     }
 
     @Test
     public void routesListClass() {
-        assertEquals(Ipv4Route.class,this.ribSupportTestImp.routesListClass());
+        assertEquals(Ipv4Route.class, this.ribSupportTestImp.routesListClass());
     }
 
     @Test
     public void routeQName() {
-        assertEquals(Ipv4Route.QNAME,this.ribSupportTestImp.routeQName());
+        assertEquals(Ipv4Route.QNAME, this.ribSupportTestImp.routeQName());
     }
 
     @Test

@@ -114,8 +114,8 @@ final class MvpnIpv4RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv4Case
         Ipv4NlriHandler.serializeNlri(Collections.singletonList(dest), buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 mvpn.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
-                pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
+                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
 
     @Override

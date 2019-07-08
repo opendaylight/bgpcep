@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
+import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -120,15 +121,14 @@ public abstract class AbstractRIBSupport<
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
-    private final QName pathIdQname;
     private final NodeIdentifier pathIdNid;
-    private final QName routeKeyQname;
     private final NodeIdentifier prefixTypeNid;
     private final NodeIdentifier rdNid;
     protected final BindingNormalizedNodeSerializer mappingService;
     protected final YangInstanceIdentifier routeDefaultYii;
     private final TablesKey tk;
     private final ImmutableList<PathArgument> relativeRoutesPath;
+    private final ImmutableOffsetMapTemplate<QName> routeKeyTemplate;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -170,9 +170,7 @@ public abstract class AbstractRIBSupport<
         this.afiClass = afiClass;
         this.safiClass = safiClass;
         this.destinationNid = NodeIdentifier.create(destContainerQname);
-        this.pathIdQname = QName.create(routeQName(), "path-id").intern();
-        this.pathIdNid = NodeIdentifier.create(this.pathIdQname);
-        this.routeKeyQname = QName.create(routeQName(), ROUTE_KEY).intern();
+        this.pathIdNid = NodeIdentifier.create(QName.create(routeQName(), "path-id").intern());
         this.prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
         this.rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
         this.routeDefaultYii =
@@ -188,6 +186,8 @@ public abstract class AbstractRIBSupport<
                         .node(this.routesListIdentifier)
                         .node(this.routesListIdentifier).build();
         this.relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
+        this.routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
+            ImmutableList.of(this.pathIdNid.getNodeType(), QName.create(routeQName(), ROUTE_KEY).intern()));
     }
 
     @Override
@@ -511,12 +511,8 @@ public abstract class AbstractRIBSupport<
         return this.pathIdNid;
     }
 
-    protected final QName pathIdQName() {
-        return this.pathIdQname;
-    }
-
-    protected final QName routeKeyQName() {
-        return this.routeKeyQname;
+    protected final ImmutableOffsetMapTemplate<QName> routeKeyTemplate() {
+        return this.routeKeyTemplate;
     }
 
     protected final String extractPrefix(final DataContainerNode<? extends PathArgument> route) {

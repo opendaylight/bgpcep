@@ -88,8 +88,8 @@ public final class LinkstateRIBSupport
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(cLinkstateDestination, buffer);
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 linkstate.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), routeKeyQName(),
-                pathIdQName(), ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
+                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
     }
 
     private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
