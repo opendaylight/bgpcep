@@ -33,6 +33,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,8 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     private Neighbor currentConfiguration;
     @GuardedBy("this")
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
+    @GuardedBy("this")
+    private ServiceRegistration<?> serviceRegistration;
 
     private static ApplicationRibId createAppRibId(final Neighbor neighbor) {
         final Config config = neighbor.getConfig();
@@ -75,6 +78,10 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         if (this.bgpAppPeerSingletonService != null) {
             this.bgpAppPeerSingletonService = null;
         }
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
+        }
     }
 
     @Override
@@ -102,6 +109,10 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     @Override
     public synchronized BGPPeerState getPeerState() {
         return this.bgpAppPeerSingletonService.getPeerState();
+    }
+
+    synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
     }
 
     private static final class BgpAppPeerSingletonService implements BGPPeerStateConsumer {
