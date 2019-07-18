@@ -19,6 +19,7 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
+import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -34,6 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,13 +52,15 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     @GuardedBy("this")
     private final Set<Topology> topologies = new HashSet<>();
     private final DataBroker dataBroker;
+    private final BundleContext context;
     private final ClusterSingletonServiceProvider singletonProvider;
     private ListenerRegistration<BgpTopologyDeployerImpl> registration;
     @GuardedBy("this")
     private boolean closed;
 
-    public BgpTopologyDeployerImpl(final DataBroker dataBroker,
+    public BgpTopologyDeployerImpl(final BundleContext context, final DataBroker dataBroker,
             final ClusterSingletonServiceProvider singletonProvider) {
+        this.context = requireNonNull(context);
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonProvider = requireNonNull(singletonProvider);
     }
@@ -130,6 +135,9 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put("topology-id", topologyProviderService.getInstanceIdentifier()
                 .firstKeyOf(Topology.class).getTopologyId().getValue());
+        final ServiceRegistration<?> registerService = this.context
+                .registerService(new String[]{TopologyReference.class.getName()},
+                        topologyProviderService, properties);
         final ClusterSingletonServiceRegistration registerClusterSingletonService =
                 registerSingletonService(topologyProviderService);
         return new AbstractRegistration() {
@@ -140,6 +148,8 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
                 } catch (final Exception e) {
                     LOG.warn("Failed to close ClusterSingletonServiceRegistration {} for TopologyBuilder {}",
                             registerClusterSingletonService, topologyProviderService.getInstanceIdentifier(), e);
+                } finally {
+                    registerService.unregister();
                 }
             }
         };

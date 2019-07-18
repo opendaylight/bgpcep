@@ -122,6 +122,12 @@
             <artifactId>netty-buffer</artifactId>
         </dependency>
 
+        <!-- FIXME: remove this -->
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
