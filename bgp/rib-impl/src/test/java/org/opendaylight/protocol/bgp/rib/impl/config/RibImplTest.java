@@ -53,6 +53,7 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.osgi.framework.ServiceRegistration;
 
 public class RibImplTest extends AbstractConfig {
     private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
@@ -79,6 +80,8 @@ public class RibImplTest extends AbstractConfig {
     private ListenerRegistration<?> dataTreeRegistration;
     @Mock
     private RIBSupport<?, ?, ?, ?> ribSupport;
+    @Mock
+    private ServiceRegistration<?> serviceRegistration;
 
     @Override
     @Before
@@ -104,6 +107,7 @@ public class RibImplTest extends AbstractConfig {
         doNothing().when(this.dataTreeRegistration).close();
         doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
                 .registerDataTreeChangeListener(any(), any());
+        doNothing().when(this.serviceRegistration).unregister();
     }
 
     @Test
@@ -116,6 +120,7 @@ public class RibImplTest extends AbstractConfig {
                 this.domDataBroker,
                 getDataBroker(),
                 this.domSchemaService);
+        ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getExtensions();
@@ -140,6 +145,7 @@ public class RibImplTest extends AbstractConfig {
         ribImpl.close();
         verify(this.dataTreeRegistration).close();
         verify(this.dataTreeRegistration).close();
+        verify(this.serviceRegistration).unregister();
     }
 
     private static Global createGlobal() {
