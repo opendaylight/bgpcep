@@ -95,13 +95,8 @@
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <scm>
