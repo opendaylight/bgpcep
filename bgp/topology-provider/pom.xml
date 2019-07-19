@@ -67,10 +67,6 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>yang-binding</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-common-api</artifactId>
         </dependency>
         <dependency>
