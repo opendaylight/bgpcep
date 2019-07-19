@@ -403,7 +403,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @Override
-    public synchronized final void channelInactive(final ChannelHandlerContext ctx) {
+    public final synchronized void channelInactive(final ChannelHandlerContext ctx) {
         LOG.debug("Channel {} inactive.", ctx.channel());
         endOfInput();
 
@@ -415,18 +415,18 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @Override
-    protected synchronized final void channelRead0(final ChannelHandlerContext ctx, final Message msg) {
+    protected final synchronized void channelRead0(final ChannelHandlerContext ctx, final Message msg) {
         LOG.debug("Message was received: {}", msg);
         handleMessage(msg);
     }
 
     @Override
-    public synchronized final void handlerAdded(final ChannelHandlerContext ctx) {
+    public final synchronized void handlerAdded(final ChannelHandlerContext ctx) {
         this.sessionUp();
     }
 
     @Override
-    public  synchronized void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
+    public synchronized void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         handleException(cause);
     }
 

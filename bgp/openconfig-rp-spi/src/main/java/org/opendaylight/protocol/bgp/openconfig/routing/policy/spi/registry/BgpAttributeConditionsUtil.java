@@ -45,39 +45,18 @@ final class BgpAttributeConditionsUtil {
             final Class<? extends AfiSafiType> afiSafi,
             final Attributes attributes,
             final BgpConditions conditions) {
-        if (!matchAfiSafi(afiSafi, conditions.getAfiSafiIn())) {
-            return false;
-        }
-
-        if (!matchAsPathLength(attributes.getAsPath(), conditions.getAsPathLength())) {
-            return false;
-        }
-
-        if (!matchMED(attributes.getMultiExitDisc(), conditions.getMedEq())) {
-            return false;
-        }
-
-        if (!matchOrigin(attributes.getOrigin(), conditions.getOriginEq())) {
-            return false;
-        }
-
-        if (!matchNextHopIn(attributes.getCNextHop(), conditions.getNextHopIn())) {
-            return false;
-        }
-
-        if (!matchLocalPref(attributes.getLocalPref(), conditions.getLocalPrefEq())) {
-            return false;
-        }
-        return true;
+        return matchAfiSafi(afiSafi, conditions.getAfiSafiIn())
+            && matchAsPathLength(attributes.getAsPath(), conditions.getAsPathLength())
+            && matchMED(attributes.getMultiExitDisc(), conditions.getMedEq())
+            && matchOrigin(attributes.getOrigin(), conditions.getOriginEq())
+            && matchNextHopIn(attributes.getCNextHop(), conditions.getNextHopIn())
+            && matchLocalPref(attributes.getLocalPref(), conditions.getLocalPrefEq());
     }
 
     private static boolean matchAfiSafi(
             final Class<? extends AfiSafiType> afiSafi,
             final List<Class<? extends AfiSafiType>> afiSafiIn) {
-        if (afiSafiIn == null) {
-            return true;
-        }
-        return afiSafiIn.contains(afiSafi);
+        return afiSafiIn == null ? true : afiSafiIn.contains(afiSafi);
     }
 
     private static boolean matchMED(final MultiExitDisc multiExitDisc, final Long med) {
