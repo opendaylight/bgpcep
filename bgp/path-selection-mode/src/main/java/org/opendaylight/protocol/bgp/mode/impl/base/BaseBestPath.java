@@ -57,12 +57,6 @@ final class BaseBestPath extends AbstractBestPath {
             return false;
         }
         final BaseBestPath other = (BaseBestPath) obj;
-        if (!this.routerId.equals(other.routerId)) {
-            return false;
-        }
-        if (!this.state.equals(other.state)) {
-            return false;
-        }
-        return true;
+        return this.routerId.equals(other.routerId) && this.state.equals(other.state);
     }
 }
