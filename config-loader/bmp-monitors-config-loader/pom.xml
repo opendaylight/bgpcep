@@ -101,11 +101,6 @@
             <artifactId>testtool-util</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- junit/mockito default -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-        </dependency>
     </dependencies>
 
     <scm>
