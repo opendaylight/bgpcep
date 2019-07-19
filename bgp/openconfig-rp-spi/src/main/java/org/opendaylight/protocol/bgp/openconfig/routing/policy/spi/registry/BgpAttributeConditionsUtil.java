@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
 import java.util.List;
@@ -32,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
 
 /**
- * Bgp Attribute Conditions Util per check conditions matchs.
+ * Bgp Attribute Conditions Util per check conditions matches.
  *
  * @author Claudio D. Gasparini
  */
@@ -81,18 +80,11 @@ final class BgpAttributeConditionsUtil {
     }
 
     private static boolean matchMED(final MultiExitDisc multiExitDisc, final Long med) {
-        if (multiExitDisc == null || med == null) {
-            return true;
-        }
-
-        return multiExitDisc.getMed().equals(med);
+        return multiExitDisc == null || med == null || med.equals(multiExitDisc.getMed());
     }
 
     private static boolean matchOrigin(final Origin origin, final BgpOriginAttrType originEq) {
-        if (origin == null || originEq == null) {
-            return true;
-        }
-        return origin.getValue().getIntValue() == originEq.getIntValue();
+        return origin == null || originEq == null || origin.getValue().getIntValue() == originEq.getIntValue();
     }
 
     private static boolean matchAsPathLength(final AsPath asPath, final AsPathLength asPathLength) {
@@ -110,17 +102,16 @@ final class BgpAttributeConditionsUtil {
         }
 
         final Class<? extends AttributeComparison> comp = asPathLength.getOperator();
-        final long asPathLenght = asPathLength.getValue();
+        final long asLength = asPathLength.getValue();
         if (comp == AttributeEq.class) {
-            return total == asPathLenght;
+            return total == asLength;
         } else if (comp == AttributeGe.class) {
-            return total >= asPathLenght;
+            return total >= asLength;
         } else if (comp == AttributeLe.class) {
-            return total <= asPathLenght;
+            return total <= asLength;
         }
         return false;
     }
-
 
     private static boolean matchNextHopIn(final CNextHop nextHop, final List<IpAddress> nextHopIn) {
         if (nextHop == null || nextHopIn == null || nextHop instanceof EmptyNextHopCase) {
@@ -137,9 +128,6 @@ final class BgpAttributeConditionsUtil {
     }
 
     private static boolean matchLocalPref(final LocalPref localPref, final Long localPrefEq) {
-        if (localPref == null || localPrefEq == null) {
-            return true;
-        }
-        return localPref.getPref().equals(localPrefEq);
+        return localPref == null || localPrefEq == null || localPrefEq.equals(localPref.getPref());
     }
 }
