@@ -43,10 +43,6 @@
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-spec-util</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
 
         <!-- test scope dependencies -->
         <dependency>
