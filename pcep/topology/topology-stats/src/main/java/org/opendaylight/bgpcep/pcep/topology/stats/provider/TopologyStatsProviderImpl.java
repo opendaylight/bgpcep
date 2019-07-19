@@ -150,7 +150,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
         try {
             wTx.commit().get();
         } catch (final InterruptedException | ExecutionException e) {
-            LOG.warn("Failed to remove Pcep Node stats {}.", nodeId.getKey().getNodeId());
+            LOG.warn("Failed to remove Pcep Node stats {}.", nodeId.getKey().getNodeId(), e);
         }
     }
 }
