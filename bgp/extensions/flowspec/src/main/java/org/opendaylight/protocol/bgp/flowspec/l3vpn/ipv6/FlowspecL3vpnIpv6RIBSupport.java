@@ -15,7 +15,6 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv6RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv6RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.l3vpn.destination.ipv6.DestinationFlowspecL3vpnIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRouteBuilder;
@@ -35,8 +34,6 @@ public final class FlowspecL3vpnIpv6RIBSupport
         FlowspecL3vpnRouteKey> {
     private static final FlowspecL3vpnIpv6Routes EMPTY_CONTAINER
             = new FlowspecL3vpnIpv6RoutesBuilder().setFlowspecL3vpnRoute(Collections.emptyList()).build();
-    private static final FlowspecL3vpnIpv6RoutesCase EMPTY_CASE = new FlowspecL3vpnIpv6RoutesCaseBuilder()
-            .setFlowspecL3vpnIpv6Routes(EMPTY_CONTAINER).build();
     private static FlowspecL3vpnIpv6RIBSupport SINGLETON;
 
     private FlowspecL3vpnIpv6RIBSupport(

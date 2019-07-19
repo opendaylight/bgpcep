@@ -153,10 +153,7 @@ final class PCCSyncOptimization {
     }
 
     public boolean isSyncNeedIt() {
-        if (doesLspDbMatch() && !this.resynchronizing) {
-            return false;
-        }
-        return true;
+        return !doesLspDbMatch() || this.resynchronizing;
     }
 
     public void setResynchronizingState(final Boolean resync) {
