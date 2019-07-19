@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 
 final class PCEPTopologyProviderUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderUtil.class);
-
     private PCEPTopologyProviderUtil() {
         throw new UnsupportedOperationException();
     }

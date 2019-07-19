@@ -35,8 +35,6 @@ public final class FlowspecL3vpnIpv6RIBSupport
         FlowspecL3vpnRouteKey> {
     private static final FlowspecL3vpnIpv6Routes EMPTY_CONTAINER
             = new FlowspecL3vpnIpv6RoutesBuilder().setFlowspecL3vpnRoute(Collections.emptyList()).build();
-    private static final FlowspecL3vpnIpv6RoutesCase EMPTY_CASE = new FlowspecL3vpnIpv6RoutesCaseBuilder()
-            .setFlowspecL3vpnIpv6Routes(EMPTY_CONTAINER).build();
     private static FlowspecL3vpnIpv6RIBSupport SINGLETON;
 
     private FlowspecL3vpnIpv6RIBSupport(

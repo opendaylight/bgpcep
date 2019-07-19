@@ -561,7 +561,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param nlri byte representation of NLRI which will be parsed
      * @return list of Flowspec
      */
-    protected final List<Flowspec> parseNlriFlowspecList(final @NonNull ByteBuf nlri) throws BGPParsingException {
+    protected final List<Flowspec> parseNlriFlowspecList(final @NonNull ByteBuf nlri) {
         if (!nlri.isReadable()) {
             return null;
         }

@@ -48,10 +48,7 @@ final class PCEPErrorIdentifier implements Serializable {
             return false;
         }
         final PCEPErrorIdentifier other = (PCEPErrorIdentifier) obj;
-        if (this.type != other.type || this.value != other.value) {
-            return false;
-        }
-        return true;
+        return this.type == other.type && this.value == other.value;
     }
 
     @Override
