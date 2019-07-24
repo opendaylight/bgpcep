@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
@@ -42,6 +43,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
@@ -52,16 +54,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibOut;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteTarget;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -88,33 +84,31 @@ import org.slf4j.LoggerFactory;
  * peer needs to have a BGP-ID that is configurable.
  */
 public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTreeChangeListener {
-
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
-
     private static final String APP_PEER_GROUP = "application-peers";
+
+    private final LoadingCache<NodeIdentifierWithPredicates, YangInstanceIdentifier> tablesIId =
+        CacheBuilder.newBuilder().build(new CacheLoader<NodeIdentifierWithPredicates, YangInstanceIdentifier>() {
+            @Override
+            public YangInstanceIdentifier load(final NodeIdentifierWithPredicates key) {
+                return peerRibOutIId.node(RIBNodeIdentifiers.TABLES_NID).node(key);
+            }
+        });
+
     private final YangInstanceIdentifier adjRibsInId;
-    private final InstanceIdentifier<AdjRibOut> peerRibOutIId;
-    private final KeyedInstanceIdentifier<Peer, PeerKey> peerIId;
+    private final YangInstanceIdentifier peerRibOutIId;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter adjRibInWriter;
     private ListenerRegistration<ApplicationPeer> registration;
     private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
-    private final LoadingCache<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>> tablesIId
-            = CacheBuilder.newBuilder()
-            .build(new CacheLoader<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>>() {
-                @Override
-                public KeyedInstanceIdentifier<Tables, TablesKey> load(final TablesKey tablesKey) {
-                    return ApplicationPeer.this.peerRibOutIId.child(Tables.class, tablesKey);
-                }
-            });
     private Registration trackerRegistration;
     private YangInstanceIdentifier peerPath;
 
     @Override
     public List<RouteTarget> getMemberships() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @FunctionalInterface
@@ -133,13 +127,12 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
-        this.adjRibsInId = targetRib.getYangRibId().node(PEER_NID)
-                .node(IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress)))
-                .node(ADJRIBIN_NID).node(TABLES_NID);
         this.peerId = RouterIds.createPeerId(ipAddress);
-        this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-                .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
-        this.peerRibOutIId = this.peerIId.child(AdjRibOut.class);
+
+        final YangInstanceIdentifier peerRib = targetRib.getYangRibId().node(PEER_NID)
+            .node(IdentifierUtils.domPeerId(peerId));
+        this.adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
+        this.peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
     }
 
     public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
@@ -326,8 +319,8 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     }
 
     @Override
-    public KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(final TablesKey tablesKey) {
-        return this.tablesIId.getUnchecked(tablesKey);
+    public YangInstanceIdentifier getRibOutIId(final NodeIdentifierWithPredicates tablekey) {
+        return this.tablesIId.getUnchecked(tablekey);
     }
 
     @Override

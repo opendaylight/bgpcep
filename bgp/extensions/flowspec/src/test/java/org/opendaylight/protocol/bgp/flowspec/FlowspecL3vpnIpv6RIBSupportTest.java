@@ -8,14 +8,15 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
+import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv6.FlowspecL3vpnIpv6RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -131,31 +132,25 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<Flow
 
     @Test
     public void testCacheableNlriObjects() {
-        Assert.assertEquals(ImmutableSet.of(), this.ribSupport.cacheableNlriObjects());
+        assertEquals(Set.of(), this.ribSupport.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        Assert.assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
-    }
-
-    @Test
-    public void testRouteIdAddPath() {
-        Assert.assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(),
-            ROUTE_KEY.getRouteKey()));
+        assertEquals(Set.of(), this.ribSupport.cacheableAttributeObjects());
     }
 
     @Test
     public void testRoutePath() {
         final YangInstanceIdentifier.NodeIdentifierWithPredicates prefixNii = createRouteNIWP(
             new FlowspecL3vpnIpv6RoutesBuilder().setFlowspecL3vpnRoute(Map.of(ROUTE.key(), ROUTE)).build());
-        Assert.assertEquals(getRoutePath().node(prefixNii),
+        assertEquals(getRoutePath().node(prefixNii),
                 this.ribSupport.routePath(getTablePath(), prefixNii));
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
-        Assert.assertEquals(new YangInstanceIdentifier.NodeIdentifier(QName.create(FlowspecL3vpnIpv6Routes.QNAME,
+        assertEquals(new YangInstanceIdentifier.NodeIdentifier(QName.create(FlowspecL3vpnIpv6Routes.QNAME,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables
                     .Attributes.QNAME.getLocalName().intern())),
             this.ribSupport.routeAttributesIdentifier());
@@ -163,17 +158,17 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<Flow
 
     @Test
     public void testRoutesCaseClass() {
-        Assert.assertEquals(FlowspecL3vpnIpv6RoutesCase.class, this.ribSupport.routesCaseClass());
+        assertEquals(FlowspecL3vpnIpv6RoutesCase.class, this.ribSupport.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        Assert.assertEquals(FlowspecL3vpnIpv6Routes.class, this.ribSupport.routesContainerClass());
+        assertEquals(FlowspecL3vpnIpv6Routes.class, this.ribSupport.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        Assert.assertEquals(FlowspecL3vpnRoute.class, this.ribSupport.routesListClass());
+        assertEquals(FlowspecL3vpnRoute.class, this.ribSupport.routesListClass());
     }
 
     @Test
@@ -181,18 +176,18 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<Flow
         final Routes emptyCase = new FlowspecL3vpnIpv6RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new FlowspecL3vpnIpv6RoutesCaseBuilder()
                 .setFlowspecL3vpnIpv6Routes(new FlowspecL3vpnIpv6RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes routes = new FlowspecL3vpnIpv6RoutesCaseBuilder()
                 .setFlowspecL3vpnIpv6Routes(new FlowspecL3vpnIpv6RoutesBuilder()
                         .setFlowspecL3vpnRoute(Map.of(ROUTE.key(), ROUTE)).build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
         final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
-        Assert.assertFalse(result.isEmpty());
+        assertFalse(result.isEmpty());
     }
 }
