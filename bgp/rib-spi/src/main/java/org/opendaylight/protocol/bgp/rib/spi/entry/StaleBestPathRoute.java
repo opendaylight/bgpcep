@@ -18,6 +18,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
  * Routes to be removed from Data Store.
@@ -26,13 +27,13 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
  */
 public abstract class StaleBestPathRoute<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> {
-    private final I nonAddPathRouteKeyIdentifier;
+    private final NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier;
 
-    protected StaleBestPathRoute(final I nonAddPathRouteKeyIdentifier) {
+    protected StaleBestPathRoute(final NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier) {
         this.nonAddPathRouteKeyIdentifier = requireNonNull(nonAddPathRouteKeyIdentifier);
     }
 
-    public final I getNonAddPathRouteKeyIdentifier() {
+    public final NodeIdentifierWithPredicates getNonAddPathRouteKeyIdentifier() {
         return nonAddPathRouteKeyIdentifier;
     }
 
@@ -41,14 +42,14 @@ public abstract class StaleBestPathRoute<C extends Routes & DataObject & ChoiceI
      *
      * @return Route Identifier List
      */
-    public abstract List<I> getStaleRouteKeyIdentifiers();
+    public abstract List<NodeIdentifierWithPredicates> getStaleRouteKeyIdentifiers();
 
     /**
      * Route Identifier List of withdrawn routes to advertize peers supporting additional Path.
      *
      * @return Route Identifier List
      */
-    public abstract List<I> getAddPathRouteKeyIdentifiers();
+    public abstract List<NodeIdentifierWithPredicates> getAddPathRouteKeyIdentifiers();
 
     /**
      * Route Identifier of withdrawn routes to advertize peers no supporting additional Path.
