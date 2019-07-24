@@ -121,12 +121,6 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnIpv6RoutesC
     }
 
     @Test
-    public void testRouteIdAddPath() {
-        Assert.assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(),
-            ROUTE_KEY.getRouteKey()));
-    }
-
-    @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
         assertEquals(getRoutePath().node(prefixNii),

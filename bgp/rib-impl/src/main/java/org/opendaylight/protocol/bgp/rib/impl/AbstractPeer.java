@@ -23,9 +23,9 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
@@ -43,7 +43,6 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteKeyIdentifier;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
-import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
@@ -63,9 +62,10 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,37 +238,32 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }
 
         final RIBSupport<C, S, R, I> ribSupport = entryDep.getRIBSupport();
-        final TablesKey tk = entryDep.getRIBSupport().getTablesKey();
-        final boolean addPathSupported = supportsAddPathSupported(tk);
+        final YangInstanceIdentifier tableRibout = getRibOutIId(ribSupport.tablesKey());
+        final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
-        final WriteTransaction tx = this.bindingChain.newWriteOnlyTransaction();
-        for (final ActualBestPathRoutes<C, S, R, I> initializingRoute : routesToStore) {
-            if (!supportsLLGR() && initializingRoute.isDepreferenced()) {
+        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
+        for (final ActualBestPathRoutes<C, S, R, I> initRoute : routesToStore) {
+            if (!supportsLLGR() && initRoute.isDepreferenced()) {
                 // Stale Long-lived Graceful Restart routes should not be propagated
                 continue;
             }
 
-            final PeerId fromPeerId = initializingRoute.getFromPeerId();
+            final PeerId fromPeerId = initRoute.getFromPeerId();
             if (!filterRoutes(fromPeerId, ribSupport.getTablesKey())) {
                 continue;
             }
 
-            final R route = initializingRoute.getRoute();
+            final MapEntryNode route = initRoute.getRoute();
             final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
             if (fromPeer == null) {
-                LOG.debug("Failed to acquire peer structure for {}, ignoring route {}", fromPeerId, initializingRoute);
+                LOG.debug("Failed to acquire peer structure for {}, ignoring route {}", fromPeerId, initRoute);
                 continue;
             }
 
-            final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer,
-                    this, route.getRouteKey(), this.rtCache);
-
-            final Optional<Attributes> effAttr = entryDep.getRoutingPolicies()
-                    .applyExportPolicies(routeEntry, initializingRoute.getAttributes(), entryDep.getAfiSafType());
-            final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
-
-            effAttr.ifPresent(attributes
-                -> storeRoute(ribSupport, addPathSupported, tableRibout, initializingRoute, route, attributes, tx));
+            final YangInstanceIdentifier routePath = createRoutePath(ribSupport, tableRibout, initRoute,
+                addPathSupported);
+            applyExportPolicy(entryDep, fromPeerId, route, routePath, initRoute.getAttributes()).ifPresent(
+                attributes -> storeRoute(ribSupport, initRoute, route, routePath, attributes, tx));
         }
 
         final FluentFuture<? extends CommitInfo> future = tx.commit();
@@ -295,7 +290,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
-        final WriteTransaction tx = this.bindingChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
         final RIBSupport<C, S, R, I> ribSupport = entryDep.getRIBSupport();
         deleteRouteRibOut(ribSupport, staleRoutes, tx);
         installRouteRibOut(entryDep, newRoutes, tx);
@@ -327,35 +322,31 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }
 
         final RIBSupport<C,S,R,I> ribSupport = entryDep.getRIBSupport();
-        final TablesKey tk = entryDep.getRIBSupport().getTablesKey();
-        final boolean addPathSupported = supportsAddPathSupported(tk);
+        final NodeIdentifierWithPredicates tk = ribSupport.tablesKey();
+        final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
-        final WriteTransaction tx = this.bindingChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
         for (final ActualBestPathRoutes<C, S, R, I> actualBestRoute : routesToStore) {
             final PeerId fromPeerId = actualBestRoute.getFromPeerId();
             if (!filterRoutes(fromPeerId, ribSupport.getTablesKey())) {
                 continue;
             }
 
-            final R route = actualBestRoute.getRoute();
-            final Optional<Attributes> effAttr;
+            final YangInstanceIdentifier tableRibout = getRibOutIId(tk);
+            // Stale Long-lived Graceful Restart routes should not be propagated
             if (supportsLLGR() || !actualBestRoute.isDepreferenced()) {
-                final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
-                final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer,
-                    this, route.getRouteKey(), this.rtCache);
-                effAttr = entryDep.getRoutingPolicies()
-                        .applyExportPolicies(routeEntry, actualBestRoute.getAttributes(), entryDep.getAfiSafType());
-            } else {
-                // Stale Long-lived Graceful Restart routes should not be propagated
-                effAttr = Optional.empty();
+                final YangInstanceIdentifier routePath = createRoutePath(ribSupport, tableRibout, actualBestRoute,
+                    addPathSupported);
+                final MapEntryNode route = actualBestRoute.getRoute();
+                final Optional<ContainerNode> effAttr = applyExportPolicy(entryDep, fromPeerId, route, routePath,
+                    actualBestRoute.getAttributes());
+                if (effAttr.isPresent()) {
+                    storeRoute(ribSupport, actualBestRoute, route, routePath, effAttr.get(), tx);
+                    continue;
+                }
             }
 
-            final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
-            if (effAttr.isPresent()) {
-                storeRoute(ribSupport, addPathSupported, tableRibout, actualBestRoute, route, effAttr.get(), tx);
-            } else {
-                deleteRoute(ribSupport, addPathSupported, tableRibout, actualBestRoute, tx);
-            }
+            deleteRoute(ribSupport, addPathSupported, tableRibout, actualBestRoute, tx);
         }
 
         final FluentFuture<? extends CommitInfo> future = tx.commit();
@@ -373,16 +364,39 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }, MoreExecutors.directExecutor());
     }
 
+    private Optional<ContainerNode> applyExportPolicy(final RouteEntryDependenciesContainer entryDep,
+            final PeerId fromPeerId, final MapEntryNode route, final YangInstanceIdentifier routePath,
+            final ContainerNode attrs) {
+        final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
+        final RIBSupport<?, ?, ?, ?> ribSupport = entryDep.getRIBSupport();
+        final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer, this,
+            ribSupport.extractRouteKey(route.getIdentifier()), this.rtCache);
+
+        final Attributes bindingAttrs = ribSupport.attributeFromContainerNode(attrs);
+        final Optional<Attributes> optExportAttrs = entryDep.getRoutingPolicies().applyExportPolicies(routeEntry,
+            bindingAttrs, entryDep.getAfiSafType());
+        if (optExportAttrs.isEmpty()) {
+            // Discards route
+            return Optional.empty();
+        }
+        final Attributes exportAttrs = optExportAttrs.orElseThrow();
+
+        // If the same object is returned we can just reuse 'attrs' instead. Since we are in control of lifecycle here,
+        // we use identity comparison, as equality is too costly for the common case -- assuming export policy will not
+        // churn objects when it does not have to
+        return Optional.of(exportAttrs == bindingAttrs ? attrs
+            : ribSupport.attributeToContainerNode(routePath.node(ribSupport.routeAttributesIdentifier()), exportAttrs));
+    }
+
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void installRouteRibOut(
                     final RouteEntryDependenciesContainer entryDep, final List<AdvertizedRoute<C, S, R, I>> routes,
-                    final WriteTransaction tx) {
-        final TablesKey tk = entryDep.getRIBSupport().getTablesKey();
-        final BGPPeerTracker peerTracker = entryDep.getPeerTracker();
+                    final DOMDataTreeWriteOperations tx) {
         final RIBSupport<C, S, R, I> ribSupport = entryDep.getRIBSupport();
-        final BGPRibRoutingPolicy routingPolicies = entryDep.getRoutingPolicies();
+        final TablesKey tk = ribSupport.getTablesKey();
+        final BGPPeerTracker peerTracker = entryDep.getPeerTracker();
         final boolean addPathSupported = supportsAddPathSupported(tk);
-        final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
+        final YangInstanceIdentifier tableRibout = getRibOutIId(ribSupport.tablesKey());
 
         for (final AdvertizedRoute<C, S, R, I> advRoute : routes) {
             final PeerId fromPeerId = advRoute.getFromPeerId();
@@ -401,18 +415,23 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 continue;
             }
 
-            final R route = advRoute.getRoute();
-            Optional<Attributes> effAttr = Optional.empty();
             final Peer fromPeer = peerTracker.getPeer(fromPeerId);
-            final Attributes attributes = advRoute.getAttributes();
+            final ContainerNode attributes = advRoute.getAttributes();
             if (fromPeer != null && attributes != null) {
-                final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer,
-                        this, route.getRouteKey(), this.rtCache);
-                effAttr = routingPolicies.applyExportPolicies(routeEntry, attributes, entryDep.getAfiSafType());
+                final YangInstanceIdentifier routePath = createRoutePath(ribSupport, tableRibout, advRoute,
+                    addPathSupported);
+                final MapEntryNode route = advRoute.getRoute();
+                applyExportPolicy(entryDep, fromPeerId, route, routePath, attributes).ifPresent(
+                    attrs -> storeRoute(ribSupport, advRoute, route, routePath, attrs, tx));
             }
-            effAttr.ifPresent(attributes1
-                -> storeRoute(ribSupport, addPathSupported, tableRibout, advRoute, route, attributes1, tx));
         }
+    }
+
+    private static YangInstanceIdentifier createRoutePath(final RIBSupport<?, ?, ?, ?> ribSupport,
+            final YangInstanceIdentifier tableRibout, final RouteKeyIdentifier<?, ?> advRoute,
+            final boolean withAddPath) {
+        return ribSupport.createRouteIdentifier(tableRibout,
+            withAddPath ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
     }
 
     private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
@@ -420,44 +439,32 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             I extends Identifier<R>> void deleteRouteRibOut(
             final RIBSupport<C, S, R, I> ribSupport,
             final List<StaleBestPathRoute<C, S, R, I>> staleRoutesIid,
-            final WriteTransaction tx) {
-        final TablesKey tk = ribSupport.getTablesKey();
-        final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout = getRibOutIId(tk);
-        final boolean addPathSupported = supportsAddPathSupported(tk);
+            final DOMDataTreeWriteOperations tx) {
+        final YangInstanceIdentifier tableRibout = getRibOutIId(ribSupport.tablesKey());
+        final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
         staleRoutesIid.forEach(staleRouteIid
             -> removeRoute(ribSupport, addPathSupported, tableRibout, staleRouteIid, tx));
     }
 
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void storeRoute(
-                    final RIBSupport<C, S, R, I> ribSupport, final boolean addPathSupported,
-                    final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout,
-                    final RouteKeyIdentifier<R, I> advRoute, final R route, final Attributes effAttr,
-                    final WriteTransaction tx) {
-        final InstanceIdentifier<R> ribOut;
-        final I newKey;
-        if (!addPathSupported) {
-            ribOut = ribSupport.createRouteIdentifier(tableRibout, advRoute.getNonAddPathRouteKeyIdentifier());
-            newKey = ribSupport.createRouteListKey(route.getRouteKey());
-        } else {
-            ribOut = ribSupport.createRouteIdentifier(tableRibout, advRoute.getAddPathRouteKeyIdentifier());
-            newKey = ribSupport.createRouteListKey(route.getPathId(), route.getRouteKey());
-        }
-
-        final R newRoute = ribSupport.createRoute(route, newKey, effAttr);
+                    final RIBSupport<C, S, R, I> ribSupport, final RouteKeyIdentifier<R, I> advRoute,
+                    final MapEntryNode route, final YangInstanceIdentifier routePath, final ContainerNode effAttr,
+                    final DOMDataTreeWriteOperations tx) {
         LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, getPeerId());
-        tx.put(LogicalDatastoreType.OPERATIONAL, ribOut, newRoute);
+        tx.put(LogicalDatastoreType.OPERATIONAL, routePath, ribSupport.createRoute(route,
+            (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
     }
 
     private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>,
             I extends Identifier<R>> void removeRoute(final RIBSupport<C, S, R, I> ribSupport,
-            final boolean addPathSupported, final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout,
-            final StaleBestPathRoute<C, S, R, I> staleRouteIid, final WriteTransaction tx) {
+            final boolean addPathSupported, final YangInstanceIdentifier tableRibout,
+            final StaleBestPathRoute<C, S, R, I> staleRouteIid, final DOMDataTreeWriteOperations tx) {
         if (addPathSupported) {
-            List<I> staleRoutesIId = staleRouteIid.getAddPathRouteKeyIdentifiers();
-            for (final I id : staleRoutesIId) {
-                final InstanceIdentifier<R> ribOutTarget = ribSupport.createRouteIdentifier(tableRibout, id);
+            List<NodeIdentifierWithPredicates> staleRoutesIId = staleRouteIid.getAddPathRouteKeyIdentifiers();
+            for (final NodeIdentifierWithPredicates id : staleRoutesIId) {
+                final YangInstanceIdentifier ribOutTarget = ribSupport.createRouteIdentifier(tableRibout, id);
                 LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
                 tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
             }
@@ -465,7 +472,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             if (!staleRouteIid.isNonAddPathBestPathNew()) {
                 return;
             }
-            final InstanceIdentifier<R> ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
+            final YangInstanceIdentifier ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
                     staleRouteIid.getNonAddPathRouteKeyIdentifier());
             LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
             tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
@@ -476,9 +483,9 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void deleteRoute(
             final RIBSupport<C, S, R, I> ribSupport,  final boolean addPathSupported,
-            final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout,
-            final AbstractAdvertizedRoute<C, S , R, I> advRoute, final WriteTransaction tx) {
-        final InstanceIdentifier<R> ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
+            final YangInstanceIdentifier tableRibout,
+            final AbstractAdvertizedRoute<C, S , R, I> advRoute, final DOMDataTreeWriteOperations tx) {
+        final YangInstanceIdentifier ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
             addPathSupported ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
         LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);

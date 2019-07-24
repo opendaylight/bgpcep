@@ -26,10 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.destination.L3vpnMcastDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.destination.L3vpnMcastDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.L3vpnMcastRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.L3vpnMcastRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.L3vpnMcastRouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
@@ -85,7 +82,8 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
             final QName destContainerQname,
             final QName destListQname) {
         super(mappingService, cazeClass, containerClass, L3vpnMcastRoute.class, afiClass,
-                McastMplsLabeledVpnSubsequentAddressFamily.class, destContainerQname);
+                McastMplsLabeledVpnSubsequentAddressFamily.class, destContainerQname,
+                key -> key.getPathId().getValue(), L3vpnMcastRouteKey::getRouteKey);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
         this.rdNid = NodeIdentifier.create(QName.create(cazeQName, "route-distinguisher").intern());
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
@@ -97,23 +95,6 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
     }
 
     protected abstract IpPrefix createPrefix(String prefix);
-
-    @Override
-    public final L3vpnMcastRoute createRoute(final L3vpnMcastRoute route, final L3vpnMcastRouteKey key,
-            final Attributes attributes) {
-        final L3vpnMcastRouteBuilder builder;
-        if (route != null) {
-            builder = new L3vpnMcastRouteBuilder(route);
-        } else {
-            builder = new L3vpnMcastRouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public final L3vpnMcastRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
-        return new L3vpnMcastRouteKey(pathId, routeKey);
-    }
 
     @Override
     protected final Collection<NodeIdentifierWithPredicates> processDestination(
@@ -155,16 +136,6 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
                 .setPrefix(createPrefix(extractPrefix(destination)))
                 .setPathId(PathIdUtil.buildPathId(destination, routePathIdNid()))
                 .build();
-    }
-
-    @Override
-    public final PathId extractPathId(final L3vpnMcastRouteKey routeListKey) {
-        return routeListKey.getPathId();
-    }
-
-    @Override
-    public String extractRouteKey(final L3vpnMcastRouteKey routeListKey) {
-        return routeListKey.getRouteKey();
     }
 
     abstract NodeIdentifierWithPredicates createRouteKey(UnkeyedListEntryNode l3vpn);
