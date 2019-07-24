@@ -16,11 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.ipv6.DestinationFlowspecIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.routes.FlowspecIpv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 
@@ -39,35 +36,9 @@ public final class FlowspecIpv6RIBSupport
                 Ipv6AddressFamily.class,
                 FlowspecSubsequentAddressFamily.class,
                 DestinationFlowspecIpv6.QNAME,
-                new SimpleFlowspecIpv6NlriParser(SAFI.FLOWSPEC)
+                new SimpleFlowspecIpv6NlriParser(SAFI.FLOWSPEC),
+                key -> key.getPathId().getValue(), FlowspecRouteKey::getRouteKey
         );
-    }
-
-    @Override
-    public FlowspecRoute createRoute(final FlowspecRoute route, final FlowspecRouteKey key,
-            final Attributes attributes) {
-        final FlowspecRouteBuilder builder;
-        if (route != null) {
-            builder = new FlowspecRouteBuilder(route);
-        } else {
-            builder = new FlowspecRouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public FlowspecRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
-        return new FlowspecRouteKey(pathId, routeKey);
-    }
-
-    @Override
-    public PathId extractPathId(final FlowspecRouteKey routeListKey) {
-        return routeListKey.getPathId();
-    }
-
-    @Override
-    public String extractRouteKey(final FlowspecRouteKey routeListKey) {
-        return routeListKey.getRouteKey();
     }
 
     @Override

@@ -21,7 +21,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
  * Container wrapper for all dependencies related to Route Entry, required for process and storage.
@@ -51,11 +51,11 @@ public interface RouteEntryDependenciesContainer {
     @NonNull Class<? extends AfiSafiType> getAfiSafType();
 
     /**
-     * Returns the loc-rib table to be updated and to which  corresponds this Route Entry.
+     * Returns the loc-rib table to be updated and to which corresponds this Route Entry.
      *
      * @return InstanceIdentifier containing the path to loc-rib table.
      */
-    @NonNull KeyedInstanceIdentifier<Tables, TablesKey> getLocRibTableTarget();
+    @NonNull YangInstanceIdentifier getLocRibTableTarget();
 
     /**
      * Return routing policies defined per RIB.

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 
 import com.google.common.collect.ImmutableList;
@@ -13,6 +12,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -36,19 +36,21 @@ final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S
     }
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final long localAs, final int size) {
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs,
+            final int size) {
         final int limit = Math.min(npaths, size);
         switch (limit) {
             case 0:
                 return ImmutableList.of();
             case 1:
-                return ImmutableList.of(bestPathAt(0));
+                return ImmutableList.of(bestPathAt(ribSupport, 0));
             default:
-                return selectBest(localAs, size, limit);
+                return selectBest(ribSupport, localAs, size, limit);
         }
     }
 
-    private ImmutableList<AddPathBestPath> selectBest(final long localAs, final int size, final int limit) {
+    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs,
+            final int size, final int limit) {
         // Scratch pool of offsets, we set them to true as we use them up.
         final boolean[] offsets = new boolean[size];
         final Builder<AddPathBestPath> builder = ImmutableList.builderWithExpectedSize(limit);
@@ -61,7 +63,7 @@ final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S
             final AddPathSelector selector = new AddPathSelector(localAs);
             for (int offset = 0; offset < size; ++offset) {
                 if (!offsets[offset]) {
-                    processOffset(selector, offset);
+                    processOffset(ribSupport, selector, offset);
                 }
             }
             final AddPathBestPath result = selector.result();
