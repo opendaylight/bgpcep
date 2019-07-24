@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.mode.api;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public interface BestPath {
 
@@ -35,7 +35,7 @@ public interface BestPath {
      *
      * @return the path attributes
      */
-    @NonNull Attributes getAttributes();
+    @NonNull ContainerNode getAttributes();
 
     /**
      * PathId.

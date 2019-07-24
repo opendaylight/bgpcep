@@ -144,11 +144,6 @@ public class L3vpnMcastIpv4RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
     }
 
     @Test
-    public void testRouteIdAddPath() {
-        assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(), ROUTE_KEY.getRouteKey()));
-    }
-
-    @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MCAST_L3VPN_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);

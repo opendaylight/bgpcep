@@ -14,6 +14,7 @@ import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Function;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -29,6 +30,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -53,9 +55,10 @@ public abstract class AbstractFlowspecRIBSupport<
             final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
             final QName dstContainerClassQName,
-            final T nlriParser
+            final T nlriParser, final Function<I, Uint32> keyToPathId, final Function<I, String> keyToRouteKey
     ) {
-        super(mappingService, cazeClass, containerClass, listClass, afiClass, safiClass, dstContainerClassQName);
+        super(mappingService, cazeClass, containerClass, listClass, afiClass, safiClass, dstContainerClassQName,
+            keyToPathId, keyToRouteKey);
 
         this.nlriParser = requireNonNull(nlriParser);
     }
