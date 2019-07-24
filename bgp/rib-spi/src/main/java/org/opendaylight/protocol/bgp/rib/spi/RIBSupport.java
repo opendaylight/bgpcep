@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
@@ -32,8 +33,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -221,8 +221,18 @@ public interface RIBSupport<
      * @param newRouteKey route key
      * @return InstanceIdentifier
      */
-    @NonNull InstanceIdentifier<R> createRouteIdentifier(@NonNull KeyedInstanceIdentifier<Tables, TablesKey> tableKey,
+    @NonNull YangInstanceIdentifier createRouteIdentifier(@NonNull YangInstanceIdentifier tableKey,
             @NonNull I newRouteKey);
+
+    /**
+     * Creates Route table Peer InstanceIdentifier.
+     *
+     * @param tableKey    table InstanceIdentifier
+     * @param newRouteKey route key
+     * @return InstanceIdentifier
+     */
+    @NonNull YangInstanceIdentifier createRouteIdentifier(@NonNull YangInstanceIdentifier tableKey,
+            @NonNull NodeIdentifierWithPredicates newRouteKey);
 
     /**
      * Creates a route with new path Id and attributes.
@@ -232,14 +242,17 @@ public interface RIBSupport<
      * @param attributes route attributes
      * @return Route List key
      */
-    @NonNull R createRoute(@Nullable R route, @NonNull I key, @NonNull Attributes attributes);
+    @NonNull MapEntryNode createRoute(@Nullable MapEntryNode route, @NonNull NodeIdentifierWithPredicates key,
+        @NonNull ContainerNode attributes);
 
     /**
      * Returns TablesKey which we are providing support.
      *
      * @return TablesKey
      */
-    TablesKey getTablesKey();
+    @NonNull TablesKey getTablesKey();
+
+    @NonNull NodeIdentifierWithPredicates tablesKey();
 
     /**
      * Translates supplied YANG Instance Identifier and NormalizedNode into Binding Route.
@@ -291,12 +304,39 @@ public interface RIBSupport<
     }
 
     /**
+     * Construct a Route List Key using new path Id for Families.
+     *
+     * @param pathId   The path identifier
+     * @param routeKey RouteKey
+     * @return route list Key (RouteKey + pathId)
+     */
+    @NonNull NodeIdentifierWithPredicates createRouteListArgument(@NonNull Uint32 pathId, @NonNull String routeKey);
+
+    /**
+     * Construct a Route List Key.
+     *
+     * @param routeKey RouteKey
+     * @return route list Key (RouteKey + empty pathId)
+     */
+    default @NonNull NodeIdentifierWithPredicates createRouteListArgument(final @NonNull String routeKey) {
+        return createRouteListArgument(NON_PATH_ID_VALUE, routeKey);
+    }
+
+    default @NonNull NodeIdentifierWithPredicates toNonPathListArgument(
+            final @NonNull NodeIdentifierWithPredicates routeListKey) {
+        final Uint32 pathId = extractPathId(routeListKey);
+        return pathId.equals(NON_PATH_ID_VALUE) ? routeListKey : createRouteListArgument(extractRouteKey(routeListKey));
+    }
+
+    /**
      * Given a route list key, return the associated path ID.
      *
      * @param routeListKey Route list key
      * @return Path ID
      */
     @NonNull PathId extractPathId(@NonNull I routeListKey);
+
+    @NonNull Uint32 extractPathId(@NonNull NodeIdentifierWithPredicates routeListKey);
 
     /**
      * Given a route list key, return the associated path ID.
@@ -306,6 +346,8 @@ public interface RIBSupport<
      */
     @NonNull String extractRouteKey(@NonNull I routeListKey);
 
+    @NonNull String extractRouteKey(@NonNull NodeIdentifierWithPredicates routeListKey);
+
     /**
      * Extract a route list from the adj-rib-in instantiation of table routes.
      *
@@ -313,4 +355,6 @@ public interface RIBSupport<
      * @return A potentially empty list of routes
      */
     @NonNull Map<I, R> extractAdjRibInRoutes(Routes routes);
+
+    @Nullable ContainerNode extractAttributes(@NonNull MapEntryNode value);
 }

@@ -28,10 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.destination.CLabeledUnicastDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.destination.CLabeledUnicastDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
@@ -86,7 +84,7 @@ abstract class AbstractLabeledUnicastRIBSupport<
                 LabeledUnicastRoute.class,
                 addressFamilyClass,
                 LabeledUnicastSubsequentAddressFamily.class,
-                destinationQname);
+                destinationQname, key -> key.getPathId().getValue(), LabeledUnicastRouteKey::getRouteKey);
     }
 
     @Override
@@ -172,18 +170,6 @@ abstract class AbstractLabeledUnicastRIBSupport<
     @Override
     public final LabeledUnicastRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
         return new LabeledUnicastRouteKey(pathId, routeKey);
-    }
-
-    @Override
-    public final LabeledUnicastRoute createRoute(final LabeledUnicastRoute route, final LabeledUnicastRouteKey key,
-            final Attributes attributes) {
-        final LabeledUnicastRouteBuilder builder;
-        if (route != null) {
-            builder = new LabeledUnicastRouteBuilder(route);
-        } else {
-            builder = new LabeledUnicastRouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override

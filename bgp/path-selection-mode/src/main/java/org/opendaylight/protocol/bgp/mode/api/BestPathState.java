@@ -9,9 +9,9 @@ package org.opendaylight.protocol.bgp.mode.api;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public interface BestPathState {
     @Nullable Uint32 getLocalPref();
@@ -31,5 +31,5 @@ public interface BestPathState {
      */
     boolean isDepreferenced();
 
-    @NonNull Attributes getAttributes();
+    @NonNull ContainerNode getAttributes();
 }

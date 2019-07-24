@@ -103,6 +103,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -656,6 +657,12 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @Override
     public KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(final TablesKey tablesKey) {
         return this.tablesIId.getUnchecked(tablesKey);
+    }
+
+    @Override
+    public YangInstanceIdentifier getRibOutIId(final NodeIdentifierWithPredicates tablekey) {
+        // FIXME: implement this
+        return null;
     }
 
     @Override
