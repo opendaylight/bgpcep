@@ -18,6 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
  * Exposes information required from peer to PeerTracker.
@@ -66,6 +68,8 @@ public interface PeerTrackerInformation {
      * @return instance identifier.
      */
     @NonNull KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(@NonNull TablesKey tablekey);
+
+    @NonNull YangInstanceIdentifier getRibOutIId(@NonNull NodeIdentifierWithPredicates tablekey);
 
     /**
      * Returns Peer Role.

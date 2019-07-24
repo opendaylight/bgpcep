@@ -8,11 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
-import static com.google.common.base.Verify.verifyNotNull;
-
-import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -22,6 +18,9 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 /**
  * Preexistent routes to be advertized before process any route advertized by the peer.
@@ -33,44 +32,39 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
         R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> implements RouteKeyIdentifier<R,I> {
     private final PeerId fromPeerId;
-    private final R route;
-    private final Attributes attributes;
-    private final I nonAddPathRouteKeyIdentifier;
-    private final I addPathRouteKeyIdentifier;
+    private final MapEntryNode route;
+    private final ContainerNode attributes;
+    private final NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier;
     private final boolean depreferenced;
 
     // Note: this field hides in the alignment shadow of 'depreferenced', but is used only in AdvertizedRoute.
     // TODO: move this field back when we require JDK15+ (see https://bugs.openjdk.java.net/browse/JDK-8237767)
     final boolean isFirstBestPath;
 
-    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final PeerId fromPeerId,
-            final Attributes attributes, final boolean depreferenced) {
+    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
+            final ContainerNode attributes, final boolean depreferenced) {
         this(ribSupport, route, fromPeerId, attributes, depreferenced, false);
     }
 
-    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final PeerId fromPeerId,
-            final Attributes attributes, final boolean depreferenced, final boolean isFirstBestPath) {
+    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
+            final ContainerNode attributes, final boolean depreferenced, final boolean isFirstBestPath) {
         this.fromPeerId = fromPeerId;
         this.route = route;
         this.attributes = attributes;
         this.depreferenced = depreferenced;
         this.isFirstBestPath = isFirstBestPath;
-
-        final @NonNull String routeKey = verifyNotNull(route.getRouteKey());
-        this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(routeKey);
-        // FIXME: can we just use route.key()?
-        this.addPathRouteKeyIdentifier = ribSupport.createRouteListKey(route.getPathId(), routeKey);
+        this.nonAddPathRouteKeyIdentifier = ribSupport.toNonPathListArgument(route.getIdentifier());
     }
 
     public final PeerId getFromPeerId() {
         return this.fromPeerId;
     }
 
-    public final R getRoute() {
+    public final MapEntryNode getRoute() {
         return route;
     }
 
-    public final Attributes getAttributes() {
+    public final ContainerNode getAttributes() {
         return attributes;
     }
 
@@ -79,12 +73,12 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
     }
 
     @Override
-    public final I getNonAddPathRouteKeyIdentifier() {
-        return this.nonAddPathRouteKeyIdentifier;
+    public final NodeIdentifierWithPredicates getNonAddPathRouteKeyIdentifier() {
+        return nonAddPathRouteKeyIdentifier;
     }
 
     @Override
-    public final I getAddPathRouteKeyIdentifier() {
-        return this.addPathRouteKeyIdentifier;
+    public final NodeIdentifierWithPredicates getAddPathRouteKeyIdentifier() {
+        return route.getIdentifier();
     }
 }
