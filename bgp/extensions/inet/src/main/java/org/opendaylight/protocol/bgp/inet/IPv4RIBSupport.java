@@ -47,8 +47,8 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
                 Ipv4RoutesCase.class,
                 Ipv4Routes.class,
                 Ipv4Route.class,
-                DestinationIpv4.QNAME,
-                Ipv4Prefixes.QNAME);
+                DestinationIpv4.QNAME, Ipv4Prefixes.QNAME,
+                key -> key.getPathId().getValue(), Ipv4RouteKey::getRouteKey);
     }
 
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {

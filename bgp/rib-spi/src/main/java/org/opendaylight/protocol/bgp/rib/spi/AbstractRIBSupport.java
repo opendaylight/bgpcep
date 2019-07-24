@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import static com.google.common.base.Verify.verify;
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB_NID;
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -66,6 +68,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -110,11 +113,13 @@ public abstract class AbstractRIBSupport<
     private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
     private final Class<C> cazeClass;
+
     private final Class<S> containerClass;
     private final Class<R> listClass;
     private final ApplyRoute putRoute = new PutRoute();
     private final MapEntryNode emptyTable;
     private final QName routeQname;
+    private final QName routeKeyQname;
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
@@ -126,6 +131,8 @@ public abstract class AbstractRIBSupport<
     private final TablesKey tk;
     private final ImmutableList<PathArgument> relativeRoutesPath;
     private final ImmutableOffsetMapTemplate<QName> routeKeyTemplate;
+    private final Function<I, String> keyToRouteKey;
+    private final Function<I, Uint32> keyToPathId;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -148,7 +155,9 @@ public abstract class AbstractRIBSupport<
             final Class<R> listClass,
             final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
-            final QName destContainerQname) {
+            final QName destContainerQname,
+            final Function<I, Uint32> keyToPathId,
+            final Function<I, String> keyToRouteKey) {
         final QNameModule module = BindingReflections.getQNameModule(cazeClass);
         this.routesContainerIdentifier = NodeIdentifier.create(
             BindingReflections.findQName(containerClass).bindTo(module));
@@ -157,7 +166,10 @@ public abstract class AbstractRIBSupport<
         this.mappingService = requireNonNull(mappingService);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
+        this.keyToRouteKey = requireNonNull(keyToRouteKey);
+        this.keyToPathId = requireNonNull(keyToPathId);
         this.routeQname = BindingReflections.findQName(listClass).bindTo(module);
+        this.routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         this.routesListIdentifier = NodeIdentifier.create(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
         this.emptyTable = (MapEntryNode) this.mappingService
@@ -184,54 +196,54 @@ public abstract class AbstractRIBSupport<
                         .node(this.routesListIdentifier).build();
         this.relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
         this.routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
-            ImmutableList.of(this.pathIdNid.getNodeType(), QName.create(routeQName(), ROUTE_KEY).intern()));
+            ImmutableList.of(this.pathIdNid.getNodeType(), routeKeyQname));
     }
 
     @Override
     public final TablesKey getTablesKey() {
-        return this.tk;
+        return tk;
     }
 
     @Override
     public final Class<C> routesCaseClass() {
-        return this.cazeClass;
+        return cazeClass;
     }
 
     @Override
     public final Class<S> routesContainerClass() {
-        return this.containerClass;
+        return containerClass;
     }
 
     @Override
     public final Class<R> routesListClass() {
-        return this.listClass;
+        return listClass;
     }
 
     @Override
     public final MapEntryNode emptyTable() {
-        return this.emptyTable;
+        return emptyTable;
     }
 
     public final QName routeQName() {
-        return this.routeQname;
+        return routeQname;
     }
 
     protected final NodeIdentifier prefixNid() {
-        return this.prefixTypeNid;
+        return prefixTypeNid;
     }
 
     protected final NodeIdentifier routeNid() {
-        return this.routesListIdentifier;
+        return routesListIdentifier;
     }
 
     @Override
     public final Class<? extends AddressFamily> getAfi() {
-        return this.afiClass;
+        return afiClass;
     }
 
     @Override
     public final Class<? extends SubsequentAddressFamily> getSafi() {
-        return this.safiClass;
+        return safiClass;
     }
 
     /**
@@ -242,12 +254,12 @@ public abstract class AbstractRIBSupport<
      * @return MpReachNlri
      */
     private MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
-        final MpReachNlriBuilder mb = new MpReachNlriBuilder();
-        mb.setAfi(this.getAfi());
-        mb.setSafi(this.getSafi());
-        mb.setCNextHop(hop);
-        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(buildDestination(routes)).build());
-        return mb.build();
+        return new MpReachNlriBuilder()
+            .setAfi(getAfi())
+            .setSafi(getSafi())
+            .setCNextHop(hop)
+            .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(buildDestination(routes)).build())
+            .build();
     }
 
     /**
@@ -257,12 +269,13 @@ public abstract class AbstractRIBSupport<
      * @return MpUnreachNlri
      */
     private MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
-        final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
-        mb.setAfi(this.getAfi());
-        mb.setSafi(this.getSafi());
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder()
-                .setDestinationType(buildWithdrawnDestination(routes)).build());
-        return mb.build();
+        return new MpUnreachNlriBuilder()
+            .setAfi(getAfi())
+            .setSafi(getSafi())
+            .setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+                .setDestinationType(buildWithdrawnDestination(routes))
+                .build())
+            .build();
     }
 
     protected abstract DestinationType buildDestination(Collection<MapEntryNode> routes);
@@ -397,6 +410,14 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
+    public final YangInstanceIdentifier createRouteIdentifier(final YangInstanceIdentifier tableKey,
+            final I newRouteKey) {
+        return tableKey.node(routesContainerIdentifier).node(routesListIdentifier).node(
+            NodeIdentifierWithPredicates.of(routeQname, routeKeyTemplate.instantiateWithValues(
+                keyToPathId.apply(newRouteKey), keyToRouteKey.apply(newRouteKey))));
+    }
+
+    @Override
     public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri) {
         deleteRoutes(tx, tablePath, nlri, ROUTES_NID);
@@ -500,11 +521,11 @@ public abstract class AbstractRIBSupport<
     }
 
     protected final NodeIdentifier routePathIdNid() {
-        return this.pathIdNid;
+        return pathIdNid;
     }
 
     protected final ImmutableOffsetMapTemplate<QName> routeKeyTemplate() {
-        return this.routeKeyTemplate;
+        return routeKeyTemplate;
     }
 
     protected final String extractPrefix(final DataContainerNode<? extends PathArgument> route) {
@@ -512,20 +533,21 @@ public abstract class AbstractRIBSupport<
     }
 
     protected final RouteDistinguisher extractRouteDistinguisher(
+            // FIXME: remove ? extends
             final DataContainerNode<? extends PathArgument> route) {
-        if (route.getChild(this.rdNid).isPresent()) {
-            return RouteDistinguisherBuilder.getDefaultInstance((String) route.getChild(this.rdNid).get().getValue());
-        }
-        return null;
+        final Optional<DataContainerChild<?, ?>> child = route.getChild(rdNid);
+        return child.isPresent() ? RouteDistinguisherBuilder.getDefaultInstance((String) child.orElseThrow().getValue())
+            : null;
+
     }
 
     protected final YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesTablePaths) {
-        return this.routesPath.getUnchecked(routesTablePaths);
+        return routesPath.getUnchecked(routesTablePaths);
     }
 
     @Override
     public R fromNormalizedNode(final YangInstanceIdentifier routePath, final NormalizedNode<?, ?> normalizedNode) {
-        final DataObject node = this.mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
+        final DataObject node = mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
         verify(node instanceof Route, "node %s is not a Route", node);
         return (R) node;
     }
@@ -533,12 +555,24 @@ public abstract class AbstractRIBSupport<
     @Override
     public Attributes attributeFromContainerNode(final ContainerNode advertisedAttrs) {
         final YangInstanceIdentifier path = this.routeDefaultYii.node(routeAttributesIdentifier());
-        return (Attributes) this.mappingService.fromNormalizedNode(path, advertisedAttrs).getValue();
+        return (Attributes) mappingService.fromNormalizedNode(path, advertisedAttrs).getValue();
     }
 
     @Override
     public ContainerNode attributeToContainerNode(final YangInstanceIdentifier attPath, final Attributes attributes) {
         final InstanceIdentifier<DataObject> iid = this.mappingService.fromYangInstanceIdentifier(attPath);
-        return (ContainerNode) this.mappingService.toNormalizedNode(iid, attributes).getValue();
+        return (ContainerNode) mappingService.toNormalizedNode(iid, attributes).getValue();
+    }
+
+    @Override
+    public final String extractRouteKey(final NodeIdentifierWithPredicates routeListKey) {
+        return verifyNotNull(routeListKey.getValue(routeKeyQname, String.class),
+            "Missing route key in %s", routeListKey);
+    }
+
+    @Override
+    public final Uint32 extractPathId(final NodeIdentifierWithPredicates routeListKey) {
+        return verifyNotNull(routeListKey.getValue(pathIdNid.getNodeType(), Uint32.class),
+            "Missing path ID in %s", routeListKey);
     }
 }
