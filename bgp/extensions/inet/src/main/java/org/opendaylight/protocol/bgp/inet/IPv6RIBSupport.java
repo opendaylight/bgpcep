@@ -23,11 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.destination.ipv6.Ipv6PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.Ipv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
@@ -45,8 +42,8 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
                 Ipv6RoutesCase.class,
                 Ipv6Routes.class,
                 Ipv6Route.class,
-                DestinationIpv6.QNAME,
-                Ipv6Prefixes.QNAME);
+                DestinationIpv6.QNAME, Ipv6Prefixes.QNAME,
+                key -> key.getPathId().getValue(), Ipv6RouteKey::getRouteKey);
     }
 
     @Override
@@ -71,32 +68,6 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
                     .setPrefix(new Ipv6Prefix(prefix)).build());
         }
         return prefs;
-    }
-
-    @Override
-    public Ipv6Route createRoute(final Ipv6Route route, final Ipv6RouteKey key, final Attributes attributes) {
-        final Ipv6RouteBuilder builder;
-        if (route != null) {
-            builder = new Ipv6RouteBuilder(route);
-        } else {
-            builder = new Ipv6RouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Ipv6RouteKey createRouteListKey(final PathId pathId, final String routeKey) {
-        return new Ipv6RouteKey(pathId, routeKey);
-    }
-
-    @Override
-    public PathId extractPathId(final Ipv6RouteKey routeListKey) {
-        return routeListKey.getPathId();
-    }
-
-    @Override
-    public String extractRouteKey(final Ipv6RouteKey routeListKey) {
-        return routeListKey.getRouteKey();
     }
 
     @Override

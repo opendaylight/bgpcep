@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Stopwatch;
@@ -88,8 +90,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.AdjRibOut;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
@@ -99,10 +99,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,6 +115,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final TablesKey IPV4_UCAST_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
         UnicastSubsequentAddressFamily.class);
 
+    private final LoadingCache<NodeIdentifierWithPredicates, YangInstanceIdentifier> tablesIId =
+        CacheBuilder.newBuilder().build(new CacheLoader<NodeIdentifierWithPredicates, YangInstanceIdentifier>() {
+            @Override
+            public YangInstanceIdentifier load(final NodeIdentifierWithPredicates key) {
+                return peerRibOutIId.node(TABLES_NID).node(key).toOptimized();
+            }
+        });
+
     private ImmutableSet<TablesKey> tables = ImmutableSet.of();
     private final RIB rib;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
@@ -122,19 +130,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final RpcProviderService rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final BgpPeer bgpPeer;
-    private InstanceIdentifier<AdjRibOut> peerRibOutIId;
-    private KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-            .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId;
+
+    private YangInstanceIdentifier peerRibOutIId;
     @GuardedBy("this")
     private Registration trackerRegistration;
-    private final LoadingCache<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>> tablesIId
-            = CacheBuilder.newBuilder()
-            .build(new CacheLoader<TablesKey, KeyedInstanceIdentifier<Tables, TablesKey>>() {
-                @Override
-                public KeyedInstanceIdentifier<Tables, TablesKey> load(final TablesKey tablesKey) {
-                    return BGPPeer.this.peerRibOutIId.child(Tables.class, tablesKey);
-                }
-            });
 
     @GuardedBy("this")
     private BGPSession currentSession;
@@ -381,10 +380,13 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (!isRestartingGracefully()) {
             this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
             this.peerId = RouterIds.createPeerId(session.getBgpId());
-            this.peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-                            .yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class, new PeerKey(this.peerId));
+
+            final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
+                .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen
+                    .v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class,
+                    new PeerKey(this.peerId));
             this.peerPath = createPeerPath();
-            this.peerRibOutIId = peerIId.child(AdjRibOut.class);
+            this.peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
             this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
             createEffRibInWriter();
             registerPrefixesCounters(this.effRibInWriter, this.effRibInWriter);
@@ -654,8 +656,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @Override
-    public KeyedInstanceIdentifier<Tables, TablesKey> getRibOutIId(final TablesKey tablesKey) {
-        return this.tablesIId.getUnchecked(tablesKey);
+    public YangInstanceIdentifier getRibOutIId(final NodeIdentifierWithPredicates tablekey) {
+        return this.tablesIId.getUnchecked(tablekey);
     }
 
     @Override
