@@ -11,23 +11,82 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.mode.BesthPathStateUtil;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.QNameModule;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
 public final class BestPathStateImpl implements BestPathState {
-    private final Attributes attributes;
+    private static final class NamespaceSpecificIds {
+        final List<PathArgument> asPath;
+        final List<PathArgument> locPref;
+        final List<PathArgument> med;
+        final List<PathArgument> orig;
+        final NodeIdentifier asSetNid;
+        final NodeIdentifier asSeqNid;
+        final NodeIdentifier communities;
+        final NodeIdentifier asNumber;
+        final NodeIdentifier semantics;
+
+        NamespaceSpecificIds(final @NonNull QNameModule namespace) {
+            this.asPath = List.of(NodeIdentifier.create(AsPath.QNAME.bindTo(namespace).intern()),
+                NodeIdentifier.create(QName.create(namespace, "segments").intern()));
+            this.locPref = List.of(NodeIdentifier.create(LocalPref.QNAME.bindTo(namespace).intern()),
+                NodeIdentifier.create(QName.create(namespace, "pref").intern()));
+            this.med = List.of(NodeIdentifier.create(MultiExitDisc.QNAME.bindTo(namespace).intern()),
+                NodeIdentifier.create(QName.create(namespace, "med").intern()));
+            this.orig = List.of(NodeIdentifier.create(Origin.QNAME.bindTo(namespace).intern()),
+                NodeIdentifier.create(QName.create(namespace, "value").intern()));
+            this.asSetNid = NodeIdentifier.create(QName.create(namespace, "as-set").intern());
+            this.asSeqNid = NodeIdentifier.create(QName.create(namespace, "as-sequence").intern());
+            this.communities = NodeIdentifier.create(Communities.QNAME.bindTo(namespace).intern());
+            this.asNumber = NodeIdentifier.create(QName.create(namespace, "as-number").intern());
+            this.semantics = NodeIdentifier.create(QName.create(namespace, "semantics").intern());
+        }
+    }
+
+    private static final LoadingCache<QNameModule, NamespaceSpecificIds> PATH_CACHE =
+        CacheBuilder.newBuilder().weakKeys().weakValues().build(new CacheLoader<>() {
+            @Override
+            public NamespaceSpecificIds load(final QNameModule key) {
+                return new NamespaceSpecificIds(key);
+            }
+        });
+
+    private static final Uint32 LLGR_STALE_AS_NUMBER = CommunityUtil.LLGR_STALE.getAsNumber().getValue().intern();
+    private static final Uint16 LLGR_STALE_SEMANTICS = CommunityUtil.LLGR_STALE.getSemantics().intern();
+
+    private final ContainerNode attributes;
+
     private long peerAs = 0L;
     private int asPathLength = 0;
     private Uint32 localPref;
@@ -36,27 +95,9 @@ public final class BestPathStateImpl implements BestPathState {
     private boolean depreferenced;
     private boolean resolved;
 
-    public BestPathStateImpl(final Attributes attributes) {
+    public BestPathStateImpl(final ContainerNode attributes) {
         this.attributes = requireNonNull(attributes);
         resolveValues();
-    }
-
-    private static int countAsPath(final List<Segments> segments) {
-        // an AS_SET counts as 1, no matter how many ASs are in the set.
-        int count = 0;
-        boolean setPresent = false;
-        for (final Segments s : segments) {
-            if (s.getAsSet() != null && !setPresent) {
-                setPresent = true;
-                count++;
-            } else {
-                final List<AsNumber> seq = s.getAsSequence();
-                if (seq != null) {
-                    count += seq.size();
-                }
-            }
-        }
-        return count;
     }
 
     private void resolveValues() {
@@ -64,33 +105,51 @@ public final class BestPathStateImpl implements BestPathState {
             return;
         }
 
-        final LocalPref attrLocalPref = attributes.getLocalPref();
-        localPref = attrLocalPref != null ? attrLocalPref.getPref() : null;
+        final NamespaceSpecificIds ids = PATH_CACHE.getUnchecked(attributes.getNodeType().getModule());
+        localPref = (Uint32) NormalizedNodes.findNode(attributes, ids.locPref)
+            .map(NormalizedNode::getValue)
+            .orElse(null);
 
-        final MultiExitDisc attrMed = attributes.getMultiExitDisc();
-        if (attrMed != null) {
-            final Uint32 med = attrMed.getMed();
-            multiExitDisc = med == null ? 0L : med.toJava();
+        final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(attributes, ids.med);
+        if (maybeMultiExitDisc.isPresent()) {
+            multiExitDisc = ((Uint32) maybeMultiExitDisc.get().getValue()).toJava();
         } else {
             multiExitDisc = 0L;
         }
 
-        final Origin attrOrigin = attributes.getOrigin();
-        origin = attrOrigin != null ? attrOrigin.getValue() : null;
+        final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(attributes, ids.orig);
+        if (maybeOrigin.isPresent()) {
+            final String originStr = (String) maybeOrigin.get().getValue();
+            origin = BgpOrigin.forName(originStr)
+                .orElseThrow(() -> new IllegalArgumentException("Unhandled origin value " + originStr));
+        } else {
+            origin = null;
+        }
 
-        final AsPath attrAsPath = attributes.getAsPath();
-        if (attrAsPath != null) {
-            final List<Segments> segs = attrAsPath.getSegments();
-            if (segs != null && !segs.isEmpty()) {
+        final Optional<NormalizedNode<?, ?>> maybeSegments = NormalizedNodes.findNode(attributes, ids.asPath);
+        if (maybeSegments.isPresent()) {
+            final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
+            final List<Segments> segs = extractSegments(segments, ids);
+            if (!segs.isEmpty()) {
                 this.peerAs = BesthPathStateUtil.getPeerAs(segs);
                 this.asPathLength = countAsPath(segs);
             }
         }
 
-        final List<Communities> attrCommunities = attributes.getCommunities();
-        depreferenced = attrCommunities != null && attrCommunities.contains(CommunityUtil.LLGR_STALE);
+        final Optional<NormalizedNode<?, ?>> maybeCommunities = NormalizedNodes.findNode(attributes, ids.communities);
+        if (maybeCommunities.isPresent()) {
+            depreferenced = ((UnkeyedListNode) maybeCommunities.orElseThrow()).getValue().stream()
+                .anyMatch(community -> isStale(ids, community));
+        } else {
+            depreferenced = false;
+        }
 
         this.resolved = true;
+    }
+
+    private static boolean isStale(final NamespaceSpecificIds ids, final UnkeyedListEntryNode community) {
+        return LLGR_STALE_AS_NUMBER.equals(community.getChild(ids.asNumber).orElseThrow().getValue())
+            && LLGR_STALE_SEMANTICS.equals(community.getChild(ids.semantics).orElseThrow().getValue());
     }
 
     @Override
@@ -124,7 +183,7 @@ public final class BestPathStateImpl implements BestPathState {
     }
 
     @Override
-    public Attributes getAttributes() {
+    public ContainerNode getAttributes() {
         return this.attributes;
     }
 
@@ -170,22 +229,63 @@ public final class BestPathStateImpl implements BestPathState {
             return false;
         }
         final BestPathStateImpl other = (BestPathStateImpl) obj;
-        if (!this.attributes.equals(other.attributes)) {
+        if (!attributes.equals(other.attributes)) {
             return false;
         }
-        if (this.localPref == null) {
-            if (other.localPref != null) {
-                return false;
-            }
-        } else if (!this.localPref.equals(other.localPref)) {
+        if (!Objects.equals(this.localPref, other.localPref)) {
             return false;
         }
-        if (this.multiExitDisc != other.multiExitDisc) {
+        if (multiExitDisc != other.multiExitDisc) {
             return false;
         }
-        if (this.origin != other.origin) {
+        if (origin != other.origin) {
             return false;
         }
         return depreferenced == other.depreferenced;
+    }
+
+    private List<Segments> extractSegments(final UnkeyedListNode segments, final NamespaceSpecificIds ids) {
+        // list segments
+        final List<Segments> extracted = new ArrayList<>();
+        for (final UnkeyedListEntryNode segment : segments.getValue()) {
+            final SegmentsBuilder sb = new SegmentsBuilder();
+            // We are expecting that segment contains either as-sequence or as-set,
+            // so just one of them will be set, other would be null
+            sb.setAsSequence(extractAsList(segment, ids.asSeqNid))
+                    .setAsSet(extractAsList(segment, ids.asSetNid));
+            extracted.add(sb.build());
+        }
+        return extracted;
+    }
+
+    private static List<AsNumber> extractAsList(final UnkeyedListEntryNode segment, final NodeIdentifier nid) {
+        final List<AsNumber> ases = new ArrayList<>();
+        final Optional<NormalizedNode<?, ?>> maybeAsList = NormalizedNodes.findNode(segment, nid);
+        if (maybeAsList.isPresent()) {
+            final LeafSetNode<?> list = (LeafSetNode<?>)maybeAsList.get();
+            for (final LeafSetEntryNode<?> as : list.getValue())  {
+                ases.add(new AsNumber((Uint32) as.getValue()));
+            }
+            return ases;
+        }
+        return null;
+    }
+
+    private static int countAsPath(final List<Segments> segments) {
+        // an AS_SET counts as 1, no matter how many ASs are in the set.
+        int count = 0;
+        boolean setPresent = false;
+        for (final Segments s : segments) {
+            if (s.getAsSet() != null && !setPresent) {
+                setPresent = true;
+                count++;
+            } else {
+                final List<AsNumber> seq = s.getAsSequence();
+                if (seq != null) {
+                    count += seq.size();
+                }
+            }
+        }
+        return count;
     }
 }
