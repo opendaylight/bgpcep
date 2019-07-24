@@ -25,6 +25,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 /**
  * A single route entry inside a route table. Maintains the attributes of
@@ -61,6 +62,16 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @return returns the offset
      */
     int addRoute(@NonNull RouterId routerId, Uint32 remotePathId, @NonNull R route);
+
+    /**
+     * Add Route.
+     *
+     * @param routerId     router ID in unsigned integer format from an Ipv4Address
+     * @param remotePathId remote path Id received
+     * @param route        route Data change
+     * @return returns the offset
+     */
+    int addRoute(@NonNull RouterId routerId, Long remotePathId, @NonNull MapEntryNode route);
 
     /**
      * Returns collections of present selected best path.
