@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static org.junit.Assert.assertEquals;
@@ -26,8 +25,7 @@ public class BaseBestPathTest {
     @Before
     public void setUp() {
         final BasePathSelector selector = new BasePathSelector(20L);
-        selector.processPath(BasePathSelectorTest.ROUTER_ID2,
-                BasePathSelectorTest.createStateFromPrefMedOriginASPath().build());
+        selector.processPath(BasePathSelectorTest.ROUTER_ID2, BasePathSelectorTest.fromPrefMedOriginASPath());
         this.baseBestPath = selector.result();
         this.baseBestPathCopy = selector.result();
     }

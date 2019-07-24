@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn;
 
 import com.google.common.collect.Iterables;
 import java.util.Collection;
+import java.util.function.Function;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecRIBSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -24,6 +25,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public abstract class AbstractFlowspecL3vpnRIBSupport
@@ -41,10 +43,11 @@ public abstract class AbstractFlowspecL3vpnRIBSupport
             final Class<R> listClass,
             final QName dstContainerClassQName,
             final Class<? extends AddressFamily> afiClass,
-            final T flowspecNlriParser
+            final T flowspecNlriParser, final Function<I, Uint32> keyToPathId, final Function<I, String> keyToRouteKey
     ) {
         super(mappingService, cazeClass, containerClass, listClass, afiClass,
-            FlowspecL3vpnSubsequentAddressFamily.class, dstContainerClassQName, flowspecNlriParser);
+            FlowspecL3vpnSubsequentAddressFamily.class, dstContainerClassQName, flowspecNlriParser,
+            keyToPathId, keyToRouteKey);
     }
 
     @Override

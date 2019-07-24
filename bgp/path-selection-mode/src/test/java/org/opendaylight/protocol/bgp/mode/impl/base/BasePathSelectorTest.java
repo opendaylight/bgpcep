@@ -20,13 +20,19 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 public class BasePathSelectorTest {
     private static final List<AsNumber> SEQ_SEGMENT = Arrays.asList(
@@ -37,32 +43,39 @@ public class BasePathSelectorTest {
     private static final RouterId ROUTER_ID = RouterId.forAddress("127.0.0.1");
     private static final RouterId ROUTER_ID3 = RouterId.forPeerId(new PeerId("bgp://127.0.0.2"));
     private final BasePathSelector selector = new BasePathSelector(20L);
-    private final BestPathStateImpl state = new BestPathStateImpl(createStateFromPrefMedOriginASPath().build());
+    private final BestPathStateImpl state = new BestPathStateImpl(attrs(createStateFromPrefMedOriginASPath().build()));
     private final BaseBestPath originBestPath = new BaseBestPath(ROUTER_ID, this.state);
 
-    private static Attributes createStateFromPrefMedOrigin() {
-        AttributesBuilder dataContBuilder = new AttributesBuilder();
-        addLowerLocalRef(dataContBuilder);
+    private static ContainerNode createStateFromPrefMedOrigin() {
+        AttributesBuilder dataContBuilder = new AttributesBuilder()
+            .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(123)).build());
         addLowerMultiExitDisc(dataContBuilder);
         addIgpOrigin(dataContBuilder);
-        return dataContBuilder.build();
+        return attrs(dataContBuilder.build());
     }
 
     protected static AttributesBuilder createStateFromPrefMedOriginASPath() {
-        AttributesBuilder dataContBuilder = new AttributesBuilder();
-        addHigherLocalRef(dataContBuilder);
+        AttributesBuilder dataContBuilder = new AttributesBuilder()
+            .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(321)).build());
         addHigherMultiExitDisc(dataContBuilder);
         addEgpOrigin(dataContBuilder);
         addAsPath(dataContBuilder, SEQ_SEGMENT);
         return dataContBuilder;
     }
 
-    private static void addLowerLocalRef(final AttributesBuilder dataContBuilder) {
-        dataContBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(123)).build());
+    protected static ContainerNode fromPrefMedOriginASPath() {
+        return attrs(createStateFromPrefMedOriginASPath().build());
     }
 
-    private static void addHigherLocalRef(final AttributesBuilder dataContBuilder) {
-        dataContBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(321)).build());
+    private static ContainerNode lowerLocalPref() {
+        return localPref(Uint32.valueOf(123));
+    }
+
+    private static ContainerNode localPref(final Uint32 pref) {
+        return Builders.containerBuilder()
+            .withNodeIdentifier(new NodeIdentifier(LocalPref.QNAME))
+            .withChild(ImmutableNodes.leafNode(QName.create(LocalPref.QNAME, "pref"), pref))
+            .build();
     }
 
     private static void addLowerMultiExitDisc(final AttributesBuilder dataContBuilder) {
@@ -88,24 +101,28 @@ public class BasePathSelectorTest {
 
     @Test
     public void testBestPathWithHigherLocalPref() {
-        this.selector.processPath(ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
+        // local-pref 123
+        this.selector.processPath(ROUTER_ID2, createStateFromPrefMedOrigin());
         BaseBestPath processedPath = this.selector.result();
-        assertEquals(123L, processedPath.getState().getLocalPref().longValue());
+        assertEquals(Uint32.valueOf(123), processedPath.getState().getLocalPref());
 
-        this.selector.processPath(ROUTER_ID2, createStateFromPrefMedOriginASPath().build());   // local-pref 321
+        // local-pref 321
+        this.selector.processPath(ROUTER_ID2, attrs(createStateFromPrefMedOriginASPath().build()));
         processedPath = this.selector.result();
-        assertEquals(321L, processedPath.getState().getLocalPref().longValue());
+        assertEquals(Uint32.valueOf(321), processedPath.getState().getLocalPref());
 
-        AttributesBuilder dataContBuilder = new AttributesBuilder();
-        addLowerLocalRef(dataContBuilder); // prefer path with higher LOCAL_PREF
-        this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
+        this.selector.processPath(ROUTER_ID2, Builders.containerBuilder()
+            .withNodeIdentifier(null)
+            // prefer path with higher LOCAL_PREF
+            .withChild(lowerLocalPref())
+            .build());
         processedPath = this.selector.result();
-        assertEquals(321L, processedPath.getState().getLocalPref().longValue());
+        assertEquals(Uint32.valueOf(321), processedPath.getState().getLocalPref());
     }
 
     @Test
     public void testBestPathForEquality() {
-        this.selector.processPath(ROUTER_ID2, createStateFromPrefMedOriginASPath().build());
+        this.selector.processPath(ROUTER_ID2, attrs(createStateFromPrefMedOriginASPath().build()));
         final BaseBestPath processedPath = this.selector.result();
 
         assertEquals(this.originBestPath.getPeerId(), processedPath.getPeerId());
@@ -119,30 +136,30 @@ public class BasePathSelectorTest {
     @Test
     public void testBestPathSelectionOptions() {
         AttributesBuilder dataContBuilder = createStateFromPrefMedOriginASPath();
-        this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
+        this.selector.processPath(ROUTER_ID2, attrs(dataContBuilder.build()));
         BaseBestPath processedPath = this.selector.result();
-        assertEquals(1, processedPath.getState().getOrigin().getIntValue());
+        assertEquals(BgpOrigin.Egp, processedPath.getState().getOrigin());
 
         addIgpOrigin(dataContBuilder); // prefer the path with the lowest origin type
-        this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
+        this.selector.processPath(ROUTER_ID2, attrs(dataContBuilder.build()));
         processedPath = this.selector.result();
-        assertEquals(0, processedPath.getState().getOrigin().getIntValue());
+        assertEquals(BgpOrigin.Igp, processedPath.getState().getOrigin());
 
         addEgpOrigin(dataContBuilder);
-        this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
+        this.selector.processPath(ROUTER_ID2, attrs(dataContBuilder.build()));
         processedPath = this.selector.result();
-        assertEquals(0, processedPath.getState().getOrigin().getIntValue());
+        assertEquals(BgpOrigin.Igp, processedPath.getState().getOrigin());
 
         // prefer the path with the lowest multi-exit discriminator (MED)
         assertEquals(4321L, processedPath.getState().getMultiExitDisc());
         addIgpOrigin(dataContBuilder);
         addLowerMultiExitDisc(dataContBuilder);
-        this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
+        this.selector.processPath(ROUTER_ID2, attrs(dataContBuilder.build()));
         processedPath = this.selector.result();
         assertEquals(1234L, processedPath.getState().getMultiExitDisc());
 
         addHigherMultiExitDisc(dataContBuilder);
-        this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
+        this.selector.processPath(ROUTER_ID2, attrs(dataContBuilder.build()));
         processedPath = this.selector.result();
         assertEquals(1234L, processedPath.getState().getMultiExitDisc());
 
@@ -150,7 +167,7 @@ public class BasePathSelectorTest {
         addAsPath(dataContBuilder, SEQ_SEGMENT2);
         assertEquals(1L, processedPath.getState().getPeerAs());
         assertEquals(3, processedPath.getState().getAsPathLength());
-        this.selector.processPath(ROUTER_ID2, dataContBuilder.build());
+        this.selector.processPath(ROUTER_ID2, attrs(dataContBuilder.build()));
         processedPath = this.selector.result();
         assertEquals(1L, processedPath.getState().getPeerAs());
         assertEquals(3, processedPath.getState().getAsPathLength());
@@ -171,9 +188,15 @@ public class BasePathSelectorTest {
 
     @Test
     public void testBgpOrigin() {
-        this.selector.processPath(ROUTER_ID3, new AttributesBuilder().setOrigin(new OriginBuilder()
-                .setValue(BgpOrigin.Incomplete).build()).build());
+        this.selector.processPath(ROUTER_ID3, attrs(new AttributesBuilder()
+            .setOrigin(new OriginBuilder().setValue(BgpOrigin.Incomplete).build())
+            .build()));
         final BaseBestPath processedPathIncom = this.selector.result();
         assertEquals(BgpOrigin.Incomplete, processedPathIncom.getState().getOrigin());
+    }
+
+    private static ContainerNode attrs(final Attributes attrs) {
+        // FIXME: LOL :)
+        return (ContainerNode) attrs;
     }
 }
