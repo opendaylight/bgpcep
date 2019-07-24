@@ -45,8 +45,8 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
                 Ipv6RoutesCase.class,
                 Ipv6Routes.class,
                 Ipv6Route.class,
-                DestinationIpv6.QNAME,
-                Ipv6Prefixes.QNAME);
+                DestinationIpv6.QNAME, Ipv6Prefixes.QNAME,
+                key -> key.getPathId().getValue(), Ipv6RouteKey::getRouteKey);
     }
 
     @Override

@@ -27,6 +27,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +111,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public int addRoute(final RouterId routerId, final Uint32 remotePathId, final R route) {
+    public int addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
             final RouterIdOffsets newOffsets = this.offsets.with(routerId);

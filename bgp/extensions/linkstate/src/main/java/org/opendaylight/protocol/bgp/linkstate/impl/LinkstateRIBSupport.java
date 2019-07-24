@@ -65,7 +65,8 @@ public final class LinkstateRIBSupport
                 LinkstateRoute.class,
                 LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class,
-                DestinationLinkstate.QNAME);
+                DestinationLinkstate.QNAME,
+                key -> key.getPathId().getValue(), LinkstateRouteKey::getRouteKey);
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
