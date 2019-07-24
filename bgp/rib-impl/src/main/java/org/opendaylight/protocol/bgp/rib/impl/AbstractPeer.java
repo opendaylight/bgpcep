@@ -66,6 +66,7 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,7 +254,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 continue;
             }
 
-            final R route = initializingRoute.getRoute();
+            final MapEntryNode route = initializingRoute.getRoute();
             final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
             if (fromPeer == null) {
                 LOG.debug("Failed to acquire peer structure for {}, ignoring route {}", fromPeerId, initializingRoute);
@@ -337,7 +338,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 continue;
             }
 
-            final R route = actualBestRoute.getRoute();
+            final MapEntryNode route = actualBestRoute.getRoute();
             final Optional<Attributes> effAttr;
             if (supportsLLGR() || !actualBestRoute.isDepreferenced()) {
                 final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
@@ -401,7 +402,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 continue;
             }
 
-            final R route = advRoute.getRoute();
+            final MapEntryNode route = advRoute.getRoute();
             Optional<Attributes> effAttr = Optional.empty();
             final Peer fromPeer = peerTracker.getPeer(fromPeerId);
             final Attributes attributes = advRoute.getAttributes();
@@ -432,7 +433,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void storeRoute(
                     final RIBSupport<C, S, R, I> ribSupport, final boolean addPathSupported,
                     final KeyedInstanceIdentifier<Tables, TablesKey> tableRibout,
-                    final RouteKeyIdentifier<R, I> advRoute, final R route, final Attributes effAttr,
+                    final RouteKeyIdentifier<R, I> advRoute, final MapEntryNode route, final Attributes effAttr,
                     final WriteTransaction tx) {
         final InstanceIdentifier<R> ribOut;
         final I newKey;
@@ -444,7 +445,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             newKey = ribSupport.createRouteListKey(route.getPathId(), route.getRouteKey());
         }
 
-        final R newRoute = ribSupport.createRoute(route, newKey, effAttr);
+        final MapEntryNode newRoute = ribSupport.createRoute(route, newKey, effAttr);
         LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, getPeerId());
         tx.put(LogicalDatastoreType.OPERATIONAL, ribOut, newRoute);
     }

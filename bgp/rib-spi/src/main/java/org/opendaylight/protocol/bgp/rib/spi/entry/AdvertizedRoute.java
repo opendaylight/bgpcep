@@ -18,6 +18,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 /**
  * new Routes to be advertized.
@@ -28,13 +29,14 @@ public final class AdvertizedRoute<C extends Routes & DataObject & ChoiceIn<Tabl
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> extends AbstractAdvertizedRoute<C, S, R, I> {
 
-    public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final Attributes attributes,
-            final PeerId fromPeerId, final boolean depreferenced) {
+    public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route,
+            final Attributes attributes, final PeerId fromPeerId, final boolean depreferenced) {
         this(ribSupport, true, route, attributes, fromPeerId, depreferenced);
     }
 
     public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final boolean isFirstBestPath,
-            final R route, final Attributes attributes, final PeerId fromPeerId, final boolean depreferenced) {
+            final MapEntryNode route, final Attributes attributes, final PeerId fromPeerId,
+            final boolean depreferenced) {
         super(ribSupport, route, fromPeerId, attributes, depreferenced, isFirstBestPath);
     }
 

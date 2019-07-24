@@ -95,7 +95,8 @@ public final class RouteTargetConstrainRIBSupport
                 RouteTargetConstrainRoute.class,
                 Ipv4AddressFamily.class,
                 RouteTargetConstrainSubsequentAddressFamily.class,
-                DestinationRouteTargetConstrain.QNAME);
+                DestinationRouteTargetConstrain.QNAME,
+                key -> key.getPathId().getValue(), RouteTargetConstrainRouteKey::getRouteKey);
         this.originAsNid = new NodeIdentifier(QName.create(routeQName(), ORIGIN_AS).intern());
     }
 

@@ -38,7 +38,8 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
 
     public RIBSupportTestImp(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService, Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class, Ipv4Prefixes.QNAME);
+            UnicastSubsequentAddressFamily.class, Ipv4Prefixes.QNAME,
+            key -> key.getPathId().getValue(), Ipv4RouteKey::getRouteKey);
     }
 
     @Override
@@ -62,7 +63,7 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     }
 
     @Override
-    public Ipv4Route createRoute(final Ipv4Route route, final Ipv4RouteKey key, final Attributes attributes) {
+    public MapEntryNode createRoute(final MapEntryNode route, final Ipv4RouteKey key, final Attributes attributes) {
         return null;
     }
 

@@ -34,6 +34,7 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -225,6 +226,16 @@ public interface RIBSupport<
             @NonNull I newRouteKey);
 
     /**
+     * Creates Route table Peer InstanceIdentifier.
+     *
+     * @param tableKey    table InstanceIdentifier
+     * @param newRouteKey route key
+     * @return InstanceIdentifier
+     */
+    @NonNull YangInstanceIdentifier createRouteIdentifier(@NonNull YangInstanceIdentifier tableKey,
+            @NonNull I newRouteKey);
+
+    /**
      * Creates a route with new path Id and attributes.
      *
      * @param route route
@@ -232,7 +243,7 @@ public interface RIBSupport<
      * @param attributes route attributes
      * @return Route List key
      */
-    @NonNull R createRoute(@Nullable R route, @NonNull I key, @NonNull Attributes attributes);
+    @NonNull MapEntryNode createRoute(@Nullable MapEntryNode route, @NonNull I key, @NonNull Attributes attributes);
 
     /**
      * Returns TablesKey which we are providing support.
@@ -298,6 +309,8 @@ public interface RIBSupport<
      */
     @NonNull PathId extractPathId(@NonNull I routeListKey);
 
+    @NonNull Uint32 extractPathId(@NonNull NodeIdentifierWithPredicates routeListKey);
+
     /**
      * Given a route list key, return the associated path ID.
      *
@@ -305,6 +318,8 @@ public interface RIBSupport<
      * @return RouteKey
      */
     @NonNull String extractRouteKey(@NonNull I routeListKey);
+
+    @NonNull String extractRouteKey(@NonNull NodeIdentifierWithPredicates routeListKey);
 
     /**
      * Extract a route list from the adj-rib-in instantiation of table routes.

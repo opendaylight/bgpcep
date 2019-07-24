@@ -27,6 +27,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +58,10 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseRouteEntry.class);
-    private static final Route[] EMPTY_VALUES = new Route[0];
+    private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
 
     private RouterIdOffsets offsets = RouterIdOffsets.EMPTY;
-    private R[] values = (R[]) EMPTY_VALUES;
+    private MapEntryNode[] values = EMPTY_VALUES;
     private BaseBestPath bestPath;
     private BaseBestPath removedBestPath;
 
@@ -70,14 +71,14 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     @Override
     public boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
         final int offset = this.offsets.offsetOf(routerId);
-        this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
+        this.values = this.offsets.removeValue(this.values, offset, EMPTY_VALUES);
         this.offsets = this.offsets.without(routerId);
         return this.offsets.isEmpty();
     }
 
-    private R createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey) {
+    private MapEntryNode createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey) {
         final I key = ribSup.createRouteListKey(routeKey);
-        final R route = this.offsets.getValue(this.values, this.offsets.offsetOf(bestPath.getRouterId()));
+        final MapEntryNode route = this.offsets.getValue(this.values, this.offsets.offsetOf(bestPath.getRouterId()));
         return ribSup.createRoute(route, key, bestPath.getAttributes());
     }
 
@@ -110,7 +111,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public int addRoute(final RouterId routerId, final Uint32 remotePathId, final R route) {
+    public int addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
             final RouterIdOffsets newOffsets = this.offsets.with(routerId);
@@ -141,7 +142,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         if (this.bestPath == null) {
             return Collections.emptyList();
         }
-        final R route = createRoute(ribSupport, routeKey);
+        final MapEntryNode route = createRoute(ribSupport, routeKey);
         final AdvertizedRoute<C, S, R, I> adv = new AdvertizedRoute<>(ribSupport, route, this.bestPath.getAttributes(),
                 this.bestPath.getPeerId(), this.bestPath.isDepreferenced());
         LOG.trace("Selected best route {}", route);
@@ -154,7 +155,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         if (this.bestPath == null) {
             return Collections.emptyList();
         }
-        final R route = createRoute(ribSupport, entryInfo.getRouteKey());
+        final MapEntryNode route = createRoute(ribSupport, entryInfo.getRouteKey());
         return Collections.singletonList(new ActualBestPathRoutes<>(ribSupport, route, this.bestPath.getPeerId(),
                 this.bestPath.getAttributes(), this.bestPath.isDepreferenced()));
     }

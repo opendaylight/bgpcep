@@ -22,6 +22,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 /**
  * Preexistent routes to be advertized before process any route advertized by the peer.
@@ -33,7 +34,7 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
         R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> implements RouteKeyIdentifier<R,I> {
     private final PeerId fromPeerId;
-    private final R route;
+    private final MapEntryNode route;
     private final Attributes attributes;
     private final I nonAddPathRouteKeyIdentifier;
     private final I addPathRouteKeyIdentifier;
@@ -43,12 +44,12 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
     // TODO: move this field back when we require JDK15+ (see https://bugs.openjdk.java.net/browse/JDK-8237767)
     final boolean isFirstBestPath;
 
-    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final PeerId fromPeerId,
+    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
             final Attributes attributes, final boolean depreferenced) {
         this(ribSupport, route, fromPeerId, attributes, depreferenced, false);
     }
 
-    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final PeerId fromPeerId,
+    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
             final Attributes attributes, final boolean depreferenced, final boolean isFirstBestPath) {
         this.fromPeerId = fromPeerId;
         this.route = route;
@@ -66,7 +67,7 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
         return this.fromPeerId;
     }
 
-    public final R getRoute() {
+    public final MapEntryNode getRoute() {
         return route;
     }
 
