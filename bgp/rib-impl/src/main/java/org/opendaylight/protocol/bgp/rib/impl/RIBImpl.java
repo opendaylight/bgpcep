@@ -102,7 +102,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     private final CodecsRegistry codecsRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final DOMDataBrokerExtension domService;
-    private final Map<TransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
+    private final Map<DOMTransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final RibId ribId;
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
@@ -185,7 +185,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
             return;
         }
         LOG.debug("Creating LocRIB writer for key {}", key);
-        final TransactionChain txChain = createPeerChain(this);
+        final DOMTransactionChain txChain = createPeerDOMChain(this);
         PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
@@ -247,7 +247,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
                 getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
         if (this.txChainToLocRibWriter.containsKey(chain)) {
             final LocRibWriter locRibWriter = this.txChainToLocRibWriter.remove(chain);
-            final TransactionChain newChain = createPeerChain(this);
+            final DOMTransactionChain newChain = createPeerDOMChain(this);
             startLocRib(locRibWriter.getTableKey());
             locRibWriter.restart(newChain);
             this.txChainToLocRibWriter.put(newChain, locRibWriter);
