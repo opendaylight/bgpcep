@@ -25,8 +25,6 @@ import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
@@ -35,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteKey;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -76,7 +73,8 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
             final Class<? extends AddressFamily> afiClass,
             final QName vpnDstContainerClassQname) {
         super(mappingService, cazeClass, containerClass, VpnRoute.class, afiClass,
-                MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
+                MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname,
+                key -> key.getPathId().getValue(), VpnRouteKey::getRouteKey);
         this.nlriRoutesListNid = NodeIdentifier.create(VpnDestination.QNAME.bindTo(containerQName.getModule())
             .intern());
         this.labelStackNid = NodeIdentifier.create(QName.create(containerQName, "label-stack").intern());
@@ -166,31 +164,5 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
                 l3vpn.getChild(routePathIdNid());
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
                 ByteArray.encodeBase64(buffer), maybePathIdLeaf);
-    }
-
-    @Override
-    public final VpnRoute createRoute(final VpnRoute route, final VpnRouteKey key, final Attributes attributes) {
-        final VpnRouteBuilder builder;
-        if (route != null) {
-            builder = new VpnRouteBuilder(route);
-        } else {
-            builder = new VpnRouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public VpnRouteKey createRouteListKey(final PathId pathId, final String vpnRouteKey) {
-        return new VpnRouteKey(pathId, vpnRouteKey);
-    }
-
-    @Override
-    public PathId extractPathId(final VpnRouteKey routeListKey) {
-        return routeListKey.getPathId();
-    }
-
-    @Override
-    public final String extractRouteKey(final VpnRouteKey routeListKey) {
-        return routeListKey.getRouteKey();
     }
 }

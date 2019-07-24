@@ -31,13 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -65,7 +62,8 @@ public final class LinkstateRIBSupport
                 LinkstateRoute.class,
                 LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class,
-                DestinationLinkstate.QNAME);
+                DestinationLinkstate.QNAME,
+                key -> key.getPathId().getValue(), LinkstateRouteKey::getRouteKey);
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
@@ -134,33 +132,6 @@ public final class LinkstateRIBSupport
                         .destination.linkstate._case.DestinationLinkstateBuilder()
                         .setCLinkstateDestination(extractRoutes(routes)).build())
                 .build();
-    }
-
-    @Override
-    public LinkstateRoute createRoute(final LinkstateRoute route, final LinkstateRouteKey key,
-            final Attributes attributes) {
-        final LinkstateRouteBuilder builder;
-        if (route != null) {
-            builder = new LinkstateRouteBuilder(route);
-        } else {
-            builder = new LinkstateRouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public LinkstateRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
-        return new LinkstateRouteKey(pathId, routeKey);
-    }
-
-    @Override
-    public PathId extractPathId(final LinkstateRouteKey routeListKey) {
-        return routeListKey.getPathId();
-    }
-
-    @Override
-    public String extractRouteKey(final LinkstateRouteKey routeListKey) {
-        return routeListKey.getRouteKey();
     }
 
     @Override
