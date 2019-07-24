@@ -241,7 +241,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
              */
             if (!this.routeEntries.isEmpty() && table.getDataBefore() == null) {
                 final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer
-                        = this.peerTracker.getPeer(peerKIid.getKey().getPeerId());
+                        = this.peerTracker.getPeer(peerUuid.getPeerId());
                 if (toPeer != null && toPeer.supportsTable(this.entryDep.getLocalTablesKey())) {
                     LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
                     final List<ActualBestPathRoutes<C, S, R, I>> routesToStore = new ArrayList<>();
