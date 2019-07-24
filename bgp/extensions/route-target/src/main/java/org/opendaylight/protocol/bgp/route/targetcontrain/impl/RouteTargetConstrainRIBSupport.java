@@ -27,8 +27,6 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.ImmutableRouteTargetConstrainNlriRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
@@ -38,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.destination.RouteTargetConstrainDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.RouteTargetConstrainRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationRouteTargetConstrainAdvertizedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.route.target.constrain.advertized._case.DestinationRouteTargetConstrain;
@@ -95,7 +92,8 @@ public final class RouteTargetConstrainRIBSupport
                 RouteTargetConstrainRoute.class,
                 Ipv4AddressFamily.class,
                 RouteTargetConstrainSubsequentAddressFamily.class,
-                DestinationRouteTargetConstrain.QNAME);
+                DestinationRouteTargetConstrain.QNAME,
+                key -> key.getPathId().getValue(), RouteTargetConstrainRouteKey::getRouteKey);
         this.originAsNid = new NodeIdentifier(QName.create(routeQName(), ORIGIN_AS).intern());
     }
 
@@ -178,33 +176,6 @@ public final class RouteTargetConstrainRIBSupport
                 routeTarget.getChild(routePathIdNid());
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
                 ByteArray.encodeBase64(buffer), maybePathIdLeaf);
-    }
-
-    @Override
-    public RouteTargetConstrainRoute createRoute(final RouteTargetConstrainRoute route,
-            final RouteTargetConstrainRouteKey key, final Attributes attributes) {
-        final RouteTargetConstrainRouteBuilder builder;
-        if (route != null) {
-            builder = new RouteTargetConstrainRouteBuilder(route);
-        } else {
-            builder = new RouteTargetConstrainRouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public RouteTargetConstrainRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
-        return new RouteTargetConstrainRouteKey(pathId, routeKey);
-    }
-
-    @Override
-    public PathId extractPathId(final RouteTargetConstrainRouteKey routeListKey) {
-        return routeListKey.getPathId();
-    }
-
-    @Override
-    public String extractRouteKey(final RouteTargetConstrainRouteKey routeListKey) {
-        return routeListKey.getRouteKey();
     }
 
     @Override
