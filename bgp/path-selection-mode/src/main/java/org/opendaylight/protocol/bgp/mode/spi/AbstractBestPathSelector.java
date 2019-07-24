@@ -7,14 +7,23 @@
  */
 package org.opendaylight.protocol.bgp.mode.spi;
 
+import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginatorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 public class AbstractBestPathSelector {
+    private static final List<PathArgument> ORIGINATOR_ID = List.of(NodeIdentifier.create(OriginatorId.QNAME),
+        NodeIdentifier.create(QName.create(OriginatorId.QNAME, "originator").intern()));
+
     private final long ourAs;
     protected RouterId bestOriginatorId = null;
     protected BestPathState bestState = null;
@@ -28,11 +37,13 @@ public class AbstractBestPathSelector {
      * selection purposes.
      *
      * @param routerId     routerID
-     * @param originatorId originator
+     * @param attrs router attributes
      * @return returns originators Id if present otherwise routerId
      */
-    protected RouterId replaceOriginator(final RouterId routerId, final OriginatorId originatorId) {
-        return originatorId != null ? RouterId.forAddress(originatorId.getOriginator()) : routerId;
+    protected RouterId replaceOriginator(final RouterId routerId, final ContainerNode attrs) {
+        return NormalizedNodes.findNode(attrs, ORIGINATOR_ID)
+            .map(originatorId -> RouterId.forAddress((String) originatorId.getValue()))
+            .orElse(routerId);
     }
 
     /**

@@ -506,9 +506,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, routeAfter);
         CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
 
-        final YangInstanceIdentifier attPath = routePath.node(ribSupport.routeAttributesIdentifier());
         final Attributes attToStore = optEffAtt.get();
         if (!attToStore.equals(routeAttrs)) {
+            final YangInstanceIdentifier attPath = routePath.node(ribSupport.routeAttributesIdentifier());
             final ContainerNode finalAttribute = ribSupport.attributeToContainerNode(attPath, attToStore);
             tx.put(LogicalDatastoreType.OPERATIONAL, attPath, finalAttribute);
         }
@@ -624,7 +624,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return optUptodate.map(leaf -> {
             final Object value = leaf.getValue();
             verify(value instanceof Boolean, "Expected boolean uptodate, got %s", value);
-            return ((Boolean) value).booleanValue() ? RIBNormalizedNodes.UPTODATE_ATTRIBUTES
+            return ((Boolean) value) ? RIBNormalizedNodes.UPTODATE_ATTRIBUTES
                     : RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES;
         }).orElse(RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES);
     }
