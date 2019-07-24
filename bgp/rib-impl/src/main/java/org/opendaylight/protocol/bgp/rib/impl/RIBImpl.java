@@ -75,6 +75,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -102,7 +103,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     private final CodecsRegistry codecsRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final DOMDataBrokerExtension domService;
-    private final Map<TransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
+    private final Map<DOMTransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
+    private final Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final RibId ribId;
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
@@ -113,7 +115,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     private boolean isServiceInstantiated;
-    private final Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
+
+    private final YangInstanceIdentifier ribPath;
 
     public RIBImpl(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
@@ -131,6 +134,9 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     ) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
                 localBgpId, localAs);
+        this.ribPath = YangInstanceIdentifier.create(
+            NodeIdentifier.create(BgpRib.QNAME),
+            NodeIdentifierWithPredicates.of(Rib.QNAME, QName.create(Rib.QNAME, "id").intern(), ribId));
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.localAs = requireNonNull(localAs);
         this.bgpIdentifier = requireNonNull(localBgpId);
@@ -185,7 +191,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
             return;
         }
         LOG.debug("Creating LocRIB writer for key {}", key);
-        final TransactionChain txChain = createPeerChain(this);
+        final DOMTransactionChain txChain = createPeerDOMChain(this);
         PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
@@ -195,9 +201,9 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
                 ribSupport,
                 verifyNotNull(this.tableTypeRegistry.getAfiSafiType(key)),
                 txChain,
-                getInstanceIdentifier(),
+                ribPath,
                 this.localAs,
-                getDataBroker(),
+                getService(),
                 this.ribPolicies,
                 this.peerTracker,
                 pathSelectionStrategy);
@@ -247,7 +253,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
                 getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
         if (this.txChainToLocRibWriter.containsKey(chain)) {
             final LocRibWriter locRibWriter = this.txChainToLocRibWriter.remove(chain);
-            final TransactionChain newChain = createPeerChain(this);
+            final DOMTransactionChain newChain = createPeerDOMChain(this);
             startLocRib(locRibWriter.getTableKey());
             locRibWriter.restart(newChain);
             this.txChainToLocRibWriter.put(newChain, locRibWriter);

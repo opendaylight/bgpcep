@@ -18,12 +18,10 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.McastVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.MvpnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.routes.MvpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.routes.MvpnRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.routes.MvpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -76,7 +74,8 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
             final QName destContainerQname,
             final QName destListQname) {
         super(mappingService, cazeClass, containerClass, MvpnRoute.class, afiClass,
-                McastVpnSubsequentAddressFamily.class, destContainerQname);
+                McastVpnSubsequentAddressFamily.class, destContainerQname,
+                key -> key.getPathId().getValue(), MvpnRouteKey::getRouteKey);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
 
@@ -85,17 +84,6 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
     @Override
     public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
         return this.cacheableNlriObjects;
-    }
-
-    @Override
-    public final MvpnRoute createRoute(final MvpnRoute route, final MvpnRouteKey key, final Attributes attributes) {
-        final MvpnRouteBuilder builder;
-        if (route != null) {
-            builder = new MvpnRouteBuilder(route);
-        } else {
-            builder = new MvpnRouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
     }
 
     @Override
