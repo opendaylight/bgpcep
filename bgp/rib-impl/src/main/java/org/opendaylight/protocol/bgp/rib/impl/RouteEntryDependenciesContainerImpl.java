@@ -23,11 +23,11 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
     private final RIBSupport<?, ?, ?, ?> ribSupport;
-    private final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget;
+    private final YangInstanceIdentifier locRibTarget;
     private final BGPRibRoutingPolicy routingPolicies;
     private final Class<? extends AfiSafiType> afiSafiType;
     private final BGPPeerTracker peerTracker;
@@ -37,7 +37,7 @@ final class RouteEntryDependenciesContainerImpl implements RouteEntryDependencie
             final BGPPeerTracker peerTracker,
             final BGPRibRoutingPolicy routingPolicies,
             final Class<? extends AfiSafiType> afiSafiType,
-            final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget) {
+            final YangInstanceIdentifier locRibTarget) {
         this.ribSupport = requireNonNull(ribSupport);
         this.peerTracker = requireNonNull(peerTracker);
         this.afiSafiType = requireNonNull(afiSafiType);
@@ -64,7 +64,7 @@ final class RouteEntryDependenciesContainerImpl implements RouteEntryDependencie
     }
 
     @Override
-    public KeyedInstanceIdentifier<Tables, TablesKey> getLocRibTableTarget() {
+    public YangInstanceIdentifier getLocRibTableTarget() {
         return this.locRibTarget;
     }
 

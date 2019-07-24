@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import static com.google.common.base.Verify.verify;
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB_NID;
@@ -66,6 +67,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -115,6 +117,7 @@ public abstract class AbstractRIBSupport<
     private final ApplyRoute putRoute = new PutRoute();
     private final MapEntryNode emptyTable;
     private final QName routeQname;
+    private final QName routeKeyQname;
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
@@ -158,6 +161,7 @@ public abstract class AbstractRIBSupport<
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
         this.routeQname = BindingReflections.findQName(listClass).bindTo(module);
+        this.routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         this.routesListIdentifier = NodeIdentifier.create(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
         this.emptyTable = (MapEntryNode) this.mappingService
@@ -184,7 +188,7 @@ public abstract class AbstractRIBSupport<
                         .node(this.routesListIdentifier).build();
         this.relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
         this.routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
-            ImmutableList.of(this.pathIdNid.getNodeType(), QName.create(routeQName(), ROUTE_KEY).intern()));
+            ImmutableList.of(this.pathIdNid.getNodeType(), routeKeyQname));
     }
 
     @Override
@@ -540,5 +544,17 @@ public abstract class AbstractRIBSupport<
     public ContainerNode attributeToContainerNode(final YangInstanceIdentifier attPath, final Attributes attributes) {
         final InstanceIdentifier<DataObject> iid = this.mappingService.fromYangInstanceIdentifier(attPath);
         return (ContainerNode) this.mappingService.toNormalizedNode(iid, attributes).getValue();
+    }
+
+    @Override
+    public final String extractRouteKey(final NodeIdentifierWithPredicates routeListKey) {
+        return verifyNotNull(routeListKey.getValue(routeKeyQname, String.class),
+            "Missing route key in %s", routeListKey);
+    }
+
+    @Override
+    public final Uint32 extractPathId(final NodeIdentifierWithPredicates routeListKey) {
+        return verifyNotNull(routeListKey.getValue(pathIdNid.getNodeType(), Uint32.class),
+            "Missing path ID in %s", routeListKey);
     }
 }
