@@ -11,8 +11,8 @@ import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +27,11 @@ public final class AddPathSelector extends AbstractBestPathSelector {
         super(ourAs);
     }
 
-    void processPath(final Attributes attrs, final RouteKey key, final int offsetPosition, final Uint32 pathId) {
+    void processPath(final ContainerNode attrs, final RouteKey key, final int offsetPosition, final Uint32 pathId) {
         // Consider only non-null attributes
         if (attrs != null) {
             final RouterId routerId = key.getRouterId();
-            final RouterId originatorId = replaceOriginator(routerId, attrs.getOriginatorId());
+            final RouterId originatorId = replaceOriginator(routerId, attrs);
 
             /*
              * Store the new details if we have nothing stored or when the selection algorithm indicates new details
