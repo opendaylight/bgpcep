@@ -224,6 +224,16 @@ public interface RIBSupport<
             @NonNull I newRouteKey);
 
     /**
+     * Creates Route table Peer InstanceIdentifier.
+     *
+     * @param tableKey    table InstanceIdentifier
+     * @param newRouteKey route key
+     * @return InstanceIdentifier
+     */
+    @NonNull YangInstanceIdentifier createRouteIdentifier(@NonNull YangInstanceIdentifier tableKey,
+            @NonNull I newRouteKey);
+
+    /**
      * Creates a route with new path Id and attributes.
      *
      * @param route route
@@ -306,6 +316,8 @@ public interface RIBSupport<
      */
     @NonNull PathId extractPathId(@NonNull I routeListKey);
 
+    @NonNull Long extractPathId(@NonNull NodeIdentifierWithPredicates routeListKey);
+
     /**
      * Given a route list key, return the associated path ID.
      *
@@ -313,6 +325,8 @@ public interface RIBSupport<
      * @return RouteKey
      */
     @NonNull String extractRouteKey(@NonNull I routeListKey);
+
+    @NonNull String extractRouteKey(@NonNull NodeIdentifierWithPredicates routeListKey);
 
     /**
      * Extract a route list from the adj-rib-in instantiation of table routes.
