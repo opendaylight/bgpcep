@@ -16,11 +16,8 @@ import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.destination.ipv6.DestinationFlowspecL3vpnIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.ipv6.routes.FlowspecL3vpnIpv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 
@@ -38,35 +35,9 @@ public final class FlowspecL3vpnIpv6RIBSupport
                 FlowspecL3vpnRoute.class,
                 DestinationFlowspecL3vpnIpv6.QNAME,
                 Ipv6AddressFamily.class,
-                new FlowspecL3vpnIpv6NlriParser(SAFI.FLOWSPEC_VPN)
+                new FlowspecL3vpnIpv6NlriParser(SAFI.FLOWSPEC_VPN),
+                key -> key.getPathId().getValue(), FlowspecL3vpnRouteKey::getRouteKey
         );
-    }
-
-    @Override
-    public FlowspecL3vpnRouteKey createRouteListKey(final PathId pathId, final String routeKey) {
-        return new FlowspecL3vpnRouteKey(pathId, routeKey);
-    }
-
-    @Override
-    public FlowspecL3vpnRoute createRoute(final FlowspecL3vpnRoute route, final FlowspecL3vpnRouteKey key,
-            final Attributes attributes) {
-        final FlowspecL3vpnRouteBuilder builder;
-        if (route != null) {
-            builder = new FlowspecL3vpnRouteBuilder(route);
-        } else {
-            builder = new FlowspecL3vpnRouteBuilder();
-        }
-        return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public PathId extractPathId(final FlowspecL3vpnRouteKey routeListKey) {
-        return routeListKey.getPathId();
-    }
-
-    @Override
-    public String extractRouteKey(final FlowspecL3vpnRouteKey routeListKey) {
-        return routeListKey.getRouteKey();
     }
 
     @Override

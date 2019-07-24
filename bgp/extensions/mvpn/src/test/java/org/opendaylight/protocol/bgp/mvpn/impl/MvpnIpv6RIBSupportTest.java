@@ -143,11 +143,6 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
     }
 
     @Test
-    public void testRouteIdAddPath() {
-        assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(), ROUTE_KEY.getRouteKey()));
-    }
-
-    @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MVPN_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);

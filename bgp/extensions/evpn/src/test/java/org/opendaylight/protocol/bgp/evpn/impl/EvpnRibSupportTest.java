@@ -150,11 +150,6 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest<EvpnRoutesC
     }
 
     @Test
-    public void testRouteIdAddPath() {
-        assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(), ROUTE_KEY.getRouteKey()));
-    }
-
-    @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(EVPN_ROUTES);
         assertEquals(getRoutePath().node(prefixNii),
