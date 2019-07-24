@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NID;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -21,21 +22,23 @@ import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
-import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
@@ -44,14 +47,12 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -66,6 +67,10 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,14 +78,14 @@ import org.slf4j.LoggerFactory;
 final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
         implements AutoCloseable, RibOutRefresh, TotalPrefixesCounter, TotalPathsCounter,
-        ClusteredDataTreeChangeListener<Tables> {
+            ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
     private final Map<String, RouteEntry<C, S, R, I>> routeEntries = new HashMap<>();
     private final long ourAs;
     private final RIBSupport<C, S, R, I> ribSupport;
-    private final DataBroker dataBroker;
+    private final DOMDataTreeChangeService dataBroker;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
@@ -97,7 +102,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final TransactionChain chain,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             final Long ourAs,
-            final DataBroker dataBroker,
+            final DOMDataTreeChangeService dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker peerTracker,
             final Class<? extends AfiSafiType> afiSafiType,
@@ -124,7 +129,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final @NonNull TransactionChain chain,
             final @NonNull KeyedInstanceIdentifier<Rib, RibKey> ribIId,
             final @NonNull AsNumber ourAs,
-            final @NonNull DataBroker dataBroker,
+            final @NonNull DOMDataTreeChangeService dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final @NonNull BGPPeerTracker peerTracker,
             final @NonNull PathSelectionMode pathSelectionStrategy) {
@@ -152,7 +157,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         final InstanceIdentifier<Tables> tableId = this.ribIId.builder().child(Peer.class)
                 .child(EffectiveRibIn.class).child(Tables.class, getTableKey()).build();
         this.reg = this.dataBroker.registerDataTreeChangeListener(
-                DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, tableId), this);
+                new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
 
     /**
@@ -195,13 +200,13 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
      */
     @Override
     @SuppressWarnings("checkstyle:illegalCatch")
-    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Tables>> changes) {
+    public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         if (this.chain == null) {
             LOG.trace("Chain closed, ignoring received data change {} to LocRib {}", changes, this);
             return;
         }
         LOG.trace("Received data change {} to LocRib {}", changes, this);
-        final WriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         try {
             final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> toUpdate = update(tx, changes);
 
@@ -226,15 +231,13 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     @SuppressWarnings("unchecked")
-    private Map<RouteUpdateKey, RouteEntry<C, S, R, I>> update(final WriteTransaction tx,
-            final Collection<DataTreeModification<Tables>> changes) {
+    private Map<RouteUpdateKey, RouteEntry<C, S, R, I>> update(final DOMDataTreeWriteOperations tx,
+            final Collection<DataTreeCandidate> changes) {
         final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> ret = new HashMap<>();
-        for (final DataTreeModification<Tables> tc : changes) {
-            final DataObjectModification<Tables> table = tc.getRootNode();
-            final DataTreeIdentifier<Tables> rootPath = tc.getRootPath();
-            final KeyedInstanceIdentifier<Peer, PeerKey> peerKIid = (KeyedInstanceIdentifier<Peer, PeerKey>)
-                    rootPath.getRootIdentifier().firstIdentifierOf(Peer.class);
-            final RouterId peerUuid = RouterId.forPeerId(peerKIid.getKey().getPeerId());
+        for (final DataTreeCandidate tc : changes) {
+            final DataTreeCandidateNode table = tc.getRootNode();
+            final RouterId peerUuid = RouterId.forPeerId(IdentifierUtils.peerKeyToPeerId(tc.getRootPath()));
+
             /*
             Initialize Peer with routes under loc rib
              */
@@ -260,34 +263,31 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         return ret;
     }
 
-    private void updateNodes(final DataObjectModification<Tables> table, final RouterId peerUuid,
-            final WriteTransaction tx, final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> routes) {
-        final DataObjectModification<Attributes> attUpdate = table.getModifiedChildContainer(Attributes.class);
-        if (attUpdate != null) {
-            final Attributes newAttValue = attUpdate.getDataAfter();
-            if (newAttValue != null) {
+    private void updateNodes(final DataTreeCandidateNode table, final RouterId peerUuid,
+            final DOMDataTreeWriteOperations tx, final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> routes) {
+        table.getModifiedChild(RIBNodeIdentifiers.ATTRIBUTES_NID).map(DataTreeCandidateNode::getDataAfter).ifPresent(
+            newAttValue -> {
                 LOG.trace("Uptodate found for {}", newAttValue);
                 tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTableIID.child(Attributes.class), newAttValue);
-            }
-        }
+            });
 
-        final DataObjectModification<S> routesChangesContainer
-                = table.getModifiedChildContainer(ribSupport.routesCaseClass(), ribSupport.routesContainerClass());
-        if (routesChangesContainer != null) {
-            updateRoutesEntries(routesChangesContainer.getModifiedChildren(), peerUuid, routes);
-        }
+        table.getModifiedChild(ROUTES_NID).ifPresent(modifiedRoutes -> {
+            updateRoutesEntries(ribSupport.changedRoutes(modifiedRoutes), peerUuid, routes);
+        });
     }
 
-    private void updateRoutesEntries(final Collection<? extends DataObjectModification<?>> collection,
+    private void updateRoutesEntries(final Collection<DataTreeCandidateNode> collection,
             final RouterId routerId, final Map<RouteUpdateKey, RouteEntry<C, S, R, I>> routes) {
-        for (final DataObjectModification<? extends DataObject> route : collection) {
-            if (!(route.getIdentifier() instanceof InstanceIdentifier.IdentifiableItem)) {
-                LOG.debug("Route {} already deleted", route.getIdentifier());
+        for (final DataTreeCandidateNode route : collection) {
+            final PathArgument routeArg = route.getIdentifier();
+            if (!(routeArg instanceof NodeIdentifierWithPredicates)) {
+                LOG.debug("Route {} already deleted", routeArg);
                 return;
             }
-            final I routeListKey = (I) ((InstanceIdentifier.IdentifiableItem) route.getIdentifier()).getKey();
-            final String routeKey = ribSupport.extractRouteKey(routeListKey);
-            final PathId pathId = ribSupport.extractPathId(routeListKey);
+
+            final NodeIdentifierWithPredicates routeId = (NodeIdentifierWithPredicates) routeArg;
+            final String routeKey = ribSupport.extractRouteKey(routeId);
+            final Long pathId = ribSupport.extractPathId(routeId);
 
             RouteEntry<C, S, R, I> entry;
             switch (route.getModificationType()) {
@@ -295,7 +295,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                     entry = this.routeEntries.get(routeKey);
                     if (entry != null) {
                         this.totalPathsCounter.decrement();
-                        if (entry.removeRoute(routerId, pathId.getValue())) {
+                        if (entry.removeRoute(routerId, pathId)) {
                             this.routeEntries.remove(routeKey);
                             this.totalPrefixesCounter.decrement();
                             LOG.trace("Removed route from {}", routerId);
@@ -304,13 +304,13 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    final R newRoute = (R) route.getDataAfter();
                     entry = this.routeEntries.get(routeKey);
                     if (entry == null) {
                         entry = createEntry(routeKey);
                     }
 
-                    entry.addRoute(routerId, pathId.getValue(), newRoute);
+                    final R newRoute = (R) route.getDataAfter();
+                    entry.addRoute(routerId, pathId, newRoute);
                     this.totalPathsCounter.increment();
                     break;
                 default:
@@ -323,7 +323,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         }
     }
 
-    private void walkThrough(final WriteTransaction tx,
+    private void walkThrough(final DOMDataTreeWriteOperations tx,
             final Set<Entry<RouteUpdateKey, RouteEntry<C, S, R, I>>> toUpdate) {
         final List<StaleBestPathRoute<C, S, R, I>> staleRoutes = new ArrayList<>();
         final List<AdvertizedRoute<C, S, R, I>> newRoutes = new ArrayList<>();
@@ -346,7 +346,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     private void updateLocRib(final List<AdvertizedRoute<C, S, R, I>> newRoutes,
             final List<StaleBestPathRoute<C, S, R, I>> staleRoutes,
-            final WriteTransaction tx) {
+            final DOMDataTreeWriteOperations tx) {
         final KeyedInstanceIdentifier<Tables, TablesKey> locRibTarget = this.entryDep.getLocRibTableTarget();
 
         for (final StaleBestPathRoute<C, S, R, I> staleContainer : staleRoutes) {

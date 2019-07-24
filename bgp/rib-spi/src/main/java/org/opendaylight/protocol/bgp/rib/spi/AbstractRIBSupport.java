@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
@@ -117,6 +118,7 @@ public abstract class AbstractRIBSupport<
     private final ApplyRoute putRoute = new PutRoute();
     private final MapEntryNode emptyTable;
     private final QName routeQname;
+    private final QName routeKeyQname;
     private final Class<? extends AddressFamily> afiClass;
     private final Class<? extends SubsequentAddressFamily> safiClass;
     private final NodeIdentifier destinationNid;
@@ -160,6 +162,7 @@ public abstract class AbstractRIBSupport<
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
         this.routeQname = BindingReflections.findQName(listClass).withModule(module);
+        this.routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         this.routesListIdentifier = NodeIdentifier.create(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
         this.emptyTable = (MapEntryNode) this.mappingService
@@ -186,7 +189,7 @@ public abstract class AbstractRIBSupport<
                         .node(this.routesListIdentifier).build();
         this.relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
         this.routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
-            ImmutableList.of(this.pathIdNid.getNodeType(), QName.create(routeQName(), ROUTE_KEY).intern()));
+            ImmutableList.of(this.pathIdNid.getNodeType(), routeKeyQname));
     }
 
     @Override
@@ -542,5 +545,19 @@ public abstract class AbstractRIBSupport<
     public ContainerNode attributeToContainerNode(final YangInstanceIdentifier attPath, final Attributes attributes) {
         final InstanceIdentifier<DataObject> iid = this.mappingService.fromYangInstanceIdentifier(attPath);
         return (ContainerNode) this.mappingService.toNormalizedNode(iid, attributes).getValue();
+    }
+
+    @Override
+    public final String extractRouteKey(final NodeIdentifierWithPredicates routeListKey) {
+        final Object value = routeListKey.getKeyValues().get(routeKeyQname);
+        checkArgument(value instanceof String, "Unexpected route key in %s", routeListKey);
+        return (String) value;
+    }
+
+    @Override
+    public final Long extractPathId(final NodeIdentifierWithPredicates routeListKey) {
+        final Object value = routeListKey.getKeyValues().get(pathIdNid.getNodeType());
+        checkArgument(value instanceof Long, "Unexpected path ID in %s", routeListKey);
+        return (Long) value;
     }
 }
