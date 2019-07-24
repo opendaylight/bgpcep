@@ -331,6 +331,12 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     }
 
     @Override
+    public YangInstanceIdentifier getRibOutIId(final NodeIdentifierWithPredicates tablekey) {
+        // FIXME: implement this
+        return null;
+    }
+
+    @Override
     public void onTransactionChainFailed(final DOMTransactionChain chain, final DOMDataTreeTransaction transaction,
             final Throwable cause) {
         LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);

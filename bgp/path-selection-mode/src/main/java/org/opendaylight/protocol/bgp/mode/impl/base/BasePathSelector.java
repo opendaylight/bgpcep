@@ -13,7 +13,7 @@ import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,27 +26,27 @@ final class BasePathSelector extends AbstractBestPathSelector {
         super(ourAs);
     }
 
-    void processPath(final RouterId routerId, final Attributes attrs) {
+    void processPath(final RouterId routerId, final ContainerNode attrs) {
         requireNonNull(routerId, "Router ID may not be null");
 
         // Consider only non-null attributes
         if (attrs != null) {
-            final RouterId originatorId = replaceOriginator(routerId, attrs.getOriginatorId());
+            final RouterId originatorId = replaceOriginator(routerId, attrs);
             /*
              * Store the new details if we have nothing stored or when the selection algorithm indicates new details
              * are better.
              */
             final BestPathState state = new BestPathStateImpl(attrs);
-            if (this.bestOriginatorId == null || !isExistingPathBetter(state)) {
+            if (bestOriginatorId == null || !isExistingPathBetter(state)) {
                 LOG.trace("Selecting path from router {}", routerId);
-                this.bestOriginatorId = originatorId;
-                this.bestRouterId = routerId;
-                this.bestState = state;
+                bestOriginatorId = originatorId;
+                bestRouterId = routerId;
+                bestState = state;
             }
         }
     }
 
     BaseBestPath result() {
-        return this.bestRouterId == null ? null : new BaseBestPath(this.bestRouterId, this.bestState);
+        return bestRouterId == null ? null : new BaseBestPath(bestRouterId, bestState);
     }
 }
