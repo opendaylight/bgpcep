@@ -8,9 +8,11 @@
 
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
  * Best Path Route Key Identifiers.
@@ -20,7 +22,7 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
  */
 public interface RouteKeyIdentifier<R extends Route & Identifiable<I>,
         I extends Identifier<R>> {
-    I getNonAddPathRouteKeyIdentifier();
+    @NonNull NodeIdentifierWithPredicates getNonAddPathRouteKeyIdentifier();
 
-    I getAddPathRouteKeyIdentifier();
+    @NonNull NodeIdentifierWithPredicates getAddPathRouteKeyIdentifier();
 }
