@@ -425,7 +425,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      */
     private synchronized void handleKeepaliveTimer() {
         if (this.state == State.IDLE) {
-            LOG.debug("Skipping keepalive on session idle {}", this);
+            LOG.info("Skipping keepalive on session idle {}", this);
             return;
         }
 
@@ -435,16 +435,16 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
         if (nextNanos <= 0) {
             final ChannelFuture future = this.writeAndFlush(KEEP_ALIVE);
-            LOG.debug("Enqueued session {} keepalive as {}", this, future);
+            LOG.info("Enqueued session {} keepalive as {}", this, future);
             nextNanos = keepAliveNanos;
-            if (LOG.isDebugEnabled()) {
-                future.addListener(compl -> LOG.debug("Session {} keepalive completed as {}", this, compl));
+            if (LOG.isInfoEnabled()) {
+                future.addListener(compl -> LOG.info("Session {} keepalive completed as {}", this, compl));
             }
         } else {
             LOG.debug("Skipping keepalive on session {}", this);
         }
 
-        LOG.debug("Scheduling next keepalive on {} in {} nanos", this, nextNanos);
+        LOG.info("Scheduling next keepalive on {} in {} nanos", this, nextNanos);
         this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextNanos, TimeUnit.NANOSECONDS);
     }
 
