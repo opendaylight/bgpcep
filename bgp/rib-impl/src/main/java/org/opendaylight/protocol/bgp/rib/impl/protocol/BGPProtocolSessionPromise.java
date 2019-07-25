@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.protocol;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -142,20 +142,19 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
         @Override
         public void operationComplete(final ChannelFuture channelFuture) throws Exception {
             synchronized (BGPProtocolSessionPromise.this) {
-                BGPProtocolSessionPromise.LOG.debug("Promise {} connection resolved", BGPProtocolSessionPromise.this);
-                Preconditions.checkState(BGPProtocolSessionPromise.this.pending.equals(channelFuture));
+                LOG.debug("Promise {} connection resolved", BGPProtocolSessionPromise.this);
+                checkState(BGPProtocolSessionPromise.this.pending.equals(channelFuture), "Unexpected promise %s",
+                    channelFuture);
                 if (BGPProtocolSessionPromise.this.isCancelled()) {
                     if (channelFuture.isSuccess()) {
-                        BGPProtocolSessionPromise.LOG.debug("Closing channel for cancelled promise {}",
-                                BGPProtocolSessionPromise.this);
+                        LOG.debug("Closing channel for cancelled promise {}", BGPProtocolSessionPromise.this);
                         channelFuture.channel().close();
                     }
                 } else if (channelFuture.isSuccess()) {
-                    BGPProtocolSessionPromise.LOG.debug("Promise {} connection successful",
-                            BGPProtocolSessionPromise.this);
+                    LOG.debug("Promise {} connection successful", BGPProtocolSessionPromise.this);
                 } else {
-                    BGPProtocolSessionPromise.LOG.warn("Attempt to connect to {} failed",
-                            BGPProtocolSessionPromise.this.address, channelFuture.cause());
+                    LOG.warn("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address,
+                        channelFuture.cause());
                     BGPProtocolSessionPromise.this.reconnect();
                 }
             }
@@ -171,28 +170,25 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
 
         @Override
         public void onSessionCreated(final IpAddress ip) {
-            if (!ip.equals(this.peerAddress)) {
-                return;
-            }
-            BGPProtocolSessionPromise.LOG.debug("Callback for session creation with peer {} received", ip);
-            synchronized (BGPProtocolSessionPromise.this) {
-                BGPProtocolSessionPromise.this.peerSessionPresent = true;
+            if (ip.equals(this.peerAddress)) {
+                LOG.debug("Callback for session creation with peer {} received", ip);
+                synchronized (BGPProtocolSessionPromise.this) {
+                    BGPProtocolSessionPromise.this.peerSessionPresent = true;
+                }
             }
         }
 
         @Override
         public void onSessionRemoved(final IpAddress ip) {
-            if (!ip.equals(this.peerAddress)) {
-                return;
-            }
-            BGPProtocolSessionPromise.LOG.debug("Callback for session removal with peer {} received", ip);
-            synchronized (BGPProtocolSessionPromise.this) {
-                BGPProtocolSessionPromise.this.peerSessionPresent = false;
-                if (BGPProtocolSessionPromise.this.connectSkipped) {
-                    BGPProtocolSessionPromise.this.connect();
+            if (ip.equals(this.peerAddress)) {
+                LOG.debug("Callback for session removal with peer {} received", ip);
+                synchronized (BGPProtocolSessionPromise.this) {
+                    BGPProtocolSessionPromise.this.peerSessionPresent = false;
+                    if (BGPProtocolSessionPromise.this.connectSkipped) {
+                        BGPProtocolSessionPromise.this.connect();
+                    }
                 }
             }
         }
     }
-
 }
