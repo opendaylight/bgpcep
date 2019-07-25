@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
@@ -359,8 +358,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             return;
         }
         LOG.info("Closing session: {}", this);
-        this.channel.close().addListener((ChannelFutureListener) future
-            -> Preconditions.checkArgument(future.isSuccess(), "Channel failed to close: %s", future.cause()));
+
+        this.channel.close().addListener((ChannelFutureListener) future -> {
+            if (!future.isSuccess()) {
+                LOG.warn("Channel failed to close", future.cause());
+            }
+        });
+
         this.state = State.IDLE;
         removePeerSession();
         this.sessionState.setSessionState(this.state);
