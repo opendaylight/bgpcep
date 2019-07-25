@@ -117,8 +117,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     private final Set<BgpTableType> tableTypes;
     private final List<AddressFamilies> addPathTypes;
-    private final int holdTimerValue;
-    private final int keepAlive;
+    private final long holdTimerNanos;
+    private final long keepAliveNanos;
     private final AsNumber asNumber;
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
@@ -139,9 +139,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.channel = requireNonNull(channel);
         this.limiter = new ChannelOutputLimiter(this);
         this.channel.pipeline().addLast(this.limiter);
-        this.holdTimerValue = remoteOpen.getHoldTimer() < localHoldTimer ? remoteOpen.getHoldTimer() : localHoldTimer;
-        LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
-        this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
+
+        final int holdTimerValue = remoteOpen.getHoldTimer() < localHoldTimer ? remoteOpen.getHoldTimer()
+                : localHoldTimer;
+        LOG.info("BGP HoldTimer new value: {}", holdTimerValue);
+        this.holdTimerNanos = TimeUnit.SECONDS.toNanos(holdTimerValue);
+        this.keepAliveNanos = TimeUnit.SECONDS.toNanos(holdTimerValue / KA_TO_DEADTIMER_RATIO);
+
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
         this.sessionState = new BGPSessionStateImpl();
@@ -189,12 +193,12 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                 MultiPathSupportImpl.createParserMultiPathSupport(this.addPathTypes));
         }
 
-        if (this.holdTimerValue != 0) {
-            channel.eventLoop().schedule(this::handleHoldTimer, this.holdTimerValue, TimeUnit.SECONDS);
-            channel.eventLoop().schedule(this::handleKeepaliveTimer, this.keepAlive, TimeUnit.SECONDS);
+        if (holdTimerValue != 0) {
+            channel.eventLoop().schedule(this::handleHoldTimer, this.holdTimerNanos, TimeUnit.NANOSECONDS);
+            channel.eventLoop().schedule(this::handleKeepaliveTimer, this.keepAliveNanos, TimeUnit.NANOSECONDS);
         }
         this.bgpId = remoteOpen.getBgpIdentifier();
-        this.sessionState.advertizeCapabilities(this.holdTimerValue, channel.remoteAddress(), channel.localAddress(),
+        this.sessionState.advertizeCapabilities(holdTimerValue, channel.remoteAddress(), channel.localAddress(),
                 this.tableTypes, bgpParameters);
     }
 
@@ -403,7 +407,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
 
         final long ct = System.nanoTime();
-        final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(this.holdTimerValue);
+        final long nextHold = this.lastMessageReceivedAt + holdTimerNanos;
 
         if (ct >= nextHold) {
             LOG.debug("HoldTimer expired. {}", new Date());
@@ -421,17 +425,18 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      */
     private synchronized void handleKeepaliveTimer() {
         if (this.state == State.IDLE) {
+            LOG.debug("Skipping keepalive on session idle {}", this);
             return;
         }
 
         final long ct = System.nanoTime();
-        final long keepNanos = TimeUnit.SECONDS.toNanos(this.keepAlive);
-        long nextKeepalive = this.lastMessageSentAt + keepNanos;
+        final long nextKeepalive = this.lastMessageSentAt + keepAliveNanos;
+        long nextNanos = nextKeepalive - ct;
 
-        if (ct >= nextKeepalive) {
+        if (nextNanos <= 0) {
             final ChannelFuture future = this.writeAndFlush(KEEP_ALIVE);
             LOG.debug("Enqueued session {} keepalive as {}", this, future);
-            nextKeepalive = ct + keepNanos;
+            nextNanos = keepAliveNanos;
             if (LOG.isDebugEnabled()) {
                 future.addListener(compl -> LOG.debug("Session {} keepalive completed as {}", this, compl));
             }
@@ -439,7 +444,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             LOG.debug("Skipping keepalive on session {}", this);
         }
 
-        final long nextNanos = nextKeepalive - ct;
         LOG.debug("Scheduling next keepalive on {} in {} nanos", this, nextNanos);
         this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextNanos, TimeUnit.NANOSECONDS);
     }
