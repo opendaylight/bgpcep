@@ -277,7 +277,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
             if (msg instanceof Open) {
                 // Open messages should not be present here
-                this.terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
+                terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
             } else if (msg instanceof Notify) {
                 final Notify notify = (Notify) msg;
                 // Notifications are handled internally
@@ -304,7 +304,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
             this.sessionState.messageReceived(msg);
         } catch (final BGPDocumentedException e) {
-            this.terminate(e);
+            terminate(e);
         }
     }
 
@@ -376,7 +376,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      * @param cause BGPDocumentedException
      */
     @VisibleForTesting
-    synchronized void terminate(final BGPDocumentedException cause) {
+    @Holding("this")
+    void terminate(final BGPDocumentedException cause) {
         final BGPError error = cause.getError();
         final byte[] data = cause.getData();
         final NotifyBuilder builder = new NotifyBuilder().setErrorCode(error.getCode())
@@ -410,7 +411,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
         if (ct >= nextHold) {
             LOG.debug("HoldTimer expired. {}", new Date());
-            this.terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
+            terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
         } else {
             this.channel.eventLoop().schedule(this::handleHoldTimer, nextHold - ct, TimeUnit.NANOSECONDS);
         }
@@ -542,15 +543,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      * Handle exception occurred in the BGP session. The session in error state should be closed
      * properly so that it can be restored later.
      */
+    @Holding("this")
     @VisibleForTesting
     void handleException(final Throwable cause) {
         LOG.warn("BGP session encountered error", cause);
         final Throwable docCause = cause.getCause();
-        if (docCause instanceof BGPDocumentedException) {
-            this.terminate((BGPDocumentedException) docCause);
-        } else {
-            this.terminate(new BGPDocumentedException(BGPError.CEASE));
-        }
+        terminate(docCause instanceof BGPDocumentedException
+            ? (BGPDocumentedException) docCause : new BGPDocumentedException(BGPError.CEASE));
     }
 
     @Override
