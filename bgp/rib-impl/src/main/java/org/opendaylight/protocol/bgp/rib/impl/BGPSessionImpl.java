@@ -308,13 +308,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
     }
 
-    private synchronized void notifyTerminationReasonAndCloseWithoutMessage(
-            final Short errorCode,
-            final Short errorSubcode) {
+    @Holding("this")
+    private void notifyTerminationReasonAndCloseWithoutMessage(final Short errorCode, final Short errorSubcode) {
         this.terminationReasonNotified = true;
         this.closeWithoutMessage();
-        this.listener.onSessionTerminated(this, new BGPTerminationReason(
-                BGPError.forValue(errorCode, errorSubcode)));
+        this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(errorCode, errorSubcode)));
     }
 
     synchronized void endOfInput() {
@@ -386,7 +384,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         if (data != null && data.length != 0) {
             builder.setData(data);
         }
-        this.writeAndFlush(builder.build());
+        writeAndFlush(builder.build());
         notifyTerminationReasonAndCloseWithoutMessage(error.getCode(), error.getSubcode());
     }
 
