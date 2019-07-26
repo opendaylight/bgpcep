@@ -511,16 +511,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
-    @SuppressWarnings("checkstyle:illegalCatch")
-    public final void channelInactive(final ChannelHandlerContext ctx) {
+    public final void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         LOG.debug("Channel {} inactive.", ctx.channel());
-        this.endOfInput();
-
-        try {
-            super.channelInactive(ctx);
-        } catch (final Exception e) {
-            throw new IllegalStateException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
-        }
+        endOfInput();
+        super.channelInactive(ctx);
     }
 
     @Override
