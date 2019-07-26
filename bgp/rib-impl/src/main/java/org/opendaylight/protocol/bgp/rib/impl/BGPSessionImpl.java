@@ -351,7 +351,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     synchronized ChannelFuture writeAndFlush(final Notification msg) {
-        if (isWritable()) {
+        if (this.channel.isWritable()) {
             return writeEpilogue(this.channel.writeAndFlush(msg), msg);
         }
         return this.channel.newFailedFuture(new NonWritableChannelException());
@@ -504,10 +504,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public final AsNumber getAsNumber() {
         return this.asNumber;
-    }
-
-    private synchronized boolean isWritable() {
-        return this.channel != null && this.channel.isWritable();
     }
 
     public ChannelOutputLimiter getLimiter() {
