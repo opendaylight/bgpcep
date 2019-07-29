@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import io.netty.channel.FixedRecvByteBufAllocator;
+import io.netty.channel.AdaptiveRecvByteBufAllocator;
+import io.netty.channel.MaxMessagesRecvByteBufAllocator;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 /**
@@ -26,11 +27,6 @@ final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
     private static final int MAX_FRAME_SIZE = 4096;
 
     private static final int EXTENDED_MAX_FRAME_SIZE = 65535;
-
-    // Allocators
-    private static final FixedRecvByteBufAllocator RECV_ALLOCATOR = new FixedRecvByteBufAllocator(MAX_FRAME_SIZE);
-    private static final FixedRecvByteBufAllocator EXTENDED_RECV_ALLOCATOR =
-            new FixedRecvByteBufAllocator(EXTENDED_MAX_FRAME_SIZE);
 
     /*
 
@@ -55,12 +51,14 @@ final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
         super(maxFrameSize, MARKER_SIZE, LENGTH_SIZE, -MARKER_SIZE - LENGTH_SIZE, 0);
     }
 
-    static FixedRecvByteBufAllocator getRecvAllocator() {
-        return RECV_ALLOCATOR;
+    static MaxMessagesRecvByteBufAllocator getRecvAllocator() {
+        // FIXME: constrain this allocator to 19-4096 range
+        return new AdaptiveRecvByteBufAllocator().maxMessagesPerRead(1);
     }
 
-    static FixedRecvByteBufAllocator getExtendedRecvAllocator() {
-        return EXTENDED_RECV_ALLOCATOR;
+    static MaxMessagesRecvByteBufAllocator getExtendedRecvAllocator() {
+        // FIXME: constrain this allocator to 19-65536 range
+        return new AdaptiveRecvByteBufAllocator().maxMessagesPerRead(1);
     }
 
     static BGPMessageHeaderDecoder getBGPMessageHeaderDecoder() {
