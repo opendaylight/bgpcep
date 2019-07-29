@@ -18,7 +18,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.FixedRecvByteBufAllocator;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -53,7 +52,6 @@ import org.slf4j.LoggerFactory;
 public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPDispatcherImpl.class);
     private static final int SOCKET_BACKLOG_SIZE = 128;
-    private static final int FIX_BUFFER_SIZE = 1;
     private static final long TIMEOUT = 10;
 
     private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(128 * 1024, 256 * 1024);
@@ -110,7 +108,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
 
         // Make sure we are doing round-robin processing
-        bootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(FIX_BUFFER_SIZE));
+        bootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, BGPMessageHeaderDecoder.getRecvAllocator());
         bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
         bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
         bootstrap.option(ChannelOption.SO_REUSEADDR, reuseAddress);
@@ -183,7 +181,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
 
         // Make sure we are doing round-robin processing
-        serverBootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(FIX_BUFFER_SIZE));
+        serverBootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, BGPMessageHeaderDecoder.getRecvAllocator());
 
         if (serverBootstrap.config().group() == null) {
             serverBootstrap.group(this.bossGroup, this.workerGroup);
