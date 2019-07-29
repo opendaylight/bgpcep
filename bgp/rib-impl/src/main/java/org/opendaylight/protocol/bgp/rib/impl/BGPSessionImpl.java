@@ -89,8 +89,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     private static final int KA_TO_DEADTIMER_RATIO = 3;
 
-    private static final String EXTENDED_MSG_DECODER = "EXTENDED_MSG_DECODER";
-
     static final String END_OF_INPUT = "End of input detected. Close the session.";
 
     /**
@@ -245,8 +243,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public synchronized void setChannelExtMsgCoder(final Open remoteOpen) {
         final boolean enableExMess = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
         if (enableExMess) {
-            this.channel.pipeline().replace(BGPMessageHeaderDecoder.class, EXTENDED_MSG_DECODER,
-                    BGPMessageHeaderDecoder.getExtendedBGPMessageHeaderDecoder());
+            BGPMessageHeaderDecoder.enableExtendedMessages(this.channel);
         }
     }
 

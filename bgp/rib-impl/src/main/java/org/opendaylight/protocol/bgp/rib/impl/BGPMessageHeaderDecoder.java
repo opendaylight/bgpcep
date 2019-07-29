@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import io.netty.channel.Channel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 /**
@@ -25,6 +26,9 @@ final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
     private static final int MAX_FRAME_SIZE = 4096;
 
     private static final int EXTENDED_MAX_FRAME_SIZE = 65535;
+
+    // Name of the extended decoder in the channel pipeline
+    private static final String EXTENDED_MSG_DECODER = "EXTENDED_MSG_DECODER";
 
     /*
 
@@ -53,7 +57,8 @@ final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
         return new BGPMessageHeaderDecoder(MAX_FRAME_SIZE);
     }
 
-    static BGPMessageHeaderDecoder getExtendedBGPMessageHeaderDecoder() {
-        return new BGPMessageHeaderDecoder(EXTENDED_MAX_FRAME_SIZE);
+    static void enableExtendedMessages(final Channel channel) {
+        channel.pipeline().replace(BGPMessageHeaderDecoder.class, EXTENDED_MSG_DECODER,
+            new BGPMessageHeaderDecoder(EXTENDED_MAX_FRAME_SIZE));
     }
 }
