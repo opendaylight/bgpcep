@@ -25,10 +25,12 @@ import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
+import io.netty.channel.RecvByteBufAllocator;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
@@ -128,6 +130,11 @@ public class BGPSessionImplTest {
         }).when(this.speakerListener).writeAndFlush(any(Notification.class));
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
         doReturn(true).when(this.speakerListener).isActive();
+
+        final ChannelConfig mockConfig = mock(ChannelConfig.class);
+        doReturn(mockConfig).when(speakerListener).config();
+        doReturn(mockConfig).when(mockConfig).setRecvByteBufAllocator(any(RecvByteBufAllocator.class));
+
         doAnswer(invocation -> {
             final Runnable command = (Runnable) invocation.getArguments()[0];
             final long delay = (long) invocation.getArguments()[1];
