@@ -13,11 +13,13 @@ import com.google.common.annotations.VisibleForTesting;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.RecvByteBufAllocator;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -55,6 +57,10 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final long TIMEOUT = 10;
 
     private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(128 * 1024, 256 * 1024);
+
+    // An adaptive allocator, so we size our message buffers based on what we receive, but make sure we process one
+    // message at a time.
+    private static final RecvByteBufAllocator RECV_ALLOCATOR = new AdaptiveRecvByteBufAllocator().maxMessagesPerRead(1);
 
     private final BGPHandlerFactory handlerFactory;
     private final EventLoopGroup bossGroup;
@@ -108,7 +114,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
 
         // Make sure we are doing round-robin processing
-        bootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, BGPMessageHeaderDecoder.getRecvAllocator());
+        bootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, RECV_ALLOCATOR);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
         bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
         bootstrap.option(ChannelOption.SO_REUSEADDR, reuseAddress);
@@ -181,7 +187,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
 
         // Make sure we are doing round-robin processing
-        serverBootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, BGPMessageHeaderDecoder.getRecvAllocator());
+        serverBootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, RECV_ALLOCATOR);
 
         if (serverBootstrap.config().group() == null) {
             serverBootstrap.group(this.bossGroup, this.workerGroup);
