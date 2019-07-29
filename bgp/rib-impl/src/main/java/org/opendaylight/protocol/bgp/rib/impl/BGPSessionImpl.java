@@ -247,6 +247,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         if (enableExMess) {
             this.channel.pipeline().replace(BGPMessageHeaderDecoder.class, EXTENDED_MSG_DECODER,
                     BGPMessageHeaderDecoder.getExtendedBGPMessageHeaderDecoder());
+            this.channel.config().setRecvByteBufAllocator(BGPMessageHeaderDecoder.getExtendedRecvAllocator());
         }
     }
 
