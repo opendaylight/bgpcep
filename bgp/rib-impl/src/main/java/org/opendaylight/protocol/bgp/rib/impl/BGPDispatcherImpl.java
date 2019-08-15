@@ -213,8 +213,6 @@ public final class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     private static final class BGPChannel {
-        private static final String NEGOTIATOR = "negotiator";
-
         private BGPChannel() {
 
         }
@@ -223,7 +221,8 @@ public final class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             createChannelPipelineInitializer(final BGPHandlerFactory hf, final T snf) {
             return (channel, promise) -> {
                 channel.pipeline().addLast(hf.getDecoders());
-                channel.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(channel, promise));
+                channel.pipeline().addLast(AbstractBGPSessionNegotiator.NEGOTIATOR,
+                    snf.getSessionNegotiator(channel, promise));
                 channel.pipeline().addLast(hf.getEncoders());
             };
         }

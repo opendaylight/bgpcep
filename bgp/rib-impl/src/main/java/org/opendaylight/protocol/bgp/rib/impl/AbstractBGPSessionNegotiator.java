@@ -45,6 +45,9 @@ import org.slf4j.LoggerFactory;
  * One difference is session validation performed by injected BGPSessionValidator when OPEN message is received.
  */
 abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
+    static final String NEGOTIATOR = "negotiator";
+    private static final String IDLE_HANDLER = "idleHandler";
+
     // 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
     private static final int INITIAL_HOLDTIMER = 4;
 
@@ -92,7 +95,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
 
     @SuppressWarnings("checkstyle:illegalCatch")
     private synchronized void startNegotiation() {
-        if (!(this.state == State.IDLE || this.state == State.OPEN_CONFIRM)) {
+        if (this.state != State.IDLE && this.state != State.OPEN_CONFIRM) {
             return;
         }
         // Open can be sent first either from ODL (IDLE) or from peer (OPEN_CONFIRM)
@@ -205,8 +208,16 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
                     getDestinationId(openObj, preferences), openObj);
             sendMessage(new KeepaliveBuilder().build());
             this.state = State.OPEN_CONFIRM;
-            this.session = new BGPSessionImpl(peer, this.channel, openObj, preferences, this.registry);
+
+            final int holdTimerValue = Math.min(openObj.getHoldTimer().toJava(), preferences.getHoldTime());
+            LOG.info("BGP HoldTimer new value: {}", holdTimerValue);
+
+            this.session = new BGPSessionImpl(peer, this.channel, openObj, holdTimerValue, this.registry);
             this.session.setChannelExtMsgCoder(openObj);
+            if (holdTimerValue != 0) {
+                this.channel.pipeline().addBefore(NEGOTIATOR, IDLE_HANDLER, new KeepaliveHandler(holdTimerValue));
+            }
+
             LOG.debug("Channel {} moved to OPEN_CONFIRM state with remote proposal {}", this.channel, openObj);
         } catch (final BGPDocumentedException | RuntimeException e) {
             LOG.warn("Channel {} negotiation failed", this.channel, e);
