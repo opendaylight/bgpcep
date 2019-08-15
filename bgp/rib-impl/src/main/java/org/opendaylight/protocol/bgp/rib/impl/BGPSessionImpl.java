@@ -19,6 +19,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
@@ -43,7 +44,6 @@ import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPMessagesListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -88,8 +88,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
-    private static final int KA_TO_DEADTIMER_RATIO = 3;
-
     static final String END_OF_INPUT = "End of input detected. Close the session.";
 
     /**
@@ -97,11 +95,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      */
     @VisibleForTesting
     private long lastMessageSentAt;
-
-    /**
-     * System.nanoTime value about when was received the last message.
-     */
-    private long lastMessageReceivedAt;
 
     private final BGPSessionListener listener;
 
@@ -116,8 +109,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     private final Set<BgpTableType> tableTypes;
     private final List<AddressFamilies> addPathTypes;
-    private final long holdTimerNanos;
-    private final long keepAliveNanos;
     private final AsNumber asNumber;
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
@@ -128,22 +119,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private boolean terminationReasonNotified;
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
-            final BGPSessionPreferences localPreferences, final BGPPeerRegistry peerRegistry) {
-        this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry);
-    }
-
-    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
-            final int localHoldTimer, final BGPPeerRegistry peerRegistry) {
+            final int holdTimerValue, final BGPPeerRegistry peerRegistry) {
         this.listener = requireNonNull(listener);
         this.channel = requireNonNull(channel);
         this.limiter = new ChannelOutputLimiter(this);
         this.channel.pipeline().addLast(this.limiter);
 
-        final int remoteHoldTimer = remoteOpen.getHoldTimer().toJava();
-        final int holdTimerValue = Math.min(remoteHoldTimer, localHoldTimer);
         LOG.info("BGP HoldTimer new value: {}", holdTimerValue);
-        this.holdTimerNanos = TimeUnit.SECONDS.toNanos(holdTimerValue);
-        this.keepAliveNanos = TimeUnit.SECONDS.toNanos(holdTimerValue / KA_TO_DEADTIMER_RATIO);
 
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
@@ -192,10 +174,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                 MultiPathSupportImpl.createParserMultiPathSupport(this.addPathTypes));
         }
 
-        if (holdTimerValue != 0) {
-            channel.eventLoop().schedule(this::handleHoldTimer, this.holdTimerNanos, TimeUnit.NANOSECONDS);
-            channel.eventLoop().schedule(this::handleKeepaliveTimer, this.keepAliveNanos, TimeUnit.NANOSECONDS);
-        }
         this.bgpId = remoteOpen.getBgpIdentifier();
         this.sessionState.advertizeCapabilities(holdTimerValue, channel.remoteAddress(), channel.localAddress(),
                 this.tableTypes, bgpParameters);
@@ -272,9 +250,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                     return;
                 }
                 try {
-                    // Update last reception time
-                    this.lastMessageReceivedAt = System.nanoTime();
-
                     if (msg instanceof Open) {
                         // Open messages should not be present here
                         terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
@@ -415,62 +390,49 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
     }
 
-    /**
-     * If HoldTimer expires, the session ends. If a message (whichever) was received during this period, the HoldTimer
-     * will be rescheduled by HOLD_TIMER_VALUE + the time that has passed from the start of the HoldTimer to the time at
-     * which the message was received. If the session was closed by the time this method starts to execute (the session
-     * state will become IDLE), then rescheduling won't occur.
-     */
-    private void handleHoldTimer() {
-        // synchronize on listener and then on this object to ensure correct order of locking
-        synchronized (this.listener) {
-            synchronized (this) {
-                if (this.state == State.IDLE) {
-                    return;
-                }
-
-                final long ct = System.nanoTime();
-                final long nextHold = this.lastMessageReceivedAt + holdTimerNanos;
-
-                if (ct >= nextHold) {
-                    LOG.debug("HoldTimer expired. {}", new Date());
-                    terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
-                } else {
-                    this.channel.eventLoop().schedule(this::handleHoldTimer, nextHold - ct, TimeUnit.NANOSECONDS);
-                }
-            }
+    @Override
+    public void userEventTriggered(final ChannelHandlerContext ctx, final Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            handleIdle((IdleStateEvent) evt);
         }
+        super.userEventTriggered(ctx, evt);
     }
 
-    /**
-     * If KeepAlive Timer expires, sends KeepAlive message. If a message (whichever) was send during this period, the
-     * KeepAlive Timer will be rescheduled by KEEP_ALIVE_TIMER_VALUE + the time that has passed from the start of the
-     * KeepAlive timer to the time at which the message was sent. If the session was closed by the time this method
-     * starts to execute (the session state will become IDLE), that rescheduling won't occur.
-     */
-    private synchronized void handleKeepaliveTimer() {
+    private synchronized void handleIdle(final IdleStateEvent evt) {
         if (this.state == State.IDLE) {
-            LOG.debug("Skipping keepalive on session idle {}", this);
+            LOG.debug("Skipping event {} on session idle {}", evt, this);
             return;
         }
 
-        final long ct = System.nanoTime();
-        final long nextKeepalive = this.lastMessageSentAt + keepAliveNanos;
-        long nextNanos = nextKeepalive - ct;
-
-        if (nextNanos <= 0) {
-            final ChannelFuture future = this.writeAndFlush(KEEP_ALIVE);
-            LOG.debug("Enqueued session {} keepalive as {}", this, future);
-            nextNanos = keepAliveNanos;
-            if (LOG.isDebugEnabled()) {
-                future.addListener(compl -> LOG.debug("Session {} keepalive completed as {}", this, compl));
-            }
-        } else {
-            LOG.debug("Skipping keepalive on session {}", this);
+        switch (evt.state()) {
+            case READER_IDLE:
+                /*
+                 * If HoldTimer expires, the session ends. If a message (whichever) was received during this period,
+                 * the HoldTimer will be rescheduled by HOLD_TIMER_VALUE + the time that has passed from the start
+                 * of the HoldTimer to the time at which the message was received. If the session was closed by the
+                 * time this method starts to execute (the session state will become IDLE), then rescheduling won't
+                 * occur.
+                 */
+                LOG.debug("HoldTimer expired. {}", new Date());
+                terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
+                break;
+            case WRITER_IDLE:
+                /*
+                 * If KeepAlive Timer expires, sends KeepAlive message. If a message (whichever) was send during this
+                 * period, the KeepAlive Timer will be rescheduled by KEEP_ALIVE_TIMER_VALUE + the time that has passed
+                 * from the start of the KeepAlive timer to the time at which the message was sent. If the session was
+                 * closed by the time this method starts to execute (the session state will become IDLE), that
+                 * rescheduling won't occur.
+                 */
+                final ChannelFuture future = this.writeAndFlush(KEEP_ALIVE);
+                LOG.debug("Enqueued session {} keepalive as {}", this, future);
+                if (LOG.isDebugEnabled()) {
+                    future.addListener(compl -> LOG.debug("Session {} keepalive completed as {}", this, compl));
+                }
+                break;
+            default:
+                throw new IllegalStateException("Unhandled event " + evt);
         }
-
-        LOG.debug("Scheduling next keepalive on {} in {} nanos", this, nextNanos);
-        this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextNanos, TimeUnit.NANOSECONDS);
     }
 
     @Override
