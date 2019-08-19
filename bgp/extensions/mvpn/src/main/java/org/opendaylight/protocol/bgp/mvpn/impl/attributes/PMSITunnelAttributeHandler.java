@@ -94,7 +94,8 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         body.writeByte(tunnelType);
         serializeMpls(pmsiTunnelAttribute.getMplsLabel(), body);
         body.writeBytes(tunnelBuffer);
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, getType(), body, byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, getType(), body,
+                byteAggregator);
     }
 
     public Class<? extends DataObject> getClazz() {
