@@ -168,9 +168,14 @@ public class BgpPeerTest extends AbstractConfig {
         verify(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
 
         this.bgpPeer.closeServiceInstance();
+        this.bgpPeer.instantiateServiceInstance();
+        verify(this.bgpPeerRegistry, times(3)).addPeer(any(), any(), any());
+        verify(this.dispatcher, times(3)).createReconnectingClient(any(InetSocketAddress.class),
+                any(), anyInt(), any(KeyMapping.class));
+        this.bgpPeer.closeServiceInstance();
         this.bgpPeer.close();
         verify(this.serviceRegistration).unregister();
-        verify(this.future, times(2)).cancel(true);
+        verify(this.future, times(3)).cancel(true);
 
         final Neighbor neighborDiffConfig = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setAfiSafis(createAfiSafi()).build();
