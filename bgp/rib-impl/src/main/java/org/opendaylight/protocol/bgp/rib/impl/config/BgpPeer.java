@@ -150,7 +150,14 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     }
 
     @Override
+<<<<<<< HEAD   (258371 Bump odlparent/yangtools/mdsal to 4.0.14/2.1.14/3.0.13)
     public synchronized void close() {
+=======
+    public void close() {
+        if (this.bgpPeerSingletonService != null) {
+            this.bgpPeerSingletonService = null;
+        }
+>>>>>>> CHANGE (5efe61 Fix NPE while accessing DomTxChain when bgp/app peer singlet)
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
             this.serviceRegistration = null;
@@ -167,9 +174,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         if (this.bgpPeerSingletonService != null) {
-            final FluentFuture<? extends CommitInfo> fut = this.bgpPeerSingletonService.closeServiceInstance();
-            this.bgpPeerSingletonService = null;
-            return fut;
+            return this.bgpPeerSingletonService.closeServiceInstance();
         }
         return CommitInfo.emptyFluentFuture();
     }

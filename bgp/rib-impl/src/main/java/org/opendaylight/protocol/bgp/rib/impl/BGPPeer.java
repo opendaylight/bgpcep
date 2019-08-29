@@ -233,6 +233,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     public synchronized void instantiateServiceInstance() {
+        createDomChain();
         this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this);
         setActive(true);
     }
