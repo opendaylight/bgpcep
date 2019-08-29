@@ -151,6 +151,9 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     @Override
     public synchronized void close() {
+        if (this.bgpPeerSingletonService != null) {
+            this.bgpPeerSingletonService = null;
+        }
         if (this.serviceRegistration != null) {
             this.serviceRegistration.unregister();
             this.serviceRegistration = null;
@@ -167,9 +170,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         if (this.bgpPeerSingletonService != null) {
-            final FluentFuture<? extends CommitInfo> fut = this.bgpPeerSingletonService.closeServiceInstance();
-            this.bgpPeerSingletonService = null;
-            return fut;
+            return this.bgpPeerSingletonService.closeServiceInstance();
         }
         return CommitInfo.emptyFluentFuture();
     }
