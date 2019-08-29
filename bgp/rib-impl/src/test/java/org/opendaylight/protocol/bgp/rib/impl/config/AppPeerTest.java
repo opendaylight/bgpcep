@@ -10,11 +10,13 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
@@ -42,27 +44,37 @@ public class AppPeerTest extends AbstractConfig {
         APP_PEER.start(this.rib, this.neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
         Mockito.verify(this.rib).getYangRibId();
         Mockito.verify(this.rib).getService();
+        Mockito.verify(this.rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
         Mockito.verify(this.rib, times(1)).getLocalTablesKeys();
 
         APP_PEER.instantiateServiceInstance();
         Mockito.verify(this.rib, times(3)).getYangRibId();
         Mockito.verify(this.rib, times(2)).getRibSupportContext();
         Mockito.verify(this.rib, times(2)).getLocalTablesKeys();
+        Mockito.verify(this.rib, times(2)).createPeerDOMChain(any(DOMTransactionChainListener.class));
         Mockito.verify(this.domTx).newWriteOnlyTransaction();
 
         APP_PEER.closeServiceInstance();
+        Mockito.verify(this.domTx, times(2)).close();
         APP_PEER.close();
 
         APP_PEER.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
         APP_PEER.instantiateServiceInstance();
         Mockito.verify(this.rib, times(6)).getYangRibId();
         Mockito.verify(this.rib, times(4)).getService();
+        Mockito.verify(this.rib, times(4)).createPeerDOMChain(any(DOMTransactionChainListener.class));
         Mockito.verify(this.listener, times(2)).close();
 
         assertTrue(APP_PEER.containsEqualConfiguration(this.neighbor));
         assertFalse(APP_PEER.containsEqualConfiguration(new NeighborBuilder()
                 .setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.2"))).build()));
         APP_PEER.closeServiceInstance();
+        Mockito.verify(this.domTx, times(4)).close();
+
+        APP_PEER.instantiateServiceInstance();
+        Mockito.verify(this.rib, times(6)).createPeerDOMChain(any(DOMTransactionChainListener.class));
+        APP_PEER.closeServiceInstance();
+        Mockito.verify(this.domTx, times(6)).close();
         APP_PEER.close();
     }
 }
