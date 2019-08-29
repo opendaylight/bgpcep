@@ -154,8 +154,10 @@ public class BgpPeerTest extends AbstractConfig {
         }
         this.bgpPeer.setServiceRegistration(this.serviceRegistration);
         this.bgpPeer.closeServiceInstance();
-        this.bgpPeer.close();
+        verify(this.bgpPeerRegistry).removePeer(any());
         verify(this.future).cancel(true);
+        this.bgpPeer.close();
+        verify(this.serviceRegistration).unregister();
 
         this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
         this.bgpPeer.instantiateServiceInstance();
@@ -170,9 +172,19 @@ public class BgpPeerTest extends AbstractConfig {
         verify(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
 
         this.bgpPeer.closeServiceInstance();
+        verify(this.bgpPeerRegistry, times(2)).removePeer(any());
+        verify(this.future, times(2)).cancel(true);
+
+        this.bgpPeer.instantiateServiceInstance();
+        verify(this.bgpPeerRegistry, times(3)).addPeer(any(), any(), any());
+        verify(this.dispatcher, times(3)).createReconnectingClient(any(InetSocketAddress.class),
+                any(), anyInt(), any(KeyMapping.class));
+
+        this.bgpPeer.closeServiceInstance();
+        verify(this.bgpPeerRegistry, times(3)).removePeer(any());
+        verify(this.future, times(3)).cancel(true);
         this.bgpPeer.close();
         verify(this.serviceRegistration).unregister();
-        verify(this.future, times(2)).cancel(true);
 
         final Neighbor neighborDiffConfig = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setAfiSafis(createAfiSafi()).build();
