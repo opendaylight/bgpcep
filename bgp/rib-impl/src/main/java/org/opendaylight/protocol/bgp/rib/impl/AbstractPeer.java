@@ -105,7 +105,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         this.clusterId = clusterId;
         this.localAs = localAs;
         this.rib = rib;
-        this.domChain = this.rib.createPeerDOMChain(this);
+        createDomChain();
     }
 
     AbstractPeer(
@@ -500,6 +500,13 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             LOG.info("Closing peer chain {}", getPeerId());
             this.bindingChain.close();
             this.bindingChain = null;
+        }
+    }
+
+    final synchronized void createDomChain() {
+        if (this.domChain == null) {
+            LOG.info("Creating DOM peer chain {}", getPeerId());
+            this.domChain = this.rib.createPeerDOMChain(this);
         }
     }
 
