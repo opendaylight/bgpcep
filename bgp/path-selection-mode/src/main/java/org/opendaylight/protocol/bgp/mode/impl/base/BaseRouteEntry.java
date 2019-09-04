@@ -57,9 +57,11 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseRouteEntry.class);
     private static final Route[] EMPTY_VALUES = new Route[0];
+    private static final Boolean[] EMPTY_UPDATES = new Boolean[0];
 
     private RouterIdOffsets offsets = RouterIdOffsets.EMPTY;
     private R[] values = (R[]) EMPTY_VALUES;
+    private Boolean[] updates = EMPTY_UPDATES;
     private BaseBestPath bestPath;
     private BaseBestPath removedBestPath;
 
@@ -70,6 +72,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     public boolean removeRoute(final RouterId routerId, final Long remotePathId) {
         final int offset = this.offsets.offsetOf(routerId);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
+        this.updates = this.offsets.removeValue(this.updates, offset, EMPTY_UPDATES);
         this.offsets = this.offsets.without(routerId);
         return this.offsets.isEmpty();
     }
@@ -97,6 +100,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
 
         // Get the newly-selected best path.
         final BaseBestPath newBestPath = selector.result();
+
         final boolean modified = newBestPath == null || !newBestPath.equals(this.bestPath);
         if (modified) {
             if (this.offsets.isEmpty()) {
@@ -104,23 +108,43 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
             }
             LOG.trace("Previous best {}, current best {}", this.bestPath, newBestPath);
             this.bestPath = newBestPath;
+            return true;
+        } else {
+            // If route attributes have not changed, determine return value based on whether
+            // any other route data (e.g. label-stack in BGP-LU route) has changed since the
+            // time best-path selection was last done
+            final boolean updated;
+            if (newBestPath != null) {
+                final int offset = this.offsets.offsetOf(newBestPath.getRouterId());
+                updated = this.offsets.getValue(this.updates, offset);
+                this.offsets.setValue(this.updates, offset, false);
+            } else {
+                updated = false;
+            }
+            return updated;
         }
-        return modified;
     }
 
     @Override
     public int addRoute(final RouterId routerId, final Long remotePathId, final R route) {
+        final R oldRoute;
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
+            oldRoute = null;
             final RouterIdOffsets newOffsets = this.offsets.with(routerId);
             offset = newOffsets.offsetOf(routerId);
 
             this.values = newOffsets.expand(this.offsets, this.values, offset);
+            this.updates = newOffsets.expand(this.offsets, this.updates, offset);
             this.offsets = newOffsets;
+        } else {
+            oldRoute = this.offsets.getValue(this.values, offset);
         }
 
         this.offsets.setValue(this.values, offset, route);
-        LOG.trace("Added route {} from {}", route, routerId);
+        final boolean updated = oldRoute != null && !route.equals(oldRoute);
+        this.offsets.setValue(this.updates, offset, updated);
+        LOG.trace("{} route {} from {}", updated ? "Updated" : "Added", route, routerId);
         return offset;
     }
 

@@ -90,10 +90,12 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
     private static final Long[] EMPTY_PATHS_ID = new Long[0];
     private static final Route[] EMPTY_VALUES = new Route[0];
+    private static final Boolean[] EMPTY_UPDATES = new Boolean[0];
 
     private RouteKeyOffsets offsets = RouteKeyOffsets.EMPTY;
     private R[] values = (R[]) EMPTY_VALUES;
     private Long[] pathsId = EMPTY_PATHS_ID;
+    private Boolean[] updates = EMPTY_UPDATES;
     private List<AddPathBestPath> bestPath;
     private List<AddPathBestPath> bestPathRemoved;
     private List<AddPathBestPath> newBestPathToBeAdvertised;
@@ -112,19 +114,27 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     @Override
     public final int addRoute(final RouterId routerId, final Long remotePathId, final R route) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
+        final R oldRoute;
         int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
+            oldRoute = null;
             final RouteKeyOffsets newOffsets = this.offsets.with(key);
             offset = newOffsets.offsetOf(key);
             final R[] newRoute = newOffsets.expand(this.offsets, this.values, offset);
             final Long[] newPathsId = newOffsets.expand(this.offsets, this.pathsId, offset);
+            final Boolean[] newUpdates = newOffsets.expand(this.offsets, this.updates, offset);
             this.values = newRoute;
             this.offsets = newOffsets;
             this.pathsId = newPathsId;
             this.offsets.setValue(this.pathsId, offset, ++this.pathIdCounter);
+            this.updates = newUpdates;
+        } else {
+            oldRoute = this.offsets.getValue(this.values, offset);
         }
         this.offsets.setValue(this.values, offset, route);
-        LOG.trace("Added route {} from {}", route, routerId);
+        final boolean updated = oldRoute != null && !route.equals(oldRoute);
+        this.offsets.setValue(this.updates, offset, updated);
+        LOG.trace("{} route {} from {}", updated ? "Updated" : "Added", route, routerId);
         return offset;
     }
 
@@ -135,6 +145,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         final Long pathId = this.offsets.getValue(this.pathsId, offset);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
         this.pathsId = this.offsets.removeValue(this.pathsId, offset, EMPTY_PATHS_ID);
+        this.updates = this.offsets.removeValue(this.updates, offset, EMPTY_UPDATES);
         this.offsets = this.offsets.without(key);
         if (this.removedPathsId == null) {
             this.removedPathsId = new ArrayList<>();
@@ -234,6 +245,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
         this.isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
         filterRemovedPaths(newBestPathList);
+
         if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()
                 || newBestPathList != null
                 && !newBestPathList.equals(this.bestPath)) {
@@ -246,8 +258,22 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
             this.bestPath = newBestPathList;
             LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
             return true;
+        } else {
+            // If route attributes have not changed, determine return value based on whether
+            // any other route data (e.g. label-stack in BGP-LU route) has changed for any
+            // of the routes since the time best-path selection was last done.
+            boolean updated = false;
+            if (newBestPathList != null && !newBestPathList.isEmpty()) {
+                for (final AddPathBestPath newBestPath : newBestPathList) {
+                    final int offset = this.offsets.offsetOf(newBestPath.getRouteKey());
+                    if (this.offsets.getValue(this.updates, offset)) {
+                        updated = true;
+                    }
+                    this.offsets.setValue(this.updates, offset, false);
+                }
+            }
+            return updated;
         }
-        return false;
     }
 
     private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
