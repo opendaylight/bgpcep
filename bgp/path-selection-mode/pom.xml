@@ -77,6 +77,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>concepts</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-labeled-unicast</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-dom-adapter</artifactId>
             <scope>test</scope>
