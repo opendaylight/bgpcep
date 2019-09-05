@@ -26,7 +26,7 @@ public final class RouteTargetIpv4Handler {
 
     public static void serialize(final RouteTargetIpv4 routeTarget, final ByteBuf byteAggregator) {
         ByteBufWriteUtil.writeIpv4Address(routeTarget.getGlobalAdministrator(), byteAggregator);
-        ByteBufWriteUtil.writeUnsignedShort(routeTarget.getLocalAdministrator(), byteAggregator);
+        ByteBufWriteUtil.writeUnsignedShort(routeTarget.getLocalAdministrator().toJava(), byteAggregator);
     }
 
     public static RouteTargetIpv4 parse(final ByteBuf buffer) {

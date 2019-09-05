@@ -49,8 +49,8 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
         final Notify ntf = (Notify) msg;
 
         final ByteBuf msgBody = Unpooled.buffer()
-                .writeByte(ntf.getErrorCode())
-                .writeByte(ntf.getErrorSubcode());
+                .writeByte(ntf.getErrorCode().toJava())
+                .writeByte(ntf.getErrorSubcode().toJava());
         final byte[] data = ntf.getData();
         if (data != null) {
             msgBody.writeBytes(data);
