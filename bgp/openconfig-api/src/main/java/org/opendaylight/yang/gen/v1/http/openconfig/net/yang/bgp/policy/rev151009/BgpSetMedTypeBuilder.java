@@ -9,6 +9,7 @@ package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev1510
 
 import java.util.regex.Pattern;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpSetMedType.Enumeration;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +30,8 @@ public final class BgpSetMedTypeBuilder {
         }
 
         try {
-            return new BgpSetMedType(Integer.toUnsignedLong(Integer.parseUnsignedInt(defaultValue)));
-        } catch (final NumberFormatException e) {
+            return new BgpSetMedType(Uint32.valueOf(defaultValue));
+        } catch (final IllegalArgumentException e) {
             LOG.debug("Could not interpret \"{}\" as an unsinged integer", defaultValue, e);
         }
 

@@ -255,7 +255,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
                 .collect(Collectors.toMap(entry ->
                         new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
 
-        final BGPRibRoutingPolicy ribPolicy = this.policyProvider.buildBGPRibPolicy(this.asNumber.getValue(),
+        final BGPRibRoutingPolicy ribPolicy = this.policyProvider.buildBGPRibPolicy(this.asNumber.getValue().toJava(),
                 this.routerId, this.clusterId, RoutingPolicyUtil.getApplyPolicy(global.getApplyPolicy()));
         final CodecsRegistryImpl codecsRegistry = CodecsRegistryImpl.create(codecTreeFactory,
                 this.extensions.getClassLoadingStrategy());

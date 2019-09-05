@@ -26,6 +26,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public boolean removeRoute(final RouterId routerId, final Long remotePathId) {
+    public boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
         final int offset = this.offsets.offsetOf(routerId);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
         this.offsets = this.offsets.without(routerId);
@@ -109,7 +110,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public int addRoute(final RouterId routerId, final Long remotePathId, final R route) {
+    public int addRoute(final RouterId routerId, final Uint32 remotePathId, final R route) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
             final RouterIdOffsets newOffsets = this.offsets.with(routerId);

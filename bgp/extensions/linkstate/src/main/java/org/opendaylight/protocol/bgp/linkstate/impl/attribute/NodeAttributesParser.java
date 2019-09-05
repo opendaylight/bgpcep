@@ -188,7 +188,7 @@ public final class NodeAttributesParser {
         if (topList != null) {
             final ByteBuf mpIdBuf = Unpooled.buffer();
             for (final TopologyIdentifier topologyIdentifier : topList) {
-                mpIdBuf.writeShort(topologyIdentifier.getValue());
+                mpIdBuf.writeShort(topologyIdentifier.getValue().toJava());
             }
             TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, mpIdBuf, byteAggregator);
         }

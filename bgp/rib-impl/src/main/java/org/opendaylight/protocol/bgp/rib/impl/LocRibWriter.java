@@ -66,6 +66,7 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +97,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private LocRibWriter(final RIBSupport<C, S, R, I> ribSupport,
             final TransactionChain chain,
             final KeyedInstanceIdentifier<Rib, RibKey> ribIId,
-            final Long ourAs,
+            final Uint32 ourAs,
             final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker peerTracker,
@@ -106,7 +107,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         this.ribIId = requireNonNull(ribIId);
         this.ribSupport = requireNonNull(ribSupport);
         this.locRibTableIID = ribIId.child(LocRib.class).child(Tables.class, ribSupport.getTablesKey());
-        this.ourAs = ourAs;
+        this.ourAs = ourAs.toJava();
         this.dataBroker = requireNonNull(dataBroker);
         this.peerTracker = peerTracker;
         this.pathSelectionMode = pathSelectionMode;

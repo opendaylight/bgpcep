@@ -17,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -57,7 +58,7 @@ final class NlriModelUtil {
 
     static EthernetTagId extractETI(final ContainerNode evpn) {
         final ContainerNode eti = (ContainerNode) evpn.getChild(ETI_NID).get();
-        return new EthernetTagIdBuilder().setVlanId((Long) eti.getChild(VLAN_NID).get().getValue()).build();
+        return new EthernetTagIdBuilder().setVlanId((Uint32) eti.getChild(VLAN_NID).get().getValue()).build();
     }
 
     static MacAddress extractMAC(final DataContainerNode<? extends PathArgument> evpn) {
@@ -75,7 +76,7 @@ final class NlriModelUtil {
     static MplsLabel extractMplsLabel(final DataContainerNode<? extends PathArgument> evpn,
             final NodeIdentifier mplsNid) {
         if (evpn.getChild(mplsNid).isPresent()) {
-            return new MplsLabel((Long) evpn.getChild(mplsNid).get().getValue());
+            return new MplsLabel((Uint32) evpn.getChild(mplsNid).get().getValue());
         }
         return null;
     }

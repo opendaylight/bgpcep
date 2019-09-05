@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class ActionsRegistryImpl {
     @GuardedBy("this")
@@ -126,7 +127,7 @@ final class ActionsRegistryImpl {
             final BgpActions bgpAction = augmentation.getBgpActions();
 
             final SetAsPathPrepend asPrependAction = bgpAction.getSetAsPathPrepend();
-            final Long localPrefPrependAction = bgpAction.getSetLocalPref();
+            final Uint32 localPrefPrependAction = bgpAction.getSetLocalPref();
             final BgpOriginAttrType localOriginAction = bgpAction.getSetRouteOrigin();
             final BgpSetMedType medAction = bgpAction.getSetMed();
             final BgpNextHopType nhAction = bgpAction.getSetNextHop();

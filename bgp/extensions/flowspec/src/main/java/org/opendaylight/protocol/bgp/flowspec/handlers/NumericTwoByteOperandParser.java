@@ -11,14 +11,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Iterator;
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericTwoByteValue;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
  * Parser class for NumericTwoByteValues.
  */
-public final class NumericTwoByteOperandParser extends AbstractNumericByteOperandParser<NumericTwoByteValue, Integer> {
+public final class NumericTwoByteOperandParser extends AbstractNumericByteOperandParser<NumericTwoByteValue, Uint16> {
 
     public static final NumericTwoByteOperandParser INSTANCE;
 
@@ -41,14 +41,14 @@ public final class NumericTwoByteOperandParser extends AbstractNumericByteOperan
         for (final Iterator<T> it = list.iterator(); it.hasNext(); ) {
             final T operand = it.next();
             final ByteBuf protoBuf = Unpooled.buffer();
-            Util.writeShortest(operand.getValue(), protoBuf);
+            Util.writeShortest(operand.getValue().toJava(), protoBuf);
             super.serialize(operand.getOp(), protoBuf.readableBytes(), !it.hasNext(), nlriByteBuf);
             nlriByteBuf.writeBytes(protoBuf);
         }
     }
 
     @Override
-    protected <T extends NumericTwoByteValue> Integer getValue(final T item) {
+    protected <T extends NumericTwoByteValue> Uint16 getValue(final T item) {
         return item.getValue();
     }
 

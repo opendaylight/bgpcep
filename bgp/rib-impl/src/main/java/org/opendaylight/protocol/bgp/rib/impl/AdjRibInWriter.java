@@ -203,8 +203,7 @@ final class AdjRibInWriter {
             final DOMDataTreeWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath
-                .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES_NID));
-        idb.nodeWithKey(instanceIdentifierKey.getNodeType(), instanceIdentifierKey.getKeyValues());
+                .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES_NID)).node(instanceIdentifierKey);
 
         final TableContext ctx = new TableContext(rs, idb.build());
         ctx.createEmptyTableStructure(tx);
@@ -221,7 +220,7 @@ final class AdjRibInWriter {
         final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt =
                 Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
-        for (final Entry<QName, Object> e : supTablesKey.getKeyValues().entrySet()) {
+        for (final Entry<QName, Object> e : supTablesKey.entrySet()) {
             tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
         if (sendReceive != null) {

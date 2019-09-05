@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import com.google.common.primitives.Ints;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
@@ -30,7 +29,7 @@ public class SimpleVendorInformationObjectRegistry implements VendorInformationO
 
     public Registration registerVendorInformationObjectParser(final EnterpriseNumber enterpriseNumber,
             final ObjectParser parser) {
-        return this.handlers.registerParser(Ints.checkedCast(enterpriseNumber.getValue()), parser);
+        return this.handlers.registerParser(enterpriseNumber.getValue().intValue(), parser);
     }
 
     public Registration registerVendorInformationObjectSerializer(
@@ -43,7 +42,7 @@ public class SimpleVendorInformationObjectRegistry implements VendorInformationO
     public Optional<? extends Object> parseVendorInformationObject(final EnterpriseNumber enterpriseNumber,
             final ObjectHeader header, final ByteBuf buffer)
             throws PCEPDeserializerException {
-        final ObjectParser parser = this.handlers.getParser(Ints.checkedCast(enterpriseNumber.getValue()));
+        final ObjectParser parser = this.handlers.getParser(enterpriseNumber.getValue().intValue());
         if (parser == null) {
             if (!header.isProcessingRule()) {
                 return Optional.empty();

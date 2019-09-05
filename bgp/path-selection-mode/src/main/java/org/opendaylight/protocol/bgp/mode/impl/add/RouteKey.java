@@ -14,15 +14,17 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yangtools.concepts.Immutable;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @NonNullByDefault
 final class RouteKey implements Comparable<RouteKey>, Immutable {
     private final RouterId routerId;
+    // FIXME: consider dropping this down to an int (but then note Compare() needs to treat it as unsigned)
     private final long remotePathId;
 
-    RouteKey(final RouterId routerId, final Long remotePathId) {
+    RouteKey(final RouterId routerId, final Uint32 remotePathId) {
         this.routerId = requireNonNull(routerId);
-        this.remotePathId = remotePathId.longValue();
+        this.remotePathId = remotePathId.toJava();
     }
 
     RouterId getRouterId() {

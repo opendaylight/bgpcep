@@ -138,7 +138,7 @@ final class BmpRibInWriter {
             }
             final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(yangTableRootIId);
             final NodeIdentifierWithPredicates key = TablesUtil.toYangTablesKey(k);
-            idb.nodeWithKey(key.getNodeType(), key.getKeyValues());
+            idb.nodeWithKey(key.getNodeType(), key.asMap());
             final TableContext ctx = new TableContext(rs, idb.build(), tree);
             ctx.createTable(tx);
 

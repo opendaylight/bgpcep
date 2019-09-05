@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +130,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
             } else {
                 buffer.writeZero(1);
             }
-            final Long staleTime = table.getLongLivedStaleTime();
+            final Uint32 staleTime = table.getLongLivedStaleTime();
             final int timeval = staleTime != null ? staleTime.intValue() : 0;
             checkArgument(timeval >= 0 && timeval <= MAX_STALE_TIME, "Restart time is %s", staleTime);
             buffer.writeMedium(timeval);
