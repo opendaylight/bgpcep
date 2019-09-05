@@ -26,6 +26,6 @@ public final class FourOctAsCommonECUtil {
 
     public static void serializeCommon(final As4SpecificCommon extComm, final ByteBuf body) {
         body.writeInt(extComm.getAsNumber().getValue().intValue());
-        ByteBufWriteUtil.writeUnsignedShort(extComm.getLocalAdministrator(), body);
+        ByteBufWriteUtil.writeUnsignedShort(extComm.getLocalAdministrator().toJava(), body);
     }
 }
