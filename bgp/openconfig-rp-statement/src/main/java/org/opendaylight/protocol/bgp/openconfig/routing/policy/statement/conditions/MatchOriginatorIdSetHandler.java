@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +61,8 @@ public final class MatchOriginatorIdSetHandler
         this.dataBroker = requireNonNull(dataBroker);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private OriginatorIdSet loadSets(final String key) throws ExecutionException, InterruptedException {
         final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
         final Optional<OriginatorIdSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
