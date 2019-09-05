@@ -44,7 +44,7 @@ public class BaseBestPathTest {
 
     @Test
     public void testGetPathId() {
-        assertEquals(NON_PATH_ID_VALUE, this.baseBestPath.getPathId());
+        assertEquals(NON_PATH_ID_VALUE.toJava(), this.baseBestPath.getPathId());
     }
 
     @Test

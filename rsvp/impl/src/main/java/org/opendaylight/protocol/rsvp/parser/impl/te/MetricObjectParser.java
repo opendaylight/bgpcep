@@ -51,7 +51,7 @@ public final class MetricObjectParser extends AbstractRSVPObjectParser {
         reflect.set(BOUND, metric.isBound());
         reflect.set(COMPUTED, metric.isComputed());
         reflect.toByteBuf(output);
-        output.writeByte(metric.getMetricType());
+        output.writeByte(metric.getMetricType().toJava());
         writeFloat32(metric.getValue(), output);
     }
 }

@@ -87,6 +87,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.UnnumberedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,11 +104,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
         private final TerminationPoint tp;
 
-        private TpHolder(final TerminationPoint tp) {
+        TpHolder(final TerminationPoint tp) {
             this.tp = requireNonNull(tp);
         }
 
-        private synchronized void addLink(final LinkId id, final boolean isRemote) {
+        synchronized void addLink(final LinkId id, final boolean isRemote) {
             if (isRemote) {
                 this.remote.add(id);
             } else {
@@ -115,7 +116,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             }
         }
 
-        private synchronized boolean removeLink(final LinkId id, final boolean isRemote) {
+        synchronized boolean removeLink(final LinkId id, final boolean isRemote) {
             final boolean removed;
             if (isRemote) {
                 removed = this.remote.remove(id);
@@ -129,7 +130,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             return this.local.isEmpty() && this.remote.isEmpty();
         }
 
-        private TerminationPoint getTp() {
+        TerminationPoint getTp() {
             return this.tp;
         }
     }
@@ -141,7 +142,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         private IgpNodeAttributesBuilder inab;
         private NodeBuilder nb;
 
-        private NodeHolder(final NodeId id) {
+        NodeHolder(final NodeId id) {
             this.inab = new IgpNodeAttributesBuilder();
             this.nb = new NodeBuilder().withKey(new NodeKey(id)).setNodeId(id);
         }
@@ -152,7 +153,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
          * @param trans data modification transaction which to use
          * @return True if the node has been purged, false otherwise.
          */
-        private boolean syncState(final WriteTransaction trans) {
+        boolean syncState(final WriteTransaction trans) {
             final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(this.nb.key());
 
             /*
@@ -185,7 +186,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             return false;
         }
 
-        private boolean checkForRemoval(final WriteTransaction trans) {
+        boolean checkForRemoval(final WriteTransaction trans) {
             final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(this.nb.key());
 
             if (!this.advertized) {
@@ -201,7 +202,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             return false;
         }
 
-        private synchronized void removeTp(final TpId tp, final LinkId link, final boolean isRemote) {
+        synchronized void removeTp(final TpId tp, final LinkId link, final boolean isRemote) {
             final TpHolder h = this.tps.get(tp);
             if (h != null) {
                 if (h.removeLink(link, isRemote)) {
@@ -213,34 +214,34 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             }
         }
 
-        private void addTp(final TerminationPoint tp, final LinkId link, final boolean isRemote) {
+        void addTp(final TerminationPoint tp, final LinkId link, final boolean isRemote) {
             final TpHolder h = this.tps.computeIfAbsent(tp.getTpId(), k -> new TpHolder(tp));
             h.addLink(link, isRemote);
         }
 
-        private void addPrefix(final Prefix pfx) {
+        void addPrefix(final Prefix pfx) {
             this.prefixes.put(pfx.key(), pfx);
         }
 
-        private void removePrefix(final PrefixCase prefixCase) {
+        void removePrefix(final PrefixCase prefixCase) {
             this.prefixes.remove(new PrefixKey(prefixCase.getPrefixDescriptors().getIpReachabilityInformation()));
         }
 
-        private void unadvertized() {
+        void unadvertized() {
             this.inab = new IgpNodeAttributesBuilder();
             this.nb = new NodeBuilder().withKey(this.nb.key()).setNodeId(this.nb.getNodeId());
             this.advertized = false;
             LOG.debug("Node {} is unadvertized", this.nb.getNodeId());
         }
 
-        private void advertized(final NodeBuilder nodeBuilder, final IgpNodeAttributesBuilder igpNodeAttBuilder) {
+        void advertized(final NodeBuilder nodeBuilder, final IgpNodeAttributesBuilder igpNodeAttBuilder) {
             this.nb = requireNonNull(nodeBuilder);
             this.inab = requireNonNull(igpNodeAttBuilder);
             this.advertized = true;
             LOG.debug("Node {} is advertized", nodeBuilder.getNodeId());
         }
 
-        private NodeId getNodeId() {
+        NodeId getNodeId() {
             return this.nb.getNodeId();
         }
     }
@@ -274,7 +275,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
     private static TpId buildTpId(final UriBuilder base, final TopologyIdentifier topologyIdentifier,
             final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier,
-            final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final Long id) {
+            final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final Uint32 id) {
         final UriBuilder b = new UriBuilder(base, "tp");
         if (topologyIdentifier != null) {
             b.add("mt", topologyIdentifier.getValue());
@@ -309,7 +310,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     }
 
     private static TerminationPointType getTpType(final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier,
-            final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final Long id) {
+            final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final Uint32 id) {
         // Order of preference: Unnumbered first, then IP
         if (id != null) {
             LOG.debug("Unnumbered termination point type: {}", id);

@@ -144,14 +144,14 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
             properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
             this.serviceRegistration = bean.bundleContext
                     .registerService(DefaultTopologyReference.class.getName(), this.pcepTopoProvider, properties);
-            LOG.info("PCEP Topology Provider service {} registered", getIdentifier().getValue());
+            LOG.info("PCEP Topology Provider service {} registered", getIdentifier().getName());
             this.cssRegistration = bean.cssp.registerClusterSingletonService(this);
         }
 
         @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
         public synchronized void instantiateServiceInstance() {
-            LOG.info("PCEP Topology Provider Singleton Service {} instantiated", getIdentifier().getValue());
+            LOG.info("PCEP Topology Provider Singleton Service {} instantiated", getIdentifier().getName());
             try {
                 this.pcepTopoProvider.instantiateServiceInstance();
             } catch (final Exception e) {
@@ -162,7 +162,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
         @Override
         public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-            LOG.info("Close PCEP Topology Provider Singleton Service {}", getIdentifier().getValue());
+            LOG.info("Close PCEP Topology Provider Singleton Service {}", getIdentifier().getName());
             if (this.serviceInstantiated) {
                 this.serviceInstantiated = false;
                 return this.pcepTopoProvider.closeServiceInstance();

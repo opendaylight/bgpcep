@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PCCTunnelBuilder {
     static final int PCC_DELEGATION = -1;
@@ -36,7 +37,7 @@ final class PCCTunnelBuilder {
     static Map<PlspId, PCCTunnel> createTunnels(final String address, final int lsps) {
         final Map<PlspId, PCCTunnel> tunnels = new HashMap<>();
         for (int i = 1; i <= lsps; i++) {
-            final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, i),
+            final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, Uint32.valueOf(i)),
                     PCC_DELEGATION, LspType.PCC_LSP, createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP)));
             tunnels.put(new PlspId((long) i), tunnel);
         }

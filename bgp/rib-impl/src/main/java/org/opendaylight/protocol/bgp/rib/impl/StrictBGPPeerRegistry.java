@@ -338,7 +338,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
 
         boolean hasHigherAsNumber(final BGPSessionId other) {
-            return this.asNumber.getValue() > other.asNumber.getValue();
+            return this.asNumber.getValue().compareTo(other.asNumber.getValue()) > 0;
         }
 
         private static long toLong(final Ipv4Address from) {

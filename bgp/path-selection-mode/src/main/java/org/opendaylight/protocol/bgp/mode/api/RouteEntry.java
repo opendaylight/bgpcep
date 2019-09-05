@@ -24,6 +24,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * A single route entry inside a route table. Maintains the attributes of
@@ -41,7 +42,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param remotePathId remote path Id received
      * @return return true if it was the last route on entry
      */
-    boolean removeRoute(@NonNull RouterId routerId, Long remotePathId);
+    boolean removeRoute(@NonNull RouterId routerId, Uint32 remotePathId);
 
     /**
      * Indicates whether best has changed.
@@ -59,7 +60,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param route        route Data change
      * @return returns the offset
      */
-    int addRoute(@NonNull RouterId routerId, Long remotePathId, @NonNull R route);
+    int addRoute(@NonNull RouterId routerId, Uint32 remotePathId, @NonNull R route);
 
     /**
      * Returns collections of present selected best path.
