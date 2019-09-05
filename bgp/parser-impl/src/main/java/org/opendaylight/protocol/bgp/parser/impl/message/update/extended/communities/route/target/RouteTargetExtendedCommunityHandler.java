@@ -36,7 +36,7 @@ public final class RouteTargetExtendedCommunityHandler {
     }
 
     public static void serialize(final RouteTargetExtendedCommunity routeTarget, final ByteBuf byteAggregator) {
-        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(routeTarget.getGlobalAdministrator().getValue()),
+        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(routeTarget.getGlobalAdministrator().getValue().toJava()),
                 byteAggregator);
         byteAggregator.writeBytes(routeTarget.getLocalAdministrator());
     }

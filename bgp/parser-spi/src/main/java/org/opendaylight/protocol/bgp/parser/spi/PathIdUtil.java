@@ -39,8 +39,11 @@ public final class PathIdUtil {
      * @param buffer The ByteBuf where path-id value can be written.
      */
     public static void writePathId(final PathId pathId, final ByteBuf buffer) {
-        if (pathId != null && pathId.getValue() != 0) {
-            ByteBufWriteUtil.writeUnsignedInt(pathId.getValue(), buffer);
+        if (pathId != null) {
+            final long value = pathId.getValue().toJava();
+            if (value != 0) {
+                ByteBufWriteUtil.writeUnsignedInt(value, buffer);
+            }
         }
     }
 
