@@ -18,7 +18,7 @@ public final class BesthPathStateUtil {
     public static long getPeerAs(final List<Segments> segments) {
         for (final Segments seg : segments) {
             if (seg.getAsSequence() != null && !seg.getAsSequence().isEmpty()) {
-                return segments.get(0).getAsSequence().get(0).getValue();
+                return segments.get(0).getAsSequence().get(0).getValue().toJava();
             }
         }
         return 0;
