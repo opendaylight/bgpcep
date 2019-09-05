@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.RepliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObjectBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractMessageParserTest {
@@ -71,8 +72,8 @@ public class AbstractMessageParserTest {
                     new PcrepMessageBuilder().setReplies(Arrays.asList(repsBuilder.build())).build())
                         .build();
             } else if (objects.get(0) instanceof ErrorObject) {
-                final short errorType = ((ErrorObject) objects.get(0)).getType();
-                final short errorValue = ((ErrorObject) objects.get(0)).getValue();
+                final Uint8 errorType = ((ErrorObject) objects.get(0)).getType();
+                final Uint8 errorValue = ((ErrorObject) objects.get(0)).getValue();
                 return createErrorMsg(PCEPErrors.forValue(errorType, errorValue), Optional.empty());
             }
             return null;

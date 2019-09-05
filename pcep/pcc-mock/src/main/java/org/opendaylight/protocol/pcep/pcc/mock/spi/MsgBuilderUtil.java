@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.pcep.pcc.mock.spi;
 
 import com.google.common.collect.Lists;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class MsgBuilderUtil {
 
@@ -132,7 +132,7 @@ public final class MsgBuilderUtil {
 
     public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
             final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName,
-            final Optional<BigInteger> lspDBVersion) {
+            final Optional<Uint64> lspDBVersion) {
         final TlvsBuilder tlvs = new TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
                 .setLspId(new LspId(lspId))
                 .setAddressFamily(
@@ -160,9 +160,9 @@ public final class MsgBuilderUtil {
         return tlvs.build();
     }
 
-    public static Optional<Tlvs> createLspTlvsEndofSync(final @NonNull BigInteger bigInteger) {
+    public static Optional<Tlvs> createLspTlvsEndofSync(final @NonNull Uint64 dbVersion) {
         final Tlvs tlvs = new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setLspDbVersion(
-            new LspDbVersionBuilder().setLspDbVersionValue(bigInteger).build()).build()).build();
+            new LspDbVersionBuilder().setLspDbVersionValue(dbVersion).build()).build()).build();
         return Optional.of(tlvs);
     }
 

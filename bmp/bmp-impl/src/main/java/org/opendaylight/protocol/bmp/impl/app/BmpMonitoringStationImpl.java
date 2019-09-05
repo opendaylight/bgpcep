@@ -79,7 +79,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
                 bmpDeployerDependencies.getExtensions(), bmpDeployerDependencies.getTree());
 
         LOG.info("BMP Monitor Singleton Service {} registered, Monitor Id {}",
-                getIdentifier().getValue(), this.monitorId.getValue());
+                getIdentifier().getName(), this.monitorId.getValue());
         this.singletonServiceRegistration = bmpDeployerDependencies.getClusterSingletonProvider()
                 .registerClusterSingletonService(this);
     }
@@ -87,7 +87,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     @Override
     public synchronized void instantiateServiceInstance() {
         LOG.info("BMP Monitor Singleton Service {} instantiated, Monitor Id {}",
-                getIdentifier().getValue(), this.monitorId.getValue());
+                getIdentifier().getName(), this.monitorId.getValue());
 
         final ChannelFuture channelFuture = this.dispatcher.createServer(this.address, this.sessionManager,
                 constructKeys(this.monitoredRouters));
@@ -107,7 +107,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("BMP Monitor Singleton Service {} instance closed, Monitor Id {}",
-                getIdentifier().getValue(), this.monitorId.getValue());
+                getIdentifier().getName(), this.monitorId.getValue());
         if (this.channel != null) {
             this.channel.close().addListener((ChannelFutureListener) future -> {
                 Preconditions.checkArgument(future.isSuccess(),

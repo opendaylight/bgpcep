@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Map;
@@ -26,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.path.binding.tlv.path.binding.binding.type.value.MplsLabelEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.path.binding.tlv.path.binding.binding.type.value.MplsLabelEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
-import org.opendaylight.yangtools.concepts.Codec;
+import org.opendaylight.yangtools.concepts.IllegalArgumentCodec;
 
 /**
  * Parser for {@link PathBinding}.
@@ -133,9 +134,9 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
             final MplsLabelEntry mplsEntry = (MplsLabelEntry) bindingValue;
             final ByteBuf value = Unpooled.buffer(MPLS_ENTRY_LENGTH);
             final long entry = getMplsStackEntry(mplsEntry.getLabel())
-                    | mplsEntry.getTrafficClass() << TC_SHIFT
+                    | mplsEntry.getTrafficClass().toJava() << TC_SHIFT
                     | (mplsEntry.isBottomOfStack() ? 1 : 0) << S_SHIFT
-                    | mplsEntry.getTimeToLive();
+                    | mplsEntry.getTimeToLive().toJava();
             ByteBufWriteUtil.writeUnsignedInt(entry, value);
             return value;
         }
@@ -157,19 +158,22 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         }
     }
 
-    private interface PathBindingTlvCodec extends Codec<ByteBuf, BindingTypeValue> {
+    private interface PathBindingTlvCodec extends IllegalArgumentCodec<ByteBuf, BindingTypeValue> {
         int getBindingType();
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel
         getMplsLabel(final long mplsStackEntry) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125
                 .MplsLabel(mplsStackEntry >> LABEL_SHIFT & LABEL_MASK);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static long getMplsStackEntry(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network
             .concepts.rev131125.MplsLabel mplsLabel) {
-        return mplsLabel.getValue() << LABEL_SHIFT;
+        return mplsLabel.getValue().toJava() << LABEL_SHIFT;
     }
-
 }
