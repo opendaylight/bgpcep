@@ -16,12 +16,14 @@ import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.Unnumbered;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class CUISubobjectParserTest {
-    private final Long routerId = 3735928559L;
-    private final Long interfaceId = 3736059631L;
-    private final Unnumbered unnumbered1 = new UnnumberedBuilder().setRouterId(null).build();
-    private final Unnumbered unnumbered2 = new UnnumberedBuilder().setRouterId(1L).setInterfaceId(null).build();
+    private final Uint32 routerId = Uint32.valueOf(3735928559L);
+    private final Uint32 interfaceId = Uint32.valueOf(3736059631L);
+    private final Unnumbered unnumbered1 = new UnnumberedBuilder().setRouterId((Uint32) null).build();
+    private final Unnumbered unnumbered2 = new UnnumberedBuilder().setRouterId(Uint32.ONE).setInterfaceId((Uint32) null)
+            .build();
 
     @Test
     public void testProcessing() {

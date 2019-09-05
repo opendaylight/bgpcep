@@ -12,6 +12,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
@@ -73,6 +74,8 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void updatePcepStats() {
         final WriteTransaction tx = TopologyStatsProviderImpl.this.transactionChain.newWriteOnlyTransaction();
 

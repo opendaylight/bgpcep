@@ -53,6 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -140,9 +142,9 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
         nodeBuilder.setIsIsRouterIdentifier(isisRouterId.build());
 
         if (pseudoIsisNode.getChild(PSN_NID).isPresent()) {
-            nodeBuilder.setPsn((Short) pseudoIsisNode.getChild(PSN_NID).get().getValue());
+            nodeBuilder.setPsn((Uint8) pseudoIsisNode.getChild(PSN_NID).get().getValue());
         } else {
-            nodeBuilder.setPsn((short) 0);
+            nodeBuilder.setPsn(Uint8.ZERO);
         }
 
         return new IsisPseudonodeCaseBuilder().setIsisPseudonode(nodeBuilder.build()).build();
@@ -152,7 +154,7 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
         final OspfNodeCaseBuilder builder = new OspfNodeCaseBuilder();
         if (ospf.getChild(OSPF_ROUTER_NID).isPresent()) {
             final OspfNodeBuilder nodeBuilder = new OspfNodeBuilder();
-            nodeBuilder.setOspfRouterId((Long) ospf.getChild(OSPF_ROUTER_NID).get().getValue());
+            nodeBuilder.setOspfRouterId((Uint32) ospf.getChild(OSPF_ROUTER_NID).get().getValue());
             builder.setOspfNode(nodeBuilder.build());
         }
         return builder.build();
@@ -162,11 +164,11 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
         final OspfPseudonodeCaseBuilder builder = new OspfPseudonodeCaseBuilder();
         final OspfPseudonodeBuilder nodeBuilder = new OspfPseudonodeBuilder();
         if (ospfPseudonode.getChild(LAN_IFACE_NID).isPresent()) {
-            nodeBuilder.setLanInterface(new OspfInterfaceIdentifier((Long)ospfPseudonode.getChild(LAN_IFACE_NID)
+            nodeBuilder.setLanInterface(new OspfInterfaceIdentifier((Uint32)ospfPseudonode.getChild(LAN_IFACE_NID)
                     .get().getValue()));
         }
         if (ospfPseudonode.getChild(OSPF_ROUTER_NID).isPresent()) {
-            nodeBuilder.setOspfRouterId((Long)ospfPseudonode.getChild(OSPF_ROUTER_NID).get().getValue());
+            nodeBuilder.setOspfRouterId((Uint32)ospfPseudonode.getChild(OSPF_ROUTER_NID).get().getValue());
         }
         builder.setOspfPseudonode(nodeBuilder.build());
         return builder.build();
@@ -193,17 +195,17 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
 
     private static AsNumber serializeAsNumber(final ContainerNode descriptorsData) {
         return descriptorsData.getChild(AS_NUMBER_NID).map(
-            dataContainerChild -> new AsNumber((Long) dataContainerChild.getValue())).orElse(null);
+            dataContainerChild -> new AsNumber((Uint32) dataContainerChild.getValue())).orElse(null);
     }
 
     private static DomainIdentifier serializeDomainId(final ContainerNode descriptorsData) {
         return descriptorsData.getChild(DOMAIN_NID).map(
-            dataContainerChild -> new DomainIdentifier((Long) dataContainerChild.getValue())).orElse(null);
+            dataContainerChild -> new DomainIdentifier((Uint32) dataContainerChild.getValue())).orElse(null);
     }
 
     private static AreaIdentifier serializeAreaId(final ContainerNode descriptorsData) {
         return descriptorsData.getChild(AREA_NID).map(
-            dataContainerChild -> new AreaIdentifier((Long) dataContainerChild.getValue())).orElse(null);
+            dataContainerChild -> new AreaIdentifier((Uint32) dataContainerChild.getValue())).orElse(null);
     }
 
     private static Ipv4Address serializeBgpRouterId(final ContainerNode descriptorsData) {
@@ -213,7 +215,7 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
 
     private static AsNumber serializeMemberAsn(final ContainerNode descriptorsData) {
         return descriptorsData.getChild(MEMBER_ASN_NID).map(
-            dataContainerChild -> new AsNumber((Long) dataContainerChild.getValue())).orElse(null);
+            dataContainerChild -> new AsNumber((Uint32) dataContainerChild.getValue())).orElse(null);
     }
 
     static LocalNodeDescriptors serializeLocalNodeDescriptors(final ContainerNode descriptorsData) {

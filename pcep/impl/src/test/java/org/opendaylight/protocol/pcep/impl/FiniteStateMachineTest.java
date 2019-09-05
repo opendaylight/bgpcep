@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
@@ -153,8 +154,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
             for (final Notification m : this.msgsSend) {
                 if (m instanceof Pcerr) {
                     final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
-                    assertEquals(new Short((short) 1), obj.getErrorObject().getType());
-                    assertEquals(new Short((short) 1), obj.getErrorObject().getValue());
+                    assertEquals(Uint8.ONE, obj.getErrorObject().getType());
+                    assertEquals(Uint8.ONE, obj.getErrorObject().getValue());
                 }
             }
         });
@@ -175,8 +176,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
             for (final Notification m : this.msgsSend) {
                 if (m instanceof Pcerr) {
                     final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
-                    assertEquals(new Short((short) 1), obj.getErrorObject().getType());
-                    assertEquals(new Short((short) 7), obj.getErrorObject().getValue());
+                    assertEquals(Uint8.ONE, obj.getErrorObject().getType());
+                    assertEquals(Uint8.valueOf(7), obj.getErrorObject().getValue());
                 }
             }
         });
@@ -196,8 +197,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
             for (final Notification m : this.msgsSend) {
                 if (m instanceof Pcerr) {
                     final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
-                    assertEquals(new Short((short) 1), obj.getErrorObject().getType());
-                    assertEquals(new Short((short) 2), obj.getErrorObject().getValue());
+                    assertEquals(Uint8.ONE, obj.getErrorObject().getType());
+                    assertEquals(Uint8.valueOf(2), obj.getErrorObject().getValue());
                 }
             }
         });

@@ -169,13 +169,13 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
         this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
                 new InstructionsQueueKey(this.instructionId)).build();
         this.sgi = ServiceGroupIdentifier.create(this.instructionId + "-service-group");
-        LOG.info("Creating Programming Service {}.", this.sgi.getValue());
+        LOG.info("Creating Programming Service {}.", this.sgi.getName());
         this.csspReg = cssp.registerClusterSingletonService(this);
     }
 
     @Override
     public synchronized void instantiateServiceInstance() {
-        LOG.info("Instruction Queue service {} instantiated", this.sgi.getValue());
+        LOG.info("Instruction Queue service {} instantiated", this.sgi.getName());
         this.reg = this.rpcProviderRegistry.registerRpcImplementation(ProgrammingService.class, this);
 
         final WriteTransaction wt = this.dataProvider.newWriteOnlyTransaction();
@@ -329,7 +329,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
 
         // First things first: check the deadline
         final Nanotime now = NanotimeUtil.currentTime();
-        final BigInteger left = input.getDeadline().getValue().subtract(now.getValue());
+        final BigInteger left = input.getDeadline().getValue().toJava().subtract(now.getValue().toJava());
 
         if (left.compareTo(BigInteger.ZERO) <= 0) {
             LOG.debug("Instruction {} deadline has already passed by {}ns", id, left);
@@ -417,7 +417,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        LOG.info("Closing Instruction Queue service {}", this.sgi.getValue());
+        LOG.info("Closing Instruction Queue service {}", this.sgi.getName());
 
         if (this.reg != null) {
             this.reg.close();

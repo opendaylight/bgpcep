@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCaseBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int UNNUMBERED_ERO = 1165;
@@ -55,7 +56,7 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
         return builder.build();
     }
 
-    static ByteBuf serializeUnnumberedIdEro(final Boolean loose, final Long routerId, final Long interfaceId) {
+    static ByteBuf serializeUnnumberedIdEro(final Boolean loose, final Uint32 routerId, final Uint32 interfaceId) {
         final ByteBuf buffer = Unpooled.buffer();
         Ipv4EroParser.serializeEroFlags(buffer, loose);
         buffer.writeInt(routerId.intValue());

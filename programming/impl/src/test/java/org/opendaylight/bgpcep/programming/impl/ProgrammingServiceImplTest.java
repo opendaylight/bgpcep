@@ -224,7 +224,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final BigInteger deadlineOffset = BigInteger.valueOf(
                 1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
-        final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
+        final Nanotime deadlineNano = new Nanotime(current.getValue().toJava().add(deadlineOffset));
 
         final Optional<Nanotime> deadline = Optional.of(deadlineNano);
         final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
@@ -244,7 +244,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final BigInteger deadlineOffset = BigInteger.valueOf(
                 1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
-        final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
+        final Nanotime deadlineNano = new Nanotime(current.getValue().toJava().add(deadlineOffset));
 
         final Optional<Nanotime> deadline = Optional.of(deadlineNano);
         final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
@@ -269,7 +269,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final BigInteger deadlineOffset = BigInteger.valueOf(
                 1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
-        final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
+        final Nanotime deadlineNano = new Nanotime(current.getValue().toJava().add(deadlineOffset));
 
         final Optional<Nanotime> deadline = Optional.of(deadlineNano);
         final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);

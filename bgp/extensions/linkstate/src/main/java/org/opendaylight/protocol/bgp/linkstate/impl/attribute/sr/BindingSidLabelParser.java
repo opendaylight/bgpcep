@@ -68,7 +68,7 @@ public final class BindingSidLabelParser {
 
     public static void serializeBindingSidAttributes(final Weight weight, final Flags flags,
             final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
-        aggregator.writeByte(weight.getValue());
+        aggregator.writeByte(weight.getValue().toJava());
         final BitArray bitFlags = serializeBindingSidFlags(flags);
         bitFlags.toByteBuf(aggregator);
         aggregator.writeZero(RESERVED_BINDING_SID);

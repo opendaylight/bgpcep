@@ -56,7 +56,7 @@ final class PCEPTopologyProviderUtil {
     }
 
     static InetSocketAddress getInetSocketAddress(final @NonNull IpAddress address, final @NonNull PortNumber port) {
-        return new InetSocketAddress(IetfInetUtil.INSTANCE.inetAddressFor(address), port.getValue());
+        return new InetSocketAddress(IetfInetUtil.INSTANCE.inetAddressFor(address), port.getValue().toJava());
     }
 
     static boolean filterPcepTopologies(final @Nullable TopologyTypes topologyTypes) {

@@ -23,6 +23,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +50,8 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
         final Notify ntf = (Notify) msg;
 
         final ByteBuf msgBody = Unpooled.buffer()
-                .writeByte(ntf.getErrorCode())
-                .writeByte(ntf.getErrorSubcode());
+                .writeByte(ntf.getErrorCode().toJava())
+                .writeByte(ntf.getErrorSubcode().toJava());
         final byte[] data = ntf.getData();
         if (data != null) {
             msgBody.writeBytes(data);
@@ -76,10 +77,10 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
         if (body.readableBytes() < ERROR_SIZE) {
             throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
         }
-        final int errorCode = body.readUnsignedByte();
-        final int errorSubcode = body.readUnsignedByte();
+        final Uint8 errorCode = Uint8.valueOf(body.readUnsignedByte());
+        final Uint8 errorSubcode = Uint8.valueOf(body.readUnsignedByte());
         final NotifyBuilder builder = new NotifyBuilder()
-                .setErrorCode((short) errorCode).setErrorSubcode((short) errorSubcode);
+                .setErrorCode(errorCode).setErrorSubcode(errorSubcode);
         if (body.isReadable()) {
             builder.setData(ByteArray.readAllBytes(body));
         }

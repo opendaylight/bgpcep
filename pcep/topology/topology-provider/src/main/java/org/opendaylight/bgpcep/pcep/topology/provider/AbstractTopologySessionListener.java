@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.FutureListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -447,7 +448,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         final List<Path> updatedPaths;
         //lspId = 0 and remove = false -> tunnel is down, still exists but no path is signaled
         //remove existing tunnel's paths now, as explicit path remove will not come
-        if (!remove && reportedLspId.getValue() == 0) {
+        if (!remove && reportedLspId.getValue().toJava() == 0) {
             updatedPaths = new ArrayList<>();
             LOG.debug("Remove previous paths {} to this lsp name {}", previous.getPath(), name);
         } else {
@@ -456,7 +457,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
             for (final Path path : previous.getPath()) {
                 //we found reported path in previous reports
-                if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
+                if (path.getLspId().getValue().toJava() == 0 || path.getLspId().equals(reportedLspId)) {
                     LOG.debug("Match on lsp-id {}", path.getLspId().getValue());
                     // path that was reported previously and does have the same lsp-id, path will be updated
                     final boolean r = updatedPaths.remove(path);
@@ -470,7 +471,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         LOG.trace("Adding new path {} to {}", rlb.getPath(), updatedPaths);
         updatedPaths.addAll(rlb.getPath());
         if (remove) {
-            if (reportedLspId.getValue() == 0) {
+            if (reportedLspId.getValue().toJava() == 0) {
                 // if lsp-id also 0, remove all paths
                 LOG.debug("Removing all paths.");
                 updatedPaths.clear();
@@ -633,6 +634,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             this.requests.add(req);
         }
 
+        @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+                justification = "https://github.com/spotbugs/spotbugs/issues/811")
         private void notifyRequests() {
             for (final PCEPRequest r : this.requests) {
                 r.done(OperationResults.SUCCESS);

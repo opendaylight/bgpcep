@@ -22,6 +22,7 @@ import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupTypeBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
 
@@ -33,15 +34,15 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
     private static final short RSVP_TE_PST = 0;
     private static final String UNSUPPORTED_PST = "Unsupported path setup type.";
 
-    private static final Set<Short> PSTS = new HashSet<>();
+    private static final Set<Uint8> PSTS = new HashSet<>();
 
     public PathSetupTypeTlvParser() {
-        PSTS.add(RSVP_TE_PST);
+        PSTS.add(Uint8.valueOf(RSVP_TE_PST));
     }
 
     public PathSetupTypeTlvParser(final short srTePst) {
         this();
-        PSTS.add(srTePst);
+        PSTS.add(Uint8.valueOf(srTePst));
     }
 
     @Override
@@ -60,14 +61,14 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
         if (buffer == null) {
             return null;
         }
-        final short pst = buffer.readerIndex(OFFSET).readUnsignedByte();
+        final Uint8 pst = Uint8.valueOf(buffer.readerIndex(OFFSET).readUnsignedByte());
         if (!checkPST(pst)) {
             throw new PCEPDeserializerException(UNSUPPORTED_PST);
         }
         return new PathSetupTypeBuilder().setPst(pst).build();
     }
 
-    private static boolean checkPST(final Short pst) {
+    private static boolean checkPST(final Uint8 pst) {
         return pst != null && PSTS.contains(pst);
     }
 }

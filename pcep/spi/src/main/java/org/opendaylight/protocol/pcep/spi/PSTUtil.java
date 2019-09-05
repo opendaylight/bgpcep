@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class PSTUtil {
     private PSTUtil() {
@@ -20,8 +21,11 @@ public final class PSTUtil {
      * @return true if setup is via RSVP-TE signaling protocol
      */
     public static boolean isDefaultPST(final PathSetupType pst) {
-        if (pst != null && pst.getPst() != null && pst.getPst() != 0) {
-            return false;
+        if (pst != null) {
+            final Uint8 value = pst.getPst();
+            if (value != null && value.toJava() != 0) {
+                return false;
+            }
         }
         return true;
     }
