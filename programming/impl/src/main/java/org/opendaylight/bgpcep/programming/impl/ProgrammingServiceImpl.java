@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import java.math.BigInteger;
@@ -386,6 +387,8 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
         instruction.timeout();
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void tryScheduleDependants(final InstructionImpl instruction) {
         // Walk all dependants and try to schedule them
         final Iterator<InstructionImpl> it = instruction.getDependants();
