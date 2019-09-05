@@ -212,7 +212,7 @@ public final class Ipv4Util {
      */
     public static InetSocketAddress toInetSocketAddress(final IpAddress ipAddress, final PortNumber port) {
         final String ipString = toStringIP(ipAddress);
-        return new InetSocketAddress(InetAddresses.forString(ipString), port.getValue());
+        return new InetSocketAddress(InetAddresses.forString(ipString), port.getValue().toJava());
     }
 
     /**

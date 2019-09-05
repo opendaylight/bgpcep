@@ -35,7 +35,7 @@ public abstract class AbstractRSVPObjectParser implements RSVPTeObjectSerializer
     }
 
     protected static void writeAttributeFilter(final AttributeFilter attributeFilter, final ByteBuf body) {
-        writeUnsignedInt(attributeFilter != null ? attributeFilter.getValue() : null, body);
+        writeUnsignedInt(attributeFilter != null ? attributeFilter.getValue().toJava() : null, body);
     }
 
     @Override

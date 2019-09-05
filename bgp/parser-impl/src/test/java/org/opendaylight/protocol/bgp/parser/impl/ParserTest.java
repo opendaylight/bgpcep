@@ -280,8 +280,8 @@ public class ParserTest {
         Notification msg = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
 
         assertTrue(msg instanceof Notify);
-        assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, BGPError.forValue(((Notify) msg).getErrorCode(),
-            ((Notify) msg).getErrorSubcode()));
+        assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, BGPError.forValue(((Notify) msg).getErrorCode().toJava(),
+            ((Notify) msg).getErrorSubcode().toJava()));
         assertArrayEquals(new byte[] { 4, 9 }, ((Notify) msg).getData());
 
         notMsg = new NotifyBuilder().setErrorCode(BGPError.CONNECTION_NOT_SYNC.getCode()).setErrorSubcode(
@@ -294,8 +294,8 @@ public class ParserTest {
         msg = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
 
         assertTrue(msg instanceof Notify);
-        assertEquals(BGPError.CONNECTION_NOT_SYNC, BGPError.forValue(((Notify) msg).getErrorCode(),
-            ((Notify) msg).getErrorSubcode()));
+        assertEquals(BGPError.CONNECTION_NOT_SYNC, BGPError.forValue(((Notify) msg).getErrorCode().toJava(),
+            ((Notify) msg).getErrorSubcode().toJava()));
         assertNull(((Notify) msg).getData());
     }
 

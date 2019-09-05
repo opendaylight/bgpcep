@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -139,9 +140,8 @@ public final class RouteTargetConstrainRIBSupport
         final RouteTargetConstrainDestinationBuilder builder = new RouteTargetConstrainDestinationBuilder()
                 .setPathId(PathIdUtil.buildPathId(rtDest, routePathIdNid()))
                 .setRouteTargetConstrainChoice(extractRouteTargetChoice(rtDest));
-        final Optional<Object> originAs = NormalizedNodes
-                .findNode(rtDest, this.originAsNid).map(NormalizedNode::getValue);
-        originAs.ifPresent(o -> builder.setOriginAs(new AsNumber((Long) o)));
+        NormalizedNodes.findNode(rtDest, this.originAsNid).map(NormalizedNode::getValue)
+            .ifPresent(o -> builder.setOriginAs(new AsNumber((Uint32) o)));
         return builder.build();
     }
 

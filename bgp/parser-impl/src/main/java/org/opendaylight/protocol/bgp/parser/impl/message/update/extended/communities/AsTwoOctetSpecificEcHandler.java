@@ -44,7 +44,7 @@ public class AsTwoOctetSpecificEcHandler extends AbstractTwoOctetAsExtendedCommu
                 extendedCommunity);
         final AsSpecificExtendedCommunity asSpecific = ((AsSpecificExtendedCommunityCase) extendedCommunity)
                 .getAsSpecificExtendedCommunity();
-        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(asSpecific.getGlobalAdministrator().getValue()),
+        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(asSpecific.getGlobalAdministrator().getValue().toJava()),
                 byteAggregator);
         byteAggregator.writeBytes(asSpecific.getLocalAdministrator());
     }
