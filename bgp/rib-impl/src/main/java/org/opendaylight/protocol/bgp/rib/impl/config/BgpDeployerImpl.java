@@ -16,6 +16,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -117,6 +118,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         LOG.info("BGP Deployer {} started.", this.networkInstanceName);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private Optional<PeerGroup> loadPeerGroup(final InstanceIdentifier<PeerGroup> peerGroupIid)
             throws ExecutionException, InterruptedException {
         final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
