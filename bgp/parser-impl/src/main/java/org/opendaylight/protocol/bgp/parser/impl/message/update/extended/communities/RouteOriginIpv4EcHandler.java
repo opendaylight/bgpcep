@@ -31,7 +31,7 @@ public final class RouteOriginIpv4EcHandler extends AbstractIpv4ExtendedCommunit
                 "The extended community %s is not RouteOriginIpv4Case type.", extendedCommunity);
         final RouteOriginIpv4 routeTarget = ((RouteOriginIpv4Case) extendedCommunity).getRouteOriginIpv4();
         ByteBufWriteUtil.writeIpv4Address(routeTarget.getGlobalAdministrator(), byteAggregator);
-        ByteBufWriteUtil.writeUnsignedShort(routeTarget.getLocalAdministrator(), byteAggregator);
+        ByteBufWriteUtil.writeUnsignedShort(routeTarget.getLocalAdministrator().toJava(), byteAggregator);
     }
 
     @Override
