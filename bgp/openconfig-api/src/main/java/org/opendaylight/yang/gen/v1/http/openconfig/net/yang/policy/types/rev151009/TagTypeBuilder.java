@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009;
 
-import com.google.common.primitives.UnsignedInts;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * The purpose of generated class in src/main/java for Union types is to create new instances of unions from a string representation.
@@ -24,9 +23,8 @@ public class TagTypeBuilder {
 
     public static TagType getDefaultInstance(final java.lang.String defaultValue) {
         try {
-            final long parseUnsignedInt = UnsignedInts.parseUnsignedInt(defaultValue);
-            return new TagType(parseUnsignedInt);
-        } catch (final NumberFormatException e) {
+            return new TagType(Uint32.valueOf(defaultValue));
+        } catch (final IllegalArgumentException e) {
             return new TagType(new HexString(defaultValue));
         }
     }

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.benchmark.app;
 
 import static java.util.Objects.requireNonNull;
@@ -74,6 +73,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,7 +188,8 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         return this.routesIId;
     }
 
-    private long addRoute(final Ipv4Prefix ipv4Prefix, final Ipv4Address nextHop, final long count, final long batch) {
+    private long addRoute(final Ipv4Prefix ipv4Prefix, final Ipv4Address nextHop, final Uint32 count,
+            final Uint32 batch) {
         final AttributesBuilder attributesBuilder = new AttributesBuilder();
         attributesBuilder.setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4Address(nextHop)).build()).build());
@@ -200,16 +201,18 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         return processRoutes(ipv4Prefix, count, batch, attributes);
     }
 
-    private long deleteRoute(final Ipv4Prefix ipv4Prefix, final long count, final long batch) {
+    private long deleteRoute(final Ipv4Prefix ipv4Prefix, final Uint32 count, final Uint32 batch) {
         return processRoutes(ipv4Prefix, count, batch, null);
     }
 
-    private long processRoutes(final Ipv4Prefix ipv4Prefix, final long count, final long batch,
+    private long processRoutes(final Ipv4Prefix ipv4Prefix, final Uint32 count, final Uint32 batch,
         final Attributes attributes) {
         WriteTransaction wt = this.txChain.newWriteOnlyTransaction();
         String address = getAdddressFromPrefix(ipv4Prefix);
+        final long countLong = count.longValue();
+        final long batchLong = batch.longValue();
         final Stopwatch stopwatch = Stopwatch.createStarted();
-        for (int i = 1; i <= count; i++) {
+        for (int i = 1; i <= countLong; i++) {
             final Ipv4RouteKey routeKey = new Ipv4RouteKey(NON_PATH_ID, createKey(address));
             final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIId =
                 this.routesIId.child(Ipv4Route.class, routeKey);
@@ -225,7 +228,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
             } else {
                 wt.delete(LogicalDatastoreType.CONFIGURATION, routeIId);
             }
-            if (i % batch == 0) {
+            if (i % batchLong == 0) {
                 wt.commit().addCallback(new FutureCallback<CommitInfo>() {
                     @Override
                     public void onSuccess(final CommitInfo result) {
@@ -255,19 +258,19 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         return stopwatch.stop().elapsed(TimeUnit.MILLISECONDS);
     }
 
-    private static long countRate(final long durationMillis, final long count) {
+    private static long countRate(final long durationMillis, final Uint32 count) {
         final long durationSec = TimeUnit.MILLISECONDS.toSeconds(durationMillis);
         if (durationSec != 0) {
-            return count / durationSec;
+            return count.toJava() / durationSec;
         }
-        return count;
+        return count.toJava();
     }
 
     private static String increasePrefix(final String prefix) {
         return InetAddresses.increment(InetAddresses.forString(prefix)).getHostAddress();
     }
 
-    private static Result createResult(final long count, final long duration, final long rate) {
+    private static Result createResult(final Uint32 count, final long duration, final long rate) {
         return new ResultBuilder().setCount(count).setDuration(duration).setRate(rate).build();
     }
 

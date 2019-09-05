@@ -230,7 +230,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final StatefulCase stat = (StatefulCase) errMsg.getErrorType();
             for (final Srps srps : stat.getStateful().getSrps()) {
                 final SrpIdNumber id = srps.getSrp().getOperationId();
-                if (id.getValue() != 0) {
+                if (id.getValue().toJava() != 0) {
                     final PCEPRequest req = removeRequest(id);
                     if (req != null) {
                         req.done(OperationResults.createFailed(errMsg.getErrors()));
@@ -251,7 +251,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             return false;
         }
         final SrpIdNumber id = srp.getOperationId();
-        if (id.getValue() == 0) {
+        if (id.getValue().toJava() == 0) {
             return false;
         }
         switch (lsp.getOperational()) {
@@ -285,14 +285,14 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         final PlspId plspid = lsp.getPlspId();
         final Srp srp = report.getSrp();
 
-        if (!lsp.isSync() && (plspid == null || plspid.getValue() == 0)) {
+        if (!lsp.isSync() && (plspid == null || plspid.getValue().toJava() == 0)) {
             purgeStaleLsps(ctx);
             if (isTriggeredSyncInProcess()) {
                 if (srp == null) {
                     return false;
                 }
                 final SrpIdNumber id = srp.getOperationId();
-                if (id.getValue() == 0) {
+                if (id.getValue().toJava() == 0) {
                     return false;
                 }
                 final PCEPRequest req = removeRequest(id);
@@ -440,6 +440,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return rb.build();
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp,
             final UpdateLspArgs input) {
         // the D bit that was reported decides the type of PCE message sent

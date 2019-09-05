@@ -45,6 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.PccSyncState;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class StateSynchronizationAvoidanceProcedureTest extends
     AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
@@ -69,10 +71,10 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                                 .xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs1.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
                                 .optimizations.rev181109.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
-                                .setLspDbVersionValue(BigInteger.ONE).build()).build()).build())
-                        .setPlspId(new PlspId(1L)).setSync(false).setRemove(false)
+                                .setLspDbVersionValue(Uint64.ONE).build()).build()).build())
+                        .setPlspId(new PlspId(Uint32.ONE)).setSync(false).setRemove(false)
                         .setOperational(OperationalStatus.Active).build(),
-                Optional.of(MsgBuilderUtil.createSrp(1L)), null);
+                Optional.of(MsgBuilderUtil.createSrp(Uint32.ONE)), null);
         this.listener.onMessage(session, pcRpt);
         //check topology
         readDataOperational(getDataBroker(), this.pathComputationClientIId.builder()
@@ -144,13 +146,13 @@ public class StateSynchronizationAvoidanceProcedureTest extends
         });
 
         //sync rpt + LSP-DB
-        final Pcrpt syncMsg = MsgBuilderUtil.createPcRtpMessage(createLsp(0, false, Optional.of(
+        final Pcrpt syncMsg = MsgBuilderUtil.createPcRtpMessage(createLsp(Uint32.ZERO, false, Optional.of(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109
                         .lsp.object.lsp.TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight
                                 .params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs1.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
                                 .optimizations.rev181109.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
-                                .setLspDbVersionValue(BigInteger.valueOf(2L)).build()).build()).build()),
+                                .setLspDbVersionValue(Uint64.valueOf(2L)).build()).build()).build()),
                 true, false), Optional.empty(),
                 createPath(Collections.emptyList()));
         this.listener.onMessage(session, syncMsg);

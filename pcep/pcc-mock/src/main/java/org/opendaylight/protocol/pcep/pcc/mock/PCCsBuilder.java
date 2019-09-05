@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -32,6 +31,7 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 final class PCCsBuilder {
     private final int lsps;
@@ -68,7 +68,7 @@ final class PCCsBuilder {
         startActivators();
     }
 
-    void createPCCs(final BigInteger initialDBVersion, final Optional<TimerHandler> timerHandler) {
+    void createPCCs(final Uint64 initialDBVersion, final Optional<TimerHandler> timerHandler) {
         InetAddress currentAddress = this.localAddress.getAddress();
         this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
                 .getMessageHandlerRegistry());
@@ -85,7 +85,7 @@ final class PCCsBuilder {
     }
 
     private void createPCC(final @NonNull InetSocketAddress plocalAddress,
-            final PCCTunnelManager tunnelManager, final BigInteger initialDBVersion) {
+            final PCCTunnelManager tunnelManager, final Uint64 initialDBVersion) {
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         for (final InetSocketAddress pceAddress : this.remoteAddress) {
             this.pccDispatcher.createClient(pceAddress, this.reconnectTime, () -> new PCCSessionListener(

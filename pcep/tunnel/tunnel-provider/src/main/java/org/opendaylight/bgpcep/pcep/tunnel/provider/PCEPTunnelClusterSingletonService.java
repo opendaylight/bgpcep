@@ -94,14 +94,14 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
         this.serviceRegistration = dependencies.getBundleContext()
                 .registerService(DefaultTopologyReference.class.getName(), this.ttp, properties);
 
-        LOG.info("PCEP Tunnel Cluster Singleton service {} registered", getIdentifier().getValue());
+        LOG.info("PCEP Tunnel Cluster Singleton service {} registered", getIdentifier().getName());
         this.pcepTunnelCssReg = dependencies.getCssp().registerClusterSingletonService(this);
     }
 
 
     @Override
     public synchronized void instantiateServiceInstance() {
-        LOG.info("Instantiate PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getValue());
+        LOG.info("Instantiate PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getName());
 
         final InstanceIdentifier<Topology> topology = InstanceIdentifier
                 .builder(NetworkTopology.class).child(Topology.class, new TopologyKey(this.tunnelTopologyId)).build();
@@ -114,7 +114,7 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("Close Service Instance PCEP Tunnel Topology Provider Singleton Service {}",
-                getIdentifier().getValue());
+                getIdentifier().getName());
         this.reg.close();
         this.tp.close();
         this.ttp.close();
@@ -129,13 +129,13 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized void close() {
-        LOG.info("Close PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getValue());
+        LOG.info("Close PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getName());
 
         if (this.pcepTunnelCssReg != null) {
             try {
                 this.pcepTunnelCssReg.close();
             } catch (final Exception e) {
-                LOG.debug("Failed to close PCEP Tunnel Topology service {}", this.sgi.getValue(), e);
+                LOG.debug("Failed to close PCEP Tunnel Topology service {}", this.sgi.getName(), e);
             }
             this.pcepTunnelCssReg = null;
         }

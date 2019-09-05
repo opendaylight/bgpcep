@@ -44,7 +44,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
         this.address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
         if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser()
-                && portNumber.getValue() < PRIVILEGED_PORTS) {
+                && portNumber.getValue().toJava() < PRIVILEGED_PORTS) {
             throw new AccessControlException("Unable to bind port " + portNumber.getValue()
                     + " while running as non-root user.");
         }
@@ -74,7 +74,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         } catch (final UnknownHostException e) {
             throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
         }
-        return new InetSocketAddress(inetAddr, portNumber.getValue());
+        return new InetSocketAddress(inetAddr, portNumber.getValue().toJava());
     }
 
     /**

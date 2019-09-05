@@ -99,6 +99,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class Stateful07TopologySessionListenerTest
         extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
@@ -142,7 +143,7 @@ public class Stateful07TopologySessionListenerTest
         assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
         final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
-        final long srpId = req.getSrp().getOperationId().getValue();
+        final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
                 this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp())
@@ -150,7 +151,7 @@ public class Stateful07TopologySessionListenerTest
                         .setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)),
                 MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         final Pcrpt esm = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setSync(false).build(),
-                Optional.of(MsgBuilderUtil.createSrp(0L)), null);
+                Optional.of(MsgBuilderUtil.createSrp(Uint32.ZERO)), null);
         this.listener.onMessage(this.session, esm);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(this.testAddress, pcc.getIpAddress().getIpv4Address().getValue());
@@ -176,7 +177,7 @@ public class Stateful07TopologySessionListenerTest
         checkEquals(() -> assertEquals(1, listenerState.getDelegatedLspsCount().intValue()));
         checkEquals(() -> assertTrue(this.listener.isSessionSynchronized()));
         checkEquals(() -> assertTrue(listenerState.getMessages()
-                .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp() > 0));
+                .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp().toJava() > 0));
         checkEquals(() -> assertEquals(2, listenerState.getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount().intValue()));
         checkEquals(() -> assertEquals(1, listenerState.getMessages()
@@ -199,7 +200,7 @@ public class Stateful07TopologySessionListenerTest
         assertTrue(this.receivedMsgs.get(1) instanceof Pcupd);
         final Pcupd updateMsg = (Pcupd) this.receivedMsgs.get(1);
         final Updates upd = updateMsg.getPcupdMessage().getUpdates().get(0);
-        final long srpId2 = upd.getSrp().getOperationId().getValue();
+        final Uint32 srpId2 = upd.getSrp().getOperationId().getValue();
         final Tlvs tlvs2 = createLspTlvs(upd.getLsp().getPlspId().getValue(), false,
                 this.newDestinationAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt2 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(upd.getLsp()).setTlvs(tlvs2)
@@ -221,13 +222,13 @@ public class Stateful07TopologySessionListenerTest
             assertTrue(this.listener.isSessionSynchronized());
             final StatefulMessagesStatsAug statefulstate = listenerState.getMessages()
                     .augmentation(StatefulMessagesStatsAug.class);
-            assertTrue(statefulstate.getLastReceivedRptMsgTimestamp() > 0);
+            assertTrue(statefulstate.getLastReceivedRptMsgTimestamp().toJava() > 0);
             assertEquals(3, statefulstate.getReceivedRptMsgCount().intValue());
             assertEquals(1, statefulstate.getSentInitMsgCount().intValue());
             assertEquals(1, statefulstate.getSentUpdMsgCount().intValue());
             final ReplyTime replyTime = listenerState.getMessages().getReplyTime();
-            assertTrue(replyTime.getAverageTime() > 0);
-            assertTrue(replyTime.getMaxTime() > 0);
+            assertTrue(replyTime.getAverageTime().toJava() > 0);
+            assertTrue(replyTime.getMaxTime().toJava() > 0);
             final StatefulCapabilitiesStatsAug statefulCapabilities = listenerState
                     .getPeerCapabilities().augmentation(StatefulCapabilitiesStatsAug.class);
             assertFalse(statefulCapabilities.isActive());
@@ -257,7 +258,7 @@ public class Stateful07TopologySessionListenerTest
         assertTrue(this.receivedMsgs.get(2) instanceof Pcinitiate);
         final Pcinitiate pcinitiate2 = (Pcinitiate) this.receivedMsgs.get(2);
         final Requests req2 = pcinitiate2.getPcinitiateMessage().getRequests().get(0);
-        final long srpId3 = req2.getSrp().getOperationId().getValue();
+        final Uint32 srpId3 = req2.getSrp().getOperationId().getValue();
         final Tlvs tlvs3 = createLspTlvs(req2.getLsp().getPlspId().getValue(), false,
                 this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt3 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req2.getLsp()).setTlvs(tlvs3)
@@ -274,7 +275,7 @@ public class Stateful07TopologySessionListenerTest
         checkEquals(() -> assertEquals(0, listenerState.getDelegatedLspsCount().intValue()));
         checkEquals(() -> assertTrue(this.listener.isSessionSynchronized()));
         checkEquals(() -> assertTrue(listenerState.getMessages()
-                .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp() > 0));
+                .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp().toJava() > 0));
         checkEquals(() -> assertEquals(4, listenerState.getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount().intValue()));
         checkEquals(() -> assertEquals(2, listenerState.getMessages()
@@ -294,7 +295,7 @@ public class Stateful07TopologySessionListenerTest
 
     @Test
     public void testOnErrorMessage() throws InterruptedException, ExecutionException {
-        final Message errorMsg = MsgBuilderUtil.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, 1L);
+        final Message errorMsg = MsgBuilderUtil.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, Uint32.ONE);
         this.listener.onSessionUp(this.session);
         final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
         this.listener.onMessage(this.session, errorMsg);
@@ -392,7 +393,7 @@ public class Stateful07TopologySessionListenerTest
         this.topologyRpcs.addLsp(createAddLspInput());
         final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
-        final long srpId = req.getSrp().getOperationId().getValue();
+        final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
                 this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true)
@@ -416,7 +417,7 @@ public class Stateful07TopologySessionListenerTest
         this.topologyRpcs.addLsp(createAddLspInput());
         final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
-        final long srpId = req.getSrp().getOperationId().getValue();
+        final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
                 this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true)
@@ -455,7 +456,7 @@ public class Stateful07TopologySessionListenerTest
         this.topologyRpcs.addLsp(createAddLspInput());
         final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
-        final long srpId = req.getSrp().getOperationId().getValue();
+        final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
                 this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true)
@@ -534,11 +535,11 @@ public class Stateful07TopologySessionListenerTest
         assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
         final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
-        final long srpId = req.getSrp().getOperationId().getValue();
+        final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
                 this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
-                .setPlspId(new PlspId(1L))
+                .setPlspId(new PlspId(Uint32.ONE))
                 .setSync(false)
                 .setRemove(false)
                 .setOperational(OperationalStatus.Active)
@@ -583,7 +584,7 @@ public class Stateful07TopologySessionListenerTest
         assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
         final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
-        final long srpId = req.getSrp().getOperationId().getValue();
+        final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
                 this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         //delegate set to true
@@ -607,13 +608,12 @@ public class Stateful07TopologySessionListenerTest
         assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
         final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
-        final long srpId = req.getSrp().getOperationId().getValue();
+        final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
                 this.testAddress, this.testAddress, this.testAddress, Optional.empty());
         //delegate set to false
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
-                        .setPlspId(
-                                new PlspId(1L))
+                        .setPlspId(new PlspId(Uint32.ONE))
                         .setSync(false)
                         .setRemove(false)
                         .setOperational(OperationalStatus.Active)

@@ -178,7 +178,7 @@ public final class SrLinkAttributesParser {
         } else {
             value.writeZero(FLAGS_BYTE_SIZE);
         }
-        value.writeByte(adjSid.getWeight().getValue());
+        value.writeByte(adjSid.getWeight().getValue().toJava());
         value.writeZero(RESERVED);
         value.writeBytes(SidLabelIndexParser.serializeSidValue(adjSid.getSidLabelIndex()));
         return value;
@@ -195,7 +195,7 @@ public final class SrLinkAttributesParser {
         final ByteBuf value = Unpooled.buffer();
         final BitArray flags = serializeAdjFlags(srLanAdjId.getFlags(), srLanAdjId.getSidLabelIndex());
         flags.toByteBuf(value);
-        value.writeByte(srLanAdjId.getWeight().getValue());
+        value.writeByte(srLanAdjId.getWeight().getValue().toJava());
         value.writeZero(RESERVED);
         if (srLanAdjId.getIsoSystemId() != null) {
             value.writeBytes(srLanAdjId.getIsoSystemId().getValue());

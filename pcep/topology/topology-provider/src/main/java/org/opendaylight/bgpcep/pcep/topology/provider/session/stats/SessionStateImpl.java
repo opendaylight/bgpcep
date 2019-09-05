@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.sta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.reply.time.grouping.ReplyTimeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public final class SessionStateImpl implements PcepSessionState {
     private final LongAdder lastReceivedRptMsgTimestamp = new LongAdder();
@@ -109,6 +110,7 @@ public final class SessionStateImpl implements PcepSessionState {
         }
     }
 
+    @Override
     public synchronized String getSessionDuration() {
         return StatisticsUtil.formatElapsedTime(this.sessionUpDuration.elapsed(TimeUnit.SECONDS));
     }
@@ -173,8 +175,8 @@ public final class SessionStateImpl implements PcepSessionState {
     }
 
     @Override
-    public Integer getDelegatedLspsCount() {
-        return this.topologySessionStats.getDelegatedLspsCount();
+    public Uint16 getDelegatedLspsCount() {
+        return Uint16.valueOf(this.topologySessionStats.getDelegatedLspsCount());
     }
 
     @Override

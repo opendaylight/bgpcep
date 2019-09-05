@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PCCSessionListenerTest {
 
@@ -129,7 +130,7 @@ public class PCCSessionListenerTest {
     public void testSendError() {
         final PCCSessionListener listener = new PCCSessionListener(1, this.tunnelManager, false);
         listener.onSessionUp(this.mockedSession);
-        listener.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.ATTEMPT_2ND_SESSION, 0));
+        listener.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.ATTEMPT_2ND_SESSION, Uint32.ZERO));
         verify(this.mockedSession).sendMessage(Mockito.any());
     }
 
@@ -162,7 +163,7 @@ public class PCCSessionListenerTest {
         final List<Requests> requests = Lists.newArrayList();
         final RequestsBuilder reqBuilder = new RequestsBuilder()
             .setLsp(lspBuilder.build())
-            .setSrp(new SrpBuilder(MsgBuilderUtil.createSrp(123)).addAugmentation(Srp1.class,
+            .setSrp(new SrpBuilder(MsgBuilderUtil.createSrp(Uint32.valueOf(123))).addAugmentation(Srp1.class,
                 new Srp1Builder().setRemove(remove).build()).build());
         if (endpoint) {
             reqBuilder.setEndpointsObj(new EndpointsObjBuilder().build());

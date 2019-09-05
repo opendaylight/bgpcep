@@ -61,7 +61,7 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
 
     @Override
     public void addTlv(final CNotificationBuilder builder, final Tlv tlv) {
-        if (tlv instanceof OverloadDuration && builder.getType() == 2 && builder.getValue() == 1) {
+        if (tlv instanceof OverloadDuration && builder.getType().toJava() == 2 && builder.getValue().toJava() == 1) {
             builder.setTlvs(new TlvsBuilder().setOverloadDuration((OverloadDuration) tlv).build());
         }
     }
@@ -93,7 +93,7 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
     }
 
     @Override
-    protected final void addVendorInformationTlvs(
+    protected void addVendorInformationTlvs(
         final CNotificationBuilder builder,
         final List<VendorInformationTlv> tlvs) {
         if (!tlvs.isEmpty()) {

@@ -101,7 +101,7 @@ public final class RangeTlvParser {
         flags.set(INNER_AREA, srRange.isInterArea());
         flags.toByteBuf(aggregator);
         aggregator.writeZero(RESERVED);
-        aggregator.writeShort(srRange.getRangeSize());
+        aggregator.writeShort(srRange.getRangeSize().toJava());
         serializeSubTlvs(aggregator, srRange.getSubTlvs());
     }
 

@@ -26,13 +26,16 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.math.BigInteger;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class ByteBufWriteUtilTest {
 
@@ -109,11 +112,11 @@ public class ByteBufWriteUtilTest {
     public void testWriteUnsignedByteValue() {
         final byte[] result = { 5 };
         final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.ONE_BYTE_LENGTH);
-        writeUnsignedByte((short) 5, output);
+        writeUnsignedByte(Uint8.valueOf(5), output);
         assertArrayEquals(result, output.array());
 
         output.clear();
-        writeUnsignedByte(null, output);
+        writeUnsignedByte((Uint8) null, output);
         assertArrayEquals(ONE_BYTE_ZERO, output.array());
     }
 
@@ -121,11 +124,11 @@ public class ByteBufWriteUtilTest {
     public void testWriteUnsignedShortValue() {
         final byte[] result = { 0, 5 };
         final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
-        writeUnsignedShort(5, output);
+        writeUnsignedShort(Uint16.valueOf(5), output);
         assertArrayEquals(result, output.array());
 
         output.clear();
-        writeUnsignedShort(null, output);
+        writeUnsignedShort((Uint16) null, output);
         assertArrayEquals(TWO_BYTE_ZEROS, output.array());
     }
 
@@ -133,11 +136,11 @@ public class ByteBufWriteUtilTest {
     public void testWriteUnsignedIntValue() {
         final byte[] result = { 0, 0, 0, 5 };
         final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.INT_BYTES_LENGTH);
-        ByteBufWriteUtil.writeUnsignedInt((long) 5, output);
+        ByteBufWriteUtil.writeUnsignedInt(Uint32.valueOf(5), output);
         assertArrayEquals(result, output.array());
 
         output.clear();
-        writeUnsignedInt(null, output);
+        writeUnsignedInt((Uint32) null, output);
         assertArrayEquals(FOUR_BYTE_ZEROS, output.array());
     }
 
@@ -145,11 +148,11 @@ public class ByteBufWriteUtilTest {
     public void testWriteUnsignedLongValue() {
         final byte[] result = { 0, 0, 0, 0, 0, 0, 0, 5 };
         final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.LONG_BYTES_LENGTH);
-        writeUnsignedLong(new BigInteger("5"), output);
+        writeUnsignedLong(Uint64.valueOf(5), output);
         assertArrayEquals(result, output.array());
 
         output.clear();
-        writeUnsignedLong(null, output);
+        writeUnsignedLong((Uint64) null, output);
         assertArrayEquals(EIGHT_BYTE_ZEROS, output.array());
     }
 

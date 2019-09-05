@@ -30,8 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpNodeIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacencyBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
-public abstract class AbstractSrSubobjectParser   {
+public abstract class AbstractSrSubobjectParser {
 
     protected static final int MINIMAL_LENGTH = 4;
     protected static final int BITSET_LENGTH = 8;
@@ -47,10 +48,10 @@ public abstract class AbstractSrSubobjectParser   {
         private final boolean mflag;
         private final boolean cflag;
         private final SidType sidType;
-        private final Long sid;
+        private final Uint32 sid;
         private final Nai nai;
 
-        SrSubobjectImpl(final boolean mflag, final boolean cflag, final SidType sidType, final Long sid,
+        SrSubobjectImpl(final boolean mflag, final boolean cflag, final SidType sidType, final Uint32 sid,
                 final Nai nai) {
             this.mflag = mflag;
             this.cflag = cflag;
@@ -80,7 +81,7 @@ public abstract class AbstractSrSubobjectParser   {
         }
 
         @Override
-        public Long getSid() {
+        public Uint32 getSid() {
             return this.sid;
         }
 
@@ -111,7 +112,7 @@ public abstract class AbstractSrSubobjectParser   {
                 "Both SID and NAI are absent in SR subobject.");
         if (srSubobject.getSid() != null) {
             if (srSubobject.isMFlag()) {
-                writeUnsignedInt(srSubobject.getSid() << MPLS_LABEL_OFFSET, buffer);
+                writeUnsignedInt(srSubobject.getSid().toJava() << MPLS_LABEL_OFFSET, buffer);
             } else {
                 writeUnsignedInt(srSubobject.getSid(), buffer);
             }
@@ -189,15 +190,14 @@ public abstract class AbstractSrSubobjectParser   {
         if (f && s) {
             throw new PCEPDeserializerException("Both SID and NAI are absent in SR subobject.");
         }
-        Long tmp = null;
+
+        final Uint32 sid;
         if (!s) {
-            if (m) {
-                tmp = buffer.readUnsignedInt() >>> MPLS_LABEL_OFFSET;
-            } else {
-                tmp = buffer.readUnsignedInt();
-            }
+            final long tmp = buffer.readUnsignedInt();
+            sid = Uint32.valueOf(m ? tmp >> MPLS_LABEL_OFFSET : tmp);
+        } else {
+            sid = null;
         }
-        final Long sid = tmp;
         final Nai nai;
         if (sidType != null && !f) {
             nai = parseNai(sidType, buffer);

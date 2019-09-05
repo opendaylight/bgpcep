@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.PseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.prefix.attributes.OspfPrefixAttributesBuilder;
 import org.opendaylight.yangtools.yang.common.Empty;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class ProtocolUtil {
     private ProtocolUtil() {
@@ -214,10 +215,10 @@ public final class ProtocolUtil {
                 .collect(Collectors.toList());
     }
 
-    private static List<Short> nodeMultiTopology(final List<TopologyIdentifier> list) {
-        final List<Short> ret = new ArrayList<>(list.size());
+    private static List<Uint8> nodeMultiTopology(final List<TopologyIdentifier> list) {
+        final List<Uint8> ret = new ArrayList<>(list.size());
         for (final TopologyIdentifier id : list) {
-            ret.add(id.getValue().shortValue());
+            ret.add(Uint8.valueOf(id.getValue()));
         }
         return ret;
     }

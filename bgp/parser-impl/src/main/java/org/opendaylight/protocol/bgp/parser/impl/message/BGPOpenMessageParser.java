@@ -88,13 +88,13 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
                 .writeByte(BGP_VERSION);
 
         // When our AS number does not fit into two bytes, we report it as AS_TRANS
-        int openAS = open.getMyAsNumber();
+        int openAS = open.getMyAsNumber().toJava();
         if (openAS > Values.UNSIGNED_SHORT_MAX_VALUE) {
             openAS = AS_TRANS;
         }
         msgBody
             .writeShort(openAS)
-            .writeShort(open.getHoldTimer())
+            .writeShort(open.getHoldTimer().toJava())
             .writeBytes(Ipv4Util.bytesForAddress(open.getBgpIdentifier()));
 
         serializeParameters(open.getBgpParameters(), msgBody);

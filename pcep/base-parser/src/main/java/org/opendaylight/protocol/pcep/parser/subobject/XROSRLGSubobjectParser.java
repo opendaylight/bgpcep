@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.SrlgCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.SrlgCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.srlg._case.SrlgBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Parser for {@link SrlgCase}
@@ -59,7 +60,7 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
         Preconditions.checkArgument(specObj.getSrlgId() != null, "SrlgId is mandatory.");
         writeUnsignedInt(specObj.getSrlgId().getValue(), body);
         Preconditions.checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
-        writeUnsignedByte(null, body);
+        writeUnsignedByte((Uint8) null, body);
         writeUnsignedByte((short) subobject.getAttribute().getIntValue(), body);
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
