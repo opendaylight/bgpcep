@@ -84,7 +84,7 @@ public final class RouteTargetConstrainNlriHandler implements NlriParser, NlriSe
                 nlri.writeByte(RT_BITS_LENGTH);
                 final AsNumber originAs = dest.getOriginAs();
                 if (originAs != null) {
-                    writeUnsignedInt(originAs.getValue(), nlri);
+                    writeUnsignedInt(originAs.getValue().toJava(), nlri);
                 }
                 nlri.writeBytes(SimpleRouteTargetConstrainNlriRegistry.getInstance()
                         .serializeRouteTargetConstrain(rtcChoice));

@@ -33,13 +33,13 @@ public class CommunityTest {
             this.util.create(10, -2);
             fail("Semantics under range.");
         } catch (final IllegalArgumentException e) {
-            assertEquals("Invalid range: -2, expected: [[0..65535]].", e.getMessage());
+            assertEquals("Value -2 is outside of allowed range", e.getMessage());
         }
         try {
             this.util.create(10, 65536);
             fail("Semantics above range.");
         } catch (final IllegalArgumentException e) {
-            assertEquals("Invalid range: 65536, expected: [[0..65535]].", e.getMessage());
+            assertEquals("Value 65536 is outside of allowed range", e.getMessage());
         }
     }
 

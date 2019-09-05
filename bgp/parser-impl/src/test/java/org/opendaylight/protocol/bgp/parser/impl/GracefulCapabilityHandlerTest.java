@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class GracefulCapabilityHandlerTest {
 
@@ -87,7 +88,7 @@ public class GracefulCapabilityHandlerTest {
 
         capaBuilder.setRestartFlags(null);
         tablesBuilder.setAfiFlags(null);
-        capaBuilder.setRestartTime(null);
+        capaBuilder.setRestartTime((Uint16) null);
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
         buffer.clear();
         handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
