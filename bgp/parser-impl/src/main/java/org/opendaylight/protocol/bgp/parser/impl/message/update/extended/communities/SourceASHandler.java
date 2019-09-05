@@ -39,7 +39,8 @@ public final class SourceASHandler extends AbstractTwoOctetAsExtendedCommunity {
                 extendedCommunity);
         final SourceAsExtendedCommunity excomm = ((SourceAsExtendedCommunityCase) extendedCommunity)
                 .getSourceAsExtendedCommunity();
-        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(excomm.getGlobalAdministrator().getValue()), body);
+        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(excomm.getGlobalAdministrator().getValue().toJava()),
+                body);
         ByteBufWriteUtil.writeInt(LOCAL_ADMIN, body);
     }
 

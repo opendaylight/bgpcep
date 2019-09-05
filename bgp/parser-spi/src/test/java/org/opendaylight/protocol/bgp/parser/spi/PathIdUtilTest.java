@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeSchemaAwareBuilder;
@@ -62,11 +63,12 @@ public class PathIdUtilTest {
         final NodeIdentifier NII = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet",
             "2015-03-05", "path-id").intern());
         final long pathIdValue = 0;
-        final ContainerNode cont = ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(NII).addChild(
-            new ImmutableLeafNodeBuilder<>().withNodeIdentifier(NII).withValue(pathIdValue).build()).build();
+        final ContainerNode cont = ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(NII)
+                .addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(NII)
+                    .withValue(Uint32.valueOf(pathIdValue)).build())
+                .build();
         Assert.assertEquals(pathIdValue, PathIdUtil.extractPathId(cont, NII).longValue());
     }
-
 
     @Test(expected = IllegalArgumentException.class)
     public void testReadPathIdBufferNull() {
