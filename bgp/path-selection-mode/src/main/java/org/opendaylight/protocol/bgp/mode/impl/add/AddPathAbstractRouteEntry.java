@@ -35,6 +35,7 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,16 +89,16 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
-    private static final Long[] EMPTY_PATHS_ID = new Long[0];
+    private static final Uint32[] EMPTY_PATHS_ID = new Uint32[0];
     private static final Route[] EMPTY_VALUES = new Route[0];
 
     private RouteKeyOffsets offsets = RouteKeyOffsets.EMPTY;
     private R[] values = (R[]) EMPTY_VALUES;
-    private Long[] pathsId = EMPTY_PATHS_ID;
+    private Uint32[] pathsId = EMPTY_PATHS_ID;
     private List<AddPathBestPath> bestPath;
     private List<AddPathBestPath> bestPathRemoved;
     private List<AddPathBestPath> newBestPathToBeAdvertised;
-    private List<Long> removedPathsId;
+    private List<Uint32> removedPathsId;
 
     private long pathIdCounter = 0L;
     private boolean isNonAddPathBestPathNew;
@@ -110,18 +111,18 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     @Override
-    public final int addRoute(final RouterId routerId, final Long remotePathId, final R route) {
+    public final int addRoute(final RouterId routerId, final Uint32 remotePathId, final R route) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
             final RouteKeyOffsets newOffsets = this.offsets.with(key);
             offset = newOffsets.offsetOf(key);
             final R[] newRoute = newOffsets.expand(this.offsets, this.values, offset);
-            final Long[] newPathsId = newOffsets.expand(this.offsets, this.pathsId, offset);
+            final Uint32[] newPathsId = newOffsets.expand(this.offsets, this.pathsId, offset);
             this.values = newRoute;
             this.offsets = newOffsets;
             this.pathsId = newPathsId;
-            this.offsets.setValue(this.pathsId, offset, ++this.pathIdCounter);
+            this.offsets.setValue(this.pathsId, offset, Uint32.valueOf(++this.pathIdCounter));
         }
         this.offsets.setValue(this.values, offset, route);
         LOG.trace("Added route {} from {}", route, routerId);
@@ -129,10 +130,10 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     @Override
-    public final boolean removeRoute(final RouterId routerId, final Long remotePathId) {
+    public final boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         final int offset = this.offsets.offsetOf(key);
-        final Long pathId = this.offsets.getValue(this.pathsId, offset);
+        final Uint32 pathId = this.offsets.getValue(this.pathsId, offset);
         this.values = this.offsets.removeValue(this.values, offset, (R[]) EMPTY_VALUES);
         this.pathsId = this.offsets.removeValue(this.pathsId, offset, EMPTY_PATHS_ID);
         this.offsets = this.offsets.without(key);
@@ -148,7 +149,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
             final String routeKey) {
         final List<PathId> stalePaths;
         if (bestPathRemoved != null && !bestPathRemoved.isEmpty()) {
-            stalePaths = bestPathRemoved.stream().map(AddPathBestPath::getPathId)
+            stalePaths = bestPathRemoved.stream().map(AddPathBestPath::getPathIdLong)
                     .map(AddPathAbstractRouteEntry::pathIdObj).collect(Collectors.toList());
             bestPathRemoved = null;
         } else {
@@ -220,7 +221,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     protected final void processOffset(final AddPathSelector selector, final int offset) {
         final RouteKey key = offsets.getKey(offset);
         final R route = offsets.getValue(values, offset);
-        final Long pathId = offsets.getValue(pathsId, offset);
+        final Uint32 pathId = offsets.getValue(pathsId, offset);
         LOG.trace("Processing router key {} route {}", key, route);
         selector.processPath(route.getAttributes(), key, offset, pathId);
     }
@@ -272,7 +273,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
         });
     }
 
-    private static PathId pathIdObj(final Long pathId) {
-        return pathId == NON_PATH_ID_VALUE ? NON_PATH_ID : new PathId(pathId);
+    private static PathId pathIdObj(final Uint32 pathId) {
+        return NON_PATH_ID_VALUE.equals(pathId) ? NON_PATH_ID : new PathId(pathId);
     }
 }

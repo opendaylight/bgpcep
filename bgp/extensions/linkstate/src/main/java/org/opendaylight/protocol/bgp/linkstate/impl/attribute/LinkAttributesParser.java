@@ -302,7 +302,7 @@ public final class LinkAttributesParser {
             Unpooled.wrappedBuffer(((Bandwidth) value).getValue()), output));
         serializeUnreservedBw(linkAttributes.getUnreservedBandwidth(), output);
         ifPresentApply(linkAttributes.getTeMetric(), value -> TlvUtil.writeTLV(TE_METRIC,
-            Unpooled.copyLong(((TeMetric) value).getValue()), output));
+            Unpooled.copyLong(((TeMetric) value).getValue().toJava()), output));
         ifPresentApply(linkAttributes.getLinkProtection(), value -> TlvUtil.writeTLV(LINK_PROTECTION_TYPE,
             Unpooled.copyShort(((LinkProtectionType) value).getIntValue()), output));
         serializeMplsProtocolMask(linkAttributes.getMplsProtocol(), output);

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.spi;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Arrays;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Possible errors listed in RFC5440, RFC 5455 and stateful draft.
@@ -352,8 +353,8 @@ public enum PCEPErrors {
 
     private PCEPErrorIdentifier errorId;
 
-    public static PCEPErrors forValue(final short errorType, final short errorValue) {
-        return VALUE_MAP.get(new PCEPErrorIdentifier(errorType, errorValue));
+    public static PCEPErrors forValue(final Uint8 errorType, final Uint8 errorValue) {
+        return VALUE_MAP.get(new PCEPErrorIdentifier(errorType.toJava(), errorValue.toJava()));
     }
 
     PCEPErrors(final int type, final int value) {
