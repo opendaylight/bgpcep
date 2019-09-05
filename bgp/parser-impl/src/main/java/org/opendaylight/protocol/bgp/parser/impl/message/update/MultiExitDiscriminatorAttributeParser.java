@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDiscBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class MultiExitDiscriminatorAttributeParser extends AbstractAttributeParser
         implements AttributeSerializer {
@@ -42,7 +43,7 @@ public final class MultiExitDiscriminatorAttributeParser extends AbstractAttribu
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
         final MultiExitDisc multiExitDisc = attribute.getMultiExitDisc();
         if (multiExitDisc != null) {
-            final Long med = multiExitDisc.getMed();
+            final Uint32 med = multiExitDisc.getMed();
             if (med != null) {
                 AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, Unpooled.copyInt(med.intValue()),
                     byteAggregator);

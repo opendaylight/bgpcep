@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.link._case.LocalNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.link._case.RemoteNodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
@@ -63,8 +64,8 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
         final LinkDescriptorsBuilder linkDescBuilder = new LinkDescriptorsBuilder();
 
         if (descriptors.getChild(LINK_LOCAL_NID).isPresent() && descriptors.getChild(LINK_REMOTE_NID).isPresent()) {
-            linkDescBuilder.setLinkLocalIdentifier((Long) descriptors.getChild(LINK_LOCAL_NID).get().getValue());
-            linkDescBuilder.setLinkRemoteIdentifier((Long) descriptors.getChild(LINK_REMOTE_NID).get().getValue());
+            linkDescBuilder.setLinkLocalIdentifier((Uint32) descriptors.getChild(LINK_LOCAL_NID).get().getValue());
+            linkDescBuilder.setLinkRemoteIdentifier((Uint32) descriptors.getChild(LINK_REMOTE_NID).get().getValue());
         }
         ifPresentApply(descriptors, IPV4_IFACE_NID,
             value -> linkDescBuilder.setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier((String) value)));

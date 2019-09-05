@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
-import com.google.common.primitives.Ints;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
@@ -27,7 +26,7 @@ public class SimpleVendorInformationTlvRegistry implements VendorInformationTlvR
 
     public Registration registerVendorInformationTlvParser(final EnterpriseNumber enterpriseNumber,
             final TlvParser parser) {
-        return this.handlers.registerParser(Ints.checkedCast(enterpriseNumber.getValue()), parser);
+        return this.handlers.registerParser(enterpriseNumber.getValue().intValue(), parser);
     }
 
     public Registration registerVendorInformationTlvSerializer(
@@ -38,7 +37,7 @@ public class SimpleVendorInformationTlvRegistry implements VendorInformationTlvR
     @Override
     public Optional<VendorInformationTlv> parseVendorInformationTlv(final EnterpriseNumber enterpriseNumber,
             final ByteBuf buffer) throws PCEPDeserializerException {
-        final TlvParser parser = this.handlers.getParser(Ints.checkedCast(enterpriseNumber.getValue()));
+        final TlvParser parser = this.handlers.getParser(enterpriseNumber.getValue().intValue());
         if (parser == null) {
             return Optional.empty();
         }

@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.EmptyNextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Bgp Attribute Conditions Util per check conditions matches.
@@ -58,7 +59,7 @@ final class BgpAttributeConditionsUtil {
         return afiSafiIn == null ? true : afiSafiIn.contains(afiSafi);
     }
 
-    private static boolean matchMED(final MultiExitDisc multiExitDisc, final Long med) {
+    private static boolean matchMED(final MultiExitDisc multiExitDisc, final Uint32 med) {
         return multiExitDisc == null || med == null || med.equals(multiExitDisc.getMed());
     }
 
@@ -81,7 +82,7 @@ final class BgpAttributeConditionsUtil {
         }
 
         final Class<? extends AttributeComparison> comp = asPathLength.getOperator();
-        final long asLength = asPathLength.getValue();
+        final long asLength = asPathLength.getValue().toJava();
         if (comp == AttributeEq.class) {
             return total == asLength;
         } else if (comp == AttributeGe.class) {
@@ -106,7 +107,7 @@ final class BgpAttributeConditionsUtil {
         return nextHopIn.contains(global);
     }
 
-    private static boolean matchLocalPref(final LocalPref localPref, final Long localPrefEq) {
+    private static boolean matchLocalPref(final LocalPref localPref, final Uint32 localPrefEq) {
         return localPref == null || localPrefEq == null || localPrefEq.equals(localPref.getPref());
     }
 }
