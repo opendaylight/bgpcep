@@ -30,7 +30,7 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
     private static final int PADDING = 4;
 
     static int getPadding(final int length) {
-        return (PADDING - (length % PADDING)) % PADDING;
+        return (PADDING - length % PADDING) % PADDING;
     }
 
     @Override
@@ -59,8 +59,8 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
             .getSessionName()));
         final int pad = getPadding(sessionName.readableBytes());
         serializeAttributeHeader(BODY_SIZE_C7 + pad + sessionName.readableBytes(), CLASS_NUM, CTYPE, output);
-        output.writeByte(sessionObject.getSetupPriority());
-        output.writeByte(sessionObject.getHoldPriority());
+        output.writeByte(sessionObject.getSetupPriority().toJava());
+        output.writeByte(sessionObject.getHoldPriority().toJava());
         final BitArray bs = new BitArray(FLAGS_SIZE);
         bs.set(LOCAL_PROTECTION, sessionObject.isLocalProtectionDesired());
         bs.set(LABEL_RECORDING, sessionObject.isLabelRecordingDesired());

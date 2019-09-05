@@ -24,12 +24,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class BestPathStateImpl implements BestPathState {
     private final Attributes attributes;
     private long peerAs = 0L;
     private int asPathLength = 0;
-    private Long localPref;
+    private Uint32 localPref;
     private long multiExitDisc;
     private BgpOrigin origin;
     private boolean depreferenced;
@@ -68,8 +69,8 @@ public final class BestPathStateImpl implements BestPathState {
 
         final MultiExitDisc attrMed = attributes.getMultiExitDisc();
         if (attrMed != null) {
-            final Long med = attrMed.getMed();
-            multiExitDisc = med == null ? 0L : med;
+            final Uint32 med = attrMed.getMed();
+            multiExitDisc = med == null ? 0L : med.toJava();
         } else {
             multiExitDisc = 0L;
         }
@@ -93,7 +94,7 @@ public final class BestPathStateImpl implements BestPathState {
     }
 
     @Override
-    public Long getLocalPref() {
+    public Uint32 getLocalPref() {
         resolveValues();
         return this.localPref;
     }

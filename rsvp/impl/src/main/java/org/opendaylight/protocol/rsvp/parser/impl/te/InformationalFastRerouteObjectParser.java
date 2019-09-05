@@ -48,9 +48,9 @@ public final class InformationalFastRerouteObjectParser extends AbstractRSVPObje
         final LegacyFastRerouteObject fastRerouteObject = (LegacyFastRerouteObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE_C7, CLASS_NUM, CTYPE, byteAggregator);
 
-        byteAggregator.writeByte(fastRerouteObject.getSetupPriority());
-        byteAggregator.writeByte(fastRerouteObject.getHoldPriority());
-        byteAggregator.writeByte(fastRerouteObject.getHopLimit());
+        byteAggregator.writeByte(fastRerouteObject.getSetupPriority().toJava());
+        byteAggregator.writeByte(fastRerouteObject.getHoldPriority().toJava());
+        byteAggregator.writeByte(fastRerouteObject.getHopLimit().toJava());
         byteAggregator.writeZero(ByteBufWriteUtil.ONE_BYTE_LENGTH);
         byteAggregator.writeBytes(Unpooled.wrappedBuffer(fastRerouteObject.getBandwidth().getValue()));
         writeAttributeFilter(fastRerouteObject.getIncludeAny(), byteAggregator);

@@ -12,6 +12,7 @@ import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,14 +20,14 @@ public final class AddPathSelector extends AbstractBestPathSelector {
     private static final Logger LOG = LoggerFactory.getLogger(AddPathSelector.class);
 
     private RouteKey bestRouteKey;
-    private Long bestPathId;
+    private Uint32 bestPathId;
     private int bestOffset;
 
     public AddPathSelector(final long ourAs) {
         super(ourAs);
     }
 
-    void processPath(final Attributes attrs, final RouteKey key, final int offsetPosition, final Long pathId) {
+    void processPath(final Attributes attrs, final RouteKey key, final int offsetPosition, final Uint32 pathId) {
         // Consider only non-null attributes
         if (attrs != null) {
             final RouterId routerId = key.getRouterId();
