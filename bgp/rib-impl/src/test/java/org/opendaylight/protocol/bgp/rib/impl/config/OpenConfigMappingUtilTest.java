@@ -344,9 +344,6 @@ public class OpenConfigMappingUtilTest {
         assertTrue(OpenConfigMappingUtil.getAfiSafiWithDefault(afiSafi, false).isEmpty());
         assertEquals(afiSafiIpv6, OpenConfigMappingUtil.getAfiSafiWithDefault(new AfiSafisBuilder()
                 .setAfiSafi(afiSafiIpv6List).build(), false).get(0));
-        assertEquals(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build(),
-            OpenConfigMappingUtil.getAfiSafiWithDefault(new AfiSafisBuilder().setAfiSafi(afiSafiIpv6List).build(),
-                    false).get(1));
         assertEquals(AFI_SAFI, OpenConfigMappingUtil.getAfiSafiWithDefault(createAfiSafi(), false));
     }
 

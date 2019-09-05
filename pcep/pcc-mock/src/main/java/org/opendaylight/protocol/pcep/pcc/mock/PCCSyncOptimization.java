@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static java.util.Objects.requireNonNull;
 
-import java.math.BigInteger;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
@@ -18,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 final class PCCSyncOptimization {
     private final boolean dbVersionMatch;
@@ -27,7 +27,7 @@ final class PCCSyncOptimization {
     private final boolean isTriggeredReSyncEnable;
     private final LspDbVersion localLspDbVersion;
     private final LspDbVersion remoteLspDbVersion;
-    private BigInteger lspDBVersion = BigInteger.ONE;
+    private Uint64 lspDBVersion = Uint64.ONE;
     private Boolean resynchronizing = Boolean.FALSE;
 
     PCCSyncOptimization(final @NonNull PCCSession session) {
@@ -64,16 +64,16 @@ final class PCCSyncOptimization {
         return this.isTriggeredReSyncEnable;
     }
 
-    public BigInteger getLocalLspDbVersionValue() {
+    public Uint64 getLocalLspDbVersionValue() {
         if (this.localLspDbVersion == null) {
             return null;
         }
         return this.localLspDbVersion.getLspDbVersionValue();
     }
 
-    public BigInteger getRemoteLspDbVersionValue() {
+    public Uint64 getRemoteLspDbVersionValue() {
         if (this.remoteLspDbVersion == null) {
-            return BigInteger.ONE;
+            return Uint64.ONE;
         }
         return this.remoteLspDbVersion.getLspDbVersionValue();
     }
@@ -138,7 +138,7 @@ final class PCCSyncOptimization {
         return false;
     }
 
-    public Optional<BigInteger> incrementLspDBVersion() {
+    public Optional<Uint64> incrementLspDBVersion() {
         if (!isSyncAvoidanceEnabled()) {
             return Optional.empty();
         } else if (isSyncNeedIt() && getLocalLspDbVersionValue() != null && !this.resynchronizing) {
@@ -148,7 +148,7 @@ final class PCCSyncOptimization {
             return Optional.of(this.lspDBVersion);
         }
 
-        this.lspDBVersion = this.lspDBVersion.add(BigInteger.ONE);
+        this.lspDBVersion = Uint64.fromLongBits(lspDBVersion.longValue() + 1);
         return Optional.of(this.lspDBVersion);
     }
 

@@ -16,6 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.esi.arbitrary._case.ArbitraryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.EvpnChoice;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
@@ -43,8 +45,8 @@ final class EsiModelUtil {
         throw new UnsupportedOperationException();
     }
 
-    static Long extractLD(final ContainerNode cont) {
-        return (Long) cont.getChild(LD_NID).get().getValue();
+    static Uint32 extractLD(final ContainerNode cont) {
+        return (Uint32) cont.getChild(LD_NID).get().getValue();
     }
 
     static Arbitrary extractArbitrary(final ContainerNode esi) {
@@ -55,14 +57,12 @@ final class EsiModelUtil {
         return new ArbitraryBuilder().setArbitrary(arbitrary).build();
     }
 
-
     static AsNumber extractAS(final ContainerNode asGen) {
-        return new AsNumber((Long) asGen.getChild(AS_NID).get().getValue());
+        return new AsNumber((Uint32) asGen.getChild(AS_NID).get().getValue());
     }
 
-
-    static Integer extractPK(final ContainerNode t1) {
-        return (Integer) t1.getChild(PK_NID).get().getValue();
+    static Uint16 extractPK(final ContainerNode t1) {
+        return (Uint16) t1.getChild(PK_NID).get().getValue();
     }
 
     static MacAddress extractLacpMac(final ContainerNode t1) {
@@ -73,12 +73,12 @@ final class EsiModelUtil {
         return new MacAddress((String) lan.getChild(BRIDGE_MAC_NID).get().getValue());
     }
 
-    static Integer extractBP(final ContainerNode lan) {
-        return (Integer) lan.getChild(RBP_NID).get().getValue();
+    static Uint16 extractBP(final ContainerNode lan) {
+        return (Uint16) lan.getChild(RBP_NID).get().getValue();
     }
 
     static Uint24 extractUint24LD(final ContainerNode esiVal) {
-        return new Uint24((Long) esiVal.getChild(LD_NID).get().getValue());
+        return new Uint24((Uint32) esiVal.getChild(LD_NID).get().getValue());
     }
 
     static MacAddress extractSystmeMac(final ContainerNode macGEn) {
@@ -88,5 +88,4 @@ final class EsiModelUtil {
     static Ipv4Address extractRD(final ContainerNode t4) {
         return new Ipv4Address((String) t4.getChild(RD_NID).get().getValue());
     }
-
 }

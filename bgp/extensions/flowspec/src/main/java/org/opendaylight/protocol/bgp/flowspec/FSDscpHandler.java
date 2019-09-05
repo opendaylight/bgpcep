@@ -33,7 +33,7 @@ public final class FSDscpHandler implements FlowspecTypeParser, FlowspecTypeSeri
         for (final Iterator<Dscps> it = dscps.iterator(); it.hasNext(); ) {
             final Dscps dscp = it.next();
             NumericOneByteOperandParser.INSTANCE.serialize(dscp.getOp(), 1, !it.hasNext(), nlriByteBuf);
-            Util.writeShortest(dscp.getValue().getValue(), nlriByteBuf);
+            Util.writeShortest(dscp.getValue().getValue().toJava(), nlriByteBuf);
         }
     }
 

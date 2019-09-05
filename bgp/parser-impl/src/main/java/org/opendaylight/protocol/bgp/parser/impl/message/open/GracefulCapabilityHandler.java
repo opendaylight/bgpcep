@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,13 +95,12 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         final List<Tables> tables = grace.getTables();
         final int tablesSize = tables != null ? tables.size() : 0;
         final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + PER_AFI_SAFI_SIZE * tablesSize);
-        int timeval = 0;
-        Integer time = grace.getRestartTime();
+        Uint16 time = grace.getRestartTime();
         if (time == null) {
-            time = 0;
+            time = Uint16.ZERO;
         }
-        Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME, "Restart time is " + time);
-        timeval = time;
+        final int timeval = time.toJava();
+        Preconditions.checkArgument(timeval >= 0 && timeval <= MAX_RESTART_TIME, "Restart time is " + time);
         final GracefulRestartCapability.RestartFlags flags = grace.getRestartFlags();
         if (flags != null && flags.isRestartState()) {
             writeUnsignedShort(RESTART_FLAG_STATE | timeval, bytes);

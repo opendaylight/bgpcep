@@ -424,7 +424,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             setAdvertizedGracefulRestartTableTypes(advertisedTables.stream()
                     .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         }
-        setAfiSafiGracefulRestartState(advertisedGracefulRestartCapability.getRestartTime(), false, restartingLocally);
+        setAfiSafiGracefulRestartState(advertisedGracefulRestartCapability.getRestartTime().toJava(), false,
+            restartingLocally);
 
         final Map<TablesKey, Integer> llTablesReceived;
         if (advertisedLLTables != null) {

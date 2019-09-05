@@ -21,6 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.Opaque;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +38,8 @@ public final class OpaqueUtil {
     }
 
     public static boolean serializeOpaque(final Opaque opaque, final ByteBuf byteBuf) {
-        final Short type = opaque.getOpaqueType();
-        switch (type) {
+        final Uint8 type = opaque.getOpaqueType();
+        switch (type.toJava()) {
             case GENERIC_LSP_IDENTIFIER:
                 ByteBufWriteUtil.writeUnsignedByte(type, byteBuf);
                 writeGeneric(opaque.getOpaque(), byteBuf);
@@ -53,16 +55,16 @@ public final class OpaqueUtil {
         return true;
     }
 
-    private static void writeExtended(final HexString opaque, final Integer opaqueExtendedType, final ByteBuf byteBuf) {
+    private static void writeExtended(final HexString opaque, final Uint16 opaqueExtendedType, final ByteBuf byteBuf) {
         final byte[] output = writeOpaqueValue(opaque.getValue());
         ByteBufWriteUtil.writeUnsignedShort(opaqueExtendedType, byteBuf);
-        ByteBufWriteUtil.writeUnsignedShort(output.length, byteBuf);
+        byteBuf.writeShort(output.length);
         byteBuf.writeBytes(output);
     }
 
     private static void writeGeneric(final HexString opaque, final ByteBuf byteBuf) {
         final byte[] output = writeOpaqueValue(opaque.getValue());
-        ByteBufWriteUtil.writeUnsignedShort(output.length, byteBuf);
+        byteBuf.writeShort(output.length);
         byteBuf.writeBytes(output);
     }
 

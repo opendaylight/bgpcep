@@ -16,6 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
@@ -24,22 +26,22 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLe
 
 public final class EvpnTestUtil {
     public static final int VALUE_SIZE = 9;
-    public static final long LD = 33686018;
+    public static final Uint32 LD = Uint32.valueOf(33686018);
     public static final String MAC_MODEL = "f2:0c:dd:80:9f:f7";
     public static final MacAddress MAC = new MacAddress(MAC_MODEL);
-    public static final long AS_MODEL = 16843009;
+    public static final Uint32 AS_MODEL = Uint32.valueOf(16843009);
     public static final AsNumber AS_NUMBER = new AsNumber(AS_MODEL);
-    public static final Integer PORT = 514;
-    public static final MplsLabel MPLS_LABEL = new MplsLabel(24001L);
+    public static final Uint16 PORT = Uint16.valueOf(514);
+    public static final Uint32 MPLS_LABEL_MODEL = Uint32.valueOf(24001L);
+    public static final MplsLabel MPLS_LABEL = new MplsLabel(MPLS_LABEL_MODEL);
     public static final int COMMUNITY_VALUE_SIZE = 6;
-    public static final long VLAN = 10L;
+    public static final Uint32 VLAN = Uint32.valueOf(10);
     public static final String IP_MODEL = "127.0.0.1";
     public static final IpAddress IP = new IpAddress(new Ipv4Address(IP_MODEL));
     public static final String IPV6_MODEL = "2001::1";
     public static final IpAddress IPV6 = new IpAddress(new Ipv6Address(IPV6_MODEL));
-    public static final long MPLS_LABEL_MODEL = 24001L;
-    public static final MplsLabel MPLS_LABEL2 = new MplsLabel(24002L);
-    public static final long MPLS_LABEL2_MODEL = 24002L;
+    public static final Uint32 MPLS_LABEL2_MODEL = Uint32.valueOf(24002L);
+    public static final MplsLabel MPLS_LABEL2 = new MplsLabel(MPLS_LABEL2_MODEL);
     public static final String RD_MODEL = "1.2.3.4:258";
     public static final RouteDistinguisher RD = RouteDistinguisherBuilder.getDefaultInstance(RD_MODEL);
 

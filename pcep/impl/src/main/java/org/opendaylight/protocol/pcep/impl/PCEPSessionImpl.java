@@ -345,7 +345,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
              */
             close();
             this.listener.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason
-                    .forValue(((CloseMessage) msg).getCCloseMessage().getCClose().getReason())));
+                    .forValue(((CloseMessage) msg).getCCloseMessage().getCClose().getReason().toJava())));
         } else {
             // This message needs to be handled by the user
             if (msg instanceof PcerrMessage) {

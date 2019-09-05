@@ -227,7 +227,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             ribImpl, null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
-                this.classicOpen.getHoldTimer(), null);
+                this.classicOpen.getHoldTimer().toJava(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
@@ -276,7 +276,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             ribImpl, null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
-                this.classicOpen.getHoldTimer(), null);
+                this.classicOpen.getHoldTimer().toJava(), null);
         bgpSession.setChannelExtMsgCoder(this.classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 

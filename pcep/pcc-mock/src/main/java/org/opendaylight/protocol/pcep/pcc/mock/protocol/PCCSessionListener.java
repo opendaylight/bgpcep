@@ -121,7 +121,7 @@ public final class PCCSessionListener implements PCEPSessionListener, PCCSession
         } else {
             srp = ((Pcinitiate) message).getPcinitiateMessage().getRequests().get(0).getSrp();
         }
-        return MsgBuilderUtil.createErrorMsg(getRandomError(), srp.getOperationId().getValue());
+        return MsgBuilderUtil.createErrorMsg(getRandomError(), srp.getOperationId().getValue().toJava());
     }
 
 }

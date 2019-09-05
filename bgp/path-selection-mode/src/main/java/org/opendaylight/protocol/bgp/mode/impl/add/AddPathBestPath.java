@@ -14,13 +14,14 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPath;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class AddPathBestPath extends AbstractBestPath {
     private final @NonNull RouteKey routeKey;
-    private final @NonNull Long pathId;
+    private final @NonNull Uint32 pathId;
     private final int offset;
 
-    AddPathBestPath(final @NonNull BestPathState state, final @NonNull RouteKey key, final @NonNull Long pathId,
+    AddPathBestPath(final @NonNull BestPathState state, final @NonNull RouteKey key, final @NonNull Uint32 pathId,
             final int offset) {
         super(state);
         this.routeKey = requireNonNull(key);
@@ -82,7 +83,8 @@ public final class AddPathBestPath extends AbstractBestPath {
 
     @Override
     public long getPathId() {
-        return this.pathId;
+        // FIXME: this should return int bits...
+        return this.pathId.longValue();
     }
 
     /**
@@ -91,7 +93,7 @@ public final class AddPathBestPath extends AbstractBestPath {
      *
      * @return Path Id as a {@link Long}
      */
-    @NonNull Long getPathIdLong() {
+    @NonNull Uint32 getPathIdLong() {
         return this.pathId;
     }
 }

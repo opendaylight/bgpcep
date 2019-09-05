@@ -23,7 +23,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNull;
@@ -36,6 +35,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCDispatcher;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,14 +63,14 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
             final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, final KeyMapping keys,
             final InetSocketAddress localAddress) {
         return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress,
-                BigInteger.ONE);
+            Uint64.ONE);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Future<PCEPSession> createClient(final InetSocketAddress remoteAddress, final long reconnectTime,
             final PCEPSessionListenerFactory listenerFactory, final PCEPSessionNegotiatorFactory negotiatorFactory,
-            final KeyMapping keys, final InetSocketAddress localAddress, final BigInteger dbVersion) {
+            final KeyMapping keys, final InetSocketAddress localAddress, final Uint64 dbVersion) {
         final Bootstrap b = new Bootstrap();
         b.group(this.workerGroup);
         b.localAddress(localAddress);
@@ -81,7 +81,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         final long retryTimer = reconnectTime == -1 ? 0 : reconnectTime;
         final PCCReconnectPromise promise =
                 new PCCReconnectPromise(remoteAddress, (int) retryTimer, CONNECT_TIMEOUT, b);
-        final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
+        final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<>() {
             @Override
             protected void initChannel(final SocketChannel ch) {
                 ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getDecoders());

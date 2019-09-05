@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -161,7 +162,7 @@ abstract class AbstractLabeledUnicastRIBSupport<
                         = label.getChild(labelValueNid);
                 if (labelStack.isPresent()) {
                     final LabelStackBuilder labelStackbuilder = new LabelStackBuilder();
-                    labelStackbuilder.setLabelValue(new MplsLabel((Long) labelStack.get().getValue()));
+                    labelStackbuilder.setLabelValue(new MplsLabel((Uint32) labelStack.get().getValue()));
                     labels.add(labelStackbuilder.build());
                 }
             }

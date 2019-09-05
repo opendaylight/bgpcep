@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class APITest {
 
@@ -51,7 +52,7 @@ public class APITest {
 
     @Test
     public void testBGPError() {
-        assertEquals(BGPError.BAD_MSG_TYPE, BGPError.forValue(1, 3));
+        assertEquals(BGPError.BAD_MSG_TYPE, BGPError.forValue(Uint8.ONE, Uint8.valueOf(3)));
     }
 
     @Test
