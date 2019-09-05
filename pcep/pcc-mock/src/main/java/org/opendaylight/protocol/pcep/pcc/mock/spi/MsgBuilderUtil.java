@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.pcep.pcc.mock.spi;
 
 import com.google.common.collect.Lists;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class MsgBuilderUtil {
 
@@ -73,7 +74,7 @@ public final class MsgBuilderUtil {
         return rptBuilder.build();
     }
 
-    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs,
+    public static Lsp createLsp(final Uint32 plspId, final boolean sync, final Optional<Tlvs> tlvs,
             final boolean isDelegatedLsp, final boolean remove) {
         final LspBuilder lspBuilder = new LspBuilder();
         lspBuilder.setAdministrative(true);
@@ -88,7 +89,7 @@ public final class MsgBuilderUtil {
         return lspBuilder.build();
     }
 
-    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs,
+    public static Lsp createLsp(final Uint32 plspId, final boolean sync, final Optional<Tlvs> tlvs,
             final boolean isDelegatedLspe) {
         return createLsp(plspId, sync, tlvs, isDelegatedLspe, false);
     }
@@ -99,7 +100,7 @@ public final class MsgBuilderUtil {
         return pathBuilder.build();
     }
 
-    public static Srp createSrp(final long srpId) {
+    public static Srp createSrp(final Uint32 srpId) {
         final SrpBuilder srpBuilder = new SrpBuilder();
         srpBuilder.setProcessingRule(false);
         srpBuilder.setIgnore(false);
@@ -124,15 +125,15 @@ public final class MsgBuilderUtil {
         return pathBuilder.build();
     }
 
-    public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
+    public static Tlvs createLspTlvs(final Uint32 lspId, final boolean symbolicPathName, final String tunnelEndpoint,
             final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName) {
         return createLspTlvs(lspId, symbolicPathName, tunnelEndpoint, tunnelSender, extendedTunnelAddress, symbolicName,
                 Optional.empty());
     }
 
-    public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
+    public static Tlvs createLspTlvs(final Uint32 lspId, final boolean symbolicPathName, final String tunnelEndpoint,
             final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName,
-            final Optional<BigInteger> lspDBVersion) {
+            final Optional<Uint64> lspDBVersion) {
         final TlvsBuilder tlvs = new TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
                 .setLspId(new LspId(lspId))
                 .setAddressFamily(
@@ -142,7 +143,7 @@ public final class MsgBuilderUtil {
                                         .setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(tunnelSender))
                                         .setIpv4ExtendedTunnelId(
                                                 new Ipv4ExtendedTunnelId(extendedTunnelAddress))
-                                        .build()).build()).setTunnelId(new TunnelId((int) lspId)).build());
+                                        .build()).build()).setTunnelId(new TunnelId(lspId.intValue())).build());
         if (symbolicPathName) {
             if (symbolicName.isPresent()) {
                 tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
@@ -160,30 +161,41 @@ public final class MsgBuilderUtil {
         return tlvs.build();
     }
 
-    public static Optional<Tlvs> createLspTlvsEndofSync(final @NonNull BigInteger bigInteger) {
+    public static Optional<Tlvs> createLspTlvsEndofSync(final @NonNull Uint64 dbVersion) {
         final Tlvs tlvs = new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setLspDbVersion(
-            new LspDbVersionBuilder().setLspDbVersionValue(bigInteger).build()).build()).build();
+            new LspDbVersionBuilder().setLspDbVersionValue(dbVersion).build()).build()).build();
         return Optional.of(tlvs);
     }
 
-    public static Pcerr createErrorMsg(final @NonNull PCEPErrors pcepErrors, final long srpId) {
-        final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
-        return new PcerrBuilder().setPcerrMessage(
-            msgBuilder
-                .setErrorType(
-                    new StatefulCaseBuilder().setStateful(
-                        new StatefulBuilder().setSrps(
-                            Lists.newArrayList(new SrpsBuilder().setSrp(
-                                new SrpBuilder().setProcessingRule(false).setIgnore(false)
-                                    .setOperationId(new SrpIdNumber(srpId)).build())
-                                .build())).build()).build())
-                .setErrors(
-                    Collections.singletonList(new ErrorsBuilder().setErrorObject(
-                        new ErrorObjectBuilder().setType(pcepErrors.getErrorType()).setValue(pcepErrors.getErrorValue())
-                            .build()).build())).build()).build();
+    public static Pcerr createErrorMsg(final @NonNull PCEPErrors pcepErrors, final Uint32 srpId) {
+        return new PcerrBuilder()
+                .setPcerrMessage(new PcerrMessageBuilder()
+                    .setErrorType(new StatefulCaseBuilder()
+                        .setStateful(new StatefulBuilder()
+                            .setSrps(Collections.singletonList(new SrpsBuilder()
+                                .setSrp(new SrpBuilder()
+                                    .setProcessingRule(false)
+                                    .setIgnore(false)
+                                    .setOperationId(new SrpIdNumber(srpId))
+                                    .build())
+                                .build()))
+                            .build())
+                        .build())
+                    .setErrors(Collections.singletonList(new ErrorsBuilder()
+                        .setErrorObject(new ErrorObjectBuilder()
+                            .setType(pcepErrors.getErrorType())
+                            .setValue(pcepErrors.getErrorValue())
+                            .build())
+                        .build()))
+                    .build())
+                .build();
     }
 
-    public static byte[] getDefaultPathName(final String address, final long lspId) {
+    public static Pcerr createErrorMsg(final @NonNull PCEPErrors pcepErrors, final long srpId) {
+        return createErrorMsg(pcepErrors, Uint32.valueOf(srpId));
+    }
+
+    public static byte[] getDefaultPathName(final String address, final Uint32 lspId) {
         return ("pcc_" + address + "_tunnel_" + lspId).getBytes(StandardCharsets.UTF_8);
     }
 

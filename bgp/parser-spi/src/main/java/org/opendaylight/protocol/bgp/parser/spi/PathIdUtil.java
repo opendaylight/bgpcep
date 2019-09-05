@@ -15,6 +15,7 @@ import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -24,7 +25,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 public final class PathIdUtil {
-    public static final long NON_PATH_ID_VALUE = 0;
+    public static final Uint32 NON_PATH_ID_VALUE = Uint32.ZERO;
     public static final PathId NON_PATH_ID = new PathId(NON_PATH_ID_VALUE);
 
     private PathIdUtil() {
@@ -39,8 +40,11 @@ public final class PathIdUtil {
      * @param buffer The ByteBuf where path-id value can be written.
      */
     public static void writePathId(final PathId pathId, final ByteBuf buffer) {
-        if (pathId != null && pathId.getValue() != 0) {
-            ByteBufWriteUtil.writeUnsignedInt(pathId.getValue(), buffer);
+        if (pathId != null) {
+            final Uint32 value = pathId.getValue();
+            if (value.toJava() != 0) {
+                ByteBufWriteUtil.writeUnsignedInt(value, buffer);
+            }
         }
     }
 
@@ -62,8 +66,8 @@ public final class PathIdUtil {
      * @param pathNii Path Id NodeIdentifier specific per each Rib support
      * @return The path identifier from data change
      */
-    public static Long extractPathId(final NormalizedNode<?, ?> data, final NodeIdentifier pathNii) {
-        return (Long) NormalizedNodes.findNode(data, pathNii).map(NormalizedNode::getValue).orElse(null);
+    public static Uint32 extractPathId(final NormalizedNode<?, ?> data, final NodeIdentifier pathNii) {
+        return (Uint32) NormalizedNodes.findNode(data, pathNii).map(NormalizedNode::getValue).orElse(null);
     }
 
     /**
@@ -75,7 +79,7 @@ public final class PathIdUtil {
      */
     public static PathId buildPathId(final DataContainerNode<? extends PathArgument> routesCont,
             final NodeIdentifier pathIdNii) {
-        final Long pathIdVal = PathIdUtil.extractPathId(routesCont, pathIdNii);
+        final Uint32 pathIdVal = PathIdUtil.extractPathId(routesCont, pathIdNii);
         return pathIdVal == null ? null : new PathId(pathIdVal);
     }
 

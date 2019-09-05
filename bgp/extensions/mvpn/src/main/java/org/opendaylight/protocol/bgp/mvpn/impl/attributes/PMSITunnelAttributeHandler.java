@@ -40,7 +40,7 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
 
     private static void parseMpls(final PmsiTunnelBuilder pmsiTunnelBuilder, final ByteBuf buffer) {
         final MplsLabel mpls = MplsLabelUtil.mplsLabelForByteBuf(buffer);
-        if (mpls.getValue() != 0) {
+        if (mpls.getValue().toJava() != 0) {
             pmsiTunnelBuilder.setMplsLabel(mpls);
         }
     }

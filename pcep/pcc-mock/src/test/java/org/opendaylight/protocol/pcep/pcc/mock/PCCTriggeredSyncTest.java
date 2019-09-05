@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertNotNull;
 
 import io.netty.channel.Channel;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,18 +29,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class PCCTriggeredSyncTest extends PCCMockCommon {
     @Test
     public void testSessionTriggeredSync() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final Channel channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
-        final BigInteger numberOflspAndDBv = BigInteger.valueOf(3);
+        final Uint64 numberOflspAndDBv = Uint64.valueOf(3);
         final PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
-        checkSynchronizedSession(0, pceSessionListener, BigInteger.ZERO);
+        checkSynchronizedSession(0, pceSessionListener, Uint64.ZERO);
         this.pccSessionListener.onMessage(session, createTriggerMsg());
         checkSynchronizedSession(3, pceSessionListener, numberOflspAndDBv);
         channel.close().get();

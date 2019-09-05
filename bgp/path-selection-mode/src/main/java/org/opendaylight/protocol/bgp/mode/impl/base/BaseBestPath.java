@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
 import org.eclipse.jdt.annotation.NonNull;
@@ -31,7 +30,8 @@ final class BaseBestPath extends AbstractBestPath {
 
     @Override
     public long getPathId() {
-        return NON_PATH_ID_VALUE;
+        // PathIdUtil.NON_PATH_ID_VALUE
+        return 0;
     }
 
     @Override

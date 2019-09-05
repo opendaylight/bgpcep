@@ -11,7 +11,6 @@ package org.opendaylight.protocol.pcep.parser.object;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -155,7 +154,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         flags.set(E_FLAG_OFFSET, rpObj.isEroCompression());
         final byte[] res = flags.array();
         if (rpObj.getPriority() != null) {
-            final byte p = UnsignedBytes.checkedCast(rpObj.getPriority());
+            final byte p = rpObj.getPriority().byteValue();
             res[res.length - 1] = (byte) (res[res.length - 1] | p);
         }
         body.writeBytes(res);

@@ -36,7 +36,7 @@ public class UnrecognizedAttributesSerializer implements AttributeSerializer {
             if (unrecognizedAttr.isTransitive()) {
                 flags |= AttributeUtil.TRANSITIVE;
             }
-            AttributeUtil.formatAttribute(flags, unrecognizedAttr.getType(),
+            AttributeUtil.formatAttribute(flags, unrecognizedAttr.getType().toJava(),
                     Unpooled.wrappedBuffer(unrecognizedAttr.getValue()), byteAggregator);
         }
     }

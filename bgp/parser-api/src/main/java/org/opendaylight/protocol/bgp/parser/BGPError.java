@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.Arrays;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Possible errors from implemented RFCs and drafts. Each error consists of error code and error subcode
@@ -165,8 +166,8 @@ public enum BGPError {
         this.errorId = new BGPErrorIdentifier(code, subcode);
     }
 
-    public static BGPError forValue(final int code, final int subcode) {
-        final BGPError e = VALUE_MAP.get(new BGPErrorIdentifier((short) code, (short) subcode));
+    public static BGPError forValue(final Uint8 code, final Uint8 subcode) {
+        final BGPError e = VALUE_MAP.get(new BGPErrorIdentifier(code.toJava(), subcode.toJava()));
         checkArgument(e != null, "BGP Error code %s and subcode %s not recognized.", code, subcode);
         return e;
     }

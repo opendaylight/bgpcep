@@ -12,7 +12,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -21,6 +20,7 @@ import java.util.Optional;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public final class Main {
     private static boolean includeDbv = Boolean.FALSE;
     private static boolean incrementalSync = Boolean.FALSE;
     private static boolean triggeredResync = Boolean.FALSE;
-    private static BigInteger syncOptDBVersion;
+    private static Uint64 syncOptDBVersion;
     private static int reconnectAfterXSeconds;
     private static int disonnectAfterXSeconds;
 
@@ -109,7 +109,7 @@ public final class Main {
                     final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
                     disonnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
                     reconnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
-                    syncOptDBVersion = BigInteger.valueOf(dbVersionAfterReconnect);
+                    syncOptDBVersion = Uint64.valueOf(dbVersionAfterReconnect);
                     break;
                 case "--incremental-sync-procedure":
                     //TODO Check that DBv > Lsp always ??
@@ -119,7 +119,7 @@ public final class Main {
                     final Long initialDbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
                     disonnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
                     reconnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
-                    syncOptDBVersion = BigInteger.valueOf(initialDbVersionAfterReconnect);
+                    syncOptDBVersion = Uint64.valueOf(initialDbVersionAfterReconnect);
                     break;
                 case "--triggered-initial-sync":
                     triggeredInitSync = Boolean.TRUE;
@@ -140,13 +140,13 @@ public final class Main {
                             + "reconnectes requires to be higher than lsps");
         }
 
-        final Optional<BigInteger> dBVersion = Optional.ofNullable(syncOptDBVersion);
+        final Optional<Uint64> dBVersion = Optional.ofNullable(syncOptDBVersion);
         final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt,
                 password, reconnectTime, redelegationTimeout,
             stateTimeout, getCapabilities());
         final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, disonnectAfterXSeconds,
                 reconnectAfterXSeconds);
-        pccs.createPCCs(BigInteger.valueOf(lsps), Optional.ofNullable(timerHandler));
+        pccs.createPCCs(Uint64.valueOf(lsps), Optional.ofNullable(timerHandler));
         if (!triggeredInitSync) {
             timerHandler.createDisconnectTask();
         }
@@ -161,7 +161,7 @@ public final class Main {
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
-        return lc.getLoggerList().stream().filter(input -> (input != null) && input.getName()
+        return lc.getLoggerList().stream().filter(input -> input != null && input.getName()
             .equals(Logger.ROOT_LOGGER_NAME)).findFirst().get();
     }
 }

@@ -87,7 +87,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         this.bgpIid = bgpIid;
         final String ribInstanceName = getRibInstanceName(bgpIid);
         this.serviceGroupIdentifier = ServiceGroupIdentifier.create(ribInstanceName + "-service-group");
-        LOG.info("BGPClusterSingletonService {} registered", this.serviceGroupIdentifier.getValue());
+        LOG.info("BGPClusterSingletonService {} registered", this.serviceGroupIdentifier.getName());
         ClusterSingletonServiceRegistrationHelper
                 .registerSingletonService(provider, this);
     }
@@ -99,12 +99,12 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
             this.peers.values().forEach(PeerBean::instantiateServiceInstance);
         }
         this.instantiated.set(true);
-        LOG.info("BGPClusterSingletonService {} instantiated", this.serviceGroupIdentifier.getValue());
+        LOG.info("BGPClusterSingletonService {} instantiated", this.serviceGroupIdentifier.getName());
     }
 
     @Override
     public synchronized ListenableFuture<? extends CommitInfo> closeServiceInstance() {
-        LOG.info("BGPClusterSingletonService {} close service instance", this.serviceGroupIdentifier.getValue());
+        LOG.info("BGPClusterSingletonService {} close service instance", this.serviceGroupIdentifier.getName());
         this.instantiated.set(false);
 
         final List<ListenableFuture<? extends CommitInfo>> futurePeerCloseList = this.peers.values().stream()
@@ -223,7 +223,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
 
     @Override
     public void close() {
-        LOG.info("BGPClusterSingletonService {} close", this.serviceGroupIdentifier.getValue());
+        LOG.info("BGPClusterSingletonService {} close", this.serviceGroupIdentifier.getName());
         this.peers.values().iterator().forEachRemaining(PeerBean::close);
         this.ribImpl.close();
         this.peers.clear();

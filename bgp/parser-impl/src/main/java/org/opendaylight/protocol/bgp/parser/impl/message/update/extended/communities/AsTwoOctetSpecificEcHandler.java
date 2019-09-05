@@ -5,23 +5,21 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.AbstractTwoOctetAsExtendedCommunity;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ShortAsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.AsSpecificExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.AsSpecificExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.as.specific.extended.community._case.AsSpecificExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.as.specific.extended.community._case.AsSpecificExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AsTwoOctetSpecificEcHandler extends AbstractTwoOctetAsExtendedCommunity {
 
@@ -31,7 +29,7 @@ public class AsTwoOctetSpecificEcHandler extends AbstractTwoOctetAsExtendedCommu
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
             throws BGPDocumentedException, BGPParsingException {
         final AsSpecificExtendedCommunity asSpecific = new AsSpecificExtendedCommunityBuilder()
-            .setGlobalAdministrator(new ShortAsNumber((long) buffer.readUnsignedShort()))
+            .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(buffer.readUnsignedShort())))
             .setLocalAdministrator(ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH))
             .build();
         return new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(asSpecific).build();
@@ -44,8 +42,7 @@ public class AsTwoOctetSpecificEcHandler extends AbstractTwoOctetAsExtendedCommu
                 extendedCommunity);
         final AsSpecificExtendedCommunity asSpecific = ((AsSpecificExtendedCommunityCase) extendedCommunity)
                 .getAsSpecificExtendedCommunity();
-        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(asSpecific.getGlobalAdministrator().getValue()),
-                byteAggregator);
+        byteAggregator.writeShort(asSpecific.getGlobalAdministrator().getValue().intValue());
         byteAggregator.writeBytes(asSpecific.getLocalAdministrator());
     }
 
