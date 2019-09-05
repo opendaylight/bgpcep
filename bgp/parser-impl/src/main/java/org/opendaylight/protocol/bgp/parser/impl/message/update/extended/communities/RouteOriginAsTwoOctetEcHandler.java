@@ -44,7 +44,7 @@ public final class RouteOriginAsTwoOctetEcHandler extends AbstractTwoOctetAsExte
                 extendedCommunity);
         final RouteOriginExtendedCommunity routeOrigin
                 = ((RouteOriginExtendedCommunityCase) extendedCommunity).getRouteOriginExtendedCommunity();
-        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(routeOrigin.getGlobalAdministrator().getValue()),
+        ByteBufWriteUtil.writeUnsignedShort(Ints.checkedCast(routeOrigin.getGlobalAdministrator().getValue().toJava()),
                 byteAggregator);
         byteAggregator.writeBytes(routeOrigin.getLocalAdministrator());
     }
