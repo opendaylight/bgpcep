@@ -12,6 +12,7 @@ import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AbstractBestPathSelector {
     private final long ourAs;
@@ -55,16 +56,16 @@ public class AbstractBestPathSelector {
          * FIXME: for eBGP cases (when the LOCAL_PREF is missing), we should assign a policy-based preference
          *        before we ever get here.
          */
-        final Long bestLocal = this.bestState.getLocalPref();
-        final Long stateLocal = state.getLocalPref();
+        final Uint32 bestLocal = this.bestState.getLocalPref();
+        final Uint32 stateLocal = state.getLocalPref();
         if (stateLocal != null) {
             if (bestLocal == null) {
                 return true;
             }
 
-            final Boolean bool = firstLower(stateLocal, bestLocal);
-            if (bool != null) {
-                return bool;
+            final int cmp = stateLocal.compareTo(bestLocal);
+            if (cmp != 0) {
+                return cmp < 0;
             }
         } else if (bestLocal != null) {
             return false;
