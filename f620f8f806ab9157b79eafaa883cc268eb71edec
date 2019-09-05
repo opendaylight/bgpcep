@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAE3//92c\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-pcep.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-09-05T14:40:22Z",
+      "side": 1,
+      "message": "Yeah, defining this here is a bad idea actually. Load-sharing (and other forms of link bundling) should be in a separated model.",
+      "parentUuid": "AAAAE3//97I\u003d",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAE3//97E\u003d",
         "filename": "pcep/api/src/main/yang/topology-tunnel-pcep.yang",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2013-08-16T20:50:44Z",
       "side": 1,
       "message": "This should be called something like \u0027tunnel-pcep-path-hop-attributes\u0027 to indicate that it\u0027s per path hop, not per path attribute. And it should contain a node id for each hop ( and other data from from RSVP)",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//92Y\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-pcep.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-09-05T14:40:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAE3//97E\u003d",
       "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAE3//92g\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-sr.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-09-05T14:40:22Z",
+      "side": 1,
+      "message": "Reworked to a separate topology-sr model.",
+      "parentUuid": "AAAAE3//97o\u003d",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAE3//97Y\u003d",
         "filename": "pcep/api/src/main/yang/topology-tunnel.yang",
         "patchSetId": 8
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAE3//94E\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-09-05T14:40:22Z",
+      "side": 1,
+      "message": "Okay, we can remove this if it gets integrated into network-topology.",
+      "parentUuid": "AAAAE3//97Y\u003d",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAE3//97g\u003d",
         "filename": "pcep/api/src/main/yang/topology-tunnel.yang",
         "patchSetId": 8
@@ -81,6 +153,24 @@
       "writtenOn": "2013-08-16T20:50:44Z",
       "side": 1,
       "message": "Need to put in the comment about what exactly is modeled here",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//93s\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-09-05T14:40:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAE3//97g\u003d",
       "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
