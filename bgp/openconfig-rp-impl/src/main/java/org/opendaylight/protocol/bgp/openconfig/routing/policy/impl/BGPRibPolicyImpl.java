@@ -14,6 +14,7 @@ import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.regist
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -85,6 +86,8 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
         this.ribBaseParameters = new PolicyRIBBaseParametersImpl(localAs, originatorId, clusterId);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<Statement> loadStatements(final String key) throws ExecutionException, InterruptedException {
         final ReadTransaction tr = this.databroker.newReadOnlyTransaction();
         final Optional<Statements> result =
