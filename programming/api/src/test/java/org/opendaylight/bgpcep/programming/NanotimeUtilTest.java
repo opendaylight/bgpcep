@@ -20,7 +20,7 @@ public class NanotimeUtilTest {
 
     @Test
     public void testCurrentTime() {
-        assertTrue(NanotimeUtil.currentTime().getValue().divide(BigInteger.valueOf(1000000)).subtract(
+        assertTrue(NanotimeUtil.currentTime().getValue().toJava().divide(BigInteger.valueOf(1000000)).subtract(
                 BigInteger.valueOf(System.currentTimeMillis())).shortValue() <= 0);
     }
 

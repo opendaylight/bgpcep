@@ -8,6 +8,7 @@
 package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Customized handler for instantiating {@link RrClusterIdType} from a String.
@@ -24,8 +25,8 @@ public final class RrClusterIdTypeBuilder {
         }
 
         try {
-            return new RrClusterIdType(Integer.toUnsignedLong(Integer.parseUnsignedInt(defaultValue)));
-        } catch (final NumberFormatException e) {
+            return new RrClusterIdType(Uint32.valueOf(defaultValue));
+        } catch (final IllegalArgumentException e) {
             throw new IllegalArgumentException("Cannot create RrClusterIdType from " + defaultValue, e);
         }
     }

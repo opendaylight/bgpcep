@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCServerPeerProposal;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class PCCIncrementalSyncTest extends PCCMockCommon {
 
@@ -35,14 +36,14 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
     @Test
     public void testSessionIncrementalSyncEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        final BigInteger numberOflspAndDBv = BigInteger.valueOf(8);
+        final Uint64 numberOflspAndDBv = Uint64.valueOf(8);
         final Channel channel = createServer(factory, this.remoteAddress, new PCCServerPeerProposal(numberOflspAndDBv));
         Main.main(this.mainInputIncrementalSync);
         final TestingSessionListener pceSessionListener = getListener(factory);
         checkSynchronizedSession(8, pceSessionListener, numberOflspAndDBv);
         Thread.sleep(6000);
         final int expetecdNumberOfLspAndEndOfSync = 3;
-        final BigInteger expectedFinalDBVersion = BigInteger.valueOf(10);
+        final Uint64 expectedFinalDBVersion = Uint64.valueOf(10);
         final TestingSessionListener sessionListenerAfterReconnect = getListener(factory);
         checkResyncSession(Optional.empty(), expetecdNumberOfLspAndEndOfSync, 3, numberOflspAndDBv,
                 expectedFinalDBVersion, sessionListenerAfterReconnect);

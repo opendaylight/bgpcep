@@ -67,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 final class OpenConfigMappingUtil {
 
@@ -117,7 +118,10 @@ final class OpenConfigMappingUtil {
             final boolean anyMatch = afiSafi.stream()
                     .anyMatch(input -> input.getAfiSafiName().equals(IPV4UNICAST.class));
             if (!anyMatch) {
-                afiSafi.add(IPV4_AFISAFI);
+                final List<AfiSafi> newAfiSafi = new ArrayList<>(afiSafi.size() + 1);
+                newAfiSafi.addAll(afiSafi);
+                newAfiSafi.add(IPV4_AFISAFI);
+                return newAfiSafi;
             }
         }
         return afiSafi;
@@ -164,7 +168,7 @@ final class OpenConfigMappingUtil {
             if (afiSafi2 != null) {
                 final Optional<BgpTableType> bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
                 if (bgpTableType.isPresent()) {
-                    final int sendMax = afiSafi2.getSendMax();
+                    final short sendMax = afiSafi2.getSendMax().toJava();
                     final PathSelectionMode selectionMode;
                     if (sendMax > 1) {
                         selectionMode = new AddPathBestNPathSelection(sendMax);
@@ -325,7 +329,7 @@ final class OpenConfigMappingUtil {
     }
 
     static int getGracefulRestartTimer(final Neighbor neighbor, final PeerGroup peerGroup, final int holdTimer) {
-        Integer timer = null;
+        Uint16 timer = null;
         if (peerGroup != null) {
             timer = getGracefulRestartTimer(peerGroup.getGracefulRestart());
         }
@@ -338,14 +342,10 @@ final class OpenConfigMappingUtil {
          * RFC4724: "A suggested default for the Restart Time is a value less than or
          * equal to the HOLDTIME carried in the OPEN."
          */
-        if (timer == null) {
-            timer = holdTimer;
-        }
-
-        return timer;
+        return timer == null ? holdTimer : timer.toJava();
     }
 
-    private static @Nullable Integer getGracefulRestartTimer(final GracefulRestart gracefulRestart) {
+    private static @Nullable Uint16 getGracefulRestartTimer(final GracefulRestart gracefulRestart) {
         if (gracefulRestart != null) {
             final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful
                     .restart.Config config = gracefulRestart.getConfig();

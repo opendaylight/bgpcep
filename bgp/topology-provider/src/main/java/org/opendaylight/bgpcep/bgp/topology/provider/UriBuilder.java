@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import com.google.common.io.BaseEncoding;
-import com.google.common.primitives.UnsignedBytes;
 import java.util.Arrays;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.NodeIdentifier;
@@ -121,7 +120,7 @@ final class UriBuilder {
         if (routerIdentifier instanceof IsisPseudonodeCase) {
             final IsisPseudonode r = ((IsisPseudonodeCase) routerIdentifier).getIsisPseudonode();
             return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.'
-                    + BaseEncoding.base16().encode(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
+                    + BaseEncoding.base16().encode(new byte[] { r.getPsn().byteValue() });
         }
         if (routerIdentifier instanceof OspfNodeCase) {
             return ((OspfNodeCase) routerIdentifier).getOspfNode().getOspfRouterId().toString();

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertEquals;
@@ -24,7 +23,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -60,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public abstract class PCCMockCommon {
     private static final short KEEP_ALIVE = 30;
@@ -135,12 +134,12 @@ public abstract class PCCMockCommon {
     }
 
     static void checkSynchronizedSession(final int numberOfLsp,
-            final TestingSessionListener pceSessionListener, final BigInteger expectedeInitialDb) throws Exception {
+            final TestingSessionListener pceSessionListener, final Uint64 expectedeInitialDb) throws Exception {
         assertTrue(pceSessionListener.isUp());
         //Send Open with LspDBV = 1
         final int numberOfSyncMessage = 1;
         int numberOfLspExpected = numberOfLsp;
-        if (!expectedeInitialDb.equals(BigInteger.ZERO)) {
+        if (!expectedeInitialDb.equals(Uint64.ZERO)) {
             checkEquals(() -> checkSequequenceDBVersionSync(pceSessionListener, expectedeInitialDb));
             numberOfLspExpected += numberOfSyncMessage;
         }
@@ -155,7 +154,7 @@ public abstract class PCCMockCommon {
     }
 
     static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp,
-            final int expectedTotalMessages, final BigInteger startingDBVersion, final BigInteger expectedDBVersion,
+            final int expectedTotalMessages, final Uint64 startingDBVersion, final Uint64 expectedDBVersion,
             final TestingSessionListener pceSessionListener) throws Exception {
         assertNotNull(pceSessionListener.getSession());
         assertTrue(pceSessionListener.isUp());
@@ -175,7 +174,7 @@ public abstract class PCCMockCommon {
 
         assertTrue(session.getRemoteTlvs().augmentation(Tlvs1.class).getStateful()
                 .augmentation(Stateful1.class).isInitiation());
-        final BigInteger pceDBVersion = session.getLocalTlvs().augmentation(Tlvs3.class)
+        final Uint64 pceDBVersion = session.getLocalTlvs().augmentation(Tlvs3.class)
                 .getLspDbVersion().getLspDbVersionValue();
         assertEquals(startingDBVersion, pceDBVersion);
     }
@@ -191,25 +190,26 @@ public abstract class PCCMockCommon {
     }
 
     protected static void checkSequequenceDBVersionSync(final TestingSessionListener pceSessionListener,
-            final BigInteger expectedDbVersion) {
+            final Uint64 expectedDbVersion) {
         for (final Message msg : pceSessionListener.messages()) {
             final List<Reports> pcrt = ((Pcrpt) msg).getPcrptMessage().getReports();
             for (final Reports report : pcrt) {
                 final Lsp lsp = report.getLsp();
-                if (lsp.getPlspId().getValue() == 0) {
+                if (lsp.getPlspId().getValue().toJava() == 0) {
                     assertEquals(false, lsp.isSync());
                 } else {
                     assertEquals(true, lsp.isSync());
                 }
-                final BigInteger actuaLspDBVersion = lsp.getTlvs().augmentation(org.opendaylight.yang.gen
-                    .v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs1.class)
-                    .getLspDbVersion().getLspDbVersionValue();
+                final Uint64 actuaLspDBVersion = lsp.getTlvs()
+                        .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep
+                            .sync.optimizations.rev181109.Tlvs1.class)
+                        .getLspDbVersion().getLspDbVersionValue();
                 assertEquals(expectedDbVersion, actuaLspDBVersion);
             }
         }
     }
 
-    Future<PCEPSession> createPCCSession(final BigInteger dbVersion) {
+    Future<PCEPSession> createPCCSession(final Uint64 dbVersion) {
         final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(this.messageRegistry);
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(),

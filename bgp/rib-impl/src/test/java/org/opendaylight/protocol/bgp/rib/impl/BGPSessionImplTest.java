@@ -152,7 +152,7 @@ public class BGPSessionImplTest {
         doReturn(futureChannel).when(this.speakerListener).close();
         this.listener = new SimpleSessionListener();
         this.bgpSession = new BGPSessionImpl(this.listener, this.speakerListener, this.classicOpen,
-            this.classicOpen.getHoldTimer(), null);
+            this.classicOpen.getHoldTimer().toJava(), null);
         this.bgpSession.setChannelExtMsgCoder(this.classicOpen);
     }
 
@@ -226,7 +226,7 @@ public class BGPSessionImplTest {
         doThrow(mockedEx).when(mockListener).onSessionUp(any());
         doNothing().when(mockListener).onSessionTerminated(any(), any());
         this.bgpSession = spy(new BGPSessionImpl(mockListener, this.speakerListener, this.classicOpen,
-                this.classicOpen.getHoldTimer(), null));
+                this.classicOpen.getHoldTimer().toJava(), null));
         this.bgpSession.setChannelExtMsgCoder(this.classicOpen);
 
         verify(this.bgpSession, never()).handleException(any());

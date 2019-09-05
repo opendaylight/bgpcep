@@ -76,6 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,8 +139,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.limiter = new ChannelOutputLimiter(this);
         this.channel.pipeline().addLast(this.limiter);
 
-        final int holdTimerValue = remoteOpen.getHoldTimer() < localHoldTimer ? remoteOpen.getHoldTimer()
-                : localHoldTimer;
+        final int remoteHoldTimer = remoteOpen.getHoldTimer().toJava();
+        final int holdTimerValue = Math.min(remoteHoldTimer, localHoldTimer);
         LOG.info("BGP HoldTimer new value: {}", holdTimerValue);
         this.holdTimerNanos = TimeUnit.SECONDS.toNanos(holdTimerValue);
         this.keepAliveNanos = TimeUnit.SECONDS.toNanos(holdTimerValue / KA_TO_DEADTIMER_RATIO);
@@ -305,7 +306,14 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Holding("this")
-    private void notifyTerminationReasonAndCloseWithoutMessage(final Short errorCode, final Short errorSubcode) {
+    private void notifyTerminationReasonAndCloseWithoutMessage(final BGPError error) {
+        this.terminationReasonNotified = true;
+        this.closeWithoutMessage();
+        this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
+    }
+
+    @Holding("this")
+    private void notifyTerminationReasonAndCloseWithoutMessage(final Uint8 errorCode, final Uint8 errorSubcode) {
         this.terminationReasonNotified = true;
         this.closeWithoutMessage();
         this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(errorCode, errorSubcode)));
@@ -388,7 +396,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             builder.setData(data);
         }
         writeAndFlush(builder.build());
-        notifyTerminationReasonAndCloseWithoutMessage(error.getCode(), error.getSubcode());
+        notifyTerminationReasonAndCloseWithoutMessage(error);
     }
 
     private void removePeerSession() {

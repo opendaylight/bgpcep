@@ -12,6 +12,7 @@ import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkLrIdentifiers;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<LinkLrIdentifiers>,
         LinkstateTlvParser<LinkLrIdentifiers> {
@@ -26,8 +27,8 @@ public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSer
 
     @Override
     public LinkLrIdentifiers parseTlvBody(final ByteBuf value) {
-        final long localId = value.readUnsignedInt();
-        final long remoteId = value.readUnsignedInt();
+        final Uint32 localId = Uint32.valueOf(value.readUnsignedInt());
+        final Uint32 remoteId = Uint32.valueOf(value.readUnsignedInt());
         return new LinkLrIdentifiers() {
             @Override
             public Class<LinkLrIdentifiers> implementedInterface() {
@@ -35,12 +36,12 @@ public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSer
             }
 
             @Override
-            public Long getLinkRemoteIdentifier() {
+            public Uint32 getLinkRemoteIdentifier() {
                 return remoteId;
             }
 
             @Override
-            public Long getLinkLocalIdentifier() {
+            public Uint32 getLinkLocalIdentifier() {
                 return localId;
             }
         };

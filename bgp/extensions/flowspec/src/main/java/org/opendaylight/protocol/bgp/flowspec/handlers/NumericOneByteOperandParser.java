@@ -12,11 +12,12 @@ import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOneByteValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Parser class for NumericOneByteValues.
  */
-public final class NumericOneByteOperandParser extends AbstractNumericByteOperandParser<NumericOneByteValue, Short> {
+public final class NumericOneByteOperandParser extends AbstractNumericByteOperandParser<NumericOneByteValue, Uint8> {
 
     public static final NumericOneByteOperandParser INSTANCE;
 
@@ -39,12 +40,12 @@ public final class NumericOneByteOperandParser extends AbstractNumericByteOperan
         for (final Iterator<T> it = list.iterator(); it.hasNext(); ) {
             final T operand = it.next();
             super.serialize(operand.getOp(), 1, !it.hasNext(), nlriByteBuf);
-            Util.writeShortest(operand.getValue(), nlriByteBuf);
+            Util.writeShortest(operand.getValue().toJava(), nlriByteBuf);
         }
     }
 
     @Override
-    protected <T extends NumericOneByteValue> Short getValue(final T item) {
+    protected <T extends NumericOneByteValue> Uint8 getValue(final T item) {
         return item.getValue();
     }
 

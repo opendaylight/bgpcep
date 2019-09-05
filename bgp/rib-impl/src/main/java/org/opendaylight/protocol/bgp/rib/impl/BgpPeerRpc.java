@@ -68,19 +68,20 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     @Override
     public ListenableFuture<RpcResult<RestartGracefullyOutput>> restartGracefully(final RestartGracefullyInput input) {
         final SettableFuture<RpcResult<RestartGracefullyOutput>> ret = SettableFuture.create();
-        Futures.addCallback(peerRPCs.restartGracefully(input.getSelectionDeferralTime()), new FutureCallback<Object>() {
-            @Override
-            public void onSuccess(final Object result) {
-                ret.set(RpcResultBuilder.success(new RestartGracefullyOutputBuilder().build()).build());
-            }
+        Futures.addCallback(peerRPCs.restartGracefully(input.getSelectionDeferralTime().toJava()),
+            new FutureCallback<Object>() {
+                @Override
+                public void onSuccess(final Object result) {
+                    ret.set(RpcResultBuilder.success(new RestartGracefullyOutputBuilder().build()).build());
+                }
 
-            @Override
-            public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to perform graceful restart", throwable);
-                ret.set(RpcResultBuilder.<RestartGracefullyOutput>failed()
-                    .withError(ErrorType.RPC, throwable.getMessage()).build());
-            }
-        }, MoreExecutors.directExecutor());
+                @Override
+                public void onFailure(final Throwable throwable) {
+                    LOG.error("Failed to perform graceful restart", throwable);
+                    ret.set(RpcResultBuilder.<RestartGracefullyOutput>failed()
+                        .withError(ErrorType.RPC, throwable.getMessage()).build());
+                }
+            }, MoreExecutors.directExecutor());
         return ret;
     }
 

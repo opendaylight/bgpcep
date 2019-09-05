@@ -221,11 +221,11 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             }
         }
 
-        private Node getNode() {
+        Node getNode() {
             return (Node) read(this.nii);
         }
 
-        private TerminationPoint getTp() {
+        TerminationPoint getTp() {
             return (TerminationPoint) read(this.tii);
         }
     }

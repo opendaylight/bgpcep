@@ -7,8 +7,8 @@
  */
 package org.opendaylight.bgpcep.programming.spi;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
@@ -34,7 +34,7 @@ public final class SuccessfulRpcResult<T> implements RpcResult<T> {
     }
 
     @Override
-    public Collection<RpcError> getErrors() {
+    public List<RpcError> getErrors() {
         return Collections.emptyList();
     }
 }

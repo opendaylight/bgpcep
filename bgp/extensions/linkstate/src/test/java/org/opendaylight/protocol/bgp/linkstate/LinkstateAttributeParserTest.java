@@ -70,6 +70,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class LinkstateAttributeParserTest {
 
@@ -225,7 +227,7 @@ public class LinkstateAttributeParserTest {
 
         assertEquals("42.42.42.42", ls.getLocalIpv4RouterId().getValue());
         assertEquals("43.43.43.43", ls.getRemoteIpv4RouterId().getValue());
-        assertEquals(Long.valueOf(0L), ls.getAdminGroup().getValue());
+        assertEquals(Uint32.ZERO, ls.getAdminGroup().getValue());
         assertArrayEquals(new byte[] { (byte) 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80 },
             ls.getMaxLinkBandwidth().getValue());
         assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
@@ -235,7 +237,7 @@ public class LinkstateAttributeParserTest {
         assertEquals(LinkProtectionType.Dedicated1to1, ls.getLinkProtection());
         assertTrue(ls.getMplsProtocol().isLdp());
         assertTrue(ls.getMplsProtocol().isRsvpte());
-        assertEquals(new Long(10), ls.getMetric().getValue());
+        assertEquals(Uint32.valueOf(10), ls.getMetric().getValue());
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
@@ -243,23 +245,23 @@ public class LinkstateAttributeParserTest {
                 .setBackup(Boolean.FALSE).setSet(Boolean.FALSE).build();
         assertEquals(flags, ls.getSrAdjIds().get(0).getFlags());
         assertEquals(flags, ls.getSrAdjIds().get(1).getFlags());
-        assertEquals(new Long(1048575L), ((LocalLabelCase)ls.getSrAdjIds().get(0).getSidLabelIndex()).getLocalLabel()
-            .getValue());
-        assertEquals(new Long(1048559L), ((LocalLabelCase)ls.getSrAdjIds().get(1).getSidLabelIndex()).getLocalLabel()
-            .getValue());
-        assertEquals(new Long(168496141L), ((SidCase) ls.getPeerNodeSid().getSidLabelIndex()).getSid());
-        assertEquals(new Short("5"), ls.getPeerNodeSid().getWeight().getValue());
-        assertEquals(new Long(168496142L), ((SidCase) ls.getPeerSetSids().get(0).getSidLabelIndex()).getSid());
-        assertEquals(new Short("5"), ls.getPeerSetSids().get(0).getWeight().getValue());
-        assertEquals(new Long(168496143L), ((SidCase) ls.getPeerAdjSid().getSidLabelIndex()).getSid());
-        assertEquals(new Short("5"), ls.getPeerAdjSid().getWeight().getValue());
+        assertEquals(Uint32.valueOf(1048575L),
+            ((LocalLabelCase)ls.getSrAdjIds().get(0).getSidLabelIndex()).getLocalLabel().getValue());
+        assertEquals(Uint32.valueOf(1048559L),
+            ((LocalLabelCase)ls.getSrAdjIds().get(1).getSidLabelIndex()).getLocalLabel().getValue());
+        assertEquals(Uint32.valueOf(168496141L), ((SidCase) ls.getPeerNodeSid().getSidLabelIndex()).getSid());
+        assertEquals(Uint8.valueOf(5), ls.getPeerNodeSid().getWeight().getValue());
+        assertEquals(Uint32.valueOf(168496142L), ((SidCase) ls.getPeerSetSids().get(0).getSidLabelIndex()).getSid());
+        assertEquals(Uint8.valueOf(5), ls.getPeerSetSids().get(0).getWeight().getValue());
+        assertEquals(Uint32.valueOf(168496143L), ((SidCase) ls.getPeerAdjSid().getSidLabelIndex()).getSid());
+        assertEquals(Uint8.valueOf(5), ls.getPeerAdjSid().getWeight().getValue());
 
         // Performance Metrics
-        assertEquals(new Long(10000L), ls.getLinkDelay().getValue());
-        assertEquals(new Long(5000L), ls.getLinkMinMaxDelay().getMinDelay().getValue());
-        assertEquals(new Long(20000L), ls.getLinkMinMaxDelay().getMaxDelay().getValue());
-        assertEquals(new Long(10000L), ls.getDelayVariation().getValue());
-        assertEquals(new Long(0L), ls.getLinkLoss().getValue());
+        assertEquals(Uint32.valueOf(10000L), ls.getLinkDelay().getValue());
+        assertEquals(Uint32.valueOf(5000L), ls.getLinkMinMaxDelay().getMinDelay().getValue());
+        assertEquals(Uint32.valueOf(20000L), ls.getLinkMinMaxDelay().getMaxDelay().getValue());
+        assertEquals(Uint32.valueOf(10000L), ls.getDelayVariation().getValue());
+        assertEquals(Uint32.valueOf(0L), ls.getLinkLoss().getValue());
         assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
                 ls.getResidualBandwidth().getValue());
         assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
@@ -362,8 +364,8 @@ public class LinkstateAttributeParserTest {
             teLspAttributes.getTspecObject().getTokenBucketSize());
         assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03}),
             tSpec.getPeakDataRate());
-        assertEquals(new Long("4"), tSpec.getMinimumPolicedUnit());
-        assertEquals(new Long("5"), tSpec.getMaximumPacketSize());
+        assertEquals(Uint32.valueOf(4), tSpec.getMinimumPolicedUnit());
+        assertEquals(Uint32.valueOf(5), tSpec.getMaximumPacketSize());
 
         final AssociationObject associationObject = teLspAttributes.getAssociationObject();
         assertEquals(AssociationType.Recovery, associationObject.getAssociationType());
