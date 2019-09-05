@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -49,6 +50,8 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
         return new CodecsRegistryImpl(codecFactory, classStrategy);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private Codecs createContext(final RIBSupport<?, ?, ?, ?> ribSupport) {
         final Codecs codecs = new CodecsImpl(ribSupport);
         if (this.latestCodecTree != null) {

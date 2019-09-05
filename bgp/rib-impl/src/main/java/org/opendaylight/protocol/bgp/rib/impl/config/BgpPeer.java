@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FluentFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -85,6 +86,8 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         this.rpcRegistry = rpcRegistry;
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static List<OptionalCapabilities> getBgpCapabilities(final AfiSafis afiSafis, final RIB rib,
                                                           final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<OptionalCapabilities> caps = new ArrayList<>();
@@ -122,6 +125,8 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         return caps;
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static Optional<byte[]> getPassword(final KeyMapping key) {
         if (key != null) {
             return Optional.of(Iterables.getOnlyElement(key.values()));
@@ -310,7 +315,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                             Collections.emptySet(), gracefulRestartTimer, false, llGracefulRestarts));
         }
 
-        private synchronized void instantiateServiceInstance() {
+        synchronized void instantiateServiceInstance() {
             this.isServiceInstantiated = true;
             LOG.info("Peer instantiated {}", this.neighborAddress);
             this.bgpPeer.instantiateServiceInstance();
@@ -321,7 +326,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             }
         }
 
-        private synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
+        synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
             if (!this.isServiceInstantiated) {
                 LOG.info("Peer {} already closed", this.neighborAddress);
                 return CommitInfo.emptyFluentFuture();
