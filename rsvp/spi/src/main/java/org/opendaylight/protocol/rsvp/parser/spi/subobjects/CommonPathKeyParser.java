@@ -37,7 +37,7 @@ public class CommonPathKeyParser {
         .rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKey pk) {
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
-        writeUnsignedShort(pk.getPathKey().getValue(), body);
+        writeUnsignedShort(pk.getPathKey().getValue().toJava(), body);
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
         body.writeBytes(pk.getPceId().getValue());
         return body;
