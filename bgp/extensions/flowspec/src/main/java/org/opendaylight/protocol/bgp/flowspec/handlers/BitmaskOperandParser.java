@@ -32,7 +32,9 @@ public final class BitmaskOperandParser extends AbstractOperandParser<BitmaskOpe
     private static final int NOT = 6;
     private static final int MATCH = 7;
 
-    private BitmaskOperandParser() { }
+    private BitmaskOperandParser() {
+
+    }
 
     @Override
     public BitmaskOperand create(final Set<String> opValues) {

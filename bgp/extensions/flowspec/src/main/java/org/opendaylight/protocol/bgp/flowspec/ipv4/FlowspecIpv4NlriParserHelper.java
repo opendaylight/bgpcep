@@ -37,10 +37,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
  * @author Kevin Wang
  */
 public final class FlowspecIpv4NlriParserHelper {
-
     private static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
 
-    private FlowspecIpv4NlriParserHelper() {}
+    private FlowspecIpv4NlriParserHelper() {
+
+    }
 
     public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
         if (fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
