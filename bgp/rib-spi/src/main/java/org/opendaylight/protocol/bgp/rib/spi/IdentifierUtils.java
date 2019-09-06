@@ -13,7 +13,6 @@ import com.google.common.collect.Iterables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yangtools.util.SharedSingletonMapTemplate;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -25,8 +24,6 @@ public final class IdentifierUtils {
     private static final Predicate<PathArgument> IS_TABLES = input -> input
             instanceof NodeIdentifierWithPredicates && Tables.QNAME.equals(input.getNodeType());
     private static final QName PEER_ID = QName.create(Peer.QNAME, "peer-id").intern();
-    private static final SharedSingletonMapTemplate<QName> PEER_ID_TEMPLATE =
-            SharedSingletonMapTemplate.ordered(PEER_ID);
 
     private IdentifierUtils() {
         throw new UnsupportedOperationException();
@@ -72,6 +69,6 @@ public final class IdentifierUtils {
     }
 
     public static NodeIdentifierWithPredicates domPeerId(final PeerId peer) {
-        return NodeIdentifierWithPredicates.of(Peer.QNAME, PEER_ID_TEMPLATE.instantiateWithValue(peer.getValue()));
+        return NodeIdentifierWithPredicates.of(Peer.QNAME, PEER_ID, peer.getValue());
     }
 }
