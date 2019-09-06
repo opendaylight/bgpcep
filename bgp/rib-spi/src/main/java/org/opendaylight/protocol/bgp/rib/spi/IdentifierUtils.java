@@ -59,7 +59,7 @@ public final class IdentifierUtils {
 
     public static PeerId peerId(final NodeIdentifierWithPredicates peerKey) {
         // We could use a codec, but this is simple enough
-        return new PeerId((String) peerKey.getKeyValues().get(PEER_ID));
+        return new PeerId((String) peerKey.getValue(PEER_ID));
     }
 
     public static PeerId peerKeyToPeerId(final YangInstanceIdentifier id) {
@@ -72,6 +72,6 @@ public final class IdentifierUtils {
     }
 
     public static NodeIdentifierWithPredicates domPeerId(final PeerId peer) {
-        return new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_TEMPLATE.instantiateWithValue(peer.getValue()));
+        return NodeIdentifierWithPredicates.of(Peer.QNAME, PEER_ID_TEMPLATE.instantiateWithValue(peer.getValue()));
     }
 }
