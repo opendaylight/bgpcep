@@ -36,11 +36,12 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
 public final class FlowspecIpv6NlriParserHelper {
-
     private static final NodeIdentifier NEXT_HEADER_NID = new NodeIdentifier(NextHeaders.QNAME);
     private static final NodeIdentifier FLOW_LABEL_NID = new NodeIdentifier(FlowLabel.QNAME);
 
-    private FlowspecIpv6NlriParserHelper() {}
+    private FlowspecIpv6NlriParserHelper() {
+
+    }
 
     public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
         if (fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
