@@ -50,7 +50,7 @@ public class RibSupportUtilsTest {
     @Test
     public void testYangTablesKey() {
         final NodeIdentifierWithPredicates p = RibSupportUtils.toYangTablesKey(TABLE_KEY);
-        final Map<QName, Object> m = p.getKeyValues();
+        final Map<QName, Object> m = p.asMap();
         assertFalse(m.isEmpty());
         assertEquals(Tables.QNAME, p.getNodeType());
         assertTrue(m.containsValue(BindingReflections.findQName(AFI)));
@@ -60,7 +60,7 @@ public class RibSupportUtilsTest {
     @Test
     public void testYangKey() {
         final NodeIdentifierWithPredicates p = RibSupportUtils.toYangKey(SupportedTables.QNAME, TABLE_KEY);
-        final Map<QName, Object> m = p.getKeyValues();
+        final Map<QName, Object> m = p.asMap();
         assertFalse(m.isEmpty());
         assertEquals(SupportedTables.QNAME, p.getNodeType());
         assertTrue(m.containsValue(BindingReflections.findQName(AFI)));
