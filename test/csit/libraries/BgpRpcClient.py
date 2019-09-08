@@ -6,6 +6,7 @@ exa_ methods apply to test/tools/exabgp_files/exarpc.py
 play_ methods apply to test/tool/fastbgp/play.py  (only with --evpn used)
 """
 
+import re
 import xmlrpclib
 
 
@@ -95,3 +96,8 @@ class BgpRpcClient(object):
     def play_clean(self, what='update'):
         """Cleans the message (update) on the server."""
         return self.proxy.clean(what)
+
+    def sum_hex_message(self, hex_string):
+        """Verifies two hex messages are equal even in case, their arguments are misplaced.
+        Converts hex message arguments to integers and sums them up and returns the sum."""
+        return sum(map(lambda x: int(x, 16), re.compile('[a-f\d]{2}').findall(hex_string[32:])))
