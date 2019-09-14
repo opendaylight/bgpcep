@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.ero;
 
 import com.google.common.base.Preconditions;
@@ -22,9 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
  * Parser for {@link DynamicControlProtectionCase}.
  */
 public class SERODynamicProtectionSubobjectParser extends ProtectionCommonParser implements EROSubobjectSerializer {
-
     public static final int TYPE = 37;
-    public static final Short CTYPE = 2;
+    public static final short CTYPE = 2;
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
@@ -37,5 +35,4 @@ public class SERODynamicProtectionSubobjectParser extends ProtectionCommonParser
         serializeBody(CTYPE, protObj, body);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
-
 }

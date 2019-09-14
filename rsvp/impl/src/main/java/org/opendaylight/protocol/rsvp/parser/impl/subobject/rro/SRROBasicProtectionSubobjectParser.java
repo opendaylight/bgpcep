@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.rro;
 
 import com.google.common.base.Preconditions;
@@ -27,11 +26,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link BasicProtectionCase}.
  */
-public class SRROBasicProtectionSubobjectParser extends ProtectionCommonParser implements RROSubobjectParser,
-    RROSubobjectSerializer {
-
+public class SRROBasicProtectionSubobjectParser extends ProtectionCommonParser
+        implements RROSubobjectParser, RROSubobjectSerializer {
     public static final int TYPE = 37;
-    public static final Short CTYPE = 1;
+    public static final short CTYPE = 1;
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
