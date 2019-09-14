@@ -5,15 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -36,7 +35,7 @@ public class CommunitiesAttributeParserTest {
 
     @Test
     public void testCommunitiesAttributeParser() throws Exception {
-        final List<Communities> comms = Lists.newArrayList();
+        final List<Communities> comms = new ArrayList<>();
         comms.add((Communities) CommunityUtil.NO_EXPORT);
         comms.add((Communities) CommunityUtil.NO_ADVERTISE);
         comms.add((Communities) CommunityUtil.NO_EXPORT_SUBCONFED);
@@ -58,7 +57,7 @@ public class CommunitiesAttributeParserTest {
 
     @Test
     public void testParseEmptyListAttribute() {
-        final List<Communities> comms = Lists.newArrayList();
+        final List<Communities> comms = new ArrayList<>();
         final ByteBuf actual = Unpooled.buffer();
         ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
             .serializeAttribute(new AttributesBuilder().setCommunities(comms).build(), actual);
