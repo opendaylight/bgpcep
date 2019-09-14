@@ -5,10 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
-
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
@@ -107,10 +104,10 @@ public class ProtectionCommonParser {
         return sub.build();
     }
 
-    protected static void serializeBody(final Short ctype, final ProtectionSubobject protObj,
+    protected static void serializeBody(final short ctype, final ProtectionSubobject protObj,
         final ByteBuf output) {
         output.writeZero(BYTE_SIZE);
-        writeUnsignedByte(ctype, output);
+        output.writeByte(ctype);
         switch (ctype) {
             case PROTECTION_SUBOBJECT_TYPE_1:
                 serializeBodyType1(protObj, output);
@@ -125,19 +122,15 @@ public class ProtectionCommonParser {
     }
 
     protected static ProtectionSubobject parseCommonProtectionBody(final short ctype, final ByteBuf byteBuf)
-        throws RSVPParsingException {
-        ProtectionSubobject protectionSubobject = null;
+            throws RSVPParsingException {
         switch (ctype) {
             case PROTECTION_SUBOBJECT_TYPE_1:
-                protectionSubobject = parseCommonProtectionBodyType1(byteBuf);
-                break;
+                return parseCommonProtectionBodyType1(byteBuf);
             case PROTECTION_SUBOBJECT_TYPE_2:
-                protectionSubobject = parseCommonProtectionBodyType2(byteBuf);
-                break;
+                return parseCommonProtectionBodyType2(byteBuf);
             default:
                 LOG.warn("Secondary Record Route Protection Subobject cType {} not supported", ctype);
-                break;
+                return null;
         }
-        return protectionSubobject;
     }
 }
