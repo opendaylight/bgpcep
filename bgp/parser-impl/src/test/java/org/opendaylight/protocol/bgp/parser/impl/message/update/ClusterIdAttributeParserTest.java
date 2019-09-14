@@ -10,9 +10,9 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class ClusterIdAttributeParserTest {
 
     @Test
     public void testParserAttribute() throws Exception {
-        final List<ClusterIdentifier> list = Lists.newArrayList();
+        final List<ClusterIdentifier> list = new ArrayList<>();
         final Ipv4Address ip1 = new Ipv4Address("192.168.1.1");
         final Ipv4Address ip2 = new Ipv4Address("192.168.1.2");
         list.add(new ClusterIdentifier(ip1));
@@ -59,7 +59,7 @@ public class ClusterIdAttributeParserTest {
 
     @Test
     public void testParseEmptyListAttribute() {
-        final List<ClusterIdentifier> list = Lists.newArrayList();
+        final List<ClusterIdentifier> list = new ArrayList<>();
         final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster(list)
             .build()).build();
         final ByteBuf output = Unpooled.buffer();

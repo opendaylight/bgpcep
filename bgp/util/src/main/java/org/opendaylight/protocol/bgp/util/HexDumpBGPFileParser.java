@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.CharStreams;
 import java.io.File;
@@ -20,6 +19,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import org.opendaylight.protocol.util.ByteArray;
@@ -46,7 +47,7 @@ public final class HexDumpBGPFileParser {
 
     public static List<byte[]> parseMessages(final InputStream is) throws IOException {
         requireNonNull(is);
-        try (InputStreamReader isr = new InputStreamReader(is, "UTF-8")) {
+        try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             return parseMessages(CharStreams.toString(isr));
         } finally {
             is.close();
@@ -59,7 +60,7 @@ public final class HexDumpBGPFileParser {
         final int four = 4;
         // search for 16 FFs
 
-        final List<byte[]> messages = Lists.newLinkedList();
+        final List<byte[]> messages = new LinkedList<>();
         int idx = content.indexOf(FF_16, 0);
         while (idx > -1) {
             // next 2 bytes are length

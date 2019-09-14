@@ -189,13 +189,13 @@ public class BGPParserTest {
         // attributes
         final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(65002L));
-        final List<Segments> asPath = Lists.newArrayList();
+        final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
 
-        final List<Communities> comms = Lists.newArrayList();
+        final List<Communities> comms = new ArrayList<>();
         comms.add((Communities) CommunityUtil.NO_EXPORT);
         comms.add((Communities) CommunityUtil.NO_ADVERTISE);
         comms.add((Communities) CommunityUtil.NO_EXPORT_SUBCONFED);
@@ -310,7 +310,7 @@ public class BGPParserTest {
         // attributes
         final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(30L));
-        final List<Segments> asPath = Lists.newArrayList();
+        final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
         final List<AsNumber> asSet = Lists.newArrayList(new AsNumber(10L), new AsNumber(20L));
         asPath.add(new SegmentsBuilder().setAsSet(asSet).build());
@@ -402,7 +402,7 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // check nlri
-        final List<Nlri> nlris = Lists.newArrayList();
+        final List<Nlri> nlris = new ArrayList<>();
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.3.0/24")).build());
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.2.0/24")).build());
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.1.0/24")).build());
@@ -641,13 +641,13 @@ public class BGPParserTest {
         // attributes
         final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(65002L));
-        final List<Segments> asPath = Lists.newArrayList();
+        final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
 
-        final List<Communities> comms = Lists.newArrayList();
+        final List<Communities> comms = new ArrayList<>();
         comms.add((Communities) CommunityUtil.NO_EXPORT);
         comms.add((Communities) CommunityUtil.NO_ADVERTISE);
         comms.add((Communities) CommunityUtil.NO_EXPORT_SUBCONFED);
@@ -657,7 +657,7 @@ public class BGPParserTest {
 
         // check nlri
 
-        final List<Nlri> nlris = Lists.newArrayList();
+        final List<Nlri> nlris = new ArrayList<>();
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(1L)).build());
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(2L)).build());
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).setPathId(new PathId(1L)).build());
@@ -724,7 +724,7 @@ public class BGPParserTest {
             mpConstraint);
 
         // attributes
-        final List<WithdrawnRoutes> withdrawnRoutes = Lists.newArrayList();
+        final List<WithdrawnRoutes> withdrawnRoutes = new ArrayList<>();
         withdrawnRoutes.add(new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("172.16.0.4/30"))
             .setPathId(new PathId(1L)).build());
         withdrawnRoutes.add(new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("172.16.0.4/30"))

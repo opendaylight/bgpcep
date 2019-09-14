@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.bgp.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public final class BinaryBGPDumpFileParser {
      */
     public static List<byte[]> parseMessages(final byte[] byteArray) {
 
-        final List<byte[]> messages = Lists.newLinkedList();
+        final List<byte[]> messages = new LinkedList();
         // search for 16 FFs
         for (int i = 0; i < byteArray.length; i++) {
             final byte b = byteArray[i];
@@ -52,7 +52,7 @@ public final class BinaryBGPDumpFileParser {
                     if (byteArray[j] == UnsignedBytes.MAX_VALUE) {
                         ffCount++;
                     } else if (ffCount == MARKER_LENGTH) {
-                        if (j == (i + MARKER_LENGTH)) {
+                        if (j == i + MARKER_LENGTH) {
                             // Parse length
                             final int length = ByteArray.bytesToInt(new byte[]{ byteArray[j], byteArray[j + 1] });
 
