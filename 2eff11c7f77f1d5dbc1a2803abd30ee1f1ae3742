@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48b0c0a8_67ab9519",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/PCEPHexDumpParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2019-10-03T18:42:19Z",
+      "side": 1,
+      "message": "nit: earlier format more readable?",
+      "revId": "2eff11c7f77f1d5dbc1a2803abd30ee1f1ae3742",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
