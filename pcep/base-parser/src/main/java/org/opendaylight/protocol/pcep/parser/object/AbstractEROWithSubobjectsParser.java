@@ -62,7 +62,7 @@ public abstract class AbstractEROWithSubobjectsParser extends CommonObjectParser
     }
 
     protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
-        if(subobjects != null) {
+        if (subobjects != null) {
             for (final Subobject subobject : subobjects) {
                 this.subobjReg.serializeSubobject(subobject, buffer);
             }

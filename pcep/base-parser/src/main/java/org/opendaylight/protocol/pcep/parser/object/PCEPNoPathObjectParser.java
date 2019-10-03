@@ -103,7 +103,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
 
     @Override
     protected final void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
-        if(!tlvs.isEmpty()) {
+        if (!tlvs.isEmpty()) {
             builder.setVendorInformationTlv(tlvs);
         }
     }

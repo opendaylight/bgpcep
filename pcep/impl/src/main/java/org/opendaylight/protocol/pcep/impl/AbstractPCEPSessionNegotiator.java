@@ -83,7 +83,9 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
     private static final Keepalive KEEPALIVE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
-    private volatile boolean localOK, openRetry, remoteOK;
+    private volatile boolean localOK;
+    private volatile boolean openRetry;
+    private volatile boolean remoteOK;
     private volatile State state = State.IDLE;
     private Future<?> failTimer;
     private Open localPrefs;

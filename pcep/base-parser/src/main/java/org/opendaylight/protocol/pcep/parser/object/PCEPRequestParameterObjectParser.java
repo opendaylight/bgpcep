@@ -156,7 +156,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         final byte[] res = flags.array();
         if (rpObj.getPriority() != null) {
             final byte p = UnsignedBytes.checkedCast(rpObj.getPriority());
-            res[res.length -1] = (byte) (res[res.length -1] | p);
+            res[res.length - 1] = (byte) (res[res.length - 1] | p);
         }
         body.writeBytes(res);
         Preconditions.checkArgument(rpObj.getRequestId() != null, "RequestId is mandatory");

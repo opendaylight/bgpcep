@@ -72,7 +72,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         final short keepalive = bytes.readUnsignedByte();
         builder.setKeepalive(keepalive);
         final short deadTimer = bytes.readUnsignedByte();
-        if(keepalive == 0) {
+        if (keepalive == 0) {
             builder.setDeadTimer((short) 0);
         } else {
             builder.setDeadTimer(deadTimer);

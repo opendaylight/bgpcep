@@ -194,7 +194,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             }
         }
         if (p2mp.getIroBncChoice() instanceof IroCase) {
-            serializeObject(((IroCase) p2mp.getIroBncChoice()).getIro(), buffer );
+            serializeObject(((IroCase) p2mp.getIroBncChoice()).getIro(), buffer);
         } else if (p2mp.getIroBncChoice() instanceof BncCase) {
             final BranchNodeType branchNodeType = ((BncCase) p2mp.getIroBncChoice()).getBranchNodeType();
             if (branchNodeType instanceof BranchNodeCase) {
@@ -555,7 +555,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     return P2MPState.BANDWIDTH_IN;
                 }
             case METRIC_IN:
-                if (obj instanceof Iro ) {
+                if (obj instanceof Iro) {
                     builder.setIroBncChoice(new IroCaseBuilder().setIro((Iro) obj).build());
                     return P2MPState.IRO_BNC_IN;
                 }
@@ -666,7 +666,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             objects.remove(0);
         }
         final List<PceIdList> pceIdList = new ArrayList<>();
-        while(!objects.isEmpty() && objects.get(0) instanceof PceId) {
+        while (!objects.isEmpty() && objects.get(0) instanceof PceId) {
             pceIdList.add(new PceIdListBuilder().setPceId((PceId) objects.get(0)).build());
             objects.remove(0);
         }

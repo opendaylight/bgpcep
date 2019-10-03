@@ -50,8 +50,8 @@ public class PCEPExistingBandwidthObjectParser extends CommonObjectParser implem
 
     @Override
     public void serializeObject(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof ReoptimizationBandwidth, "Wrong instance of PCEPObject. Passed " +
-            "%s. Needed ReoptimizationBandwidthObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof ReoptimizationBandwidth, "Wrong instance of PCEPObject. Passed "
+            + "%s. Needed ReoptimizationBandwidthObject.", object.getClass());
         final ByteBuf body = Unpooled.buffer();
         writeFloat32(((ReoptimizationBandwidth) object).getBandwidth(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

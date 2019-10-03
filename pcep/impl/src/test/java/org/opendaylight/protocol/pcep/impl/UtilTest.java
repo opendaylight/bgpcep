@@ -49,7 +49,7 @@ public class UtilTest {
         Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue().shortValue());
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testPrivateConstructor() throws Throwable {
         final Constructor<Util> c = Util.class.getDeclaredConstructor();
         c.setAccessible(true);
