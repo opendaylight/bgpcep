@@ -37,21 +37,21 @@ public final class SslKeyStore {
     public static InputStream asInputStream(final String filename, final PathType pathType) {
         InputStream in;
         switch (pathType) {
-        case CLASSPATH:
-            in = SslKeyStore.class.getResourceAsStream(filename);
-            Preconditions.checkArgument(in != null, "KeyStore file not found: %s", filename);
-            break;
-        case PATH:
-            LOG.debug("Current dir using System: {}", System.getProperty("user.dir"));
-            final File keystorefile = new File(filename);
-            try {
-                in = new FileInputStream(keystorefile);
-            } catch (final FileNotFoundException e) {
-                throw new IllegalStateException("KeyStore file not found: " + filename,e);
-            }
-            break;
-        default:
-            throw new IllegalArgumentException("Unknown path type: " + pathType);
+            case CLASSPATH:
+                in = SslKeyStore.class.getResourceAsStream(filename);
+                Preconditions.checkArgument(in != null, "KeyStore file not found: %s", filename);
+                break;
+            case PATH:
+                LOG.debug("Current dir using System: {}", System.getProperty("user.dir"));
+                final File keystorefile = new File(filename);
+                try {
+                    in = new FileInputStream(keystorefile);
+                } catch (final FileNotFoundException e) {
+                    throw new IllegalStateException("KeyStore file not found: " + filename,e);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown path type: " + pathType);
         }
         return in;
     }

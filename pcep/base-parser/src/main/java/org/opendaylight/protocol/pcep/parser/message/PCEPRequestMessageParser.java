@@ -352,79 +352,79 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                                             final Rp rp) {
         final Object obj = objects.get(0);
         switch (p2PState) {
-        case INIT:
-            if (obj instanceof Rro) {
-                builder.setRro((Rro) obj);
-                objects.remove(0);
-                final Object nextObj = objects.get(0);
-                if (nextObj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
-                        .rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
-                    builder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-                            .yang.pcep.types.rev181109.reoptimization.bandwidth.object
-                            .ReoptimizationBandwidth) nextObj);
+            case INIT:
+                if (obj instanceof Rro) {
+                    builder.setRro((Rro) obj);
+                    objects.remove(0);
+                    final Object nextObj = objects.get(0);
+                    if (nextObj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
+                            .rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) {
+                        builder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                                .yang.pcep.types.rev181109.reoptimization.bandwidth.object
+                                .ReoptimizationBandwidth) nextObj);
+                    }
+                    return P2PState.REPORTED_IN;
                 }
-                return P2PState.REPORTED_IN;
-            }
-        case REPORTED_IN:
-            if (obj instanceof VendorInformationObject) {
-                viObjects.add((VendorInformationObject) obj);
-                return P2PState.REPORTED_IN;
-            }
-        case VENDOR_INFO_LIST:
-            if (obj instanceof LoadBalancing) {
-                builder.setLoadBalancing((LoadBalancing) obj);
-                return P2PState.LOAD_BIN;
-            }
-        case LOAD_BIN:
-            if (obj instanceof Lspa) {
-                builder.setLspa((Lspa) obj);
-                return P2PState.LSPA_IN;
-            }
-        case LSPA_IN:
-            if (obj instanceof Bandwidth) {
-                builder.setBandwidth((Bandwidth) obj);
-                return P2PState.BANDWIDTH_IN;
-            }
-        case BANDWIDTH_IN:
-            if (obj instanceof Metric) {
-                metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return P2PState.BANDWIDTH_IN;
-            }
-        case METRIC_IN:
-            if (obj instanceof Iro) {
-                builder.setIro((Iro) obj);
-                return P2PState.IRO_IN;
-            }
-        case IRO_IN:
-            if (obj instanceof Rro) {
-                builder.setRro((Rro) obj);
-                return P2PState.RRO_IN;
-            }
-        case RRO_IN:
-            if (obj instanceof Xro) {
-                builder.setXro((Xro) obj);
-                return P2PState.XRO_IN;
-            }
-        case XRO_IN:
-            if (obj instanceof Of) {
-                builder.setOf((Of) obj);
-                return P2PState.OF_IN;
-            }
-        case OF_IN:
-            if (obj instanceof ClassType) {
-                final ClassType classType = (ClassType) obj;
-                if (!classType.isProcessingRule()) {
-                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
-                } else {
-                    builder.setClassType(classType);
+            case REPORTED_IN:
+                if (obj instanceof VendorInformationObject) {
+                    viObjects.add((VendorInformationObject) obj);
+                    return P2PState.REPORTED_IN;
                 }
-                return P2PState.CT_IN;
-            }
-        case CT_IN:
-        case END:
-            return P2PState.END;
-        default:
-            return p2PState;
+            case VENDOR_INFO_LIST:
+                if (obj instanceof LoadBalancing) {
+                    builder.setLoadBalancing((LoadBalancing) obj);
+                    return P2PState.LOAD_BIN;
+                }
+            case LOAD_BIN:
+                if (obj instanceof Lspa) {
+                    builder.setLspa((Lspa) obj);
+                    return P2PState.LSPA_IN;
+                }
+            case LSPA_IN:
+                if (obj instanceof Bandwidth) {
+                    builder.setBandwidth((Bandwidth) obj);
+                    return P2PState.BANDWIDTH_IN;
+                }
+            case BANDWIDTH_IN:
+                if (obj instanceof Metric) {
+                    metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return P2PState.BANDWIDTH_IN;
+                }
+            case METRIC_IN:
+                if (obj instanceof Iro) {
+                    builder.setIro((Iro) obj);
+                    return P2PState.IRO_IN;
+                }
+            case IRO_IN:
+                if (obj instanceof Rro) {
+                    builder.setRro((Rro) obj);
+                    return P2PState.RRO_IN;
+                }
+            case RRO_IN:
+                if (obj instanceof Xro) {
+                    builder.setXro((Xro) obj);
+                    return P2PState.XRO_IN;
+                }
+            case XRO_IN:
+                if (obj instanceof Of) {
+                    builder.setOf((Of) obj);
+                    return P2PState.OF_IN;
+                }
+            case OF_IN:
+                if (obj instanceof ClassType) {
+                    final ClassType classType = (ClassType) obj;
+                    if (!classType.isProcessingRule()) {
+                        errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
+                    } else {
+                        builder.setClassType(classType);
+                    }
+                    return P2PState.CT_IN;
+                }
+            case CT_IN:
+            case END:
+                return P2PState.END;
+            default:
+                return p2PState;
         }
     }
 
@@ -616,36 +616,36 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     private static SvecState insertP2PObject(final SvecState state, final Object obj, final SvecBuilder builder,
                                              final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
         switch (state) {
-        case INIT:
-            if (obj instanceof Of) {
-                builder.setOf((Of) obj);
-                return SvecState.OF_IN;
-            }
-        case OF_IN:
-            if (obj instanceof Gc) {
-                builder.setGc((Gc) obj);
-                return SvecState.GC_IN;
-            }
-        case GC_IN:
-            if (obj instanceof Xro) {
-                builder.setXro((Xro) obj);
-                return SvecState.XRO_IN;
-            }
-        case XRO_IN:
-            if (obj instanceof Metric) {
-                metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return SvecState.XRO_IN;
-            }
-        case METRIC_IN:
-            if (obj instanceof VendorInformationObject) {
-                viObjects.add((VendorInformationObject) obj);
-                return SvecState.METRIC_IN;
-            }
-        case VENDOR_INFO:
-        case END:
-            return SvecState.END;
-        default:
-            return state;
+            case INIT:
+                if (obj instanceof Of) {
+                    builder.setOf((Of) obj);
+                    return SvecState.OF_IN;
+                }
+            case OF_IN:
+                if (obj instanceof Gc) {
+                    builder.setGc((Gc) obj);
+                    return SvecState.GC_IN;
+                }
+            case GC_IN:
+                if (obj instanceof Xro) {
+                    builder.setXro((Xro) obj);
+                    return SvecState.XRO_IN;
+                }
+            case XRO_IN:
+                if (obj instanceof Metric) {
+                    metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return SvecState.XRO_IN;
+                }
+            case METRIC_IN:
+                if (obj instanceof VendorInformationObject) {
+                    viObjects.add((VendorInformationObject) obj);
+                    return SvecState.METRIC_IN;
+                }
+            case VENDOR_INFO:
+            case END:
+                return SvecState.END;
+            default:
+                return state;
         }
     }
 

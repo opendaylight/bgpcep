@@ -253,31 +253,31 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     private static State insertObject(final State state, final Object obj, final FailureCaseBuilder builder,
             final List<Metrics> pathMetrics) {
         switch (state) {
-        case INIT:
-            if (obj instanceof Lspa) {
-                builder.setLspa((Lspa) obj);
-                return State.LSPA_IN;
-            }
-        case LSPA_IN:
-            if (obj instanceof Bandwidth) {
-                builder.setBandwidth((Bandwidth) obj);
-                return State.BANDWIDTH_IN;
-            }
-        case BANDWIDTH_IN:
-            if (obj instanceof Metric) {
-                pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return State.BANDWIDTH_IN;
-            }
-        case METRIC_IN:
-            if (obj instanceof Iro) {
-                builder.setIro((Iro) obj);
-                return State.IRO_IN;
-            }
-        case IRO_IN:
-        case END:
-            return State.END;
-        default:
-            return state;
+            case INIT:
+                if (obj instanceof Lspa) {
+                    builder.setLspa((Lspa) obj);
+                    return State.LSPA_IN;
+                }
+            case LSPA_IN:
+                if (obj instanceof Bandwidth) {
+                    builder.setBandwidth((Bandwidth) obj);
+                    return State.BANDWIDTH_IN;
+                }
+            case BANDWIDTH_IN:
+                if (obj instanceof Metric) {
+                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return State.BANDWIDTH_IN;
+                }
+            case METRIC_IN:
+                if (obj instanceof Iro) {
+                    builder.setIro((Iro) obj);
+                    return State.IRO_IN;
+                }
+            case IRO_IN:
+            case END:
+                return State.END;
+            default:
+                return state;
         }
     }
 
@@ -301,36 +301,36 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     private static State insertObject(final State state, final Object obj, final PathsBuilder builder,
             final List<Metrics> pathMetrics) {
         switch (state) {
-        case INIT:
-            if (obj instanceof Lspa) {
-                builder.setLspa((Lspa) obj);
-                return State.LSPA_IN;
-            }
-        case LSPA_IN:
-            if (obj instanceof Of) {
-                builder.setOf((Of) obj);
-                return State.OF_IN;
-            }
-        case OF_IN:
-            if (obj instanceof Bandwidth) {
-                builder.setBandwidth((Bandwidth) obj);
-                return State.BANDWIDTH_IN;
-            }
-        case BANDWIDTH_IN:
-            if (obj instanceof Metric) {
-                pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return State.BANDWIDTH_IN;
-            }
-        case METRIC_IN:
-            if (obj instanceof Iro) {
-                builder.setIro((Iro) obj);
-                return State.IRO_IN;
-            }
-        case IRO_IN:
-        case END:
-            return State.END;
-        default:
-            return state;
+            case INIT:
+                if (obj instanceof Lspa) {
+                    builder.setLspa((Lspa) obj);
+                    return State.LSPA_IN;
+                }
+            case LSPA_IN:
+                if (obj instanceof Of) {
+                    builder.setOf((Of) obj);
+                    return State.OF_IN;
+                }
+            case OF_IN:
+                if (obj instanceof Bandwidth) {
+                    builder.setBandwidth((Bandwidth) obj);
+                    return State.BANDWIDTH_IN;
+                }
+            case BANDWIDTH_IN:
+                if (obj instanceof Metric) {
+                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return State.BANDWIDTH_IN;
+                }
+            case METRIC_IN:
+                if (obj instanceof Iro) {
+                    builder.setIro((Iro) obj);
+                    return State.IRO_IN;
+                }
+            case IRO_IN:
+            case END:
+                return State.END;
+            default:
+                return state;
         }
     }
 

@@ -222,9 +222,7 @@ public class PCEPDispatcherImplTest {
             return createClient(address, retryTimer, connectTimeout, (ch, promise) -> {
                 ch.pipeline().addLast(this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator", this.negotiatorFactory.getSessionNegotiator(
-                        () -> listenerFactory,
-                        ch,
-                        promise));
+                    () -> listenerFactory, ch, promise));
                 ch.pipeline().addLast(this.factory.getEncoders());
             });
         }

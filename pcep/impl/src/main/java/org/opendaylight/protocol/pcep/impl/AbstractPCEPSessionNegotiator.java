@@ -151,26 +151,26 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private void scheduleFailTimer() {
         this.failTimer = this.channel.eventLoop().schedule(() -> {
             switch (AbstractPCEPSessionNegotiator.this.state) {
-            case FINISHED:
-            case IDLE:
-                break;
-            case START_TLS_WAIT:
-                sendErrorMessage(PCEPErrors.STARTTLS_TIMER_EXP);
-                negotiationFailed(new TimeoutException("StartTLSWait timer expired"));
-                AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
-                break;
-            case KEEP_WAIT:
-                sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
-                negotiationFailed(new TimeoutException("KeepWait timer expired"));
-                AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
-                break;
-            case OPEN_WAIT:
-                sendErrorMessage(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT);
-                negotiationFailed(new TimeoutException("OpenWait timer expired"));
-                AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
-                break;
-            default:
-                break;
+                case FINISHED:
+                case IDLE:
+                    break;
+                case START_TLS_WAIT:
+                    sendErrorMessage(PCEPErrors.STARTTLS_TIMER_EXP);
+                    negotiationFailed(new TimeoutException("StartTLSWait timer expired"));
+                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
+                    break;
+                case KEEP_WAIT:
+                    sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
+                    negotiationFailed(new TimeoutException("KeepWait timer expired"));
+                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
+                    break;
+                case OPEN_WAIT:
+                    sendErrorMessage(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT);
+                    negotiationFailed(new TimeoutException("OpenWait timer expired"));
+                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
+                    break;
+                default:
+                    break;
             }
         }, FAIL_TIMER_VALUE, TimeUnit.SECONDS);
     }
@@ -325,26 +325,26 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
 
         switch (this.state) {
-        case FINISHED:
-        case IDLE:
-            throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
-        case START_TLS_WAIT:
-            if (handleMessageStartTlsWait(msg)) {
-                return;
-            }
-            break;
-        case KEEP_WAIT:
-            if (handleMessageKeepWait(msg)) {
-                return;
-            }
-            break;
-        case OPEN_WAIT:
-            if (handleMessageOpenWait(msg)) {
-                return;
-            }
-            break;
-        default:
-            break;
+            case FINISHED:
+            case IDLE:
+                throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
+            case START_TLS_WAIT:
+                if (handleMessageStartTlsWait(msg)) {
+                    return;
+                }
+                break;
+            case KEEP_WAIT:
+                if (handleMessageKeepWait(msg)) {
+                    return;
+                }
+                break;
+            case OPEN_WAIT:
+                if (handleMessageOpenWait(msg)) {
+                    return;
+                }
+                break;
+            default:
+                break;
         }
         LOG.warn("Channel {} in state {} received unexpected message {}", this.channel, this.state, msg);
         sendErrorMessage(PCEPErrors.NON_OR_INVALID_OPEN_MSG);

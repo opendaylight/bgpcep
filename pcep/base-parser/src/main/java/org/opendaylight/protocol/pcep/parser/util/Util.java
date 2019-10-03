@@ -27,21 +27,21 @@ public final class Util {
 
     private static State insertObject(final MetricPceBuilder metricPceBuilder, final State state, final Object obj) {
         switch (state) {
-        case START :
-            if (obj instanceof ProcTime) {
-                metricPceBuilder.setProcTime((ProcTime) obj);
-                return State.PROC_TIME;
-            }
-        case PROC_TIME :
-            if (obj instanceof Overload) {
-                metricPceBuilder.setOverload((Overload) obj);
-                return State.OVERLOAD;
-            }
-        case OVERLOAD :
-        case END :
-            return State.END;
-        default:
-            return state;
+            case START :
+                if (obj instanceof ProcTime) {
+                    metricPceBuilder.setProcTime((ProcTime) obj);
+                    return State.PROC_TIME;
+                }
+            case PROC_TIME :
+                if (obj instanceof Overload) {
+                    metricPceBuilder.setOverload((Overload) obj);
+                    return State.OVERLOAD;
+                }
+            case OVERLOAD :
+            case END :
+                return State.END;
+            default:
+                return state;
         }
     }
 
