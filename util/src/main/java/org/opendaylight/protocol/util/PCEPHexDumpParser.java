@@ -10,7 +10,6 @@ package org.opendaylight.protocol.util;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.CharStreams;
 import java.io.File;
@@ -18,6 +17,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import org.slf4j.Logger;
@@ -43,8 +44,7 @@ public final class PCEPHexDumpParser {
     }
 
     public static List<byte[]> parseMessages(final InputStream is) throws IOException {
-        requireNonNull(is);
-        try (InputStreamReader isr = new InputStreamReader(is, "UTF-8")) {
+        try (InputStreamReader isr = new InputStreamReader(requireNonNull(is), StandardCharsets.UTF_8)) {
             return parseMessages(CharStreams.toString(isr));
         }
     }
@@ -52,7 +52,7 @@ public final class PCEPHexDumpParser {
     private static List<byte[]> parseMessages(final String msg) {
         final String content = clearWhiteSpaceToUpper(msg);
 
-        final List<byte[]> messages = Lists.newLinkedList();
+        final List<byte[]> messages = new LinkedList<>();
         int idx = content.indexOf(LENGTH, 0);
         while (idx > -1) {
             // next chars are final length, ending with '.'
@@ -60,7 +60,7 @@ public final class PCEPHexDumpParser {
             final int messageIdx = content.indexOf('.', lengthIdx);
             final int length = Integer.parseInt(content.substring(lengthIdx, messageIdx));
             // dot
-            final int messageEndIdx = messageIdx + (length * 2) + 1;
+            final int messageEndIdx = messageIdx + length * 2 + 1;
 
             // Assert that message is longer than minimum 4(header.length == 4)
             // If length in PCEP message would be 0, loop would never end
