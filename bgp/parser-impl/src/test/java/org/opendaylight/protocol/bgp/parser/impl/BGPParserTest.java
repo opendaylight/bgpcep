@@ -205,7 +205,7 @@ public class BGPParserTest {
 
         // check nlri
 
-        final List<Nlri> nlris = Lists.newArrayList();
+        final List<Nlri> nlris = new ArrayList<>();
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.2.0/24")).build());
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).build());
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).build());
@@ -415,7 +415,7 @@ public class BGPParserTest {
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
 
-        final List<ExtendedCommunities> comms = Lists.newArrayList();
+        final List<ExtendedCommunities> comms = new ArrayList<>();
         comms.add(new ExtendedCommunitiesBuilder().setTransitive(true).setExtendedCommunity(
                 new RouteTargetIpv4CaseBuilder().setRouteTargetIpv4(
                         new RouteTargetIpv4Builder().setGlobalAdministrator(
