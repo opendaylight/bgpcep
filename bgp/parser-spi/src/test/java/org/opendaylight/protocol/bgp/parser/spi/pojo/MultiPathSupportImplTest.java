@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class MultiPathSupportImplTest {
 
     @Test
     public void testIsTableTypeSupported() {
-        final List<AddressFamilies> supportedTables = Lists.newArrayList();
+        final List<AddressFamilies> supportedTables = new ArrayList<>();
         final BgpTableType ipv4Unicast = new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
         final BgpTableType ipv4L3vpn = new BgpTableTypeImpl(Ipv4AddressFamily.class,
