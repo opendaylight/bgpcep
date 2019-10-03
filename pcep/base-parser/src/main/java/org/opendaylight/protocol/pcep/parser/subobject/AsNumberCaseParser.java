@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

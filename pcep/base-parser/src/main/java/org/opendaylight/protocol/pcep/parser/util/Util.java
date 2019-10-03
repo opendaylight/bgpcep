@@ -26,7 +26,7 @@ public final class Util {
     }
 
     private static State insertObject(final MetricPceBuilder metricPceBuilder, final State state, final Object obj) {
-        switch(state) {
+        switch (state) {
         case START :
             if (obj instanceof ProcTime) {
                 metricPceBuilder.setProcTime((ProcTime) obj);

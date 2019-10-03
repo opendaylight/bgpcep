@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertNotNull;
+
 import javax.net.ssl.SSLContext;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.tls.SslContextFactory;

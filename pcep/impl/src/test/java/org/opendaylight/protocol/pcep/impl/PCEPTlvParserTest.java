@@ -148,13 +148,13 @@ public class PCEPTlvParserTest {
         assertArrayEquals(PST_TLV_BYTES, ByteArray.getAllBytes(buff));
     }
 
-    @Test(expected=PCEPDeserializerException.class)
+    @Test(expected = PCEPDeserializerException.class)
     public void testUnsupportedPSTParser() throws PCEPDeserializerException {
         final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
         parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(PST_TLV_BYTES_UNSUPPORTED, 4)));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testUnsupportedPSTSerializer() {
         final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
         final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst((short) 1).build();

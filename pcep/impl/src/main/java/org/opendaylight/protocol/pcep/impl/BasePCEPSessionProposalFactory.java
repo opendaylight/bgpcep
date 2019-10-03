@@ -25,13 +25,14 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
     private static final Logger LOG = LoggerFactory.getLogger(BasePCEPSessionProposalFactory.class);
     private static final int KA_TO_DEADTIMER_RATIO = 4;
 
-    private final int keepAlive, deadTimer;
+    private final int keepAlive;
+    private final int deadTimer;
     private final List<PCEPCapability> capabilities;
 
     public BasePCEPSessionProposalFactory(final int deadTimer, final int keepAlive, final List<PCEPCapability> capabilities) {
-        if(keepAlive != 0) {
+        if (keepAlive != 0) {
             Preconditions.checkArgument(keepAlive >= 1, "Minimum value for keep-alive-timer-value is 1");
-            if(deadTimer != 0 && (deadTimer / keepAlive != KA_TO_DEADTIMER_RATIO)) {
+            if (deadTimer != 0 && (deadTimer / keepAlive != KA_TO_DEADTIMER_RATIO)) {
                 LOG.warn("dead-timer-value should be {} times greater than keep-alive-timer-value", KA_TO_DEADTIMER_RATIO);
             }
         }
@@ -53,7 +54,7 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
         final OpenBuilder oBuilder = new OpenBuilder();
         oBuilder.setSessionId((short) sessionId);
         oBuilder.setKeepalive((short) BasePCEPSessionProposalFactory.this.keepAlive);
-        if(BasePCEPSessionProposalFactory.this.keepAlive == 0) {
+        if (BasePCEPSessionProposalFactory.this.keepAlive == 0) {
             oBuilder.setDeadTimer((short) 0);
         } else {
             oBuilder.setDeadTimer((short) BasePCEPSessionProposalFactory.this.deadTimer);

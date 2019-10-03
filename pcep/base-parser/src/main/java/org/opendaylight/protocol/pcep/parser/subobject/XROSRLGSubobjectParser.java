@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

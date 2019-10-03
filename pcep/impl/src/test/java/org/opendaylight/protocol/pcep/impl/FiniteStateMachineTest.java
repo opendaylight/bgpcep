@@ -149,7 +149,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(1, this.msgsSend.size());
         assertTrue(this.msgsSend.get(0) instanceof Open);
         this.serverSession.handleMessage(this.kaMsg);
-        checkEquals(()-> {
+        checkEquals(() -> {
             for (final Notification m : this.msgsSend) {
                 if (m instanceof Pcerr) {
                     final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
@@ -211,28 +211,28 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         PCEPSessionImpl.setTicker(this.ticker);
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         final Queue<Long> qeue = session.getUnknownMessagesTimes();
-        CheckTestUtil.checkEquals(()-> assertEquals(1, qeue.size()));
+        CheckTestUtil.checkEquals(() -> assertEquals(1, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(()-> assertEquals(2, qeue.size()));
+        CheckTestUtil.checkEquals(() -> assertEquals(2, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        CheckTestUtil.checkEquals(() -> assertEquals(3, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(()-> assertEquals(4, qeue.size()));
+        CheckTestUtil.checkEquals(() -> assertEquals(4, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        CheckTestUtil.checkEquals(() -> assertEquals(3, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(()-> assertEquals(3, qeue.size()));
+        CheckTestUtil.checkEquals(() -> assertEquals(3, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(()-> assertEquals(4, qeue.size()));
+        CheckTestUtil.checkEquals(() -> assertEquals(4, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(()-> assertEquals(5, qeue.size()));
+        CheckTestUtil.checkEquals(() -> assertEquals(5, qeue.size()));
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         synchronized (client) {
             while (client.up) {
                 client.wait();
             }
         }
-        CheckTestUtil.checkEquals(()-> assertTrue(!client.up));
+        CheckTestUtil.checkEquals(() -> assertTrue(!client.up));
     }
 
     private final class TestTicker extends Ticker {

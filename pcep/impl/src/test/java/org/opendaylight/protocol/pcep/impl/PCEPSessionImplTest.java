@@ -169,7 +169,8 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         try {
             this.session.sessionUp();
             Assert.fail();  // expect the exception to be populated
-        } catch (final RuntimeException ignored) {}
+        } catch (final RuntimeException ignored) {
+        }
         Assert.assertFalse(this.listener.up);
         Mockito.verify(this.session).handleException(ArgumentMatchers.any());
         Mockito.verify(this.session).sendMessage(ArgumentMatchers.any(CloseMessage.class));

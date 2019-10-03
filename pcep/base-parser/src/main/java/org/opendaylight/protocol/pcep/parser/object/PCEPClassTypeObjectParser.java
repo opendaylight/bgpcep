@@ -83,7 +83,7 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof ClassType, "Wrong instance of PCEPObject. Passed %s. Needed ClassTypeObject.", object.getClass());
         final ByteBuf body = Unpooled.buffer(SIZE);
-        body.writeZero(SIZE -1);
+        body.writeZero(SIZE - 1);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType classType = ((ClassType) object).getClassType();
         Preconditions.checkArgument(classType != null, "ClassType is mandatory.");
         writeUnsignedByte(classType.getValue(), body);
