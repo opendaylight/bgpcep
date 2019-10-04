@@ -32,12 +32,15 @@ public final class Util {
                     metricPceBuilder.setProcTime((ProcTime) obj);
                     return State.PROC_TIME;
                 }
+            // fall-through
             case PROC_TIME :
                 if (obj instanceof Overload) {
                     metricPceBuilder.setOverload((Overload) obj);
                     return State.OVERLOAD;
                 }
+            // fall-through
             case OVERLOAD :
+            // fall-through
             case END :
                 return State.END;
             default:

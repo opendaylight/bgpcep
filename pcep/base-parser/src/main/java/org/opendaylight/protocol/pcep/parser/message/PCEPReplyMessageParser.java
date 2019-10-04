@@ -258,22 +258,27 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                     builder.setLspa((Lspa) obj);
                     return State.LSPA_IN;
                 }
+            // fall-through
             case LSPA_IN:
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     return State.BANDWIDTH_IN;
                 }
+            // fall-through
             case BANDWIDTH_IN:
                 if (obj instanceof Metric) {
                     pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
                     return State.BANDWIDTH_IN;
                 }
+            // fall-through
             case METRIC_IN:
                 if (obj instanceof Iro) {
                     builder.setIro((Iro) obj);
                     return State.IRO_IN;
                 }
+            // fall-through
             case IRO_IN:
+            // fall-through
             case END:
                 return State.END;
             default:
@@ -306,27 +311,33 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                     builder.setLspa((Lspa) obj);
                     return State.LSPA_IN;
                 }
+            // fall-through
             case LSPA_IN:
                 if (obj instanceof Of) {
                     builder.setOf((Of) obj);
                     return State.OF_IN;
                 }
+            // fall-through
             case OF_IN:
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     return State.BANDWIDTH_IN;
                 }
+            // fall-through
             case BANDWIDTH_IN:
                 if (obj instanceof Metric) {
                     pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
                     return State.BANDWIDTH_IN;
                 }
+            // fall-through
             case METRIC_IN:
                 if (obj instanceof Iro) {
                     builder.setIro((Iro) obj);
                     return State.IRO_IN;
                 }
+            // fall-through
             case IRO_IN:
+            // fall-through
             case END:
                 return State.END;
             default:

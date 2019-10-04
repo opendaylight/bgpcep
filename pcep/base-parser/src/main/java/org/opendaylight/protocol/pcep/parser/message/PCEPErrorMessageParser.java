@@ -139,24 +139,29 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                     requestParameters.add(new RpsBuilder().setRp(o).build());
                     return State.RP_IN;
                 }
+            // fall-through
             case ERROR_IN:
                 if (obj instanceof ErrorObject) {
                     final ErrorObject o = (ErrorObject) obj;
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR_IN;
                 }
+            // fall-through
             case OPEN:
                 if (obj instanceof Open) {
                     b.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder().setOpen((Open) obj).build()).build());
                     return State.OPEN_IN;
                 }
+            // fall-through
             case ERROR:
                 if (obj instanceof ErrorObject) {
                     final ErrorObject o = (ErrorObject) obj;
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR;
                 }
+            // fall-through
             case OPEN_IN:
+            // fall-through
             case END:
                 return State.END;
             default:
