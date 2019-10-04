@@ -34,6 +34,24 @@
       "revId": "2eff11c7f77f1d5dbc1a2803abd30ee1f1ae3742",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f90bb06_76057109",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/PCEPHexDumpParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-04T09:41:59Z",
+      "side": 1,
+      "message": "yeah, that\u0027s just Eclipse eliminating unneeded parentheses",
+      "parentUuid": "77ea1aeb_f15e8ebd",
+      "revId": "2eff11c7f77f1d5dbc1a2803abd30ee1f1ae3742",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
