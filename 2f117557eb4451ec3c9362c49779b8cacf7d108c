@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "671ab2cc_15ebac99",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPValidatorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-04T17:45:03Z",
+      "side": 1,
+      "message": "Actually ... and I don\u0027t want to add to the workload, but this is a perfect opportunity to clean this code up. The way the builder is used is quite inefficient, it should be used fluently.\n\nNote how the entire openBuilder is completely superfluous, as you can chain the individual setFoo()s up to the point of .build().\n\nCan I ask you to refactor each file touched by this \u0027clean up length\u0027 to also clean this up? I will cover this specific case in the next revision to create an example.",
+      "range": {
+        "startLine": 216,
+        "startChar": 5,
+        "endLine": 228,
+        "endChar": 40
+      },
+      "revId": "2f117557eb4451ec3c9362c49779b8cacf7d108c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
