@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d5b033de_558370d8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-04T08:45:06Z",
+      "side": 1,
+      "message": "each fall-through need to be documented, blanket suppresswarnings affects all branches and all future changes -- which is certainly the wrong thing to do",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 61
+      },
+      "revId": "1fb52c99212f149e4a769df9e5222956ba22e9f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c7b9bfc1_eb6ebcf9",
         "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/message/PCEPErrorMessageParser.java",
         "patchSetId": 2
