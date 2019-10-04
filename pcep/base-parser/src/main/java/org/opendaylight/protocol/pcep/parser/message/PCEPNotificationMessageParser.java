@@ -108,6 +108,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
                 notifications).setRps(requestParameters).build();
     }
 
+    @SuppressWarnings("checkstyle:FallThrough")
     private static State insertObject(final State state, final Object obj, final List<Message> errors, final List<Rps> requestParameters, final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcntf.message.pcntf.message.notifications.Notifications> notifications) {
         switch (state) {
             case INIT:

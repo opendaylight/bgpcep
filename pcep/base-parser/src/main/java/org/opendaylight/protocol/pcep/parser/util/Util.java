@@ -25,6 +25,7 @@ public final class Util {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("checkstyle:FallThrough")
     private static State insertObject(final MetricPceBuilder metricPceBuilder, final State state, final Object obj) {
         switch (state) {
             case START :
