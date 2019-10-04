@@ -29,11 +29,13 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
     private final int deadTimer;
     private final List<PCEPCapability> capabilities;
 
-    public BasePCEPSessionProposalFactory(final int deadTimer, final int keepAlive, final List<PCEPCapability> capabilities) {
+    public BasePCEPSessionProposalFactory(final int deadTimer, final int keepAlive,
+        final List<PCEPCapability> capabilities) {
         if (keepAlive != 0) {
             Preconditions.checkArgument(keepAlive >= 1, "Minimum value for keep-alive-timer-value is 1");
             if (deadTimer != 0 && (deadTimer / keepAlive != KA_TO_DEADTIMER_RATIO)) {
-                LOG.warn("dead-timer-value should be {} times greater than keep-alive-timer-value", KA_TO_DEADTIMER_RATIO);
+                LOG.warn("dead-timer-value should be {} times greater than keep-alive-timer-value",
+                    KA_TO_DEADTIMER_RATIO);
             }
         }
 

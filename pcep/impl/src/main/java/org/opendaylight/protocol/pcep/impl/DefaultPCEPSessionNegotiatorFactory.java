@@ -34,7 +34,8 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
         this.tlsConfiguration = tlsConfiguration;
     }
 
-    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final PcepDispatcherConfig config) {
+    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf,
+        final PcepDispatcherConfig config) {
         this(spf, config.getMaxUnknownMessages(), config.getTls());
     }
 

@@ -52,7 +52,8 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
 
         synchronized (lock) {
             if (sessionReg.getSessionReference(clientAddress).isPresent()) {
-                final byte[] serverAddress = ((InetSocketAddress) this.channel.localAddress()).getAddress().getAddress();
+                final byte[] serverAddress =
+                    ((InetSocketAddress) this.channel.localAddress()).getAddress().getAddress();
                 if (COMPARATOR.compare(serverAddress, clientAddress) > 0) {
                     final Optional<SessionReference> sessionRefMaybe = sessionReg.removeSessionReference(clientAddress);
                     try {

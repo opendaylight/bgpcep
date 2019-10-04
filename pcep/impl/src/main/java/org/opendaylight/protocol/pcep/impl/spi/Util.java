@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
 
 /**
- * Utilities used in pcep-impl
+ * Utilities used in pcep-impl.
  */
 public final class Util {
 
@@ -29,9 +29,10 @@ public final class Util {
         throw new UnsupportedOperationException();
     }
 
-    public static Message createErrorMessage(final PCEPErrors e, final Open t) {
+    public static Message createErrorMessage(final PCEPErrors error, final Open t) {
         final PcerrBuilder errMessageBuilder = new PcerrBuilder();
-        final ErrorObject err = new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue()).build();
+        final ErrorObject err =
+            new ErrorObjectBuilder().setType(error.getErrorType()).setValue(error.getErrorValue()).build();
         if (t == null) {
             return errMessageBuilder.setPcerrMessage(new PcerrMessageBuilder().setErrors(Collections.singletonList(
                 new ErrorsBuilder().setErrorObject(err).build())).build()).build();
@@ -39,6 +40,9 @@ public final class Util {
 
         final ErrorType type = new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(t).build()).build();
         return errMessageBuilder.setPcerrMessage(
-            new PcerrMessageBuilder().setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build())).setErrorType(type).build()).build();
+            new PcerrMessageBuilder()
+                .setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build()))
+                .setErrorType(type).build())
+            .build();
     }
 }
