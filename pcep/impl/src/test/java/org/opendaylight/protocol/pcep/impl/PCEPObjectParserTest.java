@@ -19,6 +19,7 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -286,7 +287,7 @@ public class PCEPObjectParserTest {
         final EroBuilder builder = new EroBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject> subs = Lists.newArrayList();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject> subs = new ArrayList<>();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder().setLoose(
                 true).setSubobjectType(
                         new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0xffffL)).build()).build()).build());
@@ -323,7 +324,7 @@ public class PCEPObjectParserTest {
         final IroBuilder builder = new IroBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.Subobject> subs = Lists.newArrayList();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.Subobject> subs = new ArrayList<>();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.SubobjectBuilder().setSubobjectType(
                 new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x10L)).build()).build()).setLoose(true).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.SubobjectBuilder().setSubobjectType(
@@ -366,7 +367,7 @@ public class PCEPObjectParserTest {
         final RroBuilder builder = new RroBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.Subobject> subs = Lists.newArrayList();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.Subobject> subs = new ArrayList<>();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.SubobjectBuilder().setSubobjectType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder().setIpPrefix(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder().setIpPrefix(
@@ -944,7 +945,7 @@ public class PCEPObjectParserTest {
         builder.setLinkDiverse(true);
         builder.setSrlgDiverse(true);
 
-        final List<RequestId> requestIDs = Lists.newArrayList();
+        final List<RequestId> requestIDs = new ArrayList<>();
         requestIDs.add(new RequestId(0xFFFFFFFFL));
         requestIDs.add(new RequestId(0x00000001L));
         requestIDs.add(new RequestId(0x01234567L));
@@ -1016,7 +1017,7 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.Xro.Flags(true));
-        final List<Subobject> subs = Lists.newArrayList();
+        final List<Subobject> subs = new ArrayList<>();
         subs.add(new SubobjectBuilder().setMandatory(true).setSubobjectType(
                 new IpPrefixCaseBuilder().setIpPrefix(
                         new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("192.168.0.0/16"))).build()).build()).setAttribute(
@@ -1052,7 +1053,7 @@ public class PCEPObjectParserTest {
         final PathKeyBuilder builder = new PathKeyBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(false);
-        final List<PathKeys> list = Lists.newArrayList();
+        final List<PathKeys> list = new ArrayList<>();
         list.add(new PathKeysBuilder().setLoose(true).setPathKey(new PathKey(0x1234)).setPceId(
                 new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 })).build());
         builder.setPathKeys(list);
@@ -1457,7 +1458,7 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
-            .route.object.ero.Subobject> subs = Lists.newArrayList();
+            .route.object.ero.Subobject> subs = new ArrayList<>();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
             .route.object.ero.SubobjectBuilder()
             .setLoose(true)
@@ -1496,7 +1497,7 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
-            .route.object.ero.Subobject> subs = Lists.newArrayList();
+            .route.object.ero.Subobject> subs = new ArrayList<>();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
             .route.object.ero.SubobjectBuilder()
             .setLoose(true)
