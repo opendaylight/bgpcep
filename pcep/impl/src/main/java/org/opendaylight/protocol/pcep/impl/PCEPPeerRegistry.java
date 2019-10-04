@@ -67,17 +67,20 @@ final class PCEPPeerRegistry {
         return Optional.empty();
     }
 
-    protected synchronized void putSessionReference(final byte[] clientAddress, final SessionReference sessionReference) {
+    protected synchronized void putSessionReference(final byte[] clientAddress,
+            final SessionReference sessionReference) {
         this.sessions.put(new ByteArrayWrapper(clientAddress), sessionReference);
     }
 
     protected synchronized Short nextSession(final byte[] clientAddress) throws ExecutionException {
-        final PeerRecord peer = this.formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, null));
+        final PeerRecord peer =
+            this.formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, null));
 
         return peer.allocId();
     }
 
-    protected synchronized void releaseSession(final byte[] clientAddress, final short sessionId) throws ExecutionException {
+    protected synchronized void releaseSession(final byte[] clientAddress, final short sessionId)
+            throws ExecutionException {
         this.formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, sessionId));
     }
 
@@ -85,7 +88,7 @@ final class PCEPPeerRegistry {
 
         private final byte[] byteArray;
 
-        public ByteArrayWrapper(final byte[] byteArray) {
+        ByteArrayWrapper(final byte[] byteArray) {
             this.byteArray = byteArray == null ? null : byteArray.clone();
         }
 

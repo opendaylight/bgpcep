@@ -32,9 +32,9 @@ public class SslContextFactory {
             .getLogger(SslContextFactory.class);
 
     /**
+     * SslContextFactory provides information about the TLS context and configuration.
      * @param tlsConfig
-     *            TLS configuration object, contains keystore locations and
-     *            keystore types
+     *            TLS configuration object, contains keystore locations and keystore types
      */
     public SslContextFactory(final Tls tlsConfig) {
         this.tlsConfig = requireNonNull(tlsConfig);
@@ -58,9 +58,12 @@ public class SslContextFactory {
             serverContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             return serverContext;
         } catch (final IOException e) {
-            LOG.warn("IOException - Failed to load keystore / truststore. Failed to initialize the server-side SSLContext", e);
+            LOG.warn(
+                "IOException - Failed to load keystore / truststore. Failed to initialize the server-side SSLContext",
+                e);
         } catch (final NoSuchAlgorithmException e) {
-            LOG.warn("NoSuchAlgorithmException - Unsupported algorithm. Failed to initialize the server-side SSLContext", e);
+            LOG.warn(
+                "NoSuchAlgorithmException - Unsupported algorithm. Failed to initialize the server-side SSLContext", e);
         } catch (final CertificateException e) {
             LOG.warn("CertificateException - Unable to access certificate (check password). Failed to initialize the server-side SSLContext", e);
         } catch (final Exception e) {
