@@ -365,51 +365,61 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     }
                     return P2PState.REPORTED_IN;
                 }
+                // fall-through
             case REPORTED_IN:
                 if (obj instanceof VendorInformationObject) {
                     viObjects.add((VendorInformationObject) obj);
                     return P2PState.REPORTED_IN;
                 }
+                // fall-through
             case VENDOR_INFO_LIST:
                 if (obj instanceof LoadBalancing) {
                     builder.setLoadBalancing((LoadBalancing) obj);
                     return P2PState.LOAD_BIN;
                 }
+                // fall-through
             case LOAD_BIN:
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
                     return P2PState.LSPA_IN;
                 }
+                // fall-through
             case LSPA_IN:
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     return P2PState.BANDWIDTH_IN;
                 }
+                // fall-through
             case BANDWIDTH_IN:
                 if (obj instanceof Metric) {
                     metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
                     return P2PState.BANDWIDTH_IN;
                 }
+                // fall-through
             case METRIC_IN:
                 if (obj instanceof Iro) {
                     builder.setIro((Iro) obj);
                     return P2PState.IRO_IN;
                 }
+                // fall-through
             case IRO_IN:
                 if (obj instanceof Rro) {
                     builder.setRro((Rro) obj);
                     return P2PState.RRO_IN;
                 }
+                // fall-through
             case RRO_IN:
                 if (obj instanceof Xro) {
                     builder.setXro((Xro) obj);
                     return P2PState.XRO_IN;
                 }
+                // fall-through
             case XRO_IN:
                 if (obj instanceof Of) {
                     builder.setOf((Of) obj);
                     return P2PState.OF_IN;
                 }
+                // fall-through
             case OF_IN:
                 if (obj instanceof ClassType) {
                     final ClassType classType = (ClassType) obj;
@@ -420,7 +430,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     }
                     return P2PState.CT_IN;
                 }
+                // fall-through
             case CT_IN:
+                // fall-through
             case END:
                 return P2PState.END;
             default:
@@ -501,6 +513,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     epRros.add(rroPairBuilder.setRros(new ArrayList<>()).build());
                     return P2MPState.ENDPOINT;
                 }
+                // fall-through
             case ENDPOINT:
                 if (obj instanceof Rro || obj instanceof Srro) {
                     if (obj.isProcessingRule()) {
@@ -521,6 +534,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     }
                     return P2MPState.ENDPOINT;
                 }
+                // fall-through
             case RRO_SRRO:
                 if (obj instanceof ReoptimizationBandwidth) {
                     final int lastIndex = epRros.size() - 1;
@@ -531,6 +545,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                             .build());
                     return P2MPState.BANDWIDTH;
                 }
+                // fall-through
             case BANDWIDTH:
                 if (obj instanceof EndpointsObj) {
                     return P2MPState.RP;
@@ -539,21 +554,25 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     builder.setOf((Of) obj);
                     return P2MPState.OF_IN;
                 }
+                // fall-through
             case OF_IN:
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
                     return P2MPState.LSPA_IN;
                 }
+                // fall-through
             case LSPA_IN:
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     return P2MPState.BANDWIDTH_IN;
                 }
+                // fall-through
             case BANDWIDTH_IN:
                 if (obj instanceof Metric) {
                     metrics.add(new MetricBuilder().setMetric((Metric) obj).build());
                     return P2MPState.BANDWIDTH_IN;
                 }
+                // fall-through
             case METRIC_IN:
                 if (obj instanceof Iro) {
                     builder.setIroBncChoice(new IroCaseBuilder().setIro((Iro) obj).build());
@@ -569,13 +588,17 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                             .setNonBranchNodeList((NonBranchNodeList) obj).build()).build());
                     return P2MPState.IRO_BNC_IN;
                 }
+                // fall-through
             case IRO_BNC_IN:
                 if (obj instanceof LoadBalancing) {
                     builder.setLoadBalancing((LoadBalancing) obj);
                     return P2MPState.LOAD_BIN;
                 }
+                // fall-through
             case LOAD_BIN:
+                // fall-through
             case END:
+                // fall-through
             default:
                 return P2MPState.END;
         }
@@ -621,27 +644,33 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     builder.setOf((Of) obj);
                     return SvecState.OF_IN;
                 }
+                // fall-through
             case OF_IN:
                 if (obj instanceof Gc) {
                     builder.setGc((Gc) obj);
                     return SvecState.GC_IN;
                 }
+                // fall-through
             case GC_IN:
                 if (obj instanceof Xro) {
                     builder.setXro((Xro) obj);
                     return SvecState.XRO_IN;
                 }
+                // fall-through
             case XRO_IN:
                 if (obj instanceof Metric) {
                     metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
                     return SvecState.XRO_IN;
                 }
+                // fall-through
             case METRIC_IN:
                 if (obj instanceof VendorInformationObject) {
                     viObjects.add((VendorInformationObject) obj);
                     return SvecState.METRIC_IN;
                 }
+                // fall-through
             case VENDOR_INFO:
+                // fall-through
             case END:
                 return SvecState.END;
             default:

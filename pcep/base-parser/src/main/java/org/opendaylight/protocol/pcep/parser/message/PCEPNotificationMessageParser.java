@@ -120,13 +120,16 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
                     requestParameters.add(new RpsBuilder().setRp(rp).build());
                     return State.INIT;
                 }
+                // fall-through
             case RP_IN:
                 if (obj instanceof CNotification) {
                     final CNotification n = (CNotification) obj;
                     notifications.add(new NotificationsBuilder().setCNotification(n).build());
                     return State.RP_IN;
                 }
+                // fall-through
             case NOTIFICATION_IN:
+                // fall-through
             case END:
                 return State.END;
             default:
