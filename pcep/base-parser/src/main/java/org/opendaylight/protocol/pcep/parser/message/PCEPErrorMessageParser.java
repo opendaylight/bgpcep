@@ -129,7 +129,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         }
         return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();
     }
-
+    @SuppressWarnings("checkstyle:FallThrough")
     private static State insertObject(final State state, final List<Errors> errorObjects, final Object obj,
             final List<Rps> requestParameters, final PcerrMessageBuilder b) {
         switch (state) {

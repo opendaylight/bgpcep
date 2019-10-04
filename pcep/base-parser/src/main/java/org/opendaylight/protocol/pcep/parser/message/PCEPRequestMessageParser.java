@@ -343,6 +343,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new SegmentComputationBuilder().setP2p(builder.build()).build();
     }
 
+    @SuppressWarnings("checkstyle:FallThrough")
     private static P2PState insertP2PObject(final P2PState p2PState,
                                             final List<Object> objects,
                                             final List<VendorInformationObject> viObjects,
@@ -481,6 +482,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return true;
     }
 
+    @SuppressWarnings("checkstyle:FallThrough")
     private static P2MPState insertP2MPObject(final P2MPState p2MPState,
                                               final List<Object> objects,
                                               final P2mpBuilder builder,
@@ -613,6 +615,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return builder.build();
     }
 
+    @SuppressWarnings("checkstyle:FallThrough")
     private static SvecState insertP2PObject(final SvecState state, final Object obj, final SvecBuilder builder,
                                              final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
         switch (state) {
