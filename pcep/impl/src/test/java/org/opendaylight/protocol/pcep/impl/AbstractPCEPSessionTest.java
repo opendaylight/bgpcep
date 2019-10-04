@@ -99,8 +99,8 @@ public class AbstractPCEPSessionTest {
         doReturn(this.eventLoop).when(this.channel).eventLoop();
         doReturn(true).when(this.future).cancel(false);
         doReturn(this.future).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
-        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class),
-            any(ChannelHandler.class));
+        doReturn(this.pipeline).when(this.pipeline)
+            .replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addFirst(any(ChannelHandler.class));
         doReturn(true).when(this.channel).isActive();
         doReturn(mock(ChannelFuture.class)).when(this.channel).close();
