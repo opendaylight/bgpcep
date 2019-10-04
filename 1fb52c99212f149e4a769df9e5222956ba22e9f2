@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7b9bfc1_eb6ebcf9",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/message/PCEPErrorMessageParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-04T08:43:45Z",
+      "side": 1,
+      "message": "this is not how you fix this, what you should do ...",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 47
+      },
+      "revId": "1fb52c99212f149e4a769df9e5222956ba22e9f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9170645a_81af5f32",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/message/PCEPErrorMessageParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-04T08:43:45Z",
+      "side": 1,
+      "message": "is add an explicit comment like:\n// fall-through",
+      "range": {
+        "startLine": 142,
+        "startChar": 12,
+        "endLine": 142,
+        "endChar": 17
+      },
+      "revId": "1fb52c99212f149e4a769df9e5222956ba22e9f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
