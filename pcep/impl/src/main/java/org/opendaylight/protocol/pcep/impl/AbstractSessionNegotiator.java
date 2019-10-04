@@ -88,5 +88,5 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
 
     protected abstract void startNegotiation() throws ExecutionException;
 
-    protected abstract void handleMessage(final Message msg);
+    protected abstract void handleMessage(Message msg);
 }

@@ -212,7 +212,7 @@ public class PCEPValidatorTest {
         this.rpTrue = rpBuilder.build();
         rpBuilder.setProcessingRule(false);
         this.rpFalse = rpBuilder.build();
-
+//TODO get rid of OpenBuilder
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object
             .OpenBuilder openBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
                 .rev181109.open.object.OpenBuilder();
