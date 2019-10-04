@@ -32,17 +32,17 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
     private InetSocketAddress address;
     private final int retryTimer;
     private final int connectTimeout;
-    private final Bootstrap b;
+    private final Bootstrap bootstrap;
     @GuardedBy("this")
     private Future<?> pending;
 
     PCEPProtocolSessionPromise(final EventExecutor executor, final InetSocketAddress address,
-            final int retryTimer, final int connectTimeout, final Bootstrap b) {
+            final int retryTimer, final int connectTimeout, final Bootstrap bootstrap) {
         super(executor);
         this.address = requireNonNull(address);
         this.retryTimer = retryTimer;
         this.connectTimeout = connectTimeout;
-        this.b = requireNonNull(b);
+        this.bootstrap = requireNonNull(bootstrap);
     }
 
     synchronized void connect() {
@@ -54,9 +54,9 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
                 this.address = new InetSocketAddress(this.address.getHostName(), this.address.getPort());
             }
 
-            this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
-            this.b.remoteAddress(this.address);
-            final ChannelFuture connectFuture = this.b.connect();
+            this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
+            this.bootstrap.remoteAddress(this.address);
+            final ChannelFuture connectFuture = this.bootstrap.connect();
             connectFuture.addListener(new BootstrapConnectListener());
             this.pending = connectFuture;
         } catch (Exception e) {
@@ -113,7 +113,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
                         synchronized (PCEPProtocolSessionPromise.this) {
                             PCEPProtocolSessionPromise.LOG.debug("Attempting to connect to {}",
                                     PCEPProtocolSessionPromise.this.address);
-                            final Future<Void> reconnectFuture = PCEPProtocolSessionPromise.this.b.connect();
+                            final Future<Void> reconnectFuture = PCEPProtocolSessionPromise.this.bootstrap.connect();
                             reconnectFuture.addListener(BootstrapConnectListener.this);
                             PCEPProtocolSessionPromise.this.pending = reconnectFuture;
                         }

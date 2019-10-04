@@ -38,8 +38,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
     @Before
     public void setup() {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open localPrefs = new OpenBuilder().setKeepalive(
-                (short) 1).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open
+            localPrefs = new OpenBuilder().setKeepalive((short) 1).build();
         this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 this.channel, this.listener, (short) 1, 20, localPrefs);
         this.tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
@@ -63,11 +63,12 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     }
 
     /**
-     * Establish PCEPS TLS connection with peer
+     * Establish PCEPS TLS connection with peer.
      */
     @Test
     public void testEstablishTLS() {
-        final DefaultPCEPSessionNegotiator negotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
+        final DefaultPCEPSessionNegotiator negotiator =
+            new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 this.channel, this.listener, (short) 1, 20, new OpenBuilder().setKeepalive((short) 1).build(),
                 SslContextFactoryTest.createTlsConfig());
         negotiator.channelActive(null);
@@ -83,7 +84,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     }
 
     /**
-     * As Tls is not configured properly, PCE will send error PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS
+     * As Tls is not configured properly, PCE will send error PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.
      */
     @Test
     public void testFailedToEstablishTLS() {
@@ -101,7 +102,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     }
 
     /**
-     * As PCE does not receive expected message (StartTLS), error PCEPErrors.NON_STARTTLS_MSG_RCVD is send
+     * As PCE does not receive expected message (StartTLS), error PCEPErrors.NON_STARTTLS_MSG_RCVD is send.
      */
     @Test
     public void testTLSUnexpectedMessage() {
