@@ -34,7 +34,8 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
 
     @Before
     public void setup() {
-        this.session = new PCEPSessionImpl(this.listener, 0, this.channel, this.openMsg.getOpenMessage().getOpen(), this.openMsg.getOpenMessage().getOpen());
+        this.session = new PCEPSessionImpl(this.listener, 0, this.channel, this.openMsg.getOpenMessage().getOpen(),
+            this.openMsg.getOpenMessage().getOpen());
         this.session.sessionUp();
     }
 
@@ -71,7 +72,8 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertTrue(this.msgsSend.get(0) instanceof Pcerr);
         final Pcerr pcErr = (Pcerr) this.msgsSend.get(0);
         final ErrorObject errorObj = pcErr.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.ATTEMPT_2ND_SESSION, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
+        Assert.assertEquals(
+            PCEPErrors.ATTEMPT_2ND_SESSION, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
     }
 
     @Test
@@ -87,12 +89,14 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertTrue(this.msgsSend.get(0) instanceof Pcerr);
         final Pcerr pcErr = (Pcerr) this.msgsSend.get(0);
         final ErrorObject errorObj = pcErr.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.CAPABILITY_NOT_SUPPORTED, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
+        Assert.assertEquals(
+            PCEPErrors.CAPABILITY_NOT_SUPPORTED, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
         Assert.assertEquals(1, this.session.getMessages().getUnknownMsgReceived().intValue());
         // exceeded max. unknown messages count - terminate session
         Assert.assertTrue(this.msgsSend.get(1) instanceof CloseMessage);
         final CloseMessage closeMsg = (CloseMessage) this.msgsSend.get(1);
-        Assert.assertEquals(TerminationReason.TOO_MANY_UNKNOWN_MSGS, TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
+        Assert.assertEquals(TerminationReason.TOO_MANY_UNKNOWN_MSGS,
+            TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
         Mockito.verify(this.channel, Mockito.times(1)).close();
     }
 
@@ -109,7 +113,8 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertEquals(1, this.msgsSend.size());
         Assert.assertTrue(this.msgsSend.get(0) instanceof CloseMessage);
         final CloseMessage closeMsg = (CloseMessage) this.msgsSend.get(0);
-        Assert.assertEquals(TerminationReason.UNKNOWN, TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
+        Assert.assertEquals(
+            TerminationReason.UNKNOWN, TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
         Mockito.verify(this.channel, Mockito.times(1)).close();
     }
 
@@ -134,8 +139,10 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         final ErrorMessages errMsgs = msgs.getErrorMessages();
         Assert.assertEquals(1, errMsgs.getReceivedErrorMsgCount().intValue());
         Assert.assertEquals(0, errMsgs.getSentErrorMsgCount().intValue());
-        Assert.assertEquals(PCEPErrors.LSP_RSVP_ERROR.getErrorType(), errMsgs.getLastReceivedError().getErrorType().shortValue());
-        Assert.assertEquals(PCEPErrors.LSP_RSVP_ERROR.getErrorValue(), errMsgs.getLastReceivedError().getErrorValue().shortValue());
+        Assert.assertEquals(
+            PCEPErrors.LSP_RSVP_ERROR.getErrorType(), errMsgs.getLastReceivedError().getErrorType().shortValue());
+        Assert.assertEquals(
+            PCEPErrors.LSP_RSVP_ERROR.getErrorValue(), errMsgs.getLastReceivedError().getErrorValue().shortValue());
 
         this.session.sendMessage(Util.createErrorMessage(PCEPErrors.UNKNOWN_PLSP_ID, null));
         final Messages msgs2 = this.session.getMessages();
@@ -145,8 +152,10 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         final ErrorMessages errMsgs2 = msgs2.getErrorMessages();
         Assert.assertEquals(1, errMsgs2.getReceivedErrorMsgCount().intValue());
         Assert.assertEquals(1, errMsgs2.getSentErrorMsgCount().intValue());
-        Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorType(), errMsgs2.getLastSentError().getErrorType().shortValue());
-        Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorValue(), errMsgs2.getLastSentError().getErrorValue().shortValue());
+        Assert.assertEquals(
+            PCEPErrors.UNKNOWN_PLSP_ID.getErrorType(), errMsgs2.getLastSentError().getErrorType().shortValue());
+        Assert.assertEquals(
+            PCEPErrors.UNKNOWN_PLSP_ID.getErrorValue(), errMsgs2.getLastSentError().getErrorValue().shortValue());
     }
 
     @Test

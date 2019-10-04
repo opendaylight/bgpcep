@@ -10,6 +10,8 @@ package org.opendaylight.protocol.pcep.impl;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 /**
+ * PCEPMessageHeaderDecode. Decodes PCEP messages headers.
+ *
  * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.1">Common Message Header</a>
  */
 public class PCEPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
@@ -34,6 +36,7 @@ public class PCEPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
      */
 
     public PCEPMessageHeaderDecoder() {
-        super(MAX_FRAME_SIZE, VERSION_FLAGS_SIZE + MESSAGE_TYPE_SIZE, LENGTH_SIZE, -LENGTH_SIZE - MESSAGE_TYPE_SIZE - VERSION_FLAGS_SIZE, 0);
+        super(MAX_FRAME_SIZE, VERSION_FLAGS_SIZE + MESSAGE_TYPE_SIZE, LENGTH_SIZE,
+            -LENGTH_SIZE - MESSAGE_TYPE_SIZE - VERSION_FLAGS_SIZE, 0);
     }
 }

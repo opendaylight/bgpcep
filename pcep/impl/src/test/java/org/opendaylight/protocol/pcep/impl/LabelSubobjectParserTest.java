@@ -28,20 +28,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class LabelSubobjectParserTest {
 
-    private static final byte[] generalizedLabelBytes = { (byte) 0x80, 0x02, 0x00, 0x04, 0x12, 0x00, 0x25, (byte) 0xFF };
+//TODO use capital letter in variables names - see PCEPEROSubobjectParserTest.java for example
+    private static final byte[] generalizedLabelBytes =
+        { (byte) 0x80, 0x02, 0x00, 0x04, 0x12, 0x00, 0x25, (byte) 0xFF };
 
     private static final byte[] typeOneLabelBytes = { (byte) 0x81, 0x01, 0x12, 0x00, 0x25, (byte) 0xFF };
 
-    private static final byte[] wavebandLabelBytes = { 0x01, 0x03, 0x00, 0x00, 0x12, 0x34, 0x00, 0x00, (byte) 0x99, (byte) 0x99, 0x00,
-        0x00, 0x11, 0x11 };
+    private static final byte[] wavebandLabelBytes =
+        { 0x01, 0x03, 0x00, 0x00, 0x12, 0x34, 0x00, 0x00, (byte) 0x99, (byte) 0x99, 0x00, 0x00, 0x11, 0x11 };
 
     @Test
     public void testGeneralizedLabel() throws PCEPDeserializerException {
         final GeneralizedLabelParser parser = new GeneralizedLabelParser();
         final GeneralizedLabelBuilder iBuilder = new GeneralizedLabelBuilder();
         iBuilder.setGeneralizedLabel(ByteArray.cutBytes(generalizedLabelBytes, 2));
-        final GeneralizedLabelCaseBuilder builder = new GeneralizedLabelCaseBuilder().setGeneralizedLabel(iBuilder.build());
-        assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(generalizedLabelBytes, 2))));
+        final GeneralizedLabelCaseBuilder builder =
+            new GeneralizedLabelCaseBuilder().setGeneralizedLabel(iBuilder.build());
+        assertEquals(
+            builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(generalizedLabelBytes, 2))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeLabel(true, false, builder.build(), buff);
         assertArrayEquals(generalizedLabelBytes, ByteArray.getAllBytes(buff));
@@ -68,8 +72,10 @@ public class LabelSubobjectParserTest {
         iBuilder.setWavebandId(0x1234L);
         iBuilder.setStartLabel(0x9999L);
         iBuilder.setEndLabel(0x1111L);
-        final WavebandSwitchingLabelCaseBuilder builder = new WavebandSwitchingLabelCaseBuilder().setWavebandSwitchingLabel(iBuilder.build());
-        assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(wavebandLabelBytes, 2))));
+        final WavebandSwitchingLabelCaseBuilder builder =
+            new WavebandSwitchingLabelCaseBuilder().setWavebandSwitchingLabel(iBuilder.build());
+        assertEquals(
+            builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(wavebandLabelBytes, 2))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeLabel(false, true, builder.build(), buff);
         assertArrayEquals(wavebandLabelBytes, ByteArray.getAllBytes(buff));
@@ -94,7 +100,8 @@ public class LabelSubobjectParserTest {
         final Type1LabelBuilder iBuilder = new Type1LabelBuilder();
         iBuilder.setType1Label(0x120025ffL);
         final Type1LabelCaseBuilder builder = new Type1LabelCaseBuilder().setType1Label(iBuilder.build());
-        assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(typeOneLabelBytes, 2))));
+        assertEquals(
+            builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(typeOneLabelBytes, 2))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeLabel(true, true,  builder.build(), buff);
         assertArrayEquals(typeOneLabelBytes, ByteArray.getAllBytes(buff));

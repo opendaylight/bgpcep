@@ -27,13 +27,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PCEPParserTest {
 
-    private final MessageRegistry registry = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry();
+    private final MessageRegistry registry =
+        ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry();
 
     @Test
     public void testMessageToByteEncoding() {
         PCEPMessageToByteEncoder encoder = new PCEPMessageToByteEncoder(this.registry);
         ByteBuf out = Unpooled.buffer();
-        encoder.encode(null, new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build(), out);
+        encoder.encode(
+            null, new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build(), out);
         assertArrayEquals(new byte[] { 32, 2, 0, 4 }, ByteArray.readAllBytes(out));
     }
 
@@ -43,9 +45,11 @@ public class PCEPParserTest {
         List<Object> out = new ArrayList<>();
         decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { 32, 2, 0, 4 }), out);
         assertTrue(out.get(0) instanceof Keepalive);
-        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { 0x20, 0x07, 0, 0x0C, 0x0F, 0x10, 0, 8, 0, 0, 0, 5 }), out);
+        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] {
+            0x20, 0x07, 0, 0x0C, 0x0F, 0x10, 0, 8, 0, 0, 0, 5 }), out);
         assertTrue(out.get(1) instanceof Close);
-        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] { 0x20, 06, 00, 0x18, 0x21,0x10, 00,0x0c, 00,00,00,00,00,00,00,01,0x0d,0x10,00,0x08,00,00,0x18,02 }), out);
+        decoder.decode(null, Unpooled.wrappedBuffer(new byte[] {
+            0x20, 06, 00, 0x18, 0x21,0x10, 00,0x0c, 00,00,00,00,00,00,00,01,0x0d,0x10,00,0x08,00,00,0x18,02 }), out);
         assertTrue(out.get(2) instanceof Pcerr);
     }
 
