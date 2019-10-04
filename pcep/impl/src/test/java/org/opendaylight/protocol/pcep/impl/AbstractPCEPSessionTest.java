@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.impl;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -13,7 +12,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -24,6 +22,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
@@ -70,7 +69,7 @@ public class AbstractPCEPSessionTest {
 
     protected final String ipAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     protected final int port = InetSocketAddressUtil.getRandomPort();
-    protected final List<Notification> msgsSend = Lists.newArrayList();
+    protected final List<Notification> msgsSend = new ArrayList<>();
 
     protected Open openMsg;
 
@@ -100,16 +99,23 @@ public class AbstractPCEPSessionTest {
         doReturn(this.eventLoop).when(this.channel).eventLoop();
         doReturn(true).when(this.future).cancel(false);
         doReturn(this.future).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
-        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class),
+            any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addFirst(any(ChannelHandler.class));
         doReturn(true).when(this.channel).isActive();
         doReturn(mock(ChannelFuture.class)).when(this.channel).close();
         doReturn(new InetSocketAddress(this.ipAddress, this.port)).when(this.channel).remoteAddress();
         doReturn(new InetSocketAddress(this.ipAddress, this.port)).when(this.channel).localAddress();
-        this.openMsg = new OpenBuilder().setOpenMessage(
-                new OpenMessageBuilder().setOpen(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder().setDeadTimer(
-                                DEADTIMER).setKeepalive(KEEP_ALIVE).setSessionId((short) 0).build()).build()).build();
+        this.openMsg = new OpenBuilder()
+                .setOpenMessage(new OpenMessageBuilder()
+                    .setOpen(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                        .open.object.OpenBuilder()
+                        .setDeadTimer(DEADTIMER)
+                        .setKeepalive(KEEP_ALIVE)
+                        .setSessionId((short) 0)
+                        .build())
+                    .build())
+                .build();
         this.kaMsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
         this.startTlsMsg = new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build();
         this.closeMsg = new CloseBuilder().setCCloseMessage(
