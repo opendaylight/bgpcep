@@ -18,8 +18,8 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
     private static final EnterpriseNumber TEST_ENTERPRISE_NUMBER = new EnterpriseNumber(0L);
 
     @Override
-    public void serializeEnterpriseSpecificInformation(final EnterpriseSpecificInformation enterpriseSpecificInformation,
-            final ByteBuf buffer) {
+    public void serializeEnterpriseSpecificInformation(
+        final EnterpriseSpecificInformation enterpriseSpecificInformation, final ByteBuf buffer) {
         if (enterpriseSpecificInformation instanceof TestEnterpriseSpecificInformation) {
             buffer.writeInt(((TestEnterpriseSpecificInformation) enterpriseSpecificInformation).getValue());
         }

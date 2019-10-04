@@ -71,6 +71,15 @@ final class PCEPSessionState {
         return this.localPref;
     }
 
+    private static LocalPref getLocalPref(final Open open, final Channel channel) {
+        final LocalPrefBuilder peerBuilder = new LocalPrefBuilder();
+        peerBuilder.setDeadtimer(open.getDeadTimer());
+        peerBuilder.setKeepalive(open.getKeepalive());
+        peerBuilder.setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress());
+        peerBuilder.setSessionId(open.getSessionId().intValue());
+        return peerBuilder.build();
+    }
+
     PeerPref getPeerPref() {
         return this.peerPref;
     }
@@ -110,15 +119,6 @@ final class PCEPSessionState {
         peerBuilder.setDeadtimer(open.getDeadTimer());
         peerBuilder.setKeepalive(open.getKeepalive());
         peerBuilder.setIpAddress(((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress());
-        peerBuilder.setSessionId(open.getSessionId().intValue());
-        return peerBuilder.build();
-    }
-
-    private static LocalPref getLocalPref(final Open open, final Channel channel) {
-        final LocalPrefBuilder peerBuilder = new LocalPrefBuilder();
-        peerBuilder.setDeadtimer(open.getDeadTimer());
-        peerBuilder.setKeepalive(open.getKeepalive());
-        peerBuilder.setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress());
         peerBuilder.setSessionId(open.getSessionId().intValue());
         return peerBuilder.build();
     }
