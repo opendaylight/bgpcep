@@ -58,30 +58,31 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     @VisibleForTesting
     public enum State {
         /**
-         * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal, at which
-         * point we move into OpenWait state.
-         */
+        * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal,
+        * at which point we move into OpenWait state.
+        */
         IDLE,
         /**
-         * Waiting for the peer's StartTLS message
-         */
+        * Waiting for the peer's StartTLS message.
+        */
         START_TLS_WAIT,
         /**
-         * Waiting for the peer's OPEN message.
-         */
+        * Waiting for the peer's OPEN message.
+        */
         OPEN_WAIT,
         /**
-         * Waiting for the peer's KEEPALIVE message.
-         */
+        * Waiting for the peer's KEEPALIVE message.
+        */
         KEEP_WAIT,
         /**
-         * Negotiation has completed.
-         */
+        * Negotiation has completed.
+        */
         FINISHED,
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
-    private static final Keepalive KEEPALIVE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+    private static final Keepalive KEEPALIVE =
+        new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
     private volatile boolean localOK;
     private volatile boolean openRetry;
@@ -141,7 +142,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     /**
      * Sends PCEP Error Message with one PCEPError.
      *
-     * @param value
+     * @param value PCEP errors value
      */
     private void sendErrorMessage(final PCEPErrors value) {
 
@@ -195,8 +196,9 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
     private void startNegotiationWithOpen() {
         this.localPrefs = getInitialProposal();
-        final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.OpenBuilder().setOpenMessage(
-                new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
+        final OpenMessage m =
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.OpenBuilder()
+                .setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
         this.sendMessage(m);
         this.state = State.OPEN_WAIT;
         scheduleFailTimer();
@@ -228,7 +230,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     private boolean handleMessagePcerr(final Message msg) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.PcerrMessage err = ((Pcerr) msg).getPcerrMessage();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message
+            .PcerrMessage err = ((Pcerr) msg).getPcerrMessage();
         if (err.getErrorType() == null) {
             final ErrorObject obj = err.getErrors().get(0).getErrorObject();
             LOG.warn("Unexpected error received from PCC: type {} value {}", obj.getType(), obj.getValue());
@@ -243,7 +246,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             this.state = State.FINISHED;
             return true;
         }
-        this.sendMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build());
+        this.sendMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs)
+            .build()).build());
         if (!this.remoteOK) {
             this.state = State.OPEN_WAIT;
         }
@@ -252,10 +256,14 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     private boolean handleMessageOpenWait(final Message msg) {
-        if (!(msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Open)) {
+        if (!(msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109
+            .Open)) {
             return false;
         }
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.message.OpenMessage o = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Open) msg).getOpenMessage();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.message
+            .OpenMessage o =
+                ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Open) msg)
+                .getOpenMessage();
         final Open open = o.getOpen();
         if (isProposalAcceptable(open)) {
             this.sendMessage(KEEPALIVE);

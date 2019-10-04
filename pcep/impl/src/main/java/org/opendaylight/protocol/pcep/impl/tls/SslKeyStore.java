@@ -25,7 +25,7 @@ public final class SslKeyStore {
     }
 
     /**
-     * InputStream instance of key - key location is on classpath or specific path
+     * InputStream instance of key - key location is on classpath or specific path.
      *
      * @param filename
      *          keystore location
