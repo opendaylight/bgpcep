@@ -66,7 +66,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     private volatile long lastMessageSentAt;
 
     /**
-     * System.nanoTime value about when was received the last message
+     * System.nanoTime value about when was received the last message.
      */
     private long lastMessageReceivedAt;
 
@@ -94,7 +94,8 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     private final Channel channel;
 
-    private final Keepalive kaMessage = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+    private final Keepalive kaMessage =
+        new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
     private final PCEPSessionState sessionState;
 
@@ -119,8 +120,8 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
             channel.eventLoop().schedule(this::handleKeepaliveTimer, getKeepAliveTimerValue(), TimeUnit.SECONDS);
         }
 
-        LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(),
-                remoteOpen.getSessionId());
+        LOG.info("Session {}[{}] <-> {}[{}] started",
+            channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(), remoteOpen.getSessionId());
         this.sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
     }
 
@@ -246,7 +247,8 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         if (reason != null) {
             LOG.info("Closing PCEP session with reason {}: {}", reason, this);
             sendMessage(new CloseBuilder().setCCloseMessage(
-                    new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
+                    new CCloseMessageBuilder().setCClose(new CCloseBuilder()
+                        .setReason(reason.getShortValue()).build()).build()).build());
         } else {
             LOG.info("Closing PCEP session: {}", this);
         }
@@ -285,8 +287,8 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     /**
      * Sends PCEP Error Message with one PCEPError and Open Object.
      *
-     * @param value
-     * @param open
+     * @param value PCEP errors value
+     * @param open Open Object
      */
     private void sendErrorMessage(final PCEPErrors value, final Open open) {
         this.sendMessage(Util.createErrorMessage(value, open));
