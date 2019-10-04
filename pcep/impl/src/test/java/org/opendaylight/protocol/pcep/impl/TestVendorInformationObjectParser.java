@@ -24,8 +24,8 @@ public class TestVendorInformationObjectParser extends AbstractVendorInformation
     }
 
     @Override
-    public void serializeEnterpriseSpecificInformation(final EnterpriseSpecificInformation enterpriseSpecificInformation,
-            final ByteBuf buffer) {
+    public void serializeEnterpriseSpecificInformation(
+        final EnterpriseSpecificInformation enterpriseSpecificInformation, final ByteBuf buffer) {
         buffer.writeInt(((TestEnterpriseSpecificInformation) enterpriseSpecificInformation).getValue());
     }
 
