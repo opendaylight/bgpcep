@@ -133,7 +133,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
     private static State insertObject(final State state, final List<Errors> errorObjects, final Object obj,
             final List<Rps> requestParameters, final PcerrMessageBuilder b) {
         switch (state) {
-           case RP_IN:
+            case RP_IN:
                 if (obj instanceof Rp) {
                     final Rp o = (Rp) obj;
                     requestParameters.add(new RpsBuilder().setRp(o).build());
