@@ -245,16 +245,16 @@ public class PCEPDispatcherImplTest {
             return p;
         }
 
-        private static void setChannelFactory(final Bootstrap b) {
+        private static void setChannelFactory(final Bootstrap bootstrap) {
             try {
-                b.channel(NioSocketChannel.class);
+                bootstrap.channel(NioSocketChannel.class);
             } catch (final IllegalStateException ignored) {
             }
         }
 
-        private void setWorkerGroup(final Bootstrap b) {
-            if (b.config().group() == null) {
-                b.group(this.workerGroup);
+        private void setWorkerGroup(final Bootstrap bootstrap) {
+            if (bootstrap.config().group() == null) {
+                bootstrap.group(this.workerGroup);
             }
         }
     }
