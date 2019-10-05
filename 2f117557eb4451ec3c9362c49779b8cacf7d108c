@@ -22,6 +22,30 @@
       "revId": "2f117557eb4451ec3c9362c49779b8cacf7d108c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b18e5b3b_5d8c8989",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPValidatorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-05T13:42:31Z",
+      "side": 1,
+      "message": "OK,I think too it is a good opportunity.\nI\u0027ll talk with Olivier Monday about how we can go forward together on this.\nIf we want to refactor some code, I\u0027ll probably have to change my cleanup strategy from  a per error whole project approach to a per bundle whole checkstyle approach.",
+      "parentUuid": "671ab2cc_15ebac99",
+      "range": {
+        "startLine": 216,
+        "startChar": 5,
+        "endLine": 228,
+        "endChar": 40
+      },
+      "revId": "2f117557eb4451ec3c9362c49779b8cacf7d108c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
