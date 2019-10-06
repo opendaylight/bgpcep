@@ -314,7 +314,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             final TablesKey ipv6Key = new TablesKey(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
             advertisedTables.add(ipv6Key);
         }
-        final List<TablesKey> addPathTables = Lists.newArrayList();
+        final List<TablesKey> addPathTables = new ArrayList();
         if (addPath) {
             addPathTables.add(ipv4Key);
         }

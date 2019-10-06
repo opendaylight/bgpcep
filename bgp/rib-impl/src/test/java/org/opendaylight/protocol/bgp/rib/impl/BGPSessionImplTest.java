@@ -23,7 +23,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -34,6 +33,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
@@ -91,7 +91,7 @@ public class BGPSessionImplTest {
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class,
         UnicastSubsequentAddressFamily.class);
 
-    private final List<Notification> receivedMsgs = Lists.newArrayList();
+    private final List<Notification> receivedMsgs = new ArrayList<>();
 
     private Open classicOpen;
 
@@ -103,11 +103,11 @@ public class BGPSessionImplTest {
     public void setUp() throws UnknownHostException {
         new EmbeddedChannel();
         MockitoAnnotations.initMocks(this);
-        final List<BgpParameters> tlvs = Lists.newArrayList();
+        final List<BgpParameters> tlvs = new ArrayList<>();
         this.classicOpen = new OpenBuilder().setMyAsNumber(AS_NUMBER.getValue().intValue()).setHoldTimer(HOLD_TIMER)
                 .setVersion(new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
 
-        final List<OptionalCapabilities> capa = Lists.newArrayList();
+        final List<OptionalCapabilities> capa = new ArrayList<>();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
             .addAugmentation(CParameters1.class, new CParameters1Builder()
                 .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()

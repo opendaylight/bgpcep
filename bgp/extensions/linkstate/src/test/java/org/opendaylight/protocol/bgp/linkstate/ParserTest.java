@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
@@ -355,7 +354,7 @@ public class ParserTest {
         mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
         mpBuilder.setCNextHop(nextHop);
 
-        final List<CLinkstateDestination> linkstates = Lists.newArrayList();
+        final List<CLinkstateDestination> linkstates = new ArrayList<>();
         final LinkCaseBuilder lCase = new LinkCaseBuilder().setLocalNodeDescriptors(ndBuilder.setCRouterIdentifier(
             new OspfPseudonodeCaseBuilder().setOspfPseudonode(
                 new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L)
@@ -555,7 +554,7 @@ public class ParserTest {
         n.setAsNumber(new AsNumber((long) 100)).setDomainId(new DomainIdentifier(0x19191901L))
             .setAreaId(new AreaIdentifier(0L));
 
-        final List<CLinkstateDestination> linkstates = Lists.newArrayList();
+        final List<CLinkstateDestination> linkstates = new ArrayList<>();
         final NodeCaseBuilder nCase = new NodeCaseBuilder();
         nCase.setNodeDescriptors(n.setCRouterIdentifier(
             new OspfPseudonodeCaseBuilder().setOspfPseudonode(

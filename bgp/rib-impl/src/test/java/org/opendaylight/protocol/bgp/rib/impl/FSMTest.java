@@ -15,7 +15,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -27,6 +26,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
@@ -67,8 +67,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class FSMTest {
-
-
     @Mock
     private EventLoop eventLoop;
 
@@ -86,15 +84,15 @@ public class FSMTest {
     private final BgpTableType linkstatett
             = new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
-    private final List<Notification> receivedMsgs = Lists.newArrayList();
+    private final List<Notification> receivedMsgs = new ArrayList<>();
 
     private Open classicOpen;
 
     @Before
     public void setUp() throws UnknownHostException {
         MockitoAnnotations.initMocks(this);
-        final List<BgpParameters> tlvs = Lists.newArrayList();
-        final List<OptionalCapabilities> capas = Lists.newArrayList();
+        final List<BgpParameters> tlvs = new ArrayList<>();
+        final List<OptionalCapabilities> capas = new ArrayList<>();
 
         capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
@@ -197,8 +195,8 @@ public class FSMTest {
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
 
-        final List<BgpParameters> tlvs = Lists.newArrayList();
-        final List<OptionalCapabilities> capas = Lists.newArrayList();
+        final List<BgpParameters> tlvs = new ArrayList<>();
+        final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
                 .addAugmentation(CParameters1.class,
                         new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
@@ -225,8 +223,8 @@ public class FSMTest {
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
 
-        final List<BgpParameters> tlvs = Lists.newArrayList();
-        final List<OptionalCapabilities> capas = Lists.newArrayList();
+        final List<BgpParameters> tlvs = new ArrayList<>();
+        final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
                         new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
