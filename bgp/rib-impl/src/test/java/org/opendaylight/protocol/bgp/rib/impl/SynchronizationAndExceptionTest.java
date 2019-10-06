@@ -38,6 +38,7 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -142,11 +143,11 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     public void setUp() throws Exception {
         super.setUp();
         new EmbeddedChannel();
-        final List<BgpParameters> tlvs = Lists.newArrayList();
+        final List<BgpParameters> tlvs = new ArrayList<>();
         this.classicOpen = new OpenBuilder().setMyAsNumber(AS_NUMBER.getValue().intValue()).setHoldTimer(HOLD_TIMER)
                 .setVersion(new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
 
-        final List<OptionalCapabilities> capa = Lists.newArrayList();
+        final List<OptionalCapabilities> capa = new ArrayList<>();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
                 .addAugmentation(CParameters1.class, new CParameters1Builder()
                         .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()

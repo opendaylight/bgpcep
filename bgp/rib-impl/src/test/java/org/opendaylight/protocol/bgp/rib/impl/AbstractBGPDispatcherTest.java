@@ -10,13 +10,13 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
@@ -90,8 +90,8 @@ public class AbstractBGPDispatcherTest {
     }
 
     protected BGPSessionPreferences createPreferences(final InetSocketAddress socketAddress) {
-        final List<BgpParameters> tlvs = Lists.newArrayList();
-        final List<OptionalCapabilities> capas = Lists.newArrayList();
+        final List<BgpParameters> tlvs = new ArrayList<>();
+        final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
                 CParameters1.class, new CParameters1Builder()
                         .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()

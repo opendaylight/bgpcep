@@ -171,7 +171,7 @@ public class BGPParserTest {
         // attributes
         final List<AsNumber> asNumbers = new ArrayList<>();
         asNumbers.add(new AsNumber(65001L));
-        final List<Segments> asPath = Lists.newArrayList();
+        final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(

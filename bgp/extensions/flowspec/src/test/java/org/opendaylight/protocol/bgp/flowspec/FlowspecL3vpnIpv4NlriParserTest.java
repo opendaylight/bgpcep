@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -807,7 +808,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                         .withChild(Builders.unkeyedListEntryBuilder()
                             .withNodeIdentifier(FlowspecL3vpnIpv4NlriParser.OP_NID)
                             .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv4NlriParser.OP_NID)
-                                .withValue(Sets.newHashSet()).build())
+                                .withValue(Collections.emptySet()).build())
                             .withChild(Builders.leafBuilder().withNodeIdentifier(FlowspecL3vpnIpv4NlriParser.VALUE_NID)
                                 .withValue((short) 23).build()).build())
                         .build()).build()).build()).build());

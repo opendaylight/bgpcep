@@ -17,6 +17,7 @@ import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -766,7 +767,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
                         .withChild(Builders.unkeyedListEntryBuilder()
                             .withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
                             .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
-                                .withValue(Sets.<String>newHashSet()).build())
+                                .withValue(Collections.emptySet()).build())
                             .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.VALUE_NID)
                                 .withValue((short) 23).build()).build())
                         .build()).build()).build()).build());
