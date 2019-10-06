@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedInts;
@@ -29,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -208,10 +207,10 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
         final List<BgpParameters> prefs = openObj.getBgpParameters();
         if (prefs != null) {
-            if (getAs4BytesCapability(localPref.getParams()).isPresent() && !getAs4BytesCapability(prefs).isPresent()) {
+            final As4BytesCapability localCap = getAs4BytesCapability(localPref.getParams());
+            if (localCap != null && getAs4BytesCapability(prefs) == null) {
                 throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.",
-                        BGPError.UNSUPPORTED_CAPABILITY,
-                        serializeAs4BytesCapability(getAs4BytesCapability(localPref.getParams()).get()));
+                        BGPError.UNSUPPORTED_CAPABILITY, serializeAs4BytesCapability(localCap));
             }
             if (!prefs.containsAll(localPref.getParams())) {
                 LOG.info("BGP Open message session parameters differ, session still accepted.");
@@ -222,16 +221,17 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
     }
 
-    private static Optional<As4BytesCapability> getAs4BytesCapability(final List<BgpParameters> prefs) {
+    private static @Nullable As4BytesCapability getAs4BytesCapability(final List<BgpParameters> prefs) {
         for (final BgpParameters param : prefs) {
             for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
                 final CParameters cParam = capa.getCParameters();
-                if (cParam.getAs4BytesCapability() != null) {
-                    return Optional.of(cParam.getAs4BytesCapability());
+                final As4BytesCapability asCapa = cParam.getAs4BytesCapability();
+                if (asCapa != null) {
+                    return asCapa;
                 }
             }
         }
-        return Optional.absent();
+        return null;
     }
 
     private static byte[] serializeAs4BytesCapability(final As4BytesCapability as4Capability) {
