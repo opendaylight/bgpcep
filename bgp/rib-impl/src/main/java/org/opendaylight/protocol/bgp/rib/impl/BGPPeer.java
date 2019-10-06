@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -29,10 +28,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -71,7 +72,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.Nlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpAddPathTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
@@ -209,24 +210,34 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
      * @return MpUnreachNlri with prefixes from the withdrawn routes field
      */
     private static MpUnreachNlri prefixesToMpUnreach(final Update message, final boolean isAnyNlriAnnounced) {
-        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
-        message.getWithdrawnRoutes().forEach(w -> {
+        return new MpUnreachNlriBuilder()
+                .setAfi(Ipv4AddressFamily.class)
+                .setSafi(UnicastSubsequentAddressFamily.class)
+                .setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+                    .setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
+                            .rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                            .DestinationIpv4CaseBuilder()
+                                .setDestinationIpv4(new DestinationIpv4Builder()
+                                    // Create a withdrawal requests for all routes. Note short-circuit if we know there
+                                    // is no NLRI being announced
+                                    .setIpv4Prefixes((isAnyNlriAnnounced ? streamWithdrawnRoutes(message)
+                                            : message.getWithdrawnRoutes().stream())
+                                        .map(w -> new Ipv4PrefixesBuilder()
+                                            .setPrefix(w.getPrefix())
+                                            .setPathId(w.getPathId())
+                                            .build())
+                                        .collect(Collectors.toList()))
+                                    .build())
+                                .build())
+                    .build())
+                .build();
+    }
 
-            Optional<Nlri> nlriAnounced = Optional.empty();
-            if (isAnyNlriAnnounced) {
-                nlriAnounced = message.getNlri().stream().filter(n -> Objects.equal(n.getPrefix(), w.getPrefix())
-                        && Objects.equal(n.getPathId(), w.getPathId()))
-                        .findAny();
-            }
-            if (!nlriAnounced.isPresent()) {
-                prefixes.add(new Ipv4PrefixesBuilder().setPrefix(w.getPrefix()).setPathId(w.getPathId()).build());
-            }
-        });
-        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1
-                        .urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.unreach.nlri
-                        .withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
+    private static Stream<WithdrawnRoutes> streamWithdrawnRoutes(final Update message) {
+        return message.getWithdrawnRoutes().stream()
+        .filter(w -> message.getNlri().stream()
+            .filter(n -> Objects.equals(n.getPrefix(), w.getPrefix()) && Objects.equals(n.getPathId(), w.getPathId()))
+            .findAny().isEmpty());
     }
 
     private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
