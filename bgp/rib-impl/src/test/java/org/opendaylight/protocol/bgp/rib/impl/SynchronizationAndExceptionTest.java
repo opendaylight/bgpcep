@@ -23,12 +23,10 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.FluentFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -42,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
@@ -203,14 +200,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doNothing().when(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
-        final FluentFuture<? extends CommitInfo> fluentFuture = mock(FluentFuture.class);
-        doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
-            callback.run();
-            return null;
-        }).when(fluentFuture).addListener(any(Runnable.class), any(Executor.class));
-        doReturn(fluentFuture).when(this.tx).commit();
-        doReturn(mock(Optional.class)).when(fluentFuture).get();
+        doReturn(CommitInfo.emptyFluentFuture()).when(this.tx).commit();
     }
 
     @Test

@@ -12,7 +12,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
@@ -21,7 +20,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.FluentFuture;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -76,9 +74,7 @@ public class AdjRibsInWriterTest {
         MockitoAnnotations.initMocks(this);
         doReturn("MockedTrans").when(this.tx).toString();
         doReturn(this.tx).when(this.chain).newWriteOnlyTransaction();
-        final FluentFuture<? extends CommitInfo> fluentFuture = mock(FluentFuture.class);
-        doNothing().when(fluentFuture).addListener(any(), any());
-        doReturn(fluentFuture).when(this.tx).commit();
+        doReturn(CommitInfo.emptyFluentFuture()).when(this.tx).commit();
         doNothing().when(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
