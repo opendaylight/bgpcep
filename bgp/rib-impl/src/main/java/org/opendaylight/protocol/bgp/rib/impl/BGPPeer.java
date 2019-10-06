@@ -230,8 +230,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
-        return ImmutableMap.copyOf(addPathTablesType.stream().collect(Collectors.toMap(af -> new TablesKey(af.getAfi(),
-                        af.getSafi()), BgpAddPathTableType::getSendReceive)));
+        return addPathTablesType.stream().collect(ImmutableMap.toImmutableMap(
+            af -> new TablesKey(af.getAfi(), af.getSafi()), BgpAddPathTableType::getSendReceive));
     }
 
     public synchronized void instantiateServiceInstance() {
