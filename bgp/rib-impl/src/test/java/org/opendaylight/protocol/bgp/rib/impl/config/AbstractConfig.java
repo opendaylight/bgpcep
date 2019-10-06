@@ -15,14 +15,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.util.concurrent.FluentFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.Collections;
-import java.util.concurrent.Executor;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -113,16 +110,8 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
                 any(YangInstanceIdentifier.class));
         doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        final FluentFuture<? extends CommitInfo> checkedFuture = mock(FluentFuture.class);
-        doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
-            callback.run();
-            return null;
-        }).when(checkedFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        doReturn(checkedFuture).when(this.domDW).commit();
-        doReturn(null).when(checkedFuture).get();
-        doReturn(true).when(checkedFuture).isDone();
-        doReturn("checkedFuture").when(checkedFuture).toString();
+        doReturn(CommitInfo.emptyFluentFuture()).when(this.domDW).commit();
+
         doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(this.rib).getYangRibId();
         doReturn(this.dataTreeChangeService).when(this.rib).getService();
         doReturn(this.listener).when(this.dataTreeChangeService).registerDataTreeChangeListener(any(), any());
