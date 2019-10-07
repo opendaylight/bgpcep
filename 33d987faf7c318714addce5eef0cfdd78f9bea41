@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ad31ccd_f262a12d",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/tls/SslContextFactory.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-07T15:51:24Z",
+      "side": 1,
+      "message": "line-length limit hit\nnot sure how to fix that properly. + concatenation are disadvised in SL4J",
+      "range": {
+        "startLine": 68,
+        "startChar": 11,
+        "endLine": 68,
+        "endChar": 145
+      },
+      "revId": "33d987faf7c318714addce5eef0cfdd78f9bea41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
