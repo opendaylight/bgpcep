@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29b25a3e_eade969f",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPObjectParserTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-07T14:45:27Z",
+      "side": 1,
+      "message": "@Robert: should we switch to plain new ArrayList\u003c\u003e such as in change 84910 and 84905 ?\nIt looks like an oversight but I suspect there is a good reason why you haven\u0027t done it in change 84910.",
+      "range": {
+        "startLine": 1013,
+        "startChar": 31,
+        "endLine": 1013,
+        "endChar": 49
+      },
+      "revId": "364d7002f93f9932ec8cdb8b4a799457b10ef09d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e851722_cd3270e1",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPObjectParserTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1318,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-07T14:45:27Z",
+      "side": 1,
+      "message": "idem",
+      "range": {
+        "startLine": 1318,
+        "startChar": 66,
+        "endLine": 1318,
+        "endChar": 84
+      },
+      "revId": "364d7002f93f9932ec8cdb8b4a799457b10ef09d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "388e045a_5ae656c1",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPValidatorTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-07T14:45:27Z",
+      "side": 1,
+      "message": "idem?",
+      "range": {
+        "startLine": 311,
+        "startChar": 32,
+        "endLine": 311,
+        "endChar": 50
+      },
+      "revId": "364d7002f93f9932ec8cdb8b4a799457b10ef09d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
