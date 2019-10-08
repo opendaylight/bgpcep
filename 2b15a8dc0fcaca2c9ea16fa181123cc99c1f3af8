@@ -45,6 +45,30 @@
       "revId": "2b15a8dc0fcaca2c9ea16fa181123cc99c1f3af8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c52cb3eb_e0a185b6",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2019-10-08T22:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed9c4423_f5830724",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 13
+      },
+      "revId": "2b15a8dc0fcaca2c9ea16fa181123cc99c1f3af8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
