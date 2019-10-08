@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50aae1ff_1ced7816",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/BasePCEPSessionProposalFactory.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-08T11:02:41Z",
+      "side": 1,
+      "message": "add four more spaces to reduce risk of confusion with a local variable declaration",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 8
+      },
+      "revId": "38f52f35995ec601c5f0c4183ec29d0bd96edf81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e7a8703_80a34dd3",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/DefaultPCEPSessionNegotiator.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-08T11:02:41Z",
+      "side": 1,
+      "message": "same thing here ... note how the method body aligns with argument declaration",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 8
+      },
+      "revId": "38f52f35995ec601c5f0c4183ec29d0bd96edf81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be97b7ae_742d82df",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/DefaultPCEPSessionNegotiatorFactory.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-08T11:02:41Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 38,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 8
+      },
+      "revId": "38f52f35995ec601c5f0c4183ec29d0bd96edf81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d50b4105_d5003bbe",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPObjectParserTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-08T11:02:41Z",
+      "side": 1,
+      "message": "this should be on a single line...",
+      "range": {
+        "startLine": 303,
+        "startChar": 49,
+        "endLine": 304,
+        "endChar": 17
+      },
+      "revId": "38f52f35995ec601c5f0c4183ec29d0bd96edf81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89bbee01_8b0cc90e",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPObjectParserTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-08T11:02:41Z",
+      "side": 1,
+      "message": "this brace should be on a new line",
+      "range": {
+        "startLine": 396,
+        "startChar": 114,
+        "endLine": 396,
+        "endChar": 117
+      },
+      "revId": "38f52f35995ec601c5f0c4183ec29d0bd96edf81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cc5fc2f_435595d3",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPParserTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-08T11:02:41Z",
+      "side": 1,
+      "message": "missing spaces here",
+      "range": {
+        "startLine": 52,
+        "startChar": 54,
+        "endLine": 52,
+        "endChar": 55
+      },
+      "revId": "38f52f35995ec601c5f0c4183ec29d0bd96edf81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
