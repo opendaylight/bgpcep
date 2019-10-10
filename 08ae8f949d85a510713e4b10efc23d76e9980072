@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b833830_a27da657",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2019-10-10T16:14:29Z",
+      "side": 1,
+      "message": "should the closeServiceInstance() be done as a part of close() here?",
+      "revId": "08ae8f949d85a510713e4b10efc23d76e9980072",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
