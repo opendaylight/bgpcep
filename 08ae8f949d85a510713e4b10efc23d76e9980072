@@ -16,6 +16,24 @@
       "revId": "08ae8f949d85a510713e4b10efc23d76e9980072",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "329e3ea3_c56d2b8c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2019-10-10T17:40:17Z",
+      "side": 1,
+      "message": "closeServiceInstance() is always called before close(), so there is no need to call it from close() again\n\nhttps://github.com/opendaylight/bgpcep/blob/master/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BGPClusterSingletonService.java#L210\nhttps://github.com/opendaylight/bgpcep/blob/master/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BGPClusterSingletonService.java#L308",
+      "parentUuid": "3b833830_a27da657",
+      "revId": "08ae8f949d85a510713e4b10efc23d76e9980072",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
