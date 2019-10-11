@@ -7,11 +7,14 @@
  */
 package org.opendaylight.bgpcep.programming.spi;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.submit.instruction.output.result.failure._case.Failure;
 
 public class SchedulerException extends Exception {
     private static final long serialVersionUID = 1L;
 
+    @SuppressFBWarnings("SE_BAD_FIELD")
+    // FIXME: use explicit serialization here
     private final Failure failure;
 
     public SchedulerException(final String message, final Failure failure) {
