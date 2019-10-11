@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6696d2a1_ca02ad8d",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPValidatorTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-11T08:52:40Z",
+      "side": 1,
+      "message": "The code is correct. In the import list, the OpenBuilder refer to the Open Message while in the following code OpenBuilder refer to the Open Object. This comes from the RFC 5440 which define both Open Message and Open Object. This similitude also occurs for Close Message / Close Object, Error Message / Error Object ...",
+      "revId": "937dfbbd25ebe560ee5417ff6d31959c082a5d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
