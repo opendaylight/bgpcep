@@ -34,6 +34,10 @@
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.yang</groupId>
+            <artifactId>yang-common</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-api</artifactId>
         </dependency>

@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AggregatorBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AggregatorAttributeParserTest {
     private static final byte[] ATTRIBUTE_BYTES = {
@@ -32,7 +33,7 @@ public class AggregatorAttributeParserTest {
 
     private static final Attributes RESULT = new AttributesBuilder()
             .setAggregator(new AggregatorBuilder()
-                    .setAsNumber(new AsNumber(1L))
+                    .setAsNumber(new AsNumber(Uint32.ONE))
                     .setNetworkAddress(new Ipv4Address("255.255.255.1"))
                     .build())
             .build();
