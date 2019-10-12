@@ -5,12 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
@@ -61,7 +61,7 @@ public class PCCSessionListenerTest {
     @Mock
     private PCCTunnelManager tunnelManager;
 
-    private final List<Message> sendMessages = Lists.newArrayList();
+    private final List<Message> sendMessages = new ArrayList<>();
 
     @Before
     public void setup() {
@@ -160,7 +160,7 @@ public class PCCSessionListenerTest {
             .setRemove(remove)
             .setSync(true);
 
-        final List<Requests> requests = Lists.newArrayList();
+        final List<Requests> requests = new ArrayList<>();
         final RequestsBuilder reqBuilder = new RequestsBuilder()
             .setLsp(lspBuilder.build())
             .setSrp(new SrpBuilder(MsgBuilderUtil.createSrp(Uint32.valueOf(123))).addAugmentation(Srp1.class,
@@ -179,12 +179,12 @@ public class PCCSessionListenerTest {
         final UpdatesBuilder updsBuilder = new UpdatesBuilder();
         updsBuilder.setLsp(new LspBuilder().setDelegate(delegation).setPlspId(new PlspId(1L)).build());
         final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.setEro(new EroBuilder().setSubobject(Lists.newArrayList(new SubobjectBuilder()
+        pathBuilder.setEro(new EroBuilder().setSubobject(Collections.singletonList(new SubobjectBuilder()
             .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
                 .setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build());
         updsBuilder.setPath(pathBuilder.build());
         updsBuilder.setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).build());
-        msgBuilder.setUpdates(Lists.newArrayList(updsBuilder.build()));
+        msgBuilder.setUpdates(Collections.singletonList(updsBuilder.build()));
         return new PcupdBuilder().setPcupdMessage(msgBuilder.build()).build();
     }
 }

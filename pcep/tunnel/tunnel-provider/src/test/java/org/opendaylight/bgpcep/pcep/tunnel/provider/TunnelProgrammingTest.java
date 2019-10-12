@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import com.google.common.collect.Lists;
@@ -245,7 +244,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         createInputBuilder.setBandwidth(bwd);
         createInputBuilder.setClassType(classType);
         createInputBuilder.setSymbolicPathName(tunnelName);
-        createInputBuilder.setExplicitHops(Lists.newArrayList());
+        createInputBuilder.setExplicitHops(Collections.emptyList());
         createInputBuilder.addAugmentation(PcepCreateP2pTunnelInput1.class, new PcepCreateP2pTunnelInput1Builder()
                 .setAdministrativeStatus(AdministrativeStatus.Active).build());
         this.tunnelProgramming.pcepCreateP2pTunnel(createInputBuilder.build());

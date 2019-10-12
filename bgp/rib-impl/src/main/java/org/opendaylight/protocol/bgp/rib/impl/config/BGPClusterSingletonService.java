@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
+import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
@@ -214,10 +215,8 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     private synchronized void registerRibInstance(final RibImpl rib, final String ribInstanceName) {
-        final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(InstanceType.RIB.getBeanName(), ribInstanceName);
         final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(
-                InstanceType.RIB.getServices(), rib, properties);
+                InstanceType.RIB.getServices(), rib, dictionaryOf(InstanceType.RIB.getBeanName(), ribInstanceName));
         rib.setServiceRegistration(serviceRegistration);
     }
 
@@ -326,18 +325,22 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     private synchronized void registerPeerInstance(final BgpPeer bgpPeer, final String peerInstanceName) {
-        final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(InstanceType.PEER.getBeanName(), peerInstanceName);
-        final ServiceRegistration<?> serviceRegistration = this.bundleContext
-                .registerService(InstanceType.PEER.getServices(), bgpPeer, properties);
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(
+            InstanceType.PEER.getServices(), bgpPeer, dictionaryOf(InstanceType.PEER.getBeanName(), peerInstanceName));
         bgpPeer.setServiceRegistration(serviceRegistration);
     }
 
-    private synchronized void registerAppPeerInstance(final AppPeer appPeer, final String peerInstanceName) {
+    @SuppressModernizer
+    private static Dictionary<String, String> dictionaryOf(final String key, final String value) {
         final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(InstanceType.PEER.getBeanName(), peerInstanceName);
-        final ServiceRegistration<?> serviceRegistration = this.bundleContext
-                .registerService(InstanceType.APP_PEER.getServices(), appPeer, properties);
+        properties.put(key, value);
+        return properties;
+    }
+
+    private synchronized void registerAppPeerInstance(final AppPeer appPeer, final String peerInstanceName) {
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(
+            InstanceType.APP_PEER.getServices(), appPeer,
+            dictionaryOf(InstanceType.PEER.getBeanName(), peerInstanceName));
         appPeer.setServiceRegistration(serviceRegistration);
     }
 
