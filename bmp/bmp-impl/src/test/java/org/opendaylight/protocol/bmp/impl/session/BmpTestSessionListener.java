@@ -5,10 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.session;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
@@ -17,9 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BmpTestSessionListener implements BmpSessionListener {
-
     private static final Logger LOG = LoggerFactory.getLogger(BmpTestSessionListener.class);
-    private final List<Notification> messages = Lists.newArrayList();
+
+    private final List<Notification> messages = new ArrayList<>();
     private boolean up = false;
 
     public boolean isUp() {

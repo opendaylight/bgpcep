@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,7 +112,7 @@ public class SrObjectParserTest {
         final EroBuilder builder = new EroBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
-        final List<Subobject> subobjects = Lists.newArrayList();
+        final List<Subobject> subobjects = new ArrayList<>();
 
         final SrEroTypeBuilder srEroSubBuilder = new SrEroTypeBuilder();
         srEroSubBuilder.setCFlag(false);

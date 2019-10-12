@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -29,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -214,8 +214,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
             Optional<Nlri> nlriAnounced = Optional.empty();
             if (isAnyNlriAnnounced) {
-                nlriAnounced = message.getNlri().stream().filter(n -> Objects.equal(n.getPrefix(), w.getPrefix())
-                        && Objects.equal(n.getPathId(), w.getPathId()))
+                nlriAnounced = message.getNlri().stream().filter(n -> Objects.equals(n.getPrefix(), w.getPrefix())
+                        && Objects.equals(n.getPathId(), w.getPathId()))
                         .findAny();
             }
             if (!nlriAnounced.isPresent()) {

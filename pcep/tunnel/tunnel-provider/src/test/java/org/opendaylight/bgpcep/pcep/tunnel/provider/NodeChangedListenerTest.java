@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static org.junit.Assert.assertEquals;
@@ -89,7 +88,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     public void setUp() throws InterruptedException, ExecutionException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID, new TopologyBuilder()
-                .withKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Lists.newArrayList())
+                .withKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Collections.emptyList())
                 .setTopologyId(PCEP_TOPOLOGY_ID).build());
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder()
                 .withKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build());
