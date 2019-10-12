@@ -177,13 +177,13 @@ public class PCCSessionListenerTest {
     private static Pcupd createUpdMsg(final boolean delegation) {
         final PcupdMessageBuilder msgBuilder = new PcupdMessageBuilder();
         final UpdatesBuilder updsBuilder = new UpdatesBuilder();
-        updsBuilder.setLsp(new LspBuilder().setDelegate(delegation).setPlspId(new PlspId(1L)).build());
+        updsBuilder.setLsp(new LspBuilder().setDelegate(delegation).setPlspId(new PlspId(Uint32.ONE)).build());
         final PathBuilder pathBuilder = new PathBuilder();
         pathBuilder.setEro(new EroBuilder().setSubobject(Collections.singletonList(new SubobjectBuilder()
             .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
                 .setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build());
         updsBuilder.setPath(pathBuilder.build());
-        updsBuilder.setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).build());
+        updsBuilder.setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(Uint32.ZERO)).build());
         msgBuilder.setUpdates(Collections.singletonList(updsBuilder.build()));
         return new PcupdBuilder().setPcupdMessage(msgBuilder.build()).build();
     }
