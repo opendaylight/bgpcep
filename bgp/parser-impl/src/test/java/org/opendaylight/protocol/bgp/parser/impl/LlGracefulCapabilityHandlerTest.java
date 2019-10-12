@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class LlGracefulCapabilityHandlerTest {
 
@@ -61,14 +62,14 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(Arrays.asList(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
-                                .setAfiFlags(new Tables.AfiFlags(false))
-                                .setLongLivedStaleTime(10L)
+                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                                .setLongLivedStaleTime(Uint32.valueOf(10))
                                 .build(),
                         new TablesBuilder()
                                 .setAfi(Ipv6AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
-                                .setAfiFlags(new Tables.AfiFlags(true))
-                                .setLongLivedStaleTime(160L)
+                                .setAfiFlags(new Tables.AfiFlags(Boolean.TRUE))
+                                .setLongLivedStaleTime(Uint32.valueOf(160))
                                 .build())
                 ).build();
 
@@ -88,8 +89,8 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(Arrays.asList(new TablesBuilder()
                                 .setAfi(AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
-                                .setAfiFlags(new Tables.AfiFlags(false))
-                                .setLongLivedStaleTime(10L)
+                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                                .setLongLivedStaleTime(Uint32.valueOf(10))
                                 .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
@@ -104,8 +105,8 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(Arrays.asList(new TablesBuilder()
                         .setAfi(Ipv4AddressFamily.class)
                         .setSafi(SubsequentAddressFamily.class)
-                        .setAfiFlags(new Tables.AfiFlags(false))
-                        .setLongLivedStaleTime(10L)
+                        .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                        .setLongLivedStaleTime(Uint32.valueOf(10))
                         .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
@@ -120,7 +121,7 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(Arrays.asList(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
-                                .setAfiFlags(new Tables.AfiFlags(false))
+                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
                                 .setLongLivedStaleTime(-1L)
                                 .build())).build();
 
@@ -137,8 +138,8 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(Arrays.asList(new TablesBuilder()
                         .setAfi(Ipv4AddressFamily.class)
                         .setSafi(UnicastSubsequentAddressFamily.class)
-                        .setAfiFlags(new Tables.AfiFlags(false))
-                        .setLongLivedStaleTime(16777216L)
+                        .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                        .setLongLivedStaleTime(Uint32.valueOf(16777216L))
                         .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,

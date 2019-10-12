@@ -77,7 +77,7 @@ final class OpenConfigMappingUtil {
     private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
     private static final List<AfiSafi> DEFAULT_AFISAFI = ImmutableList.of(IPV4_AFISAFI);
     private static final int CONNECT_RETRY = 30;
-    private static final PortNumber PORT = new PortNumber(179);
+    private static final PortNumber PORT = new PortNumber(Uint16.valueOf(179).intern());
 
     private OpenConfigMappingUtil() {
         throw new UnsupportedOperationException();

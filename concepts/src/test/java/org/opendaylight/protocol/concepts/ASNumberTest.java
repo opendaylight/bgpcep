@@ -19,6 +19,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class ASNumberTest {
     private AsNumber asn1;
@@ -27,9 +28,9 @@ public class ASNumberTest {
 
     @Before
     public void setUp() {
-        this.asn1 = new AsNumber(4294967295L);
-        this.asn3 = new AsNumber((long) 200);
-        this.asn4 = new AsNumber(429496335L);
+        this.asn1 = new AsNumber(Uint32.valueOf(4294967295L));
+        this.asn3 = new AsNumber(Uint32.valueOf(200));
+        this.asn4 = new AsNumber(Uint32.valueOf(429496335L));
     }
 
     @Test

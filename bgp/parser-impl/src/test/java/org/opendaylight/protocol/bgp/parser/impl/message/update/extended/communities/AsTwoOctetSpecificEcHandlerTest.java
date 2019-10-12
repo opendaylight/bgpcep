@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.AsSpecificExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.AsSpecificExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.as.specific.extended.community._case.AsSpecificExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AsTwoOctetSpecificEcHandlerTest {
 
@@ -30,7 +31,7 @@ public class AsTwoOctetSpecificEcHandlerTest {
         final AsTwoOctetSpecificEcHandler handler = new AsTwoOctetSpecificEcHandler();
         final AsSpecificExtendedCommunityCase expected = new AsSpecificExtendedCommunityCaseBuilder()
                 .setAsSpecificExtendedCommunity(new AsSpecificExtendedCommunityBuilder()
-                    .setGlobalAdministrator(new ShortAsNumber(54L))
+                    .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(54)))
                     .setLocalAdministrator(new byte[] { 0, 0, 1, 76 }).build())
                 .build();
 

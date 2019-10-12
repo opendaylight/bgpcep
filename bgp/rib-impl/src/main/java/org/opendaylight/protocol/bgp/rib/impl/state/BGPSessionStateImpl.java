@@ -30,11 +30,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 // This class is thread-safe
 public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersState, BGPTransportState,
     BGPSessionStateListener {
-    private static final PortNumber NON_DEFINED_PORT = new PortNumber(0);
+    private static final PortNumber NON_DEFINED_PORT = new PortNumber(Uint16.ZERO);
     private final Stopwatch sessionStopwatch;
     private int holdTimerValue;
     private IpAddress remoteAddress;
@@ -106,8 +107,8 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
 
         this.holdTimerValue = newHoldTimerValue;
         this.remoteAddress = StrictBGPPeerRegistry.getIpAddress(newRemoteAddress);
-        this.remotePort = new PortNumber(((InetSocketAddress) newRemoteAddress).getPort());
-        this.localPort = new PortNumber(((InetSocketAddress) localAddress).getPort());
+        this.remotePort = new PortNumber(Uint16.valueOf(((InetSocketAddress) newRemoteAddress).getPort()));
+        this.localPort = new PortNumber(Uint16.valueOf(((InetSocketAddress) localAddress).getPort()));
     }
 
     @Override

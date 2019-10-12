@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AsPathAttributeParserTest {
     private static final byte[] ATTRIBUTE_BYTES = {
@@ -42,10 +43,10 @@ public class AsPathAttributeParserTest {
     public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final List<Segments> segments = new ArrayList<>();
         segments.add(new SegmentsBuilder()
-                .setAsSet(Arrays.asList(new AsNumber(1L), new AsNumber(2L)))
+                .setAsSet(Arrays.asList(new AsNumber(Uint32.ONE), new AsNumber(Uint32.valueOf(2))))
                 .build());
         segments.add(new SegmentsBuilder()
-                .setAsSequence(Arrays.asList(new AsNumber(3L), new AsNumber(4L)))
+                .setAsSequence(Arrays.asList(new AsNumber(Uint32.valueOf(3)), new AsNumber(Uint32.valueOf(4))))
                 .build());
         final Attributes attr = new AttributesBuilder().setAsPath(new AsPathBuilder()
                     .setSegments(segments)

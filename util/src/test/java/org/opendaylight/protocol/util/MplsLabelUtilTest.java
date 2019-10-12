@@ -14,10 +14,11 @@ import static org.junit.Assert.assertTrue;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class MplsLabelUtilTest {
 
-    private static final long VAL1 = 5;
+    private static final Uint32 VAL1 = Uint32.valueOf(5);
     private static final byte[] VAL1_LEFT_BYTES = new byte[] { 0, 0, 0x50 };
     private static final byte[] VAL1_LEFT_BYTES_BOTTOM = new byte[] { 0, 0, 0x51 };
 
