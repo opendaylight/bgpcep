@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.io.BaseEncoding;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +41,8 @@ public final class ByteArray {
      * @return byte array
      */
     public static byte[] readBytes(final ByteBuf buffer, final int length) {
-        Preconditions.checkArgument(buffer != null && buffer.readableBytes() >= length,
-            "Buffer cannot be read for %s bytes.", length);
+        checkArgument(buffer != null && buffer.readableBytes() >= length,
+                "Buffer cannot be read for %s bytes.", length);
         final byte[] result = new byte[length];
         buffer.readBytes(result);
         return result;
@@ -67,8 +68,8 @@ public final class ByteArray {
      * @return byte array
      */
     public static byte[] getBytes(final ByteBuf buffer, final int length) {
-        Preconditions.checkArgument(buffer != null && buffer.readableBytes() >= length,
-            "Buffer cannot be read for %s bytes.", length);
+        checkArgument(buffer != null && buffer.readableBytes() >= length,
+                "Buffer cannot be read for %s bytes.", length);
         final byte[] result = new byte[length];
         buffer.getBytes(buffer.readerIndex(), result);
         return result;
@@ -95,7 +96,7 @@ public final class ByteArray {
      * @return a new byte array that is a sub-array of the original
      */
     public static byte[] subByte(final byte[] bytes, final int startIndex, final int length) {
-        Preconditions.checkArgument(checkLength(bytes, length) && checkStartIndex(bytes, startIndex, length),
+        checkArgument(checkLength(bytes, length) && checkStartIndex(bytes, startIndex, length),
                 "Cannot create subByte, invalid arguments: Length: %s startIndex: %s", length, startIndex);
         final byte[] res = new byte[length];
         System.arraycopy(bytes, startIndex, res, 0, length);
@@ -107,7 +108,7 @@ public final class ByteArray {
     }
 
     private static boolean checkStartIndex(final byte[] bytes, final int startIndex, final int length) {
-        return startIndex >= 0 && startIndex < bytes.length && (startIndex + length <= bytes.length);
+        return startIndex >= 0 && startIndex < bytes.length && startIndex + length <= bytes.length;
     }
 
     /**
@@ -118,7 +119,7 @@ public final class ByteArray {
      * @return int
      */
     public static int bytesToInt(final byte[] bytes) {
-        Preconditions.checkArgument(bytes.length <= Integer.SIZE / Byte.SIZE,
+        checkArgument(bytes.length <= Integer.SIZE / Byte.SIZE,
                 "Cannot convert bytes to integer. Byte array too big.");
         final byte[] res;
         if (bytes.length != Integer.SIZE / Byte.SIZE) {
@@ -138,7 +139,7 @@ public final class ByteArray {
      * @return long
      */
     public static long bytesToLong(final byte[] bytes) {
-        Preconditions.checkArgument(bytes.length <= Long.SIZE / Byte.SIZE,
+        checkArgument(bytes.length <= Long.SIZE / Byte.SIZE,
                 "Cannot convert bytes to long.Byte array too big.");
         final byte[] res;
         if (bytes.length != Long.SIZE / Byte.SIZE) {
@@ -158,7 +159,7 @@ public final class ByteArray {
      * @return bytes array without first 'count' bytes
      */
     public static byte[] cutBytes(final byte[] bytes, final int count) {
-        Preconditions.checkArgument(bytes.length != 0 && count <= bytes.length && count > 0,
+        checkArgument(bytes.length != 0 && count <= bytes.length && count > 0,
                 "Cannot cut bytes, invalid arguments: Count: %s bytes.length: %s", count, bytes.length);
         return Arrays.copyOfRange(bytes, count, bytes.length);
     }
@@ -199,16 +200,16 @@ public final class ByteArray {
      * @return copied value aligned to right
      */
     public static byte copyBitsRange(final byte src, final int fromBit, final int length) {
-        Preconditions.checkArgument(fromBit >= 0 && fromBit <= Byte.SIZE - 1
-                && length >= 1 && length <= Byte.SIZE, "fromBit or toBit is out of range.");
-        Preconditions.checkArgument(fromBit + length <= Byte.SIZE, "Out of range.");
+        checkArgument(fromBit >= 0 && fromBit <= Byte.SIZE - 1 && length >= 1 && length <= Byte.SIZE,
+                "fromBit or toBit is out of range.");
+        checkArgument(fromBit + length <= Byte.SIZE, "Out of range.");
 
         byte retByte = 0;
         int retI = 0;
 
         for (int i = fromBit + length - 1; i >= fromBit; i--) {
 
-            if ((src & 1 << (Byte.SIZE - i - 1)) != 0) {
+            if ((src & 1 << Byte.SIZE - i - 1) != 0) {
                 retByte |= 1 << retI;
             }
 
@@ -240,6 +241,6 @@ public final class ByteArray {
      * @return String representation of encoded ByteBuf.
      */
     public static String encodeBase64(final ByteBuf buffer) {
-        return BaseEncoding.base64().encode(ByteArray.readAllBytes(buffer));
+        return Base64.getEncoder().encodeToString(ByteArray.readAllBytes(buffer));
     }
 }
