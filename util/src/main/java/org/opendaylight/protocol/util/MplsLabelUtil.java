@@ -10,6 +10,7 @@ package org.opendaylight.protocol.util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Util class for encoding/decoding 20bit leftmost value.
@@ -31,7 +32,7 @@ public final class MplsLabelUtil {
      * @return MplsLabel object
      */
     public static MplsLabel mplsLabelForByteBuf(final ByteBuf buffer) {
-        return new MplsLabel(Long.valueOf(buffer.readUnsignedMedium() >> LABEL_OFFSET));
+        return new MplsLabel(Uint32.valueOf(buffer.readUnsignedMedium() >> LABEL_OFFSET));
     }
 
     /**

@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class IPAddressesAndPrefixesTest {
 
@@ -203,12 +204,12 @@ public class IPAddressesAndPrefixesTest {
     @Test
     public void testToInetSocketAddress() {
         final InetSocketAddress isa = Ipv4Util.toInetSocketAddress(new IpAddress(new Ipv4Address("123.42.13.8")),
-                new PortNumber(10));
+                new PortNumber(Uint16.valueOf(10)));
         Assert.assertEquals(10, isa.getPort());
         Assert.assertEquals("123.42.13.8", InetAddresses.toAddrString(isa.getAddress()));
 
-        final InetSocketAddress isa2 = Ipv4Util
-                .toInetSocketAddress(new IpAddress(new Ipv6Address("2001:db8:1:2::")), new PortNumber(10));
+        final InetSocketAddress isa2 = Ipv4Util.toInetSocketAddress(new IpAddress(new Ipv6Address("2001:db8:1:2::")),
+                new PortNumber(Uint16.valueOf(10)));
         Assert.assertEquals(10, isa2.getPort());
         Assert.assertEquals("2001:db8:1:2::", InetAddresses.toAddrString(isa2.getAddress()));
     }

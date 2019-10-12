@@ -49,6 +49,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
     private static final String PCEP_TOPOLOGY = "pcep-topology";
@@ -93,54 +96,54 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
 
     private static PcepSessionState createPcepSessionState() {
         final LocalPref pref = new LocalPrefBuilder()
-                .setKeepalive((short) 30)
-                .setDeadtimer((short) 120)
+                .setKeepalive(Uint8.valueOf(30))
+                .setDeadtimer(Uint8.valueOf(120))
                 .setIpAddress(IP_ADDRESS)
-                .setSessionId(0)
+                .setSessionId(Uint16.ZERO)
                 .addAugmentation(PcepEntityIdStatsAug.class, new PcepEntityIdStatsAugBuilder()
                         .setSpeakerEntityIdValue(SPEAKER_ID).build())
                 .build();
 
         final PeerCapabilities capa = new PeerCapabilitiesBuilder()
                 .addAugmentation(StatefulCapabilitiesStatsAug.class, new StatefulCapabilitiesStatsAugBuilder()
-                        .setStateful(true)
-                        .setInstantiation(true)
-                        .setActive(true)
+                        .setStateful(Boolean.TRUE)
+                        .setInstantiation(Boolean.TRUE)
+                        .setActive(Boolean.TRUE)
                         .build())
                 .build();
 
         final ReplyTime reply = new ReplyTimeBuilder()
-                .setAverageTime(1L)
-                .setMaxTime(3L)
-                .setMinTime(2L)
+                .setAverageTime(Uint32.ONE)
+                .setMaxTime(Uint32.valueOf(3))
+                .setMinTime(Uint32.valueOf(2))
                 .build();
 
         final ErrorMessages errorMsg = new ErrorMessagesBuilder()
-                .setReceivedErrorMsgCount(1L)
-                .setSentErrorMsgCount(2L)
+                .setReceivedErrorMsgCount(Uint32.ONE)
+                .setSentErrorMsgCount(Uint32.valueOf(2))
                 .build();
 
         final StatefulMessagesStatsAug statefulMsg = new StatefulMessagesStatsAugBuilder()
-                .setLastReceivedRptMsgTimestamp(1512043769L)
-                .setSentUpdMsgCount(1L)
-                .setReceivedRptMsgCount(2L)
-                .setSentInitMsgCount(3L)
+                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1512043769L))
+                .setSentUpdMsgCount(Uint32.ONE)
+                .setReceivedRptMsgCount(Uint32.valueOf(2))
+                .setSentInitMsgCount(Uint32.valueOf(3))
                 .build();
 
         final Messages messages = new MessagesBuilder()
-                .setLastSentMsgTimestamp(1512043828L)
-                .setUnknownMsgReceived(1)
-                .setSentMsgCount(5L)
-                .setReceivedMsgCount(4L)
+                .setLastSentMsgTimestamp(Uint32.valueOf(1512043828L))
+                .setUnknownMsgReceived(Uint16.ONE)
+                .setSentMsgCount(Uint32.valueOf(5))
+                .setReceivedMsgCount(Uint32.valueOf(4))
                 .setReplyTime(reply)
                 .setErrorMessages(errorMsg)
                 .addAugmentation(StatefulMessagesStatsAug.class, statefulMsg)
                 .build();
 
         return new PcepSessionStateBuilder()
-                .setSynchronized(true)
+                .setSynchronized(Boolean.TRUE)
                 .setSessionDuration("0:00:01:26")
-                .setDelegatedLspsCount(1)
+                .setDelegatedLspsCount(Uint16.ONE)
                 .setLocalPref(pref)
                 .setPeerPref(new PeerPrefBuilder(pref).build())
                 .setPeerCapabilities(capa)

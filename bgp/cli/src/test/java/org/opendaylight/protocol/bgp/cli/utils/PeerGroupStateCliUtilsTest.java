@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupStateAugmentationBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class PeerGroupStateCliUtilsTest {
 
@@ -41,8 +42,8 @@ public final class PeerGroupStateCliUtilsTest {
         final PeerGroupBuilder peerGroup = new PeerGroupBuilder().setPeerGroupName(TEST_GROUP);
 
         final PeerGroupStateAugmentation groupState = new PeerGroupStateAugmentationBuilder()
-                .setTotalPrefixes(1L)
-                .setTotalPaths(2L)
+                .setTotalPrefixes(Uint32.ONE)
+                .setTotalPaths(Uint32.valueOf(2))
                 .build();
 
         peerGroup.setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
