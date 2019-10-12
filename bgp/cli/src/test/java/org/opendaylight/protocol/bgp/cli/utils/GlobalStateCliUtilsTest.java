@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAfiSafiStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAfiSafiStateAugmentationBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class GlobalStateCliUtilsTest {
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -53,8 +54,8 @@ public class GlobalStateCliUtilsTest {
     static GlobalBuilder buildGlobal(final boolean withStateAug) {
         final GlobalBuilder builder = new GlobalBuilder().setState(new StateBuilder()
                 .setAs(AsNumber.getDefaultInstance("100"))
-                .setTotalPaths(1L)
-                .setTotalPrefixes(2L)
+                .setTotalPaths(Uint32.ONE)
+                .setTotalPrefixes(Uint32.valueOf(2))
                 .build());
 
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp
@@ -63,7 +64,10 @@ public class GlobalStateCliUtilsTest {
                         .common.afi.safi.list.afi.safi.StateBuilder();
         if (withStateAug) {
             stateBuilder.addAugmentation(GlobalAfiSafiStateAugmentation.class,
-                    new GlobalAfiSafiStateAugmentationBuilder().setTotalPaths(3L).setTotalPrefixes(4L).build());
+                    new GlobalAfiSafiStateAugmentationBuilder()
+                        .setTotalPaths(Uint32.valueOf(3))
+                        .setTotalPrefixes(Uint32.valueOf(4))
+                        .build());
         }
 
 

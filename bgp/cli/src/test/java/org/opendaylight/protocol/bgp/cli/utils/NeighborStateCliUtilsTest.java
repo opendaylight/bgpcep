@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import org.junit.Test;
@@ -51,6 +50,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.ReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.Sent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.SentBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class NeighborStateCliUtilsTest {
 
@@ -102,8 +104,11 @@ public class NeighborStateCliUtilsTest {
                 .multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder();
 
         builder.addAugmentation(NeighborAfiSafiStateAugmentation.class, new NeighborAfiSafiStateAugmentationBuilder()
-                .setActive(true)
-                .setPrefixes(new PrefixesBuilder().setInstalled(1L).setReceived(1L).setSent(2L).build())
+                .setActive(Boolean.TRUE)
+                .setPrefixes(new PrefixesBuilder()
+                    .setInstalled(Uint32.ONE)
+                    .setReceived(Uint32.ONE)
+                    .setSent(Uint32.valueOf(2)).build())
                 .build());
         final AfiSafi afiSafi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
                 .setState(builder.build()).build();
@@ -116,13 +121,13 @@ public class NeighborStateCliUtilsTest {
                         .setSessionState(BgpNeighborState.SessionState.ACTIVE).build());
 
         final Received received = new ReceivedBuilder()
-                .setNOTIFICATION(BigInteger.ONE)
-                .setUPDATE(BigInteger.TEN)
+                .setNOTIFICATION(Uint64.ONE)
+                .setUPDATE(Uint64.valueOf(10))
                 .build();
 
         final Sent sent = new SentBuilder()
-                .setNOTIFICATION(BigInteger.TEN)
-                .setUPDATE(BigInteger.ONE)
+                .setNOTIFICATION(Uint64.valueOf(10))
+                .setUPDATE(Uint64.ONE)
                 .build();
 
         stateBuilder.addAugmentation(BgpNeighborStateAugmentation.class,
@@ -138,8 +143,8 @@ public class NeighborStateCliUtilsTest {
                 .addAugmentation(NeighborTransportStateAugmentation.class,
                         new NeighborTransportStateAugmentationBuilder()
                                 .setRemoteAddress(NEIGHBOR_IP_ADDRESS)
-                                .setLocalPort(new PortNumber(1234))
-                                .setRemotePort(new PortNumber(4321))
+                                .setLocalPort(new PortNumber(Uint16.valueOf(1234)))
+                                .setRemotePort(new PortNumber(Uint16.valueOf(4321)))
                                 .build())
                 .build()).build();
         final Timers timers = new TimersBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang
@@ -147,7 +152,7 @@ public class NeighborStateCliUtilsTest {
                 .addAugmentation(NeighborTimersStateAugmentation.class,
                         new NeighborTimersStateAugmentationBuilder()
                                 .setNegotiatedHoldTime(BigDecimal.TEN)
-                                .setUptime(new Timeticks(600L))
+                                .setUptime(new Timeticks(Uint32.valueOf(600)))
                                 .build())
                 .build()).build();
         final Neighbor neighbor = new NeighborBuilder()
