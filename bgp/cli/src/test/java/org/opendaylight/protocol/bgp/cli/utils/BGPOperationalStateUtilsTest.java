@@ -10,14 +10,14 @@ package org.opendaylight.protocol.bgp.cli.utils;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.cli.utils.BGPOperationalStateUtils.PROTOCOLS_IID;
 import static org.opendaylight.protocol.bgp.cli.utils.NeighborStateCliUtilsTest.NEIGHBOR_ADDRESS;
-import static org.opendaylight.protocol.bgp.cli.utils.PeerGroupStateCliUtilsTest.UTF8;
 
+import com.google.common.io.Resources;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
@@ -47,8 +47,8 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
     public void testDisplayBgpOperationalStateFound() throws IOException, ExecutionException, InterruptedException {
         createDefaultProtocol();
         BGPOperationalStateUtils.displayBgpOperationalState(getDataBroker(), this.stream, RIB_ID, null, null);
-        final String expected = IOUtils.toString(
-                getClass().getClassLoader().getResourceAsStream("global.txt"), UTF8);
+        final String expected = Resources.toString(getClass().getClassLoader().getResource("global.txt"),
+            StandardCharsets.UTF_8);
         assertEquals(expected, this.output.toString());
     }
 
@@ -72,8 +72,8 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
         createDefaultProtocol();
         BGPOperationalStateUtils.displayBgpOperationalState(getDataBroker(), this.stream, RIB_ID, null,
                 NEIGHBOR_ADDRESS);
-        final String expected = IOUtils.toString(
-                getClass().getClassLoader().getResourceAsStream("empty-neighbor.txt"), UTF8);
+        final String expected = Resources.toString(getClass().getClassLoader().getResource("empty-neighbor.txt"),
+            StandardCharsets.UTF_8);
         assertEquals(expected, this.output.toString());
     }
 }
