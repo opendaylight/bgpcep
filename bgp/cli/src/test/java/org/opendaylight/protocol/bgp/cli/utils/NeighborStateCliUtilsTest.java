@@ -8,15 +8,15 @@
 package org.opendaylight.protocol.bgp.cli.utils;
 
 import static org.junit.Assert.assertEquals;
-import static org.opendaylight.protocol.bgp.cli.utils.PeerGroupStateCliUtilsTest.UTF8;
 
+import com.google.common.io.Resources;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
@@ -90,8 +90,8 @@ public class NeighborStateCliUtilsTest {
         NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS,
                 neighbor, this.stream);
 
-        final String expected = IOUtils.toString(
-                getClass().getClassLoader().getResourceAsStream("empty-neighbor.txt"), UTF8);
+        final String expected = Resources.toString(getClass().getClassLoader().getResource("empty-neighbor.txt"),
+            StandardCharsets.UTF_8);
         assertEquals(expected, this.output.toString());
     }
 
@@ -159,8 +159,8 @@ public class NeighborStateCliUtilsTest {
         NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS,
                 neighbor, this.stream);
 
-        final String expected = IOUtils.toString(
-                getClass().getClassLoader().getResourceAsStream("neighbor.txt"), UTF8);
+        final String expected = Resources.toString(getClass().getClassLoader().getResource("neighbor.txt"),
+            StandardCharsets.UTF_8);
         assertEquals(expected, this.output.toString());
     }
 }

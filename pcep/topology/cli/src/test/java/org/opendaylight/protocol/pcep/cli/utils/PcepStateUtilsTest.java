@@ -9,11 +9,12 @@ package org.opendaylight.protocol.pcep.cli.utils;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.io.Resources;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
@@ -54,8 +55,8 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
     private static final String IP_ADDRESS = "127.0.0.1";
     private static final String RIB_NOT_FOUND = "Node [pcc://" + IP_ADDRESS + "] not found\n";
     private static final String NODE_ID = "pcc://127.0.0.1";
-    private static final String UTF8 = "UTF-8";
     private static final byte[] SPEAKER_ID = {0x01, 0x02, 0x03, 0x04};
+
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
     private final PrintStream stream = new PrintStream(this.output);
 
@@ -69,8 +70,8 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
     public void testDisplayNodeState() throws IOException, ExecutionException, InterruptedException {
         createDefaultProtocol();
         PcepStateUtils.displayNodeState(getDataBroker(), this.stream, PCEP_TOPOLOGY, NODE_ID);
-        final String expected = IOUtils.toString(
-                getClass().getClassLoader().getResourceAsStream("node.txt"), UTF8);
+        final String expected = Resources.toString(getClass().getClassLoader().getResource("node.txt"),
+            StandardCharsets.UTF_8);
         assertEquals(expected, this.output.toString());
     }
 
