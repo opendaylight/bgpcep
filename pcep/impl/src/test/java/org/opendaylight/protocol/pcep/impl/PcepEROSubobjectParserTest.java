@@ -53,7 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class PCEPEROSubobjectParserTest {
+public class PcepEROSubobjectParserTest {
     private static final byte[] IP4_PREFIX_BYTES = {
         (byte) 0x81, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00
     };
@@ -311,7 +311,7 @@ public class PCEPEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROEXRSSubobject() throws Exception {
+    public void testERO_EXRSSubobject() throws Exception {
         final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(
             this.ctx.getXROSubobjectHandlerRegistry());
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route

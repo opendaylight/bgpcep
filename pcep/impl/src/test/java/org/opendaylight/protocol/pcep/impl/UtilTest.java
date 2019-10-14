@@ -48,6 +48,7 @@ public class UtilTest {
         Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
     }
 
+    //TODO fix IllegalThrows and AvoidHidingCauseException checkstyle errors
     @Test(expected = UnsupportedOperationException.class)
     public void testPrivateConstructor() throws Throwable {
         final Constructor<Util> c = Util.class.getDeclaredConstructor();
