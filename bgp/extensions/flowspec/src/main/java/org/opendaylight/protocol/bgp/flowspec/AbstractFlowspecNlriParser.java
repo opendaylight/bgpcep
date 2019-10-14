@@ -88,6 +88,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -317,7 +319,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
                 dataContainerChild -> portsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create(
                     (Set<String>) dataContainerChild.getValue())));
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild -> portsBuilder.setValue((Integer) dataContainerChild.getValue()));
+            valueNode.ifPresent(dataContainerChild -> portsBuilder.setValue((Uint16) dataContainerChild.getValue()));
             ports.add(portsBuilder.build());
         }
 
@@ -332,7 +334,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             node.getChild(OP_NID).ifPresent(dataContainerChild -> destPortsBuilder.setOp(
                 NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> destPortsBuilder.setValue((Integer) dataContainerChild.getValue()));
+                dataContainerChild -> destPortsBuilder.setValue((Uint16) dataContainerChild.getValue()));
             destinationPorts.add(destPortsBuilder.build());
         }
 
@@ -347,7 +349,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             node.getChild(OP_NID).ifPresent(dataContainerChild -> sourcePortsBuilder.setOp(
                 NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> sourcePortsBuilder.setValue((Integer) dataContainerChild.getValue()));
+                dataContainerChild -> sourcePortsBuilder.setValue((Uint16) dataContainerChild.getValue()));
             sourcePorts.add(sourcePortsBuilder.build());
         }
 
@@ -362,7 +364,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             node.getChild(OP_NID).ifPresent(dataContainerChild -> typesBuilder.setOp(
                 NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild -> typesBuilder.setValue((Short) dataContainerChild.getValue()));
+            valueNode.ifPresent(dataContainerChild -> typesBuilder.setValue((Uint8) dataContainerChild.getValue()));
             types.add(typesBuilder.build());
         }
 
@@ -378,7 +380,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             opValue.ifPresent(dataContainerChild -> codesBuilder.setOp(NumericOneByteOperandParser
                     .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild -> codesBuilder.setValue((Short) dataContainerChild.getValue()));
+            valueNode.ifPresent(dataContainerChild -> codesBuilder.setValue((Uint8) dataContainerChild.getValue()));
             codes.add(codesBuilder.build());
         }
 
@@ -393,7 +395,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             node.getChild(OP_NID).ifPresent(dataContainerChild -> tcpFlagsBuilder
                     .setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> tcpFlagsBuilder.setValue((Integer) dataContainerChild.getValue()));
+                dataContainerChild -> tcpFlagsBuilder.setValue((Uint16) dataContainerChild.getValue()));
             tcpFlags.add(tcpFlagsBuilder.build());
         }
 
@@ -408,7 +410,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             node.getChild(OP_NID).ifPresent(dataContainerChild -> packetLengthsBuilder.setOp(
                 NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> packetLengthsBuilder.setValue((Integer) dataContainerChild.getValue()));
+                dataContainerChild -> packetLengthsBuilder.setValue((Uint16) dataContainerChild.getValue()));
             packetLengths.add(packetLengthsBuilder.build());
         }
 
@@ -423,7 +425,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             node.getChild(OP_NID).ifPresent(dataContainerChild -> dscpsLengthsBuilder.setOp(
                 NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> dscpsLengthsBuilder.setValue(new Dscp((Short) dataContainerChild.getValue())));
+                dataContainerChild -> dscpsLengthsBuilder.setValue(new Dscp((Uint8) dataContainerChild.getValue())));
             dscpsLengths.add(dscpsLengthsBuilder.build());
         }
 

@@ -25,6 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
@@ -58,8 +60,8 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
 
     public static TeLspCase serializeTeLsp(final ChoiceNode objectType) {
         final TeLspCaseBuilder teLsp = new TeLspCaseBuilder();
-        teLsp.setLspId(new LspId((Long) objectType.getChild(LSP_ID).get().getValue()));
-        teLsp.setTunnelId(new TunnelId((Integer) objectType.getChild(TUNNEL_ID).get().getValue()));
+        teLsp.setLspId(new LspId((Uint32) objectType.getChild(LSP_ID).get().getValue()));
+        teLsp.setTunnelId(new TunnelId((Uint16) objectType.getChild(TUNNEL_ID).get().getValue()));
         final ChoiceNode addressFamily = (ChoiceNode) objectType.getChild(ADDRESS_FAMILY).get();
         teLsp.setAddressFamily(serializeAddressFamily(addressFamily,
             addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).isPresent()));

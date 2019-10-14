@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -211,7 +212,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private PathId extractPathId(final MapEntryNode ipv4Route) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> pathId = ipv4Route
                 .getChild(this.routeKeyPathIdLeaf);
-        return pathId.map(dataContainerChild -> new PathId((Long) dataContainerChild.getValue())).orElse(null);
+        return pathId.map(dataContainerChild -> new PathId((Uint32) dataContainerChild.getValue())).orElse(null);
     }
 
     public void close() {
