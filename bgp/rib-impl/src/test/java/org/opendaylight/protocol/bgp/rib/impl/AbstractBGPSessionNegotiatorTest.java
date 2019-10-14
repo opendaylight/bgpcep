@@ -12,12 +12,13 @@ import static org.opendaylight.protocol.bgp.rib.impl.AbstractBGPSessionNegotiato
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractBGPSessionNegotiator.openASNumber;
 
 import org.junit.Test;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class AbstractBGPSessionNegotiatorTest {
     @Test
     public void testOpenASNumber() {
-        assertEquals(0, openASNumber(0));
-        assertEquals(65535, openASNumber(65535));
+        assertEquals(Uint16.ZERO, openASNumber(0));
+        assertEquals(Uint16.MAX_VALUE, openASNumber(65535));
         assertEquals(AS_TRANS, openASNumber(65536));
         assertEquals(AS_TRANS, openASNumber(Integer.MAX_VALUE));
         assertEquals(AS_TRANS, openASNumber(2147483648L));

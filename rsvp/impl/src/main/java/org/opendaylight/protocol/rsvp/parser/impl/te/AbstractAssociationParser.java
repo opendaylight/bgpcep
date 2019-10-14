@@ -5,13 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -31,7 +32,7 @@ public abstract class AbstractAssociationParser extends AbstractRSVPObjectParser
 
     @Override
     protected final void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof AssociationObject, "AssociationObject is mandatory.");
+        checkArgument(teLspObject instanceof AssociationObject, "AssociationObject is mandatory.");
         final AssociationObject assObject = (AssociationObject) teLspObject;
 
         if (assObject.getIpAddress().getIpv4AddressNoZone() != null) {
@@ -49,10 +50,10 @@ public abstract class AbstractAssociationParser extends AbstractRSVPObjectParser
 
     @Override
     protected final RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        final AssociationObjectBuilder asso = new AssociationObjectBuilder();
-        asso.setAssociationType(AssociationType.forValue(byteBuf.readUnsignedShort()));
-        asso.setAssociationId(byteBuf.readUnsignedShort());
-        asso.setIpAddress(parseAssociationIpAddress(byteBuf));
-        return asso.build();
+        return new AssociationObjectBuilder()
+                .setAssociationType(AssociationType.forValue(byteBuf.readUnsignedShort()))
+                .setAssociationId(ByteBufUintUtil.readUint16(byteBuf))
+                .setIpAddress(parseAssociationIpAddress(byteBuf))
+                .build();
     }
 }

@@ -16,6 +16,7 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
@@ -47,18 +48,18 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
         byteBuf.skipBytes(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
         //skip parameter ID 127 and 127 flags
         byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
-        final TspecObjectBuilder tBuilder = new TspecObjectBuilder();
-        tBuilder.setTokenBucketRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
-        tBuilder.setTokenBucketSize(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
-        tBuilder.setPeakDataRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
-        tBuilder.setMinimumPolicedUnit(byteBuf.readUnsignedInt());
-        tBuilder.setMaximumPacketSize(byteBuf.readUnsignedInt());
+        final TspecObjectBuilder tBuilder = new TspecObjectBuilder()
+                .setTokenBucketRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
+                .setTokenBucketSize(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
+                .setPeakDataRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
+                .setMinimumPolicedUnit(ByteBufUintUtil.readUint32(byteBuf))
+                .setMaximumPacketSize(ByteBufUintUtil.readUint32(byteBuf));
         builder.setTspecObject(tBuilder.build());
         if (builder.getServiceHeader().getIntValue() == 2) {
             //skip parameter ID 130, flags, lenght
             byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
             builder.setRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
-            builder.setSlackTerm(byteBuf.readUnsignedInt());
+            builder.setSlackTerm(ByteBufUintUtil.readUint32(byteBuf));
         }
         return builder.build();
     }

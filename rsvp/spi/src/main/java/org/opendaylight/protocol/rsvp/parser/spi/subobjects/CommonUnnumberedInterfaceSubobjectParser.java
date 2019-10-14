@@ -5,11 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCaseBuilder;
@@ -22,16 +23,18 @@ public class CommonUnnumberedInterfaceSubobjectParser {
     }
 
     protected static UnnumberedCase parseUnnumeredInterface(final ByteBuf buffer) {
-        final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
-        ubuilder.setRouterId(buffer.readUnsignedInt());
-        ubuilder.setInterfaceId(buffer.readUnsignedInt());
-        return new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build();
+        return new UnnumberedCaseBuilder()
+                .setUnnumbered(new UnnumberedBuilder()
+                    .setRouterId(ByteBufUintUtil.readUint32(buffer))
+                    .setInterfaceId(ByteBufUintUtil.readUint32(buffer))
+                    .build())
+                .build();
     }
 
     protected static void serializeUnnumeredInterface(final Unnumbered unnumbered, final ByteBuf body) {
-        Preconditions.checkArgument(unnumbered.getRouterId() != null, "RouterId is mandatory.");
+        checkArgument(unnumbered.getRouterId() != null, "RouterId is mandatory.");
         ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRouterId(), body);
-        Preconditions.checkArgument(unnumbered.getInterfaceId() != null, "InterfaceId is mandatory.");
+        checkArgument(unnumbered.getInterfaceId() != null, "InterfaceId is mandatory.");
         ByteBufWriteUtil.writeUnsignedInt(unnumbered.getInterfaceId(), body);
     }
 }
