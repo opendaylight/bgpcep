@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,7 +249,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
             LOG.info("Closing PCEP session with reason {}: {}", reason, this);
             sendMessage(new CloseBuilder().setCCloseMessage(
                     new CCloseMessageBuilder().setCClose(new CCloseBuilder()
-                        .setReason(reason.getShortValue()).build()).build()).build());
+                        .setReason(Uint8.valueOf(reason.getShortValue())).build()).build()).build());
         } else {
             LOG.info("Closing PCEP session: {}", this);
         }
@@ -370,10 +371,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @VisibleForTesting
+    @SuppressWarnings("IllegalCatch")
     void sessionUp() {
         try {
             this.listener.onSessionUp(this);
-        } catch (final Exception e) {
+        } catch (final RuntimeException e) {
             handleException(e);
             throw e;
         }
@@ -405,15 +407,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @Override
-    public final synchronized void channelInactive(final ChannelHandlerContext ctx) {
+    //similar to bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java
+    public final synchronized void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         LOG.debug("Channel {} inactive.", ctx.channel());
         endOfInput();
-
-        try {
-            super.channelInactive(ctx);
-        } catch (final Exception e) {
-            throw new IllegalStateException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
-        }
+        super.channelInactive(ctx);
     }
 
     @Override
