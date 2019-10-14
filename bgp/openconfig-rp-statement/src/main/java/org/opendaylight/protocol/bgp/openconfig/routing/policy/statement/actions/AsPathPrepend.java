@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameter
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetAsPathPrepend;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Prepend local AS, one time(n times not supported yet).
@@ -45,6 +46,6 @@ public final class AsPathPrepend extends AbstractPrependAsPath implements BgpAct
             final BGPRouteEntryExportParameters exportParameters,
             final Attributes attributes,
             final SetAsPathPrepend actions) {
-        return prependAS(attributes, new AsNumber(routeEntryInfo.getLocalAs()));
+        return prependAS(attributes, new AsNumber(Uint32.valueOf(routeEntryInfo.getLocalAs())));
     }
 }

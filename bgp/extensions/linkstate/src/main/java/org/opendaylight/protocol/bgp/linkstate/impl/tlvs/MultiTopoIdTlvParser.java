@@ -35,7 +35,7 @@ public final class MultiTopoIdTlvParser implements LinkstateTlvParser<TopologyId
 
     @Override
     public TopologyIdentifier parseTlvBody(final ByteBuf value) {
-        return new TopologyIdentifier(value.readShort() & TlvUtil.TOPOLOGY_ID_OFFSET);
+        return new TopologyIdentifier(Uint16.valueOf(value.readShort() & TlvUtil.TOPOLOGY_ID_OFFSET));
     }
 
     @Override

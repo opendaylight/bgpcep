@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.Opaque;
@@ -74,9 +75,9 @@ public final class OpaqueUtil {
     }
 
     public static Opaque parseOpaque(final ByteBuf buffer) {
-        final short type = buffer.readUnsignedByte();
+        final Uint8 type = ByteBufUintUtil.readUint8(buffer);
         final OpaqueValueBuilder builder = new OpaqueValueBuilder();
-        switch (type) {
+        switch (type.toJava()) {
             case GENERIC_LSP_IDENTIFIER:
                 builder.setOpaque(buildOpaqueValue(buffer));
                 break;
@@ -94,7 +95,7 @@ public final class OpaqueUtil {
     }
 
     private static void buildExtended(final OpaqueValueBuilder builder, final ByteBuf buffer) {
-        final int extendedType = buffer.readUnsignedShort();
+        final Uint16 extendedType = ByteBufUintUtil.readUint16(buffer);
         final HexString opaqueValue = buildOpaqueValue(buffer);
         builder.setOpaqueExtendedType(extendedType).setOpaque(opaqueValue);
     }
