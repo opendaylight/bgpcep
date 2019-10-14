@@ -17,6 +17,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEsiTypeRegistry;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.Esi;
@@ -40,7 +41,7 @@ final class EthADRParser extends AbstractEvpnNlri {
         Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH,
                 "Wrong length of array of bytes. Passed: %s ;", buffer);
         final Esi esi = SimpleEsiTypeRegistry.getInstance().parseEsi(buffer.readSlice(ESI_SIZE));
-        final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(buffer.readUnsignedInt()).build();
+        final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(ByteBufUintUtil.readUint32(buffer)).build();
         final MplsLabel label = mplsLabelForByteBuf(buffer);
         final EthernetADRouteBuilder builder = new EthernetADRouteBuilder()
                 .setEsi(esi).setEthernetTagId(eti).setMplsLabel(label);

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvParser;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvSerializer;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.Srgb;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.originator.srgb.tlv.SrgbValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.originator.srgb.tlv.SrgbValueBuilder;
@@ -38,8 +39,8 @@ final class OriginatorSrgbTlvParser implements BgpPrefixSidTlvParser, BgpPrefixS
                 "Number of SRGBs does not fit available bytes.");
         final List<SrgbValue> ret = new ArrayList<>();
         while (buffer.isReadable()) {
-            ret.add(new SrgbValueBuilder().setBase(new Srgb((long) buffer.readUnsignedMedium()))
-                .setRange(new Srgb((long) buffer.readUnsignedMedium())).build());
+            ret.add(new SrgbValueBuilder().setBase(new Srgb(ByteBufUintUtil.readUint24(buffer)))
+                .setRange(new Srgb(ByteBufUintUtil.readUint24(buffer))).build());
         }
         return ret;
     }
