@@ -245,6 +245,7 @@ public class PCEPDispatcherImplTest {
             return p;
         }
 
+        //TODO fix EmptyBlock checkstyle ERROR
         private static void setChannelFactory(final Bootstrap bootstrap) {
             try {
                 bootstrap.channel(NioSocketChannel.class);

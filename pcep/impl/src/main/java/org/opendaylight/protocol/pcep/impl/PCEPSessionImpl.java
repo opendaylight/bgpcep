@@ -371,9 +371,12 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @VisibleForTesting
     void sessionUp() {
+    //TODO coding guidelines disadvises catching exceptions in tests and initialization phases
+    //RuntimeExceptionthe only one throwable. CG prefers it to Exception.
+    //https://wiki.opendaylight.org/view/BestPractices/Coding_Guidelines#IllegalCatch
         try {
             this.listener.onSessionUp(this);
-        } catch (final Exception e) {
+        } catch (final RuntimeException e) {
             handleException(e);
             throw e;
         }
@@ -405,15 +408,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @Override
-    public final synchronized void channelInactive(final ChannelHandlerContext ctx) {
+    //https://git.opendaylight.org/gerrit/c/bgpcep/+/83274/1/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java
+    public final synchronized void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         LOG.debug("Channel {} inactive.", ctx.channel());
         endOfInput();
-
-        try {
-            super.channelInactive(ctx);
-        } catch (final Exception e) {
-            throw new IllegalStateException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
-        }
+        super.channelInactive(ctx);
     }
 
     @Override
