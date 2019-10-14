@@ -16,6 +16,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegotiator {
     private final PCEPSessionListener listener;
@@ -27,9 +28,12 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
         super(promise, channel);
         super.setTlsConfiguration(tlsConfiguration);
         this.maxUnknownMessages = maxUnknownMessages;
-        this.myLocalPrefs = new OpenBuilder().setKeepalive(localPrefs.getKeepalive())
-                .setDeadTimer(localPrefs.getDeadTimer()).setSessionId(
-                sessionId).setTlvs(localPrefs.getTlvs()).build();
+        this.myLocalPrefs = new OpenBuilder()
+                .setKeepalive(localPrefs.getKeepalive())
+                .setDeadTimer(localPrefs.getDeadTimer())
+                .setSessionId(Uint8.valueOf(sessionId))
+                .setTlvs(localPrefs.getTlvs())
+                .build();
         this.listener = requireNonNull(listener);
     }
 
