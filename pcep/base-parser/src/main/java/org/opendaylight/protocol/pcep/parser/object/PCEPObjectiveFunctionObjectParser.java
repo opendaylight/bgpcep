@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.OfId;
@@ -47,7 +48,7 @@ public final class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithT
         final OfBuilder builder = new OfBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        builder.setCode(new OfId(bytes.readUnsignedShort()));
+        builder.setCode(new OfId(ByteBufUintUtil.readUint16(bytes)));
         bytes.readBytes(RESERVED);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
@@ -76,7 +77,7 @@ public final class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithT
     }
 
     @Override
-    protected final void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
+    protected void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
         if (!tlvs.isEmpty()) {
             builder.setVendorInformationTlv(tlvs);
         }

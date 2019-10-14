@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CClose;
@@ -47,12 +48,13 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
 
     @Override
     public CClose parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(),
+                "Array of bytes is mandatory. Cannot be null or empty.");
         final CCloseBuilder builder = new CCloseBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         bytes.skipBytes(FLAGS_F_LENGTH + RESERVED);
-        builder.setReason(bytes.readUnsignedByte());
+        builder.setReason(ByteBufUintUtil.readUint8(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         builder.setTlvs(tlvsBuilder.build());
@@ -61,11 +63,12 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof CClose, "Wrong instance of PCEPObject. Passed %s. Needed CCloseObject.", object.getClass());
+        checkArgument(object instanceof CClose, "Wrong instance of PCEPObject. Passed %s. Needed CCloseObject.",
+            object.getClass());
         final CClose obj = (CClose) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(RESERVED + FLAGS_F_LENGTH);
-        Preconditions.checkArgument(obj.getReason() != null, "Reason is mandatory.");
+        checkArgument(obj.getReason() != null, "Reason is mandatory.");
         writeUnsignedByte(obj.getReason(), body);
         serializeTlvs(obj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
@@ -80,7 +83,7 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
 
 
     @Override
-    protected final void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
+    protected void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
         if (!tlvs.isEmpty()) {
             builder.setVendorInformationTlv(tlvs);
         }
