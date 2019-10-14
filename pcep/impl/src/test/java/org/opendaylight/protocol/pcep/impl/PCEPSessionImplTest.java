@@ -178,6 +178,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         try {
             this.session.sessionUp();
             Assert.fail();  // expect the exception to be populated
+        //TODO do we need a try catch? or shod we put a suppressWarnings ?
         } catch (final RuntimeException ignored) {
         }
         Assert.assertFalse(this.listener.up);
