@@ -193,68 +193,72 @@ public class PCEPValidatorTest {
         this.viObjAct.start(this.ctx);
         this.objectRegistry = this.ctx.getObjectHandlerRegistry();
         final RpBuilder rpBuilder = new RpBuilder();
-        rpBuilder.setProcessingRule(true);
-        rpBuilder.setIgnore(false);
-        rpBuilder.setReoptimization(false);
-        rpBuilder.setBiDirectional(false);
-        rpBuilder.setLoose(true);
-        rpBuilder.setMakeBeforeBreak(false);
-        rpBuilder.setOrder(false);
-        rpBuilder.setPathKey(false);
-        rpBuilder.setSupplyOf(false);
-        rpBuilder.setFragmentation(false);
-        rpBuilder.setP2mp(false);
-        rpBuilder.setEroCompression(false);
-        rpBuilder.setPriority((short) 1);
-        rpBuilder.setRequestId(new RequestId(10L));
-        rpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp
-            .object.rp.TlvsBuilder().build());
+        rpBuilder
+            .setProcessingRule(true)
+            .setIgnore(false)
+            .setReoptimization(false)
+            .setBiDirectional(false)
+            .setLoose(true)
+            .setMakeBeforeBreak(false)
+            .setOrder(false)
+            .setPathKey(false)
+            .setSupplyOf(false)
+            .setFragmentation(false)
+            .setP2mp(false)
+            .setEroCompression(false)
+            .setPriority((short) 1)
+            .setRequestId(new RequestId(10L))
+            .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp
+                .object.rp.TlvsBuilder().build());
         this.rpTrue = rpBuilder.build();
         rpBuilder.setProcessingRule(false);
         this.rpFalse = rpBuilder.build();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object
             .OpenBuilder openBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
                 .rev181109.open.object.OpenBuilder();
-        openBuilder.setProcessingRule(false);
-        openBuilder.setIgnore(false);
-        openBuilder.setDeadTimer((short) 1);
-        openBuilder.setKeepalive((short) 1);
-        openBuilder.setSessionId((short) 0);
-        openBuilder.setVersion(new ProtocolVersion((short) 1));
-        openBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-            .open.object.open.TlvsBuilder().build());
-//TODO get rid of previous superfluous openBuilder
+        openBuilder
+            .setProcessingRule(false)
+            .setIgnore(false)
+            .setDeadTimer((short) 1)
+            .setKeepalive((short) 1)
+            .setSessionId((short) 0)
+            .setVersion(new ProtocolVersion((short) 1))
+            .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                .open.object.open.TlvsBuilder().build());
         this.open = openBuilder.build();
 
         final NoPathBuilder npbuilder = new NoPathBuilder();
-        npbuilder.setProcessingRule(false);
-        npbuilder.setIgnore(false);
-        npbuilder.setNatureOfIssue((short) 0);
-        npbuilder.setUnsatisfiedConstraints(false);
-        npbuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-            .pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder().build());
+        npbuilder
+            .setProcessingRule(false)
+            .setIgnore(false)
+            .setNatureOfIssue((short) 0)
+            .setUnsatisfiedConstraints(false)
+            .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                .pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder().build());
         this.noPath = npbuilder.build();
 
         final LspaBuilder lspaBuilder = new LspaBuilder();
-        lspaBuilder.setProcessingRule(false);
-        lspaBuilder.setIgnore(false);
-        lspaBuilder.setLocalProtectionDesired(false);
-        lspaBuilder.setHoldPriority((short) 0);
-        lspaBuilder.setSetupPriority((short) 0);
-        lspaBuilder.setExcludeAny(new AttributeFilter(0L));
-        lspaBuilder.setIncludeAll(new AttributeFilter(0L));
-        lspaBuilder.setIncludeAny(new AttributeFilter(0L));
-        lspaBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-            .lspa.object.lspa.TlvsBuilder().build());
+        lspaBuilder
+            .setProcessingRule(false)
+            .setIgnore(false)
+            .setLocalProtectionDesired(false)
+            .setHoldPriority((short) 0)
+            .setSetupPriority((short) 0)
+            .setExcludeAny(new AttributeFilter(0L))
+            .setIncludeAll(new AttributeFilter(0L))
+            .setIncludeAny(new AttributeFilter(0L))
+            .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                .lspa.object.lspa.TlvsBuilder().build());
         this.lspa = lspaBuilder.build();
 
         final MetricBuilder mBuilder = new MetricBuilder();
-        mBuilder.setIgnore(false);
-        mBuilder.setProcessingRule(false);
-        mBuilder.setComputed(false);
-        mBuilder.setBound(false);
-        mBuilder.setMetricType((short) 1);
-        mBuilder.setValue(new Float32(new byte[4]));
+        mBuilder
+            .setIgnore(false)
+            .setProcessingRule(false)
+            .setComputed(false)
+            .setBound(false)
+            .setMetricType((short) 1)
+            .setValue(new Float32(new byte[4]));
         this.metrics = new MetricsBuilder().setMetric(mBuilder.build()).build();
 
         this.eroASSubobject = new AsNumberCaseBuilder()
@@ -283,11 +287,12 @@ public class PCEPValidatorTest {
         this.ero = eroBuilder.build();
 
         final OfBuilder ofBuilder = new OfBuilder();
-        ofBuilder.setIgnore(false);
-        ofBuilder.setProcessingRule(false);
-        ofBuilder.setCode(new OfId(0));
-        ofBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of
-            .object.of.TlvsBuilder().build());
+        ofBuilder
+            .setIgnore(false)
+            .setProcessingRule(false)
+            .setCode(new OfId(0))
+            .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of
+                .object.of.TlvsBuilder().build());
         this.of = ofBuilder.build();
 
         final Ipv4Builder afi = new Ipv4Builder();
@@ -295,20 +300,22 @@ public class PCEPValidatorTest {
         afi.setDestinationIpv4Address(new Ipv4AddressNoZone("255.255.255.255"));
 
         final EndpointsObjBuilder epBuilder = new EndpointsObjBuilder();
-        epBuilder.setIgnore(false);
-        epBuilder.setProcessingRule(true);
-        epBuilder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(afi.build()).build());
+        epBuilder
+            .setIgnore(false)
+            .setProcessingRule(true)
+            .setAddressFamily(new Ipv4CaseBuilder().setIpv4(afi.build()).build());
         this.endpoints = epBuilder.build();
 
         final SvecBuilder sBuilder = new SvecBuilder();
-        sBuilder.setIgnore(false);
-        sBuilder.setProcessingRule(false);
-        sBuilder.setLinkDiverse(false);
-        sBuilder.setNodeDiverse(false);
-        sBuilder.setSrlgDiverse(false);
-        sBuilder.setLinkDirectionDiverse(false);
-        sBuilder.setPartialPathDiverse(false);
-        sBuilder.setRequestsIds(Lists.newArrayList(new RequestId(1L)));
+        sBuilder
+            .setIgnore(false)
+            .setProcessingRule(false)
+            .setLinkDiverse(false)
+            .setNodeDiverse(false)
+            .setSrlgDiverse(false)
+            .setLinkDirectionDiverse(false)
+            .setPartialPathDiverse(false)
+            .setRequestsIds(Lists.newArrayList(new RequestId(1L)));
         this.svec = sBuilder.build();
 
         this.viObjects = new ArrayList<>();
@@ -332,12 +339,13 @@ public class PCEPValidatorTest {
                 .build();
 
         final ProcTimeBuilder procTimeBuilder = new ProcTimeBuilder();
-        procTimeBuilder.setEstimated(false);
-        procTimeBuilder.setCurrentProcTime(1L);
-        procTimeBuilder.setMinProcTime(2L);
-        procTimeBuilder.setMaxProcTime(3L);
-        procTimeBuilder.setAverageProcTime(4L);
-        procTimeBuilder.setVarianceProcTime(5L);
+        procTimeBuilder
+            .setEstimated(false)
+            .setCurrentProcTime(1L)
+            .setMinProcTime(2L)
+            .setMaxProcTime(3L)
+            .setAverageProcTime(4L)
+            .setVarianceProcTime(5L);
         this.procTime = procTimeBuilder.build();
         this.overload = new OverloadBuilder().setDuration(120).build();
     }
@@ -469,14 +477,16 @@ public class PCEPValidatorTest {
                     .pcreq.message.RequestsBuilder();
         rBuilder1.setRp(this.rpTrue);
         final P2pBuilder p2pBuilder = new P2pBuilder();
-        p2pBuilder.setEndpointsObj(this.endpoints);
-        p2pBuilder.setMetrics(Lists.newArrayList(this.metrics));
-        p2pBuilder.setIro(this.iro);
+        p2pBuilder
+            .setEndpointsObj(this.endpoints)
+            .setMetrics(Lists.newArrayList(this.metrics))
+            .setIro(this.iro);
         rBuilder1.setSegmentComputation(new SegmentComputationBuilder().setP2p(p2pBuilder.build()).build());
         reqs2.add(rBuilder1.build());
-        builder.setRequests(reqs2);
-        builder.setSvec(Lists.newArrayList(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
-            .types.rev181109.pcreq.message.pcreq.message.SvecBuilder().setSvec(this.svec).build()));
+        builder
+            .setRequests(reqs2)
+            .setSvec(Lists.newArrayList(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
+                .types.rev181109.pcreq.message.pcreq.message.SvecBuilder().setSvec(this.svec).build()));
 
         assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
             result.readableBytes() - 4), Collections.emptyList()));
@@ -494,9 +504,10 @@ public class PCEPValidatorTest {
                     .pcreq.message.RequestsBuilder();
         rBuilder2.setRp(new RpBuilder(this.rpTrue).setP2mp(true).build());
         final EndpointsObjBuilder epBuilder = new EndpointsObjBuilder();
-        epBuilder.setIgnore(false);
-        epBuilder.setProcessingRule(true);
-        epBuilder.setAddressFamily(new P2mpIpv4CaseBuilder()
+        epBuilder
+            .setIgnore(false)
+            .setProcessingRule(true)
+            .setAddressFamily(new P2mpIpv4CaseBuilder()
                 .setP2mpIpv4(new P2mpIpv4Builder()
                         .setP2mpLeaves(P2mpLeaves.NewLeavesToAdd)
                         .setSourceIpv4Address(new Ipv4AddressNoZone("255.255.255.255"))
@@ -560,8 +571,7 @@ public class PCEPValidatorTest {
             .build());
         rBuilder2.setSegmentComputation(new SegmentComputationBuilder().setP2mp(p2mpBuilder.build()).build());
         reqs3.add(rBuilder2.build());
-        builder.setRequests(reqs3);
-        builder.setSvec(null);
+        builder.setRequests(reqs3).setSvec(null);
 
         assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
                 result.readableBytes() - 4), Collections.emptyList()));
@@ -647,11 +657,12 @@ public class PCEPValidatorTest {
         repliesBuilder.setRp(this.rpTrue);
         final List<Paths> paths = new ArrayList<>();
         final PathsBuilder paBuilder = new PathsBuilder();
-        paBuilder.setEro(this.ero);
-        paBuilder.setLspa(this.lspa);
-        paBuilder.setMetrics(Lists.newArrayList(this.metrics));
-        paBuilder.setIro(this.iro);
-        paBuilder.setOf(this.of);
+        paBuilder
+            .setEro(this.ero)
+            .setLspa(this.lspa)
+            .setMetrics(Lists.newArrayList(this.metrics))
+            .setIro(this.iro)
+            .setOf(this.of);
         paths.add(paBuilder.build());
         repliesBuilder.setResult(new SuccessCaseBuilder()
             .setSuccess(new SuccessBuilder().setPaths(paths).build()).build()).build();
@@ -829,8 +840,9 @@ public class PCEPValidatorTest {
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRep.6.bin"));
         final List<Replies> replies = new ArrayList<>();
         repliesBuilder = new RepliesBuilder();
-        repliesBuilder.setRp(this.rpTrue);
-        repliesBuilder.setVendorInformationObject(this.viObjects);
+        repliesBuilder
+            .setRp(this.rpTrue)
+            .setVendorInformationObject(this.viObjects);
         final List<Paths> paths = new ArrayList<>();
         final PathsBuilder paBuilder = new PathsBuilder();
         paBuilder.setEro(this.ero);
@@ -851,8 +863,9 @@ public class PCEPValidatorTest {
     public void testMonRepMsg() throws PCEPDeserializerException, IOException {
         final PCEPMonitoringReplyMessageParser parser = new PCEPMonitoringReplyMessageParser(this.objectRegistry);
         final PcmonrepMessageBuilder builder = new PcmonrepMessageBuilder();
-        builder.setMonitoring(this.monitoring);
-        builder.setMonitoringMetricsList(new GeneralMetricsListBuilder()
+        builder
+            .setMonitoring(this.monitoring)
+            .setMonitoringMetricsList(new GeneralMetricsListBuilder()
             .setMetricPce(Lists.newArrayList(new MetricPceBuilder().setPceId(this.pceId).build())).build());
 
         final byte[] msgBytes = {
@@ -907,17 +920,19 @@ public class PCEPValidatorTest {
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRepMon.5.bin"));
         final List<Replies> replies4 = new ArrayList<>();
         repliesBuilder = new RepliesBuilder();
-        repliesBuilder.setRp(this.rpTrue);
-        repliesBuilder.setMonitoring(this.monitoring);
-        repliesBuilder.setPccIdReq(this.pccIdReq);
-        repliesBuilder.setMetricPce(Lists.newArrayList(new MetricPceBuilder().setPceId(this.pceId).build()));
+        repliesBuilder
+            .setRp(this.rpTrue)
+            .setMonitoring(this.monitoring)
+            .setPccIdReq(this.pccIdReq)
+            .setMetricPce(Lists.newArrayList(new MetricPceBuilder().setPceId(this.pceId).build()));
         final List<Paths> paths = new ArrayList<>();
         final PathsBuilder paBuilder = new PathsBuilder();
-        paBuilder.setEro(this.ero);
-        paBuilder.setLspa(this.lspa);
-        paBuilder.setMetrics(Lists.newArrayList(this.metrics));
-        paBuilder.setIro(this.iro);
-        paBuilder.setOf(this.of);
+        paBuilder
+            .setEro(this.ero)
+            .setLspa(this.lspa)
+            .setMetrics(Lists.newArrayList(this.metrics))
+            .setIro(this.iro)
+            .setOf(this.of);
         paths.add(paBuilder.build());
         repliesBuilder.setResult(new SuccessCaseBuilder().setSuccess(new SuccessBuilder().setPaths(paths).build())
             .build()).build();
@@ -944,16 +959,19 @@ public class PCEPValidatorTest {
             .message.RequestsBuilder rBuilder =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message
                     .pcreq.message.RequestsBuilder();
-        rBuilder.setRp(this.rpTrue);
-        rBuilder.setSegmentComputation(new SegmentComputationBuilder().setP2p(new P2pBuilder()
+        rBuilder
+            .setRp(this.rpTrue)
+            .setSegmentComputation(new SegmentComputationBuilder().setP2p(new P2pBuilder()
             .setEndpointsObj(this.endpoints).build()).build());
         reqs1.add(rBuilder.build());
         final MonitoringRequestBuilder monReqBuilder = new MonitoringRequestBuilder();
-        monReqBuilder.setMonitoring(this.monitoring);
-        monReqBuilder.setPccIdReq(this.pccIdReq);
-        monReqBuilder.setPceIdList(Lists.newArrayList(new PceIdListBuilder().setPceId(this.pceId).build()));
-        builder.setMonitoringRequest(monReqBuilder.build());
-        builder.setRequests(reqs1);
+        monReqBuilder
+            .setMonitoring(this.monitoring)
+            .setPccIdReq(this.pccIdReq)
+            .setPceIdList(Lists.newArrayList(new PceIdListBuilder().setPceId(this.pceId).build()));
+        builder
+            .setMonitoringRequest(monReqBuilder.build())
+            .setRequests(reqs1);
 
         assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
                 result.readableBytes() - 4), Collections.emptyList()));
@@ -969,8 +987,9 @@ public class PCEPValidatorTest {
 
         final PcreqMessageBuilder builder = new PcreqMessageBuilder();
         final MonitoringRequestBuilder monReqBuilder = new MonitoringRequestBuilder();
-        monReqBuilder.setMonitoring(this.monitoring);
-        monReqBuilder.setPceIdList(Lists.newArrayList(new PceIdListBuilder().setPceId(this.pceId).build()));
+        monReqBuilder
+            .setMonitoring(this.monitoring)
+            .setPceIdList(Lists.newArrayList(new PceIdListBuilder().setPceId(this.pceId).build()));
         builder.setMonitoringRequest(monReqBuilder.build());
         final byte[] msgBytes = {
             0x20, 0x08, 0x00, 0x18,
@@ -995,9 +1014,10 @@ public class PCEPValidatorTest {
                     .pcreq.message.RequestsBuilder();
         rBuilder1.setRp(this.rpTrue);
         final P2pBuilder p2pBuilder = new P2pBuilder();
-        p2pBuilder.setEndpointsObj(this.endpoints);
-        p2pBuilder.setMetrics(Lists.newArrayList(this.metrics));
-        p2pBuilder.setIro(this.iro);
+        p2pBuilder
+            .setEndpointsObj(this.endpoints)
+            .setMetrics(Lists.newArrayList(this.metrics))
+            .setIro(this.iro);
         rBuilder1.setSegmentComputation(new SegmentComputationBuilder().setP2p(p2pBuilder.build()).build());
         reqs2.add(rBuilder1.build());
         builder.setRequests(reqs2);
@@ -1032,13 +1052,13 @@ public class PCEPValidatorTest {
         bwBuilder.setBandwidth(new Bandwidth(new byte[] { (byte) 0x47, (byte) 0x74, (byte) 0x24, (byte) 0x00 }));
 
         RepliesBuilder repliesBuilder = new RepliesBuilder();
-        repliesBuilder = new RepliesBuilder();
         repliesBuilder.setRp(this.rpTrue);
         final List<Paths> paths = new ArrayList<>();
         final PathsBuilder paBuilder1 = new PathsBuilder();
-        paBuilder1.setEro(this.ero);
-        paBuilder1.setBandwidth(bwBuilder.build());
-        paBuilder1.setMetrics(Lists.newArrayList(this.metrics));
+        paBuilder1
+            .setEro(this.ero)
+            .setBandwidth(bwBuilder.build())
+            .setMetrics(Lists.newArrayList(this.metrics));
         paths.add(paBuilder1.build());
         final PathsBuilder paBuilder2 = new PathsBuilder();
         paBuilder2.setEro(this.ero);
