@@ -10,8 +10,11 @@ package org.opendaylight.protocol.pcep.impl.tls;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -57,7 +60,7 @@ public class SslContextFactory {
             final SSLContext serverContext = SSLContext.getInstance(PROTOCOL);
             serverContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             return serverContext;
-        } catch (final IOException e) {
+        } catch (final IOException | KeyStoreException e) {
             LOG.warn(
                 "IOException - Failed to load keystore / truststore. Failed to initialize the server-side SSLContext",
                 e);
@@ -65,8 +68,10 @@ public class SslContextFactory {
             LOG.warn(
                 "NoSuchAlgorithmException - Unsupported algorithm. Failed to initialize the server-side SSLContext", e);
         } catch (final CertificateException e) {
-            LOG.warn("CertificateException - Unable to access certificate (check password). Failed to initialize the server-side SSLContext", e);
-        } catch (final Exception e) {
+            LOG.warn(
+                "CertificateException - Unable to get a certificate (check password) to set the server-side SSLContext",
+                e);
+        } catch (final KeyManagementException | UnrecoverableKeyException e) {
             LOG.warn("Exception - Failed to initialize the server-side SSLContext", e);
         }
         //TODO try to use default SSLContext instance?
