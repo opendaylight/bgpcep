@@ -81,6 +81,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.Sent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.SentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Util for create OpenConfig Neighbor with corresponding openConfig state.
@@ -356,7 +357,7 @@ public final class NeighborUtil {
                         .setReceived(neighbor.isGracefulRestartReceived(tablesKey))
                         .setLlAdvertised(neighbor.isLlGracefulRestartAdvertised(tablesKey))
                         .setLlReceived(neighbor.isLlGracefulRestartReceived(tablesKey))
-                        .setLlStaleTimer((long) neighbor.getLlGracefulRestartTimer(tablesKey)).build();
+                        .setLlStaleTimer(Uint32.valueOf(neighbor.getLlGracefulRestartTimer(tablesKey))).build();
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
                 .safi.list.afi.safi.GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig
                 .net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.graceful.restart.StateBuilder()

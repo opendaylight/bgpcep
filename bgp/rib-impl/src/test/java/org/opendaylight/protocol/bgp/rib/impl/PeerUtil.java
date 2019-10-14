@@ -67,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PeerUtil {
 
@@ -114,12 +115,13 @@ final class PeerUtil {
 
     static Update createUpdate(final BgpOrigin bgpOrigin,
                                final List<Segments> pathSegments,
+                               // FIXME: consider using Uint32
                                final long preference,
                                final MpReachNlri mpReach,
                                final MpUnreachNlri mpUnreach) {
         final Origin origin = new OriginBuilder().setValue(bgpOrigin).build();
         final AsPath asPath = new AsPathBuilder().setSegments(pathSegments).build();
-        final LocalPref localPref = new LocalPrefBuilder().setPref(preference).build();
+        final LocalPref localPref = new LocalPrefBuilder().setPref(Uint32.valueOf(preference)).build();
         final AttributesBuilder attributeBuilder = new AttributesBuilder()
                 .setOrigin(origin).setAsPath(asPath).setLocalPref(localPref);
 

@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.AreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.node._case.NodeDescriptors;
@@ -28,7 +29,7 @@ public final class AreaIdTlvParser implements LinkstateTlvParser<AreaIdentifier>
 
     @Override
     public AreaIdentifier parseTlvBody(final ByteBuf value) {
-        return new AreaIdentifier(value.readUnsignedInt());
+        return new AreaIdentifier(ByteBufUintUtil.readUint32(value));
     }
 
     @Override
