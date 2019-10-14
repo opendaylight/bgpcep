@@ -23,6 +23,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyMessage;
@@ -86,20 +87,20 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         if (reason != null) {
             switch (reason) {
                 case REASON_ONE:
-                    peerDown.setLocalSystemClosed(true);
+                    peerDown.setLocalSystemClosed(Boolean.TRUE);
                     peerDown.setData(parseBgpNotificationMessage(bytes));
                     break;
                 case REASON_TWO:
-                    peerDown.setLocalSystemClosed(true);
-                    peerDown.setData(new FsmEventCodeBuilder().setFsmEventCode(bytes.readUnsignedShort()).build());
+                    peerDown.setLocalSystemClosed(Boolean.TRUE);
+                    peerDown.setData(new FsmEventCodeBuilder().setFsmEventCode(ByteBufUtils.readUint16(bytes)).build());
                     break;
                 case REASON_THREE:
                 case REASON_FOUR:
-                    peerDown.setLocalSystemClosed(false);
+                    peerDown.setLocalSystemClosed(Boolean.FALSE);
                     peerDown.setData(parseBgpNotificationMessage(bytes));
                     break;
                 case REASON_FIVE:
-                    peerDown.setLocalSystemClosed(false);
+                    peerDown.setLocalSystemClosed(Boolean.FALSE);
                     break;
                 default:
                     break;

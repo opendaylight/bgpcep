@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvRegistry;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -92,8 +93,8 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         } else {
             peerUpNot.setLocalAddress(new IpAddress(Ipv6Util.addressForByteBuf(bytes)));
         }
-        peerUpNot.setLocalPort(new PortNumber(bytes.readUnsignedShort()));
-        peerUpNot.setRemotePort(new PortNumber(bytes.readUnsignedShort()));
+        peerUpNot.setLocalPort(new PortNumber(ByteBufUtils.readUint16(bytes)));
+        peerUpNot.setRemotePort(new PortNumber(ByteBufUtils.readUint16(bytes)));
         try {
             final Notification opSent = this.msgRegistry
                     .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);

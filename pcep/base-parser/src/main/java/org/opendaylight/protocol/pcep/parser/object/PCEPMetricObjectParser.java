@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
@@ -19,6 +19,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
@@ -58,10 +59,10 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
 
     @Override
     public Metric parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         if (bytes.readableBytes() != SIZE) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: " + SIZE
-                    + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes()
+                + "; Expected: " + SIZE + ".");
         }
         bytes.skipBytes(RESERVED);
         final BitArray flags = BitArray.valueOf(bytes.readByte());
@@ -70,14 +71,15 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
         builder.setProcessingRule(header.isProcessingRule());
         builder.setBound(flags.get(B_FLAG_OFFSET));
         builder.setComputed(flags.get(C_FLAG_OFFSET));
-        builder.setMetricType(bytes.readUnsignedByte());
+        builder.setMetricType(ByteBufUtils.readUint8(bytes));
         builder.setValue(new Float32(ByteArray.readBytes(bytes, METRIC_VALUE_F_LENGTH)));
         return builder.build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Metric, "Wrong instance of PCEPObject. Passed %s. Needed MetricObject.", object.getClass());
+        checkArgument(object instanceof Metric, "Wrong instance of PCEPObject. Passed %s. Needed MetricObject.",
+            object.getClass());
         final Metric mObj = (Metric) object;
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(RESERVED);
@@ -85,7 +87,7 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
         flags.set(C_FLAG_OFFSET, mObj.isComputed());
         flags.set(B_FLAG_OFFSET, mObj.isBound());
         flags.toByteBuf(body);
-        Preconditions.checkArgument(mObj.getMetricType() != null, "MetricType is mandatory.");
+        checkArgument(mObj.getMetricType() != null, "MetricType is mandatory.");
         writeUnsignedByte(mObj.getMetricType(), body);
         writeFloat32(mObj.getValue(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

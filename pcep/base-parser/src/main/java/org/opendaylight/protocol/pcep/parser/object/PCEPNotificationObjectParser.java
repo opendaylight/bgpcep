@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
@@ -53,8 +54,8 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         bytes.skipBytes(NT_F_OFFSET);
-        builder.setType(bytes.readUnsignedByte());
-        builder.setValue(bytes.readUnsignedByte());
+        builder.setType(ByteBufUtils.readUint8(bytes));
+        builder.setValue(ByteBufUtils.readUint8(bytes));
         parseTlvs(builder, bytes.slice());
         return builder.build();
     }

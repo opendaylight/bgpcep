@@ -21,6 +21,7 @@ public interface RouteEntryBaseAttributes {
      *
      * @return RIB AS
      */
+    // FIXME: consider using Uint32 here
     long getLocalAs();
 
     /**

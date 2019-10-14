@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -20,6 +19,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.rp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.rp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Parser for {@link Rp}
@@ -94,7 +95,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
 
         final RpBuilder builder = new RpBuilder();
@@ -106,7 +107,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         priority |= (flags.get(PRI_SF_OFFSET + 1) ? 1 : 0) << 1;
         priority |= (flags.get(PRI_SF_OFFSET) ? 1 : 0) << 2;
         if (priority != 0) {
-            builder.setPriority(priority);
+            builder.setPriority(Uint8.valueOf(priority));
         }
         builder.setFragmentation(flags.get(F_FLAG_OFFSET));
         builder.setP2mp(flags.get(N_FLAG_OFFSET));
@@ -119,7 +120,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         builder.setBiDirectional(flags.get(B_FLAG_OFFSET));
         builder.setReoptimization(flags.get(R_FLAG_OFFSET));
 
-        builder.setRequestId(new RequestId(bytes.readUnsignedInt()));
+        builder.setRequestId(new RequestId(ByteBufUtils.readUint32(bytes)));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         builder.setTlvs(tlvsBuilder.build());
@@ -138,7 +139,8 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Rp, "Wrong instance of PCEPObject. Passed %s. Needed RPObject.", object.getClass());
+        checkArgument(object instanceof Rp, "Wrong instance of PCEPObject. Passed %s. Needed RPObject.",
+            object.getClass());
         final ByteBuf body = Unpooled.buffer();
         final Rp rpObj = (Rp) object;
         final BitArray flags = new BitArray(FLAGS_SIZE);
@@ -158,7 +160,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
             res[res.length - 1] = (byte) (res[res.length - 1] | p);
         }
         body.writeBytes(res);
-        Preconditions.checkArgument(rpObj.getRequestId() != null, "RequestId is mandatory");
+        checkArgument(rpObj.getRequestId() != null, "RequestId is mandatory");
         writeUnsignedInt(rpObj.getRequestId().getValue(), body);
         serializeTlvs(rpObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

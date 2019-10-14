@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -19,6 +19,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
@@ -54,12 +55,12 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
 
     @Override
     public NoPath parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final NoPathBuilder builder = new NoPathBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
 
-        builder.setNatureOfIssue(bytes.readUnsignedByte());
+        builder.setNatureOfIssue(ByteBufUtils.readUint8(bytes));
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
         builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
         bytes.skipBytes(RESERVED_F_LENGTH);
@@ -78,10 +79,11 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof NoPath, "Wrong instance of PCEPObject. Passed %s. Needed NoPathObject.", object.getClass());
+        checkArgument(object instanceof NoPath, "Wrong instance of PCEPObject. Passed %s. Needed NoPathObject.",
+            object.getClass());
         final NoPath nPObj = (NoPath) object;
         final ByteBuf body = Unpooled.buffer();
-        Preconditions.checkArgument(nPObj.getNatureOfIssue() != null, "NatureOfIssue is mandatory.");
+        checkArgument(nPObj.getNatureOfIssue() != null, "NatureOfIssue is mandatory.");
         writeUnsignedByte(nPObj.getNatureOfIssue(), body);
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
