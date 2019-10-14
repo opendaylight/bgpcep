@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.MacMobilityExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.MacMobilityExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.mac.mobility.extended.community.MacMobilityExtendedCommunity;
@@ -26,10 +27,12 @@ public final class MACMobExtCom extends AbstractExtendedCommunities {
             throws BGPDocumentedException, BGPParsingException {
         final boolean isStatic = buffer.readBoolean();
         buffer.skipBytes(RESERVED);
-        final long seqNumber = buffer.readUnsignedInt();
         return new MacMobilityExtendedCommunityCaseBuilder()
                 .setMacMobilityExtendedCommunity(new MacMobilityExtendedCommunityBuilder()
-            .setStatic(isStatic).setSeqNumber(seqNumber).build()).build();
+                    .setStatic(isStatic)
+                    .setSeqNumber(ByteBufUintUtil.readUint32(buffer))
+                    .build())
+                .build();
     }
 
     @Override

@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttribute
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -53,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +144,7 @@ public final class LinkAttributesParser {
                     LOG.debug("Parsed IPv6 Router-ID of remote node: {}", builder.getRemoteIpv6RouterId());
                     break;
                 case ADMIN_GROUP:
-                    builder.setAdminGroup(new AdministrativeGroup(value.readUnsignedInt()));
+                    builder.setAdminGroup(new AdministrativeGroup(ByteBufUintUtil.readUint32(value)));
                     LOG.debug("Parsed Administrative Group {}", builder.getAdminGroup());
                     break;
                 case MAX_BANDWIDTH:
@@ -209,21 +211,22 @@ public final class LinkAttributesParser {
                     break;
                     // Performance Metrics
                 case LINK_DELAY:
-                    builder.setLinkDelay(new Delay(value.readUnsignedInt()));
+                    builder.setLinkDelay(new Delay(ByteBufUintUtil.readUint32(value)));
                     LOG.debug("Parsed Link Delay {}", builder.getLinkDelay());
                     break;
                 case LINK_MIN_MAX_DELAY:
                     builder.setLinkMinMaxDelay(new LinkMinMaxDelayBuilder()
-                        .setMinDelay(new Delay(value.readUnsignedInt()))
-                        .setMaxDelay(new Delay(value.readUnsignedInt())).build());
+                        .setMinDelay(new Delay(ByteBufUintUtil.readUint32(value)))
+                        .setMaxDelay(new Delay(ByteBufUintUtil.readUint32(value)))
+                        .build());
                     LOG.debug("Parsed Link Min/Max Delay {}", builder.getLinkMinMaxDelay());
                     break;
                 case DELAY_VARIATION:
-                    builder.setDelayVariation(new Delay(value.readUnsignedInt()));
+                    builder.setDelayVariation(new Delay(ByteBufUintUtil.readUint32(value)));
                     LOG.debug("Parsed Delay Variation {}", builder.getDelayVariation());
                     break;
                 case LINK_LOSS:
-                    builder.setLinkLoss(new Loss(value.readUnsignedInt()));
+                    builder.setLinkLoss(new Loss(ByteBufUintUtil.readUint32(value)));
                     LOG.debug("Parsed Link Loss {}", builder.getLinkLoss());
                     break;
                 case RESIDUAL_BANDWIDTH:
@@ -261,7 +264,7 @@ public final class LinkAttributesParser {
         for (int i = 0; i < UNRESERVED_BW_COUNT; i++) {
             final ByteBuf v = value.readSlice(BANDWIDTH_LENGTH);
             unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(
-                new Bandwidth(ByteArray.readAllBytes(v))).setPriority((short) i).build());
+                new Bandwidth(ByteArray.readAllBytes(v))).setPriority(Uint8.valueOf(i)).build());
         }
         builder.setUnreservedBandwidth(unreservedBandwidth);
         LOG.debug("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());
@@ -270,7 +273,7 @@ public final class LinkAttributesParser {
     private static void parseSrlg(final ByteBuf value, final LinkAttributesBuilder builder) {
         final List<SrlgId> sharedRiskLinkGroups = new ArrayList<>();
         while (value.isReadable()) {
-            sharedRiskLinkGroups.add(new SrlgId(value.readUnsignedInt()));
+            sharedRiskLinkGroups.add(new SrlgId(ByteBufUintUtil.readUint32(value)));
         }
         builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
         LOG.debug("Parsed Shared Risk Link Groups {}", builder.getSharedRiskLinkGroups());

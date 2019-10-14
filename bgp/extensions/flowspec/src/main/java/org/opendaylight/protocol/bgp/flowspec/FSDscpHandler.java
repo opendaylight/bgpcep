@@ -18,6 +18,7 @@ import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.Util;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.Dscp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.FlowspecType;
@@ -47,7 +48,7 @@ public final class FSDscpHandler implements FlowspecTypeParser, FlowspecTypeSeri
             // RFC does not specify operator
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            builder.setValue(new Dscp(nlri.readUnsignedByte()));
+            builder.setValue(new Dscp(ByteBufUintUtil.readUint8(nlri)));
             end = op.isEndOfList();
             dscps.add(builder.build());
         }
