@@ -5,18 +5,18 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.xro;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgSubobject;
@@ -37,33 +37,32 @@ public class XROSrlgSubobjectParser implements XROSubobjectParser, XROSubobjectS
     private static final int CONTENT_LENGTH = 6;
 
     @Override
-    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws
-        RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory)
+            throws RSVPParsingException {
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
             throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
                 + "; " + "Expected: " + CONTENT_LENGTH + ".");
         }
-        final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
-        builder.setMandatory(mandatory);
-        builder.setSubobjectType(new SrlgCaseBuilder().setSrlg(new SrlgBuilder().setSrlgId(new SrlgId(buffer
-            .readUnsignedInt())).build()).build());
+        final SubobjectContainerBuilder builder = new SubobjectContainerBuilder()
+                .setMandatory(mandatory)
+                .setSubobjectType(new SrlgCaseBuilder()
+                    .setSrlg(new SrlgBuilder().setSrlgId(new SrlgId(ByteBufUintUtil.readUint32(buffer))).build())
+                    .build());
         buffer.readByte();
-        builder.setAttribute(ExcludeRouteSubobjects.Attribute.forValue(buffer.readUnsignedByte()));
-        return builder.build();
+        return builder.setAttribute(ExcludeRouteSubobjects.Attribute.forValue(buffer.readUnsignedByte()))
+                .build();
     }
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrlgCase,
-            "Unknown subobject instance. Passed %s. Needed SrlgCase.",
-            subobject.getSubobjectType().getClass());
+        checkArgument(subobject.getSubobjectType() instanceof SrlgCase,
+            "Unknown subobject instance. Passed %s. Needed SrlgCase.", subobject.getSubobjectType().getClass());
         final SrlgSubobject specObj = ((SrlgCase) subobject.getSubobjectType()).getSrlg();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        Preconditions.checkArgument(specObj.getSrlgId() != null, "SrlgId is mandatory.");
+        checkArgument(specObj.getSrlgId() != null, "SrlgId is mandatory.");
         writeUnsignedInt(specObj.getSrlgId().getValue(), body);
-        Preconditions.checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
+        checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
         writeUnsignedByte((Uint8) null, body);
         writeUnsignedByte((short) subobject.getAttribute().getIntValue(), body);
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
