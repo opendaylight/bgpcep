@@ -16,6 +16,7 @@ import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -89,10 +90,10 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
         } else {
             phBuilder.setAddress(new IpAddress(Ipv6Util.addressForByteBuf(bytes)));
         }
-        phBuilder.setAs(new AsNumber(bytes.readUnsignedInt()));
+        phBuilder.setAs(new AsNumber(ByteBufUintUtil.readUint32(bytes)));
         phBuilder.setBgpId(Ipv4Util.addressForByteBuf(bytes));
-        phBuilder.setTimestampSec(new Timestamp(bytes.readUnsignedInt()));
-        phBuilder.setTimestampMicro(new Timestamp(bytes.readUnsignedInt()));
+        phBuilder.setTimestampSec(new Timestamp(ByteBufUintUtil.readUint32(bytes)));
+        phBuilder.setTimestampMicro(new Timestamp(ByteBufUintUtil.readUint32(bytes)));
         return phBuilder.build();
     }
 

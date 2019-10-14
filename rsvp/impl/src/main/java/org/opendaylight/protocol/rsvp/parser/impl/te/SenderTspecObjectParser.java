@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
@@ -29,7 +30,6 @@ public class SenderTspecObjectParser extends AbstractRSVPObjectParser {
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        final TspecObjectBuilder builder = new TspecObjectBuilder();
         //skip version number, reserved, Overall length
         byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
         //skip Service header, reserved, Length of service
@@ -37,17 +37,18 @@ public class SenderTspecObjectParser extends AbstractRSVPObjectParser {
         //skip Parameter ID, Parameter 127 flags, Parameter 127 length
         byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
 
-        builder.setTokenBucketRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
-        builder.setTokenBucketSize(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
-        builder.setPeakDataRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
-        builder.setMinimumPolicedUnit(byteBuf.readUnsignedInt());
-        builder.setMaximumPacketSize(byteBuf.readUnsignedInt());
-        return builder.build();
+        return new TspecObjectBuilder()
+                .setTokenBucketRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
+                .setTokenBucketSize(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
+                .setPeakDataRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
+                .setMinimumPolicedUnit(ByteBufUintUtil.readUint32(byteBuf))
+                .setMaximumPacketSize(ByteBufUintUtil.readUint32(byteBuf))
+                .build();
     }
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof TspecObject, "SenderTspecObject is mandatory.");
+        checkArgument(teLspObject instanceof TspecObject, "SenderTspecObject is mandatory.");
         final TspecObject tspecObj = (TspecObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE, CLASS_NUM, CTYPE, output);
         output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);

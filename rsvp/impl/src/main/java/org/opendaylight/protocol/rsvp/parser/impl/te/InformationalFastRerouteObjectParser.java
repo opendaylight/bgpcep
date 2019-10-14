@@ -5,15 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
@@ -29,22 +30,23 @@ public final class InformationalFastRerouteObjectParser extends AbstractRSVPObje
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        final LegacyFastRerouteObjectBuilder builder = new LegacyFastRerouteObjectBuilder();
-        builder.setSetupPriority(byteBuf.readUnsignedByte());
-        builder.setHoldPriority(byteBuf.readUnsignedByte());
-        builder.setHopLimit(byteBuf.readUnsignedByte());
+        final LegacyFastRerouteObjectBuilder builder = new LegacyFastRerouteObjectBuilder()
+                .setSetupPriority(ByteBufUintUtil.readUint8(byteBuf))
+                .setHoldPriority(ByteBufUintUtil.readUint8(byteBuf))
+                .setHopLimit(ByteBufUintUtil.readUint8(byteBuf));
+
         //skip reserved
         byteBuf.skipBytes(ByteBufWriteUtil.ONE_BYTE_LENGTH);
         final ByteBuf v = byteBuf.readSlice(METRIC_VALUE_F_LENGTH);
         builder.setBandwidth(new Bandwidth(ByteArray.readAllBytes(v)));
-        builder.setIncludeAny(new AttributeFilter(byteBuf.readUnsignedInt()));
-        builder.setExcludeAny(new AttributeFilter(byteBuf.readUnsignedInt()));
+        builder.setIncludeAny(new AttributeFilter(ByteBufUintUtil.readUint32(byteBuf)));
+        builder.setExcludeAny(new AttributeFilter(ByteBufUintUtil.readUint32(byteBuf)));
         return builder.build();
     }
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(teLspObject instanceof LegacyFastRerouteObject, "FastRerouteObject is mandatory.");
+        checkArgument(teLspObject instanceof LegacyFastRerouteObject, "FastRerouteObject is mandatory.");
         final LegacyFastRerouteObject fastRerouteObject = (LegacyFastRerouteObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE_C7, CLASS_NUM, CTYPE, byteAggregator);
 

@@ -41,6 +41,7 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,11 +127,13 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             throw new BGPDocumentedException("Well known attribute not recognized.",
                 BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
         }
+
+        final Uint8 typeVal = Uint8.valueOf(type);
         final UnrecognizedAttributes unrecognizedAttribute = new UnrecognizedAttributesBuilder()
-            .withKey(new UnrecognizedAttributesKey((short) type))
+            .withKey(new UnrecognizedAttributesKey(typeVal))
             .setPartial(flags.get(PARTIAL_BIT))
             .setTransitive(flags.get(TRANSITIVE_BIT))
-            .setType((short) type)
+            .setType(typeVal)
             .setValue(ByteArray.readBytes(buffer, len)).build();
         this.unrecognizedAttributes.add(unrecognizedAttribute);
         LOG.debug("Unrecognized attribute were parsed: {}", unrecognizedAttribute);

@@ -5,13 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.inter.as.i.pmsi.a.d.grouping.InterAsIPmsiAD;
@@ -40,7 +40,7 @@ public final class InterASIPmsiADHandler extends AbstractMvpnNlri<InterAsIPmsiAD
         return new InterAsIPmsiADCaseBuilder()
                 .setInterAsIPmsiAD(new InterAsIPmsiADBuilder()
                         .setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(buffer))
-                        .setSourceAs(new AsNumber(buffer.readUnsignedInt()))
+                        .setSourceAs(new AsNumber(ByteBufUintUtil.readUint32(buffer)))
                         .build())
                 .build();
     }

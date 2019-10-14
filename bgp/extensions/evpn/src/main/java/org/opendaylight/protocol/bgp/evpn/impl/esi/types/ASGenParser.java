@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.ext
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EsiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.Esi;
@@ -52,8 +53,8 @@ final class ASGenParser extends AbstractEsiType {
     public Esi parseEsi(final ByteBuf buffer) {
         return new AsGeneratedCaseBuilder()
                 .setAsGenerated(new AsGeneratedBuilder()
-                    .setAs(new AsNumber(buffer.readUnsignedInt()))
-                    .setLocalDiscriminator(buffer.readUnsignedInt())
+                    .setAs(new AsNumber(ByteBufUintUtil.readUint32(buffer)))
+                    .setLocalDiscriminator(ByteBufUintUtil.readUint32(buffer))
                     .build())
                 .build();
     }
