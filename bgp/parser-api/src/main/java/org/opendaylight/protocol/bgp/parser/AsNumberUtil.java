@@ -13,6 +13,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -56,7 +57,7 @@ public final class AsNumberUtil {
     public static AsNumber extractAS(final DataContainerNode<?> dtc, final NodeIdentifier nid) {
         final NormalizedNode<?, ?> as = NormalizedNodes.findNode(dtc, nid).orElse(null);
         if (as != null) {
-            return new AsNumber((Long) as.getValue());
+            return new AsNumber((Uint32) as.getValue());
         }
         return null;
     }

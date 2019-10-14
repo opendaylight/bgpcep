@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv4.flowspec.flowspec.type.SourcePrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIpsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -82,7 +83,7 @@ public final class FlowspecIpv4NlriParserHelper {
                     .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
                     = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
-            valueNode.ifPresent(dataContainerChild -> ipsBuilder.setValue((Short) dataContainerChild.getValue()));
+            valueNode.ifPresent(dataContainerChild -> ipsBuilder.setValue((Uint8) dataContainerChild.getValue()));
             protocolIps.add(ipsBuilder.build());
         }
 
