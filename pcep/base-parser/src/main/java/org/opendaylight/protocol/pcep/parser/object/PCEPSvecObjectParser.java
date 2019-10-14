@@ -19,6 +19,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
@@ -74,7 +75,7 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         final List<RequestId> requestIDs = new ArrayList<>();
 
         while (bytes.isReadable()) {
-            requestIDs.add(new RequestId(bytes.readUnsignedInt()));
+            requestIDs.add(new RequestId(ByteBufUintUtil.readUint32(bytes)));
         }
         if (requestIDs.isEmpty()) {
             throw new PCEPDeserializerException("Empty Svec Object - no request ids.");
@@ -109,7 +110,7 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         flags.toByteBuf(body);
 
         final List<RequestId> requestIDs = svecObj.getRequestsIds();
-        assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
+        assert !requestIDs.isEmpty() : "Empty Svec Object - no request ids.";
         for (final RequestId requestId : requestIDs) {
             writeUnsignedInt(requestId.getValue(), body);
         }

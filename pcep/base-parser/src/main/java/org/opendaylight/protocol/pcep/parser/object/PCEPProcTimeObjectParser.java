@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
@@ -17,6 +17,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
@@ -43,7 +44,7 @@ public class PCEPProcTimeObjectParser extends CommonObjectParser implements Obje
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof ProcTime,
+        checkArgument(object instanceof ProcTime,
             "Wrong instance of PCEPObject. Passed %s. Needed ProcTimeObject.", object.getClass());
         final ProcTime procTime = (ProcTime) object;
         final ByteBuf body = Unpooled.buffer(BODY_SIZE);
@@ -61,17 +62,18 @@ public class PCEPProcTimeObjectParser extends CommonObjectParser implements Obje
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+        checkArgument(buffer != null && buffer.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
-        final ProcTimeBuilder builder = new ProcTimeBuilder();
         buffer.skipBytes(RESERVED);
         final BitArray flagBits = BitArray.valueOf(buffer, FLAGS);
-        builder.setEstimated(flagBits.get(E_FLAG_POSITION));
-        builder.setCurrentProcTime(buffer.readUnsignedInt());
-        builder.setMinProcTime(buffer.readUnsignedInt());
-        builder.setMaxProcTime(buffer.readUnsignedInt());
-        builder.setAverageProcTime(buffer.readUnsignedInt());
-        builder.setVarianceProcTime(buffer.readUnsignedInt());
-        return builder.build();
+
+        return new ProcTimeBuilder()
+                .setEstimated(flagBits.get(E_FLAG_POSITION))
+                .setCurrentProcTime(ByteBufUintUtil.readUint32(buffer))
+                .setMinProcTime(ByteBufUintUtil.readUint32(buffer))
+                .setMaxProcTime(ByteBufUintUtil.readUint32(buffer))
+                .setAverageProcTime(ByteBufUintUtil.readUint32(buffer))
+                .setVarianceProcTime(ByteBufUintUtil.readUint32(buffer))
+                .build();
     }
 }
