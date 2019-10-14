@@ -16,6 +16,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.req.missing.tlv.ReqMissing;
@@ -33,7 +34,7 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new ReqMissingBuilder().setRequestId(new RequestId(buffer.readUnsignedInt())).build();
+        return new ReqMissingBuilder().setRequestId(new RequestId(ByteBufUtils.readUint32(buffer))).build();
     }
 
     @Override

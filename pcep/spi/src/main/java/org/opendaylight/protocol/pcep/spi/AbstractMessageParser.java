@@ -18,6 +18,7 @@ import java.util.Optional;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
@@ -89,7 +90,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             final ObjectHeader header = new ObjectHeaderImpl(flags.get(PROCESSED), flags.get(IGNORED));
 
             if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
-                final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(bytesToPass.readUnsignedInt());
+                final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(ByteBufUtils.readUint32(bytesToPass));
                 final Optional<? extends Object> obj = this.registry.parseVendorInformationObject(enterpriseNumber,
                     header, bytesToPass);
                 if (obj.isPresent()) {

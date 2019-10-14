@@ -21,6 +21,7 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
@@ -62,7 +63,7 @@ public final class RouteTargetConstrainNlriHandler implements NlriParser, NlriSe
             final ByteBuf nlriBuf = nlri.readSlice(length);
             Integer type = null;
             if (length != 0) {
-                builder.setOriginAs(new AsNumber(nlriBuf.readUnsignedInt()));
+                builder.setOriginAs(new AsNumber(ByteBufUtils.readUint32(nlriBuf)));
                 type = (int) nlriBuf.readUnsignedByte();
                 //Skip Subtype
                 nlriBuf.skipBytes(1);

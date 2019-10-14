@@ -85,7 +85,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
                     .setAfi(afi)
                     .setSafi(safi)
                     .setAfiFlags(new Tables.AfiFlags(Boolean.valueOf(afiFlags == AFI_FLAG_FORWARDING_STATE)))
-                    .setLongLivedStaleTime(Long.valueOf(staleTime))
+                    .setLongLivedStaleTime(Uint32.valueOf(staleTime))
                     .build();
             tables.add(table);
         }

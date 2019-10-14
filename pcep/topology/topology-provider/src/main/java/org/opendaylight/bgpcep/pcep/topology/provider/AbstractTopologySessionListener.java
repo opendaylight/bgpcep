@@ -69,6 +69,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractTopologySessionListener<S, L> implements TopologySessionListener, TopologySessionStats {
     static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
-        private final ProtocolVersion version = new ProtocolVersion((short) 1);
+        private final ProtocolVersion version = new ProtocolVersion(Uint8.ONE);
 
         @Override
         public Class<MessageHeader> implementedInterface() {

@@ -365,6 +365,7 @@ public enum PCEPErrors {
         return this.errorId;
     }
 
+    // FIXME: these should be Uint8s
     public short getErrorType() {
         return this.errorId.getType();
     }

@@ -172,10 +172,12 @@ public enum BGPError {
         return e;
     }
 
+    // FIXME: Use Uint8 for this
     public short getCode() {
         return this.errorId.code;
     }
 
+    // FIXME: Use Uint8 for this
     public short getSubcode() {
         return this.errorId.subcode;
     }
@@ -189,6 +191,8 @@ public enum BGPError {
      */
     private static class BGPErrorIdentifier implements Serializable {
         private static final long serialVersionUID = 5722575354944165734L;
+
+        // FIXME: Use Uint8 for these
         final short code;
         final short subcode;
 

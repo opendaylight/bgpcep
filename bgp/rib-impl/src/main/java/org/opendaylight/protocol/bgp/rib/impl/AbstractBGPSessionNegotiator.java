@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.OpenBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
 
     // <a href="http://tools.ietf.org/html/rfc6793">BGP Support for 4-Octet AS Number Space</a>
     @VisibleForTesting
-    static final int AS_TRANS = 23456;
+    static final Uint16 AS_TRANS = Uint16.valueOf(23456).intern();
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
     private final BGPPeerRegistry registry;
     private final Promise<BGPSessionImpl> promise;
@@ -107,7 +108,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
             }
 
             final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
-            final int as = openASNumber(preferences.getMyAs().getValue().longValue());
+            final Uint16 as = openASNumber(preferences.getMyAs().getValue().longValue());
             sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
                     preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
             if (this.state != State.FINISHED) {
@@ -306,8 +307,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     }
 
     @VisibleForTesting
-    static int openASNumber(final long configuredASNumber) {
+    static Uint16 openASNumber(final long configuredASNumber) {
         // Return AS_TRANS if the value is bigger than 2B.
-        return configuredASNumber > Values.UNSIGNED_SHORT_MAX_VALUE ? AS_TRANS : (int) configuredASNumber;
+        return configuredASNumber > Values.UNSIGNED_SHORT_MAX_VALUE ? AS_TRANS : Uint16.valueOf(configuredASNumber);
     }
 }

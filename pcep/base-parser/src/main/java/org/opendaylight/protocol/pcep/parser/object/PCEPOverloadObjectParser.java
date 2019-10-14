@@ -15,6 +15,7 @@ import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
@@ -50,7 +51,7 @@ public class PCEPOverloadObjectParser extends CommonObjectParser implements Obje
             "Array of bytes is mandatory. Can't be null or empty.");
         final OverloadBuilder builder = new OverloadBuilder();
         buffer.readBytes(RESERVED + FLAGS);
-        builder.setDuration(buffer.readUnsignedShort());
+        builder.setDuration(ByteBufUtils.readUint16(buffer));
         return builder.build();
     }
 }
