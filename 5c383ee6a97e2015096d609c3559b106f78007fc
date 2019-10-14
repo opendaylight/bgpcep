@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f4d726d_d4f08f91",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-14T14:02:14Z",
+      "side": 1,
+      "message": "please format comment (missing space)",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9f11cd6_089dbbba",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-14T14:02:14Z",
+      "side": 1,
+      "message": "seems reasonable regarding the BGPSessionImpl.java class. Update the comment to reference the class with relative path i.e. bgpcep/bgp/.....",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbfd9956_700486a9",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionNegotiator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-14T14:02:14Z",
+      "side": 1,
+      "message": "that\u0027s normal. Code is implementing only the server side for PCEP, while in BGP, the code is implementing both client and server. AbstractBGPSessionNegociator class is used in client and server class. PCEPSessionNegotiator is only used by the server class.",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd3f91be_0d4c7321",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImplTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-14T14:02:14Z",
+      "side": 1,
+      "message": "not sure how to do that as Channel class is hard to understand and impose strict way to use it",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb156ffc_388c341c",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-14T14:02:14Z",
+      "side": 1,
+      "message": "Don\u0027t know. I must investigate that. But, if sessionUP() is not generate exception, the try/catch is superfluous",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
