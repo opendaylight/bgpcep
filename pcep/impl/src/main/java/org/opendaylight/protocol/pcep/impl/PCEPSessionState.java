@@ -26,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObject;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PCEPSessionState {
     private final Open localOpen;
@@ -55,15 +57,15 @@ final class PCEPSessionState {
     }
 
     Messages getMessages(final int unknownMessagesCount) {
-        this.errorsBuilder.setReceivedErrorMsgCount(this.receivedErrMsgCount);
-        this.errorsBuilder.setSentErrorMsgCount(this.sentErrMsgCount);
-        this.errorsBuilder.setLastReceivedError(this.lastReceivedErrorBuilder.build());
-        this.errorsBuilder.setLastSentError(this.lastSentErrorBuilder.build());
-        this.msgsBuilder.setLastSentMsgTimestamp(this.lastSentMsgTimestamp);
-        this.msgsBuilder.setReceivedMsgCount(this.receivedMsgCount);
-        this.msgsBuilder.setSentMsgCount(this.sentMsgCount);
-        this.msgsBuilder.setUnknownMsgReceived(unknownMessagesCount);
-        this.msgsBuilder.setErrorMessages(this.errorsBuilder.build());
+        this.errorsBuilder.setReceivedErrorMsgCount(Uint32.valueOf(this.receivedErrMsgCount))
+            .setSentErrorMsgCount(Uint32.valueOf(this.sentErrMsgCount))
+            .setLastReceivedError(this.lastReceivedErrorBuilder.build())
+            .setLastSentError(this.lastSentErrorBuilder.build());
+        this.msgsBuilder.setLastSentMsgTimestamp(Uint32.valueOf(this.lastSentMsgTimestamp))
+            .setReceivedMsgCount(Uint32.valueOf(this.receivedMsgCount))
+            .setSentMsgCount(Uint32.valueOf(this.sentMsgCount))
+            .setUnknownMsgReceived(Uint16.valueOf(unknownMessagesCount))
+            .setErrorMessages(this.errorsBuilder.build());
         return this.msgsBuilder.build();
     }
 
@@ -72,11 +74,11 @@ final class PCEPSessionState {
     }
 
     private static LocalPref getLocalPref(final Open open, final Channel channel) {
-        final LocalPrefBuilder peerBuilder = new LocalPrefBuilder();
-        peerBuilder.setDeadtimer(open.getDeadTimer());
-        peerBuilder.setKeepalive(open.getKeepalive());
-        peerBuilder.setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress());
-        peerBuilder.setSessionId(open.getSessionId().intValue());
+        final LocalPrefBuilder peerBuilder = new LocalPrefBuilder()
+                .setDeadtimer(open.getDeadTimer())
+                .setKeepalive(open.getKeepalive())
+                .setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress())
+                .setSessionId(Uint16.valueOf(open.getSessionId().intValue()));
         return peerBuilder.build();
     }
 
@@ -87,15 +89,13 @@ final class PCEPSessionState {
     void setLastSentError(final Message msg) {
         this.sentErrMsgCount++;
         final ErrorObject errObj = getErrorObject(msg);
-        this.lastSentErrorBuilder.setErrorType(errObj.getType());
-        this.lastSentErrorBuilder.setErrorValue(errObj.getValue());
+        this.lastSentErrorBuilder.setErrorType(errObj.getType()).setErrorValue(errObj.getValue());
     }
 
     void setLastReceivedError(final Message msg) {
         final ErrorObject errObj = getErrorObject(msg);
         this.receivedErrMsgCount++;
-        this.lastReceivedErrorBuilder.setErrorType(errObj.getType());
-        this.lastReceivedErrorBuilder.setErrorValue(errObj.getValue());
+        this.lastReceivedErrorBuilder.setErrorType(errObj.getType()).setErrorValue(errObj.getValue());
     }
 
     void updateLastReceivedMsg() {
@@ -116,10 +116,10 @@ final class PCEPSessionState {
 
     private static PeerPref getRemotePref(final Open open, final Channel channel) {
         final PeerPrefBuilder peerBuilder = new PeerPrefBuilder();
-        peerBuilder.setDeadtimer(open.getDeadTimer());
-        peerBuilder.setKeepalive(open.getKeepalive());
-        peerBuilder.setIpAddress(((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress());
-        peerBuilder.setSessionId(open.getSessionId().intValue());
+        peerBuilder.setDeadtimer(open.getDeadTimer())
+            .setKeepalive(open.getKeepalive())
+            .setIpAddress(((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress())
+            .setSessionId(Uint16.valueOf(open.getSessionId().intValue()));
         return peerBuilder.build();
     }
 

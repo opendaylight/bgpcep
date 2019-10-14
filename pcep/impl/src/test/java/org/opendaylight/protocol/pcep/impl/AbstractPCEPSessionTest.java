@@ -82,14 +82,15 @@ public class AbstractPCEPSessionTest {
 
     protected SimpleSessionListener listener;
 
+    @SuppressWarnings("unchecked")
     @Before
     public final void setUp() {
         MockitoAnnotations.initMocks(this);
-        final ChannelFuture future = new DefaultChannelPromise(this.channel);
+        final ChannelFuture cfuture = new DefaultChannelPromise(this.channel);
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             AbstractPCEPSessionTest.this.msgsSend.add((Notification) args[0]);
-            return future;
+            return cfuture;
         }).when(this.channel).writeAndFlush(any(Notification.class));
         doReturn(this.channelFuture).when(this.channel).closeFuture();
         doReturn(this.channelFuture).when(this.channelFuture).addListener(any(GenericFutureListener.class));
