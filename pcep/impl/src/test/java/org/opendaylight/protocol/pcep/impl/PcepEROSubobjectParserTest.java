@@ -53,7 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class PCEPEROSubobjectParserTest {
+public class PcepEROSubobjectParserTest {
     private static final byte[] IP4_PREFIX_BYTES = {
         (byte) 0x81, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00
     };
@@ -95,10 +95,11 @@ public class PCEPEROSubobjectParserTest {
     @Test
     public void testEROIp4PrefixSubobject() throws PCEPDeserializerException {
         final EROIpv4PrefixSubobjectParser parser = new EROIpv4PrefixSubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setLoose(true);
-        subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
-                new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build()).build());
+        final SubobjectBuilder subs = new SubobjectBuilder()
+                .setLoose(true)
+                .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+                    new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build())
+                    .build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(IP4_PREFIX_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -215,11 +216,10 @@ public class PCEPEROSubobjectParserTest {
     @Test
     public void testEROPathKey32Subobject() throws PCEPDeserializerException {
         final EROPathKey32SubobjectParser parser = new EROPathKey32SubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setLoose(true);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
-        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
+        final SubobjectBuilder subs = new SubobjectBuilder().setLoose(true);
+        final PathKeyBuilder pBuilder = new PathKeyBuilder()
+                .setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }))
+                .setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY32_BYTES, 2)), true));
@@ -244,15 +244,14 @@ public class PCEPEROSubobjectParserTest {
     @Test
     public void testEROPathKey128Subobject() throws PCEPDeserializerException {
         final EROPathKey128SubobjectParser parser = new EROPathKey128SubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setLoose(true);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(new byte[] {
-            (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
-            (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00
-        }));
-        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
+        final SubobjectBuilder subs = new SubobjectBuilder().setLoose(true);
+        final PathKeyBuilder pBuilder = new PathKeyBuilder()
+                .setPceId(new PceId(new byte[] {
+                    (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
+                    (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                    (byte) 0x00, (byte) 0x00
+                }))
+                .setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY128_BYTES, 2)), true));
@@ -311,7 +310,7 @@ public class PCEPEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROEXRSSubobject() throws Exception {
+    public void testERO_EXRSSubobject() throws Exception {
         final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(
             this.ctx.getXROSubobjectHandlerRegistry());
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route

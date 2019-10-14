@@ -60,6 +60,8 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
                         if (sessionRefMaybe.isPresent()) {
                             sessionRefMaybe.get().close();
                         }
+                    //TODO looks different than the BGP equivalent case
+                    // https://git.opendaylight.org/gerrit/c/bgpcep/+/80816/2/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java#125
                     } catch (final Exception e) {
                         LOG.error("Unexpected failure to close old session", e);
                     }
