@@ -71,7 +71,8 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertTrue(this.msgsSend.get(0) instanceof Pcerr);
         final Pcerr pcErr = (Pcerr) this.msgsSend.get(0);
         final ErrorObject errorObj = pcErr.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.ATTEMPT_2ND_SESSION, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
+        Assert.assertEquals(
+            PCEPErrors.ATTEMPT_2ND_SESSION, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
     }
 
     @Test
@@ -162,6 +163,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
+    @SuppressWarnings({"IllegalCatch","EmptyBlock"})
     public void testSessionRecoveryOnException() {
         this.listener = new SimpleExceptionSessionListener();
         this.session = Mockito.spy(new PCEPSessionImpl(this.listener, 0, this.channel,

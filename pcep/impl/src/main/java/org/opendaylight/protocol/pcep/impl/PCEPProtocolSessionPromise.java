@@ -45,6 +45,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
         this.bootstrap = requireNonNull(bootstrap);
     }
 
+    @SuppressWarnings("IllegalCatch")
     synchronized void connect() {
         final PCEPProtocolSessionPromise<?> lock = this;
 
@@ -59,7 +60,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
             final ChannelFuture connectFuture = this.bootstrap.connect();
             connectFuture.addListener(new BootstrapConnectListener());
             this.pending = connectFuture;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOG.info("Failed to connect to {}", this.address, e);
             this.setFailure(e);
         }
