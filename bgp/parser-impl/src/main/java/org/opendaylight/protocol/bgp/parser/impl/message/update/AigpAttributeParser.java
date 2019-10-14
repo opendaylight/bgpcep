@@ -9,11 +9,11 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.math.BigInteger;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Aigp;
@@ -64,7 +64,7 @@ public class AigpAttributeParser implements AttributeParser, AttributeSerializer
             LOG.warn("AIGP attribute contains unknown TLV type {}.", tlvType);
             return null;
         }
-        return new AigpTlvBuilder().setMetric(new AccumulatedIgpMetric(BigInteger.valueOf(buffer.readLong()))).build();
+        return new AigpTlvBuilder().setMetric(new AccumulatedIgpMetric(ByteBufUintUtil.readUint64(buffer))).build();
     }
 
     /**

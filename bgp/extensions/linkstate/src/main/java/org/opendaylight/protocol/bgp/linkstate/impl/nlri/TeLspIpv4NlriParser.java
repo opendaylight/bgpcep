@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.AbstractTeLspNlriCodec;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
@@ -23,7 +24,7 @@ public final class TeLspIpv4NlriParser extends AbstractTeLspNlriCodec {
         final TeLspCaseBuilder builder = new TeLspCaseBuilder();
         final Ipv4CaseBuilder ipv4CaseBuilder = new Ipv4CaseBuilder();
         ipv4CaseBuilder.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(buffer));
-        builder.setTunnelId(new TunnelId(buffer.readUnsignedShort()));
+        builder.setTunnelId(new TunnelId(ByteBufUintUtil.readUint16(buffer)));
         builder.setLspId(new LspId((long) buffer.readUnsignedShort()));
         ipv4CaseBuilder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(buffer));
         return builder.setAddressFamily(ipv4CaseBuilder.build()).build();

@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,7 +187,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
             throw new BGPDocumentedException("BGP Protocol version " + version + " not supported.",
                     BGPError.VERSION_NOT_SUPPORTED);
         }
-        final AsNumber as = new AsNumber((long) body.readUnsignedShort());
+        final AsNumber as = new AsNumber(Uint32.valueOf(body.readUnsignedShort()));
         final int holdTime = body.readUnsignedShort();
         if (holdTime == 1 || holdTime == 2) {
             throw new BGPDocumentedException("Hold time value not acceptable.", BGPError.HOLD_TIME_NOT_ACC);

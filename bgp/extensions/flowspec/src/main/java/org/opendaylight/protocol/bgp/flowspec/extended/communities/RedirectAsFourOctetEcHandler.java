@@ -12,6 +12,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.as4.extended.community.RedirectAs4;
@@ -39,7 +40,7 @@ public final class RedirectAsFourOctetEcHandler implements ExtendedCommunityPars
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         final RedirectAs4Builder builder = new RedirectAs4Builder();
-        builder.setGlobalAdministrator(new AsNumber(buffer.readUnsignedInt()));
+        builder.setGlobalAdministrator(new AsNumber(ByteBufUintUtil.readUint32(buffer)));
         builder.setLocalAdministrator(buffer.readUnsignedShort());
         return new RedirectAs4ExtendedCommunityCaseBuilder().setRedirectAs4(builder.build()).build();
     }

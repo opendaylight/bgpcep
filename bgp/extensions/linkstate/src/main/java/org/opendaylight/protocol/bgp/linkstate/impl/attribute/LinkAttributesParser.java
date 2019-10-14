@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttribute
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -142,7 +143,7 @@ public final class LinkAttributesParser {
                     LOG.debug("Parsed IPv6 Router-ID of remote node: {}", builder.getRemoteIpv6RouterId());
                     break;
                 case ADMIN_GROUP:
-                    builder.setAdminGroup(new AdministrativeGroup(value.readUnsignedInt()));
+                    builder.setAdminGroup(new AdministrativeGroup(ByteBufUtil.readUint32(value)));
                     LOG.debug("Parsed Administrative Group {}", builder.getAdminGroup());
                     break;
                 case MAX_BANDWIDTH:
@@ -209,21 +210,22 @@ public final class LinkAttributesParser {
                     break;
                     // Performance Metrics
                 case LINK_DELAY:
-                    builder.setLinkDelay(new Delay(value.readUnsignedInt()));
+                    builder.setLinkDelay(new Delay(ByteBufUintUtil.readUint32(value)));
                     LOG.debug("Parsed Link Delay {}", builder.getLinkDelay());
                     break;
                 case LINK_MIN_MAX_DELAY:
                     builder.setLinkMinMaxDelay(new LinkMinMaxDelayBuilder()
-                        .setMinDelay(new Delay(value.readUnsignedInt()))
-                        .setMaxDelay(new Delay(value.readUnsignedInt())).build());
+                        .setMinDelay(new Delay(ByteBufUintUtil.readUint32(value)))
+                        .setMaxDelay(new Delay(ByteBufUintUtil.readUint32(value)))
+                        .build());
                     LOG.debug("Parsed Link Min/Max Delay {}", builder.getLinkMinMaxDelay());
                     break;
                 case DELAY_VARIATION:
-                    builder.setDelayVariation(new Delay(value.readUnsignedInt()));
+                    builder.setDelayVariation(new Delay(ByteBufUintUtil.readUint32(value)));
                     LOG.debug("Parsed Delay Variation {}", builder.getDelayVariation());
                     break;
                 case LINK_LOSS:
-                    builder.setLinkLoss(new Loss(value.readUnsignedInt()));
+                    builder.setLinkLoss(new Loss(ByteBufUintUtil.readUint32(value)));
                     LOG.debug("Parsed Link Loss {}", builder.getLinkLoss());
                     break;
                 case RESIDUAL_BANDWIDTH:
@@ -270,7 +272,7 @@ public final class LinkAttributesParser {
     private static void parseSrlg(final ByteBuf value, final LinkAttributesBuilder builder) {
         final List<SrlgId> sharedRiskLinkGroups = new ArrayList<>();
         while (value.isReadable()) {
-            sharedRiskLinkGroups.add(new SrlgId(value.readUnsignedInt()));
+            sharedRiskLinkGroups.add(new SrlgId(ByteBufUintUtil.readUint32(value)));
         }
         builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
         LOG.debug("Parsed Shared Risk Link Groups {}", builder.getSharedRiskLinkGroups());

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.OspfInterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.isis.lan.identifier.IsIsRouterIdentifier;
@@ -77,13 +78,13 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
         }
         if (value.readableBytes() == OSPF_ROUTER_ID_LENGTH) {
             return new OspfNodeCaseBuilder().setOspfNode(
-                    new OspfNodeBuilder().setOspfRouterId(value.readUnsignedInt()).build()).build();
+                    new OspfNodeBuilder().setOspfRouterId(ByteBufUintUtil.readUint32(value)).build()).build();
 
         }
         if (value.readableBytes() == OSPF_PSEUDONODE_ROUTER_ID_LENGTH) {
             return new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                    new OspfPseudonodeBuilder().setOspfRouterId(value.readUnsignedInt())
-                    .setLanInterface(new OspfInterfaceIdentifier(value.readUnsignedInt())).build()).build();
+                    new OspfPseudonodeBuilder().setOspfRouterId(ByteBufUintUtil.readUint32(value))
+                    .setLanInterface(new OspfInterfaceIdentifier(ByteBufUintUtil.readUint32(value))).build()).build();
         }
         return null;
     }

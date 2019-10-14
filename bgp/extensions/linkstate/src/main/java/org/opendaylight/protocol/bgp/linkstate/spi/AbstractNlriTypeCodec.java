@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.linkstate.spi;
 
 import io.netty.buffer.ByteBuf;
-import java.math.BigInteger;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Identifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
@@ -21,7 +21,7 @@ public abstract class AbstractNlriTypeCodec implements NlriTypeCaseParser, NlriT
     public final CLinkstateDestination parseTypeNlri(final ByteBuf nlri) {
         final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
         builder.setProtocolId(ProtocolId.forValue(nlri.readUnsignedByte()));
-        builder.setIdentifier(new Identifier(BigInteger.valueOf(nlri.readLong())));
+        builder.setIdentifier(new Identifier(ByteBufUintUtil.readUint64(nlri)));
         builder.setObjectType(parseObjectType(nlri));
         return builder.build();
     }
