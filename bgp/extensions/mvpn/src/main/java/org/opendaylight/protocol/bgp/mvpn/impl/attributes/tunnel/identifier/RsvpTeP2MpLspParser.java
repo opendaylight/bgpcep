@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifi
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier.AbstractTunnelIdentifier;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.PmsiTunnelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
@@ -46,9 +47,9 @@ public final class RsvpTeP2MpLspParser extends AbstractTunnelIdentifier<RsvpTeP2
                 .pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLspBuilder rsvpTeP2mpLps
                 = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi
                 .tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLspBuilder();
-        rsvpTeP2mpLps.setP2mpId(buffer.readUnsignedInt());
-        buffer.skipBytes(2);
-        rsvpTeP2mpLps.setTunnelId(buffer.readUnsignedShort());
+        rsvpTeP2mpLps.setP2mpId(ByteBufUintUtil.readUint32(buffer));
+        buffer.skipBytes(RESERVED);
+        rsvpTeP2mpLps.setTunnelId(ByteBufUintUtil.readUint16(buffer));
         final int ipLength = buffer.readableBytes();
         rsvpTeP2mpLps.setExtendedTunnelId(parseIpAddress(ipLength, buffer));
         return new RsvpTeP2mpLspBuilder().setRsvpTeP2mpLsp(rsvpTeP2mpLps.build()).build();

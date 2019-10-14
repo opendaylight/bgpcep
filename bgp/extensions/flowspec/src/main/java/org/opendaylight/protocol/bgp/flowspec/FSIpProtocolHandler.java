@@ -16,6 +16,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.FlowspecType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv4.flowspec.flowspec.type.ProtocolIpCase;
@@ -27,14 +28,14 @@ public final class FSIpProtocolHandler implements FlowspecTypeParser, FlowspecTy
     public static final int IP_PROTOCOL_VALUE = 3;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof ProtocolIpCase, "ProtocolIpCase class is mandatory!");
         output.writeByte(IP_PROTOCOL_VALUE);
         NumericOneByteOperandParser.INSTANCE.serialize(((ProtocolIpCase) fsType).getProtocolIps(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         requireNonNull(buffer, "input buffer is null, missing data to parse.");
         return new ProtocolIpCaseBuilder().setProtocolIps(parseProtocolIp(buffer)).build();
     }
@@ -48,7 +49,7 @@ public final class FSIpProtocolHandler implements FlowspecTypeParser, FlowspecTy
             final byte b = nlri.readByte();
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            builder.setValue(nlri.readUnsignedByte());
+            builder.setValue(ByteBufUintUtil.readUint8(nlri));
             end = op.isEndOfList();
             ips.add(builder.build());
         }

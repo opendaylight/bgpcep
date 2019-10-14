@@ -258,7 +258,7 @@ public final class ProtocolUtil {
         final OspfLinkAttributesBuilder ilab = new OspfLinkAttributesBuilder();
         ilab.setTed(tb.build());
         if (topologyIdentifier != null) {
-            ilab.setMultiTopologyId(topologyIdentifier.getValue().shortValue());
+            ilab.setMultiTopologyId(Uint8.valueOf(topologyIdentifier.getValue()));
         }
 
         return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021
@@ -301,7 +301,7 @@ public final class ProtocolUtil {
         final IsisLinkAttributesBuilder ilab = new IsisLinkAttributesBuilder();
         ilab.setTed(tb.build());
         if (topologyIdentifier != null) {
-            ilab.setMultiTopologyId(topologyIdentifier.getValue().shortValue());
+            ilab.setMultiTopologyId(Uint8.valueOf(topologyIdentifier.getValue()));
         }
 
         return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021

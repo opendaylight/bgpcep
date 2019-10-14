@@ -14,12 +14,14 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.extended.community.RedirectExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.extended.community.RedirectExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.extended.communities.extended.community.RedirectExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ShortAsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class RedirectAsTwoOctetEcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
 
@@ -53,7 +55,7 @@ public class RedirectAsTwoOctetEcHandler implements ExtendedCommunityParser, Ext
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
-        final ShortAsNumber as1 = new ShortAsNumber((long) buffer.readUnsignedShort());
+        final ShortAsNumber as1 = new ShortAsNumber(Uint32.valueOf(ByteBufUintUtil.readUint16(buffer)));
         final byte[] byteValue = ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE);
         return new RedirectExtendedCommunityCaseBuilder().setRedirectExtendedCommunity(
                 new RedirectExtendedCommunityBuilder()

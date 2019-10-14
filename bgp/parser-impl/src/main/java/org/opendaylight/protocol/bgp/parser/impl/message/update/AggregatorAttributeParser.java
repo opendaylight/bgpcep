@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -52,7 +53,7 @@ public final class AggregatorAttributeParser extends AbstractAttributeParser imp
 
         builder.setAggregator(new AggregatorBuilder()
             // FIXME: above check should be expanded, so we report at least underflow errors
-            .setAsNumber(this.refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())))
+            .setAsNumber(this.refCache.getSharedReference(new AsNumber(ByteBufUintUtil.readUint32(buffer))))
             .setNetworkAddress(Ipv4Util.addressForByteBuf(buffer))
             .build());
     }

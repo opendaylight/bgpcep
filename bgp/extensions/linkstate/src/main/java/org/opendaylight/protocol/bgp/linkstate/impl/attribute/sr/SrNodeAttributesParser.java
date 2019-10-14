@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.state.SrAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.state.SrAlgorithmBuilder;
@@ -39,7 +40,7 @@ public final class SrNodeAttributesParser {
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         setFlags(flags, protocol, builder);
         buffer.skipBytes(RESERVERED);
-        builder.setRangeSize((long) buffer.readUnsignedMedium());
+        builder.setRangeSize(ByteBufUintUtil.readUint24(buffer));
         builder.setSidLabelIndex(SidLabelIndexParser.parseSidSubTlv(buffer));
         return builder.build();
     }
