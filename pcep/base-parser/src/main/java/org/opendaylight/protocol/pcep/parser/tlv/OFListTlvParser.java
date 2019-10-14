@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.tlv;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfList;
@@ -38,18 +39,19 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
             return null;
         }
         if (buffer.readableBytes() % OF_CODE_ELEMENT_LENGTH != 0) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + ".");
         }
         final List<OfId> ofCodes = new ArrayList<>();
         while (buffer.isReadable()) {
-            ofCodes.add(new OfId(buffer.readUnsignedShort()));
+            ofCodes.add(new OfId(ByteBufUintUtil.readUint16(buffer)));
         }
         return new OfListBuilder().setCodes(ofCodes).build();
     }
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof OfList, "OFListTlv is mandatory.");
+        checkArgument(tlv instanceof OfList, "OFListTlv is mandatory.");
         final OfList oft = (OfList) tlv;
         final ByteBuf body = Unpooled.buffer();
         final List<OfId> ofCodes = oft.getCodes();
