@@ -12,6 +12,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.ipv4.extended.community.RedirectIpv4;
@@ -40,7 +41,7 @@ public class RedirectIpv4EcHandler implements ExtendedCommunityParser, ExtendedC
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         final RedirectIpv4Builder builder = new RedirectIpv4Builder();
         builder.setGlobalAdministrator(Ipv4Util.addressForByteBuf(buffer));
-        builder.setLocalAdministrator(buffer.readUnsignedShort());
+        builder.setLocalAdministrator(ByteBufUintUtil.readUint16(buffer));
         return new RedirectIpv4ExtendedCommunityCaseBuilder().setRedirectIpv4(builder.build()).build();
     }
 

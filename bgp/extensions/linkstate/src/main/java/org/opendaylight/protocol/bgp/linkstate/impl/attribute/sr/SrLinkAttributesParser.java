@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SidLabelIndexPa
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.SrAdjIds;
@@ -77,7 +78,7 @@ public final class SrLinkAttributesParser {
         if (buffer.isReadable()) {
             final BitArray flags = BitArray.valueOf(buffer, FLAGS_BITS_SIZE);
             adjFlags = parseFlags(flags, protocolId);
-            weight = new Weight(buffer.readUnsignedByte());
+            weight = new Weight(ByteBufUintUtil.readUint8(buffer));
             buffer.skipBytes(RESERVED);
             sidValue = SidLabelIndexParser.parseSidLabelIndex(Size.forValue(buffer.readableBytes()), buffer);
         } else {
@@ -93,7 +94,7 @@ public final class SrLinkAttributesParser {
         final SidLabelIndex sidValue;
         if (buffer.isReadable()) {
             buffer.skipBytes(FLAGS_BYTE_SIZE);
-            weight = new Weight(buffer.readUnsignedByte());
+            weight = new Weight(ByteBufUintUtil.readUint8(buffer));
             buffer.skipBytes(RESERVED);
             sidValue = SidLabelIndexParser.parseSidLabelIndex(Size.forValue(buffer.readableBytes()), buffer);
         } else {
@@ -125,7 +126,7 @@ public final class SrLinkAttributesParser {
         final SrLanAdjIdsBuilder srLanAdjIdBuilder = new SrLanAdjIdsBuilder();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_BITS_SIZE);
         srLanAdjIdBuilder.setFlags(parseFlags(flags, protocolId));
-        srLanAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
+        srLanAdjIdBuilder.setWeight(new Weight(ByteBufUintUtil.readUint8(buffer)));
         buffer.skipBytes(RESERVED);
         switch (protocolId) {
             case IsisLevel1:

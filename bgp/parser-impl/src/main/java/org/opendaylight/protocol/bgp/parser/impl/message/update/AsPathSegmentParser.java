@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 
@@ -66,7 +67,7 @@ public final class AsPathSegmentParser {
 
         final Builder<AsNumber> coll = ImmutableList.builderWithExpectedSize(count);
         for (int i = 0; i < count; i++) {
-            coll.add(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())));
+            coll.add(refCache.getSharedReference(new AsNumber(ByteBufUintUtil.readUint32(buffer))));
         }
         return coll.build();
     }

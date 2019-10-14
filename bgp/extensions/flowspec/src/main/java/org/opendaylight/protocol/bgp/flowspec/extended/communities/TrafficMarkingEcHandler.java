@@ -12,6 +12,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.Dscp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.marking.extended.community.TrafficMarkingExtendedCommunity;
@@ -53,7 +54,7 @@ public class TrafficMarkingEcHandler implements ExtendedCommunityParser, Extende
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         buffer.skipBytes(RESERVED);
-        final Dscp dscp = new Dscp(buffer.readUnsignedByte());
+        final Dscp dscp = new Dscp(ByteBufUintUtil.readUint8(buffer));
         return new TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(
                 new TrafficMarkingExtendedCommunityBuilder()
                     .setGlobalAdministrator(dscp).build()).build();

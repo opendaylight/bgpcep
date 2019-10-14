@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
@@ -56,7 +57,7 @@ public final class PathIdUtil {
      */
     public static PathId readPathId(final ByteBuf buffer) {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(ByteBufWriteUtil.INT_BYTES_LENGTH));
-        return new PathId(buffer.readUnsignedInt());
+        return new PathId(ByteBufUintUtil.readUint32(buffer));
     }
 
     /**

@@ -5,13 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl.extended.communities;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NormalizationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.OperationalMode;
@@ -52,7 +52,7 @@ public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
         builder.setModeOfOperation(OperationalMode.forValue(getFlagShort(flags, MODE_OF_OPERATION)));
         builder.setOperatingPer(NormalizationType.forValue(getFlagShort(flags, NORMALIZATION_TYPE)));
 
-        builder.setL2Mtu(body.readUnsignedShort());
+        builder.setL2Mtu(ByteBufUintUtil.readUint16(body));
         body.skipBytes(RESERVED);
         return new Layer2AttributesExtendedCommunityCaseBuilder()
                 .setLayer2AttributesExtendedCommunity(builder.build()).build();

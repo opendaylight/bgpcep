@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.AbstractTeLspNlriCodec;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
@@ -16,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.te.lsp._case.address.family.Ipv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class TeLspIpv6NlriParser extends AbstractTeLspNlriCodec {
     @Override
@@ -23,8 +25,8 @@ public final class TeLspIpv6NlriParser extends AbstractTeLspNlriCodec {
         final TeLspCaseBuilder builder = new TeLspCaseBuilder();
         final Ipv6CaseBuilder ipv6CaseBuilder = new Ipv6CaseBuilder();
         ipv6CaseBuilder.setIpv6TunnelSenderAddress(Ipv6Util.addressForByteBuf(buffer));
-        builder.setTunnelId(new TunnelId(buffer.readUnsignedShort()));
-        builder.setLspId(new LspId((long) buffer.readUnsignedShort()));
+        builder.setTunnelId(new TunnelId(ByteBufUintUtil.readUint16(buffer)));
+        builder.setLspId(new LspId(Uint32.valueOf(buffer.readUnsignedShort())));
         ipv6CaseBuilder.setIpv6TunnelEndpointAddress(Ipv6Util.addressForByteBuf(buffer));
         return builder.setAddressFamily(ipv6CaseBuilder.build()).build();
     }
