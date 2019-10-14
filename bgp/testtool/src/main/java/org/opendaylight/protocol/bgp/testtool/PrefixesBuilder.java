@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PrefixesBuilder {
     private static final Ipv4NextHopCase NEXT_HOP;
@@ -73,14 +74,14 @@ final class PrefixesBuilder {
         final AttributesBuilder attBuilder = new AttributesBuilder();
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
-        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed((long) 0).build());
-        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
+        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
+        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100L)).build());
         attBuilder.setExtendedCommunities(createExtComm(extCom));
         attBuilder.setUnrecognizedAttributes(Collections.emptyList());
 
         final Ipv4PrefixesBuilder prefixes = new Ipv4PrefixesBuilder().setPrefix(addressPrefix);
         if (multiPathSupport) {
-            prefixes.setPathId(new PathId(5L));
+            prefixes.setPathId(new PathId(Uint32.valueOf(5)));
         }
         attBuilder.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(
                 new MpReachNlriBuilder().setCNextHop(NEXT_HOP).setAfi(Ipv4AddressFamily.class)

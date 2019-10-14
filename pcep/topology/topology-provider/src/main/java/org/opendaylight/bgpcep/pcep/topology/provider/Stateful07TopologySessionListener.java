@@ -92,11 +92,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class Stateful07TopologySessionListener extends AbstractTopologySessionListener<SrpIdNumber, PlspId> {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful07TopologySessionListener.class);
+    private static final PlspId PLSPID_ZERO = new PlspId(Uint32.ZERO);
 
     private final AtomicLong requestId = new AtomicLong(1L);
 
@@ -202,7 +204,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     private SrpIdNumber createUpdateMessageSync(final PcupdMessageBuilder pcupdMessageBuilder) {
         final UpdatesBuilder updBuilder = new UpdatesBuilder();
         // LSP mandatory in Upd
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(0L)).setSync(Boolean.TRUE).build();
+        final Lsp lsp = new LspBuilder().setPlspId(PLSPID_ZERO).setSync(Boolean.TRUE).build();
         // SRP Mandatory in Upd
         final SrpBuilder srpBuilder = new SrpBuilder();
         // not sue whether use 0 instead of nextRequest() or do not insert srp == SRP-ID-number = 0
@@ -333,7 +335,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return true;
     }
 
-    private Path buildPath(final Reports report, final Srp srp, final Lsp lsp) {
+    private static Path buildPath(final Reports report, final Srp srp, final Lsp lsp) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client
                 .attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1
                 .urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client.attributes.path.computation
@@ -386,7 +388,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     private SrpIdNumber nextRequest() {
-        return new SrpIdNumber(this.requestId.getAndIncrement());
+        return new SrpIdNumber(Uint32.valueOf(this.requestId.getAndIncrement()));
     }
 
     @Override
@@ -734,9 +736,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                     new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(this.input.getName()
                             .getBytes(StandardCharsets.UTF_8))).build());
 
-            final SrpBuilder srpBuilder = new SrpBuilder();
-            srpBuilder.setOperationId(nextRequest());
-            srpBuilder.setProcessingRule(Boolean.TRUE);
+            final SrpBuilder srpBuilder = new SrpBuilder()
+                    .setOperationId(nextRequest())
+                    .setProcessingRule(Boolean.TRUE);
             if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
                 srpBuilder.setTlvs(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
@@ -745,15 +747,20 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             }
             rb.setSrp(srpBuilder.build());
 
-            rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(
-                    inputLsp.isDelegate()).setPlspId(new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
-
-            final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-            ib.setRequests(Collections.singletonList(rb.build()));
+            rb.setLsp(new LspBuilder()
+                .setAdministrative(inputLsp.isAdministrative())
+                .setDelegate(inputLsp.isDelegate())
+                .setPlspId(PLSPID_ZERO)
+                .setTlvs(tlvsBuilder.build())
+                .build());
 
             // Send the message
-            return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
-                    rb.getSrp().getOperationId(), this.input.getArguments().getMetadata());
+            return sendMessage(new PcinitiateBuilder()
+                .setPcinitiateMessage(new PcinitiateMessageBuilder(MESSAGE_HEADER)
+                    .setRequests(Collections.singletonList(rb.build()))
+                    .build())
+                .build(),
+                rb.getSrp().getOperationId(), this.input.getArguments().getMetadata());
         }
     }
 

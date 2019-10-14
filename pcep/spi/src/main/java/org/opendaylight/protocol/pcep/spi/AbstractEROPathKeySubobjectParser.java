@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
@@ -19,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
  * Parser for {@link PathKey}.
@@ -41,7 +43,7 @@ public abstract class AbstractEROPathKeySubobjectParser implements EROSubobjectP
         checkArgument(buffer != null && buffer.isReadable(),
                 "Array of bytes is mandatory. Can't be null or empty.");
         checkContentLength(buffer.readableBytes());
-        final int pathKey = buffer.readUnsignedShort();
+        final Uint16 pathKey = ByteBufUtils.readUint16(buffer);
         final byte[] pceId = readPceId(buffer);
         final PathKeyBuilder pBuilder = new PathKeyBuilder();
         pBuilder.setPceId(new PceId(pceId));

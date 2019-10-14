@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.state.SrAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.state.SrCapabilities;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +142,7 @@ public final class NodeAttributesParser {
     private static void parseTopologyId(final List<TopologyIdentifier> topologyMembership, final ByteBuf value) {
         while (value.isReadable()) {
             final TopologyIdentifier topId = new TopologyIdentifier(
-                value.readUnsignedShort() & TlvUtil.TOPOLOGY_ID_OFFSET);
+                Uint16.valueOf(value.readUnsignedShort() & TlvUtil.TOPOLOGY_ID_OFFSET));
             topologyMembership.add(topId);
             LOG.debug("Parsed Topology Identifier: {}", topId);
         }

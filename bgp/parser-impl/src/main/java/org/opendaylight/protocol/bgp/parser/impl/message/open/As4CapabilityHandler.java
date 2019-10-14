@@ -12,6 +12,7 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
@@ -24,7 +25,7 @@ public final class As4CapabilityHandler implements CapabilityParser, CapabilityS
     @Override
     public CParameters parseCapability(final ByteBuf buffer) {
         return new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder()
-            .setAsNumber(new AsNumber(buffer.readUnsignedInt())).build()).build();
+            .setAsNumber(new AsNumber(ByteBufUtils.readUint32(buffer))).build()).build();
     }
 
     @Override

@@ -194,7 +194,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     }
 
     protected void addTunnel(final Requests request, final PCCSession session) {
-        final PlspId plspId = new PlspId(this.plspIDsCounter.incrementAndGet());
+        final PlspId plspId = new PlspId(Uint32.valueOf(this.plspIDsCounter.incrementAndGet()));
         final PCCTunnel tunnel = new PCCTunnel(request.getLsp().getTlvs().getSymbolicPathName()
                 .getPathName().getValue(), session.getId(), LspType.PCE_LSP, reqToRptPath(request));
         sendToAll(tunnel, plspId, request.getEro().getSubobject(),

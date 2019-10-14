@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPref;
@@ -45,7 +46,7 @@ public final class LocalPreferenceAttributeParser extends AbstractAttributeParse
             throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR, "Expected 4 bytes, have %s", readable);
         }
 
-        builder.setLocalPref(new LocalPrefBuilder().setPref(buffer.readUnsignedInt()).build());
+        builder.setLocalPref(new LocalPrefBuilder().setPref(ByteBufUtils.readUint32(buffer)).build());
     }
 
     @Override

@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.object;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
@@ -52,14 +53,14 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final MonitoringBuilder builder = new MonitoringBuilder();
         buffer.readBytes(RESERVED);
         final BitArray flagBits = BitArray.valueOf(buffer, FLAGS_SIZE);
         final Flags flags = new Flags(flagBits.get(G_FLAG_POS), flagBits.get(I_FLAG_POS), flagBits.get(L_FLAG_POS),
                 flagBits.get(C_FLAG_POS), flagBits.get(P_FLAG_POS));
         builder.setFlags(flags);
-        builder.setMonitoringId(buffer.readUnsignedInt());
+        builder.setMonitoringId(ByteBufUtils.readUint32(buffer));
         final TlvsBuilder tbuilder = new TlvsBuilder();
         parseTlvs(tbuilder, buffer.slice());
         builder.setTlvs(tbuilder.build());
@@ -68,7 +69,8 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Monitoring, "Wrong instance of PCEPObject. Passed %s. Needed MonitoringObject.", object.getClass());
+        checkArgument(object instanceof Monitoring, "Wrong instance of PCEPObject. Passed %s. Needed MonitoringObject.",
+            object.getClass());
         final Monitoring monitoring = (Monitoring) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(RESERVED);

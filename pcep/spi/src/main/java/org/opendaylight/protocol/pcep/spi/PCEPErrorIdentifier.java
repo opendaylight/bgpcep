@@ -14,6 +14,8 @@ import java.io.Serializable;
  */
 final class PCEPErrorIdentifier implements Serializable {
     private static final long serialVersionUID = 2434590156751699872L;
+
+    // FIXME: these should be Uint8s
     private final short type;
     private final short value;
 

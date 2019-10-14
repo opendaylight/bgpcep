@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
             final List<PCEPCapability> capabilities) {
         if (keepAlive != 0) {
             Preconditions.checkArgument(keepAlive >= 1, "Minimum value for keep-alive-timer-value is 1");
-            if (deadTimer != 0 && (deadTimer / keepAlive != KA_TO_DEADTIMER_RATIO)) {
+            if (deadTimer != 0 && deadTimer / keepAlive != KA_TO_DEADTIMER_RATIO) {
                 LOG.warn("dead-timer-value should be {} times greater than keep-alive-timer-value",
                     KA_TO_DEADTIMER_RATIO);
             }
@@ -57,7 +58,7 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
         oBuilder.setSessionId((short) sessionId);
         oBuilder.setKeepalive((short) BasePCEPSessionProposalFactory.this.keepAlive);
         if (BasePCEPSessionProposalFactory.this.keepAlive == 0) {
-            oBuilder.setDeadTimer((short) 0);
+            oBuilder.setDeadTimer(Uint8.ZERO);
         } else {
             oBuilder.setDeadTimer((short) BasePCEPSessionProposalFactory.this.deadTimer);
         }

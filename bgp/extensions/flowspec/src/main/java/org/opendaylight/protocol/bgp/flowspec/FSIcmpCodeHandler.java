@@ -16,6 +16,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.FlowspecType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.flowspec.type.IcmpCodeCase;
@@ -27,14 +28,14 @@ public final class FSIcmpCodeHandler implements FlowspecTypeParser, FlowspecType
     public static final int ICMP_CODE_VALUE = 8;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof IcmpCodeCase, "IcmpCodeCase class is mandatory!");
         output.writeByte(ICMP_CODE_VALUE);
         NumericOneByteOperandParser.INSTANCE.serialize(((IcmpCodeCase) fsType).getCodes(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         requireNonNull(buffer, "input buffer is null, missing data to parse.");
         return new IcmpCodeCaseBuilder().setCodes(parseIcmpCode(buffer)).build();
     }
@@ -48,7 +49,7 @@ public final class FSIcmpCodeHandler implements FlowspecTypeParser, FlowspecType
             final byte b = nlri.readByte();
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            builder.setValue(nlri.readUnsignedByte());
+            builder.setValue(ByteBufUtils.readUint8(nlri));
             end = op.isEndOfList();
             codes.add(builder.build());
         }

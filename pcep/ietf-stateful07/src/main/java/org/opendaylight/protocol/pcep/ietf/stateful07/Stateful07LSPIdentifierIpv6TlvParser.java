@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.identifiers.tlv.LspIdentifiersBuilder;
@@ -30,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv6ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Parser for {@link LspIdentifiers}.
@@ -49,8 +51,8 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
                 buffer.readableBytes());
         final Ipv6Builder builder = new Ipv6Builder();
         builder.setIpv6TunnelSenderAddress(Ipv6Util.noZoneAddressForByteBuf(buffer));
-        final LspId lspId = new LspId((long) buffer.readUnsignedShort());
-        final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
+        final LspId lspId = new LspId(Uint32.valueOf(buffer.readUnsignedShort()));
+        final TunnelId tunnelId = new TunnelId(ByteBufUtils.readUint16(buffer));
         builder.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.noZoneAddressForByteBuf(buffer)));
         builder.setIpv6TunnelEndpointAddress(Ipv6Util.noZoneAddressForByteBuf(buffer));
         final AddressFamily afi = new Ipv6CaseBuilder().setIpv6(builder.build()).build();

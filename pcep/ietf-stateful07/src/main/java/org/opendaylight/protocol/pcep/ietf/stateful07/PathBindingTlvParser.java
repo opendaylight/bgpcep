@@ -28,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.path.binding.tlv.path.binding.binding.type.value.MplsLabelEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 import org.opendaylight.yangtools.concepts.IllegalArgumentCodec;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Parser for {@link PathBinding}.
@@ -146,9 +148,9 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
             final MplsLabelEntryBuilder builder = new MplsLabelEntryBuilder();
             final long entry = buffer.readUnsignedInt();
             builder.setLabel(getMplsLabel(entry));
-            builder.setTrafficClass((short) (entry >> TC_SHIFT & TC_MASK));
+            builder.setTrafficClass(Uint8.valueOf(entry >> TC_SHIFT & TC_MASK));
             builder.setBottomOfStack((entry >> S_SHIFT & S_MASK) == 1);
-            builder.setTimeToLive((short) (entry & TTL_MASK));
+            builder.setTimeToLive(Uint8.valueOf(entry & TTL_MASK));
             return builder.build();
         }
 
@@ -167,7 +169,7 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
     private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel
         getMplsLabel(final long mplsStackEntry) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125
-                .MplsLabel(mplsStackEntry >> LABEL_SHIFT & LABEL_MASK);
+                .MplsLabel(Uint32.valueOf(mplsStackEntry >> LABEL_SHIFT & LABEL_MASK));
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",

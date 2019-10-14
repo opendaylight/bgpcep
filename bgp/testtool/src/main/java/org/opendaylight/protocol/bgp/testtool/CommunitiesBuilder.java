@@ -5,12 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.testtool;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunitiesBuilder;
@@ -42,17 +40,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.ipv4.grouping.RouteTargetIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class CommunitiesBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(CommunitiesBuilder.class);
+    private static final ShortAsNumber SHORT_AS = new ShortAsNumber(Uint32.valueOf(20));
     private static final As4SpecificCommon AS_4_COMMON = new As4SpecificCommonBuilder()
-            .setAsNumber(new AsNumber(20L)).setLocalAdministrator(100).build();
+            .setAsNumber(SHORT_AS).setLocalAdministrator(Uint16.valueOf(100)).build();
     private static final Ipv4Address IPV4 = new Ipv4Address("192.168.1.0");
     private static final byte[] BYTE = new byte[]{(byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00};
-    private static final int LA = 4660;
-    private static final ShortAsNumber SHORT_AS = new ShortAsNumber(20L);
+    private static final Uint16 LA = Uint16.valueOf(4660).intern();
 
     private CommunitiesBuilder() {
         throw new UnsupportedOperationException();

@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +89,7 @@ final class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener
 
     private void putCount(final long totalCount) {
         final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-        final Counter counter = new CounterBuilder().setId(this.counterId).setCount(totalCount).build();
+        final Counter counter = new CounterBuilder().setId(this.counterId).setCount(Uint32.valueOf(totalCount)).build();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.counterInstanceId, counter);
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override

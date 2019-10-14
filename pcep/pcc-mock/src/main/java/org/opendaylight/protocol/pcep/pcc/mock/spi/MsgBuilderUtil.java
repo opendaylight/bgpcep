@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -143,7 +144,7 @@ public final class MsgBuilderUtil {
                                         .setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(tunnelSender))
                                         .setIpv4ExtendedTunnelId(
                                                 new Ipv4ExtendedTunnelId(extendedTunnelAddress))
-                                        .build()).build()).setTunnelId(new TunnelId(lspId.intValue())).build());
+                                        .build()).build()).setTunnelId(new TunnelId(Uint16.valueOf(lspId))).build());
         if (symbolicPathName) {
             if (symbolicName.isPresent()) {
                 tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(

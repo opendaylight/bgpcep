@@ -44,7 +44,7 @@ public final class AsNumberUtil {
             }
         }
         // Fallback to whatever is in the header
-        return new AsNumber(open.getMyAsNumber().longValue());
+        return new AsNumber(Uint32.valueOf(open.getMyAsNumber()));
     }
 
     /**

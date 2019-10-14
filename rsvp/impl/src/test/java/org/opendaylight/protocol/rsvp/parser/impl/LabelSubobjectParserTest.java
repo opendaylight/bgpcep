@@ -82,13 +82,13 @@ public class LabelSubobjectParserTest {
             parser.parseLabel(null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseLabel(Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -108,13 +108,13 @@ public class LabelSubobjectParserTest {
             parser.parseLabel(null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseLabel(Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 }

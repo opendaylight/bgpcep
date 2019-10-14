@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.mock;
 
 import java.net.InetAddress;
@@ -44,16 +43,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.up.SentOpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.route.monitoring.message.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.route.monitoring.message.UpdateBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 final class BmpMockUtil {
 
     private static final String DESCRIPTION = "OpenDaylight";
     private static final String NAME = "BMP mock";
     private static final int HOLD_TIMER = 180;
-    private static final AsNumber ASN = new AsNumber(65431L);
+    private static final AsNumber ASN = new AsNumber(Uint32.valueOf(65431));
     private static final Ipv4Address NEXT_HOP = new Ipv4Address("1.2.3.4");
-    private static final PortNumber PEER_PORT = new PortNumber(179);
-    private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion((short) 4);
+    private static final PortNumber PEER_PORT = new PortNumber(Uint16.valueOf(179).intern());
+    private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion(Uint8.valueOf(4));
     private static final Origin ORIGIN = new OriginBuilder().setValue(BgpOrigin.Igp).build();
     private static final AsPath AS_PATH = new AsPathBuilder().setSegments(Collections.emptyList()).build();
 
@@ -86,7 +88,7 @@ final class BmpMockUtil {
         final OpenBuilder msgBuilder = new OpenBuilder();
         msgBuilder.setBgpIdentifier(address);
         msgBuilder.setHoldTimer(HOLD_TIMER);
-        msgBuilder.setMyAsNumber(ASN.getValue().intValue());
+        msgBuilder.setMyAsNumber(Uint16.valueOf(ASN.getValue()));
         msgBuilder.setVersion(PROTOCOL_VERSION);
         return msgBuilder.build();
     }
