@@ -26,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObject;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PCEPSessionState {
     private final Open localOpen;
@@ -55,14 +57,14 @@ final class PCEPSessionState {
     }
 
     Messages getMessages(final int unknownMessagesCount) {
-        this.errorsBuilder.setReceivedErrorMsgCount(this.receivedErrMsgCount);
-        this.errorsBuilder.setSentErrorMsgCount(this.sentErrMsgCount);
+        this.errorsBuilder.setReceivedErrorMsgCount(Uint32.valueOf(this.receivedErrMsgCount));
+        this.errorsBuilder.setSentErrorMsgCount(Uint32.valueOf(this.sentErrMsgCount));
         this.errorsBuilder.setLastReceivedError(this.lastReceivedErrorBuilder.build());
         this.errorsBuilder.setLastSentError(this.lastSentErrorBuilder.build());
-        this.msgsBuilder.setLastSentMsgTimestamp(this.lastSentMsgTimestamp);
-        this.msgsBuilder.setReceivedMsgCount(this.receivedMsgCount);
-        this.msgsBuilder.setSentMsgCount(this.sentMsgCount);
-        this.msgsBuilder.setUnknownMsgReceived(unknownMessagesCount);
+        this.msgsBuilder.setLastSentMsgTimestamp(Uint32.valueOf(this.lastSentMsgTimestamp));
+        this.msgsBuilder.setReceivedMsgCount(Uint32.valueOf(this.receivedMsgCount));
+        this.msgsBuilder.setSentMsgCount(Uint32.valueOf(this.sentMsgCount));
+        this.msgsBuilder.setUnknownMsgReceived(Uint16.valueOf(unknownMessagesCount));
         this.msgsBuilder.setErrorMessages(this.errorsBuilder.build());
         return this.msgsBuilder.build();
     }
@@ -76,7 +78,7 @@ final class PCEPSessionState {
         peerBuilder.setDeadtimer(open.getDeadTimer());
         peerBuilder.setKeepalive(open.getKeepalive());
         peerBuilder.setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress());
-        peerBuilder.setSessionId(open.getSessionId().intValue());
+        peerBuilder.setSessionId(Uint16.valueOf(open.getSessionId().intValue()));
         return peerBuilder.build();
     }
 
@@ -119,7 +121,7 @@ final class PCEPSessionState {
         peerBuilder.setDeadtimer(open.getDeadTimer());
         peerBuilder.setKeepalive(open.getKeepalive());
         peerBuilder.setIpAddress(((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress());
-        peerBuilder.setSessionId(open.getSessionId().intValue());
+        peerBuilder.setSessionId(Uint16.valueOf(open.getSessionId().intValue()));
         return peerBuilder.build();
     }
 
