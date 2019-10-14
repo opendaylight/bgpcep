@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.gc.object.Gc;
@@ -40,17 +41,16 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 
     @Override
     public Gc parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final GcBuilder builder = new GcBuilder();
 
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
 
-        builder.setMaxHop(bytes.readUnsignedByte());
-        builder.setMaxUtilization(bytes.readUnsignedByte());
-        builder.setMinUtilization(bytes.readUnsignedByte());
-        builder.setOverBookingFactor(bytes.readUnsignedByte());
+        builder.setMaxHop(ByteBufUtils.readUint8(bytes));
+        builder.setMaxUtilization(ByteBufUtils.readUint8(bytes));
+        builder.setMinUtilization(ByteBufUtils.readUint8(bytes));
+        builder.setOverBookingFactor(ByteBufUtils.readUint8(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         builder.setTlvs(tlvsBuilder.build());
@@ -59,7 +59,7 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Gc,
+        checkArgument(object instanceof Gc,
             "Wrong instance of PCEPObject. Passed %s. Needed GcObject.", object.getClass());
         final Gc specObj = (Gc) object;
         final ByteBuf body = Unpooled.buffer();

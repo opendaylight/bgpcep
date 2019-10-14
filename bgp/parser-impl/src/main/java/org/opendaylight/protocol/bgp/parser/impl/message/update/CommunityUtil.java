@@ -14,6 +14,8 @@ import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.CommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Community;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Object representation of a RFC1997 Community tag. Communities are a way for the advertising entity to attach semantic
@@ -81,10 +83,12 @@ public final class CommunityUtil {
      * @param semantics int
      * @return new Community
      */
+    // FIXME: consider using Uint32 for asn
+    // FIXME: consider using Uint16 for semantics
     public static Community create(final ReferenceCache refCache, final long asn, final int semantics) {
         final CommunitiesBuilder builder = new CommunitiesBuilder();
-        builder.setAsNumber(refCache.getSharedReference(new AsNumber(asn)));
-        builder.setSemantics(refCache.getSharedReference(semantics));
+        builder.setAsNumber(refCache.getSharedReference(new AsNumber(Uint32.valueOf(asn))));
+        builder.setSemantics(refCache.getSharedReference(Uint16.valueOf(semantics)));
         return refCache.getSharedReference(builder.build());
     }
 
@@ -108,8 +112,8 @@ public final class CommunityUtil {
     public static Community valueOf(final ReferenceCache refCache, final String string) {
         final String[] parts = string.split(":", 2);
         final CommunitiesBuilder builder = new CommunitiesBuilder();
-        builder.setAsNumber(refCache.getSharedReference(new AsNumber(Long.valueOf(parts[0]))));
-        builder.setSemantics(refCache.getSharedReference(Integer.valueOf(parts[1])));
+        builder.setAsNumber(refCache.getSharedReference(new AsNumber(Uint32.valueOf(parts[0]))));
+        builder.setSemantics(refCache.getSharedReference(Uint16.valueOf(parts[1])));
         return refCache.getSharedReference(builder.build());
     }
 }

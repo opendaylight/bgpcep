@@ -13,6 +13,7 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.AbstractIpv4ExtendedCommunity;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
@@ -39,7 +40,7 @@ public final class RouteOriginIpv4EcHandler extends AbstractIpv4ExtendedCommunit
             throws BGPDocumentedException, BGPParsingException {
         final RouteOriginIpv4 routeTarget = new RouteOriginIpv4Builder()
             .setGlobalAdministrator(Ipv4Util.addressForByteBuf(buffer))
-            .setLocalAdministrator(buffer.readUnsignedShort())
+            .setLocalAdministrator(ByteBufUtils.readUint16(buffer))
             .build();
         return new RouteOriginIpv4CaseBuilder().setRouteOriginIpv4(routeTarget).build();
     }

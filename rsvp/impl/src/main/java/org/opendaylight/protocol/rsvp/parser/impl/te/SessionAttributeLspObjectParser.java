@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +16,7 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.BasicSessionAttributeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.BasicSessionAttributeObjectBuilder;
@@ -35,15 +36,15 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        final BasicSessionAttributeObjectBuilder builder = new BasicSessionAttributeObjectBuilder();
-        builder.setSetupPriority(byteBuf.readUnsignedByte());
-        builder.setHoldPriority(byteBuf.readUnsignedByte());
+        final BasicSessionAttributeObjectBuilder builder = new BasicSessionAttributeObjectBuilder()
+                .setSetupPriority(ByteBufUtils.readUint8(byteBuf))
+                .setHoldPriority(ByteBufUtils.readUint8(byteBuf));
         final BitArray bs = BitArray.valueOf(byteBuf.readByte());
         builder.setLocalProtectionDesired(bs.get(LOCAL_PROTECTION));
         builder.setLabelRecordingDesired(bs.get(LABEL_RECORDING));
         builder.setSeStyleDesired(bs.get(SE_STYLE));
-        final short nameLenght = byteBuf.readUnsignedByte();
-        final ByteBuf auxBuf = byteBuf.readSlice(nameLenght);
+        final short nameLength = byteBuf.readUnsignedByte();
+        final ByteBuf auxBuf = byteBuf.readSlice(nameLength);
         final String name = new String(ByteArray.readAllBytes(auxBuf), StandardCharsets.US_ASCII);
         builder.setSessionName(name);
         return builder.build();
@@ -51,8 +52,7 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof BasicSessionAttributeObject,
-            "SessionAttributeObject is mandatory.");
+        checkArgument(teLspObject instanceof BasicSessionAttributeObject, "SessionAttributeObject is mandatory.");
 
         final BasicSessionAttributeObject sessionObject = (BasicSessionAttributeObject) teLspObject;
         final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject

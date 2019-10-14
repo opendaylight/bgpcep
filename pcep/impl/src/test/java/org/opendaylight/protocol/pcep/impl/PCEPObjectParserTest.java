@@ -207,13 +207,13 @@ public class PCEPObjectParserTest {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -239,13 +239,13 @@ public class PCEPObjectParserTest {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -780,13 +780,13 @@ public class PCEPObjectParserTest {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -827,13 +827,13 @@ public class PCEPObjectParserTest {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -879,13 +879,13 @@ public class PCEPObjectParserTest {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -989,13 +989,13 @@ public class PCEPObjectParserTest {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -1081,13 +1081,13 @@ public class PCEPObjectParserTest {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -1228,13 +1228,13 @@ public class PCEPObjectParserTest {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
