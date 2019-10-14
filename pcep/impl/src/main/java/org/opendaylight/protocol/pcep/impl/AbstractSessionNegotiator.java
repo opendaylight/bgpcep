@@ -55,6 +55,7 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
     }
 
     @Override
+    @SuppressWarnings("IllegalCatch")
     public final void channelActive(final ChannelHandlerContext ctx) {
         LOG.debug("Starting session negotiation on channel {}", this.channel);
 
@@ -68,6 +69,7 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
     }
 
     @Override
+    @SuppressWarnings("IllegalCatch")
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         LOG.debug("Negotiation read invoked on channel {}", this.channel);
 
