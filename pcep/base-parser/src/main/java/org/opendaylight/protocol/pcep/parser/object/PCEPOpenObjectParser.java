@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -62,7 +61,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final int versionValue = ByteArray.copyBitsRange(bytes.readByte(), VERSION_SF_OFFSET, VERSION_SF_LENGTH);
 
         final OpenBuilder builder = new OpenBuilder();
@@ -102,13 +101,14 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Open, "Wrong instance of PCEPObject. Passed %s. Needed OpenObject.", object.getClass());
+        checkArgument(object instanceof Open, "Wrong instance of PCEPObject. Passed %s. Needed OpenObject.",
+            object.getClass());
         final Open open = (Open) object;
         final ByteBuf body = Unpooled.buffer();
-        writeUnsignedByte((short) (PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH)), body);
+        writeUnsignedByte((short) (PCEP_VERSION << Byte.SIZE - VERSION_SF_LENGTH), body);
         writeUnsignedByte(open.getKeepalive(), body);
         writeUnsignedByte(open.getDeadTimer(), body);
-        Preconditions.checkArgument(open.getSessionId() != null, "SessionId is mandatory.");
+        checkArgument(open.getSessionId() != null, "SessionId is mandatory.");
         writeUnsignedByte(open.getSessionId(), body);
         serializeTlvs(open.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
