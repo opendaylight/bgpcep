@@ -370,10 +370,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @VisibleForTesting
+    @SuppressWarnings("IllegalCatch")
     void sessionUp() {
         try {
             this.listener.onSessionUp(this);
-        } catch (final Exception e) {
+        } catch (final RuntimeException e) {
             handleException(e);
             throw e;
         }
@@ -405,15 +406,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @Override
-    public final synchronized void channelInactive(final ChannelHandlerContext ctx) {
+    //similar to bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java
+    public final synchronized void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         LOG.debug("Channel {} inactive.", ctx.channel());
         endOfInput();
-
-        try {
-            super.channelInactive(ctx);
-        } catch (final Exception e) {
-            throw new IllegalStateException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
-        }
+        super.channelInactive(ctx);
     }
 
     @Override
