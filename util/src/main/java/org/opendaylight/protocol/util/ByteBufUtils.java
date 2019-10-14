@@ -45,6 +45,22 @@ public final class ByteBufUtils {
         return Uint64.fromLongBits(buf.readLong());
     }
 
+    public static void writeUint(final ByteBuf buf, final @NonNull Uint8 value) {
+        buf.writeByte(value.byteValue());
+    }
+
+    public static void writeUint(final ByteBuf buf, final @NonNull Uint16 value) {
+        buf.writeShort(value.shortValue());
+    }
+
+    public static void writeUint(final ByteBuf buf, final @NonNull Uint32 value) {
+        buf.writeInt(value.intValue());
+    }
+
+    public static void writeUint(final ByteBuf buf, final @NonNull Uint64 value) {
+        buf.writeLong(value.longValue());
+    }
+
     public static void writeMandatory(final ByteBuf buf, final Byte value, final String name) {
         buf.writeByte(nonNullArgument(value, name).byteValue());
     }
@@ -62,19 +78,19 @@ public final class ByteBufUtils {
     }
 
     public static void writeMandatory(final ByteBuf buf, final Uint8 value, final String name) {
-        buf.writeByte(nonNullArgument(value, name).byteValue());
+        writeUint(buf, nonNullArgument(value, name));
     }
 
     public static void writeMandatory(final ByteBuf buf, final Uint16 value, final String name) {
-        buf.writeShort(nonNullArgument(value, name).shortValue());
+        writeUint(buf, nonNullArgument(value, name));
     }
 
     public static void writeMandatory(final ByteBuf buf, final Uint32 value, final String name) {
-        buf.writeInt(nonNullArgument(value, name).intValue());
+        writeUint(buf, nonNullArgument(value, name));
     }
 
     public static void writeMandatory(final ByteBuf buf, final Uint64 value, final String name) {
-        buf.writeLong(nonNullArgument(value, name).longValue());
+        writeUint(buf, nonNullArgument(value, name));
     }
 
     public static void writeOptional(final ByteBuf buf, final @Nullable Byte value) {
@@ -103,25 +119,25 @@ public final class ByteBufUtils {
 
     public static void writeOptional(final ByteBuf buf, final @Nullable Uint8 value) {
         if (value != null) {
-            buf.writeByte(value.byteValue());
+            writeUint(buf, value);
         }
     }
 
     public static void writeOptional(final ByteBuf buf, final @Nullable Uint16 value) {
         if (value != null) {
-            buf.writeShort(value.shortValue());
+            writeUint(buf, value);
         }
     }
 
     public static void writeOptional(final ByteBuf buf, final @Nullable Uint32 value) {
         if (value != null) {
-            buf.writeInt(value.intValue());
+            writeUint(buf, value);
         }
     }
 
     public static void writeOptional(final ByteBuf buf, final @Nullable Uint64 value) {
         if (value != null) {
-            buf.writeLong(value.longValue());
+            writeUint(buf, value);
         }
     }
 

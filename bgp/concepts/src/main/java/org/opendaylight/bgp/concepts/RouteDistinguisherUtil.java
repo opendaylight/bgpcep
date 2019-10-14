@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -19,6 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdTwoOctetAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -50,21 +53,19 @@ public final class RouteDistinguisherUtil {
         if (distinguisher.getRdTwoOctetAs() != null) {
             byteAggregator.writeShort(RDType.AS_2BYTE.value);
             final String[] values = distinguisher.getRdTwoOctetAs().getValue().split(SEPARATOR);
-            ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
-            final long assignedNumber = Integer.parseUnsignedInt(values[2]);
-            ByteBufWriteUtil.writeUnsignedInt(assignedNumber, byteAggregator);
+            ByteBufUtils.writeUint(byteAggregator, Uint16.valueOf(values[1]));
+            ByteBufUtils.writeUint(byteAggregator, Uint32.valueOf(values[2]));
         } else if (distinguisher.getRdAs() != null) {
             byteAggregator.writeShort(RDType.AS_4BYTE.value);
             final String[] values = distinguisher.getRdAs().getValue().split(SEPARATOR);
-            final long admin = Integer.parseUnsignedInt(values[0]);
-            ByteBufWriteUtil.writeUnsignedInt(admin, byteAggregator);
-            ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
+            ByteBufUtils.writeUint(byteAggregator, Uint32.valueOf(values[0]));
+            ByteBufUtils.writeUint(byteAggregator, Uint16.valueOf(values[1]));
         } else if (distinguisher.getRdIpv4() != null) {
             final String[] values = distinguisher.getRdIpv4().getValue().split(SEPARATOR);
             final Ipv4Address ip = new Ipv4Address(values[0]);
             byteAggregator.writeShort(RDType.IPV4.value);
             ByteBufWriteUtil.writeIpv4Address(ip, byteAggregator);
-            ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
+            ByteBufUtils.writeUint(byteAggregator, Uint16.valueOf(values[1]));
         } else {
             LOG.warn("Unable to serialize Route Distinguisher. Invalid RD value found. RD={}", distinguisher);
         }
@@ -144,7 +145,7 @@ public final class RouteDistinguisherUtil {
 
         public final int value;
 
-        RDType(int val) {
+        RDType(final int val) {
             this.value = val;
         }
 

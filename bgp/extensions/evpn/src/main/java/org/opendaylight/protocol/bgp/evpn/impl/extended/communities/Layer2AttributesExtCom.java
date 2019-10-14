@@ -12,7 +12,6 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteBufUtils;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NormalizationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.OperationalMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.Layer2AttributesExtendedCommunityCase;
@@ -85,8 +84,8 @@ public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
             aux = (byte) (aux << FIVE_BITS_SHIFT);
             res[res.length - 1] = (byte) (res[res.length - 1] | aux);
         }
-        ByteBufWriteUtil.writeUnsignedShort((int) res[res.length - 1], body);
-        ByteBufWriteUtil.writeUnsignedShort(extCom.getL2Mtu(), body);
+        body.writeShort(res[res.length - 1]);
+        ByteBufUtils.writeOrZero(body, extCom.getL2Mtu());
         body.writeZero(RESERVED);
     }
 
