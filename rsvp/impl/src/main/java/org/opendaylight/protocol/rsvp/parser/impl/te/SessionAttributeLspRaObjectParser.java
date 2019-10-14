@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +16,7 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.SessionAttributeObjectWithResourcesAffinities;
@@ -27,13 +29,14 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        final SessionAttributeObjectWithResourcesAffinitiesBuilder builder = new
-            SessionAttributeObjectWithResourcesAffinitiesBuilder();
-        builder.setIncludeAny(new AttributeFilter(byteBuf.readUnsignedInt()));
-        builder.setExcludeAny(new AttributeFilter(byteBuf.readUnsignedInt()));
-        builder.setIncludeAll(new AttributeFilter(byteBuf.readUnsignedInt()));
-        builder.setSetupPriority(byteBuf.readUnsignedByte());
-        builder.setHoldPriority(byteBuf.readUnsignedByte());
+        final SessionAttributeObjectWithResourcesAffinitiesBuilder builder =
+                new SessionAttributeObjectWithResourcesAffinitiesBuilder()
+                    .setIncludeAny(new AttributeFilter(ByteBufUintUtil.readUint32(byteBuf)))
+                    .setExcludeAny(new AttributeFilter(ByteBufUintUtil.readUint32(byteBuf)))
+                    .setIncludeAll(new AttributeFilter(ByteBufUintUtil.readUint32(byteBuf)))
+                    .setSetupPriority(ByteBufUintUtil.readUint8(byteBuf))
+                    .setHoldPriority(ByteBufUintUtil.readUint8(byteBuf));
+
         final BitArray bs = BitArray.valueOf(byteBuf.readByte());
         builder.setLocalProtectionDesired(bs.get(SessionAttributeLspObjectParser.LOCAL_PROTECTION));
         builder.setLabelRecordingDesired(bs.get(SessionAttributeLspObjectParser.LABEL_RECORDING));
@@ -47,7 +50,7 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof SessionAttributeObjectWithResourcesAffinities,
+        checkArgument(teLspObject instanceof SessionAttributeObjectWithResourcesAffinities,
             "SessionAttributeObject is mandatory.");
 
         final SessionAttributeObjectWithResourcesAffinities sessionObject =

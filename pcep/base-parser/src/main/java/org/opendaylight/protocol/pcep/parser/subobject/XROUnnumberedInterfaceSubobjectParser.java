@@ -7,16 +7,17 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectUtil;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.xro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects.Attribute;
@@ -38,32 +39,34 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
-                    + CONTENT_LENGTH + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + "; Expected: " + CONTENT_LENGTH + ".");
         }
         buffer.readerIndex(buffer.readerIndex() + RESERVED);
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setMandatory(mandatory);
         builder.setAttribute(Attribute.forValue(buffer.readUnsignedByte()));
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
-        ubuilder.setRouterId(buffer.readUnsignedInt());
-        ubuilder.setInterfaceId(buffer.readUnsignedInt());
+        ubuilder.setRouterId(ByteBufUintUtil.readUint32(buffer));
+        ubuilder.setInterfaceId(ByteBufUintUtil.readUint32(buffer));
         builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
         return builder.build();
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase, "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
+        checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase,
+            "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
-        writeUnsignedByte(subobject.getAttribute() != null ? (short) subobject.getAttribute().getIntValue() : null, body);
-        Preconditions.checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
+        writeUnsignedByte(subobject.getAttribute() != null ? (short) subobject.getAttribute().getIntValue() : null,
+                body);
+        checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
         writeUnsignedInt(specObj.getRouterId(), body);
-        Preconditions.checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory.");
+        checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory.");
         writeUnsignedInt(specObj.getInterfaceId(), body);
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
