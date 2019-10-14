@@ -28,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv6.flowspec.flowspec.type.flow.label._case.FlowLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv6.flowspec.flowspec.type.next.header._case.NextHeaders;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv6.flowspec.flowspec.type.next.header._case.NextHeadersBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -89,7 +91,7 @@ public final class FlowspecIpv6NlriParserHelper {
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
                     = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
             valueNode.ifPresent(
-                dataContainerChild -> nextHeadersBuilder.setValue((Short) dataContainerChild.getValue()));
+                dataContainerChild -> nextHeadersBuilder.setValue((Uint8) dataContainerChild.getValue()));
             nextHeaders.add(nextHeadersBuilder.build());
         }
 
@@ -108,7 +110,7 @@ public final class FlowspecIpv6NlriParserHelper {
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
                     = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
             valueNode.ifPresent(
-                dataContainerChild -> flowLabelsBuilder.setValue((Long) dataContainerChild.getValue()));
+                dataContainerChild -> flowLabelsBuilder.setValue((Uint32) dataContainerChild.getValue()));
             flowLabels.add(flowLabelsBuilder.build());
         }
 

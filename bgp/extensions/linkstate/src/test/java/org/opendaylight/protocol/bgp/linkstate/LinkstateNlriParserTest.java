@@ -76,6 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -407,9 +408,9 @@ public class LinkstateNlriParserTest {
         ipv4NeighborAddress.withNodeIdentifier(LinkNlriParser.IPV4_NEIGHBOR_NID);
         ipv4NeighborAddress.withValue("197.20.160.40");
 
-        final ImmutableLeafNodeBuilder<Integer> multiTopologyId = new ImmutableLeafNodeBuilder<>();
+        final ImmutableLeafNodeBuilder<Uint16> multiTopologyId = new ImmutableLeafNodeBuilder<>();
         multiTopologyId.withNodeIdentifier(TlvUtil.MULTI_TOPOLOGY_NID);
-        multiTopologyId.withValue(3);
+        multiTopologyId.withValue(Uint16.valueOf(3));
 
         linkDescriptors.addChild(linkLocalIdentifier.build());
         linkDescriptors.addChild(linkRemoteIdentifier.build());
@@ -507,9 +508,9 @@ public class LinkstateNlriParserTest {
         prefixDescriptors.addChild(asNumber.build());
         prefixDescriptors.addChild(domainID.build());
 
-        final ImmutableLeafNodeBuilder<Integer> multiTopologyId = new ImmutableLeafNodeBuilder<>();
+        final ImmutableLeafNodeBuilder<Uint16> multiTopologyId = new ImmutableLeafNodeBuilder<>();
         multiTopologyId.withNodeIdentifier(TlvUtil.MULTI_TOPOLOGY_NID);
-        multiTopologyId.withValue(15);
+        multiTopologyId.withValue(Uint16.valueOf(15));
 
         prefixDescriptors.addChild(multiTopologyId.build());
 
@@ -564,13 +565,13 @@ public class LinkstateNlriParserTest {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> objectType = Builders.choiceBuilder();
         objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
 
-        final ImmutableLeafNodeBuilder<Long> lspId = new ImmutableLeafNodeBuilder<>();
+        final ImmutableLeafNodeBuilder<Uint32> lspId = new ImmutableLeafNodeBuilder<>();
         lspId.withNodeIdentifier(AbstractTeLspNlriCodec.LSP_ID);
-        lspId.withValue(1L);
+        lspId.withValue(Uint32.ONE);
 
-        final ImmutableLeafNodeBuilder<Integer> tunnelId = new ImmutableLeafNodeBuilder<>();
+        final ImmutableLeafNodeBuilder<Uint16> tunnelId = new ImmutableLeafNodeBuilder<>();
         tunnelId.withNodeIdentifier(AbstractTeLspNlriCodec.TUNNEL_ID);
-        tunnelId.withValue(1);
+        tunnelId.withValue(Uint16.ONE);
 
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> addressFamily = Builders.choiceBuilder();
         addressFamily.withNodeIdentifier(AbstractTeLspNlriCodec.ADDRESS_FAMILY);

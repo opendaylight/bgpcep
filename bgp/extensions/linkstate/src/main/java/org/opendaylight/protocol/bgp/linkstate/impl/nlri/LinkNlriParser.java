@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.link._case.LocalNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.link._case.RemoteNodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -76,7 +77,7 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
         ifPresentApply(descriptors, IPV6_NEIGHBOR_NID,
             value -> linkDescBuilder.setIpv6NeighborAddress(new Ipv6InterfaceIdentifier((String) value)));
         ifPresentApply(descriptors, TlvUtil.MULTI_TOPOLOGY_NID,
-            value -> linkDescBuilder.setMultiTopologyId(new TopologyIdentifier((Integer) value)));
+            value -> linkDescBuilder.setMultiTopologyId(new TopologyIdentifier((Uint16) value)));
         return linkDescBuilder.build();
     }
 
