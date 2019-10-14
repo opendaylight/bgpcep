@@ -169,13 +169,13 @@ public class PCEPEROSubobjectParserTest {
             parser.parseSubobject(null, true);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -196,13 +196,13 @@ public class PCEPEROSubobjectParserTest {
             parser.parseSubobject(null, true);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
             fail();
         } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 

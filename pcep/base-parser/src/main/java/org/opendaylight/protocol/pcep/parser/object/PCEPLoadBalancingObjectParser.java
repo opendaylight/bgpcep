@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
@@ -51,7 +52,7 @@ public final class PCEPLoadBalancingObjectParser extends CommonObjectParser impl
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         bytes.skipBytes(RESERVED + FLAGS_F_LENGTH);
-        builder.setMaxLsp(bytes.readUnsignedByte());
+        builder.setMaxLsp(ByteBufUintUtil.readUint8(bytes));
         builder.setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)));
         return builder.build();
     }

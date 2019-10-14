@@ -11,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleBindingSubTlvsRegistry;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.prefix.state.SrBindingSidLabels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.prefix.state.SrBindingSidLabelsBuilder;
@@ -41,7 +42,7 @@ public final class BindingSidLabelParser {
 
     public static SrBindingSidLabels parseBindingSidLabel(final ByteBuf buffer, final ProtocolId protocolId) {
         final SrBindingSidLabelsBuilder bindingSid = new SrBindingSidLabelsBuilder();
-        bindingSid.setWeight(new Weight(buffer.readUnsignedByte()));
+        bindingSid.setWeight(new Weight(ByteBufUintUtil.readUint8(buffer)));
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         bindingSid.setFlags(parseBindingSidFlags(flags, protocolId));
         buffer.skipBytes(RESERVED_BINDING_SID);

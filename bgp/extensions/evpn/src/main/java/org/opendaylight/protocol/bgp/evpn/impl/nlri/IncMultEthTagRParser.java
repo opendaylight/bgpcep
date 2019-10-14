@@ -15,6 +15,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
@@ -46,7 +47,7 @@ final class IncMultEthTagRParser extends AbstractEvpnNlri {
                         || buffer.readableBytes() == CONTENT_LENGTH2,
                 "Wrong length of array of bytes. Passed: %s ;", buffer);
 
-        final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(buffer.readUnsignedInt()).build();
+        final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(ByteBufUintUtil.readUint32(buffer)).build();
         IpAddress ip = IpAddressUtil.addressForByteBuf(buffer);
         final IncMultiEthernetTagResBuilder builder = new IncMultiEthernetTagResBuilder()
                 .setEthernetTagId(eti).setOrigRouteIp(ip);
