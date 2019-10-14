@@ -38,6 +38,8 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
     }
 
     @Override
+    @SuppressWarnings("IllegalCatch")
+    //similar to bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java
     protected void startNegotiation() throws ExecutionException {
         final Object lock = this;
 

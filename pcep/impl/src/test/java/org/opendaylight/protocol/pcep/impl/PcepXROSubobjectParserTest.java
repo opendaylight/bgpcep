@@ -45,7 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class PCEPXROSubobjectParserTest {
+public class PcepXROSubobjectParserTest {
 
     private static final byte[] IP4_PREFIX_BYTES = {
         (byte) 0x01, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00
@@ -75,11 +75,12 @@ public class PCEPXROSubobjectParserTest {
     @Test
     public void testXROIp4PrefixSubobject() throws PCEPDeserializerException {
         final XROIpv4PrefixSubobjectParser parser = new XROIpv4PrefixSubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setMandatory(false);
-        subs.setAttribute(Attribute.Interface);
-        subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
-            new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build()).build());
+        final SubobjectBuilder subs = new SubobjectBuilder()
+                .setMandatory(false)
+                .setAttribute(Attribute.Interface)
+                .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+                    new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build())
+                    .build());
         assertEquals(subs.build(), parser.parseSubobject(
             Unpooled.wrappedBuffer(ByteArray.cutBytes(IP4_PREFIX_BYTES, 2)), false));
         final ByteBuf buff = Unpooled.buffer();
@@ -103,18 +104,18 @@ public class PCEPXROSubobjectParserTest {
     @Test
     public void testXROIp6PrefixSubobject() throws PCEPDeserializerException {
         final XROIpv6PrefixSubobjectParser parser = new XROIpv6PrefixSubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setMandatory(true);
-        subs.setAttribute(Attribute.Node);
-        subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
-            new IpPrefixBuilder().setIpPrefix(
-                new IpPrefix(Ipv6Util.prefixForBytes(new byte[] {
-                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-                }, 22)))
-            .build()).build());
+        final SubobjectBuilder subs = new SubobjectBuilder()
+                .setMandatory(true)
+                .setAttribute(Attribute.Node)
+                .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+                    new IpPrefixBuilder().setIpPrefix(
+                        new IpPrefix(Ipv6Util.prefixForBytes(new byte[] {
+                            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
+                        }, 22)))
+                    .build()).build());
         assertEquals(
             subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(IP6_PREFIX_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -229,9 +230,9 @@ public class PCEPXROSubobjectParserTest {
         final XROPathKey32SubobjectParser parser = new XROPathKey32SubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder();
         subs.setMandatory(true);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
-        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
+        final PathKeyBuilder pBuilder = new PathKeyBuilder()
+                .setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }))
+                .setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY32_BYTES, 2)), true));
@@ -256,14 +257,15 @@ public class PCEPXROSubobjectParserTest {
     @Test
     public void testXROPathKey128Subobject() throws PCEPDeserializerException {
         final XROPathKey128SubobjectParser parser = new XROPathKey128SubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setMandatory(true);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(new byte[] {
-            (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12,
-            (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
-        }));
-        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
+        final SubobjectBuilder subs = new SubobjectBuilder().setMandatory(true);
+        final PathKeyBuilder pBuilder = new PathKeyBuilder()
+                .setPceId(new PceId(new byte[]{
+                    (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+                    (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12,
+                    (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00,
+                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+                }))
+                .setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY128_BYTES, 2)), true));
