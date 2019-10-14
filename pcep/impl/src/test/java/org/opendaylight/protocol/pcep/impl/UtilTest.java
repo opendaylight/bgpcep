@@ -49,6 +49,7 @@ public class UtilTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
+    @SuppressWarnings({"IllegalThrows","AvoidHidingCauseException"})
     public void testPrivateConstructor() throws Throwable {
         final Constructor<Util> c = Util.class.getDeclaredConstructor();
         c.setAccessible(true);
