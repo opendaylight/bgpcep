@@ -19,6 +19,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
@@ -51,8 +52,8 @@ public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<Er
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         bytes.skipBytes(FLAGS_F_LENGTH + RESERVED);
-        builder.setType(bytes.readUnsignedByte());
-        builder.setValue(bytes.readUnsignedByte());
+        builder.setType(ByteBufUintUtil.readUint8(bytes));
+        builder.setValue(ByteBufUintUtil.readUint8(bytes));
         parseTlvs(builder, bytes.slice());
         return builder.build();
     }

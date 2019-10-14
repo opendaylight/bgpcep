@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -20,6 +20,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUintUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa.object.Lspa;
@@ -56,16 +57,16 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     @Override
     public Lspa parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final LspaBuilder builder = new LspaBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
 
-        builder.setExcludeAny(new AttributeFilter(bytes.readUnsignedInt()));
-        builder.setIncludeAll(new AttributeFilter(bytes.readUnsignedInt()));
-        builder.setIncludeAny(new AttributeFilter(bytes.readUnsignedInt()));
-        builder.setSetupPriority(bytes.readUnsignedByte());
-        builder.setHoldPriority(bytes.readUnsignedByte());
+        builder.setExcludeAny(new AttributeFilter(ByteBufUintUtil.readUint32(bytes)));
+        builder.setIncludeAll(new AttributeFilter(ByteBufUintUtil.readUint32(bytes)));
+        builder.setIncludeAny(new AttributeFilter(ByteBufUintUtil.readUint32(bytes)));
+        builder.setSetupPriority(ByteBufUintUtil.readUint8(bytes));
+        builder.setHoldPriority(ByteBufUintUtil.readUint8(bytes));
 
         final BitArray flags = BitArray.valueOf(bytes.readByte());
         builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));
@@ -78,7 +79,8 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Lspa, "Wrong instance of PCEPObject. Passed %s. Needed LspaObject.", object.getClass());
+        checkArgument(object instanceof Lspa,
+            "Wrong instance of PCEPObject. Passed %s. Needed LspaObject.", object.getClass());
         final Lspa lspaObj = (Lspa) object;
         final ByteBuf body = Unpooled.buffer();
         writeAttributeFilter(lspaObj.getExcludeAny(), body);
