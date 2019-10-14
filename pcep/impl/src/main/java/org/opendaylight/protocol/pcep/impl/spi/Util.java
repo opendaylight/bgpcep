@@ -29,16 +29,17 @@ public final class Util {
         throw new UnsupportedOperationException();
     }
 
-    public static Message createErrorMessage(final PCEPErrors error, final Open t) {
+    public static Message createErrorMessage(final PCEPErrors error, final Open openObject) {
         final PcerrBuilder errMessageBuilder = new PcerrBuilder();
         final ErrorObject err =
             new ErrorObjectBuilder().setType(error.getErrorType()).setValue(error.getErrorValue()).build();
-        if (t == null) {
+        if (openObject == null) {
             return errMessageBuilder.setPcerrMessage(new PcerrMessageBuilder().setErrors(Collections.singletonList(
                 new ErrorsBuilder().setErrorObject(err).build())).build()).build();
         }
 
-        final ErrorType type = new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(t).build()).build();
+        final ErrorType type =
+            new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(openObject).build()).build();
         return errMessageBuilder.setPcerrMessage(
             new PcerrMessageBuilder()
                 .setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build()))
