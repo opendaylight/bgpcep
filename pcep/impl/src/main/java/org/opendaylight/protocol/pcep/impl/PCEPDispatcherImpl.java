@@ -82,7 +82,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     public final synchronized ChannelFuture createServer(final PCEPDispatcherDependencies dispatcherDependencies) {
         this.keys = dispatcherDependencies.getKeys();
 
-        @SuppressWarnings("unchecked") final ChannelPipelineInitializer initializer = (ch, promise) -> {
+        final ChannelPipelineInitializer initializer = (ch, promise) -> {
             ch.pipeline().addLast(this.hf.getDecoders());
             ch.pipeline().addLast("negotiator", this.snf
                     .getSessionNegotiator(dispatcherDependencies, ch, promise));

@@ -17,6 +17,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -170,9 +171,11 @@ public abstract class AbstractSrSubobjectParser {
                         .setLocalIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)))
                         .setRemoteIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
             case Unnumbered:
-                return new UnnumberedAdjacencyBuilder().setLocalNodeId(buffer.readUnsignedInt())
-                        .setLocalInterfaceId(buffer.readUnsignedInt()).setRemoteNodeId(buffer.readUnsignedInt())
-                        .setRemoteInterfaceId(buffer.readUnsignedInt()).build();
+                return new UnnumberedAdjacencyBuilder()
+                        .setLocalNodeId(ByteBufUtils.readUint32(buffer))
+                        .setLocalInterfaceId(ByteBufUtils.readUint32(buffer))
+                        .setRemoteNodeId(ByteBufUtils.readUint32(buffer))
+                        .setRemoteInterfaceId(ByteBufUtils.readUint32(buffer)).build();
             default:
                 return null;
         }

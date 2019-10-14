@@ -39,7 +39,7 @@ final class PCCTunnelBuilder {
         for (int i = 1; i <= lsps; i++) {
             final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, Uint32.valueOf(i)),
                     PCC_DELEGATION, LspType.PCC_LSP, createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP)));
-            tunnels.put(new PlspId((long) i), tunnel);
+            tunnels.put(new PlspId(Uint32.valueOf(i)), tunnel);
         }
         return tunnels;
     }

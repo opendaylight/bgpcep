@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDisc;
@@ -36,7 +37,7 @@ public final class MultiExitDiscriminatorAttributeParser extends AbstractAttribu
             throw errorHandling.reportError(BGPError.ATTR_LENGTH_ERROR,
                 "MULTI_EXIT_DISC has to have length 4, but has %s", readable);
         }
-        builder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(buffer.readUnsignedInt()).build());
+        builder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(ByteBufUtils.readUint32(buffer)).build());
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsSerializer;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCase;
@@ -51,8 +52,8 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
         final BitArray flags = BitArray.valueOf(buffer, Ipv4EroParser.FLAGS_SIZE);
         builder.setLoose(flags.get(Ipv4EroParser.LOOSE));
         buffer.skipBytes(Ipv4EroParser.RESERVED_ERO);
-        builder.setRouterId(buffer.readUnsignedInt());
-        builder.setInterfaceId(buffer.readUnsignedInt());
+        builder.setRouterId(ByteBufUtils.readUint32(buffer));
+        builder.setInterfaceId(ByteBufUtils.readUint32(buffer));
         return builder.build();
     }
 

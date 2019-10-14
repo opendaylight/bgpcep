@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.route.target;
 
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.ipv4.grouping.RouteTargetIpv4;
@@ -32,7 +33,7 @@ public final class RouteTargetIpv4Handler {
     public static RouteTargetIpv4 parse(final ByteBuf buffer) {
         return new RouteTargetIpv4Builder()
                 .setGlobalAdministrator(Ipv4Util.addressForByteBuf(buffer))
-                .setLocalAdministrator(buffer.readUnsignedShort())
+                .setLocalAdministrator(ByteBufUtils.readUint16(buffer))
                 .build();
     }
 }

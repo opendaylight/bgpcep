@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.SrpBuilder;
@@ -55,15 +56,14 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes()
                 + "; Expected: >=" + MIN_SIZE + ".");
         }
-        final SrpBuilder builder = new SrpBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        final SrpBuilder builder = new SrpBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule());
         parseFlags(builder, bytes);
-        builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
+        builder.setOperationId(new SrpIdNumber(ByteBufUtils.readUint32(bytes)));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
-        builder.setTlvs(tlvsBuilder.build());
-        return builder.build();
+        return builder.setTlvs(tlvsBuilder.build()).build();
     }
 
     protected void parseFlags(final SrpBuilder builder, final ByteBuf bytes) {

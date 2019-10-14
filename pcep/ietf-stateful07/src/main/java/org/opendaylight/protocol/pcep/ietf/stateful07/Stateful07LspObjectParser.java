@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vs.tlv.VsTlv;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Parser for {@link Lsp}.
@@ -70,7 +71,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         builder.setProcessingRule(header.isProcessingRule());
         final int[] plspIdRaw
             = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
-        builder.setPlspId(new PlspId((long) (plspIdRaw[0] << FLAGS_SIZE | plspIdRaw[1] << FOUR_BITS_SHIFT
+        builder.setPlspId(new PlspId(Uint32.valueOf(plspIdRaw[0] << FLAGS_SIZE | plspIdRaw[1] << FOUR_BITS_SHIFT
             | plspIdRaw[2] >> FOUR_BITS_SHIFT)));
         parseFlags(builder, bytes);
         final TlvsBuilder b = new TlvsBuilder();

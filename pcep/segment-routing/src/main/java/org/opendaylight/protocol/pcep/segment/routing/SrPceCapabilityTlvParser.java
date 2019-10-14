@@ -7,15 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.segment.routing;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
@@ -30,7 +31,7 @@ public class SrPceCapabilityTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof SrPceCapability, "SrPceCapability is mandatory.");
+        checkArgument(tlv instanceof SrPceCapability, "SrPceCapability is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writerIndex(OFFSET);
         writeUnsignedByte(((SrPceCapability) tlv).getMsd(), body);
@@ -42,7 +43,8 @@ public class SrPceCapabilityTlvParser implements TlvParser, TlvSerializer {
         if (buffer == null) {
             return null;
         }
-        final short msd = buffer.readerIndex(OFFSET).readUnsignedByte();
-        return new SrPceCapabilityBuilder().setMsd(msd).build();
+        return new SrPceCapabilityBuilder()
+                .setMsd(ByteBufUtils.readUint8(buffer.readerIndex(OFFSET)))
+                .build();
     }
 }

@@ -7,8 +7,9 @@
  */
 package org.opendaylight.bgpcep.programming;
 
-import java.math.BigInteger;
+import java.util.concurrent.TimeUnit;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.Nanotime;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +18,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class NanotimeUtil {
     private static final Logger LOG = LoggerFactory.getLogger(NanotimeUtil.class);
-    private static final BigInteger MILLION = BigInteger.valueOf(1000000);
-    private static volatile BigInteger nanoTimeOffset = null;
+
+    private static volatile Long nanoTimeOffset = null;
 
     private NanotimeUtil() {
         throw new UnsupportedOperationException();
@@ -30,7 +31,8 @@ public final class NanotimeUtil {
      * @return Nanotime object filled with current time in nanoseconds.
      */
     public static Nanotime currentTime() {
-        return new Nanotime(BigInteger.valueOf(System.currentTimeMillis()).multiply(MILLION));
+        final long millis = Uint64.valueOf(System.currentTimeMillis()).longValue();
+        return new Nanotime(Uint64.fromLongBits(TimeUnit.MILLISECONDS.toNanos(millis)));
     }
 
     /**
@@ -42,7 +44,7 @@ public final class NanotimeUtil {
         if (nanoTimeOffset == null) {
             calibrate();
         }
-        return new Nanotime(BigInteger.valueOf(System.nanoTime()).add(nanoTimeOffset));
+        return new Nanotime(Uint64.fromLongBits(System.nanoTime() + nanoTimeOffset.longValue()));
     }
 
     /**
@@ -58,9 +60,9 @@ public final class NanotimeUtil {
 
         LOG.debug("Calibrated currentTime and nanoTime to {}m <= {}n <= {}m <= {}n", tm1, nt1, tm2, nt2);
 
-        final BigInteger tm = BigInteger.valueOf(tm1).add(BigInteger.valueOf(tm2)).divide(BigInteger.valueOf(2));
-        final BigInteger nt = BigInteger.valueOf(nt1).add(BigInteger.valueOf(nt2)).divide(BigInteger.valueOf(2));
+        final long tm = (tm1 + tm2) / 2;
+        final long nt = (nt1 + nt2) / 2;
 
-        nanoTimeOffset = tm.multiply(MILLION).subtract(nt);
+        nanoTimeOffset = Long.valueOf(TimeUnit.MILLISECONDS.toNanos(tm) - nt);
     }
 }

@@ -77,7 +77,7 @@ public final class GracefulRestartUtil {
                         .setAfi(dto.getTableKey().getAfi())
                         .setSafi(dto.getTableKey().getSafi())
                         .setAfiFlags(new AfiFlags(dto.isForwarding()))
-                        .setLongLivedStaleTime((long) dto.getStaleTime())
+                        .setLongLivedStaleTime(Uint32.valueOf(dto.getStaleTime()))
                         .build())
                 .collect(Collectors.toList());
         return new CParametersBuilder().addAugmentation(CParameters1.class,

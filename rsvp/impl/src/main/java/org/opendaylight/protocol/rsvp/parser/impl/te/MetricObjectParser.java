@@ -5,17 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
@@ -31,19 +31,20 @@ public final class MetricObjectParser extends AbstractRSVPObjectParser {
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        final MetricObjectBuilder builder = new MetricObjectBuilder();
         byteBuf.skipBytes(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
         final BitArray flags = BitArray.valueOf(byteBuf.readByte());
-        builder.setBound(flags.get(BOUND));
-        builder.setComputed(flags.get(COMPUTED));
-        builder.setMetricType(byteBuf.readUnsignedByte());
-        builder.setValue(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
-        return builder.build();
+
+        return new MetricObjectBuilder()
+                .setBound(flags.get(BOUND))
+                .setComputed(flags.get(COMPUTED))
+                .setMetricType(ByteBufUtils.readUint8(byteBuf))
+                .setValue(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
+                .build();
     }
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof MetricObject, "BandwidthObject is mandatory.");
+        checkArgument(teLspObject instanceof MetricObject, "BandwidthObject is mandatory.");
         final MetricObject metric = (MetricObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE, CLASS_NUM, CTYPE, output);
         output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);

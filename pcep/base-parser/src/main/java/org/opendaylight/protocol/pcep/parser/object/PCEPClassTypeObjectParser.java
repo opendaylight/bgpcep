@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
@@ -55,14 +55,14 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         if (!header.isProcessingRule()) {
             LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
             return null;
         }
         if (bytes.readableBytes() != SIZE) {
-            throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + SIZE + "; Passed: "
-                    + bytes.readableBytes());
+            throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + SIZE
+                + "; Passed: " + bytes.readableBytes());
         }
         final ClassTypeBuilder builder = new ClassTypeBuilder();
         builder.setIgnore(header.isIgnore());
@@ -81,11 +81,12 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof ClassType, "Wrong instance of PCEPObject. Passed %s. Needed ClassTypeObject.", object.getClass());
+        checkArgument(object instanceof ClassType, "Wrong instance of PCEPObject. Passed %s. Needed ClassTypeObject.",
+            object.getClass());
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(SIZE - 1);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType classType = ((ClassType) object).getClassType();
-        Preconditions.checkArgument(classType != null, "ClassType is mandatory.");
+        checkArgument(classType != null, "ClassType is mandatory.");
         writeUnsignedByte(classType.getValue(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

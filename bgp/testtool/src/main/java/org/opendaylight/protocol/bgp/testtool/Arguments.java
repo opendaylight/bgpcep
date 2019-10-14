@@ -25,6 +25,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.opendaylight.protocol.util.ArgumentsInput;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class Arguments implements ArgumentsInput {
     private static final String PROGRAM_NAME = "BGP testing tool.";
@@ -67,7 +68,9 @@ final class Arguments implements ArgumentsInput {
     }
 
     private interface ArgumentTypeTool<T> extends ArgumentType<T> {
-        default T convert(ArgumentParser var1, Argument var2, String input) throws ArgumentParserException {
+        @Override
+        default T convert(final ArgumentParser var1, final Argument var2, final String input)
+                throws ArgumentParserException {
             return convert(input);
         }
 
@@ -97,8 +100,8 @@ final class Arguments implements ArgumentsInput {
         parser.addArgument("-mp", toArgName(MULTIPATH_PARAMETER)).type(Boolean.class)
                 .setDefault(false).help(MULTIPATH_PARAMETER_HELP);
         parser.addArgument("-" + AS_PARAMETER, toArgName(AS_PARAMETER))
-                .type((ArgumentTypeTool<AsNumber>) as -> new AsNumber(Long.valueOf(as)))
-                .setDefault(new AsNumber(64496L)).help(AS_PARAMETER_HELP);
+                .type((ArgumentTypeTool<AsNumber>) as -> new AsNumber(Uint32.valueOf(as)))
+                .setDefault(new AsNumber(Uint32.valueOf(64496))).help(AS_PARAMETER_HELP);
         parser.addArgument("-ec", toArgName(EXTENDED_COMMUNITIES_PARAMETER))
                 .type((ArgumentTypeTool<List<String>>) extComInput ->
                         Arrays.asList(extComInput.split(","))).setDefault(Collections.emptyList())

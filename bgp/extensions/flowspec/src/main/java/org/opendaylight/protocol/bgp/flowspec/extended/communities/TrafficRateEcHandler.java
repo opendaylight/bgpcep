@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ShortAsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class TrafficRateEcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
 
@@ -54,7 +55,7 @@ public class TrafficRateEcHandler implements ExtendedCommunityParser, ExtendedCo
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
-        final ShortAsNumber as = new ShortAsNumber((long) buffer.readUnsignedShort());
+        final ShortAsNumber as = new ShortAsNumber(Uint32.valueOf(buffer.readUnsignedShort()));
         final Bandwidth value = new Bandwidth(ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE));
         return new TrafficRateExtendedCommunityCaseBuilder().setTrafficRateExtendedCommunity(
                 new TrafficRateExtendedCommunityBuilder()

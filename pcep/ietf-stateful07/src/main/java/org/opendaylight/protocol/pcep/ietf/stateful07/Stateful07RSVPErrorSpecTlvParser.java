@@ -23,6 +23,7 @@ import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -97,10 +98,10 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 
     private static UserCase parseUserError(final ByteBuf buffer) {
         final UserErrorBuilder error = new UserErrorBuilder();
-        error.setEnterprise(new EnterpriseNumber(buffer.readUnsignedInt()));
-        error.setSubOrg(buffer.readUnsignedByte());
+        error.setEnterprise(new EnterpriseNumber(ByteBufUtils.readUint32(buffer)));
+        error.setSubOrg(ByteBufUtils.readUint8(buffer));
         final int errDescrLength = buffer.readUnsignedByte();
-        error.setValue(buffer.readUnsignedShort());
+        error.setValue(ByteBufUtils.readUint16(buffer));
         error.setDescription(ByteArray.bytesToHRString(ByteArray.readBytes(buffer, errDescrLength)));
         // if we have any subobjects, place the implementation here
         return new UserCaseBuilder().setUserError(error.build()).build();
@@ -130,10 +131,8 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         }
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setFlags(new Flags(flags.get(IN_PLACE), flags.get(NOT_GUILTY)));
-        final short errorCode = buffer.readUnsignedByte();
-        builder.setCode(errorCode);
-        final int errorValue = buffer.readUnsignedShort();
-        builder.setValue(errorValue);
+        builder.setCode(ByteBufUtils.readUint8(buffer));
+        builder.setValue(ByteBufUtils.readUint16(buffer));
         return new RsvpCaseBuilder().setRsvpError(builder.build()).build();
     }
 

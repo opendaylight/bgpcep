@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBufUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
@@ -54,7 +55,7 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
             LOG.trace("Parsing PCEP TLV : {}", ByteBufUtil.hexDump(tlvBytes));
 
             if (VendorInformationUtil.isVendorInformationTlv(type)) {
-                final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(tlvBytes.readUnsignedInt());
+                final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(ByteBufUtils.readUint32(tlvBytes));
                 final Optional<VendorInformationTlv> viTlv = this.viTlvReg.parseVendorInformationTlv(enterpriseNumber,
                     tlvBytes);
                 if (viTlv.isPresent()) {

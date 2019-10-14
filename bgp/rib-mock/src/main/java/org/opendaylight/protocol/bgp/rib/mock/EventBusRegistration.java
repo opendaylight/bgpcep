@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yangtools.concepts.AbstractListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +113,7 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
     }
 
     private static class MockBGPSession implements BGPSession {
-        private static final long AS = 30L;
+        private static final Uint32 AS = Uint32.valueOf(30).intern();
 
         private final List<AddressFamilies> addPathAfis;
         private final Set<BgpTableType> tts;

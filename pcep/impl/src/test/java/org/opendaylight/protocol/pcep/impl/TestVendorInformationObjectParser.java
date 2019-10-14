@@ -9,15 +9,15 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.object.AbstractVendorInformationObjectParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.EnterpriseSpecificInformation;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class TestVendorInformationObjectParser extends AbstractVendorInformationObjectParser {
 
-    private static final EnterpriseNumber TEST_ENTERPRISE_NUMBER = new EnterpriseNumber(0L);
+    private static final EnterpriseNumber TEST_ENTERPRISE_NUMBER = new EnterpriseNumber(Uint32.ZERO);
 
     public TestVendorInformationObjectParser() {
         super(0, 0);

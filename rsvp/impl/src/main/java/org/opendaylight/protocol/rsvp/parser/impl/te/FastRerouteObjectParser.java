@@ -12,6 +12,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.FastRerouteFlags;
@@ -26,16 +27,16 @@ public final class FastRerouteObjectParser extends AbstractRSVPObjectParser {
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) {
-        final BasicFastRerouteObjectBuilder builder = new BasicFastRerouteObjectBuilder();
-        builder.setSetupPriority(byteBuf.readUnsignedByte());
-        builder.setHoldPriority(byteBuf.readUnsignedByte());
-        builder.setHopLimit(byteBuf.readUnsignedByte());
-        builder.setFlags(FastRerouteFlags.forValue(byteBuf.readUnsignedByte()));
+        final BasicFastRerouteObjectBuilder builder = new BasicFastRerouteObjectBuilder()
+                .setSetupPriority(ByteBufUtils.readUint8(byteBuf))
+                .setHoldPriority(ByteBufUtils.readUint8(byteBuf))
+                .setHopLimit(ByteBufUtils.readUint8(byteBuf))
+                .setFlags(FastRerouteFlags.forValue(byteBuf.readUnsignedByte()));
         final ByteBuf v = byteBuf.readSlice(METRIC_VALUE_F_LENGTH);
         builder.setBandwidth(new Bandwidth(ByteArray.readAllBytes(v)));
-        builder.setIncludeAny(new AttributeFilter(byteBuf.readUnsignedInt()));
-        builder.setExcludeAny(new AttributeFilter(byteBuf.readUnsignedInt()));
-        builder.setIncludeAll(new AttributeFilter(byteBuf.readUnsignedInt()));
+        builder.setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));
+        builder.setExcludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));
+        builder.setIncludeAll(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));
         return builder.build();
     }
 

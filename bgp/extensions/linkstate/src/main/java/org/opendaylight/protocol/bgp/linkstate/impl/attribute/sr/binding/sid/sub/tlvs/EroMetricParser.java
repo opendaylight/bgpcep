@@ -14,6 +14,7 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsSerializer;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.EroMetricCase;
@@ -25,7 +26,7 @@ public final class EroMetricParser implements BindingSubTlvsParser, BindingSubTl
 
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
-        return new EroMetricCaseBuilder().setEroMetric(new TeMetric(slice.readUnsignedInt())).build();
+        return new EroMetricCaseBuilder().setEroMetric(new TeMetric(ByteBufUtils.readUint32(slice))).build();
     }
 
     @Override

@@ -14,6 +14,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.FlowspecType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv6.flowspec.flowspec.type.NextHeaderCase;
@@ -25,14 +26,14 @@ public final class FSIpv6NextHeaderHandler implements FlowspecTypeParser, Flowsp
     public static final int NEXT_HEADER_VALUE = 3;
 
     @Override
-    public void serializeType(FlowspecType value, ByteBuf output) {
+    public void serializeType(final FlowspecType value, final ByteBuf output) {
         Preconditions.checkArgument(value instanceof NextHeaderCase, "NextHeaderCase class is mandatory!");
         output.writeByte(NEXT_HEADER_VALUE);
         NumericOneByteOperandParser.INSTANCE.serialize(((NextHeaderCase) value).getNextHeaders(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         if (buffer == null) {
             return null;
         }
@@ -48,7 +49,7 @@ public final class FSIpv6NextHeaderHandler implements FlowspecTypeParser, Flowsp
             final byte b = nlri.readByte();
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            builder.setValue(nlri.readUnsignedByte());
+            builder.setValue(ByteBufUtils.readUint8(nlri));
             end = op.isEndOfList();
             headers.add(builder.build());
         }

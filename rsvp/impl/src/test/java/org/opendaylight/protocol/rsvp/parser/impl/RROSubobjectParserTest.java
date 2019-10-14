@@ -132,13 +132,13 @@ public class RROSubobjectParserTest {
             parser.parseSubobject(null);
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            Assert.assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER);
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            Assert.assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -160,13 +160,13 @@ public class RROSubobjectParserTest {
             parser.parseSubobject(null);
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            Assert.assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER);
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            Assert.assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 

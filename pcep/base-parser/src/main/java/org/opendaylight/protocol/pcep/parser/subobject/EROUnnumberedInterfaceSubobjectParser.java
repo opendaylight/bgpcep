@@ -7,15 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.UnnumberedSubobject;
@@ -36,30 +37,31 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
-                    + CONTENT_LENGTH + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                + "; Expected: " + CONTENT_LENGTH + ".");
         }
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setLoose(loose);
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
         buffer.skipBytes(RESERVED);
-        ubuilder.setRouterId(buffer.readUnsignedInt());
-        ubuilder.setInterfaceId(buffer.readUnsignedInt());
+        ubuilder.setRouterId(ByteBufUtils.readUint32(buffer));
+        ubuilder.setInterfaceId(ByteBufUtils.readUint32(buffer));
         builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
         return builder.build();
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase, "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
+        checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase,
+            "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
-        Preconditions.checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
+        checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
         writeUnsignedInt(specObj.getRouterId(), body);
-        Preconditions.checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory");
+        checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory");
         writeUnsignedInt(specObj.getInterfaceId(), body);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
