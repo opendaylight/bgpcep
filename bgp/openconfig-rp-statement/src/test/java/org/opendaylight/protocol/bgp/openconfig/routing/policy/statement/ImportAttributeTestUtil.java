@@ -25,9 +25,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class ImportAttributeTestUtil {
-    static final AsNumber AS = new AsNumber(65L);
+    static final AsNumber AS = new AsNumber(Uint32.valueOf(65));
 
     private ImportAttributeTestUtil() {
         throw new UnsupportedOperationException();
@@ -36,7 +37,7 @@ public final class ImportAttributeTestUtil {
     public static Attributes createInput() {
         final AttributesBuilder attBuilder = new AttributesBuilder();
         // local pref
-        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
+        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build());
 
         // cluster pref
         attBuilder.setClusterId(new ClusterIdBuilder()
@@ -56,7 +57,7 @@ public final class ImportAttributeTestUtil {
         attBuilder.setAsPath(new AsPathBuilder().build());
 
         // multi-exit-disc pref
-        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(0L).build());
+        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         return attBuilder.build();
     }
 

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl;
 
 import com.google.common.collect.ImmutableCollection;
@@ -131,9 +130,8 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
                         keys.add(routeKey);
                     }
                     return keys;
-                } else {
-                    LOG.warn("Routes {} are not a map", routes);
                 }
+                LOG.warn("Routes {} are not a map", routes);
             }
         }
         return Collections.emptyList();

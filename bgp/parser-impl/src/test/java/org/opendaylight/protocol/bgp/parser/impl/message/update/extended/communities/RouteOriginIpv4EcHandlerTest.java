@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.route.origin.ipv4._case.RouteOriginIpv4Builder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class RouteOriginIpv4EcHandlerTest {
 
@@ -32,7 +33,7 @@ public class RouteOriginIpv4EcHandlerTest {
         final RouteOriginIpv4Case expected = new RouteOriginIpv4CaseBuilder().setRouteOriginIpv4(
                 new RouteOriginIpv4Builder()
                     .setGlobalAdministrator(new Ipv4Address("12.51.2.5"))
-                    .setLocalAdministrator(5421)
+                    .setLocalAdministrator(Uint16.valueOf(5421))
                     .build()).build();
 
         final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));

@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.SourceAsExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.SourceAsExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.source.as.extended.community._case.SourceAsExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class SourceASHandlerTest {
     private static final byte[] INPUT = {0, 1, 0, 0, 0, 0};
@@ -30,7 +31,7 @@ public class SourceASHandlerTest {
     public void testHandler() {
         final SourceAsExtendedCommunityCase expected = new SourceAsExtendedCommunityCaseBuilder()
                 .setSourceAsExtendedCommunity(new SourceAsExtendedCommunityBuilder()
-                        .setGlobalAdministrator(new ShortAsNumber(1L))
+                        .setGlobalAdministrator(new ShortAsNumber(Uint32.ONE))
                         .build()).build();
 
         final ExtendedCommunity exComm = this.handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));

@@ -65,6 +65,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class BGPMessageParserMockTest {
 
@@ -142,7 +145,7 @@ public class BGPMessageParserMockTest {
         final UpdateBuilder builder = new UpdateBuilder();
 
         final List<Segments> asPath = new ArrayList<>();
-        asPath.add(new SegmentsBuilder().setAsSequence(Lists.newArrayList(new AsNumber(asn))).build());
+        asPath.add(new SegmentsBuilder().setAsSequence(Lists.newArrayList(new AsNumber(Uint32.valueOf(asn)))).build());
         final CNextHop nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
                 new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1"))
                         .setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
@@ -191,8 +194,12 @@ public class BGPMessageParserMockTest {
 
         final byte[] input = new byte[]{5, 8, 13, 21};
 
-        openMap.put(Unpooled.copiedBuffer(input), new OpenBuilder().setMyAsNumber(30).setHoldTimer(30)
-                .setBgpParameters(params).setVersion(new ProtocolVersion((short) 4)).build());
+        openMap.put(Unpooled.copiedBuffer(input), new OpenBuilder()
+            .setMyAsNumber(Uint16.valueOf(30))
+            .setHoldTimer(Uint16.valueOf(30))
+            .setBgpParameters(params)
+            .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+            .build());
 
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 

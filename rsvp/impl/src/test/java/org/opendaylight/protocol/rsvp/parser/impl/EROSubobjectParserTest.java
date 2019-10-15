@@ -49,6 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.GeneralizedLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class EROSubobjectParserTest {
     private static final byte[] IP_4_PREFIX_BYTES = {(byte) 0x81, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -144,10 +146,10 @@ public class EROSubobjectParserTest {
     @Test
     public void testEROAsNumberSubobject() throws RSVPParsingException {
         final EROAsNumberSubobjectParser parser = new EROAsNumberSubobjectParser();
-        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
-        subs.setLoose(true);
-        subs.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(
-            new AsNumber(0x64L)).build()).build());
+        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder()
+                .setLoose(true)
+                .setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(
+                    new AsNumber(Uint32.valueOf(0x64))).build()).build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(
             ByteArray.cutBytes(AS_NUMBER_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -171,10 +173,14 @@ public class EROSubobjectParserTest {
     @Test
     public void testEROUnnumberedSubobject() throws RSVPParsingException {
         final EROUnnumberedInterfaceSubobjectParser parser = new EROUnnumberedInterfaceSubobjectParser();
-        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
-        subs.setLoose(true);
-        subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
-            new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build()).build());
+        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder()
+                .setLoose(true)
+                .setSubobjectType(new UnnumberedCaseBuilder()
+                    .setUnnumbered(new UnnumberedBuilder()
+                        .setRouterId(Uint32.valueOf(0x12345000L))
+                        .setInterfaceId(Uint32.valueOf(0xffffffffL))
+                        .build())
+                    .build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(UNNUMBERED_BYTES,
             2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -202,7 +208,7 @@ public class EROSubobjectParserTest {
         subs.setLoose(true);
         final PathKeyBuilder pBuilder = new PathKeyBuilder();
         pBuilder.setPceId(new PceId(new byte[]{(byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00}));
-        pBuilder.setPathKey(new PathKey(4660));
+        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY_32_BYTES,
             2)), true));
@@ -234,7 +240,7 @@ public class EROSubobjectParserTest {
         pBuilder.setPceId(new PceId(new byte[]{(byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A,
             (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00,
             (byte) 0x00, (byte) 0x00, (byte) 0x00}));
-        pBuilder.setPathKey(new PathKey(4660));
+        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(), parser128.parseSubobject(Unpooled.wrappedBuffer(
             ByteArray.cutBytes(PATH_KEY_128_BYTES, 2)), true));
@@ -302,7 +308,7 @@ public class EROSubobjectParserTest {
             .rev150820.explicit.route.subobjects.subobject.type.exrs._case.exrs.ExrsBuilder();
         builder.setMandatory(true);
         builder.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(
-            new AsNumber(0x64L)).build()).build());
+            new AsNumber(Uint32.valueOf(0x64))).build()).build());
         list.add(builder.build());
         subs.setSubobjectType(new ExrsCaseBuilder().setExrs(new ExrsBuilder().setExrs(list).build()).build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(

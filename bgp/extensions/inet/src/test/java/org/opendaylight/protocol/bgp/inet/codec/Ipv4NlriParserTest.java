@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class Ipv4NlriParserTest {
     private static final byte[] MP_NLRI_BYTES = new byte[]{
@@ -78,7 +79,7 @@ public class Ipv4NlriParserTest {
     private MultiPathSupport muliPathSupport;
 
     private static Ipv4Prefixes createIpv4Prefix(final long pathId, final Ipv4Prefix prefix) {
-        return new Ipv4PrefixesBuilder().setPathId(new PathId(pathId)).setPrefix(prefix).build();
+        return new Ipv4PrefixesBuilder().setPathId(new PathId(Uint32.valueOf(pathId))).setPrefix(prefix).build();
     }
 
     @Before

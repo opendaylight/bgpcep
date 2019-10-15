@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.route.origin.extended.community._case.RouteOriginExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class ExtendedCommunitiesAttributeParserTest {
 
@@ -54,7 +55,7 @@ public class ExtendedCommunitiesAttributeParserTest {
     public void testExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
         final RouteOriginExtendedCommunityCase routeOrigin = new RouteOriginExtendedCommunityCaseBuilder()
                 .setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder()
-                    .setGlobalAdministrator(new ShortAsNumber(54L))
+                    .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(54)))
                     .setLocalAdministrator(new byte[] { 0, 0, 1, 76 }).build())
                 .build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setTransitive(false)

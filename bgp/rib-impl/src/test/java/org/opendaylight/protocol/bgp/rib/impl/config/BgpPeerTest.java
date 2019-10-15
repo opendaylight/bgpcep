@@ -53,15 +53,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfigBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class BgpPeerTest extends AbstractConfig {
-    static final short SHORT = 0;
+    static final Uint8 SHORT = Uint8.ZERO;
     static final IpAddress NEIGHBOR_ADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
     static final String MD5_PASSWORD = "123";
-    static final PortNumber PORT = new PortNumber(179);
+    static final PortNumber PORT = new PortNumber(Uint16.valueOf(179));
     static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(NeighborAddPathsConfig.class, new NeighborAddPathsConfigBuilder()
-                       .setReceive(true).setSendMax(SHORT).build()).build();
+                       .setReceive(true).setSendMax(Uint8.ZERO).build()).build();
     static final List<AfiSafi> AFI_SAFI = Collections.singletonList(AFI_SAFI_IPV4);
     private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     private BgpPeer bgpPeer;

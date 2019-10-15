@@ -23,6 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.Opaque;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class OpaqueUtilTest {
     private static final byte[] OPAQUE_WRONG = {
@@ -67,9 +69,10 @@ public final class OpaqueUtilTest {
     private static final HexString OPAQUE_TEST2
             = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
     private static final Opaque OPAQUE = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST)
-            .setOpaqueType(OpaqueUtil.GENERIC_LSP_IDENTIFIER).build();
+            .setOpaqueType(Uint8.ONE).build();
     private static final Opaque OPAQUE_EXTENDED = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)
-            .setOpaqueType((short) 2).setOpaqueType(OpaqueUtil.EXTENDED_TYPE).setOpaqueExtendedType(4).build();
+            .setOpaqueType(Uint8.valueOf(2)).setOpaqueType(Uint8.MAX_VALUE).setOpaqueExtendedType(Uint16.valueOf(4))
+            .build();
     private static final List<OpaqueValue> OPAQUE_VALUE_LIST = Arrays.asList((OpaqueValue) OPAQUE,
             (OpaqueValue) OPAQUE_EXTENDED);
 
@@ -84,7 +87,7 @@ public final class OpaqueUtilTest {
         assertArrayEquals(OPAQUE_EXT_EXPECTED, ByteArray.readAllBytes(actualOpaqueExt));
 
         final ByteBuf empty = Unpooled.buffer();
-        OpaqueUtil.serializeOpaque(new OpaqueValueBuilder().setOpaqueType((short) 5).build(), actualOpaqueExt);
+        OpaqueUtil.serializeOpaque(new OpaqueValueBuilder().setOpaqueType(Uint8.valueOf(5)).build(), actualOpaqueExt);
         assertArrayEquals(new byte[0], ByteArray.readAllBytes(empty));
 
         final Opaque opaque = OpaqueUtil.parseOpaque(Unpooled.wrappedBuffer(OPAQUE_EXPECTED));

@@ -90,6 +90,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     private static final int RETRY_TIMER = 10;
@@ -101,16 +103,16 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static final Ipv4Address PEER4 = new Ipv4Address("127.0.0.5");
     static final Ipv4Address PEER5 = new Ipv4Address("127.0.0.6");
     static final Ipv4Address PEER6 = new Ipv4Address("127.0.0.7");
-    static final AsNumber AS_NUMBER = new AsNumber(AS);
-    static final int PORT = InetSocketAddressUtil.getRandomPort();
+    static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(AS));
+    static final Uint16 PORT = Uint16.valueOf(InetSocketAddressUtil.getRandomPort());
     static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
     static final int HOLDTIMER = 2180;
     private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
-    static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 100);
-    static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(2L), CLUSTER_ID, 50);
-    static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(3L), CLUSTER_ID, 200);
-    static final Update UPD_20 = createSimpleUpdate(PREFIX1, new PathId(1L), CLUSTER_ID, 20);
+    static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(Uint32.ONE), CLUSTER_ID, 100);
+    static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(Uint32.valueOf(2)), CLUSTER_ID, 50);
+    static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(Uint32.valueOf(3)), CLUSTER_ID, 200);
+    static final Update UPD_20 = createSimpleUpdate(PREFIX1, new PathId(Uint32.ONE), CLUSTER_ID, 20);
     static final Update UPD_NA_100 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 100);
     static final Update UPD_NA_100_EBGP = createSimpleUpdateEbgp(PREFIX1);
     static final Update UPD_NA_200 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 200);
@@ -202,7 +204,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
     void causeBGPError(final BGPSessionImpl session) {
         final Open openObj = new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1"))
-            .setHoldTimer(50).setMyAsNumber(72).build();
+            .setHoldTimer(Uint16.valueOf(50)).setMyAsNumber(Uint16.valueOf(72)).build();
         waitFutureSuccess(session.writeAndFlush(openObj));
     }
 
@@ -293,8 +295,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     private static BGPSessionImpl connectPeer(final Ipv4Address localAddress, final BGPDispatcherImpl dispatcherImpl)
             throws InterruptedException {
         final Future<BGPSessionImpl> future = dispatcherImpl
-                .createClient(new InetSocketAddress(localAddress.getValue(), PORT),
-                        new InetSocketAddress(RIB_ID, PORT), RETRY_TIMER, true);
+                .createClient(new InetSocketAddress(localAddress.getValue(), PORT.toJava()),
+                        new InetSocketAddress(RIB_ID, PORT.toJava()), RETRY_TIMER, true);
         Thread.sleep(200);
         waitFutureSuccess(future);
         Thread.sleep(100);
@@ -324,10 +326,10 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     private static Update createSimpleUpdate(final Ipv4Prefix prefix, final PathId pathId,
             final ClusterIdentifier clusterId, final long localPreference) {
         final AttributesBuilder attBuilder = new AttributesBuilder();
-        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(localPreference).build());
+        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(localPreference)).build());
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
-        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(0L).build());
+        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         if (clusterId != null) {
             attBuilder.setClusterId(new ClusterIdBuilder().setCluster(Collections.singletonList(clusterId)).build());
             attBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4Address(clusterId)).build());
@@ -367,7 +369,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
     private static Update createSimpleWithdrawalUpdate(final Ipv4Prefix prefix, final long localPreference) {
         final AttributesBuilder attBuilder = new AttributesBuilder();
-        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(localPreference).build());
+        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(localPreference)).build());
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
         attBuilder.setUnrecognizedAttributes(Collections.emptyList());

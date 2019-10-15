@@ -83,8 +83,8 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
 
     private static final AsPath AS_PATH = new AsPathBuilder().build();
     private static final Origin ORIGIN = new OriginBuilder().setValue(BgpOrigin.Igp).build();
-    private static final MultiExitDisc MED = new MultiExitDiscBuilder().setMed(0L).build();
-    private static final LocalPref LOC_PREF = new LocalPrefBuilder().setPref(100L).build();
+    private static final MultiExitDisc MED = new MultiExitDiscBuilder().setMed(Uint32.ZERO).build();
+    private static final LocalPref LOC_PREF = new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build();
     private static final List<Tables> EMPTY_TABLES = Collections.singletonList(new TablesBuilder()
         .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setRoutes(
             new Ipv4RoutesCaseBuilder().setIpv4Routes(new Ipv4RoutesBuilder().setIpv4Route(Collections.emptyList())
@@ -271,7 +271,8 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     }
 
     private static Result createResult(final Uint32 count, final long duration, final long rate) {
-        return new ResultBuilder().setCount(count).setDuration(duration).setRate(rate).build();
+        return new ResultBuilder().setCount(count).setDuration(Uint32.valueOf(duration)).setRate(Uint32.valueOf(rate))
+                .build();
     }
 
     private static String getAdddressFromPrefix(final Ipv4Prefix prefix) {
