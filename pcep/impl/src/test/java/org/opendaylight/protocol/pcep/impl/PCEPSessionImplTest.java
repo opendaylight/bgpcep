@@ -124,13 +124,13 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertEquals(this.ipAddress, this.session.getPeerPref().getIpAddress());
         final PeerPref peerPref = this.session.getPeerPref();
         Assert.assertEquals(this.ipAddress, peerPref.getIpAddress());
-        Assert.assertEquals(DEADTIMER, peerPref.getDeadtimer().shortValue());
-        Assert.assertEquals(KEEP_ALIVE, peerPref.getKeepalive().shortValue());
+        Assert.assertEquals(DEADTIMER, peerPref.getDeadtimer());
+        Assert.assertEquals(KEEP_ALIVE, peerPref.getKeepalive());
         Assert.assertEquals(0, peerPref.getSessionId().intValue());
         final LocalPref localPref = this.session.getLocalPref();
         Assert.assertEquals(this.ipAddress, localPref.getIpAddress());
-        Assert.assertEquals(DEADTIMER, localPref.getDeadtimer().shortValue());
-        Assert.assertEquals(KEEP_ALIVE, localPref.getKeepalive().shortValue());
+        Assert.assertEquals(DEADTIMER, localPref.getDeadtimer());
+        Assert.assertEquals(KEEP_ALIVE, localPref.getKeepalive());
         Assert.assertEquals(0, localPref.getSessionId().intValue());
         final Messages msgs = this.session.getMessages();
         Assert.assertEquals(1, msgs.getReceivedMsgCount().longValue());

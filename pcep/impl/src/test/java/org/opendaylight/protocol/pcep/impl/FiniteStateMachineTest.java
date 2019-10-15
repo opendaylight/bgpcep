@@ -40,7 +40,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     @Before
     public void setup() {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open
-            localPrefs = new OpenBuilder().setKeepalive((short) 1).build();
+            localPrefs = new OpenBuilder().setKeepalive(Uint8.ONE).build();
         this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 this.channel, this.listener, (short) 1, 20, localPrefs);
         this.tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
@@ -70,7 +70,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     public void testEstablishTLS() {
         final DefaultPCEPSessionNegotiator negotiator =
             new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                this.channel, this.listener, (short) 1, 20, new OpenBuilder().setKeepalive((short) 1).build(),
+                this.channel, this.listener, (short) 1, 20, new OpenBuilder().setKeepalive(Uint8.ONE).build(),
                 SslContextFactoryTest.createTlsConfig());
         negotiator.channelActive(null);
         assertEquals(1, this.msgsSend.size());
