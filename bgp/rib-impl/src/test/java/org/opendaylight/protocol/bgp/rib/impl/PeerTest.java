@@ -79,6 +79,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
@@ -173,7 +175,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         }
         assertEquals(0, this.routes.size());
 
-        final LocalPref localPref = new LocalPrefBuilder().setPref((long) 100).build();
+        final LocalPref localPref = new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build();
         ub.setAttributes(ab.setLocalPref(localPref).build());
         this.classic.onMessage(this.session, ub.build());
         assertEquals(3, this.routes.size());
@@ -237,8 +239,8 @@ public class PeerTest extends AbstractRIBTestSetup {
                                                 .build()).build()).build()).build())).build());
         final Open openObj = new OpenBuilder()
                 .setBgpIdentifier(new Ipv4Address("1.1.1.1"))
-                .setHoldTimer(50)
-                .setMyAsNumber(72)
+                .setHoldTimer(Uint16.valueOf(50))
+                .setMyAsNumber(Uint16.valueOf(72))
                 .setBgpParameters(params).build();
         this.session = new BGPSessionImpl(this.classic, channel, openObj, 30, null);
         this.session.setChannelExtMsgCoder(openObj);

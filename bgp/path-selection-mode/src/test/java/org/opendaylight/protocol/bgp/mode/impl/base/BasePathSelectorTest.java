@@ -26,13 +26,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class BasePathSelectorTest {
-    private static final List<AsNumber> SEQ_SEGMENT
-            = Arrays.asList(new AsNumber(1L), new AsNumber(2L), new AsNumber(3L));
+    private static final List<AsNumber> SEQ_SEGMENT = Arrays.asList(
+        new AsNumber(Uint32.ONE), new AsNumber(Uint32.valueOf(2)), new AsNumber(Uint32.valueOf(3)));
     static final RouterId ROUTER_ID2 = RouterId.forPeerId(new PeerId("bgp://127.0.0.1"));
-    private static final List<AsNumber> SEQ_SEGMENT2
-            = Arrays.asList(new AsNumber(20L), new AsNumber(2L), new AsNumber(3L));
+    private static final List<AsNumber> SEQ_SEGMENT2 = Arrays.asList(
+        new AsNumber(Uint32.valueOf(20)), new AsNumber(Uint32.valueOf(2)), new AsNumber(Uint32.valueOf(3)));
     private static final RouterId ROUTER_ID = RouterId.forAddress("127.0.0.1");
     private static final RouterId ROUTER_ID3 = RouterId.forPeerId(new PeerId("bgp://127.0.0.2"));
     private final BasePathSelector selector = new BasePathSelector(20L);
@@ -57,19 +58,19 @@ public class BasePathSelectorTest {
     }
 
     private static void addLowerLocalRef(final AttributesBuilder dataContBuilder) {
-        dataContBuilder.setLocalPref(new LocalPrefBuilder().setPref(123L).build());
+        dataContBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(123)).build());
     }
 
     private static void addHigherLocalRef(final AttributesBuilder dataContBuilder) {
-        dataContBuilder.setLocalPref(new LocalPrefBuilder().setPref(321L).build());
+        dataContBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(321)).build());
     }
 
     private static void addLowerMultiExitDisc(final AttributesBuilder dataContBuilder) {
-        dataContBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(1234L).build());
+        dataContBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(1234)).build());
     }
 
     private static void addHigherMultiExitDisc(final AttributesBuilder dataContBuilder) {
-        dataContBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(4321L).build());
+        dataContBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(4321)).build());
     }
 
     private static void addIgpOrigin(final AttributesBuilder dataContBuilder) {

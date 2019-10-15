@@ -22,10 +22,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class ExportAttributeTestUtil {
-    public static final long REMOTE_AS = 8;
-    public static final AsNumber LOCAL_AS = new AsNumber(65L);
+    public static final Uint32 REMOTE_AS = Uint32.valueOf(8);
+    public static final AsNumber LOCAL_AS = new AsNumber(Uint32.valueOf(65));
     public static final Ipv4Address IPV4 = new Ipv4Address("1.2.3.4");
     public static final ClusterIdentifier CLUSTER = new ClusterIdentifier(IPV4);
 

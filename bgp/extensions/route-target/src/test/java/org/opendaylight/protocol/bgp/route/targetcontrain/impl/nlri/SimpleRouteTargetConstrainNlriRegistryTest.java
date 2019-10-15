@@ -35,12 +35,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.constrain._default.route.grouping.RouteTargetConstrainDefaultRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.extended.community.grouping.RouteTargetExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.ipv4.grouping.RouteTargetIpv4Builder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(Parameterized.class)
 public class SimpleRouteTargetConstrainNlriRegistryTest {
     private static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder()
-            .setAsNumber(new AsNumber(20L))
-            .setLocalAdministrator(100).build();
+            .setAsNumber(new AsNumber(Uint32.valueOf(20)))
+            .setLocalAdministrator(Uint16.valueOf(100)).build();
 
     private static final byte[] RT_DEFAULT_BUFF = new byte[0];
     private static final Integer RT_2_OCT_TYPE = 0;
@@ -69,13 +71,13 @@ public class SimpleRouteTargetConstrainNlriRegistryTest {
                     .build()).build();
     private static RouteTargetConstrainChoice RT_AS_2_OCT = new RouteTargetConstrainRouteCaseBuilder()
             .setRouteTargetExtendedCommunity(new RouteTargetExtendedCommunityBuilder()
-                    .setGlobalAdministrator(new ShortAsNumber(35L))
+                    .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(35)))
                     .setLocalAdministrator(new byte[]{4, 2, 8, 7})
                     .build()).build();
     private static RouteTargetConstrainChoice RT_IPV4 = new RouteTargetConstrainIpv4RouteCaseBuilder()
             .setRouteTargetIpv4(new RouteTargetIpv4Builder()
                     .setGlobalAdministrator(new Ipv4Address("12.51.2.5"))
-                    .setLocalAdministrator(5421)
+                    .setLocalAdministrator(Uint16.valueOf(5421))
                     .build()).build();
     private static RouteTargetConstrainChoice RT_AS_4_OCT = new RouteTargetConstrainAs4ExtendedCommunityCaseBuilder()
             .setAs4RouteTargetExtendedCommunity(new As4RouteTargetExtendedCommunityBuilder()
@@ -86,7 +88,7 @@ public class SimpleRouteTargetConstrainNlriRegistryTest {
     private final Integer type;
     private final byte[] expectedBuffer;
     private final byte[] expectedBufferWithType;
-    private RouteTargetConstrainChoice expected;
+    private final RouteTargetConstrainChoice expected;
 
     public SimpleRouteTargetConstrainNlriRegistryTest(
             final RouteTargetConstrainChoice routeTargetConstrainChoice,

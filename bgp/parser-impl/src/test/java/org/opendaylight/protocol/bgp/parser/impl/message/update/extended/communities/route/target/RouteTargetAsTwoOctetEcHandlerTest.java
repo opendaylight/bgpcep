@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteTargetExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteTargetExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.extended.community.grouping.RouteTargetExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class RouteTargetAsTwoOctetEcHandlerTest {
 
@@ -31,7 +32,7 @@ public class RouteTargetAsTwoOctetEcHandlerTest {
         final RouteTargetAsTwoOctetEcHandler handler = new RouteTargetAsTwoOctetEcHandler();
         final RouteTargetExtendedCommunityCase expected = new RouteTargetExtendedCommunityCaseBuilder()
                 .setRouteTargetExtendedCommunity(new RouteTargetExtendedCommunityBuilder()
-                        .setGlobalAdministrator(new ShortAsNumber(35L))
+                        .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(35)))
                         .setLocalAdministrator(new byte[]{4, 2, 8, 7})
                         .build()).build();
 

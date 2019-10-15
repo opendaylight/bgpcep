@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class GracefulRestartUtilTest {
 
@@ -192,7 +193,7 @@ public class GracefulRestartUtilTest {
                         .setLlGracefulRestart(new LlGracefulRestartBuilder()
                             .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll
                                 .graceful.restart.rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart
-                                .ConfigBuilder().setLongLivedStaleTime((long) STALE_TIME).build())
+                                .ConfigBuilder().setLongLivedStaleTime(Uint32.valueOf(STALE_TIME)).build())
                             .build())
                         .build())
                     .build())

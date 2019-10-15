@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public final class BgpPeerRpcTest {
@@ -109,7 +110,7 @@ public final class BgpPeerRpcTest {
         doReturn(new SimpleSessionListener().restartGracefully(referraltimerSeconds))
                 .when(this.peerRpcs).restartGracefully(referraltimerSeconds);
         final RestartGracefullyInput input = new RestartGracefullyInputBuilder()
-                .setSelectionDeferralTime(referraltimerSeconds)
+                .setSelectionDeferralTime(Uint32.valueOf(referraltimerSeconds))
                 .build();
         final ListenableFuture<RpcResult<RestartGracefullyOutput>> result = this.rpc.restartGracefully(input);
         assertTrue(!result.get().getErrors().isEmpty());

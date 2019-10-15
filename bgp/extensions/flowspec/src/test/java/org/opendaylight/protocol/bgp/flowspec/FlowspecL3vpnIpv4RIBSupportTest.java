@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -55,7 +56,7 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
 
     private static final FlowspecL3vpnRoute ROUTE;
     private static final FlowspecL3vpnRouteKey ROUTE_KEY;
-    private static final PathId PATH_ID = new PathId(1L);
+    private static final PathId PATH_ID = new PathId(Uint32.ONE);
     private static final RouteDistinguisher RD = new RouteDistinguisher(new RdTwoOctetAs("0:5:3"));
     private static final DestinationPrefixCase DEST_PREFIX = new DestinationPrefixCaseBuilder()
             .setDestinationPrefix(new Ipv4Prefix("172.17.1.0/24")).build();

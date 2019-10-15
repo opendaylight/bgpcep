@@ -187,10 +187,10 @@ public class LinkstateNlriParserTest {
         final NodeCase nCase = (NodeCase) this.dest.getObjectType();
 
         final NodeDescriptors nodeD = nCase.getNodeDescriptors();
-        assertEquals(new AsNumber(72L), nodeD.getAsNumber());
-        assertEquals(new DomainIdentifier(0x28282828L), nodeD.getDomainId());
+        assertEquals(new AsNumber(Uint32.valueOf(72)), nodeD.getAsNumber());
+        assertEquals(new DomainIdentifier(Uint32.valueOf(0x28282828L)), nodeD.getDomainId());
         assertEquals(new IsisPseudonodeCaseBuilder().setIsisPseudonode(
-            new IsisPseudonodeBuilder().setPsn((short) 5).setIsIsRouterIdentifier(
+            new IsisPseudonodeBuilder().setPsn(Uint8.valueOf(5)).setIsIsRouterIdentifier(
                new IsIsRouterIdentifierBuilder().setIsoSystemId(
                    new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(),
             nodeD.getCRouterIdentifier());
@@ -274,23 +274,23 @@ public class LinkstateNlriParserTest {
         final LinkCase lCase = (LinkCase) this.dest.getObjectType();
 
         final LocalNodeDescriptors local = lCase.getLocalNodeDescriptors();
-        assertEquals(new AsNumber(72L), local.getAsNumber());
-        assertEquals(new DomainIdentifier(0x28282828L), local.getDomainId());
+        assertEquals(new AsNumber(Uint32.valueOf(72)), local.getAsNumber());
+        assertEquals(new DomainIdentifier(Uint32.valueOf(0x28282828L)), local.getDomainId());
         assertEquals(
             new IsisNodeCaseBuilder().setIsisNode(
                 new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] {
                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x42 })).build()).build(),
             local.getCRouterIdentifier());
         assertEquals("1.1.1.1", local.getBgpRouterId().getValue());
-        assertEquals(new AsNumber(258L), local.getMemberAsn());
+        assertEquals(new AsNumber(Uint32.valueOf(258)), local.getMemberAsn());
 
         final RemoteNodeDescriptors remote = lCase.getRemoteNodeDescriptors();
-        assertEquals(new AsNumber(72L), remote.getAsNumber());
-        assertEquals(new DomainIdentifier(0x28282828L), remote.getDomainId());
-        assertEquals(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x00000040L).build())
-            .build(),
-            remote.getCRouterIdentifier());
-        assertEquals(new AsNumber(259L), remote.getMemberAsn());
+        assertEquals(new AsNumber(Uint32.valueOf(72)), remote.getAsNumber());
+        assertEquals(new DomainIdentifier(Uint32.valueOf(0x28282828L)), remote.getDomainId());
+        assertEquals(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder()
+            .setOspfRouterId(Uint32.valueOf(0x00000040L)).build())
+            .build(), remote.getCRouterIdentifier());
+        assertEquals(new AsNumber(Uint32.valueOf(259)), remote.getMemberAsn());
         assertEquals("1.1.1.2", remote.getBgpRouterId().getValue());
 
         final LinkDescriptors ld = lCase.getLinkDescriptors();
@@ -438,8 +438,8 @@ public class LinkstateNlriParserTest {
         final PrefixCase pCase = (PrefixCase) this.dest.getObjectType();
 
         final AdvertisingNodeDescriptors local = pCase.getAdvertisingNodeDescriptors();
-        assertEquals(new AsNumber(72L), local.getAsNumber());
-        assertEquals(new DomainIdentifier(0x28282828L), local.getDomainId());
+        assertEquals(new AsNumber(Uint32.valueOf(72)), local.getAsNumber());
+        assertEquals(new DomainIdentifier(Uint32.valueOf(0x28282828L)), local.getDomainId());
         assertEquals(
             new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder().setIsoSystemId(
                 new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -447,7 +447,7 @@ public class LinkstateNlriParserTest {
 
         final PrefixDescriptors pd = pCase.getPrefixDescriptors();
         assertEquals(OspfRouteType.External1, pd.getOspfRouteType());
-        assertEquals(new TopologyIdentifier(15), pd.getMultiTopologyId());
+        assertEquals(new TopologyIdentifier(Uint16.valueOf(15)), pd.getMultiTopologyId());
         assertEquals(new Ipv4Prefix("255.255.0.0/16"), pd.getIpReachabilityInformation().getIpv4Prefix());
 
         final ByteBuf buffer = Unpooled.buffer();
@@ -542,8 +542,8 @@ public class LinkstateNlriParserTest {
         assertEquals(Uint64.ONE, this.dest.getIdentifier().getValue());
         final TeLspCase teCase = (TeLspCase) this.dest.getObjectType();
 
-        assertEquals(new LspId(1L), teCase.getLspId());
-        assertEquals(new TunnelId(1), teCase.getTunnelId());
+        assertEquals(new LspId(Uint32.ONE), teCase.getLspId());
+        assertEquals(new TunnelId(Uint16.ONE), teCase.getTunnelId());
         assertEquals(new Ipv4Address("1.2.3.4"), ((Ipv4Case) teCase.getAddressFamily()).getIpv4TunnelSenderAddress());
         assertEquals(new Ipv4Address("4.3.2.1"), ((Ipv4Case) teCase.getAddressFamily()).getIpv4TunnelEndpointAddress());
 

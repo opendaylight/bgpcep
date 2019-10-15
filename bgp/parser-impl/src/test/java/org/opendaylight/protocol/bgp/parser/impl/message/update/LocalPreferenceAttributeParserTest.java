@@ -20,6 +20,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPrefBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class LocalPreferenceAttributeParserTest {
     private static final byte[] ATTRIBUTE_BYTES = {
@@ -27,9 +28,7 @@ public class LocalPreferenceAttributeParserTest {
     };
 
     private static final Attributes RESULT = new AttributesBuilder()
-            .setLocalPref(new LocalPrefBuilder()
-                    .setPref(1L)
-                    .build())
+            .setLocalPref(new LocalPrefBuilder().setPref(Uint32.ONE).build())
             .build();
 
     @Test
