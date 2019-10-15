@@ -8,29 +8,27 @@
 package org.opendaylight.protocol.pcep.sync.optimizations;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedLong;
+import static org.opendaylight.protocol.util.ByteBufUtils.readUint64;
+import static org.opendaylight.protocol.util.ByteBufUtils.writeOrZero;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.math.BigInteger;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 
 public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
-
     public static final int TYPE = 23;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         checkArgument(tlv instanceof LspDbVersion, "Tlv object is not instance of LspDbVersion.");
         final ByteBuf body = Unpooled.buffer();
-        writeUnsignedLong(((LspDbVersion) tlv).getLspDbVersionValue(), body);
+        writeOrZero(body, ((LspDbVersion) tlv).getLspDbVersionValue());
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
@@ -39,7 +37,6 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new LspDbVersionBuilder().setLspDbVersionValue(new BigInteger(ByteArray.readAllBytes(buffer))).build();
+        return new LspDbVersionBuilder().setLspDbVersionValue(readUint64(buffer)).build();
     }
-
 }
