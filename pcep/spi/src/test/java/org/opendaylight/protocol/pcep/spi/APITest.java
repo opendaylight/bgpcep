@@ -47,7 +47,7 @@ public class APITest {
         assertFalse(un.isProcessingRule());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS, un.getError());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS.getErrorType(),
-            un.getErrors().get(0).getErrorObject().getType().shortValue());
+            un.getErrors().get(0).getErrorObject().getType());
 
         final Object o = new CCloseBuilder().build();
         UnknownObject unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);

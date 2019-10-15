@@ -304,8 +304,8 @@ public class Stateful07TopologySessionListenerTest
         assertEquals(FailureType.Failed, output.getFailure());
         assertEquals(1, output.getError().size());
         final ErrorObject err = output.getError().get(0).getErrorObject();
-        assertEquals(PCEPErrors.NON_ZERO_PLSPID.getErrorType(), err.getType().shortValue());
-        assertEquals(PCEPErrors.NON_ZERO_PLSPID.getErrorValue(), err.getValue().shortValue());
+        assertEquals(PCEPErrors.NON_ZERO_PLSPID.getErrorType(), err.getType());
+        assertEquals(PCEPErrors.NON_ZERO_PLSPID.getErrorValue(), err.getValue());
     }
 
     @Test
