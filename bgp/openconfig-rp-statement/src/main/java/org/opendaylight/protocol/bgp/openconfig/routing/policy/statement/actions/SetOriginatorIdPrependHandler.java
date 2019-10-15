@@ -44,7 +44,7 @@ public final class SetOriginatorIdPrependHandler implements BgpActionAugPolicy<S
                 ? routeEntryInfo.getOriginatorId() : defOri);
     }
 
-    private Attributes prependOriginatorId(final Attributes attributes, final Ipv4Address originatorId) {
+    private static Attributes prependOriginatorId(final Attributes attributes, final Ipv4Address originatorId) {
         if (attributes.getOriginatorId() != null) {
             return attributes;
         }

@@ -36,11 +36,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class StrictBGPPeerRegistryTest {
 
-    private static final AsNumber LOCAL_AS = new AsNumber(1234L);
-    private static final AsNumber REMOTE_AS = new AsNumber(1235L);
+    private static final AsNumber LOCAL_AS = new AsNumber(Uint32.valueOf(1234));
+    private static final AsNumber REMOTE_AS = new AsNumber(Uint32.valueOf(1235));
     private static final Ipv4Address FROM = new Ipv4Address("0.0.0.1");
     private static final IpAddress REMOTE_IP = new IpAddress(FROM);
     private static final Ipv4Address TO = new Ipv4Address("255.255.255.255");
@@ -183,7 +184,7 @@ public class StrictBGPPeerRegistryTest {
 
     @Test
     public void testDuplicatePeersLowerAs() throws Exception {
-        final AsNumber as2 = new AsNumber(3L);
+        final AsNumber as2 = new AsNumber(Uint32.valueOf(3));
 
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
 
@@ -199,7 +200,7 @@ public class StrictBGPPeerRegistryTest {
 
     @Test
     public void testAsMismatch() {
-        final AsNumber as2 = new AsNumber(3L);
+        final AsNumber as2 = new AsNumber(Uint32.valueOf(3));
 
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
         try {

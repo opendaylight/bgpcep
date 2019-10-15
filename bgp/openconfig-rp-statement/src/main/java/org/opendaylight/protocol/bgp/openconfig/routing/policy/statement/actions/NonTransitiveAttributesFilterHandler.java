@@ -44,12 +44,12 @@ public final class NonTransitiveAttributesFilterHandler implements BgpActionAugP
         return filterAttributes(attributes);
     }
 
-    private Attributes filterAttributes(final Attributes attributes) {
-        final AttributesBuilder builder = new AttributesBuilder();
-        builder.setCNextHop(attributes.getCNextHop());
-        builder.setOrigin(attributes.getOrigin());
-        builder.setAsPath(attributes.getAsPath());
-        builder.setCommunities(attributes.getCommunities());
+    private static Attributes filterAttributes(final Attributes attributes) {
+        final AttributesBuilder builder = new AttributesBuilder()
+                .setCNextHop(attributes.getCNextHop())
+                .setOrigin(attributes.getOrigin())
+                .setAsPath(attributes.getAsPath())
+                .setCommunities(attributes.getCommunities());
 
         final List<UnrecognizedAttributes> oldAtt = attributes.getUnrecognizedAttributes();
         if (oldAtt != null) {

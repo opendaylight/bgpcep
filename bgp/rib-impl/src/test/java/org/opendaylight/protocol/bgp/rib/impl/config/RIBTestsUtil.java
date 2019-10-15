@@ -16,7 +16,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createNe
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTimers;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTransport;
 
-import com.google.common.primitives.Shorts;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,23 +36,23 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 final class RIBTestsUtil {
     private static final Ipv4Address BGP_ID = new BgpId(new Ipv4Address("127.0.0.1"));
     private static final List<AfiSafi> AFISAFIS_IPV4 = new ArrayList<>();
     private static final List<AfiSafi> AFISAFIS_IPV6 = new ArrayList<>();
-    private static final Long ALL_PATHS = 0L;
 
     static {
         AFISAFIS_IPV4.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
                 .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(true)
-                        .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
+                        .setSendMax(Uint8.ZERO).build()).build());
     }
 
     static {
         AFISAFIS_IPV6.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
                 .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(true)
-                        .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
+                        .setSendMax(Uint8.ZERO).build()).build());
     }
 
     private RIBTestsUtil() {

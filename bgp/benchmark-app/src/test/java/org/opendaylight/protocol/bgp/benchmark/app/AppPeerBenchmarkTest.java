@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
 
@@ -62,7 +63,7 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
         appPeerBenchmark.start();
         final InstanceIdentifier<Ipv4Routes> routesIID = appPeerBenchmark.getIpv4RoutesIID();
 
-        final AddPrefixInput addPrefix = new AddPrefixInputBuilder().setBatchsize(1L).setCount(1L)
+        final AddPrefixInput addPrefix = new AddPrefixInputBuilder().setBatchsize(Uint32.ONE).setCount(Uint32.ONE)
                 .setNexthop(new Ipv4Address(NH)).setPrefix(new Ipv4Prefix(PREFIX)).build();
 
         final RpcResult<AddPrefixOutput> addRpcResult = appPeerBenchmark.addPrefix(addPrefix).get();
@@ -76,8 +77,8 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
             return routes;
         });
 
-        final DeletePrefixInput deletePrefix = new DeletePrefixInputBuilder().setBatchsize(1L).setCount(1L)
-                .setPrefix(new Ipv4Prefix(PREFIX)).build();
+        final DeletePrefixInput deletePrefix = new DeletePrefixInputBuilder().setBatchsize(Uint32.ONE)
+                .setCount(Uint32.ONE).setPrefix(new Ipv4Prefix(PREFIX)).build();
         final RpcResult<DeletePrefixOutput> deleteRpcResult = appPeerBenchmark
                 .deletePrefix(deletePrefix).get();
         final Result deleteResult = deleteRpcResult.getResult().getResult();

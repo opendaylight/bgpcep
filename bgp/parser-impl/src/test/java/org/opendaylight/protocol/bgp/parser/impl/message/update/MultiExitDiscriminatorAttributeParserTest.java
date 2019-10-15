@@ -20,6 +20,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDiscBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class MultiExitDiscriminatorAttributeParserTest {
     private static final byte[] ATTRIBUTE_BYTES = {
@@ -27,7 +28,7 @@ public class MultiExitDiscriminatorAttributeParserTest {
     };
 
     private static final Attributes RESULT = new AttributesBuilder()
-            .setMultiExitDisc(new MultiExitDiscBuilder().setMed(1L).build()).build();
+            .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ONE).build()).build();
 
     @Test
     public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {

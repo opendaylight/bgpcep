@@ -55,6 +55,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ShortAsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class FSExtendedCommunitiesTest {
 
@@ -101,7 +104,7 @@ public class FSExtendedCommunitiesTest {
     public void testTrafficRateParser() throws BGPDocumentedException, BGPParsingException {
         final TrafficRateExtendedCommunityCase trafficRate = new TrafficRateExtendedCommunityCaseBuilder()
                 .setTrafficRateExtendedCommunity(new TrafficRateExtendedCommunityBuilder()
-                    .setInformativeAs(new ShortAsNumber(72L))
+                    .setInformativeAs(new ShortAsNumber(Uint32.valueOf(72)))
                     .setLocalAdministrator(new Bandwidth(new byte[] { 0, 1, 2, 3 })).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficRate)
                 .setTransitive(true).build();
@@ -117,7 +120,7 @@ public class FSExtendedCommunitiesTest {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib
                     .route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCaseBuilder()
                     .setTrafficRateExtendedCommunity(new TrafficRateExtendedCommunityBuilder()
-                        .setInformativeAs(new ShortAsNumber(72L))
+                        .setInformativeAs(new ShortAsNumber(Uint32.valueOf(72)))
                         .setLocalAdministrator(new Bandwidth(new byte[] { 0, 1, 2, 3 })).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficRate)
                 .setTransitive(true).build();
@@ -160,7 +163,7 @@ public class FSExtendedCommunitiesTest {
     public void testTrafficMarkingParser() throws BGPDocumentedException, BGPParsingException {
         final TrafficMarkingExtendedCommunityCase trafficMarking = new TrafficMarkingExtendedCommunityCaseBuilder()
                 .setTrafficMarkingExtendedCommunity(new TrafficMarkingExtendedCommunityBuilder()
-                    .setGlobalAdministrator(new Dscp((short) 63)).build()).build();
+                    .setGlobalAdministrator(new Dscp(Uint8.valueOf(63))).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficMarking)
                 .setTransitive(true).build();
 
@@ -176,7 +179,7 @@ public class FSExtendedCommunitiesTest {
                     .route.attributes.extended.communities.extended.community
                     .TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(
                         new TrafficMarkingExtendedCommunityBuilder()
-                        .setGlobalAdministrator(new Dscp((short) 63)).build()).build();
+                        .setGlobalAdministrator(new Dscp(Uint8.valueOf(63))).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficMarking)
                 .setTransitive(true).build();
 
@@ -189,7 +192,7 @@ public class FSExtendedCommunitiesTest {
     public void testRedirect2bParser() throws BGPDocumentedException, BGPParsingException {
         final RedirectExtendedCommunityCase redirect = new RedirectExtendedCommunityCaseBuilder()
                 .setRedirectExtendedCommunity(new RedirectExtendedCommunityBuilder()
-                    .setGlobalAdministrator(new ShortAsNumber(35L))
+                    .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(35)))
                     .setLocalAdministrator(new byte[] { 4, 2, 8, 7 }).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect)
                 .setTransitive(true).build();
@@ -206,7 +209,7 @@ public class FSExtendedCommunitiesTest {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib
                     .route.attributes.extended.communities.extended.community.RedirectExtendedCommunityCaseBuilder()
                     .setRedirectExtendedCommunity(new RedirectExtendedCommunityBuilder()
-                        .setGlobalAdministrator(new ShortAsNumber(35L))
+                        .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(35)))
                         .setLocalAdministrator(new byte[] { 4, 2, 8, 7 }).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect)
                 .setTransitive(true).build();
@@ -221,7 +224,7 @@ public class FSExtendedCommunitiesTest {
         final RedirectIpv6ExtendedCommunityCase redirect = new RedirectIpv6ExtendedCommunityCaseBuilder()
                 .setRedirectIpv6(new RedirectIpv6Builder()
                         .setGlobalAdministrator(new Ipv6Address("102:304:506:708:90a:b0c:d0e:f10"))
-                        .setLocalAdministrator(258).build()).build();
+                        .setLocalAdministrator(Uint16.valueOf(258)).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect)
                 .setTransitive(true).build();
 
@@ -237,7 +240,7 @@ public class FSExtendedCommunitiesTest {
                     .route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCaseBuilder()
                     .setRedirectIpv6(new RedirectIpv6Builder()
                         .setGlobalAdministrator(new Ipv6Address("102:304:506:708:90a:b0c:d0e:f10"))
-                        .setLocalAdministrator(258).build()).build();
+                        .setLocalAdministrator(Uint16.valueOf(258)).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect)
                 .setTransitive(true).build();
 
@@ -248,8 +251,11 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testRedirect4bParser() throws BGPDocumentedException, BGPParsingException {
-        final RedirectAs4ExtendedCommunityCase redirect = new RedirectAs4ExtendedCommunityCaseBuilder().setRedirectAs4(
-                new RedirectAs4Builder().setGlobalAdministrator(new AsNumber(6548L)).setLocalAdministrator(126).build())
+        final RedirectAs4ExtendedCommunityCase redirect = new RedirectAs4ExtendedCommunityCaseBuilder()
+                .setRedirectAs4(new RedirectAs4Builder()
+                    .setGlobalAdministrator(new AsNumber(Uint32.valueOf(6548)))
+                    .setLocalAdministrator(Uint16.valueOf(126))
+                    .build())
                 .build();
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect)
@@ -266,8 +272,8 @@ public class FSExtendedCommunitiesTest {
             .attributes.extended.communities.extended.community.RedirectAs4ExtendedCommunityCase redirect =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib
                     .route.attributes.extended.communities.extended.community.RedirectAs4ExtendedCommunityCaseBuilder()
-                    .setRedirectAs4(new RedirectAs4Builder().setGlobalAdministrator(new AsNumber(6548L))
-                        .setLocalAdministrator(126).build()).build();
+                    .setRedirectAs4(new RedirectAs4Builder().setGlobalAdministrator(new AsNumber(Uint32.valueOf(6548)))
+                        .setLocalAdministrator(Uint16.valueOf(126)).build()).build();
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect)
                 .setTransitive(true).build();
@@ -281,7 +287,7 @@ public class FSExtendedCommunitiesTest {
     public void testRedirectIpv4Parser() throws BGPDocumentedException, BGPParsingException {
         final RedirectIpv4ExtendedCommunityCase redirect = new RedirectIpv4ExtendedCommunityCaseBuilder()
                 .setRedirectIpv4(new RedirectIpv4Builder().setGlobalAdministrator(new Ipv4Address("127.0.0.1"))
-                    .setLocalAdministrator(126).build()).build();
+                    .setLocalAdministrator(Uint16.valueOf(126)).build()).build();
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect)
                 .setTransitive(true).build();
@@ -297,7 +303,7 @@ public class FSExtendedCommunitiesTest {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.bgp.rib
                     .route.attributes.extended.communities.extended.community.RedirectIpv4ExtendedCommunityCaseBuilder()
                         .setRedirectIpv4(new RedirectIpv4Builder().setGlobalAdministrator(new Ipv4Address("127.0.0.1"))
-                            .setLocalAdministrator(126).build()).build();
+                            .setLocalAdministrator(Uint16.valueOf(126)).build()).build();
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect)
                 .setTransitive(true).build();

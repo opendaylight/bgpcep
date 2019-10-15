@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
 import java.util.ArrayList;
@@ -18,9 +17,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.SegmentsBuilder;
 
-class AbstractPrependAsPath {
+abstract class AbstractPrependAsPath {
 
-    final Attributes prependAS(final Attributes attributes, final AsNumber as) {
+    static final Attributes prependAS(final Attributes attributes, final AsNumber as) {
         final List<Segments> oldSegments = attributes.getAsPath().getSegments();
         /*
          * We need to check the first segment.

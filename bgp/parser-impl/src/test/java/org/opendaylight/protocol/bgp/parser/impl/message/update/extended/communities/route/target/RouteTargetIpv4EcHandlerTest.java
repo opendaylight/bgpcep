@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteTargetIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteTargetIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.ipv4.grouping.RouteTargetIpv4Builder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class RouteTargetIpv4EcHandlerTest {
 
@@ -32,7 +33,7 @@ public class RouteTargetIpv4EcHandlerTest {
         final RouteTargetIpv4Case expected = new RouteTargetIpv4CaseBuilder().setRouteTargetIpv4(
                 new RouteTargetIpv4Builder()
                         .setGlobalAdministrator(new Ipv4Address("12.51.2.5"))
-                        .setLocalAdministrator(5421)
+                        .setLocalAdministrator(Uint16.valueOf(5421))
                         .build()).build();
 
         final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));

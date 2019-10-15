@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.shared.tree.join._case.SharedTreeJoinBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class SharedTreeJoinHandlerTest {
     private static final byte[] SHARED_TREE = new byte[]{
@@ -45,7 +46,7 @@ public final class SharedTreeJoinHandlerTest {
             .setSharedTreeJoin(new SharedTreeJoinBuilder()
                     .setCMulticast(new CMulticastBuilder()
                             .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
-                            .setSourceAs(new AsNumber(10L))
+                            .setSourceAs(new AsNumber(Uint32.valueOf(10)))
                             .setMulticastSource(new IpAddress(new Ipv4Address("1.0.0.1")))
                             .setMulticastGroup(new CGAddressCaseBuilder()
                                     .setCGAddress(new IpAddress(new Ipv4Address("2.0.0.2"))).build()).build())

@@ -14,6 +14,7 @@ import java.util.function.Function;
 import org.junit.Assert;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 
 public final class CheckUtil {
 
@@ -31,11 +32,8 @@ public final class CheckUtil {
     public static void checkIdleState(final BGPPeer bgpPeer) {
         checkInLoop(State.IDLE, bgpPeer, peer -> {
             synchronized (bgpPeer) {
-                if (peer.getBGPSessionState() == null) {
-                    return State.IDLE;
-                } else {
-                    return peer.getBGPSessionState().getSessionState();
-                }
+                final BGPSessionState state = peer.getBGPSessionState();
+                return state == null ? State.IDLE : state.getSessionState();
             }
         }, SLEEP_FOR_MILLIS, TIMEOUT_SECONDS);
     }
@@ -47,11 +45,8 @@ public final class CheckUtil {
     public static void checkUpState(final BGPPeer bgpPeer) {
         checkInLoop(State.UP, bgpPeer, peer -> {
             synchronized (bgpPeer) {
-                if (peer.getBGPSessionState() == null) {
-                    return State.IDLE;
-                } else {
-                    return peer.getBGPSessionState().getSessionState();
-                }
+                final BGPSessionState state = peer.getBGPSessionState();
+                return state == null ? State.IDLE : state.getSessionState();
             }
         }, SLEEP_FOR_MILLIS, TIMEOUT_SECONDS);
     }

@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class LUNlriParserTest {
 
@@ -213,19 +214,18 @@ public class LUNlriParserTest {
     };
 
     private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
-        new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build(),
-        new LabelStackBuilder().setLabelValue(new MplsLabel(356L)).build(),
-        new LabelStackBuilder().setLabelValue(new MplsLabel(357L)).build());
+        new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(355))).build(),
+        new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(356))).build(),
+        new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(357))).build());
 
     private static final IpPrefix IPV4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     private static final IpPrefix IPV6_PREFIX = new IpPrefix(new Ipv6Prefix("2001:db8:1:2::/128"));
-    private static final PathId PATH_ID = new PathId(1L);
+    private static final PathId PATH_ID = new PathId(Uint32.ONE);
 
     @Mock
     private PeerSpecificParserConstraint constraint;
     @Mock
     private MultiPathSupport muliPathSupport;
-
 
     @Before
     public void setUp() {

@@ -51,14 +51,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.osgi.framework.ServiceRegistration;
 
 class AbstractConfig extends DefaultRibPoliciesMockTest {
-    protected static final AsNumber AS = new AsNumber(72L);
-    protected static final AsNumber LOCAL_AS = new AsNumber(73L);
+    protected static final AsNumber AS = new AsNumber(Uint32.valueOf(72));
+    protected static final AsNumber LOCAL_AS = new AsNumber(Uint32.valueOf(73));
     protected static final RibId RIB_ID = new RibId("test");
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     @Mock
