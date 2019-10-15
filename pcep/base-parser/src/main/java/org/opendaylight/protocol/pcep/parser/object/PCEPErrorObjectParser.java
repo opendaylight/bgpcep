@@ -61,7 +61,7 @@ public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<Er
     @Override
     public void addTlv(final ErrorObjectBuilder builder, final Tlv tlv) {
         if (tlv instanceof ReqMissing
-                && builder.getType().toJava() == PCEPErrors.SYNC_PATH_COMP_REQ_MISSING.getErrorType()) {
+                && PCEPErrors.SYNC_PATH_COMP_REQ_MISSING.getErrorType().equals(builder.getType())) {
             builder.setTlvs(new TlvsBuilder().setReqMissing((ReqMissing) tlv).build());
         }
     }
