@@ -175,12 +175,13 @@ public class GracefulCapabilityHandlerTest {
 
         final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
                 .setRestartFlags(new RestartFlags(true))
-                .setRestartTime(-1);
-        capaBuilder.setTables(Lists.newArrayList(new TablesBuilder()
-            .setAfiFlags(new AfiFlags(true))
-            .setAfi(Ipv4AddressFamily.class)
-            .setSafi(UnicastSubsequentAddressFamily.class)
-            .build()));
+                // FIXME: this is throwing IAE, why is the rest of the test even here?
+                .setRestartTime(Uint16.MAX_VALUE)
+                .setTables(Lists.newArrayList(new TablesBuilder()
+                    .setAfiFlags(new AfiFlags(true))
+                    .setAfi(Ipv4AddressFamily.class)
+                    .setSafi(UnicastSubsequentAddressFamily.class)
+                    .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
         handler.serializeCapability(new CParametersBuilder()

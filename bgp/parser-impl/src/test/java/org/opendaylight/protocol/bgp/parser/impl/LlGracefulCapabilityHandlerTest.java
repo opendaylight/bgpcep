@@ -122,7 +122,8 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
-                                .setLongLivedStaleTime(-1L)
+                                // FIXME: this is throwing IAE, why is the rest of the test even here?
+                                .setLongLivedStaleTime(Uint32.MAX_VALUE)
                                 .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,

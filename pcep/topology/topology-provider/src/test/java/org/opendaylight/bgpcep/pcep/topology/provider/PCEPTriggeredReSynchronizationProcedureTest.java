@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createL
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +55,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
     private Stateful07TopologySessionListener listener;
 
     private PCEPSession session;
-    private final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.ONE).build();
+    private final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(Uint64.ONE).build();
 
     @Override
     @Before

@@ -11,7 +11,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.math.BigInteger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class SyncOptimizationTest {
 
@@ -123,6 +123,6 @@ public class SyncOptimizationTest {
                             .setDeltaLspSyncCapability(includeDeltaSync).build()).build()).build())
             .addAugmentation(Tlvs3.class, new Tlvs3Builder().setLspDbVersion(
                 new LspDbVersionBuilder().setLspDbVersionValue(lspDbVersion != null
-                        ? BigInteger.valueOf(lspDbVersion) : null).build()).build()).build();
+                        ? Uint64.valueOf(lspDbVersion) : null).build()).build()).build();
     }
 }

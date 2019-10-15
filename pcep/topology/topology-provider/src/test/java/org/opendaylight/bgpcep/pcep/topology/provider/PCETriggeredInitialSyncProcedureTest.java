@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createL
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Optional;
 import org.junit.Before;
@@ -66,9 +65,9 @@ public class PCETriggeredInitialSyncProcedureTest
 
         //session up - expect triggered sync (LSP-DBs do not match)
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()
-                .setLspDbVersionValue(BigInteger.ONE).build();
+                .setLspDbVersionValue(Uint64.ONE).build();
         final LspDbVersion localDbVersion2 = new LspDbVersionBuilder()
-                .setLspDbVersionValue(BigInteger.valueOf(2L)).build();
+                .setLspDbVersionValue(Uint64.valueOf(2L)).build();
         final PCEPSession session = getPCEPSession(getOpen(localDbVersion, Boolean.FALSE),
                 getOpen(localDbVersion2, Boolean.FALSE));
         this.listener.onSessionUp(session);

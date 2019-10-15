@@ -463,11 +463,11 @@ public class OpenConfigMappingUtilTest {
         final PeerGroup emptyPeer = new PeerGroupBuilder().build();
         Neighbor neighbor = new NeighborBuilder()
                 .setGracefulRestart(new GracefulRestartBuilder()
-                        .setConfig(createGracefulConfig(neighborTimer))
+                        .setConfig(createGracefulConfig(Uint16.valueOf(neighborTimer)))
                         .build()).build();
         PeerGroup peerGroup = new PeerGroupBuilder()
                 .setGracefulRestart(new GracefulRestartBuilder()
-                        .setConfig(createGracefulConfig(peerGroupTimer))
+                        .setConfig(createGracefulConfig(Uint16.valueOf(peerGroupTimer)))
                         .build()).build();
         // both timers present, pick peer group one
         int timer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, peerGroup, HOLDTIMER);
@@ -487,7 +487,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful
-            .restart.Config createGracefulConfig(final Integer restartTimer) {
+            .restart.Config createGracefulConfig(final Uint16 restartTimer) {
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful
                 .restart.ConfigBuilder().setRestartTime(restartTimer).build();
     }

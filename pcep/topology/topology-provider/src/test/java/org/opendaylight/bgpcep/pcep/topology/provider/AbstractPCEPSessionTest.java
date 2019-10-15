@@ -68,6 +68,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerFactory>
         extends AbstractConcurrentDataBrokerTest {
@@ -87,8 +89,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     final String eroIpPrefix = this.testAddress + IPV4_MASK;
     final String newDestinationAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     final String dstIpPrefix = this.newDestinationAddress + IPV4_MASK;
-    private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10)
-            .setSessionId((short) 0).build();
+    private final Open localPrefs = new OpenBuilder().setDeadTimer(Uint8.valueOf(30)).setKeepalive(Uint8.valueOf(10))
+            .setSessionId(Uint8.ZERO).build();
     private final Open remotePrefs = this.localPrefs;
     List<Notification> receivedMsgs;
     ServerSessionManager manager;
@@ -146,7 +148,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
         doReturn(new IpAddress(new Ipv4Address(this.testAddress))).when(this.sessionConfig).getListenAddress();
-        doReturn(new PortNumber(4189)).when(this.sessionConfig).getListenPort();
+        doReturn(new PortNumber(Uint16.valueOf(4189))).when(this.sessionConfig).getListenPort();
         doReturn(RPC_TIMEOUT).when(this.sessionConfig).getRpcTimeout();
         doReturn(TEST_TOPOLOGY_ID).when(this.topology).getTopologyId();
         doReturn(Collections.emptyList()).when(this.topology).getNode();

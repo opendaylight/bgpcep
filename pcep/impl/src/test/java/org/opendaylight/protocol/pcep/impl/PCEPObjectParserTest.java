@@ -15,7 +15,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
@@ -258,11 +257,11 @@ public class PCEPObjectParserTest {
         final ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLoadBalancingObject1.bin"));
 
-        final LoadBalancingBuilder builder = new LoadBalancingBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(false);
-        builder.setMaxLsp((short) UnsignedBytes.toInt((byte) 0xf1));
-        builder.setMinBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
+        final LoadBalancingBuilder builder = new LoadBalancingBuilder()
+                .setProcessingRule(true)
+                .setIgnore(false)
+                .setMaxLsp(Uint8.valueOf(0xf1))
+                .setMinBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
             result.slice(4, result.readableBytes() - 4)));
