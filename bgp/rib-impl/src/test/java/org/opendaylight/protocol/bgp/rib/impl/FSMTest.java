@@ -287,8 +287,8 @@ public class FSMTest {
         assertEquals(3, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(2) instanceof Notify);
         final Notification m = this.receivedMsgs.get(2);
-        assertEquals(BGPError.FSM_ERROR.getCode(), ((Notify) m).getErrorCode().shortValue());
-        assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode().shortValue());
+        assertEquals(BGPError.FSM_ERROR.getCode(), ((Notify) m).getErrorCode());
+        assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode());
     }
 
     @Test
