@@ -35,11 +35,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlvBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class AbstractObjectWithTlvsTest {
 
-    private static final EnterpriseNumber EN = new EnterpriseNumber(0L);
+    private static final EnterpriseNumber EN = new EnterpriseNumber(Uint32.ZERO);
 
     private Tlv tlv;
 
@@ -79,7 +81,7 @@ public class AbstractObjectWithTlvsTest {
 
     @Before
     public void setUp() throws PCEPDeserializerException {
-        this.tlv = new OfListBuilder().setCodes(Collections.singletonList(new OfId(10))).build();
+        this.tlv = new OfListBuilder().setCodes(Collections.singletonList(new OfId(Uint16.valueOf(10)))).build();
         this.viTlv = new VendorInformationTlvBuilder().setEnterpriseNumber(EN).build();
         doNothing().when(this.viTlvRegistry).serializeVendorInformationTlv(any(VendorInformationTlv.class),
             any(ByteBuf.class));

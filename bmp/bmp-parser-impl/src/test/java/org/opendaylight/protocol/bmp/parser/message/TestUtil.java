@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bmp.parser.message;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -108,6 +107,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.string.informations.StringInformationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.string.tlv.StringTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.AccumulatedIgpMetric;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class TestUtil {
 
@@ -121,9 +124,9 @@ public final class TestUtil {
     private static final Ipv4Address IPV4_ADDRESS_40 = new Ipv4Address("40.40.40.40");
     private static final Ipv4Address IPV4_ADDRESS_12 = new Ipv4Address("12.12.12.12");
     private static final Ipv4Address IPV4_ADDRESS_100 = new Ipv4Address("100.100.100.100");
-    public static final AsNumber PEER_AS = new AsNumber(72L);
-    public static final PortNumber PEER_LOCAL_PORT = new PortNumber(220);
-    public static final PortNumber PEER_REMOTE_PORT = new PortNumber(5000);
+    public static final AsNumber PEER_AS = new AsNumber(Uint32.valueOf(72L));
+    public static final PortNumber PEER_LOCAL_PORT = new PortNumber(Uint16.valueOf(220));
+    public static final PortNumber PEER_REMOTE_PORT = new PortNumber(Uint16.valueOf(5000));
 
     public static InitiationMessage createInitMsg(final String sysDescr, final String sysName, final String info) {
         final InitiationMessageBuilder initMsgBuilder = new InitiationMessageBuilder();
@@ -155,8 +158,8 @@ public final class TestUtil {
             .setAs(PEER_AS)
             .setBgpId(new Ipv4Address(bgpId))
             .setAdjRibInType(ribType)
-            .setTimestampMicro(new Timestamp(10L))
-            .setTimestampSec(new Timestamp(5L))
+            .setTimestampMicro(new Timestamp(Uint32.valueOf(10)))
+            .setTimestampSec(new Timestamp(Uint32.valueOf(5)))
             .setIpv4(true)
             .setType(PeerType.forValue(0));
         return peerHeaderBuilder.build();
@@ -193,7 +196,7 @@ public final class TestUtil {
 
     public static PeerDownNotification createPeerDownFSM() {
         final PeerDownNotificationBuilder peerDownNotifBuilder = new PeerDownNotificationBuilder()
-            .setData(new FsmEventCodeBuilder().setFsmEventCode(24).build())
+            .setData(new FsmEventCodeBuilder().setFsmEventCode(Uint16.valueOf(24)).build())
             .setLocalSystemClosed(true)
             .setPeerHeader(TestUtil.createPeerHeader());
         return peerDownNotifBuilder.build();
@@ -203,8 +206,8 @@ public final class TestUtil {
         final NotificationBuilder notifBuilder = new NotificationBuilder()
             .setNotification(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message
                     .rev180329.peer.down.data.notification.NotificationBuilder()
-            .setErrorCode((short) 1)
-            .setErrorSubcode((short) 1).build());
+            .setErrorCode(Uint8.ONE)
+            .setErrorSubcode(Uint8.ONE).build());
         final PeerDownNotificationBuilder peerDownNotifBuilder = new PeerDownNotificationBuilder()
             .setData(notifBuilder.build())
             .setLocalSystemClosed(true)
@@ -228,7 +231,7 @@ public final class TestUtil {
     private static List<OptionalCapabilities> createOptionalCapabilities(final boolean multiprotocol) {
         final OptionalCapabilitiesBuilder optCapabilitiesBuilder = new OptionalCapabilitiesBuilder()
             .setCParameters(new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder()
-                    .setAsNumber(new AsNumber(70L)).build()).build());
+                    .setAsNumber(new AsNumber(Uint32.valueOf(70))).build()).build());
         final CParametersBuilder paramsBuilder = new CParametersBuilder();
         if (multiprotocol) {
             final CParameters1Builder params1Builder = new CParameters1Builder();
@@ -240,7 +243,7 @@ public final class TestUtil {
         final OptionalCapabilitiesBuilder optCapabilitiesBuilder2 = new OptionalCapabilitiesBuilder()
             .setCParameters(paramsBuilder
                     .setAs4BytesCapability(new As4BytesCapabilityBuilder()
-                            .setAsNumber(new AsNumber(80L)).build()).build());
+                            .setAsNumber(new AsNumber(Uint32.valueOf(80))).build()).build());
         final List<OptionalCapabilities> optCapabilities = Lists.newArrayList();
         optCapabilities.add(optCapabilitiesBuilder.build());
         optCapabilities.add(optCapabilitiesBuilder2.build());
@@ -251,8 +254,8 @@ public final class TestUtil {
     private static OpenMessage createOpen(final boolean mutiprotocol) {
         final SentOpenBuilder sentOpenBuilder = new SentOpenBuilder()
             .setBgpIdentifier(new Ipv4Address(IPV4_ADDRESS_20))
-            .setHoldTimer(1000)
-            .setMyAsNumber(72)
+            .setHoldTimer(Uint16.valueOf(1000))
+            .setMyAsNumber(Uint16.valueOf(72))
             .setBgpParameters(createBgpParameters(mutiprotocol));
 
         return sentOpenBuilder.build();
@@ -296,17 +299,17 @@ public final class TestUtil {
     }
 
     private static Attributes createAttributes() {
-        final List<AsNumber> asSequences = Lists.newArrayList(new AsNumber(72L), new AsNumber(82L),
-                new AsNumber(92L));
+        final List<AsNumber> asSequences = Lists.newArrayList(new AsNumber(Uint32.valueOf(72)),
+            new AsNumber(Uint32.valueOf(82)), new AsNumber(Uint32.valueOf(92)));
         final List<Segments> segments = Lists.newArrayList();
         final SegmentsBuilder segmentsBuild = new SegmentsBuilder();
         segmentsBuild.setAsSequence(asSequences).build();
 
         final AttributesBuilder attribBuilder = new AttributesBuilder()
-            .setAggregator(new AggregatorBuilder().setAsNumber(new AsNumber(72L))
+            .setAggregator(new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(72)))
                     .setNetworkAddress(new Ipv4Address(IPV4_ADDRESS_20)).build())
             .setAigp(new AigpBuilder().setAigpTlv(new AigpTlvBuilder()
-                    .setMetric(new AccumulatedIgpMetric(BigInteger.ONE)).build()).build())
+                    .setMetric(new AccumulatedIgpMetric(Uint64.ONE)).build()).build())
             .setAsPath(new AsPathBuilder().setSegments(segments).build())
             .setAtomicAggregate(new AtomicAggregateBuilder().build())
             .setClusterId(new ClusterIdBuilder().setCluster(Lists.newArrayList(new ClusterIdentifier(IPV4_ADDRESS_30),
@@ -314,8 +317,8 @@ public final class TestUtil {
             .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(
                     IPV4_ADDRESS_100).build()).build())
             .setCommunities(createCommunities())
-            .setLocalPref(new LocalPrefBuilder().setPref(2L).build())
-            .setMultiExitDisc(new MultiExitDiscBuilder().setMed(123L).build())
+            .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(2)).build())
+            .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(123)).build())
             .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
             .setOriginatorId(new OriginatorIdBuilder().setOriginator(IPV4_ADDRESS_12).build())
             .setUnrecognizedAttributes(new ArrayList<>());
@@ -325,11 +328,11 @@ public final class TestUtil {
     private static List<Communities> createCommunities() {
         final List<Communities> communities = Lists.newArrayList();
         final CommunitiesBuilder commBuilder = new CommunitiesBuilder()
-            .setAsNumber(new AsNumber(65535L))
-            .setSemantics(65381);
+            .setAsNumber(new AsNumber(Uint32.valueOf(65535)))
+            .setSemantics(Uint16.valueOf(65381));
         final CommunitiesBuilder commBuilder2 = new CommunitiesBuilder()
-            .setAsNumber(new AsNumber(65535L))
-            .setSemantics(65382);
+            .setAsNumber(new AsNumber(Uint32.valueOf(65535)))
+            .setSemantics(Uint16.valueOf(65382));
         communities.add(commBuilder.build());
         communities.add(commBuilder2.build());
         return communities;
@@ -367,35 +370,35 @@ public final class TestUtil {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.stat
                         .TlvsBuilder();
         tlvsBuilder.setAdjRibsInRoutesTlv(new AdjRibsInRoutesTlvBuilder()
-                .setCount(new Gauge64(BigInteger.valueOf(10L))).build());
+                .setCount(new Gauge64(Uint64.valueOf(10L))).build());
         tlvsBuilder.setDuplicatePrefixAdvertisementsTlv(new DuplicatePrefixAdvertisementsTlvBuilder()
-                .setCount(new Counter32(16L)).build());
+                .setCount(new Counter32(Uint32.valueOf(16L))).build());
         tlvsBuilder.setDuplicateWithdrawsTlv(new DuplicateWithdrawsTlvBuilder()
-                .setCount(new Counter32(11L)).build());
+                .setCount(new Counter32(Uint32.valueOf(11L))).build());
         tlvsBuilder.setInvalidatedAsConfedLoopTlv(new InvalidatedAsConfedLoopTlvBuilder()
-                .setCount(new Counter32(55L)).build());
+                .setCount(new Counter32(Uint32.valueOf(55L))).build());
         tlvsBuilder.setInvalidatedAsPathLoopTlv(new InvalidatedAsPathLoopTlvBuilder()
-                .setCount(new Counter32(66L)).build());
+                .setCount(new Counter32(Uint32.valueOf(66L))).build());
         tlvsBuilder.setInvalidatedClusterListLoopTlv(new InvalidatedClusterListLoopTlvBuilder()
-                .setCount(new Counter32(53L)).build());
+                .setCount(new Counter32(Uint32.valueOf(53L))).build());
         tlvsBuilder.setInvalidatedOriginatorIdTlv(new InvalidatedOriginatorIdTlvBuilder()
-                .setCount(new Counter32(70L)).build());
+                .setCount(new Counter32(Uint32.valueOf(70L))).build());
         tlvsBuilder.setLocRibRoutesTlv(new LocRibRoutesTlvBuilder()
-                .setCount(new Gauge64(BigInteger.valueOf(100L))).build());
+                .setCount(new Gauge64(Uint64.valueOf(100L))).build());
         tlvsBuilder.setRejectedPrefixesTlv(new RejectedPrefixesTlvBuilder()
-                .setCount(new Counter32(8L)).build());
+                .setCount(new Counter32(Uint32.valueOf(8L))).build());
         tlvsBuilder.setPerAfiSafiAdjRibInTlv(new PerAfiSafiAdjRibInTlvBuilder()
                 .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setCount(new Gauge64(BigInteger.valueOf(9L))).build());
+                .setCount(new Gauge64(Uint64.valueOf(9L))).build());
         tlvsBuilder.setPerAfiSafiLocRibTlv(new PerAfiSafiLocRibTlvBuilder()
                 .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setCount(new Gauge64(BigInteger.valueOf(10L))).build());
+                .setCount(new Gauge64(Uint64.valueOf(10L))).build());
         tlvsBuilder.setUpdatesTreatedAsWithdrawTlv(new UpdatesTreatedAsWithdrawTlvBuilder()
-                .setCount(new Counter32(11L)).build());
+                .setCount(new Counter32(Uint32.valueOf(11L))).build());
         tlvsBuilder.setPrefixesTreatedAsWithdrawTlv(new PrefixesTreatedAsWithdrawTlvBuilder()
-                .setCount(new Counter32(12L)).build());
+                .setCount(new Counter32(Uint32.valueOf(12L))).build());
         tlvsBuilder.setDuplicateUpdatesTlv(new DuplicateUpdatesTlvBuilder()
-                .setCount(new Counter32(13L)).build());
+                .setCount(new Counter32(Uint32.valueOf(13L))).build());
         return statsReportMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 

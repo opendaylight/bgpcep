@@ -155,7 +155,7 @@ public class PCCSessionListenerTest {
             .setDelegate(true)
             .setIgnore(false)
             .setOperational(OperationalStatus.Up)
-            .setPlspId(new PlspId(999L))
+            .setPlspId(new PlspId(Uint32.valueOf(999)))
             .setProcessingRule(false)
             .setRemove(remove)
             .setSync(true);

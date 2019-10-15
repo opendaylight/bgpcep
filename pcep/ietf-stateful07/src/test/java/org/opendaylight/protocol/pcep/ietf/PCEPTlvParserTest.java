@@ -55,6 +55,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv6ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPTlvParserTest {
 
@@ -132,7 +135,7 @@ public class PCEPTlvParserTest {
     @Test
     public void testLspErrorCodeTlv() throws PCEPDeserializerException {
         final Stateful07LspUpdateErrorTlvParser parser = new Stateful07LspUpdateErrorTlvParser();
-        final LspErrorCode tlv = new LspErrorCodeBuilder().setErrorCode(627610883L).build();
+        final LspErrorCode tlv = new LspErrorCodeBuilder().setErrorCode(Uint32.valueOf(627610883)).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(LSP_UPDATE_ERROR_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
@@ -150,8 +153,8 @@ public class PCEPTlvParserTest {
         afi.setIpv4TunnelEndpointAddress(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
             new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
         final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(
-            new Ipv4CaseBuilder().setIpv4(afi.build()).build()).setLspId(new LspId(65535L))
-                .setTunnelId(new TunnelId(4660)).build();
+            new Ipv4CaseBuilder().setIpv4(afi.build()).build()).setLspId(new LspId(Uint32.valueOf(65535)))
+                .setTunnelId(new TunnelId(Uint16.valueOf(4660))).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(LSP_IDENTIFIERS4_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
@@ -182,7 +185,7 @@ public class PCEPTlvParserTest {
             })));
         final LspIdentifiers tlv = new LspIdentifiersBuilder()
                 .setAddressFamily(new Ipv6CaseBuilder().setIpv6(afi.build()).build())
-                .setLspId(new LspId(4660L)).setTunnelId(new TunnelId(65535)).build();
+                .setLspId(new LspId(Uint32.valueOf(4660))).setTunnelId(new TunnelId(Uint16.MAX_VALUE)).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(LSP_IDENTIFIERS6_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
@@ -192,13 +195,13 @@ public class PCEPTlvParserTest {
     @Test
     public void testRSVPError4SpecTlv() throws PCEPDeserializerException {
         final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
-        final RsvpErrorBuilder builder = new RsvpErrorBuilder();
-        builder.setNode(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
-            new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))));
-        builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ErrorSpec
-            .Flags(false, true));
-        builder.setCode((short) 146);
-        builder.setValue(5634);
+        final RsvpErrorBuilder builder = new RsvpErrorBuilder()
+                .setNode(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+                    new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))))
+                .setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ErrorSpec
+                    .Flags(false, true))
+                .setCode(Uint8.valueOf(146))
+                .setValue(Uint16.valueOf(5634));
         final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder()
                 .setErrorType(new RsvpCaseBuilder().setRsvpError(builder.build()).build()).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(RSVP_ERROR_BYTES, 4))));
@@ -210,17 +213,16 @@ public class PCEPTlvParserTest {
     @Test
     public void testRSVPError6SpecTlv() throws PCEPDeserializerException {
         final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
-        final RsvpErrorBuilder builder = new RsvpErrorBuilder();
-        builder.setNode(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
-            new byte[] {
-                (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
-                (byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
-                (byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0
-            }))));
-        builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ErrorSpec
-            .Flags(false, true));
-        builder.setCode((short) 213);
-        builder.setValue(50649);
+        final RsvpErrorBuilder builder = new RsvpErrorBuilder()
+                .setNode(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(new byte[] {
+                    (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+                    (byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x12, (byte) 0x34, (byte) 0x56,
+                    (byte) 0x78, (byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0
+                }))))
+                .setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ErrorSpec
+                    .Flags(false, true))
+                .setCode(Uint8.valueOf(213))
+                .setValue(Uint16.valueOf(50649));
         final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder()
                 .setErrorType(new RsvpCaseBuilder().setRsvpError(builder.build()).build()).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(RSVP_ERROR6_BYTES, 4))));
@@ -232,11 +234,11 @@ public class PCEPTlvParserTest {
     @Test
     public void testUserErrorSpecTlv() throws PCEPDeserializerException {
         final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
-        final UserErrorBuilder builder = new UserErrorBuilder();
-        builder.setEnterprise(new EnterpriseNumber(12345L));
-        builder.setSubOrg((short) 5);
-        builder.setValue(38);
-        builder.setDescription("user desc");
+        final UserErrorBuilder builder = new UserErrorBuilder()
+                .setEnterprise(new EnterpriseNumber(Uint32.valueOf(12345)))
+                .setSubOrg(Uint8.valueOf(5))
+                .setValue(Uint16.valueOf(38))
+                .setDescription("user desc");
         final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder()
                 .setErrorType(new UserCaseBuilder().setUserError(builder.build()).build()).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(USER_ERROR_BYTES, 4))));
@@ -252,7 +254,7 @@ public class PCEPTlvParserTest {
         };
         final PathBindingTlvParser parser = new PathBindingTlvParser();
         final PathBindingBuilder builder = new PathBindingBuilder();
-        builder.setBindingTypeValue(new MplsLabelBuilder().setMplsLabel(new MplsLabel(688_374L)).build());
+        builder.setBindingTypeValue(new MplsLabelBuilder().setMplsLabel(new MplsLabel(Uint32.valueOf(688374))).build());
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(builder.build(), buff);
         assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
@@ -273,12 +275,11 @@ public class PCEPTlvParserTest {
         };
         final PathBindingTlvParser parser = new PathBindingTlvParser();
         final PathBindingBuilder builder = new PathBindingBuilder();
-        builder.setBindingTypeValue(
-            new MplsLabelEntryBuilder()
-            .setTrafficClass((short) 6)
-            .setTimeToLive((short) 173)
+        builder.setBindingTypeValue(new MplsLabelEntryBuilder()
+            .setTrafficClass(Uint8.valueOf(6))
+            .setTimeToLive(Uint8.valueOf(173))
             .setBottomOfStack(true)
-            .setLabel(new MplsLabel(688_374L)).build());
+            .setLabel(new MplsLabel(Uint32.valueOf(688374))).build());
         final PathBinding tlv = builder.build();
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);

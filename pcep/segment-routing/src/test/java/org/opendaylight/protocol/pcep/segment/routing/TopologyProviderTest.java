@@ -49,6 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
 
@@ -68,7 +70,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
     public void testOnReportMessage() throws ExecutionException, InterruptedException {
         this.listener.onSessionUp(this.session);
 
-        Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", 1L, true);
+        Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", Uint32.ONE, true);
         this.listener.onMessage(this.session, pcRptMsg);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check sr-path
@@ -86,7 +88,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
             return pcc;
         });
 
-        pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", 2L, false);
+        pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", Uint32.valueOf(2), false);
         this.listener.onMessage(this.session, pcRptMsg);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check second lsp sr-path
@@ -97,7 +99,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         });
 
 
-        pcRptMsg = createSrPcRpt("1.1.1.2", "sr-path1", 1L, true);
+        pcRptMsg = createSrPcRpt("1.1.1.2", "sr-path1", Uint32.ONE, true);
         this.listener.onMessage(this.session, pcRptMsg);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check updated sr-path
@@ -116,7 +118,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         });
     }
 
-    private static Pcrpt createSrPcRpt(final String nai, final String pathName, final long plspId,
+    private static Pcrpt createSrPcRpt(final String nai, final String pathName, final Uint32 plspId,
             final boolean hasLspIdTlv) {
         final TlvsBuilder lspTlvBuilder = new TlvsBuilder();
         if (hasLspIdTlv) {
@@ -128,22 +130,22 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
                 .setTlvs(lspTlvBuilder.setSymbolicPathName(new SymbolicPathNameBuilder()
                     .setPathName(new SymbolicPathName(pathName.getBytes(StandardCharsets.UTF_8))).build()).build())
                 .build())
-            .setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).setTlvs(
+            .setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(Uint32.ZERO)).setTlvs(
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109
                     .srp.object.srp.TlvsBuilder()
-                        .setPathSetupType(new PathSetupTypeBuilder().setPst((short) 1).build()).build()).build())
+                        .setPathSetupType(new PathSetupTypeBuilder().setPst(Uint8.ONE).build()).build()).build())
             .setPath(new PathBuilder().setEro(createSrEroObject(nai)).build())
             .build())).build()).build();
     }
 
     private static Ero createSrEroObject(final String nai) {
-        final SrEroTypeBuilder srEroBuilder = new SrEroTypeBuilder();
-        srEroBuilder.setCFlag(false);
-        srEroBuilder.setMFlag(false);
-        srEroBuilder.setSidType(SidType.Ipv4NodeId);
-        srEroBuilder.setSid(123456L);
-        srEroBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(nai)))
-            .build());
+        final SrEroTypeBuilder srEroBuilder = new SrEroTypeBuilder()
+                .setCFlag(false)
+                .setMFlag(false)
+                .setSidType(SidType.Ipv4NodeId)
+                .setSid(Uint32.valueOf(123456))
+                .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(nai)))
+                    .build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroBuilder.build())
                 .setLoose(false);
 

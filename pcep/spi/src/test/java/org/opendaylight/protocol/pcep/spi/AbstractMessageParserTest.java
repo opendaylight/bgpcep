@@ -39,12 +39,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.RepliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObjectBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractMessageParserTest {
 
-    private static final EnterpriseNumber EN = new EnterpriseNumber(0L);
+    private static final EnterpriseNumber EN = new EnterpriseNumber(Uint32.ZERO);
 
     private Object object;
 
@@ -82,7 +83,7 @@ public class AbstractMessageParserTest {
 
     @Before
     public void setUp() throws PCEPDeserializerException {
-        this.object = new ErrorObjectBuilder().setType((short) 1).setValue((short) 1).build();
+        this.object = new ErrorObjectBuilder().setType(Uint8.ONE).setValue(Uint8.ONE).build();
         this.viObject = new VendorInformationObjectBuilder().setEnterpriseNumber(EN).build();
         doNothing().when(this.registry).serializeVendorInformationObject(any(VendorInformationObject.class),
             any(ByteBuf.class));
