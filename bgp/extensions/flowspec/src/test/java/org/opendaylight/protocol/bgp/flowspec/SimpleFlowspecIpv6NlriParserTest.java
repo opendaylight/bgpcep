@@ -138,7 +138,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
         fs.add(builder.build());
 
         final List<NextHeaders> nextheaders = Lists.newArrayList(new NextHeadersBuilder().setOp(
-            new NumericOperand(false, true, true, false, false)).setValue((short) 6).build());
+            new NumericOperand(false, true, true, false, false)).setValue(Uint8.valueOf(6)).build());
         final NextHeaderCase headersCase = new NextHeaderCaseBuilder().setNextHeaders(nextheaders).build();
         builder.setFlowspecType(headersCase);
         fs.add(builder.build());
@@ -197,7 +197,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
         fs.add(builder.build());
 
         final List<NextHeaders> nextheaders = Lists.newArrayList(new NextHeadersBuilder().setOp(
-            new NumericOperand(false, true, true, false, false)).setValue((short) 6).build());
+            new NumericOperand(false, true, true, false, false)).setValue(Uint8.valueOf(6)).build());
         final NextHeaderCase headersCase = new NextHeaderCaseBuilder().setNextHeaders(nextheaders).build();
         builder.setFlowspecType(headersCase);
         fs.add(builder.build());
@@ -297,9 +297,9 @@ public class SimpleFlowspecIpv6NlriParserTest {
     private static FlowspecType createLabel() {
         final List<FlowLabel> labels = new ArrayList<>(2);
         labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, false, true, false, false))
-            .setValue(16777222L).build());
+            .setValue(Uint32.valueOf(16777222)).build());
         labels.add(new FlowLabelBuilder().setOp(new NumericOperand(false, true, true, false, false))
-            .setValue(258L).build());
+            .setValue(Uint32.valueOf(258)).build());
         return new FlowLabelCaseBuilder().setFlowLabel(labels).build();
     }
 
@@ -420,12 +420,13 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new NextHeaderCaseBuilder().setNextHeaders(Lists.newArrayList(
-            new NextHeadersBuilder().setValue((short) 100).setOp(new NumericOperand(true, true, false, false, false))
-            .build(),
-            new NextHeadersBuilder().setValue((short) 200).setOp(new NumericOperand(true, false, false, false, false))
-            .build(),
-            new NextHeadersBuilder().setValue((short) 210).setOp(new NumericOperand(true, true, true, false, false))
-            .build())).build());
+            new NextHeadersBuilder().setValue(Uint8.valueOf(100))
+                .setOp(new NumericOperand(true, true, false, false, false)).build(),
+            new NextHeadersBuilder().setValue(Uint8.valueOf(200))
+                .setOp(new NumericOperand(true, false, false, false, false)).build(),
+            new NextHeadersBuilder().setValue(Uint8.valueOf(210))
+                .setOp(new NumericOperand(true, true, true, false, false)).build()))
+            .build());
         final List<Flowspec> expectedValue = new ArrayList<>();
         expectedValue.add(expectedFS.build());
         assertEquals(expectedValue, this.fsParser.extractFlowspec(entry.build()));
@@ -458,8 +459,10 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new FlowLabelCaseBuilder().setFlowLabel(Lists.newArrayList(
-            new FlowLabelBuilder().setValue(100L).setOp(new NumericOperand(true, true, false, false, false)).build(),
-            new FlowLabelBuilder().setValue(200L).setOp(new NumericOperand(true, false, false, false, false)).build()))
+            new FlowLabelBuilder().setValue(Uint32.valueOf(100))
+                .setOp(new NumericOperand(true, true, false, false, false)).build(),
+            new FlowLabelBuilder().setValue(Uint32.valueOf(200))
+                .setOp(new NumericOperand(true, false, false, false, false)).build()))
             .build());
         final List<Flowspec> expectedValue = new ArrayList<>();
         expectedValue.add(expectedFS.build());

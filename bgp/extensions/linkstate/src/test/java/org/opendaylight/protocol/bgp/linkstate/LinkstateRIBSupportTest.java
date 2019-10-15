@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNull;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Assert;
@@ -61,6 +60,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -73,19 +75,19 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
     private static final LinkstateRoute ROUTE;
     private static final LinkstateRoutes ROUTES;
     private static final LinkstateRouteKey ROUTE_KEY;
-    private static final PathId PATH_ID = new PathId(0L);
-
+    private static final PathId PATH_ID = new PathId(Uint32.ZERO);
 
     private static final NodeCase OBJECT_TYPE2 = new NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder()
-        .setAreaId(new AreaIdentifier(2697513L)).setAsNumber(new AsNumber(72L)).setCRouterIdentifier(
-            new IsisPseudonodeCaseBuilder()
+        .setAreaId(new AreaIdentifier(Uint32.valueOf(2697513)))
+        .setAsNumber(new AsNumber(Uint32.valueOf(72)))
+        .setCRouterIdentifier(new IsisPseudonodeCaseBuilder()
             .setIsisPseudonode(new IsisPseudonodeBuilder().setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder()
                 .setIsoSystemId(new IsoSystemIdentifier(new byte[]{0, 0, 0, 0, 0, (byte) 0x39})).build())
-                .setPsn((short) 5).build()).build())
-        .setDomainId(new DomainIdentifier(28282828L)).build()).build();
+                .setPsn(Uint8.valueOf(5)).build()).build())
+        .setDomainId(new DomainIdentifier(Uint32.valueOf(28282828))).build()).build();
 
     private static final RouteDistinguisher RD = new RouteDistinguisher(new RdTwoOctetAs("0:5:3"));
-    private static final Identifier ID = new Identifier(BigInteger.ONE);
+    private static final Identifier ID = new Identifier(Uint64.ONE);
     private static final CLinkstateDestination LINKSTATE_DESTINATION = new CLinkstateDestinationBuilder()
         .setRouteDistinguisher(RD)
         .setIdentifier(ID)

@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.UnrecognizedAttributesBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class UnrecognizedAttributesSerializerTest {
 
@@ -38,10 +39,10 @@ public class UnrecognizedAttributesSerializerTest {
         };
         final List<UnrecognizedAttributes> unrecognizedAttrs = new ArrayList<>();
         final UnrecognizedAttributes unrecognizedAttribute1 = new UnrecognizedAttributesBuilder().setPartial(true)
-                .setTransitive(true).setType((short) 101).setValue(unrecognizedValue1).build();
+                .setTransitive(true).setType(Uint8.valueOf(101)).setValue(unrecognizedValue1).build();
         unrecognizedAttrs.add(unrecognizedAttribute1);
         final UnrecognizedAttributes unrecognizedAttribute2 = new UnrecognizedAttributesBuilder().setPartial(true)
-                .setTransitive(true).setType((short) 102).setValue(unrecognizedValue2).build();
+                .setTransitive(true).setType(Uint8.valueOf(102)).setValue(unrecognizedValue2).build();
         unrecognizedAttrs.add(unrecognizedAttribute2);
         final Attributes attrs = new AttributesBuilder().setUnrecognizedAttributes(unrecognizedAttrs).build();
 

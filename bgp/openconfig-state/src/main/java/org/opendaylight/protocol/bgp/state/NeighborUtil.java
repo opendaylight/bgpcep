@@ -168,7 +168,7 @@ public final class NeighborUtil {
         final long uptimeTicks = neighbor.getUpTime() / 10 % TIMETICK_ROLLOVER_VALUE;
         final NeighborTimersStateAugmentation timerState = new NeighborTimersStateAugmentationBuilder()
                 .setNegotiatedHoldTime(BigDecimal.valueOf(neighbor.getNegotiatedHoldTime()))
-                .setUptime(new Timeticks(uptimeTicks)).build();
+                .setUptime(new Timeticks(Uint32.valueOf(uptimeTicks))).build();
 
         return new TimersBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp
                 .neighbor.group.timers.StateBuilder()

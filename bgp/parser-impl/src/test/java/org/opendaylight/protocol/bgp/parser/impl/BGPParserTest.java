@@ -75,6 +75,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.route.target.ipv4.grouping.RouteTargetIpv4Builder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class BGPParserTest {
     private static final List<byte[]> INPUT_BYTES = new ArrayList<>();
@@ -188,7 +190,7 @@ public class BGPParserTest {
 
         // attributes
         final List<AsNumber> asNumbers = new ArrayList<>();
-        asNumbers.add(new AsNumber(65002L));
+        asNumbers.add(new AsNumber(Uint32.valueOf(65002)));
         final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
@@ -229,7 +231,7 @@ public class BGPParserTest {
         paBuilder.setCNextHop(nextHop);
         assertEquals(paBuilder.getCNextHop(), attrs.getCNextHop());
 
-        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed((long) 0).build());
+        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         assertEquals(paBuilder.getMultiExitDisc(), attrs.getMultiExitDisc());
 
         paBuilder.setAtomicAggregate(new AtomicAggregateBuilder().build());
@@ -309,14 +311,15 @@ public class BGPParserTest {
 
         // attributes
         final List<AsNumber> asNumbers = new ArrayList<>();
-        asNumbers.add(new AsNumber(30L));
+        asNumbers.add(new AsNumber(Uint32.valueOf(30)));
         final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
-        final List<AsNumber> asSet = Lists.newArrayList(new AsNumber(10L), new AsNumber(20L));
+        final List<AsNumber> asSet = Lists.newArrayList(new AsNumber(Uint32.valueOf(10)),
+            new AsNumber(Uint32.valueOf(20)));
         asPath.add(new SegmentsBuilder().setAsSet(asSet).build());
 
-        final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber((long) 30)).setNetworkAddress(
-                new Ipv4Address("10.0.0.9")).build();
+        final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(30)))
+                .setNetworkAddress(new Ipv4Address("10.0.0.9")).build();
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
 
@@ -334,7 +337,7 @@ public class BGPParserTest {
         paBuilder.setCNextHop(nextHop);
         assertEquals(paBuilder.getCNextHop(), attrs.getCNextHop());
 
-        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed((long) 0).build());
+        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         assertEquals(paBuilder.getMultiExitDisc(), attrs.getMultiExitDisc());
 
         paBuilder.setAggregator(aggregator);
@@ -416,11 +419,15 @@ public class BGPParserTest {
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
 
         final List<ExtendedCommunities> comms = new ArrayList<>();
-        comms.add(new ExtendedCommunitiesBuilder().setTransitive(true).setExtendedCommunity(
-                new RouteTargetIpv4CaseBuilder().setRouteTargetIpv4(
-                        new RouteTargetIpv4Builder().setGlobalAdministrator(
-                                new Ipv4Address("192.168.1.0")).setLocalAdministrator(4660)
-                                .build()).build()).build());
+        comms.add(new ExtendedCommunitiesBuilder()
+            .setTransitive(true)
+            .setExtendedCommunity(new RouteTargetIpv4CaseBuilder()
+                .setRouteTargetIpv4(new RouteTargetIpv4Builder()
+                    .setGlobalAdministrator(new Ipv4Address("192.168.1.0"))
+                    .setLocalAdministrator(Uint16.valueOf(4660))
+                    .build())
+                .build())
+            .build());
 
         // check path attributes
         final Attributes attrs = message.getAttributes();
@@ -436,10 +443,10 @@ public class BGPParserTest {
         paBuilder.setCNextHop(nextHop);
         assertEquals(paBuilder.getCNextHop(), attrs.getCNextHop());
 
-        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed((long) 0).build());
+        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         assertEquals(paBuilder.getMultiExitDisc(), attrs.getMultiExitDisc());
 
-        paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
+        paBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build());
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
         paBuilder.setExtendedCommunities(comms);
@@ -640,7 +647,7 @@ public class BGPParserTest {
 
         // attributes
         final List<AsNumber> asNumbers = new ArrayList<>();
-        asNumbers.add(new AsNumber(65002L));
+        asNumbers.add(new AsNumber(Uint32.valueOf(65002)));
         final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
@@ -658,9 +665,12 @@ public class BGPParserTest {
         // check nlri
 
         final List<Nlri> nlris = new ArrayList<>();
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(1L)).build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(2L)).build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).setPathId(new PathId(1L)).build());
+        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.ONE))
+            .build());
+        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.valueOf(2)))
+            .build());
+        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).setPathId(new PathId(Uint32.ONE))
+            .build());
 
         assertEquals(nlris, message.getNlri());
 
@@ -681,7 +691,7 @@ public class BGPParserTest {
         paBuilder.setCNextHop(nextHop);
         assertEquals(paBuilder.getCNextHop(), attrs.getCNextHop());
 
-        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed((long) 0).build());
+        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         assertEquals(paBuilder.getMultiExitDisc(), attrs.getMultiExitDisc());
 
         paBuilder.setAtomicAggregate(new AtomicAggregateBuilder().build());
@@ -726,9 +736,9 @@ public class BGPParserTest {
         // attributes
         final List<WithdrawnRoutes> withdrawnRoutes = new ArrayList<>();
         withdrawnRoutes.add(new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("172.16.0.4/30"))
-            .setPathId(new PathId(1L)).build());
+            .setPathId(new PathId(Uint32.ONE)).build());
         withdrawnRoutes.add(new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("172.16.0.4/30"))
-            .setPathId(new PathId(2L)).build());
+            .setPathId(new PathId(Uint32.valueOf(2))).build());
 
         // check API message
         final Update expectedMessage = new UpdateBuilder().setWithdrawnRoutes(withdrawnRoutes).build();

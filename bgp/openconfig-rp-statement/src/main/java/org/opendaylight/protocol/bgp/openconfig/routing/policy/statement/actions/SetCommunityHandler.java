@@ -75,7 +75,7 @@ public final class SetCommunityHandler extends AbstractCommunityHandler implemen
         return inlineSetComm(attributes, this.communitySets.getUnchecked(setKey), options);
     }
 
-    private Attributes inlineSetComm(
+    private static Attributes inlineSetComm(
             final Attributes attributes,
             final List<Communities> actionCommunities,
             final BgpSetCommunityOptionType options) {

@@ -48,6 +48,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.as._4.spec.common.As4SpecificCommon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.as._4.spec.common.As4SpecificCommonBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -57,11 +59,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
 public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<RouteTargetConstrainRoutesCase,
         RouteTargetConstrainRoutes, RouteTargetConstrainRoute, RouteTargetConstrainRouteKey> {
-    private static final AsNumber ORIGIN_AS = new AsNumber(72L);
-    private static final PathId PATH_ID = new PathId(0L);
+    private static final AsNumber ORIGIN_AS = new AsNumber(Uint32.valueOf(72));
+    private static final PathId PATH_ID = new PathId(Uint32.ZERO);
     private static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder()
-            .setAsNumber(new AsNumber(20L))
-            .setLocalAdministrator(100)
+            .setAsNumber(new AsNumber(Uint32.valueOf(20)))
+            .setLocalAdministrator(Uint16.valueOf(100))
             .build();
     private static final RouteTargetConstrainChoice RT = new RouteTargetConstrainAs4ExtendedCommunityCaseBuilder()
             .setAs4RouteTargetExtendedCommunity(new As4RouteTargetExtendedCommunityBuilder()

@@ -22,13 +22,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.update.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.bgp.prefix.sid.tlv.LuLabelIndexTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.update.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.bgp.prefix.sid.tlv.LuOriginatorSrgbTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.update.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.bgp.prefix.sid.tlv.LuOriginatorSrgbTlvBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class BgpPrefixSidTlvsTest {
 
     @Test
     public void testLabelIndexParser() {
         final LabelIndexTlvParser parser = new LabelIndexTlvParser();
-        final LuLabelIndexTlv tlv = new LuLabelIndexTlvBuilder().setLabelIndexTlv(333L).build();
+        final LuLabelIndexTlv tlv = new LuLabelIndexTlvBuilder().setLabelIndexTlv(Uint32.valueOf(333)).build();
         final ByteBuf serialized = Unpooled.buffer(7);
         final byte[] expected = new byte[] {0, 0, 0, 0, 0, 1, (byte)0x4d};
         parser.serializeBgpPrefixSidTlv(tlv, serialized);
@@ -44,8 +45,8 @@ public final class BgpPrefixSidTlvsTest {
         final OriginatorSrgbTlvParser parser = new OriginatorSrgbTlvParser();
         final List<SrgbValue> list = new ArrayList<>();
 
-        final Srgb srgb1 = new Srgb(1L);
-        final Srgb srgb2 = new Srgb(2L);
+        final Srgb srgb1 = new Srgb(Uint32.ONE);
+        final Srgb srgb2 = new Srgb(Uint32.valueOf(2));
         list.add(new SrgbValueBuilder().setBase(srgb1).setRange(srgb2).build());
         list.add(new SrgbValueBuilder().setBase(srgb2).setRange(srgb1).build());
 

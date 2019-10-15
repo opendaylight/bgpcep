@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -54,10 +55,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
 public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv4Case, MvpnRoutesIpv4, MvpnRoute,
         MvpnRouteKey> {
-    private static final PathId PATH_ID = new PathId(0L);
+    private static final PathId PATH_ID = new PathId(Uint32.ZERO);
     private static final MvpnChoice MVPN = new InterAsIPmsiADCaseBuilder().setInterAsIPmsiAD(
             new InterAsIPmsiADBuilder()
-                    .setSourceAs(new AsNumber(1L))
+                    .setSourceAs(new AsNumber(Uint32.ONE))
                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                     .build()).build();
     private static final MvpnRouteKey ROUTE_KEY = new MvpnRouteKey(PATH_ID, "AgwAAQECAwQBAgAAAAE=");

@@ -52,13 +52,13 @@ public class GracefulCapabilityHandlerTest {
             (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x80
         };
 
-        final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder();
-        capaBuilder.setRestartFlags(new RestartFlags(true));
-        capaBuilder.setRestartTime(500);
-        final TablesBuilder tablesBuilder = new TablesBuilder();
-        tablesBuilder.setAfiFlags(new AfiFlags(true));
-        tablesBuilder.setAfi(Ipv4AddressFamily.class);
-        tablesBuilder.setSafi(UnicastSubsequentAddressFamily.class);
+        final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
+                .setRestartFlags(new RestartFlags(true))
+                .setRestartTime(Uint16.valueOf(500));
+        final TablesBuilder tablesBuilder = new TablesBuilder()
+                .setAfiFlags(new AfiFlags(true))
+                .setAfi(Ipv4AddressFamily.class)
+                .setSafi(UnicastSubsequentAddressFamily.class);
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer(capaBytes.length);
@@ -75,7 +75,7 @@ public class GracefulCapabilityHandlerTest {
             (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x00
         };
         capaBuilder.setRestartFlags(new RestartFlags(false));
-        capaBuilder.setRestartTime(0);
+        capaBuilder.setRestartTime(Uint16.ZERO);
         tablesBuilder.setAfiFlags(new AfiFlags(false));
         capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
         buffer.clear();
@@ -100,7 +100,7 @@ public class GracefulCapabilityHandlerTest {
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
         };
         capaBuilder.setRestartFlags(new RestartFlags(false));
-        capaBuilder.setRestartTime(0);
+        capaBuilder.setRestartTime(Uint16.ZERO);
         capaBuilder.setTables(Collections.emptyList());
         Assert.assertEquals(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(),
@@ -125,7 +125,7 @@ public class GracefulCapabilityHandlerTest {
         Assert.assertEquals(new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
             .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
                 .setRestartFlags(new RestartFlags(Boolean.FALSE))
-                .setRestartTime(0).setTables(Collections.emptyList()).build()).build()).build(),
+                .setRestartTime(Uint16.ZERO).setTables(Collections.emptyList()).build()).build()).build(),
             handler.parseCapability(Unpooled.wrappedBuffer(capaBytes5).slice(2, capaBytes5.length - 2)));
     }
 
@@ -136,7 +136,7 @@ public class GracefulCapabilityHandlerTest {
 
         final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder();
         capaBuilder.setRestartFlags(new RestartFlags(true));
-        capaBuilder.setRestartTime(50);
+        capaBuilder.setRestartTime(Uint16.valueOf(50));
         final TablesBuilder tablesBuilder = new TablesBuilder();
         tablesBuilder.setAfiFlags(new AfiFlags(true));
 
@@ -156,7 +156,7 @@ public class GracefulCapabilityHandlerTest {
 
         final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder();
         capaBuilder.setRestartFlags(new RestartFlags(true));
-        capaBuilder.setRestartTime(50);
+        capaBuilder.setRestartTime(Uint16.valueOf(50));
         final TablesBuilder tablesBuilder = new TablesBuilder();
         tablesBuilder.setAfiFlags(new AfiFlags(true));
         tablesBuilder.setAfi(Ipv4AddressFamily.class);
@@ -173,18 +173,19 @@ public class GracefulCapabilityHandlerTest {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
             this.ctx.getSubsequentAddressFamilyRegistry());
 
-        final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder();
-        capaBuilder.setRestartFlags(new RestartFlags(true));
-        capaBuilder.setRestartTime(-1);
-        final TablesBuilder tablesBuilder = new TablesBuilder();
-        tablesBuilder.setAfiFlags(new AfiFlags(true));
-        tablesBuilder.setAfi(Ipv4AddressFamily.class);
-        tablesBuilder.setSafi(UnicastSubsequentAddressFamily.class);
-        capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
+        final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
+                .setRestartFlags(new RestartFlags(true))
+                .setRestartTime(-1);
+        capaBuilder.setTables(Lists.newArrayList(new TablesBuilder()
+            .setAfiFlags(new AfiFlags(true))
+            .setAfi(Ipv4AddressFamily.class)
+            .setSafi(UnicastSubsequentAddressFamily.class)
+            .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
+        handler.serializeCapability(new CParametersBuilder()
+            .addAugmentation(CParameters1.class, new CParameters1Builder()
+                .setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -192,17 +193,19 @@ public class GracefulCapabilityHandlerTest {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
             this.ctx.getSubsequentAddressFamilyRegistry());
 
-        final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder();
-        capaBuilder.setRestartFlags(new RestartFlags(true));
-        capaBuilder.setRestartTime(50 * 1000);
-        final TablesBuilder tablesBuilder = new TablesBuilder();
-        tablesBuilder.setAfiFlags(new AfiFlags(true));
-        tablesBuilder.setAfi(Ipv4AddressFamily.class);
-        tablesBuilder.setSafi(UnicastSubsequentAddressFamily.class);
-        capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
+        final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
+                .setRestartFlags(new RestartFlags(true))
+                .setRestartTime(Uint16.valueOf(50000));
+
+        capaBuilder.setTables(Lists.newArrayList(new TablesBuilder()
+            .setAfiFlags(new AfiFlags(true))
+            .setAfi(Ipv4AddressFamily.class)
+            .setSafi(UnicastSubsequentAddressFamily.class)
+            .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability(new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
+        handler.serializeCapability(new CParametersBuilder()
+            .addAugmentation(CParameters1.class, new CParameters1Builder()
+                .setGracefulRestartCapability(capaBuilder.build()).build()).build(), buffer);
     }
 }

@@ -42,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainerBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class XROSubobjectParserTest {
     private static final byte[] IP_4_PREFIX_BYTES = {(byte) 0x01, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -124,11 +126,12 @@ public class XROSubobjectParserTest {
     @Test
     public void testXROSrlgSubobject() throws RSVPParsingException {
         final XROSrlgSubobjectParser parser = new XROSrlgSubobjectParser();
-        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
-        subs.setMandatory(true);
-        subs.setAttribute(ExcludeRouteSubobjects.Attribute.Srlg);
-        subs.setSubobjectType(new SrlgCaseBuilder().setSrlg(new SrlgBuilder().setSrlgId(new SrlgId(0x12345678L))
-            .build()).build());
+        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder()
+                .setMandatory(true)
+                .setAttribute(ExcludeRouteSubobjects.Attribute.Srlg)
+                .setSubobjectType(new SrlgCaseBuilder()
+                    .setSrlg(new SrlgBuilder().setSrlgId(new SrlgId(Uint32.valueOf(0x12345678L))).build())
+                    .build());
         assertEquals(subs.build(), parser.parseSubobject(
             Unpooled.wrappedBuffer(ByteArray.cutBytes(SRLG_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -152,11 +155,15 @@ public class XROSubobjectParserTest {
     @Test
     public void testXROUnnumberedSubobject() throws RSVPParsingException {
         final XROUnnumberedInterfaceSubobjectParser parser = new XROUnnumberedInterfaceSubobjectParser();
-        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
-        subs.setMandatory(true);
-        subs.setAttribute(ExcludeRouteSubobjects.Attribute.Node);
-        subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
-            new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build()).build());
+        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder()
+                .setMandatory(true)
+                .setAttribute(ExcludeRouteSubobjects.Attribute.Node)
+                .setSubobjectType(new UnnumberedCaseBuilder()
+                    .setUnnumbered(new UnnumberedBuilder()
+                        .setRouterId(Uint32.valueOf(0x12345000L))
+                        .setInterfaceId(Uint32.valueOf(0xffffffffL))
+                        .build())
+                    .build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(UNNUMBERED_BYTES,
             2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -180,10 +187,13 @@ public class XROSubobjectParserTest {
     @Test
     public void testXROAsNumberSubobject() throws RSVPParsingException {
         final XROAsNumberSubobjectParser parser = new XROAsNumberSubobjectParser();
-        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
-        subs.setMandatory(true);
-        subs.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(
-            new AsNumber(0x64L)).build()).build());
+        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder()
+                .setMandatory(true)
+                .setSubobjectType(new AsNumberCaseBuilder()
+                    .setAsNumber(new AsNumberBuilder()
+                        .setAsNumber(new AsNumber(Uint32.valueOf(0x64)))
+                        .build())
+                    .build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(
             ByteArray.cutBytes(AS_NUMBER_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -211,7 +221,7 @@ public class XROSubobjectParserTest {
         subs.setMandatory(true);
         final PathKeyBuilder pBuilder = new PathKeyBuilder();
         pBuilder.setPceId(new PceId(new byte[]{(byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00}));
-        pBuilder.setPathKey(new PathKey(4660));
+        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY_32_BYTES, 2)
         ), true));
@@ -244,7 +254,7 @@ public class XROSubobjectParserTest {
             (byte) 0xBC, (byte) 0xDE,
             (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
             (byte) 0x00}));
-        pBuilder.setPathKey(new PathKey(4660));
+        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(), parser128.parseSubobject(Unpooled.wrappedBuffer(
             ByteArray.cutBytes(PATH_KEY_128_BYTES, 2)), true));

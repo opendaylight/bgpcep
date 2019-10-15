@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -28,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.LeafADCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class LeafADHandlerTest {
     private static final byte[] LEAF_AD = new byte[]{
@@ -50,7 +50,7 @@ public class LeafADHandlerTest {
             .setLeafADRouteKey(
                     new InterAsIPmsiADCaseBuilder().setInterAsIPmsiAD(
                             new InterAsIPmsiADBuilder()
-                                    .setSourceAs(new AsNumber(1L))
+                                    .setSourceAs(new AsNumber(Uint32.ONE))
                                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                                     .build()
                     ).build())

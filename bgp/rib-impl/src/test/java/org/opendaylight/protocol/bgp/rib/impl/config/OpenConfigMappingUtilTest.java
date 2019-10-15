@@ -103,6 +103,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class OpenConfigMappingUtilTest {
     private static final Neighbor NEIGHBOR = createNeighborExpected(NEIGHBOR_ADDRESS);
@@ -116,17 +119,18 @@ public class OpenConfigMappingUtilTest {
     private static final Ipv4Address CLUSTER_ID = new Ipv4Address("4.3.2.1");
     private static final Ipv4Address LOCAL_HOST = new Ipv4Address("127.0.0.1");
 
-    private static final Short ALL_PATHS = 0;
-    private static final Short N_PATHS = 2;
-    private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION = new AddPathBestNPathSelection(N_PATHS);
+    private static final Uint8 ALL_PATHS = Uint8.ZERO;
+    private static final Uint8 N_PATHS = Uint8.valueOf(2);
+    private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION =
+            new AddPathBestNPathSelection(N_PATHS.toJava());
     private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection();
     private static final BgpTableType BGP_TABLE_TYPE_IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
     private static final BgpTableType BGP_TABLE_TYPE_IPV6
             = new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
-    private static final AsNumber AS = new AsNumber(72L);
-    private static final AsNumber GLOBAL_AS = new AsNumber(73L);
+    private static final AsNumber AS = new AsNumber(Uint32.valueOf(72));
+    private static final AsNumber GLOBAL_AS = new AsNumber(Uint32.valueOf(73));
     private static final List<AddressFamilies> FAMILIES;
     private static final List<BgpTableType> TABLE_TYPES;
     private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
@@ -286,7 +290,7 @@ public class OpenConfigMappingUtilTest {
         assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder().setTransport(
                 transport.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor
                         .group.transport.ConfigBuilder().build()).build()).build(), null));
-        final PortNumber newPort = new PortNumber(111);
+        final PortNumber newPort = new PortNumber(Uint16.valueOf(111));
         final Config portConfig = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor
                 .group.transport.ConfigBuilder().addAugmentation(NeighborTransportConfig.class,
                 new NeighborTransportConfigBuilder().setRemotePort(newPort).build()).build();
@@ -482,8 +486,8 @@ public class OpenConfigMappingUtilTest {
         assertEquals(HOLDTIMER, timer);
     }
 
-    private org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful.restart
-            .Config createGracefulConfig(final Integer restartTimer) {
+    private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful
+            .restart.Config createGracefulConfig(final Integer restartTimer) {
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.graceful
                 .restart.ConfigBuilder().setRestartTime(restartTimer).build();
     }

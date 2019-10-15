@@ -18,6 +18,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class CommonPathKeyParserTest {
     private final byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
@@ -29,10 +30,10 @@ public class CommonPathKeyParserTest {
     public void setUp() {
         this.key1 = new PathKeyBuilder().build();
         this.key2 = new PathKeyBuilder().setPathKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.rsvp.rev150820.PathKey(1))
+            .yang.rsvp.rev150820.PathKey(Uint16.ONE))
             .build();
         this.key3 = new PathKeyBuilder().setPathKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.rsvp.rev150820.PathKey(1))
+            .yang.rsvp.rev150820.PathKey(Uint16.ONE))
             .setPceId(new PceId(new byte[]{2, 3, 4, 5}))
             .build();
     }

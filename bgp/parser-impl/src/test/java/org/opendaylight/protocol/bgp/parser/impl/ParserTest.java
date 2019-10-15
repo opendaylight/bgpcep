@@ -42,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class ParserTest {
     private static final byte[] OPEN_BMSG = new byte[] {
@@ -195,20 +197,24 @@ public class ParserTest {
 
     @Test
     public void testOpenMessage() throws UnknownHostException, BGPParsingException, BGPDocumentedException {
-        final Notification open = new OpenBuilder().setMyAsNumber(100).setHoldTimer(180)
-            .setBgpIdentifier(new Ipv4Address("20.20.20.20")).setVersion(
-            new ProtocolVersion((short) 4)).build();
+        final Notification open = new OpenBuilder()
+                .setMyAsNumber(Uint16.valueOf(100))
+                .setHoldTimer(Uint16.valueOf(180))
+                .setBgpIdentifier(new Ipv4Address("20.20.20.20"))
+                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+                .build();
         final ByteBuf bytes = Unpooled.buffer();
         ParserTest.reg.serializeMessage(open, bytes);
         assertArrayEquals(OPEN_BMSG, ByteArray.getAllBytes(bytes));
 
         final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
-
         assertTrue(m instanceof Open);
-        assertEquals(100, ((Open) m).getMyAsNumber().intValue());
-        assertEquals(180, ((Open) m).getHoldTimer().intValue());
-        assertEquals(new Ipv4Address("20.20.20.20"), ((Open) m).getBgpIdentifier());
-        assertTrue(((Open) m).getBgpParameters().isEmpty());
+
+        final Open mo = (Open) m;
+        assertEquals(100, mo.getMyAsNumber().intValue());
+        assertEquals(180, mo.getHoldTimer().intValue());
+        assertEquals(new Ipv4Address("20.20.20.20"), mo.getBgpIdentifier());
+        assertTrue(mo.getBgpParameters().isEmpty());
     }
 
     @Test

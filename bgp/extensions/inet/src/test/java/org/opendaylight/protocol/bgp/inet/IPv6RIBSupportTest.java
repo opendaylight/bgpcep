@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -47,7 +48,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesCase, Ipv6Routes, Ipv6Route,
         Ipv6RouteKey> {
     private IPv6RIBSupport ribSupport;
-    private static final PathId PATH_ID = new PathId(1L);
+    private static final PathId PATH_ID = new PathId(Uint32.ONE);
     private static final Ipv6Prefix PREFIX = new Ipv6Prefix("2001:db8:1:2::/64");
     private static final Ipv6RouteKey ROUTE_KEY = new Ipv6RouteKey(PATH_ID, PREFIX.getValue());
     private static final Ipv6Prefixes IPV6_PREFIXES = new Ipv6PrefixesBuilder().setPathId(PATH_ID)
@@ -129,7 +130,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
 
     @Test
     public void testRouteIdAddPath() {
-        final Ipv6RouteKey expected = new Ipv6RouteKey(new PathId(1L), PREFIX.getValue());
+        final Ipv6RouteKey expected = new Ipv6RouteKey(new PathId(Uint32.ONE), PREFIX.getValue());
         assertEquals(expected, this.ribSupport.createRouteListKey(expected.getPathId(), PREFIX.getValue()));
     }
 

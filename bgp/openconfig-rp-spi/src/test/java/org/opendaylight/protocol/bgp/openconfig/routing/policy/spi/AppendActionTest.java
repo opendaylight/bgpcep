@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AppendActionTest extends AbstractStatementRegistryTest {
     @Mock
@@ -64,8 +65,8 @@ public class AppendActionTest extends AbstractStatementRegistryTest {
                 .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
                 .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
                         .setGlobal(new Ipv4Address("4.5.6.7")).build()).build())
-                .setLocalPref(new LocalPrefBuilder().setPref(100L).build())
-                .setMultiExitDisc(new MultiExitDiscBuilder().setMed(15L).build())
+                .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build())
+                .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(15)).build())
                 .build();
         assertEquals(expected, result.getAttributes());
     }

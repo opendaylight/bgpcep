@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -33,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.pe.distinguisher.labels.attribute.pe.distinguisher.labels.attribute.PeDistinguisherLabelAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.pe.distinguisher.labels.attribute.pe.distinguisher.labels.attribute.PeDistinguisherLabelAttributeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class PEDistinguisherLabelsAttributeHandlerTest {
     /**
@@ -77,11 +77,11 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
 
         peAtt.add(new PeDistinguisherLabelAttributeBuilder()
                 .setPeAddress(new IpAddress(new Ipv4Address("127.0.0.1")))
-                .setMplsLabel(new MplsLabel(1L))
+                .setMplsLabel(new MplsLabel(Uint32.ONE))
                 .build());
         peAtt.add(new PeDistinguisherLabelAttributeBuilder()
                 .setPeAddress(new IpAddress(new Ipv4Address("127.0.0.2")))
-                .setMplsLabel(new MplsLabel(2L))
+                .setMplsLabel(new MplsLabel(Uint32.valueOf(2)))
                 .build());
         return new AttributesBuilder()
                 .setUnrecognizedAttributes(Collections.emptyList())
