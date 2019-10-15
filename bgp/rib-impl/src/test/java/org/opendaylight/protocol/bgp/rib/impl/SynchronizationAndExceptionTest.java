@@ -99,13 +99,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final int HOLD_TIMER = 3;
-    private static final AsNumber AS_NUMBER = new AsNumber(30L);
+    private static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(30));
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
     private static final int LOCAL_PORT = 12345;
@@ -141,15 +144,20 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         super.setUp();
         new EmbeddedChannel();
         final List<BgpParameters> tlvs = new ArrayList<>();
-        this.classicOpen = new OpenBuilder().setMyAsNumber(AS_NUMBER.getValue().intValue()).setHoldTimer(HOLD_TIMER)
-                .setVersion(new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
+        this.classicOpen = new OpenBuilder()
+                .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
+                .setHoldTimer(Uint16.valueOf(HOLD_TIMER))
+                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+                .setBgpParameters(tlvs)
+                .setBgpIdentifier(BGP_ID)
+                .build();
 
         final List<OptionalCapabilities> capa = new ArrayList<>();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
                 .addAugmentation(CParameters1.class, new CParameters1Builder()
                         .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                                 .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
-                        .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().setRestartTime(0)
+                        .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().setRestartTime(Uint16.ZERO)
                                 .build()).build())
                 .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build())
                 .build());
@@ -236,7 +244,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         wrongMessage.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
 
         final UpdateBuilder correct = new UpdateBuilder(wrongMessage.build());
-        correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref((long) 100).build()).build());
+        correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build()).build());
 
         bgpSession.handleMessage(correct.build());
         verify(this.tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
@@ -285,7 +293,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         wrongMessage.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
 
         final UpdateBuilder correct = new UpdateBuilder(wrongMessage.build());
-        correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref((long) 100).build()).build());
+        correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build()).build());
 
         bgpSession.handleMessage(correct.build());
         verify(this.tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),

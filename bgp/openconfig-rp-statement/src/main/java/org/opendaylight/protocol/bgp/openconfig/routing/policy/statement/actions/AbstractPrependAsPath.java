@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 class AbstractPrependAsPath {
 
-    final Attributes prependAS(final Attributes attributes, final AsNumber as) {
+    static final Attributes prependAS(final Attributes attributes, final AsNumber as) {
         final List<Segments> oldSegments = attributes.getAsPath().getSegments();
         /*
          * We need to check the first segment.

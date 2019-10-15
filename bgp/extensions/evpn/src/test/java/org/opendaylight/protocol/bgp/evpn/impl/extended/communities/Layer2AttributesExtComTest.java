@@ -5,9 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl.extended.communities;
 
+import static java.lang.Boolean.TRUE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.COMMUNITY_VALUE_SIZE;
@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.Layer2AttributesExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.layer._2.attributes.extended.community.Layer2AttributesExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class Layer2AttributesExtComTest {
     private static final byte[] EXPECTEDS = {(byte) 0x00, (byte) 0x07, (byte) 0x01, (byte) 0x01,
@@ -46,8 +47,8 @@ public class Layer2AttributesExtComTest {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
         final Layer2AttributesExtendedCommunityCase expected = new Layer2AttributesExtendedCommunityCaseBuilder()
-                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
-                        .setControlWord(true).setPrimaryPe(true).setL2Mtu(257).build()).build();
+                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(TRUE)
+                        .setControlWord(TRUE).setPrimaryPe(TRUE).setL2Mtu(Uint16.valueOf(257)).build()).build();
         this.parser.serializeExtendedCommunity(expected, buff);
         final byte[] resultByte = ByteArray.getAllBytes(buff);
         assertArrayEquals(EXPECTEDS, resultByte);
@@ -61,8 +62,8 @@ public class Layer2AttributesExtComTest {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
         final Layer2AttributesExtendedCommunityCase expected = new Layer2AttributesExtendedCommunityCaseBuilder()
-                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
-                        .setControlWord(true).setPrimaryPe(true).setL2Mtu(257)
+                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(TRUE)
+                        .setControlWord(TRUE).setPrimaryPe(TRUE).setL2Mtu(Uint16.valueOf(257))
                         .setModeOfOperation(OperationalMode.VlanAwareFxc)
                         .setOperatingPer(NormalizationType.SingleVid)
                         .build()).build();
@@ -75,8 +76,8 @@ public class Layer2AttributesExtComTest {
 
         final ByteBuf buff2 = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
         final Layer2AttributesExtendedCommunityCase expected2 = new Layer2AttributesExtendedCommunityCaseBuilder()
-                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(true)
-                        .setControlWord(true).setPrimaryPe(true).setL2Mtu(257)
+                .setLayer2AttributesExtendedCommunity(new Layer2AttributesExtendedCommunityBuilder().setBackupPe(TRUE)
+                        .setControlWord(TRUE).setPrimaryPe(TRUE).setL2Mtu(Uint16.valueOf(257))
                         .setModeOfOperation(OperationalMode.VlanUnawareFxc)
                         .setOperatingPer(NormalizationType.DoubleVid)
                         .build()).build();

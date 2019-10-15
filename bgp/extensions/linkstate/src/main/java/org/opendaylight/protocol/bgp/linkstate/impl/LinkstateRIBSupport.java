@@ -123,9 +123,8 @@ public final class LinkstateRIBSupport
                     keys.add(routeKey);
                 }
                 return keys;
-            } else {
-                LOG.warn("Routes {} are not a map", routes);
             }
+            LOG.warn("Routes {} are not a map", routes);
         }
         return Collections.emptyList();
     }

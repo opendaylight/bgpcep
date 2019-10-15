@@ -28,11 +28,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.CommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
     private final Attributes multipleCom = new AttributesBuilder().setCommunities(Arrays.asList(
-            new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("65")).setSemantics(10).build(),
-            new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("66")).setSemantics(11).build()
+            new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("65")).setSemantics(Uint16.valueOf(10))
+                .build(),
+            new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("66")).setSemantics(Uint16.valueOf(11))
+                .build()
     )).build();
     private final Attributes emptyCom = new AttributesBuilder().setCommunities(Collections.emptyList()).build();
     @Mock

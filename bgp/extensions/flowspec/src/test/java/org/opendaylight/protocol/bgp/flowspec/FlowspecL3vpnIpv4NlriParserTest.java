@@ -98,6 +98,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -113,7 +114,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
     private static final String ROUTE_DISTINGUISHER = "1.2.3.4:10";
 
-    private static final PathId PATH_ID = new PathId(1L);
+    private static final PathId PATH_ID = new PathId(Uint32.ONE);
 
     @Mock
     private PeerSpecificParserConstraint constraint;
@@ -275,22 +276,22 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
     private static FlowspecType createSps() {
         final List<SourcePorts> sports = Lists.newArrayList(new SourcePortsBuilder().setOp(
-            new NumericOperand(false, true, true, false, false)).setValue(8080).build());
+            new NumericOperand(false, true, true, false, false)).setValue(Uint16.valueOf(8080)).build());
         return new SourcePortCaseBuilder().setSourcePorts(sports).build();
     }
 
     private static FlowspecType createProts() {
         final List<ProtocolIps> protocols = Lists.newArrayList(new ProtocolIpsBuilder().setOp(
-            new NumericOperand(false, true, true, false, false)).setValue((short) 6).build());
+            new NumericOperand(false, true, true, false, false)).setValue(Uint8.valueOf(6)).build());
         return new ProtocolIpCaseBuilder().setProtocolIps(protocols).build();
     }
 
     private static FlowspecType createDps() {
         final List<DestinationPorts> destports = Lists.newArrayList(
-            new DestinationPortsBuilder().setOp(new NumericOperand(false, false, false, true, false)).setValue(4089)
-            .build(),
-            new DestinationPortsBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(179)
-            .build());
+            new DestinationPortsBuilder().setOp(new NumericOperand(false, false, false, true, false))
+                .setValue(Uint16.valueOf(4089)).build(),
+            new DestinationPortsBuilder().setOp(new NumericOperand(false, true, true, false, false))
+                .setValue(Uint16.valueOf(179)).build());
         return new DestinationPortCaseBuilder().setDestinationPorts(destports).build();
     }
 
@@ -371,9 +372,12 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
     private static PortCase createPorts() {
         final List<Ports> ports = Lists.newArrayList(
-            new PortsBuilder().setOp(new NumericOperand(false, false, true, true, false)).setValue(137).build(),
-            new PortsBuilder().setOp(new NumericOperand(true, false, true, false, true)).setValue(139).build(),
-            new PortsBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(8080).build());
+            new PortsBuilder().setOp(new NumericOperand(false, false, true, true, false)).setValue(Uint16.valueOf(137))
+                .build(),
+            new PortsBuilder().setOp(new NumericOperand(true, false, true, false, true)).setValue(Uint16.valueOf(139))
+                .build(),
+            new PortsBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(Uint16.valueOf(8080))
+                .build());
 
         return new PortCaseBuilder().setPorts(ports).build();
     }
@@ -462,34 +466,40 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
     private static FlowspecType createDscp() {
         final List<Dscps> dscps = Lists.newArrayList(new DscpsBuilder().setOp(
-            new NumericOperand(false, true, false, true, false)).setValue(new Dscp((short) 42)).build());
+            new NumericOperand(false, true, false, true, false)).setValue(new Dscp(Uint8.valueOf(42))).build());
         return new DscpCaseBuilder().setDscps(dscps).build();
     }
 
     private static PacketLengthCase createPackets() {
         final List<PacketLengths> packets = Lists.newArrayList(new PacketLengthsBuilder().setOp(
-            new NumericOperand(false, true, false, false, true)).setValue(57005).build());
+            new NumericOperand(false, true, false, false, true)).setValue(Uint16.valueOf(57005)).build());
         return new PacketLengthCaseBuilder().setPacketLengths(packets).build();
     }
 
     private static TcpFlagsCase createTcp() {
         final List<TcpFlags> flags = Lists.newArrayList(
-            new TcpFlagsBuilder().setOp(new BitmaskOperand(false, false, false, true)).setValue(1025).build(),
-            new TcpFlagsBuilder().setOp(new BitmaskOperand(false, true, true, false)).setValue(22193).build());
+            new TcpFlagsBuilder().setOp(new BitmaskOperand(false, false, false, true)).setValue(Uint16.valueOf(1025))
+                .build(),
+            new TcpFlagsBuilder().setOp(new BitmaskOperand(false, true, true, false)).setValue(Uint16.valueOf(22193))
+                .build());
         return new TcpFlagsCaseBuilder().setTcpFlags(flags).build();
     }
 
     private static FlowspecType createIcmpCode() {
         final List<Codes> codes = Lists.newArrayList(
-            new CodesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue((short) 4).build(),
-            new CodesBuilder().setOp(new NumericOperand(false, true, false, false, false)).setValue((short) 5).build());
+            new CodesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue(Uint8.valueOf(4))
+                .build(),
+            new CodesBuilder().setOp(new NumericOperand(false, true, false, false, false)).setValue(Uint8.valueOf(5))
+                .build());
         return new IcmpCodeCaseBuilder().setCodes(codes).build();
     }
 
     private static FlowspecType createIcmpType() {
         final List<Types> types = Lists.newArrayList(
-            new TypesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue((short) 2).build(),
-            new TypesBuilder().setOp(new NumericOperand(false, true, false, false, true)).setValue((short) 3).build());
+            new TypesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue(Uint8.valueOf(2))
+                .build(),
+            new TypesBuilder().setOp(new NumericOperand(false, true, false, false, true)).setValue(Uint8.valueOf(3))
+                .build());
         return new IcmpTypeCaseBuilder().setTypes(types).build();
     }
 
@@ -658,14 +668,19 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                                 .withValue(Uint8.valueOf(240)).build()).build())
                         .build()).build()).build()).build());
 
-        final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new ProtocolIpCaseBuilder().setProtocolIps(Lists.newArrayList(
-            new ProtocolIpsBuilder().setValue((short) 100).setOp(new NumericOperand(true, true, false, false, false))
-            .build(),
-            new ProtocolIpsBuilder().setValue((short) 200).setOp(new NumericOperand(true, false, false, false, false))
-            .build(),
-            new ProtocolIpsBuilder().setValue((short) 240).setOp(new NumericOperand(true, true, true, false, false))
-            .build())).build());
+        final FlowspecBuilder expectedFS = new FlowspecBuilder()
+                .setFlowspecType(new ProtocolIpCaseBuilder()
+                    .setProtocolIps(Lists.newArrayList(new ProtocolIpsBuilder()
+                        .setValue(Uint8.valueOf(100))
+                        .setOp(new NumericOperand(true, true, false, false, false))
+                        .build(), new ProtocolIpsBuilder()
+                        .setValue(Uint8.valueOf(200))
+                        .setOp(new NumericOperand(true, false, false, false, false))
+                        .build(), new ProtocolIpsBuilder()
+                        .setValue(Uint8.valueOf(240))
+                        .setOp(new NumericOperand(true, true, true, false, false))
+                        .build()))
+                    .build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
         assertEquals(expected, this.fsParser.extractFlowspec(entry.build()));
@@ -692,9 +707,13 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                                 .withValue(Uint16.valueOf(100)).build()).build())
                         .build()).build()).build()).build());
 
-        final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new PortCaseBuilder().setPorts(Lists.newArrayList(new PortsBuilder().setValue(100)
-            .setOp(new NumericOperand(true, true, false, false, true)).build())).build());
+        final FlowspecBuilder expectedFS = new FlowspecBuilder()
+                .setFlowspecType(new PortCaseBuilder()
+                    .setPorts(Lists.newArrayList(new PortsBuilder()
+                        .setValue(Uint16.valueOf(100))
+                        .setOp(new NumericOperand(true, true, false, false, true))
+                        .build()))
+                    .build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
         assertEquals(expected, this.fsParser.extractFlowspec(entry.build()));
@@ -722,9 +741,12 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                                 .withValue(Uint16.valueOf(1024)).build()).build())
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(Lists.newArrayList(
-            new DestinationPortsBuilder().setValue(1024).setOp(new NumericOperand(false, true, true, false, false))
-            .build())).build());
+        expectedFS.setFlowspecType(new DestinationPortCaseBuilder()
+            .setDestinationPorts(Lists.newArrayList(new DestinationPortsBuilder()
+                .setValue(Uint16.valueOf(1024))
+                .setOp(new NumericOperand(false, true, true, false, false))
+                .build()))
+            .build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
         assertEquals(expected, this.fsParser.extractFlowspec(entry.build()));
@@ -754,8 +776,11 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                                 .withValue(Uint16.valueOf(8080)).build()).build())
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(Lists.newArrayList(
-            new SourcePortsBuilder().setValue(8080).setOp(new NumericOperand(true, true, true, true, true)).build()))
+        expectedFS.setFlowspecType(new SourcePortCaseBuilder()
+            .setSourcePorts(Lists.newArrayList(new SourcePortsBuilder()
+                .setValue(Uint16.valueOf(8080))
+                .setOp(new NumericOperand(true, true, true, true, true))
+                .build()))
             .build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
@@ -786,8 +811,11 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                                 .withValue(Uint8.valueOf(22)).build()).build())
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(Lists.newArrayList(
-            new TypesBuilder().setValue((short) 22).setOp(new NumericOperand(true, true, true, true, true)).build()))
+        expectedFS.setFlowspecType(new IcmpTypeCaseBuilder()
+            .setTypes(Lists.newArrayList(new TypesBuilder()
+                .setValue(Uint8.valueOf(22))
+                .setOp(new NumericOperand(true, true, true, true, true))
+                .build()))
             .build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
@@ -815,8 +843,12 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                                 .withValue(Uint8.valueOf(23)).build()).build())
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
-        expectedFS.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(Lists.newArrayList(new CodesBuilder()
-            .setValue((short) 23).setOp(new NumericOperand(false, false, false, false, false)).build())).build());
+        expectedFS.setFlowspecType(new IcmpCodeCaseBuilder()
+            .setCodes(Lists.newArrayList(new CodesBuilder()
+                .setValue(Uint8.valueOf(23))
+                .setOp(new NumericOperand(false, false, false, false, false))
+                .build()))
+            .build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
         assertEquals(expected, this.fsParser.extractFlowspec(entry.build()));
@@ -845,7 +877,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(Lists.newArrayList(new TcpFlagsBuilder()
-            .setValue(99).setOp(new BitmaskOperand(true, true, false, false)).build())).build());
+            .setValue(Uint16.valueOf(99)).setOp(new BitmaskOperand(true, true, false, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
         assertEquals(expected, this.fsParser.extractFlowspec(entry.build()));
@@ -874,7 +906,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(Lists.newArrayList(
-            new PacketLengthsBuilder().setValue(101).setOp(
+            new PacketLengthsBuilder().setValue(Uint16.valueOf(101)).setOp(
                 new NumericOperand(true, false, false, true, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
@@ -904,7 +936,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new DscpCaseBuilder().setDscps(Lists.newArrayList(new DscpsBuilder().setValue(
-            new Dscp((short) 15)).setOp(new NumericOperand(true, true, false, true, false)).build())).build());
+            new Dscp(Uint8.valueOf(15))).setOp(new NumericOperand(true, true, false, true, false)).build())).build());
         final List<Flowspec> expected = new ArrayList<>();
         expected.add(expectedFS.build());
         assertEquals(expected, this.fsParser.extractFlowspec(entry.build()));

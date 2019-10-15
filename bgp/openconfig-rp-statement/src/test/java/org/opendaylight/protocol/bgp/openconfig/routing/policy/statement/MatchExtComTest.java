@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.EncapsulationCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.as._4.route.origin.extended.community._case.As4RouteOriginExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.encapsulation._case.EncapsulationExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
     @Mock
@@ -68,7 +69,7 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
                                 .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
                                         .setAs4SpecificCommon(new As4SpecificCommonBuilder()
                                                 .setAsNumber(AsNumber.getDefaultInstance("65000"))
-                                                .setLocalAdministrator(123)
+                                                .setLocalAdministrator(Uint16.valueOf(123))
                                                 .build()).build()).build()).build())).build());
 
         result = this.statementRegistry.applyExportStatement(
@@ -101,7 +102,7 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
                                 new As4RouteOriginExtendedCommunityBuilder()
                                         .setAs4SpecificCommon(new As4SpecificCommonBuilder()
                                                 .setAsNumber(AsNumber.getDefaultInstance("65000"))
-                                                .setLocalAdministrator(123)
+                                                .setLocalAdministrator(Uint16.valueOf(123))
                                                 .build()).build()).build()).build(),
                 new ExtendedCommunitiesBuilder().setExtendedCommunity(new EncapsulationCaseBuilder()
                         .setEncapsulationExtendedCommunity(new EncapsulationExtendedCommunityBuilder()
@@ -136,7 +137,7 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
                                 .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
                                         .setAs4SpecificCommon(new As4SpecificCommonBuilder()
                                                 .setAsNumber(AsNumber.getDefaultInstance("65000"))
-                                                .setLocalAdministrator(123)
+                                                .setLocalAdministrator(Uint16.valueOf(123))
                                                 .build()).build()).build()).build())).build());
 
         result = this.statementRegistry.applyExportStatement(

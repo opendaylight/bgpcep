@@ -47,7 +47,8 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
                 TABLES_TYPE, pathTables);
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
-        final ChannelFuture channelFuture = this.serverDispatcher.createServer(new InetSocketAddress(RIB_ID, PORT));
+        final ChannelFuture channelFuture = this.serverDispatcher.createServer(
+            new InetSocketAddress(RIB_ID, PORT.toJava()));
         waitFutureSuccess(channelFuture);
         this.serverChannel = channelFuture.channel();
     }

@@ -26,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class APITest {
@@ -64,12 +66,12 @@ public class APITest {
                         new MultiprotocolCapabilityBuilder().build()).build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(
                 new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
-                        new AsNumber(35L)).build()).build()).build());
+                        new AsNumber(Uint32.valueOf(35))).build()).build()).build());
         params.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final Open open1 = new OpenBuilder().setBgpParameters(params).build();
         assertEquals(35L, AsNumberUtil.advertizedAsNumber(open1).getValue().longValue());
 
-        final Open open2 = new OpenBuilder().setMyAsNumber(10).build();
+        final Open open2 = new OpenBuilder().setMyAsNumber(Uint16.valueOf(10)).build();
         assertEquals(10, AsNumberUtil.advertizedAsNumber(open2).getValue().intValue());
     }
 

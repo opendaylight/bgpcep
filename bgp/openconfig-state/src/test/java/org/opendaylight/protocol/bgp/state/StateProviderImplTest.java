@@ -29,7 +29,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -147,21 +146,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.LoggerFactory;
 
 public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
-    private final PortNumber localPort = new PortNumber(1790);
-    private final PortNumber remotePort = new PortNumber(179);
-    private final int restartTime = 15;
+    private final PortNumber localPort = new PortNumber(Uint16.valueOf(1790));
+    private final PortNumber remotePort = new PortNumber(Uint16.valueOf(179));
+    private final Uint16 restartTime = Uint16.valueOf(15);
     private final String ribId = "identifier-test";
     private final InstanceIdentifier<Bgp> bgpInstanceIdentifier = InstanceIdentifier.create(NetworkInstances.class)
         .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp")).child(Protocols.class)
         .child(Protocol.class, new ProtocolKey(BGP.class, this.ribId)).augmentation(NetworkInstanceProtocol.class)
             .child(Bgp.class);
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    private final AsNumber as = new AsNumber(72L);
+    private final AsNumber as = new AsNumber(Uint32.valueOf(72));
     private final BgpId bgpId = new BgpId("127.0.0.1");
     private final IpAddress neighborAddress = new IpAddress(new Ipv4Address("127.0.0.2"));
     private final List<Class<? extends BgpCapability>> supportedCap = Arrays.asList(ASN32.class, ROUTEREFRESH.class,
@@ -261,7 +263,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         doReturn(true).when(this.bgpGracelfulRestartState).isGracefulRestartReceived(any());
         doReturn(true).when(this.bgpGracelfulRestartState).isLocalRestarting();
         doReturn(true).when(this.bgpGracelfulRestartState).isPeerRestarting();
-        doReturn(this.restartTime).when(this.bgpGracelfulRestartState).getPeerRestartTime();
+        doReturn(this.restartTime.toJava()).when(this.bgpGracelfulRestartState).getPeerRestartTime();
         doReturn(BgpAfiSafiGracefulRestartState.Mode.BILATERAL).when(this.bgpGracelfulRestartState).getMode();
 
         doReturn(this.bgpAfiSafiState).when(this.bgpPeerState).getBGPAfiSafiState();
@@ -473,16 +475,21 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     private static BgpNeighborStateAugmentation buildBgpNeighborStateAugmentation() {
         final BgpNeighborStateAugmentation augmentation = new BgpNeighborStateAugmentationBuilder()
                 .setMessages(new MessagesBuilder().setReceived(new ReceivedBuilder()
-                        .setNOTIFICATION(BigInteger.ONE).setUPDATE(BigInteger.ONE).build())
-                        .setSent(new SentBuilder().setNOTIFICATION(BigInteger.ONE).setUPDATE(BigInteger.ONE).build())
+                        .setNOTIFICATION(Uint64.ONE).setUPDATE(Uint64.ONE).build())
+                        .setSent(new SentBuilder().setNOTIFICATION(Uint64.ONE).setUPDATE(Uint64.ONE).build())
                         .build()).build();
         return augmentation;
     }
 
     private static AfiSafis buildAfiSafis() {
         final NeighborAfiSafiStateAugmentationBuilder neighborAfiSafiStateAugmentation =
-                new NeighborAfiSafiStateAugmentationBuilder().setActive(true).setPrefixes(
-                        new PrefixesBuilder().setSent(1L).setReceived(2L).setInstalled(1L).build());
+                new NeighborAfiSafiStateAugmentationBuilder()
+                .setActive(true)
+                .setPrefixes(new PrefixesBuilder()
+                    .setSent(Uint32.ONE)
+                    .setReceived(Uint32.valueOf(2))
+                    .setInstalled(Uint32.ONE)
+                    .build());
         final AfiSafi afiSafi = new AfiSafiBuilder()
                 .setAfiSafiName(IPV4UNICAST.class)
                 .setGracefulRestart(new GracefulRestartBuilder().setState(new StateBuilder().setEnabled(false)
@@ -490,7 +497,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                                 new NeighborAfiSafiGracefulRestartStateAugmentationBuilder()
                                         .setAdvertised(true)
                                         .setReceived(true)
-                                        .setLlStaleTimer(60L)
+                                        .setLlStaleTimer(Uint32.valueOf(60))
                                         .setLlAdvertised(true)
                                         .setLlReceived(true)
                                         .build())
@@ -510,7 +517,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                         .handling.StateBuilder().setTreatAsWithdraw(false)
                         .addAugmentation(NeighborErrorHandlingStateAugmentation.class,
                                 new NeighborErrorHandlingStateAugmentationBuilder()
-                                        .setErroneousUpdateMessages(1L).build()).build()).build();
+                                        .setErroneousUpdateMessages(Uint32.ONE).build()).build()).build();
         return errorHandling;
     }
 
@@ -522,7 +529,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .setKeepaliveInterval(BigDecimal.valueOf(30))
                 .setMinimumAdvertisementInterval(BigDecimal.valueOf(30))
                 .addAugmentation(NeighborTimersStateAugmentation.class, new NeighborTimersStateAugmentationBuilder()
-                        .setNegotiatedHoldTime(BigDecimal.TEN).setUptime(new Timeticks(1L)).build())
+                        .setNegotiatedHoldTime(BigDecimal.TEN).setUptime(new Timeticks(Uint32.ONE)).build())
                 .build()).build();
         return timers;
     }
@@ -542,11 +549,11 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
 
     private GracefulRestart buildGracefulRestart() {
         final NeighborGracefulRestartStateAugmentationBuilder gracefulAugmentation
-                = new NeighborGracefulRestartStateAugmentationBuilder();
-        gracefulAugmentation.setPeerRestarting(false);
-        gracefulAugmentation.setLocalRestarting(false);
-        gracefulAugmentation.setPeerRestartTime(0);
-        gracefulAugmentation.setLocalRestarting(true)
+                = new NeighborGracefulRestartStateAugmentationBuilder()
+                .setPeerRestarting(false)
+                .setLocalRestarting(false)
+                .setPeerRestartTime(Uint16.ZERO)
+                .setLocalRestarting(true)
                 .setPeerRestarting(true)
                 .setPeerRestartTime(this.restartTime)
                 .setMode(BgpAfiSafiGracefulRestartState.Mode.BILATERAL);
@@ -561,18 +568,28 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     private Global buildGlobalExpected(final long prefixesAndPaths) {
         return new GlobalBuilder()
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
-                        .StateBuilder().setRouterId(new Ipv4Address(this.bgpId.getValue()))
-                        .setTotalPrefixes(prefixesAndPaths).setTotalPaths(prefixesAndPaths).setAs(this.as).build())
+                        .StateBuilder()
+                            .setRouterId(new Ipv4Address(this.bgpId.getValue()))
+                            .setTotalPrefixes(Uint32.valueOf(prefixesAndPaths))
+                            .setTotalPaths(Uint32.valueOf(prefixesAndPaths))
+                            .setAs(this.as)
+                            .build())
                 .setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
-                        .AfiSafisBuilder().setAfiSafi(Collections.singletonList(new AfiSafiBuilder()
-                        .setAfiSafiName(IPV4UNICAST.class).setState(new org.opendaylight.yang.gen.v1.http.openconfig
-                                .net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder()
-                                .setEnabled(false)
-                                .addAugmentation(GlobalAfiSafiStateAugmentation.class,
-                                        new GlobalAfiSafiStateAugmentationBuilder()
-                                                .setTotalPaths(prefixesAndPaths).setTotalPrefixes(prefixesAndPaths)
-                                                .build()).build()).build()))
-                        .build()).build();
+                        .AfiSafisBuilder()
+                            .setAfiSafi(Collections.singletonList(new AfiSafiBuilder()
+                                .setAfiSafiName(IPV4UNICAST.class)
+                                .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol
+                                    .rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder()
+                                        .setEnabled(false)
+                                        .addAugmentation(GlobalAfiSafiStateAugmentation.class,
+                                            new GlobalAfiSafiStateAugmentationBuilder()
+                                                .setTotalPaths(Uint32.valueOf(prefixesAndPaths))
+                                                .setTotalPrefixes(Uint32.valueOf(prefixesAndPaths))
+                                                .build())
+                                        .build())
+                                .build()))
+                        .build())
+                .build();
     }
 
     private static PeerGroup buildGroupExpected() {
@@ -580,9 +597,10 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
             .openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.StateBuilder()
             .setSendCommunity(CommunityType.NONE)
             .setRouteFlapDamping(false)
-            .addAugmentation(PeerGroupStateAugmentation.class,
-                new PeerGroupStateAugmentationBuilder().setTotalPaths(1L).setTotalPrefixes(1L)
-                    .build()).build())
+            .addAugmentation(PeerGroupStateAugmentation.class, new PeerGroupStateAugmentationBuilder()
+                .setTotalPaths(Uint32.ONE)
+                .setTotalPrefixes(Uint32.ONE)
+                .build()).build())
             .build();
     }
 }

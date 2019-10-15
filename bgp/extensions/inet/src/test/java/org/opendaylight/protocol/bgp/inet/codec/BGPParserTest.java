@@ -63,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class BGPParserTest {
 
@@ -170,7 +171,7 @@ public class BGPParserTest {
 
         // attributes
         final List<AsNumber> asNumbers = new ArrayList<>();
-        asNumbers.add(new AsNumber(65001L));
+        asNumbers.add(new AsNumber(Uint32.valueOf(65001)));
         final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
@@ -193,7 +194,7 @@ public class BGPParserTest {
         paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
-        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed((long) 0).build());
+        paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         assertEquals(paBuilder.getMultiExitDisc(), attrs.getMultiExitDisc());
 
         paBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4Address("127.0.0.1")).build());

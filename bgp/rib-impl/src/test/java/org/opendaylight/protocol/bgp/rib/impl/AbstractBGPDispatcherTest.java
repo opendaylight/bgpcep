@@ -44,10 +44,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.LoggerFactory;
 
 public class AbstractBGPDispatcherTest {
-    protected static final AsNumber AS_NUMBER = new AsNumber(30L);
+    protected static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(30));
     static final int RETRY_TIMER = 1;
     protected static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class,
         UnicastSubsequentAddressFamily.class);
@@ -92,12 +93,19 @@ public class AbstractBGPDispatcherTest {
     protected BGPSessionPreferences createPreferences(final InetSocketAddress socketAddress) {
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-                CParameters1.class, new CParameters1Builder()
+        capas.add(new OptionalCapabilitiesBuilder()
+            .setCParameters(new CParametersBuilder()
+                .addAugmentation(CParameters1.class, new CParameters1Builder()
                         .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                                .setAfi(IPV_4_TT.getAfi()).setSafi(IPV_4_TT.getSafi()).build()).build())
-                .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build())
-                .build()).build());
+                                .setAfi(IPV_4_TT.getAfi())
+                                .setSafi(IPV_4_TT.getSafi())
+                                .build())
+                        .build())
+                .setAs4BytesCapability(new As4BytesCapabilityBuilder()
+                    .setAsNumber(new AsNumber(Uint32.valueOf(30)))
+                    .build())
+                .build())
+            .build());
         capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());

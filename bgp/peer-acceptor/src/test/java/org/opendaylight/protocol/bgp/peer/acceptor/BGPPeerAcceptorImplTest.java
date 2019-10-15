@@ -22,7 +22,7 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
     @Test
@@ -30,7 +30,8 @@ public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
         final InetSocketAddress inetServerAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final IpAddress serverIpAddress = new IpAddress(new Ipv4Address(InetSocketAddressUtil
                 .toHostAndPort(inetServerAddress).getHost()));
-        final PortNumber portNumber = new PortNumber(InetSocketAddressUtil.toHostAndPort(inetServerAddress).getPort());
+        final PortNumber portNumber = new PortNumber(Uint16.valueOf(
+            InetSocketAddressUtil.toHostAndPort(inetServerAddress).getPort()));
         this.registry.addPeer(serverIpAddress, this.serverListener, createPreferences(inetServerAddress));
 
         final BGPPeerAcceptorImpl bgpPeerAcceptor = new BGPPeerAcceptorImpl(serverIpAddress, portNumber,
