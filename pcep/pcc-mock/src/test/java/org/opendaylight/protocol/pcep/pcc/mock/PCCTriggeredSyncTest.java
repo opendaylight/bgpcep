@@ -21,14 +21,13 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCPeerProposal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.pcupd.message.PcupdMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.pcupd.message.pcupd.message.UpdatesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.pcupd.message.pcupd.message.updates.PathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class PCCTriggeredSyncTest extends PCCMockCommon {
@@ -48,20 +47,15 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
     }
 
     private static Message createTriggerMsg() {
-        final UpdatesBuilder rb = new UpdatesBuilder();
-        // create PCUpd with mandatory objects and LSP object set to 1
-        final SrpBuilder srpBuilder = new SrpBuilder();
-        srpBuilder.setIgnore(false);
-        srpBuilder.setProcessingRule(false);
-        srpBuilder.setOperationId(new SrpIdNumber(1L));
-        final Srp srp = srpBuilder.build();
-        rb.setSrp(srp);
-
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(0L)).setSync(Boolean.TRUE).build();
-        rb.setLsp(lsp);
-
-        final PathBuilder pb = new PathBuilder();
-        rb.setPath(pb.build());
+        final UpdatesBuilder rb = new UpdatesBuilder()
+                // create PCUpd with mandatory objects and LSP object set to 1
+                .setSrp(new SrpBuilder()
+                    .setIgnore(false)
+                    .setProcessingRule(false)
+                    .setOperationId(new SrpIdNumber(Uint32.ONE))
+                    .build())
+                .setLsp(new LspBuilder().setPlspId(new PlspId(Uint32.ZERO)).setSync(Boolean.TRUE).build())
+                .setPath(new PathBuilder().build());
         final PcupdMessageBuilder ub = new PcupdMessageBuilder();
         ub.setUpdates(Collections.singletonList(rb.build()));
         return new PcupdBuilder().setPcupdMessage(ub.build()).build();

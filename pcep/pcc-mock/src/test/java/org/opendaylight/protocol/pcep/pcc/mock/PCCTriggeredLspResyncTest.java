@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class PCCTriggeredLspResyncTest extends PCCMockCommon {
@@ -53,11 +54,11 @@ public class PCCTriggeredLspResyncTest extends PCCMockCommon {
 
     private static Message createTriggerLspResync() {
         final SrpBuilder srpBuilder = new SrpBuilder();
-        srpBuilder.setOperationId(new SrpIdNumber(1L));
+        srpBuilder.setOperationId(new SrpIdNumber(Uint32.ONE));
         srpBuilder.setProcessingRule(Boolean.TRUE);
 
         final Srp srp = srpBuilder.build();
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(2L)).setSync(Boolean.TRUE).build();
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Uint32.valueOf(2))).setSync(Boolean.TRUE).build();
         final UpdatesBuilder rb = new UpdatesBuilder();
         rb.setSrp(srp);
         rb.setLsp(lsp);

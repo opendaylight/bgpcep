@@ -52,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PCCTunnelManagerImplTest {
 
@@ -67,7 +68,7 @@ public class PCCTunnelManagerImplTest {
     private PCCSession session1;
     @Mock
     private PCCSession session2;
-    private Optional<TimerHandler> timerHandler = Optional.empty();
+    private final Optional<TimerHandler> timerHandler = Optional.empty();
 
     @Before
     public void setUp() {
@@ -301,7 +302,7 @@ public class PCCTunnelManagerImplTest {
 
     private static Updates createUpdate(final long plspId, final Optional<Boolean> delegate) {
         final UpdatesBuilder updsBuilder = new UpdatesBuilder();
-        final LspBuilder lsp = new LspBuilder().setPlspId(new PlspId(plspId));
+        final LspBuilder lsp = new LspBuilder().setPlspId(new PlspId(Uint32.valueOf(plspId)));
         if (delegate.isPresent()) {
             lsp.setDelegate(Boolean.TRUE);
         }
@@ -309,7 +310,7 @@ public class PCCTunnelManagerImplTest {
         final PathBuilder pathBuilder = new PathBuilder();
         pathBuilder.setEro(ERO);
         updsBuilder.setPath(pathBuilder.build());
-        updsBuilder.setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).build());
+        updsBuilder.setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(Uint32.ZERO)).build());
         return updsBuilder.build();
     }
 
@@ -319,7 +320,7 @@ public class PCCTunnelManagerImplTest {
         reqBuilder.setEro(ERO);
         final LspBuilder lsp = new LspBuilder().setTlvs(new TlvsBuilder()
             .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
-            new SymbolicPathName(SYMBOLIC_NAME)).build()).build()).setPlspId(new PlspId(plspId));
+            new SymbolicPathName(SYMBOLIC_NAME)).build()).build()).setPlspId(new PlspId(Uint32.valueOf(plspId)));
         if (delegate.isPresent()) {
             lsp.setDelegate(Boolean.TRUE);
         }
@@ -329,7 +330,7 @@ public class PCCTunnelManagerImplTest {
         if (remove.isPresent()) {
             srpBuilder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build());
         }
-        reqBuilder.setSrp(srpBuilder.setOperationId(new SrpIdNumber(0L)).build());
+        reqBuilder.setSrp(srpBuilder.setOperationId(new SrpIdNumber(Uint32.ZERO)).build());
         return reqBuilder.build();
     }
 

@@ -61,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNode;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
 
@@ -70,12 +71,12 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     private static final String NODE1_IPV4 = "39.39.39.39";
     private static final NodeId NODE1_ID = new NodeId("pcc://" + NODE1_IPV4);
     private static final String LSP1_NAME = "lsp1";
-    private static final long LSP1_ID = 1;
+    private static final Uint32 LSP1_ID = Uint32.ONE;
 
     private static final String NODE2_IPV4 = "40.40.40.40";
     private static final NodeId NODE2_ID = new NodeId("pcc://" + NODE2_IPV4);
     private static final String LSP2_NAME = "lsp2";
-    private static final long LSP2_ID = 2;
+    private static final Uint32 LSP2_ID = Uint32.valueOf(2);
 
     private static final InstanceIdentifier<Topology> PCEP_TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(PCEP_TOPOLOGY_ID)).build();
@@ -197,7 +198,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         this.listenerRegistration.close();
     }
 
-    private void createNode(final NodeId nodeId, final String ipv4Address, final String lspName, final long lspId,
+    private void createNode(final NodeId nodeId, final String ipv4Address, final String lspName, final Uint32 lspId,
             final String dstIpv4Address) throws InterruptedException, ExecutionException {
         final NodeBuilder nodeBuilder = new NodeBuilder();
         nodeBuilder.withKey(new NodeKey(nodeId));
