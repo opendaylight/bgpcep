@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.SegmentsBuilder;
 
-class AbstractPrependAsPath {
+abstract class AbstractPrependAsPath {
 
     static final Attributes prependAS(final Attributes attributes, final AsNumber as) {
         final List<Segments> oldSegments = attributes.getAsPath().getSegments();

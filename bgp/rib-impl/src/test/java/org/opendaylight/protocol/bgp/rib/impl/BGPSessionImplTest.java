@@ -110,7 +110,10 @@ public class BGPSessionImplTest {
         this.classicOpen = new OpenBuilder()
                 .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
                 .setHoldTimer(HOLD_TIMER)
-                .setVersion(new ProtocolVersion(Uint8.valueOf(4))).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
+                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+                .setBgpParameters(tlvs)
+                .setBgpIdentifier(BGP_ID)
+                .build();
 
         final List<OptionalCapabilities> capa = new ArrayList<>();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
