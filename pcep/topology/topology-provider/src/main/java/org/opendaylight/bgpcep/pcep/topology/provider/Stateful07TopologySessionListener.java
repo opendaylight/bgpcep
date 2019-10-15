@@ -162,11 +162,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             return triggerSynchronization(input);
         } else if (isSessionSynchronized() && isTriggeredReSyncEnabled()) {
             checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
-            if (input.getName() == null) {
-                return triggerResyncronization(input);
-            } else {
-                return triggerLspSyncronization(input);
-            }
+            return input.getName() == null ? triggerResyncronization(input) : triggerLspSyncronization(input);
         }
         return OperationResults.UNSENT.future();
     }

@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createL
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -96,7 +95,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
     @Test
     public void testStateSynchronizationSkipped() throws Exception {
         //session up - sync skipped (LSP-DBs match)
-        final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(BigInteger.ONE).build();
+        final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(Uint64.ONE).build();
         final PCEPSession session = getPCEPSession(getOpen(lspDbVersion), getOpen(lspDbVersion));
         this.listener.onSessionUp(session);
         //check node - synchronized
@@ -111,16 +110,17 @@ public class StateSynchronizationAvoidanceProcedureTest extends
         PCEPSession session = getPCEPSession(getOpen(null), getOpen(null));
         this.listener.onSessionUp(session);
         //report LSP + LSP-DB version number
-        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(1L))
+        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(Uint32.ONE))
                 .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
                         .rev181109.lsp.object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
-                        .setLspId(new LspId(1L)).build()).setSymbolicPathName(new SymbolicPathNameBuilder()
+                        .setLspId(new LspId(Uint32.ONE)).build()).setSymbolicPathName(new SymbolicPathNameBuilder()
                         .setPathName(new SymbolicPathName("test".getBytes())).build()).addAugmentation(org.opendaylight
                         .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109
                         .Tlvs1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
                         .pcep.sync.optimizations.rev181109.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
-                        .setLspDbVersionValue(BigInteger.ONE).build()).build()).build())
-                .setPlspId(new PlspId(1L)).setSync(true).setRemove(false).setOperational(OperationalStatus.Active)
+                        .setLspDbVersionValue(Uint64.ONE).build()).build()).build())
+                .setPlspId(new PlspId(Uint32.ONE)).setSync(true).setRemove(false)
+                .setOperational(OperationalStatus.Active)
                 .build(), Optional.empty(), createPath(Collections.emptyList()));
         this.listener.onMessage(session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
@@ -133,7 +133,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
 
         //session up - expect sync (LSP-DBs do not match)
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()
-                .setLspDbVersionValue(BigInteger.valueOf(2L)).build();
+                .setLspDbVersionValue(Uint64.valueOf(2L)).build();
         session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
         this.listener.onSessionUp(session);
 
