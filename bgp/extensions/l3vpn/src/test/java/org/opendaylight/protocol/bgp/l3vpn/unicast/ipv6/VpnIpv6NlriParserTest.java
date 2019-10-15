@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class VpnIpv6NlriParserTest {
 
@@ -84,7 +85,7 @@ public class VpnIpv6NlriParserTest {
 
     static final IpPrefix IPV6PREFIX = new IpPrefix(new Ipv6Prefix("2001:2345:5689::/48"));
     static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
-        new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
+        new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(355))).build());
     static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder
             .getDefaultInstance("1.2.3.4:258");
     static final VpnDestination IPV6_VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER)

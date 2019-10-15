@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.route.origin.extended.community._case.RouteOriginExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class RouteOriginAsTwoOctetEcHandlerTest {
     private static final byte[] INPUT = {
@@ -29,7 +30,7 @@ public class RouteOriginAsTwoOctetEcHandlerTest {
         final RouteOriginAsTwoOctetEcHandler handler = new RouteOriginAsTwoOctetEcHandler();
         final RouteOriginExtendedCommunityCase expected = new RouteOriginExtendedCommunityCaseBuilder()
                 .setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder()
-                    .setGlobalAdministrator(new ShortAsNumber(24L))
+                    .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(24)))
                     .setLocalAdministrator(new byte[] { 4, 2, 8, 7 }).build())
                 .build();
 

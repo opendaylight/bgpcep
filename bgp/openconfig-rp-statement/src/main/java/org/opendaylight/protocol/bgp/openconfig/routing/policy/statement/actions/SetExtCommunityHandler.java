@@ -68,7 +68,7 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
         return referenceSetExtComm(attributes, ((Reference) setExtCommunityMethod).getExtCommunitySetRef(), options);
     }
 
-    private Attributes inlineSetExtComm(
+    private static Attributes inlineSetExtComm(
             final Attributes attributes,
             final List<ExtendedCommunities> actionExtCommunities,
             final BgpSetCommunityOptionType options) {

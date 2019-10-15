@@ -138,9 +138,8 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
                         keys.add(key);
                     }
                     return keys;
-                } else {
-                    LOG.warn("Routes {} are not a map", routes);
                 }
+                LOG.warn("Routes {} are not a map", routes);
             }
         } else {
             LOG.debug("Destination is null.");

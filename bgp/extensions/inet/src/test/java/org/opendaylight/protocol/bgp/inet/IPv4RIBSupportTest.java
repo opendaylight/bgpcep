@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -48,7 +49,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesCase, Ipv4Routes, Ipv4Route,
         Ipv4RouteKey> {
     private IPv4RIBSupport ribSupport;
-    private static final PathId PATH_ID = new PathId(1L);
+    private static final PathId PATH_ID = new PathId(Uint32.ONE);
     private static final Ipv4Prefix PREFIX = new Ipv4Prefix("1.2.3.4/32");
     private static final Ipv4RouteKey ROUTE_KEY = new Ipv4RouteKey(PATH_ID, PREFIX.getValue());
     private static final Ipv4Prefixes IPV4_PREFIXES = new Ipv4PrefixesBuilder().setPathId(PATH_ID)
@@ -128,7 +129,7 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesC
 
     @Test
     public void testRouteIdAddPath() {
-        final Ipv4RouteKey expected = new Ipv4RouteKey(new PathId(1L), PREFIX.getValue());
+        final Ipv4RouteKey expected = new Ipv4RouteKey(new PathId(Uint32.ONE), PREFIX.getValue());
         assertEquals(expected, this.ribSupport.createRouteListKey(expected.getPathId(), PREFIX.getValue()));
     }
 

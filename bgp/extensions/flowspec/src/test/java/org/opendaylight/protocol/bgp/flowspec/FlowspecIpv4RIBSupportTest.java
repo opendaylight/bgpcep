@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -56,7 +57,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
     private FlowspecRoute route;
     private FlowspecRoutes routes;
     private FlowspecRouteKey routeKey;
-    private static final PathId PATH_ID = new PathId(1L);
+    private static final PathId PATH_ID = new PathId(Uint32.ONE);
 
     private static final DestinationPrefixCase DEST_PREFIX = new DestinationPrefixCaseBuilder()
             .setDestinationPrefix(new Ipv4Prefix("10.0.1.0/32")).build();

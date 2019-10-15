@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
 import io.netty.buffer.ByteBuf;
@@ -24,14 +23,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.As4RouteOriginExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.As4RouteOriginExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.as._4.route.origin.extended.community._case.As4RouteOriginExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class RouteOrigin4OctectASEcHandlerTest {
 
     public static final byte[] INPUT = {
         0, 0, 0, 20, 0, 100
     };
-    public static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder().setAsNumber(new AsNumber(20L))
-        .setLocalAdministrator(100).build();
+    public static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder()
+            .setAsNumber(new AsNumber(Uint32.valueOf(20)))
+            .setLocalAdministrator(Uint16.valueOf(100))
+            .build();
 
     private RouteOrigin4OctectASEcHandler handler;
 

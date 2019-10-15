@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AttributesEqualTests extends AbstractStatementRegistryTest {
     @Mock
@@ -55,7 +56,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
         Statement statement = this.basicStatements.stream()
                 .filter(st -> st.getName().equals("med-eq-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setMultiExitDisc(new MultiExitDiscBuilder().setMed(200L).build())
+                .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(200)).build())
                 .build());
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
@@ -68,7 +69,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setMultiExitDisc(new MultiExitDiscBuilder().setMed(100L).build())
+                .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(100)).build())
                 .build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
@@ -144,7 +145,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
         Statement statement = this.basicStatements.stream()
                 .filter(st -> st.getName().equals("local-pref-eq-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setLocalPref(new LocalPrefBuilder().setPref(350L).build())
+                .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(350)).build())
                 .build());
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
@@ -157,7 +158,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setLocalPref(new LocalPrefBuilder().setPref(100L).build())
+                .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build())
                 .build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,
@@ -173,7 +174,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
         Statement statement = this.basicStatements.stream()
                 .filter(st -> st.getName().equals("afi-safi-in-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setLocalPref(new LocalPrefBuilder().setPref(350L).build())
+                .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(350)).build())
                 .build());
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
@@ -186,7 +187,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setLocalPref(new LocalPrefBuilder().setPref(100L).build())
+                .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build())
                 .build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,

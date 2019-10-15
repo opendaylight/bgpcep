@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.InterAsIPmsiADCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class InterASIPmsiADHandlerTest {
 
@@ -37,7 +38,7 @@ public final class InterASIPmsiADHandlerTest {
 
     private final InterAsIPmsiADCase expected = new InterAsIPmsiADCaseBuilder()
             .setInterAsIPmsiAD(new InterAsIPmsiADBuilder()
-                    .setSourceAs(new AsNumber(1L))
+                    .setSourceAs(new AsNumber(Uint32.ONE))
                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                     .build()
             ).build();

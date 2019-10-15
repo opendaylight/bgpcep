@@ -71,10 +71,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class BGPSessionImplTest {
-    private static final int HOLD_TIMER = 3;
-    private static final AsNumber AS_NUMBER = new AsNumber(30L);
+    private static final Uint16 HOLD_TIMER = Uint16.valueOf(3);
+    private static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(30));
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
     private static final int LOCAL_PORT = 12345;
@@ -104,8 +107,13 @@ public class BGPSessionImplTest {
         new EmbeddedChannel();
         MockitoAnnotations.initMocks(this);
         final List<BgpParameters> tlvs = new ArrayList<>();
-        this.classicOpen = new OpenBuilder().setMyAsNumber(AS_NUMBER.getValue().intValue()).setHoldTimer(HOLD_TIMER)
-                .setVersion(new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
+        this.classicOpen = new OpenBuilder()
+                .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
+                .setHoldTimer(HOLD_TIMER)
+                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+                .setBgpParameters(tlvs)
+                .setBgpIdentifier(BGP_ID)
+                .build();
 
         final List<OptionalCapabilities> capa = new ArrayList<>();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()

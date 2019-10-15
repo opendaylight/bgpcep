@@ -68,6 +68,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class GracefulRestartTest extends AbstractAddPathTest {
 
@@ -112,7 +114,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
 
         this.ribImpl.instantiateServiceInstance();
         this.ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
-        final ChannelFuture channelFuture = this.serverDispatcher.createServer(new InetSocketAddress(RIB_ID, PORT));
+        final ChannelFuture channelFuture = this.serverDispatcher.createServer(
+            new InetSocketAddress(RIB_ID, PORT.toJava()));
         waitFutureSuccess(channelFuture);
         this.serverChannel = channelFuture.channel();
 
@@ -421,9 +424,9 @@ public class GracefulRestartTest extends AbstractAddPathTest {
             graceful.put(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), true);
         }
         return new OpenBuilder()
-                .setMyAsNumber((int) AS)
-                .setHoldTimer(HOLDTIMER)
-                .setVersion(new ProtocolVersion((short) 4))
+                .setMyAsNumber(Uint16.valueOf(AS))
+                .setHoldTimer(Uint16.valueOf(HOLDTIMER))
+                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
                 .setBgpParameters(Collections.singletonList(createParameter(false, true, graceful)))
                 .setBgpIdentifier(PEER1)
                 .build();

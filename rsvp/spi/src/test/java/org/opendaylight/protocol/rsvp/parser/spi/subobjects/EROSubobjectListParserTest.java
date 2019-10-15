@@ -24,6 +24,7 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainer;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class EROSubobjectListParserTest {
 
@@ -85,7 +86,7 @@ public class EROSubobjectListParserTest {
 
         final ByteBuf body = Unpooled.buffer(4);
         output = new byte[]{0, 0, 0, 1};
-        final AttributeFilter filter = new AttributeFilter(1L);
+        final AttributeFilter filter = new AttributeFilter(Uint32.ONE);
         EroListParser.writeAttributeFilter(filter, body);
         assertArrayEquals(output, body.array());
 

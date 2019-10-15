@@ -34,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class ComplementaryTest {
 
@@ -56,10 +58,10 @@ public class ComplementaryTest {
             .build());
 
         final GracefulRestartCapability tlv3 = new GracefulRestartCapabilityBuilder().setRestartFlags(
-            new RestartFlags(Boolean.FALSE)).setRestartTime(0).setTables(tt).build();
+            new RestartFlags(Boolean.FALSE)).setRestartTime(Uint16.ZERO).setTables(tt).build();
 
         final CParameters tlv4 = new CParametersBuilder().setAs4BytesCapability(
-            new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build();
+            new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(Uint32.valueOf(40))).build()).build();
 
         assertFalse(tlv3.getRestartFlags().isRestartState());
 
@@ -80,15 +82,19 @@ public class ComplementaryTest {
         assertEquals(40, tlv4.getAs4BytesCapability().getAsNumber().getValue().longValue());
 
         assertEquals(new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
-            new AsNumber((long) 40)).build()).build(), tlv4);
+            new AsNumber(Uint32.valueOf(40))).build()).build(), tlv4);
     }
 
     @Test
     public void testBGPAggregatorImpl() {
-        final BgpAggregator ipv4 = new AggregatorBuilder().setAsNumber(new AsNumber((long) 5524)).setNetworkAddress(
-                new Ipv4Address("124.55.42.1")).build();
-        final BgpAggregator ipv4i = new AggregatorBuilder().setAsNumber(new AsNumber((long) 5525)).setNetworkAddress(
-                new Ipv4Address("124.55.42.1")).build();
+        final BgpAggregator ipv4 = new AggregatorBuilder()
+                .setAsNumber(new AsNumber(Uint32.valueOf(5524)))
+                .setNetworkAddress(new Ipv4Address("124.55.42.1"))
+                .build();
+        final BgpAggregator ipv4i = new AggregatorBuilder()
+                .setAsNumber(new AsNumber(Uint32.valueOf(5525)))
+                .setNetworkAddress(new Ipv4Address("124.55.42.1"))
+                .build();
 
         assertNotSame(ipv4.hashCode(), ipv4i.hashCode());
 

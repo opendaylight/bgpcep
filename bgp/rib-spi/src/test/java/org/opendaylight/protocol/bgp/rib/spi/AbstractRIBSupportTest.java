@@ -56,6 +56,7 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -69,7 +70,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> extends AbstractConcurrentDataBrokerTest {
-    protected static final PathId PATH_ID = new PathId(1L);
+    protected static final PathId PATH_ID = new PathId(Uint32.ONE);
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
             .child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();

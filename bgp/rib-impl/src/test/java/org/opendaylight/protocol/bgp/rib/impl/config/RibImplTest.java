@@ -17,7 +17,6 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.primitives.Shorts;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -57,7 +57,6 @@ import org.osgi.framework.ServiceRegistration;
 
 public class RibImplTest extends AbstractConfig {
     private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
-    private static final Long ALL_PATHS = 0L;
     private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
     private static final Ipv4Address BGP_ID = new BgpId(new Ipv4Address("127.0.0.1"));
@@ -65,7 +64,7 @@ public class RibImplTest extends AbstractConfig {
     static {
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
                 .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(true)
-                        .setSendMax(Shorts.checkedCast(ALL_PATHS)).build()).build());
+                        .setSendMax(Uint8.ZERO).build()).build());
     }
 
     @Mock

@@ -44,7 +44,7 @@ public final class SetClusterIdPrependHandler implements BgpActionAugPolicy<SetC
         return prependClusterId(attributes, clusterIdLocal);
     }
 
-    private Attributes prependClusterId(final Attributes attributes, final ClusterIdentifier clusterId) {
+    private static Attributes prependClusterId(final Attributes attributes, final ClusterIdentifier clusterId) {
         final AttributesBuilder newAtt = new AttributesBuilder(attributes);
         final List<ClusterIdentifier> newClusterList = new ArrayList<>();
         newClusterList.add(clusterId);

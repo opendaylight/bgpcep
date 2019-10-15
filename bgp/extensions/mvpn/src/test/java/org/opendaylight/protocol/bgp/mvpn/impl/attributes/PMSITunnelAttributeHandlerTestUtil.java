@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
 import static java.util.Collections.singletonList;
@@ -37,9 +36,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.RsvpTeP2mpLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 final class PMSITunnelAttributeHandlerTestUtil {
-    private static final MplsLabel MPLS_LABEL = new MplsLabel(24001L);
+    private static final MplsLabel MPLS_LABEL = new MplsLabel(Uint32.valueOf(24001L));
     /**
      * ATT - TYPE - ATT LENGTH.
      * PMSI FLAG - PMSI TYPE 0- MPLS LABEL
@@ -253,13 +255,13 @@ final class PMSITunnelAttributeHandlerTestUtil {
     };
     private static final IpAddress P_MULTICAST = new IpAddress(new Ipv4Address("23.1.1.1"));
     private static final IpAddress IP_ADDRESS = new IpAddress(new Ipv4Address("1.1.1.1"));
-    private static final Short NO_SUPPORTED_OPAQUE = 200;
-    private static final short GENERIC_LSP_IDENTIFIER = 1;
+    private static final Uint8 NO_SUPPORTED_OPAQUE = Uint8.valueOf(200);
+    private static final Uint8 GENERIC_LSP_IDENTIFIER = Uint8.ONE;
     private static final HexString OPAQUE_TEST = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00");
     private static final HexString OPAQUE_TEST2
             = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
     private static final IpAddress IPV6 = new IpAddress(new Ipv6Address("2001::1"));
-    private static final short EXTENDED_TYPE = 255;
+    private static final Uint8 EXTENDED_TYPE = Uint8.MAX_VALUE;
 
     private PMSITunnelAttributeHandlerTestUtil() {
         throw new UnsupportedOperationException();
@@ -360,7 +362,8 @@ final class PMSITunnelAttributeHandlerTestUtil {
         pmsiTunnelBuilder.setTunnelIdentifier(new RsvpTeP2mpLspBuilder()
                 .setRsvpTeP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
                         .rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLspBuilder()
-                        .setP2mpId(3458L).setTunnelId(15).setExtendedTunnelId(IP_ADDRESS).build()).build());
+                        .setP2mpId(Uint32.valueOf(3458)).setTunnelId(Uint16.valueOf(15))
+                        .setExtendedTunnelId(IP_ADDRESS).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
@@ -387,7 +390,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         pmsiTunnelBuilder.setTunnelIdentifier(new MldpMp2mpLspBuilder().setMldpMp2mpLsp(new org.opendaylight.yang.gen
                 .v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel
                 .identifier.mldp.mp2mp.lsp.MldpMp2mpLspBuilder().setOpaque(OPAQUE_TEST)
-                .setOpaqueType(GENERIC_LSP_IDENTIFIER).build()).build());
+                .setOpaqueType(Uint8.ONE).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
 
@@ -396,8 +399,8 @@ final class PMSITunnelAttributeHandlerTestUtil {
         opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST)
                 .setOpaqueType(GENERIC_LSP_IDENTIFIER).build());
         opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)
-                .setOpaqueType((short) 2).setOpaqueType(EXTENDED_TYPE)
-                .setOpaqueExtendedType(4).build());
+                .setOpaqueType(Uint8.valueOf(2)).setOpaqueType(EXTENDED_TYPE)
+                .setOpaqueExtendedType(Uint16.valueOf(4)).build());
         return opaqueValues;
     }
 
