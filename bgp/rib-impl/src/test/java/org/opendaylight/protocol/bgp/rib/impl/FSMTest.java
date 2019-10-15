@@ -255,8 +255,12 @@ public class FSMTest {
                 .build())
             .build());
         capas.add(new OptionalCapabilitiesBuilder()
-            .setCParameters(new CParametersBuilder().setAs4BytesCapability(
-                new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(Uint32.valueOf(30))).build()).build()).build());
+            .setCParameters(new CParametersBuilder()
+                .setAs4BytesCapability(new As4BytesCapabilityBuilder()
+                    .setAsNumber(new AsNumber(Uint32.valueOf(30)))
+                    .build())
+                .build())
+            .build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         this.clientSession.handleMessage(new OpenBuilder()
             .setMyAsNumber(Uint16.valueOf(30))

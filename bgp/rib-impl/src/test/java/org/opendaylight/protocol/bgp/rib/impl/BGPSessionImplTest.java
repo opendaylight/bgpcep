@@ -110,7 +110,10 @@ public class BGPSessionImplTest {
         this.classicOpen = new OpenBuilder()
                 .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
                 .setHoldTimer(HOLD_TIMER)
-                .setVersion(new ProtocolVersion(Uint8.valueOf(4))).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
+                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+                .setBgpParameters(tlvs)
+                .setBgpIdentifier(BGP_ID)
+                .build();
 
         final List<OptionalCapabilities> capa = new ArrayList<>();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
@@ -178,8 +181,8 @@ public class BGPSessionImplTest {
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(0);
-        assertEquals(BGPError.CEASE.getCode(), error.getErrorCode().shortValue());
-        assertEquals(BGPError.CEASE.getSubcode(), error.getErrorSubcode().shortValue());
+        assertEquals(BGPError.CEASE.getCode(), error.getErrorCode());
+        assertEquals(BGPError.CEASE.getSubcode(), error.getErrorSubcode());
         verify(this.speakerListener).close();
     }
 
@@ -190,8 +193,8 @@ public class BGPSessionImplTest {
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(0);
-        assertEquals(BGPError.FSM_ERROR.getCode(), error.getErrorCode().shortValue());
-        assertEquals(BGPError.FSM_ERROR.getSubcode(), error.getErrorSubcode().shortValue());
+        assertEquals(BGPError.FSM_ERROR.getCode(), error.getErrorCode());
+        assertEquals(BGPError.FSM_ERROR.getSubcode(), error.getErrorSubcode());
         verify(this.speakerListener).close();
     }
 
@@ -218,8 +221,8 @@ public class BGPSessionImplTest {
         assertEquals(3, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(2) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(2);
-        assertEquals(BGPError.HOLD_TIMER_EXPIRED.getCode(), error.getErrorCode().shortValue());
-        assertEquals(BGPError.HOLD_TIMER_EXPIRED.getSubcode(), error.getErrorSubcode().shortValue());
+        assertEquals(BGPError.HOLD_TIMER_EXPIRED.getCode(), error.getErrorCode());
+        assertEquals(BGPError.HOLD_TIMER_EXPIRED.getSubcode(), error.getErrorSubcode());
         verify(this.speakerListener).close();
     }
 
