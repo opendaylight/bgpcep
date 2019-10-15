@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpNodeIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.SubobjectBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class SrRroSubobjectParserTest {
 
@@ -99,13 +100,13 @@ public class SrRroSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectIpv4NodeIdNAI() throws PCEPDeserializerException {
-        final SrRroTypeBuilder builder = new SrRroTypeBuilder();
-        builder.setSidType(SidType.Ipv4NodeId);
-        builder.setSid(123456L);
-        builder.setCFlag(false);
-        builder.setMFlag(false);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
-            .build());
+        final SrRroTypeBuilder builder = new SrRroTypeBuilder()
+                .setSidType(SidType.Ipv4NodeId)
+                .setSid(Uint32.valueOf(123456))
+                .setCFlag(false)
+                .setMFlag(false)
+                .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
+                    .build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
@@ -117,13 +118,13 @@ public class SrRroSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectIpv6NodeIdNAI() throws PCEPDeserializerException {
-        final SrRroTypeBuilder builder = new SrRroTypeBuilder();
-        builder.setSidType(SidType.Ipv6NodeId);
-        builder.setCFlag(false);
-        builder.setMFlag(false);
-        builder.setSid(123456L);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
-            new Ipv6AddressNoZone("fe80:cd00::211e:729c"))).build());
+        final SrRroTypeBuilder builder = new SrRroTypeBuilder()
+                .setSidType(SidType.Ipv6NodeId)
+                .setCFlag(false)
+                .setMFlag(false)
+                .setSid(Uint32.valueOf(123456))
+                .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
+                    new Ipv6AddressNoZone("fe80:cd00::211e:729c"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
@@ -135,14 +136,14 @@ public class SrRroSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectIpv4AdjacencyNAI() throws PCEPDeserializerException {
-        final SrRroTypeBuilder builder = new SrRroTypeBuilder();
-        builder.setSidType(SidType.Ipv4Adjacency);
-        builder.setSid(123456L);
-        builder.setCFlag(false);
-        builder.setMFlag(false);
-        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(
-            new Ipv4AddressNoZone("74.125.43.99")))
-                .setRemoteIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.100"))).build());
+        final SrRroTypeBuilder builder = new SrRroTypeBuilder()
+                .setSidType(SidType.Ipv4Adjacency)
+                .setSid(Uint32.valueOf(123456))
+                .setCFlag(false)
+                .setMFlag(false)
+                .setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(
+                    new Ipv4AddressNoZone("74.125.43.99")))
+                    .setRemoteIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.100"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
@@ -154,14 +155,14 @@ public class SrRroSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectIpv6AdjacencyNAI() throws PCEPDeserializerException {
-        final SrRroTypeBuilder builder = new SrRroTypeBuilder();
-        builder.setSidType(SidType.Ipv6Adjacency);
-        builder.setSid(123456L);
-        builder.setCFlag(false);
-        builder.setMFlag(false);
-        builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(
-            new Ipv6AddressNoZone("fe80:cd00::211e:729c")))
-                .setRemoteIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("fe80:cd00::211e:729d"))).build());
+        final SrRroTypeBuilder builder = new SrRroTypeBuilder()
+                .setSidType(SidType.Ipv6Adjacency)
+                .setSid(Uint32.valueOf(123456))
+                .setCFlag(false)
+                .setMFlag(false)
+                .setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddressNoZone(
+                    new Ipv6AddressNoZone("fe80:cd00::211e:729c")))
+                    .setRemoteIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone("fe80:cd00::211e:729d"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
@@ -173,13 +174,15 @@ public class SrRroSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectUnnumberedNAI() throws PCEPDeserializerException {
-        final SrRroTypeBuilder builder = new SrRroTypeBuilder();
-        builder.setSidType(SidType.Unnumbered);
-        builder.setSid(123456L);
-        builder.setCFlag(false);
-        builder.setMFlag(false);
-        builder.setNai(new UnnumberedAdjacencyBuilder().setLocalNodeId(1L).setLocalInterfaceId(2L).setRemoteNodeId(3L)
-            .setRemoteInterfaceId(4L).build());
+        final SrRroTypeBuilder builder = new SrRroTypeBuilder()
+                .setSidType(SidType.Unnumbered)
+                .setSid(Uint32.valueOf(123456))
+                .setCFlag(false)
+                .setMFlag(false)
+                .setNai(new UnnumberedAdjacencyBuilder()
+                    .setLocalNodeId(Uint32.ONE).setLocalInterfaceId(Uint32.valueOf(2))
+                    .setRemoteNodeId(Uint32.valueOf(3)).setRemoteInterfaceId(Uint32.valueOf(4))
+                    .build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
@@ -191,11 +194,11 @@ public class SrRroSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectWithoutNAI() throws PCEPDeserializerException {
-        final SrRroTypeBuilder builder = new SrRroTypeBuilder();
-        builder.setSidType(SidType.Ipv4NodeId);
-        builder.setSid(123470L);
-        builder.setCFlag(true);
-        builder.setMFlag(true);
+        final SrRroTypeBuilder builder = new SrRroTypeBuilder()
+                .setSidType(SidType.Ipv4NodeId)
+                .setSid(Uint32.valueOf(123470))
+                .setCFlag(true)
+                .setMFlag(true);
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(
@@ -207,12 +210,12 @@ public class SrRroSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectWithoutBody() throws PCEPDeserializerException {
-        final SrRroTypeBuilder builder = new SrRroTypeBuilder();
-        builder.setSidType(SidType.Ipv4NodeId);
-        builder.setCFlag(false);
-        builder.setMFlag(false);
-        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
-            .build());
+        final SrRroTypeBuilder builder = new SrRroTypeBuilder()
+                .setSidType(SidType.Ipv4NodeId)
+                .setCFlag(false)
+                .setMFlag(false)
+                .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
+                    .build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());
 
         assertEquals(subobjBuilder.build(), this.parser.parseSubobject(Unpooled.wrappedBuffer(

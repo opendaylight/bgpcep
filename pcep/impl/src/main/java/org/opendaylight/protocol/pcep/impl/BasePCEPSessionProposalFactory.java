@@ -54,13 +54,13 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
     @Override
     public Open getSessionProposal(final InetSocketAddress address, final int sessionId,
             final PCEPPeerProposal peerProposal) {
-        final OpenBuilder oBuilder = new OpenBuilder();
-        oBuilder.setSessionId((short) sessionId);
-        oBuilder.setKeepalive((short) BasePCEPSessionProposalFactory.this.keepAlive);
+        final OpenBuilder oBuilder = new OpenBuilder()
+                .setSessionId(Uint8.valueOf(sessionId))
+                .setKeepalive(Uint8.valueOf(BasePCEPSessionProposalFactory.this.keepAlive));
         if (BasePCEPSessionProposalFactory.this.keepAlive == 0) {
             oBuilder.setDeadTimer(Uint8.ZERO);
         } else {
-            oBuilder.setDeadTimer((short) BasePCEPSessionProposalFactory.this.deadTimer);
+            oBuilder.setDeadTimer(Uint8.valueOf(BasePCEPSessionProposalFactory.this.deadTimer));
         }
 
         final TlvsBuilder builder = new TlvsBuilder();

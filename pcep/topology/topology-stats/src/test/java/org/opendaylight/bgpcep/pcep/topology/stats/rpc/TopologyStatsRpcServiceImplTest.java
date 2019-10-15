@@ -62,6 +62,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBrokerTest {
     private static final String TOPOLOGY_ID1 = "pcep-topology-1";
@@ -100,29 +103,43 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         wtx.commit().get();
     }
 
-    private Topology createTopology(final String topologyId, final List<Node> nodes) {
+    private static Topology createTopology(final String topologyId, final List<Node> nodes) {
         return new TopologyBuilder().setTopologyId(new TopologyId(topologyId)).setNode(nodes).build();
     }
 
-    private Node createPcepNode(final String nodeId) {
+    private static Node createPcepNode(final String nodeId) {
         return new NodeBuilder().setNodeId(new NodeId(nodeId))
                 .addAugmentation(PcepTopologyNodeStatsAug.class,
                         new PcepTopologyNodeStatsAugBuilder().setPcepSessionState(createTopologySessionState()).build())
                 .build();
     }
 
-    private PcepSessionState createTopologySessionState() {
-        final ReplyTime replyTime = new ReplyTimeBuilder().setAverageTime(1L).setMaxTime(3L).setMinTime(2L).build();
+    private static PcepSessionState createTopologySessionState() {
+        final ReplyTime replyTime = new ReplyTimeBuilder()
+                .setAverageTime(Uint32.ONE)
+                .setMaxTime(Uint32.valueOf(3))
+                .setMinTime(Uint32.valueOf(2))
+                .build();
 
-        final ErrorMessages errorMsg =
-                new ErrorMessagesBuilder().setReceivedErrorMsgCount(1L).setSentErrorMsgCount(2L).build();
+        final ErrorMessages errorMsg = new ErrorMessagesBuilder()
+                .setReceivedErrorMsgCount(Uint32.ONE)
+                .setSentErrorMsgCount(Uint32.valueOf(2))
+                .build();
 
-        final StatefulMessagesStatsAug statefulMsg =
-                new StatefulMessagesStatsAugBuilder().setLastReceivedRptMsgTimestamp(1553183614L).setSentUpdMsgCount(1L)
-                        .setReceivedRptMsgCount(2L).setSentInitMsgCount(3L).build();
+        final StatefulMessagesStatsAug statefulMsg = new StatefulMessagesStatsAugBuilder()
+                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1553183614L))
+                .setSentUpdMsgCount(Uint32.ONE)
+                .setReceivedRptMsgCount(Uint32.valueOf(2))
+                .setSentInitMsgCount(Uint32.valueOf(3))
+                .build();
 
-        final Messages messages = new MessagesBuilder().setLastSentMsgTimestamp(1553183734L).setUnknownMsgReceived(1)
-                .setSentMsgCount(5L).setReceivedMsgCount(4L).setReplyTime(replyTime).setErrorMessages(errorMsg)
+        final Messages messages = new MessagesBuilder()
+                .setLastSentMsgTimestamp(Uint32.valueOf(1553183734L))
+                .setUnknownMsgReceived(Uint16.ONE)
+                .setSentMsgCount(Uint32.valueOf(5))
+                .setReceivedMsgCount(Uint32.valueOf(4))
+                .setReplyTime(replyTime)
+                .setErrorMessages(errorMsg)
                 .addAugmentation(StatefulMessagesStatsAug.class, statefulMsg).build();
 
         final PeerCapabilities capabilities = new PeerCapabilitiesBuilder()
@@ -130,29 +147,46 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                         .setStateful(true).setInstantiation(true).setActive(true).build())
                 .build();
 
-        final LocalPref localPref =
-                new LocalPrefBuilder().setKeepalive((short) 30).setDeadtimer((short) 120).setIpAddress("127.0.0.1")
-                        .setSessionId(0).addAugmentation(PcepEntityIdStatsAug.class, new PcepEntityIdStatsAugBuilder()
-                                .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04}).build())
-                        .build();
+        final LocalPref localPref = new LocalPrefBuilder()
+                .setKeepalive(Uint8.valueOf(30))
+                .setDeadtimer(Uint8.valueOf(120))
+                .setIpAddress("127.0.0.1")
+                .setSessionId(Uint16.ZERO)
+                .addAugmentation(PcepEntityIdStatsAug.class, new PcepEntityIdStatsAugBuilder()
+                    .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04})
+                    .build())
+                .build();
 
         return new PcepSessionStateBuilder().setSynchronized(true).setSessionDuration("0:00:05:18")
-                .setDelegatedLspsCount(1).setLocalPref(localPref).setPeerPref(new PeerPrefBuilder(localPref).build())
+                .setDelegatedLspsCount(Uint16.ONE).setLocalPref(localPref)
+                .setPeerPref(new PeerPrefBuilder(localPref).build())
                 .setPeerCapabilities(capabilities).setMessages(messages).build();
     }
 
-    private PcepSessionState createRpcSessionState() {
-        final ReplyTime replyTime = new ReplyTimeBuilder().setAverageTime(1L).setMaxTime(3L).setMinTime(2L).build();
+    private static PcepSessionState createRpcSessionState() {
+        final ReplyTime replyTime = new ReplyTimeBuilder()
+                .setAverageTime(Uint32.ONE)
+                .setMaxTime(Uint32.valueOf(3))
+                .setMinTime(Uint32.valueOf(2))
+                .build();
 
-        final ErrorMessages errorMsg =
-                new ErrorMessagesBuilder().setReceivedErrorMsgCount(1L).setSentErrorMsgCount(2L).build();
+        final ErrorMessages errorMsg = new ErrorMessagesBuilder()
+                .setReceivedErrorMsgCount(Uint32.ONE).setSentErrorMsgCount(Uint32.valueOf(2)).build();
 
-        final StatefulMessagesRpcAug statefulMsg =
-                new StatefulMessagesRpcAugBuilder().setLastReceivedRptMsgTimestamp(1553183614L).setSentUpdMsgCount(1L)
-                        .setReceivedRptMsgCount(2L).setSentInitMsgCount(3L).build();
+        final StatefulMessagesRpcAug statefulMsg = new StatefulMessagesRpcAugBuilder()
+                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1553183614L))
+                .setSentUpdMsgCount(Uint32.ONE)
+                .setReceivedRptMsgCount(Uint32.valueOf(2))
+                .setSentInitMsgCount(Uint32.valueOf(3))
+                .build();
 
-        final Messages messages = new MessagesBuilder().setLastSentMsgTimestamp(1553183734L).setUnknownMsgReceived(1)
-                .setSentMsgCount(5L).setReceivedMsgCount(4L).setReplyTime(replyTime).setErrorMessages(errorMsg)
+        final Messages messages = new MessagesBuilder()
+                .setLastSentMsgTimestamp(Uint32.valueOf(1553183734L))
+                .setUnknownMsgReceived(Uint16.ONE)
+                .setSentMsgCount(Uint32.valueOf(5))
+                .setReceivedMsgCount(Uint32.valueOf(4))
+                .setReplyTime(replyTime)
+                .setErrorMessages(errorMsg)
                 .addAugmentation(StatefulMessagesRpcAug.class, statefulMsg).build();
 
         final PeerCapabilities capabilities = new PeerCapabilitiesBuilder()
@@ -160,15 +194,21 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                         .setStateful(true).setInstantiation(true).setActive(true).build())
                 .build();
 
-        final LocalPref localPref =
-                new LocalPrefBuilder().setKeepalive((short) 30).setDeadtimer((short) 120).setIpAddress("127.0.0.1")
-                        .setSessionId(0).addAugmentation(PcepEntityIdRpcAug.class, new PcepEntityIdRpcAugBuilder()
-                                .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04}).build())
-                        .build();
+        final LocalPref localPref = new LocalPrefBuilder()
+                .setKeepalive(Uint8.valueOf(30))
+                .setDeadtimer(Uint8.valueOf(120))
+                .setIpAddress("127.0.0.1")
+                .setSessionId(Uint16.ZERO)
+                .addAugmentation(PcepEntityIdRpcAug.class, new PcepEntityIdRpcAugBuilder()
+                    .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04})
+                    .build())
+                .build();
 
         return new PcepSessionStateBuilder().setSynchronized(true).setSessionDuration("0:00:05:18")
-                .setDelegatedLspsCount(1).setLocalPref(localPref).setPeerPref(new PeerPrefBuilder(localPref).build())
-                .setPeerCapabilities(capabilities).setMessages(messages).build();
+                .setDelegatedLspsCount(Uint16.ONE).setLocalPref(localPref)
+                .setPeerPref(new PeerPrefBuilder(localPref).build())
+                .setPeerCapabilities(capabilities).setMessages(messages)
+                .build();
     }
 
     @Test
@@ -262,7 +302,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     }
 
     @SuppressWarnings("checkstyle:LineLength")
-    private GetStatsInput createGetStatsInput(final String topologyId, final List<String> nodeIds) {
+    private static GetStatsInput createGetStatsInput(final String topologyId, final List<String> nodeIds) {
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.topology.Node> nodes;
         if (nodeIds != null) {
             nodes = nodeIds.stream().map(
@@ -285,7 +325,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     }
 
     @SuppressWarnings("checkstyle:LineLength")
-    private GetStatsOutput createGetStatsOutput(final String topologyId, final List<String> nodeIds,
+    private static GetStatsOutput createGetStatsOutput(final String topologyId, final List<String> nodeIds,
             final PcepSessionState state) {
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.topology.Node> nodes;
         if (nodeIds != null) {

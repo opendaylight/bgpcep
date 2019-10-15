@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -32,11 +31,11 @@ public class PCEPBandwidthUsageObjectCodecTest {
         final BandwidthUsageObjectCodec codec = new BandwidthUsageObjectCodec(5);
         assertEquals(5, codec.getObjectType());
 
-        final BandwidthUsageBuilder builder = new BandwidthUsageBuilder();
-        builder.setBwSample(Lists.newArrayList(new Bandwidth(new byte[]{0x00, 0x00, 0x10, 0x00}),
-                new Bandwidth(new byte[]{0x00, 0x00, 0x40, 0x00})));
-        builder.setIgnore(false);
-        builder.setProcessingRule(false);
+        final BandwidthUsageBuilder builder = new BandwidthUsageBuilder()
+                .setBwSample(Lists.newArrayList(new Bandwidth(new byte[]{0x00, 0x00, 0x10, 0x00}),
+                    new Bandwidth(new byte[]{0x00, 0x00, 0x40, 0x00})))
+                .setIgnore(false)
+                .setProcessingRule(false);
         final BandwidthUsage parsedObject = codec.parseObject(new ObjectHeaderImpl(false, false),
                 Unpooled.wrappedBuffer(BW_BYTES, 4, BW_BYTES.length - 4));
         assertEquals(builder.build(), parsedObject);

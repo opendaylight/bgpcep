@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 
-import java.math.BigInteger;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.AreaIdentifier;
@@ -31,6 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class UriBuilderTest {
     private static final RouteDistinguisher DISTINGUISHER
@@ -39,7 +42,7 @@ public class UriBuilderTest {
     @Test
     public void test() {
         final LinkstateRouteBuilder routeB = new LinkstateRouteBuilder().setProtocolId(ProtocolId.Direct)
-                .setIdentifier(new Identifier(BigInteger.TEN));
+                .setIdentifier(new Identifier(Uint64.valueOf(10)));
         final UriBuilder a = new UriBuilder(routeB.build());
         assertEquals("bgpls://Direct:10/", a.toString());
 
@@ -57,19 +60,21 @@ public class UriBuilderTest {
         linkB.setLinkDescriptors(new LinkDescriptorsBuilder()
                 .setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier("127.0.0.1"))
                 .setIpv4NeighborAddress(new Ipv4InterfaceIdentifier("20.20.20.20"))
-                .setMultiTopologyId(new TopologyIdentifier(55)).setLinkLocalIdentifier(1L)
-                .setLinkRemoteIdentifier(2L).build());
+                .setMultiTopologyId(new TopologyIdentifier(Uint16.valueOf(55)))
+                .setLinkLocalIdentifier(Uint32.ONE)
+                .setLinkRemoteIdentifier(Uint32.valueOf(2))
+                .build());
         final LocalNodeDescriptorsBuilder nodeB = new LocalNodeDescriptorsBuilder();
-        nodeB.setAsNumber(new AsNumber(12L)).setDomainId(new DomainIdentifier(15L))
-                .setAreaId(new AreaIdentifier(17L));
+        nodeB.setAsNumber(new AsNumber(Uint32.valueOf(12))).setDomainId(new DomainIdentifier(Uint32.valueOf(15)))
+                .setAreaId(new AreaIdentifier(Uint32.valueOf(17)));
         nodeB.setCRouterIdentifier(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder()
-                .setOspfRouterId(22L).build()).build());
+                .setOspfRouterId(Uint32.valueOf(22)).build()).build());
         linkB.setLocalNodeDescriptors(nodeB.build());
         final RemoteNodeDescriptorsBuilder nodeR = new RemoteNodeDescriptorsBuilder();
         nodeR.setCRouterIdentifier(new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder()
                 .setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder()
                         .setIsoSystemId(new IsoSystemIdentifier(new byte[]{1, 2, 3, 4, 5, 6}))
-                        .build()).setPsn((short) 2).build()).build());
+                        .build()).setPsn(Uint8.valueOf(2)).build()).build());
         linkB.setRemoteNodeDescriptors(nodeR.build());
         c.add(linkB.build());
         assertEquals("bgpls://1.2.3.4:258:Direct:10/type=foo&local-as=12&local-domain=15&local-area=17&"

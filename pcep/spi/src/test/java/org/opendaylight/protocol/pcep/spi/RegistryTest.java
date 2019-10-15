@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.LabelCase;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class RegistryTest {
@@ -160,11 +161,13 @@ public class RegistryTest {
         this.regs.add(this.ctx.registerLabelParser(7, this.labelParser));
         this.regs.add(this.ctx.registerLabelSerializer(Type1LabelCase.class, this.labelSerializer));
 
-        this.regs.add(this.ctx.registerVendorInformationObjectParser(new EnterpriseNumber(10L), this.objectParser));
+        this.regs.add(this.ctx.registerVendorInformationObjectParser(new EnterpriseNumber(Uint32.valueOf(10)),
+            this.objectParser));
         this.regs.add(this.ctx.registerVendorInformationObjectSerializer(EnterpriseSpecificInformation.class,
             this.objectSerializer));
 
-        this.regs.add(this.ctx.registerVendorInformationTlvParser(new EnterpriseNumber(12L), this.tlvParser));
+        this.regs.add(this.ctx.registerVendorInformationTlvParser(new EnterpriseNumber(Uint32.valueOf(12)),
+            this.tlvParser));
         this.regs.add(this.ctx.registerVendorInformationTlvSerializer(EnterpriseSpecificInformation.class,
             this.tlvSerializer));
 
@@ -195,11 +198,12 @@ public class RegistryTest {
         this.ctx.getMessageHandlerRegistry().parseMessage(6, buffer, Collections.emptyList());
         this.ctx.getMessageHandlerRegistry().serializeMessage(new KeepaliveBuilder().build(), buffer);
 
-        this.ctx.getVendorInformationObjectRegistry().parseVendorInformationObject(new EnterpriseNumber(10L),
-            new ObjectHeaderImpl(true, false), buffer);
+        this.ctx.getVendorInformationObjectRegistry().parseVendorInformationObject(
+            new EnterpriseNumber(Uint32.valueOf(10)), new ObjectHeaderImpl(true, false), buffer);
         this.ctx.getVendorInformationObjectRegistry().serializeVendorInformationObject(this.esi, buffer);
 
-        this.ctx.getVendorInformationTlvRegistry().parseVendorInformationTlv(new EnterpriseNumber(12L), buffer);
+        this.ctx.getVendorInformationTlvRegistry().parseVendorInformationTlv(
+            new EnterpriseNumber(Uint32.valueOf(12)), buffer);
         this.ctx.getVendorInformationTlvRegistry().serializeVendorInformationTlv(this.viTlv, buffer);
 
         this.activator.start(this.ctx);
