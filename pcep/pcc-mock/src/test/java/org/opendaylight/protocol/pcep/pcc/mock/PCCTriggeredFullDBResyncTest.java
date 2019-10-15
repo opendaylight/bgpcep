@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class PCCTriggeredFullDBResyncTest extends PCCMockCommon {
@@ -52,17 +53,16 @@ public class PCCTriggeredFullDBResyncTest extends PCCMockCommon {
     }
 
     private static Message createTriggerLspResync() {
-        final SrpBuilder srpBuilder = new SrpBuilder();
-        srpBuilder.setOperationId(new SrpIdNumber(1L));
-        srpBuilder.setProcessingRule(Boolean.TRUE);
+        final SrpBuilder srpBuilder = new SrpBuilder()
+                .setOperationId(new SrpIdNumber(Uint32.ONE))
+                .setProcessingRule(Boolean.TRUE);
 
         final Srp srp = srpBuilder.build();
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(0L)).setSync(Boolean.TRUE).build();
-        final UpdatesBuilder rb = new UpdatesBuilder();
-        rb.setSrp(srp);
-        rb.setLsp(lsp);
-        final PathBuilder pb = new PathBuilder();
-        rb.setPath(pb.build());
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Uint32.ZERO)).setSync(Boolean.TRUE).build();
+        final UpdatesBuilder rb = new UpdatesBuilder()
+                .setSrp(srp)
+                .setLsp(lsp)
+                .setPath(new PathBuilder().build());
         final PcupdMessageBuilder ub = new PcupdMessageBuilder();
         ub.setUpdates(Collections.singletonList(rb.build()));
         return new PcupdBuilder().setPcupdMessage(ub.build()).build();

@@ -40,6 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.label._case.LabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PCEPRROSubobjectParserTest {
 
@@ -128,11 +130,14 @@ public class PCEPRROSubobjectParserTest {
     @Test
     public void testRROUnnumberedSubobject() throws PCEPDeserializerException {
         final RROUnnumberedInterfaceSubobjectParser parser = new RROUnnumberedInterfaceSubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setProtectionAvailable(false);
-        subs.setProtectionInUse(true);
-        subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
-                new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build()).build());
+        final SubobjectBuilder subs = new SubobjectBuilder()
+                .setProtectionAvailable(false)
+                .setProtectionInUse(true)
+                .setSubobjectType(new UnnumberedCaseBuilder()
+                    .setUnnumbered(new UnnumberedBuilder()
+                        .setRouterId(Uint32.valueOf(0x12345000L)).setInterfaceId(Uint32.valueOf(0xffffffffL))
+                        .build())
+                    .build());
         assertEquals(
             subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(UNNUMBERED_BYTES, 2))));
         final ByteBuf buff = Unpooled.buffer();
@@ -159,7 +164,7 @@ public class PCEPRROSubobjectParserTest {
         final SubobjectBuilder subs = new SubobjectBuilder();
         final PathKeyBuilder pBuilder = new PathKeyBuilder();
         pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
-        pBuilder.setPathKey(new PathKey(4660));
+        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(
             subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY32_BYTES, 2))));
@@ -190,7 +195,7 @@ public class PCEPRROSubobjectParserTest {
             (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12,
             (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
         }));
-        pBuilder.setPathKey(new PathKey(4660));
+        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(
             subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY128_BYTES, 2))));
