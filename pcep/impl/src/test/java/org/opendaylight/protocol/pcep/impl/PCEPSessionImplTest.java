@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.impl;
 
 import org.junit.After;
@@ -72,8 +71,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         Assert.assertTrue(this.msgsSend.get(0) instanceof Pcerr);
         final Pcerr pcErr = (Pcerr) this.msgsSend.get(0);
         final ErrorObject errorObj = pcErr.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(
-            PCEPErrors.ATTEMPT_2ND_SESSION, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
+        Assert.assertEquals(PCEPErrors.ATTEMPT_2ND_SESSION, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
     }
 
     @Test
@@ -139,10 +137,8 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         final ErrorMessages errMsgs = msgs.getErrorMessages();
         Assert.assertEquals(1, errMsgs.getReceivedErrorMsgCount().intValue());
         Assert.assertEquals(0, errMsgs.getSentErrorMsgCount().intValue());
-        Assert.assertEquals(
-            PCEPErrors.LSP_RSVP_ERROR.getErrorType(), errMsgs.getLastReceivedError().getErrorType().shortValue());
-        Assert.assertEquals(
-            PCEPErrors.LSP_RSVP_ERROR.getErrorValue(), errMsgs.getLastReceivedError().getErrorValue().shortValue());
+        Assert.assertEquals(PCEPErrors.LSP_RSVP_ERROR.getErrorType(), errMsgs.getLastReceivedError().getErrorType());
+        Assert.assertEquals(PCEPErrors.LSP_RSVP_ERROR.getErrorValue(), errMsgs.getLastReceivedError().getErrorValue());
 
         this.session.sendMessage(Util.createErrorMessage(PCEPErrors.UNKNOWN_PLSP_ID, null));
         final Messages msgs2 = this.session.getMessages();
@@ -152,10 +148,8 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         final ErrorMessages errMsgs2 = msgs2.getErrorMessages();
         Assert.assertEquals(1, errMsgs2.getReceivedErrorMsgCount().intValue());
         Assert.assertEquals(1, errMsgs2.getSentErrorMsgCount().intValue());
-        Assert.assertEquals(
-            PCEPErrors.UNKNOWN_PLSP_ID.getErrorType(), errMsgs2.getLastSentError().getErrorType().shortValue());
-        Assert.assertEquals(
-            PCEPErrors.UNKNOWN_PLSP_ID.getErrorValue(), errMsgs2.getLastSentError().getErrorValue().shortValue());
+        Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorType(), errMsgs2.getLastSentError().getErrorType());
+        Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorValue(), errMsgs2.getLastSentError().getErrorValue());
     }
 
     @Test

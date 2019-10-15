@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.impl;
 
 import java.lang.reflect.Constructor;
@@ -34,8 +33,8 @@ public class UtilTest {
         final SessionCase sessionCase = (SessionCase) errMsg.getPcerrMessage().getErrorType();
         Assert.assertEquals(OPEN, sessionCase.getSession().getOpen());
         final ErrorObject errorObject = errMsg.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType().shortValue());
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue().shortValue());
+        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
+        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
     }
 
     @Test
@@ -45,8 +44,8 @@ public class UtilTest {
         final Pcerr errMsg = (Pcerr) msg;
         Assert.assertNull(errMsg.getPcerrMessage().getErrorType());
         final ErrorObject errorObject = errMsg.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType().shortValue());
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue().shortValue());
+        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
+        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
     }
 
     @Test(expected = UnsupportedOperationException.class)
