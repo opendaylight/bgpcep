@@ -110,6 +110,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.UnnumberedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPValidatorTest {
 
@@ -195,38 +198,44 @@ public class PCEPValidatorTest {
         this.act = new BaseParserExtensionActivator();
         this.act.start(this.ctx);
 
-        final LspaBuilder lspaBuilder = new LspaBuilder();
-        lspaBuilder.setProcessingRule(false);
-        lspaBuilder.setIgnore(false);
-        lspaBuilder.setLocalProtectionDesired(false);
-        lspaBuilder.setHoldPriority((short) 0);
-        lspaBuilder.setSetupPriority((short) 0);
-        lspaBuilder.setExcludeAny(new AttributeFilter(0L));
-        lspaBuilder.setIncludeAll(new AttributeFilter(0L));
-        lspaBuilder.setIncludeAny(new AttributeFilter(0L));
-        lspaBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-            .lspa.object.lspa.TlvsBuilder().build());
-        this.lspa = lspaBuilder.build();
+        this.lspa = new LspaBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setLocalProtectionDesired(false)
+                .setHoldPriority(Uint8.ZERO)
+                .setSetupPriority(Uint8.ZERO)
+                .setExcludeAny(new AttributeFilter(Uint32.ZERO))
+                .setIncludeAll(new AttributeFilter(Uint32.ZERO))
+                .setIncludeAny(new AttributeFilter(Uint32.ZERO))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                    .lspa.object.lspa.TlvsBuilder().build())
+                .build();
 
-        final MetricBuilder mBuilder = new MetricBuilder();
-        mBuilder.setIgnore(false);
-        mBuilder.setProcessingRule(false);
-        mBuilder.setComputed(false);
-        mBuilder.setBound(false);
-        mBuilder.setMetricType((short) 1);
-        mBuilder.setValue(new Float32(new byte[4]));
-        this.metrics = new MetricsBuilder().setMetric(mBuilder.build()).build();
+        this.metrics = new MetricsBuilder()
+                .setMetric(new MetricBuilder()
+                    .setIgnore(false)
+                    .setProcessingRule(false)
+                    .setComputed(false)
+                    .setBound(false)
+                    .setMetricType(Uint8.ONE)
+                    .setValue(new Float32(new byte[4])).build())
+                .build();
 
         this.eroASSubobject = new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(
-            new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber(0xFFFFL))
+            new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber(
+                Uint32.valueOf(0xFFFF)))
             .build()).build();
 
-        this.rroUnnumberedSub = new UnnumberedCaseBuilder().setUnnumbered(
-            new UnnumberedBuilder().setRouterId(0x00112233L).setInterfaceId(0x00ff00ffL).build()).build();
+        this.rroUnnumberedSub = new UnnumberedCaseBuilder()
+                .setUnnumbered(new UnnumberedBuilder()
+                    .setRouterId(Uint32.valueOf(0x00112233L))
+                    .setInterfaceId(Uint32.valueOf(0x00ff00ffL))
+                    .build())
+                .build();
 
-        final IroBuilder iroBuilder = new IroBuilder();
-        iroBuilder.setIgnore(false);
-        iroBuilder.setProcessingRule(false);
+        final IroBuilder iroBuilder = new IroBuilder()
+                .setIgnore(false)
+                .setProcessingRule(false);
         final List<Subobject> iroSubs = new ArrayList<>();
         iroSubs.add(new SubobjectBuilder().setSubobjectType(this.eroASSubobject).setLoose(false).build());
         iroBuilder.setSubobject(iroSubs);
@@ -253,34 +262,34 @@ public class PCEPValidatorTest {
         rroBuilder.setSubobject(rroSubs);
         this.rro = rroBuilder.build();
 
-        final SrpBuilder srpBuilder = new SrpBuilder();
-        srpBuilder.setIgnore(false);
-        srpBuilder.setProcessingRule(false);
-        srpBuilder.setOperationId(new SrpIdNumber(1L));
-        srpBuilder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(false).build());
-        srpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-            .rev181109.srp.object.srp.TlvsBuilder().build());
-        this.srp = srpBuilder.build();
+        this.srp = new SrpBuilder()
+                .setIgnore(false)
+                .setProcessingRule(false)
+                .setOperationId(new SrpIdNumber(Uint32.ONE))
+                .addAugmentation(Srp1.class, new Srp1Builder().setRemove(false).build())
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                    .rev181109.srp.object.srp.TlvsBuilder().build())
+                .build();
 
-        final LspBuilder lspBuilder = new LspBuilder();
-        lspBuilder.setIgnore(false);
-        lspBuilder.setProcessingRule(false);
-        lspBuilder.setAdministrative(false);
-        lspBuilder.setDelegate(false);
-        lspBuilder.setPlspId(new PlspId(0L));
-        lspBuilder.setOperational(OperationalStatus.Down);
-        lspBuilder.setSync(false);
-        lspBuilder.setRemove(false);
-        lspBuilder.setTlvs(new TlvsBuilder().build());
-        lspBuilder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(false).build());
+        final LspBuilder lspBuilder = new LspBuilder()
+                .setIgnore(false)
+                .setProcessingRule(false)
+                .setAdministrative(false)
+                .setDelegate(false)
+                .setPlspId(new PlspId(Uint32.ZERO))
+                .setOperational(OperationalStatus.Down)
+                .setSync(false)
+                .setRemove(false)
+                .setTlvs(new TlvsBuilder().build())
+                .addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(false).build());
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp
             .identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder builder =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp
                     .identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(new Ipv4AddressNoZone("127.0.1.1"));
-        final LspId lspId = new LspId(1L);
-        final TunnelId tunnelId = new TunnelId(1);
+        final LspId lspId = new LspId(Uint32.ONE);
+        final TunnelId tunnelId = new TunnelId(Uint16.ONE);
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4AddressNoZone("127.0.1.2")));
         builder.setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone("127.0.1.3"));
         final AddressFamily afiLsp = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
@@ -326,10 +335,10 @@ public class PCEPValidatorTest {
                     .rev181109.open.object.OpenBuilder()
                     .setProcessingRule(false)
                     .setIgnore(false)
-                    .setVersion(new ProtocolVersion((short) 1))
-                    .setKeepalive((short) 30)
-                    .setDeadTimer((short) 120)
-                    .setSessionId((short) 1)
+                    .setVersion(new ProtocolVersion(Uint8.ONE))
+                    .setKeepalive(Uint8.valueOf(30))
+                    .setDeadTimer(Uint8.valueOf(120))
+                    .setSessionId(Uint8.ONE)
                     .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                         .open.object.open.TlvsBuilder().addAugmentation(Tlvs1.class,
                             new Tlvs1Builder().setStateful(new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE)
@@ -524,8 +533,8 @@ public class PCEPValidatorTest {
             final Stateful07ErrorMessageParser parser = new Stateful07ErrorMessageParser(
                 this.ctx.getObjectHandlerRegistry());
 
-            ErrorObject error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false).setType((short) 19)
-                    .setValue((short) 1).build();
+            ErrorObject error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false)
+                    .setType(Uint8.valueOf(19)).setValue(Uint8.ONE).build();
 
             List<Errors> innerErr = new ArrayList<>();
             innerErr.add(new ErrorsBuilder().setErrorObject(error1).build());
@@ -533,9 +542,15 @@ public class PCEPValidatorTest {
             PcerrMessageBuilder builder = new PcerrMessageBuilder();
             builder.setErrors(innerErr);
             final List<Srps> srps = new ArrayList<>();
-            srps.add(new SrpsBuilder().setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(3L)).setIgnore(false)
-                .setProcessingRule(false).setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                    .pcep.ietf.stateful.rev181109.srp.object.srp.TlvsBuilder().build()).build()).build());
+            srps.add(new SrpsBuilder()
+                .setSrp(new SrpBuilder()
+                    .setOperationId(new SrpIdNumber(Uint32.valueOf(3)))
+                    .setIgnore(false)
+                    .setProcessingRule(false)
+                    .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                        .rev181109.srp.object.srp.TlvsBuilder().build())
+                    .build())
+                .build());
             builder.setErrorType(new StatefulCaseBuilder().setStateful(new org.opendaylight.yang.gen.v1.urn.opendaylight
                 .params.xml.ns.yang.pcep.ietf.stateful.rev181109.pcerr.pcerr.message.error.type.stateful._case
                 .StatefulBuilder().setSrps(srps).build()).build());
@@ -547,30 +562,30 @@ public class PCEPValidatorTest {
             parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
 
-            error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false).setType((short) 3)
-                    .setValue((short) 1).build();
+            error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false).setType(Uint8.valueOf(3))
+                    .setValue(Uint8.ONE).build();
 
             innerErr = new ArrayList<>();
             builder = new PcerrMessageBuilder();
 
-            final RpBuilder rpBuilder = new RpBuilder();
-            rpBuilder.setProcessingRule(true);
-            rpBuilder.setIgnore(false);
-            rpBuilder.setReoptimization(false);
-            rpBuilder.setBiDirectional(false);
-            rpBuilder.setLoose(true);
-            rpBuilder.setMakeBeforeBreak(false);
-            rpBuilder.setOrder(false);
-            rpBuilder.setPathKey(false);
-            rpBuilder.setSupplyOf(false);
-            rpBuilder.setFragmentation(false);
-            rpBuilder.setP2mp(false);
-            rpBuilder.setEroCompression(false);
-            rpBuilder.setPriority((short) 1);
-            rpBuilder.setRequestId(new RequestId(10L));
-            rpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-                .rp.object.rp.TlvsBuilder().build());
-            rpBuilder.setProcessingRule(false);
+            final RpBuilder rpBuilder = new RpBuilder()
+                    .setProcessingRule(true)
+                    .setIgnore(false)
+                    .setReoptimization(false)
+                    .setBiDirectional(false)
+                    .setLoose(true)
+                    .setMakeBeforeBreak(false)
+                    .setOrder(false)
+                    .setPathKey(false)
+                    .setSupplyOf(false)
+                    .setFragmentation(false)
+                    .setP2mp(false)
+                    .setEroCompression(false)
+                    .setPriority(Uint8.ONE)
+                    .setRequestId(new RequestId(Uint32.valueOf(10)))
+                    .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                        .rp.object.rp.TlvsBuilder().build())
+                    .setProcessingRule(false);
             final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr
                 .message.pcerr.message.error.type.request._case.request.Rps> rps = new ArrayList<>();
             rps.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr
@@ -590,8 +605,8 @@ public class PCEPValidatorTest {
 
 
             builder = new PcerrMessageBuilder();
-            error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false).setType((short) 3)
-                    .setValue((short) 1).build();
+            error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false).setType(Uint8.valueOf(3))
+                    .setValue(Uint8.ONE).build();
 
             innerErr = new ArrayList<>();
             innerErr.add(new ErrorsBuilder().setErrorObject(error1).build());
@@ -600,10 +615,10 @@ public class PCEPValidatorTest {
             builder.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder()
                 .setOpen(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open
                     .object.OpenBuilder()
-                        .setDeadTimer((short) 1)
-                        .setKeepalive((short) 1)
-                        .setVersion(new ProtocolVersion((short) 1))
-                        .setSessionId((short) 0)
+                        .setDeadTimer(Uint8.ONE)
+                        .setKeepalive(Uint8.ONE)
+                        .setVersion(new ProtocolVersion(Uint8.ONE))
+                        .setSessionId(Uint8.ZERO)
                         .setIgnore(false)
                         .setProcessingRule(false)
                         .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
@@ -644,7 +659,11 @@ public class PCEPValidatorTest {
 
             final PcerrMessageBuilder errMsgBuilder = new PcerrMessageBuilder();
             errMsgBuilder.setErrors(Lists.newArrayList(new ErrorsBuilder()
-                    .setErrorObject(new ErrorObjectBuilder().setType((short) 6).setValue((short) 8).build()).build()));
+                    .setErrorObject(new ErrorObjectBuilder()
+                        .setType(Uint8.valueOf(6))
+                        .setValue(Uint8.valueOf(8))
+                        .build())
+                    .build()));
             final PcerrBuilder builder = new PcerrBuilder();
             builder.setPcerrMessage(errMsgBuilder.build());
 
@@ -691,7 +710,11 @@ public class PCEPValidatorTest {
 
             final PcerrMessageBuilder errMsgBuilder = new PcerrMessageBuilder();
             errMsgBuilder.setErrors(Lists.newArrayList(new ErrorsBuilder()
-                    .setErrorObject(new ErrorObjectBuilder().setType((short) 6).setValue((short) 10).build()).build()));
+                    .setErrorObject(new ErrorObjectBuilder()
+                        .setType(Uint8.valueOf(6))
+                        .setValue(Uint8.valueOf(10))
+                        .build())
+                    .build()));
             final PcerrBuilder builder = new PcerrBuilder();
             builder.setPcerrMessage(errMsgBuilder.build());
 

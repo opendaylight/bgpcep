@@ -33,8 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.PeerUpNotificationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.header.PeerHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.header.PeerHeaderBuilder;
-import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AbstractBmpPerPeerMessageParserTest {
     private static final String RD = "5:3";
@@ -58,7 +58,7 @@ public class AbstractBmpPerPeerMessageParserTest {
     public void setUp() {
         this.ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
         final MessageRegistry msgRegistry = this.ctx.getMessageRegistry();
-        this.parser = new AbstractBmpPerPeerMessageParser<Builder<?>>(msgRegistry) {
+        this.parser = new AbstractBmpPerPeerMessageParser<>(msgRegistry) {
             @Override
             public Notification parseMessageBody(final ByteBuf bytes) {
                 return null;
@@ -90,16 +90,16 @@ public class AbstractBmpPerPeerMessageParserTest {
         final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
                 .parsePerPeerHeader(Unpooled.wrappedBuffer(msgBytes));
 
-        final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
-        phBuilder.setType(PeerType.forValue(0));
-        phBuilder.setAdjRibInType(AdjRibInType.forValue(1));
-        phBuilder.setIpv4(true);
-        phBuilder.setAddress(new IpAddress(new Ipv4Address("192.168.1.1")));
-        phBuilder.setAs(new AsNumber(168L));
-        phBuilder.setBgpId(new Ipv4Address("1.1.1.1"));
-        phBuilder.setTimestampSec(new Timestamp(16909060L));
-        phBuilder.setTimestampMicro(new Timestamp(16909060L));
-        assertEquals(perHeader, phBuilder.build());
+        assertEquals(perHeader, new PeerHeaderBuilder()
+            .setType(PeerType.forValue(0))
+            .setAdjRibInType(AdjRibInType.forValue(1))
+            .setIpv4(true)
+            .setAddress(new IpAddress(new Ipv4Address("192.168.1.1")))
+            .setAs(new AsNumber(Uint32.valueOf(168)))
+            .setBgpId(new Ipv4Address("1.1.1.1"))
+            .setTimestampSec(new Timestamp(Uint32.valueOf(16909060)))
+            .setTimestampMicro(new Timestamp(Uint32.valueOf(16909060)))
+            .build());
 
         final ByteBuf aggregator = Unpooled.buffer();
         this.parser.serializePerPeerHeader(perHeader, aggregator);
@@ -112,17 +112,17 @@ public class AbstractBmpPerPeerMessageParserTest {
         final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
                 .parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
 
-        final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
-        phBuilder.setType(PeerType.L3vpn);
-        phBuilder.setPeerDistinguisher(new PeerDistinguisher(
-                new RouteDistinguisher(new RdTwoOctetAs("0:" + RD))));
-        phBuilder.setAdjRibInType(AdjRibInType.forValue(1));
-        phBuilder.setIpv4(false);
-        phBuilder.setAddress(new IpAddress(new Ipv6Address("2001::1")));
-        phBuilder.setAs(new AsNumber(168L));
-        phBuilder.setBgpId(new Ipv4Address("1.1.1.2"));
-        phBuilder.setTimestampSec(new Timestamp(0L));
-        phBuilder.setTimestampMicro(new Timestamp(0L));
+        final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder()
+                .setType(PeerType.L3vpn)
+                .setPeerDistinguisher(new PeerDistinguisher(
+                    new RouteDistinguisher(new RdTwoOctetAs("0:" + RD))))
+                .setAdjRibInType(AdjRibInType.forValue(1))
+                .setIpv4(false)
+                .setAddress(new IpAddress(new Ipv6Address("2001::1")))
+                .setAs(new AsNumber(Uint32.valueOf(168)))
+                .setBgpId(new Ipv4Address("1.1.1.2"))
+                .setTimestampSec(new Timestamp(Uint32.ZERO))
+                .setTimestampMicro(new Timestamp(Uint32.ZERO));
 
         assertEquals(phBuilder.build(), perHeader);
 

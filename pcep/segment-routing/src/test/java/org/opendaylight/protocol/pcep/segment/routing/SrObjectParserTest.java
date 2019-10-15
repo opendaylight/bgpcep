@@ -40,6 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class SrObjectParserTest {
 
@@ -78,15 +80,15 @@ public class SrObjectParserTest {
         final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(this.tlvRegistry,
             this.viTlvRegistry);
 
-        final OpenBuilder builder = new OpenBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-        builder.setVersion(new ProtocolVersion((short) 1));
-        builder.setKeepalive((short) 30);
-        builder.setDeadTimer((short) 120);
-        builder.setSessionId((short) 1);
+        final OpenBuilder builder = new OpenBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setVersion(new ProtocolVersion(Uint8.ONE))
+                .setKeepalive(Uint8.valueOf(30))
+                .setDeadTimer(Uint8.valueOf(120))
+                .setSessionId(Uint8.ONE);
 
-        final Tlvs1 tlv = new Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder().setMsd((short) 1).build())
+        final Tlvs1 tlv = new Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder().setMsd(Uint8.ONE).build())
                 .build();
         builder.setTlvs(new TlvsBuilder()
                 .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
@@ -114,13 +116,13 @@ public class SrObjectParserTest {
         builder.setIgnore(false);
         final List<Subobject> subobjects = new ArrayList<>();
 
-        final SrEroTypeBuilder srEroSubBuilder = new SrEroTypeBuilder();
-        srEroSubBuilder.setCFlag(false);
-        srEroSubBuilder.setMFlag(false);
-        srEroSubBuilder.setSidType(SidType.Ipv4NodeId);
-        srEroSubBuilder.setSid(123456L);
-        srEroSubBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
-            new Ipv4AddressNoZone("74.125.43.99"))).build());
+        final SrEroTypeBuilder srEroSubBuilder = new SrEroTypeBuilder()
+                .setCFlag(false)
+                .setMFlag(false)
+                .setSidType(SidType.Ipv4NodeId)
+                .setSid(Uint32.valueOf(123456))
+                .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
+                    new Ipv4AddressNoZone("74.125.43.99"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroSubBuilder.build())
                 .setLoose(false);
         subobjects.add(subobjBuilder.build());
@@ -147,13 +149,13 @@ public class SrObjectParserTest {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.update.lsp
             .input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder srEroSubBuilder =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109
-                    .update.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder();
-        srEroSubBuilder.setCFlag(false);
-        srEroSubBuilder.setMFlag(false);
-        srEroSubBuilder.setSidType(SidType.Ipv4NodeId);
-        srEroSubBuilder.setSid(123456L);
-        srEroSubBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
-            new Ipv4AddressNoZone("74.125.43.99"))).build());
+                    .update.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder()
+                    .setCFlag(false)
+                    .setMFlag(false)
+                    .setSidType(SidType.Ipv4NodeId)
+                    .setSid(Uint32.valueOf(123456))
+                    .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
+                        new Ipv4AddressNoZone("74.125.43.99"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroSubBuilder.build())
                 .setLoose(false);
         builder.setSubobject(Lists.newArrayList(subobjBuilder.build()));

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.segment.routing;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -20,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupTypeBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class SrTlvParserTest {
 
@@ -30,7 +30,7 @@ public class SrTlvParserTest {
     @Test
     public void testSrPceCapabilityParser() throws PCEPDeserializerException {
         final SrPceCapabilityTlvParser parser = new SrPceCapabilityTlvParser();
-        final SrPceCapability spcTlv = new SrPceCapabilityBuilder().setMsd((short) 1).build();
+        final SrPceCapability spcTlv = new SrPceCapabilityBuilder().setMsd(Uint8.ONE).build();
         assertEquals(spcTlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(SPC_TLV_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(spcTlv, buff);
@@ -40,7 +40,7 @@ public class SrTlvParserTest {
     @Test
     public void testPathSetupTypeTlvParser() throws PCEPDeserializerException {
         final SrPathSetupTypeTlvParser parser = new SrPathSetupTypeTlvParser();
-        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst((short) 1).build();
+        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst(Uint8.ONE).build();
         assertEquals(pstTlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(SR_TE_PST_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(pstTlv, buff);

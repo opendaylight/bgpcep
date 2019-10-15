@@ -105,7 +105,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
         }
     }
 
-    private boolean filterPcepTopologies(final TopologyTypes topologyTypes) {
+    private static boolean filterPcepTopologies(final TopologyTypes topologyTypes) {
         if (topologyTypes == null) {
             return false;
         }

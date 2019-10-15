@@ -42,10 +42,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
-    static final long PATH_ID = 1;
+    static final Uint32 PATH_ID = Uint32.ONE;
     private static final String ROUTE_IP4PREFIX = "127.1.0.0/32";
     private static final String NEXT_HOP = "127.1.0.1";
     private static final String NEW_NEXT_HOP = "127.1.0.2";

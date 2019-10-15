@@ -10,12 +10,13 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter32;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class TlvUtilTest {
 
@@ -42,7 +43,7 @@ public class TlvUtilTest {
     @Test
     public void testFormatTlvCounter32() throws Exception {
         ByteBuf out = Unpooled.buffer(TLV_COUNTER32_OUT.length);
-        TlvUtil.formatTlvCounter32(1, new Counter32(5L), out);
+        TlvUtil.formatTlvCounter32(1, new Counter32(Uint32.valueOf(5)), out);
         Assert.assertArrayEquals(TLV_COUNTER32_OUT, ByteArray.getAllBytes(out));
         out = Unpooled.EMPTY_BUFFER;
         TlvUtil.formatTlvCounter32(1, null, out);
@@ -52,7 +53,7 @@ public class TlvUtilTest {
     @Test
     public void testFormatTlvGauge64() throws Exception {
         ByteBuf out = Unpooled.buffer(TLV_GAUGE64_OUT.length);
-        TlvUtil.formatTlvGauge64(1, new Gauge64(BigInteger.valueOf(5)), out);
+        TlvUtil.formatTlvGauge64(1, new Gauge64(Uint64.valueOf(5)), out);
         Assert.assertArrayEquals(TLV_GAUGE64_OUT, ByteArray.getAllBytes(out));
         out = Unpooled.EMPTY_BUFFER;
         TlvUtil.formatTlvGauge64(1, null, out);

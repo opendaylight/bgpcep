@@ -43,11 +43,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.message.OpenMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.start.tls.message.StartTlsMessageBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class AbstractPCEPSessionTest {
 
-    protected static final short KEEP_ALIVE = 15;
-    protected static final short DEADTIMER = 40;
+    protected static final Uint8 KEEP_ALIVE = Uint8.valueOf(15);
+    protected static final Uint8 DEADTIMER = Uint8.valueOf(40);
 
     @Mock
     protected Channel channel;
@@ -112,15 +113,14 @@ public class AbstractPCEPSessionTest {
                         .open.object.OpenBuilder()
                         .setDeadTimer(DEADTIMER)
                         .setKeepalive(KEEP_ALIVE)
-                        .setSessionId((short) 0)
+                        .setSessionId(Uint8.ZERO)
                         .build())
                     .build())
                 .build();
         this.kaMsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
         this.startTlsMsg = new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build();
-        this.closeMsg = new CloseBuilder().setCCloseMessage(
-                new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason((short) 6).build()).build()).build();
-
+        this.closeMsg = new CloseBuilder().setCCloseMessage(new CCloseMessageBuilder()
+            .setCClose(new CCloseBuilder().setReason(Uint8.valueOf(6)).build()).build()).build();
 
         this.listener = new SimpleSessionListener();
     }
