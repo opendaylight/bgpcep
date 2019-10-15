@@ -255,8 +255,12 @@ public class FSMTest {
                 .build())
             .build());
         capas.add(new OptionalCapabilitiesBuilder()
-            .setCParameters(new CParametersBuilder().setAs4BytesCapability(
-                new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(Uint32.valueOf(30))).build()).build()).build());
+            .setCParameters(new CParametersBuilder()
+                .setAs4BytesCapability(new As4BytesCapabilityBuilder()
+                    .setAsNumber(new AsNumber(Uint32.valueOf(30)))
+                    .build())
+                .build())
+            .build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         this.clientSession.handleMessage(new OpenBuilder()
             .setMyAsNumber(Uint16.valueOf(30))
@@ -283,8 +287,8 @@ public class FSMTest {
         assertEquals(3, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(2) instanceof Notify);
         final Notification m = this.receivedMsgs.get(2);
-        assertEquals(BGPError.FSM_ERROR.getCode(), ((Notify) m).getErrorCode().shortValue());
-        assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode().shortValue());
+        assertEquals(BGPError.FSM_ERROR.getCode(), ((Notify) m).getErrorCode());
+        assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode());
     }
 
     @Test
