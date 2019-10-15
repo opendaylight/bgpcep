@@ -5,22 +5,20 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.parser.tlv;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.math.BigInteger;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.Tlv;
@@ -28,8 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.stat.tlvs.PerAfiSafiAdjRibInTlvBuilder;
 
 public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
-
     public static final int TYPE = 9;
+
     private final AddressFamilyRegistry afiRegistry;
     private final SubsequentAddressFamilyRegistry safiRegistry;
 
@@ -40,7 +38,7 @@ public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof PerAfiSafiAdjRibInTlv, "PerAfiSafiAdjRibInTlv is mandatory.");
+        checkArgument(tlv instanceof PerAfiSafiAdjRibInTlv, "PerAfiSafiAdjRibInTlv is mandatory.");
         final ByteBuf buffer = Unpooled.buffer();
         ByteBufWriteUtil.writeUnsignedShort(this.afiRegistry.numberForClass(((PerAfiSafiAdjRibInTlv) tlv)
                 .getAfi()), buffer);
@@ -58,6 +56,6 @@ public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         return new PerAfiSafiAdjRibInTlvBuilder()
                 .setAfi(this.afiRegistry.classForFamily(buffer.readUnsignedShort()))
                 .setSafi(this.safiRegistry.classForFamily(buffer.readUnsignedByte()))
-                .setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
+                .setCount(new Gauge64(ByteBufUtils.readUint64(buffer))).build();
     }
 }
