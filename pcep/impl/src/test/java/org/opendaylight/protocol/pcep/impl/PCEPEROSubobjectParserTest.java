@@ -50,6 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.GeneralizedLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PCEPEROSubobjectParserTest {
     private static final byte[] IP4_PREFIX_BYTES = {
@@ -157,7 +159,7 @@ public class PCEPEROSubobjectParserTest {
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setLoose(true)
                 .setSubobjectType(new AsNumberCaseBuilder()
-                    .setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build())
+                    .setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(Uint32.valueOf(0x64))).build())
                     .build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(AS_NUMBER_BYTES, 2)), true));
@@ -182,10 +184,14 @@ public class PCEPEROSubobjectParserTest {
     @Test
     public void testEROUnnumberedSubobject() throws PCEPDeserializerException {
         final EROUnnumberedInterfaceSubobjectParser parser = new EROUnnumberedInterfaceSubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setLoose(true);
-        subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
-                new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build()).build());
+        final SubobjectBuilder subs = new SubobjectBuilder()
+                .setLoose(true)
+                .setSubobjectType(new UnnumberedCaseBuilder()
+                    .setUnnumbered(new UnnumberedBuilder()
+                        .setRouterId(Uint32.valueOf(0x12345000L))
+                        .setInterfaceId(Uint32.valueOf(0xffffffffL))
+                        .build())
+                    .build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(UNNUMBERED_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -213,7 +219,7 @@ public class PCEPEROSubobjectParserTest {
         subs.setLoose(true);
         final PathKeyBuilder pBuilder = new PathKeyBuilder();
         pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
-        pBuilder.setPathKey(new PathKey(4660));
+        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY32_BYTES, 2)), true));
@@ -246,7 +252,7 @@ public class PCEPEROSubobjectParserTest {
             (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
             (byte) 0x00, (byte) 0x00
         }));
-        pBuilder.setPathKey(new PathKey(4660));
+        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
         subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         assertEquals(subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY128_BYTES, 2)), true));
@@ -314,7 +320,7 @@ public class PCEPEROSubobjectParserTest {
             .subobjects.subobject.type.exrs._case.exrs.ExrsBuilder()
             .setMandatory(true)
             .setSubobjectType(new AsNumberCaseBuilder()
-                .setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build())
+                .setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(Uint32.valueOf(0x64))).build())
                 .build())
             .build());
         final SubobjectBuilder subs = new SubobjectBuilder().setLoose(true)
