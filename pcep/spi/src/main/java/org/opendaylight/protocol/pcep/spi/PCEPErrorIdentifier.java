@@ -7,7 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.Serializable;
+import java.util.Objects;
+import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Caret for combination of Error-type and Error-value.
@@ -15,30 +20,25 @@ import java.io.Serializable;
 final class PCEPErrorIdentifier implements Serializable {
     private static final long serialVersionUID = 2434590156751699872L;
 
-    // FIXME: these should be Uint8s
-    private final short type;
-    private final short value;
+    private final @NonNull Uint8 type;
+    private final @NonNull Uint8 value;
 
-    PCEPErrorIdentifier(final short type, final short value) {
-        this.type = type;
-        this.value = value;
+    PCEPErrorIdentifier(final Uint8 type, final Uint8 value) {
+        this.type = requireNonNull(type);
+        this.value = requireNonNull(value);
     }
 
-    public short getType() {
-        return this.type;
+    @NonNull Uint8  getType() {
+        return type;
     }
 
-    public short getValue() {
-        return this.value;
+    @NonNull Uint8  getValue() {
+        return value;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + this.type;
-        result = prime * result + this.value;
-        return result;
+        return Objects.hash(type, value);
     }
 
     @Override
@@ -46,11 +46,11 @@ final class PCEPErrorIdentifier implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj == null || this.getClass() != obj.getClass()) {
+        if (!(obj instanceof PCEPErrorIdentifier)) {
             return false;
         }
         final PCEPErrorIdentifier other = (PCEPErrorIdentifier) obj;
-        return this.type == other.type && this.value == other.value;
+        return type.equals(other.type) && value.equals(other.value);
     }
 
     @Override
