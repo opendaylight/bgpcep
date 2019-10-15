@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import static org.junit.Assert.assertNotNull;
@@ -31,10 +30,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.as._4.spec.common.As4SpecificCommon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.as._4.spec.common.As4SpecificCommonBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.As4RouteTargetExtendedCommunityCaseBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class VpnNonMemberHandlerTest extends AbstractStatementRegistryConsumerTest {
     private static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder()
-            .setAsNumber(new AsNumber(20L)).setLocalAdministrator(100).build();
+            .setAsNumber(new AsNumber(Uint32.valueOf(20))).setLocalAdministrator(Uint16.valueOf(100)).build();
 
     private static final As4RouteTargetExtendedCommunity RT = new As4RouteTargetExtendedCommunityBuilder()
             .setAs4SpecificCommon(AS_COMMON).build();

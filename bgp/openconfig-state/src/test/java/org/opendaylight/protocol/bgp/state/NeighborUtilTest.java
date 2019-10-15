@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTimersStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTimersStateAugmentationBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class NeighborUtilTest {
     @Mock
@@ -103,7 +104,7 @@ public class NeighborUtilTest {
         doReturn(5000L).when(timerState).getUpTime();
 
         final NeighborTimersStateAugmentation timerStateAug = new NeighborTimersStateAugmentationBuilder()
-                .setNegotiatedHoldTime(BigDecimal.valueOf(90L)).setUptime(new Timeticks(500L)).build();
+                .setNegotiatedHoldTime(BigDecimal.valueOf(90L)).setUptime(new Timeticks(Uint32.valueOf(500))).build();
         final Timers expectedTimers = new TimersBuilder().setState(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
                 .StateBuilder().addAugmentation(NeighborTimersStateAugmentation.class, timerStateAug).build())
@@ -118,7 +119,7 @@ public class NeighborUtilTest {
         doReturn(42949673015L).when(timerState).getUpTime();
 
         final NeighborTimersStateAugmentation timerStateAug = new NeighborTimersStateAugmentationBuilder()
-                .setNegotiatedHoldTime(BigDecimal.valueOf(90L)).setUptime(new Timeticks(5L)).build();
+                .setNegotiatedHoldTime(BigDecimal.valueOf(90L)).setUptime(new Timeticks(Uint32.valueOf(5))).build();
         final Timers expectedTimers = new TimersBuilder().setState(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
                 .StateBuilder().addAugmentation(NeighborTimersStateAugmentation.class, timerStateAug).build())
@@ -148,7 +149,7 @@ public class NeighborUtilTest {
                                 .setReceived(false)
                                 .setLlReceived(false)
                                 .setLlAdvertised(false)
-                                .setLlStaleTimer(0L)
+                                .setLlStaleTimer(Uint32.ZERO)
                                 .build()).build()).build();
 
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi

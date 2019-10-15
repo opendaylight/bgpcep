@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import static org.junit.Assert.assertEquals;
@@ -49,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -62,9 +62,9 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
     private static final LabeledUnicastRoutes ROUTES;
     private static final LabeledUnicastRouteKey ROUTE_KEY;
     private static final String LABEL_KEY;
-    private static final PathId PATH_ID = new PathId(1L);
+    private static final PathId PATH_ID = new PathId(Uint32.ONE);
     private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(new LabelStackBuilder()
-            .setLabelValue(new MplsLabel(355L)).build());
+            .setLabelValue(new MplsLabel(Uint32.valueOf(355))).build());
     private static final List<CLabeledUnicastDestination> LABELED_DESTINATION_LIST
             = Collections.singletonList(new CLabeledUnicastDestinationBuilder()
             .setPathId(PATH_ID).setLabelStack(LABEL_STACK).setPrefix(IPV4_PREFIX).build());

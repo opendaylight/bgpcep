@@ -33,6 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.EncapsulationCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.as._4.route.origin.extended.community._case.As4RouteOriginExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.encapsulation._case.EncapsulationExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class SetExtCommunityTest extends AbstractStatementRegistryConsumerTest {
     private final Attributes multipleExtCom = new AttributesBuilder().setExtendedCommunities(Arrays.asList(
@@ -42,8 +44,8 @@ public class SetExtCommunityTest extends AbstractStatementRegistryConsumerTest {
             new ExtendedCommunitiesBuilder().setExtendedCommunity(new As4RouteOriginExtendedCommunityCaseBuilder()
                     .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
                             .setAs4SpecificCommon(new As4SpecificCommonBuilder()
-                                    .setLocalAdministrator(123)
-                                    .setAsNumber(new AsNumber(65000L)).build())
+                                    .setLocalAdministrator(Uint16.valueOf(123))
+                                    .setAsNumber(new AsNumber(Uint32.valueOf(65000))).build())
                             .build()).build()).build())).build();
     private final Attributes emptyExtCom = new AttributesBuilder()
             .setExtendedCommunities(Collections.emptyList()).build();

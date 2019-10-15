@@ -41,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -59,7 +60,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesC
                     .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder()
                     .setVpnIpv4Destination(new VpnIpv4DestinationBuilder()
                             .setVpnDestination(Collections.singletonList(IPV4_VPN)).build()).build();
-    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey(new PathId(0L), "WAABAQIDBAECIgEW");
+    private static final VpnRouteKey ROUTE_KEY = new VpnRouteKey(new PathId(Uint32.ZERO), "WAABAQIDBAECIgEW");
 
     private static final VpnRoute ROUTE = new VpnRouteBuilder().setPathId(NON_PATH_ID)
             .setAttributes(ATTRIBUTES).setPrefix(IPV4_PREFIX)

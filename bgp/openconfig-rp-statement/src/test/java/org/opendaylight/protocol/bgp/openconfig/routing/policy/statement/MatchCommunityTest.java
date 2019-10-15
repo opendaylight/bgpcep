@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.CommunitiesBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Mock
@@ -57,7 +58,7 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(
                 Collections.singletonList(new CommunitiesBuilder()
                         .setAsNumber(AsNumber.getDefaultInstance("65"))
-                        .setSemantics(10)
+                        .setSemantics(Uint16.valueOf(10))
                         .build())).build());
 
         result = this.statementRegistry.applyExportStatement(
@@ -86,7 +87,7 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(
                 Collections.singletonList(new CommunitiesBuilder()
                         .setAsNumber(AsNumber.getDefaultInstance("65"))
-                        .setSemantics(10)
+                        .setSemantics(Uint16.valueOf(10))
                         .build())).build());
 
         result = this.statementRegistry.applyExportStatement(
@@ -114,9 +115,9 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(Arrays.asList(
                 new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("65"))
-                        .setSemantics(10).build(),
+                        .setSemantics(Uint16.valueOf(10)).build(),
                 new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("66"))
-                        .setSemantics(11).build())).build());
+                        .setSemantics(Uint16.valueOf(11)).build())).build());
 
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,

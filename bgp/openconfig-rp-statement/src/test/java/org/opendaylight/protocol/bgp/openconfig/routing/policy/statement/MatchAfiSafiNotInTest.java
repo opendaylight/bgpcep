@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.as._4.spec.common.As4SpecificCommonBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.As4RouteOriginExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.as._4.route.origin.extended.community._case.As4RouteOriginExtendedCommunityBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class MatchAfiSafiNotInTest extends AbstractStatementRegistryConsumerTest {
     @Mock
@@ -65,7 +66,7 @@ public class MatchAfiSafiNotInTest extends AbstractStatementRegistryConsumerTest
                                 .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
                                         .setAs4SpecificCommon(new As4SpecificCommonBuilder()
                                                 .setAsNumber(AsNumber.getDefaultInstance("65000"))
-                                                .setLocalAdministrator(123)
+                                                .setLocalAdministrator(Uint16.valueOf(123))
                                                 .build()).build()).build()).build())).build());
 
         result = this.statementRegistry.applyExportStatement(

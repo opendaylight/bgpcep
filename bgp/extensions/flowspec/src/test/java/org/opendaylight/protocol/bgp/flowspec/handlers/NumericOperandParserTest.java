@@ -20,6 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.flowspec.type.icmp.code._case.CodesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.flowspec.type.port._case.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.flowspec.type.port._case.PortsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class NumericOperandParserTest {
     private static final byte[] ONE_BYTE_CODE_LIST = new byte[]{
@@ -34,11 +36,10 @@ public class NumericOperandParserTest {
         final List<Ports> ports = new ArrayList<>();
         // create 3 ports without end-of-list bit set
         for (int i = 0; i < 3; i++) {
-            ports.add(
-                    new PortsBuilder()
-                            .setOp(new NumericOperand(false, false, true, false, false))
-                            .setValue(100 + i)
-                            .build()
+            ports.add(new PortsBuilder()
+                .setOp(new NumericOperand(false, false, true, false, false))
+                .setValue(Uint16.valueOf(100 + i))
+                .build()
             );
         }
         NumericTwoByteOperandParser.INSTANCE.serialize(ports, nlriByteBuf);
@@ -54,7 +55,7 @@ public class NumericOperandParserTest {
             codes.add(
                     new CodesBuilder()
                             .setOp(new NumericOperand(false, false, true, false, false))
-                            .setValue((short) (100 + i))
+                            .setValue(Uint8.valueOf(100 + i))
                             .build()
             );
         }
