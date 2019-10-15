@@ -76,6 +76,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPObjectParserTest {
 
@@ -252,17 +254,17 @@ public class PCEPObjectParserTest {
                         (byte) 0x6d, (byte) 0x62, (byte) 0x6f, (byte) 0x6c, (byte) 0x69, (byte) 0x63, (byte) 0x20,
                         (byte) 0x6e, (byte) 0x61, (byte) 0x6d, (byte) 0x65 })).build();
 
-        builder.setIgnore(false);
-        builder.setProcessingRule(false);
-        builder.setExcludeAny(new AttributeFilter(0x20A1FEE3L));
-        builder.setIncludeAny(new AttributeFilter(0x1A025CC7L));
-        builder.setIncludeAll(new AttributeFilter(0x2BB66532L));
-        builder.setHoldPriority((short) 0x02);
-        builder.setSetupPriority((short) 0x03);
-        builder.setLocalProtectionDesired(true);
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa
-            .object.lspa.TlvsBuilder().addAugmentation(Tlvs2.class,
-                new Tlvs2Builder().setSymbolicPathName(tlv).build()).build());
+        builder.setIgnore(false)
+            .setProcessingRule(false)
+            .setExcludeAny(new AttributeFilter(Uint32.valueOf(0x20A1FEE3L)))
+            .setIncludeAny(new AttributeFilter(Uint32.valueOf(0x1A025CC7L)))
+            .setIncludeAll(new AttributeFilter(Uint32.valueOf(0x2BB66532L)))
+            .setHoldPriority(Uint8.valueOf(0x02))
+            .setSetupPriority(Uint8.valueOf(0x03))
+            .setLocalProtectionDesired(true)
+            .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa
+                .object.lspa.TlvsBuilder().addAugmentation(Tlvs2.class,
+                    new Tlvs2Builder().setSymbolicPathName(tlv).build()).build());
 
         // Tlvs container does not contain toString
         final Object o = parser.parseObject(new ObjectHeaderImpl(true, true),
@@ -283,12 +285,12 @@ public class PCEPObjectParserTest {
             (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, (byte) 0x01, 0, 0, 0, (byte) 0x01
         });
 
-        final SrpBuilder builder = new SrpBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-        builder.setOperationId(new SrpIdNumber(1L));
-        builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
-        builder.setTlvs(new TlvsBuilder().build());
+        final SrpBuilder builder = new SrpBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setOperationId(new SrpIdNumber(Uint32.ONE))
+                .addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build())
+                .setTlvs(new TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -305,14 +307,14 @@ public class PCEPObjectParserTest {
             0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
         final CInitiated00SrpObjectParser parser = new CInitiated00SrpObjectParser(this.tlvRegistry,
             this.viTlvRegistry);
-        final SrpBuilder builder = new SrpBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-        builder.setOperationId(new SrpIdNumber(1L));
-        builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-            .rev181109.srp.object.srp.TlvsBuilder()
-                .setPathSetupType(new PathSetupTypeBuilder().setPst((short) 0).build()).build());
+        final SrpBuilder builder = new SrpBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setOperationId(new SrpIdNumber(Uint32.ONE))
+                .addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build())
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                    .rev181109.srp.object.srp.TlvsBuilder()
+                    .setPathSetupType(new PathSetupTypeBuilder().setPst(Uint8.ZERO).build()).build());
 
         final ByteBuf result = Unpooled.wrappedBuffer(srpObjectWithPstTlvBytes);
         assertEquals(builder.build(),
