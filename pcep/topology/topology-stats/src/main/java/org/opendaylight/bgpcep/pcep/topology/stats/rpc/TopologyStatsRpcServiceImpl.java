@@ -173,7 +173,7 @@ public class TopologyStatsRpcServiceImpl
      * Replace stateful topology augmentations with ones for rpc in PCEP session
      * stats data
      */
-    private PcepSessionState transformStatefulAugmentation(final PcepSessionState pcepSessionState) {
+    private static PcepSessionState transformStatefulAugmentation(final PcepSessionState pcepSessionState) {
         if (pcepSessionState == null) {
             return null;
         }

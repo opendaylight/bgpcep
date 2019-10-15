@@ -27,7 +27,6 @@ import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,6 +96,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
@@ -105,13 +108,13 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private static final String ROUTER_1_ID = "127.0.0.1";
     private static final String ROUTER_2_ID = "127.0.0.2";
     private static final String NODE_1_PREFIX = "127.0.1.1/32";
-    private static final AsNumber NODE_1_AS = new AsNumber(1L);
-    private static final AsNumber NODE_2_AS = new AsNumber(2L);
+    private static final AsNumber NODE_1_AS = new AsNumber(Uint32.ONE);
+    private static final AsNumber NODE_2_AS = new AsNumber(Uint32.valueOf(2));
     private static final String NODE_1_ISIS_ID = "bgpls://IsisLevel2:1/type=node&as=1&router=0000.0102.0304";
     private static final String NODE_2_ISIS_ID = "bgpls://IsisLevel2:1/type=node&as=2";
     private static final String NODE_1_OSPF_ID = "bgpls://Ospf:1/type=node&as=1&router=0000.0102.0304";
     private static final String NODE_2_OSPF_ID = "bgpls://Ospf:1/type=node&as=2";
-    private static final Identifier IDENTIFIER = new Identifier(new BigInteger("1"));
+    private static final Identifier IDENTIFIER = new Identifier(Uint64.ONE);
     private static final long LISTENER_RESTART_TIME = 20000;
     private static final int LISTENER_ENFORCE_COUNTER = 2;
 
@@ -129,7 +132,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
             .child(Tables.class, new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class))
             .build();
         this.linkstateRouteIID = path.builder().child(LinkstateRoutesCase.class, LinkstateRoutes.class)
-            .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY))
+            .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(Uint32.ZERO), LINKSTATE_ROUTE_KEY))
                 .build();
 
     }
@@ -394,10 +397,15 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
             .setAttributes(new AttributesBuilder()
                 .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
                 .addAugmentation(Attributes1.class, new Attributes1Builder()
-                        .setLinkStateAttribute(new PrefixAttributesCaseBuilder().setPrefixAttributes(
-                                new PrefixAttributesBuilder().setOspfForwardingAddress(new IpAddress(
-                                        new Ipv4Address(ospfFwdAddress))).setPrefixMetric(new IgpMetric(igpMetric))
-                                        .build()).build()).build()).build()).build();
+                        .setLinkStateAttribute(new PrefixAttributesCaseBuilder()
+                            .setPrefixAttributes(new PrefixAttributesBuilder()
+                                .setOspfForwardingAddress(new IpAddress(new Ipv4Address(ospfFwdAddress)))
+                                .setPrefixMetric(new IgpMetric(Uint32.valueOf(igpMetric)))
+                                .build())
+                            .build())
+                        .build())
+                .build())
+            .build();
     }
 
     private static LinkstateRoute createLinkstateLinkRoute(final ProtocolId protocolId, final AsNumber localAs,
@@ -411,23 +419,27 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                                         .build()).build()).build())
                         .setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setAsNumber(remoteAs).build())
                         .setLinkDescriptors(new LinkDescriptorsBuilder()
-                                .setMultiTopologyId(new TopologyIdentifier(1)).build()).build())
+                                .setMultiTopologyId(new TopologyIdentifier(Uint16.ONE)).build()).build())
                 .setAttributes(new AttributesBuilder()
                         .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
                         .addAugmentation(Attributes1.class, new Attributes1Builder()
-                                .setLinkStateAttribute(new LinkAttributesCaseBuilder().setLinkAttributes(
-                                new LinkAttributesBuilder().setSharedRiskLinkGroups(
-                                        Lists.newArrayList(new SrlgId(5L), new SrlgId(15L)))
-                                        .setAdminGroup(new AdministrativeGroup(0L))
+                                .setLinkStateAttribute(new LinkAttributesCaseBuilder()
+                                    .setLinkAttributes(new LinkAttributesBuilder()
+                                        .setSharedRiskLinkGroups(Lists.newArrayList(
+                                            new SrlgId(Uint32.valueOf(5)), new SrlgId(Uint32.valueOf(15))))
+                                        .setAdminGroup(new AdministrativeGroup(Uint32.ZERO))
                                         .setMaxLinkBandwidth(
                                                 new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff}))
                                         .setMaxReservableBandwidth(
                                                 new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0x1f}))
                                         .setUnreservedBandwidth(Lists.newArrayList(new UnreservedBandwidthBuilder()
-                                                .withKey(new UnreservedBandwidthKey((short) 1))
+                                                .withKey(new UnreservedBandwidthKey(Uint8.ONE))
                                                 .setBandwidth(new Bandwidth(new byte[]{0x00, 0x00, 0x00, (byte) 0xff}))
                                                 .build()))
-                                        .setTeMetric(new TeMetric(100L)).setLinkName(linkName).build()).build())
+                                        .setTeMetric(new TeMetric(Uint32.valueOf(100)))
+                                        .setLinkName(linkName)
+                                        .build())
+                                    .build())
                                 .build())
                         .build())
                 .build();
@@ -436,7 +448,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private static LinkstateRouteBuilder createBaseBuilder(final ProtocolId protocolId) {
         return new LinkstateRouteBuilder()
             .setIdentifier(IDENTIFIER)
-            .withKey(new LinkstateRouteKey(new PathId(0L), LINKSTATE_ROUTE_KEY))
+            .withKey(new LinkstateRouteKey(new PathId(Uint32.ZERO), LINKSTATE_ROUTE_KEY))
             .setRouteKey(LINKSTATE_ROUTE_KEY)
             .setProtocolId(protocolId);
     }
