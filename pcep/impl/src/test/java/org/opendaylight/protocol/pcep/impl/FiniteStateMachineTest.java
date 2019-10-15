@@ -97,8 +97,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(2, this.msgsSend.size());
         assertTrue(this.msgsSend.get(1) instanceof Pcerr);
         final Errors obj = ((Pcerr) this.msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
-        assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorType(), obj.getErrorObject().getType().shortValue());
-        assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorValue(), obj.getErrorObject().getValue().shortValue());
+        assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorType(), obj.getErrorObject().getType());
+        assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorValue(), obj.getErrorObject().getValue());
         assertEquals(DefaultPCEPSessionNegotiator.State.FINISHED, this.tlsSessionNegotiator.getState());
     }
 
@@ -115,8 +115,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(2, this.msgsSend.size());
         assertTrue(this.msgsSend.get(1) instanceof Pcerr);
         final Errors obj = ((Pcerr) this.msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
-        assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorType(), obj.getErrorObject().getType().shortValue());
-        assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorValue(), obj.getErrorObject().getValue().shortValue());
+        assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorType(), obj.getErrorObject().getType());
+        assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorValue(), obj.getErrorObject().getValue());
         assertEquals(this.tlsSessionNegotiator.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
 
