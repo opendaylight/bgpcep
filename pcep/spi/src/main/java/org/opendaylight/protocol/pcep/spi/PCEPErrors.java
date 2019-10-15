@@ -354,23 +354,22 @@ public enum PCEPErrors {
     private PCEPErrorIdentifier errorId;
 
     public static PCEPErrors forValue(final Uint8 errorType, final Uint8 errorValue) {
-        return VALUE_MAP.get(new PCEPErrorIdentifier(errorType.toJava(), errorValue.toJava()));
+        return VALUE_MAP.get(new PCEPErrorIdentifier(errorType, errorValue));
     }
 
     PCEPErrors(final int type, final int value) {
-        this.errorId = new PCEPErrorIdentifier((short) type, (short) value);
+        this.errorId = new PCEPErrorIdentifier(Uint8.valueOf(type), Uint8.valueOf(value));
     }
 
     private PCEPErrorIdentifier getErrorIdentifier() {
-        return this.errorId;
+        return errorId;
     }
 
-    // FIXME: these should be Uint8s
-    public short getErrorType() {
-        return this.errorId.getType();
+    public Uint8 getErrorType() {
+        return errorId.getType();
     }
 
-    public short getErrorValue() {
-        return this.errorId.getValue();
+    public Uint8 getErrorValue() {
+        return errorId.getValue();
     }
 }
