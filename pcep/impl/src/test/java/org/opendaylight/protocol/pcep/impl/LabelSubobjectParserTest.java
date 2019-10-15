@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.type1.label._case.Type1LabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabelBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class LabelSubobjectParserTest {
 
@@ -69,10 +70,10 @@ public class LabelSubobjectParserTest {
     @Test
     public void testWavebandLabel() throws PCEPDeserializerException {
         final WavebandSwitchingLabelParser parser = new WavebandSwitchingLabelParser();
-        final WavebandSwitchingLabelBuilder iBuilder = new WavebandSwitchingLabelBuilder();
-        iBuilder.setWavebandId(0x1234L);
-        iBuilder.setStartLabel(0x9999L);
-        iBuilder.setEndLabel(0x1111L);
+        final WavebandSwitchingLabelBuilder iBuilder = new WavebandSwitchingLabelBuilder()
+                .setWavebandId(Uint32.valueOf(0x1234L))
+                .setStartLabel(Uint32.valueOf(0x9999L))
+                .setEndLabel(Uint32.valueOf(0x1111L));
         final WavebandSwitchingLabelCaseBuilder builder =
             new WavebandSwitchingLabelCaseBuilder().setWavebandSwitchingLabel(iBuilder.build());
         assertEquals(
@@ -98,11 +99,10 @@ public class LabelSubobjectParserTest {
     @Test
     public void testTypeOneLabel() throws PCEPDeserializerException {
         final Type1LabelParser parser = new Type1LabelParser();
-        final Type1LabelBuilder iBuilder = new Type1LabelBuilder();
-        iBuilder.setType1Label(0x120025ffL);
+        final Type1LabelBuilder iBuilder = new Type1LabelBuilder().setType1Label(Uint32.valueOf(0x120025ffL));
         final Type1LabelCaseBuilder builder = new Type1LabelCaseBuilder().setType1Label(iBuilder.build());
-        assertEquals(
-            builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(TYPE_ONE_LABEL_BYTES, 2))));
+        assertEquals(builder.build(),
+            parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(TYPE_ONE_LABEL_BYTES, 2))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeLabel(true, true,  builder.build(), buff);
         assertArrayEquals(TYPE_ONE_LABEL_BYTES, ByteArray.getAllBytes(buff));

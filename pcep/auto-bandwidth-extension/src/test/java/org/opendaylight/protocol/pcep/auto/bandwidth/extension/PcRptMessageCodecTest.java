@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 
 import static org.junit.Assert.assertNotNull;
@@ -51,6 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PcRptMessageCodecTest {
 
@@ -88,11 +89,11 @@ public class PcRptMessageCodecTest {
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4AddressNoZone("127.0.1.2")));
         builder.setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone("127.0.1.3"));
         final AddressFamily afiLsp = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
-        final LspId lspId = new LspId(1L);
-        final TunnelId tunnelId = new TunnelId(1);
+        final LspId lspId = new LspId(Uint32.ONE);
+        final TunnelId tunnelId = new TunnelId(Uint16.ONE);
         final LspIdentifiers identifier = new LspIdentifiersBuilder().setAddressFamily(afiLsp)
                 .setLspId(lspId).setTunnelId(tunnelId).build();
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L))
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Uint32.ONE))
                 .setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
         final Ero ero = new EroBuilder().build();
         final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
@@ -109,7 +110,7 @@ public class PcRptMessageCodecTest {
         builder.setIpv4TunnelSenderAddress(new Ipv4AddressNoZone("127.0.1.1"));
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4AddressNoZone("127.0.1.2")));
         builder.setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone("127.0.1.3"));
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L)).build();
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Uint32.ONE)).build();
         final Ero ero = new EroBuilder().build();
         final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
         final Reports validReports = codec.getValidReports(objects, new ArrayList<>());

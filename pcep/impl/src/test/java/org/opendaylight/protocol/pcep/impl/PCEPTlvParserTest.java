@@ -42,6 +42,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.req.missing.tlv.ReqMissingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlvBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPTlvParserTest {
     private static final byte[] NO_PATH_VECTOR_BYTES = {
@@ -86,7 +89,7 @@ public class PCEPTlvParserTest {
     @Test
     public void testOverloadedDurationTlv() throws PCEPDeserializerException {
         final OverloadedDurationTlvParser parser = new OverloadedDurationTlvParser();
-        final OverloadDuration tlv = new OverloadDurationBuilder().setDuration(0x7FFFFFFFL).build();
+        final OverloadDuration tlv = new OverloadDurationBuilder().setDuration(Uint32.valueOf(0x7FFFFFFFL)).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(OVERLOADED_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
@@ -97,7 +100,7 @@ public class PCEPTlvParserTest {
     @Test
     public void testReqMissingTlv() throws PCEPDeserializerException {
         final ReqMissingTlvParser parser = new ReqMissingTlvParser();
-        final ReqMissing tlv = new ReqMissingBuilder().setRequestId(new RequestId(0xF7823517L)).build();
+        final ReqMissing tlv = new ReqMissingBuilder().setRequestId(new RequestId(Uint32.valueOf(0xF7823517L))).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(REQ_MISSING_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
@@ -108,7 +111,10 @@ public class PCEPTlvParserTest {
     @Test
     public void testOrderTlv() throws PCEPDeserializerException {
         final OrderTlvParser parser = new OrderTlvParser();
-        final Order tlv = new OrderBuilder().setDelete(0xFFFFFFFFL).setSetup(0x00000001L).build();
+        final Order tlv = new OrderBuilder()
+                .setDelete(Uint32.valueOf(0xFFFFFFFFL))
+                .setSetup(Uint32.valueOf(0x00000001L))
+                .build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(ORDER_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
@@ -120,8 +126,8 @@ public class PCEPTlvParserTest {
     public void testOFListTlv() throws PCEPDeserializerException {
         final OFListTlvParser parser = new OFListTlvParser();
         final List<OfId> ids = new ArrayList<>();
-        ids.add(new OfId(0x1234));
-        ids.add(new OfId(0x5678));
+        ids.add(new OfId(Uint16.valueOf(0x1234)));
+        ids.add(new OfId(Uint16.valueOf(0x5678)));
         final OfList tlv = new OfListBuilder().setCodes(ids).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(OF_LIST_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
@@ -135,7 +141,7 @@ public class PCEPTlvParserTest {
         final TestVendorInformationTlvParser parser = new TestVendorInformationTlvParser();
         final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
         final VendorInformationTlv viTlv = new VendorInformationTlvBuilder()
-                .setEnterpriseNumber(new EnterpriseNumber(0L))
+                .setEnterpriseNumber(new EnterpriseNumber(Uint32.ZERO))
                 .setEnterpriseSpecificInformation(esInfo)
                 .build();
 
@@ -152,7 +158,7 @@ public class PCEPTlvParserTest {
     @Test
     public void testPathSetupTypeTlvParser() throws PCEPDeserializerException {
         final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
-        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst((short) 0).build();
+        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst(Uint8.ZERO).build();
         assertEquals(pstTlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(PST_TLV_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(pstTlv, buff);
@@ -168,7 +174,7 @@ public class PCEPTlvParserTest {
     @Test(expected = IllegalArgumentException.class)
     public void testUnsupportedPSTSerializer() {
         final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
-        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst((short) 1).build();
+        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst(Uint8.ONE).build();
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(pstTlv, buff);
     }

@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPSegmentRoutingCapabilityTest {
 
@@ -19,7 +20,7 @@ public class PCEPSegmentRoutingCapabilityTest {
         new TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment
             .routing.rev181109.Tlvs1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
                 .segment.routing.rev181109.Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder()
-                    .setMsd((short) 0).build()).build()).build();
+                    .setMsd(Uint8.ZERO).build()).build()).build();
 
     @Test
     public void testSegmentRoutingCapability() {

@@ -159,6 +159,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.as.number._case.AsNumberBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPObjectParserTest {
 
@@ -186,13 +189,13 @@ public class PCEPObjectParserTest {
         final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
 
-        final OpenBuilder builder = new OpenBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-        builder.setVersion(new ProtocolVersion((short) 1));
-        builder.setKeepalive((short) 30);
-        builder.setDeadTimer((short) 120);
-        builder.setSessionId((short) 1);
+        final OpenBuilder builder = new OpenBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setVersion(new ProtocolVersion(Uint8.ONE))
+                .setKeepalive(Uint8.valueOf(30))
+                .setDeadTimer(Uint8.valueOf(120))
+                .setSessionId(Uint8.ONE);
 
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open
             .object.open.TlvsBuilder().build());
@@ -222,12 +225,12 @@ public class PCEPObjectParserTest {
         final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPCloseObject1.bin"));
 
-        final CCloseBuilder builder = new CCloseBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-        builder.setReason((short) 5);
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close
-            .object.c.close.TlvsBuilder().build());
+        final CCloseBuilder builder = new CCloseBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setReason(Uint8.valueOf(5))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close
+                    .object.c.close.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -295,19 +298,27 @@ public class PCEPObjectParserTest {
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
             .route.object.ero.Subobject> subs = new ArrayList<>();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
-            .route.object.ero.SubobjectBuilder().setLoose(
-            true).setSubobjectType(
-                new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0xffffL))
-                    .build()).build()).build());
+            .route.object.ero.SubobjectBuilder()
+                .setLoose(true)
+                .setSubobjectType(new AsNumberCaseBuilder()
+                    .setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(Uint32.valueOf(0xffff))).build())
+                    .build())
+                .build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
             .route.object.ero.SubobjectBuilder().setLoose(true).setSubobjectType(new IpPrefixCaseBuilder()
                 .setIpPrefix(
                     new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build())
                 .build()).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
-            .route.object.ero.SubobjectBuilder().setLoose(true).setSubobjectType(new UnnumberedCaseBuilder()
-                .setUnnumbered(new UnnumberedBuilder().setRouterId(0xffffffffL).setInterfaceId(0xffffffffL).build())
-                .build()).build());
+            .route.object.ero.SubobjectBuilder()
+                .setLoose(true)
+                .setSubobjectType(new UnnumberedCaseBuilder()
+                    .setUnnumbered(new UnnumberedBuilder()
+                        .setRouterId(Uint32.valueOf(0xffffffffL))
+                        .setInterfaceId(Uint32.valueOf(0xffffffffL))
+                        .build())
+                    .build())
+                .build());
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
@@ -344,7 +355,7 @@ public class PCEPObjectParserTest {
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include
             .route.object.iro.SubobjectBuilder().setSubobjectType(
             new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder()
-                .setAsNumber(new AsNumber(0x10L)).build()).build()).setLoose(true).build());
+                .setAsNumber(new AsNumber(Uint32.valueOf(0x10))).build()).build()).setLoose(true).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include
             .route.object.iro.SubobjectBuilder().setSubobjectType(
             new IpPrefixCaseBuilder().setIpPrefix(
@@ -356,9 +367,9 @@ public class PCEPObjectParserTest {
                 new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22)))
                     .build()).build()).setLoose(true).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include
-            .route.object.iro.SubobjectBuilder().setSubobjectType(
-            new UnnumberedCaseBuilder().setUnnumbered(
-                new UnnumberedBuilder().setRouterId(0x1245678L).setInterfaceId(0x9abcdef0L)
+            .route.object.iro.SubobjectBuilder().setSubobjectType(new UnnumberedCaseBuilder()
+                .setUnnumbered(new UnnumberedBuilder()
+                    .setRouterId(Uint32.valueOf(0x1245678L)).setInterfaceId(Uint32.valueOf(0x9abcdef0L))
                     .build()).build()).setLoose(true).build());
         builder.setSubobject(subs);
 
@@ -421,7 +432,8 @@ public class PCEPObjectParserTest {
                     .route.subobjects.subobject.type.UnnumberedCaseBuilder().setUnnumbered(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record
                             .route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder()
-                            .setRouterId(0x1245678L).setInterfaceId(0x9abcdef0L).build())
+                            .setRouterId(Uint32.valueOf(0x1245678L)).setInterfaceId(Uint32.valueOf(0x9abcdef0L))
+                            .build())
                     .build())
                 .setProtectionAvailable(false).setProtectionInUse(false).build());
         builder.setSubobject(subs);
@@ -697,11 +709,11 @@ public class PCEPObjectParserTest {
     public void testErrorObjectWithTlv() throws PCEPDeserializerException, IOException {
         final PCEPErrorObjectParser parser = new PCEPErrorObjectParser(this.tlvRegistry, this.viTlvRegistry);
 
-        final ErrorObjectBuilder builder = new ErrorObjectBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(true);
-        builder.setType((short) 1);
-        builder.setValue((short) 1);
+        final ErrorObjectBuilder builder = new ErrorObjectBuilder()
+                .setProcessingRule(true)
+                .setIgnore(true)
+                .setType(Uint8.ONE)
+                .setValue(Uint8.ONE);
 
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPErrorObject1.bin"));
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
@@ -712,10 +724,12 @@ public class PCEPObjectParserTest {
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPErrorObject3.bin"));
 
-        builder.setType((short) 7);
-        builder.setValue((short) 0);
-        builder.setTlvs(new TlvsBuilder().setReqMissing(new ReqMissingBuilder().setRequestId(new RequestId(0x00001155L))
-            .build()).build());
+        builder.setType(Uint8.valueOf(7))
+            .setValue(Uint8.ZERO)
+            .setTlvs(new TlvsBuilder().setReqMissing(new ReqMissingBuilder()
+                .setRequestId(new RequestId(Uint32.valueOf(0x00001155L)))
+                .build())
+                .build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
             result.slice(4, result.readableBytes() - 4)));
@@ -741,17 +755,17 @@ public class PCEPObjectParserTest {
     public void testLspaObject() throws IOException, PCEPDeserializerException {
         final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
 
-        final LspaBuilder builder = new LspaBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(true);
-        builder.setExcludeAny(new AttributeFilter(0L));
-        builder.setIncludeAny(new AttributeFilter(0L));
-        builder.setIncludeAll(new AttributeFilter(0L));
-        builder.setHoldPriority((short) 0);
-        builder.setSetupPriority((short) 0);
-        builder.setLocalProtectionDesired(false);
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa
-            .object.lspa.TlvsBuilder().build());
+        final LspaBuilder builder = new LspaBuilder()
+                .setProcessingRule(true)
+                .setIgnore(true)
+                .setExcludeAny(new AttributeFilter(Uint32.ZERO))
+                .setIncludeAny(new AttributeFilter(Uint32.ZERO))
+                .setIncludeAll(new AttributeFilter(Uint32.ZERO))
+                .setHoldPriority(Uint8.ZERO)
+                .setSetupPriority(Uint8.ZERO)
+                .setLocalProtectionDesired(false)
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa
+                    .object.lspa.TlvsBuilder().build());
 
         ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
@@ -763,12 +777,12 @@ public class PCEPObjectParserTest {
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject2UpperBounds.bin"));
 
-        builder.setExcludeAny(new AttributeFilter(0xFFFFFFFFL));
-        builder.setIncludeAny(new AttributeFilter(0xFFFFFFFFL));
-        builder.setIncludeAll(new AttributeFilter(0xFFFFFFFFL));
-        builder.setHoldPriority((short) 0xFF);
-        builder.setSetupPriority((short) 0xFF);
-        builder.setLocalProtectionDesired(true);
+        builder.setExcludeAny(new AttributeFilter(Uint32.MAX_VALUE))
+            .setIncludeAny(new AttributeFilter(Uint32.MAX_VALUE))
+            .setIncludeAll(new AttributeFilter(Uint32.MAX_VALUE))
+            .setHoldPriority(Uint8.MAX_VALUE)
+            .setSetupPriority(Uint8.MAX_VALUE)
+            .setLocalProtectionDesired(true);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
             result.slice(4, result.readableBytes() - 4)));
@@ -794,13 +808,13 @@ public class PCEPObjectParserTest {
     public void testMetricObject() throws IOException, PCEPDeserializerException {
         final PCEPMetricObjectParser parser = new PCEPMetricObjectParser();
 
-        final MetricBuilder builder = new MetricBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(true);
-        builder.setComputed(false);
-        builder.setBound(false);
-        builder.setMetricType((short) 1);
-        builder.setValue(new Float32(new byte[] { 0, 0, 0, 0 }));
+        final MetricBuilder builder = new MetricBuilder()
+                .setProcessingRule(true)
+                .setIgnore(true)
+                .setComputed(false)
+                .setBound(false)
+                .setMetricType(Uint8.ONE)
+                .setValue(new Float32(new byte[] { 0, 0, 0, 0 }));
 
         ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPMetricObject1LowerBounds.bin"));
@@ -812,10 +826,10 @@ public class PCEPObjectParserTest {
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPMetricObject2UpperBounds.bin"));
 
-        builder.setComputed(true);
-        builder.setBound(false);
-        builder.setMetricType((short) 2);
-        builder.setValue(new Float32(new byte[] { (byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00 }));
+        builder.setComputed(true)
+            .setBound(false)
+            .setMetricType(Uint8.valueOf(2))
+            .setValue(new Float32(new byte[] { (byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00 }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
             result.slice(4, result.readableBytes() - 4)));
@@ -843,13 +857,13 @@ public class PCEPObjectParserTest {
         ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNoPathObject1WithoutTLV.bin"));
 
-        final NoPathBuilder builder = new NoPathBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(true);
-        builder.setNatureOfIssue((short) 1);
-        builder.setUnsatisfiedConstraints(true);
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep
-            .message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder().build());
+        final NoPathBuilder builder = new NoPathBuilder()
+                .setProcessingRule(true)
+                .setIgnore(true)
+                .setNatureOfIssue(Uint8.ONE)
+                .setUnsatisfiedConstraints(true)
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep
+                    .message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
             result.slice(4, result.readableBytes() - 4)));
@@ -859,7 +873,7 @@ public class PCEPObjectParserTest {
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNoPathObject2WithTLV.bin"));
 
-        builder.setNatureOfIssue((short) 0);
+        builder.setNatureOfIssue(Uint8.ZERO);
         builder.setUnsatisfiedConstraints(false);
 
         final NoPathVectorBuilder b = new NoPathVectorBuilder();
@@ -894,11 +908,11 @@ public class PCEPObjectParserTest {
         final PCEPNotificationObjectParser parser =
             new PCEPNotificationObjectParser(this.tlvRegistry, this.viTlvRegistry);
 
-        final CNotificationBuilder builder = new CNotificationBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(true);
-        builder.setType((short) 0xff);
-        builder.setValue((short) 0xff);
+        final CNotificationBuilder builder = new CNotificationBuilder()
+                .setProcessingRule(true)
+                .setIgnore(true)
+                .setType(Uint8.MAX_VALUE)
+                .setValue(Uint8.MAX_VALUE);
 
         ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNotificationObject2WithoutTlv.bin"));
@@ -910,11 +924,11 @@ public class PCEPObjectParserTest {
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNotificationObject1WithTlv.bin"));
 
-        builder.setType((short) 2);
-        builder.setValue((short) 1);
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+        builder.setType(Uint8.valueOf(2))
+            .setValue(Uint8.ONE)
+            .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
             .notification.object.c.notification.TlvsBuilder().setOverloadDuration(
-                new OverloadDurationBuilder().setDuration(0xff0000a2L).build()).build());
+                new OverloadDurationBuilder().setDuration(Uint32.valueOf(0xff0000a2L)).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
             result.slice(4, result.readableBytes() - 4)));
@@ -941,23 +955,23 @@ public class PCEPObjectParserTest {
         final PCEPRequestParameterObjectParser parser =
             new PCEPRequestParameterObjectParser(this.tlvRegistry, this.viTlvRegistry);
 
-        final RpBuilder builder = new RpBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(true);
-        builder.setReoptimization(true);
-        builder.setBiDirectional(false);
-        builder.setLoose(true);
-        builder.setMakeBeforeBreak(true);
-        builder.setOrder(false);
-        builder.setPathKey(false);
-        builder.setSupplyOf(false);
-        builder.setFragmentation(false);
-        builder.setP2mp(false);
-        builder.setEroCompression(false);
-        builder.setPriority((short) 5);
-        builder.setRequestId(new RequestId(0xdeadbeefL));
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp
-            .object.rp.TlvsBuilder().build());
+        final RpBuilder builder = new RpBuilder()
+                .setProcessingRule(true)
+                .setIgnore(true)
+                .setReoptimization(true)
+                .setBiDirectional(false)
+                .setLoose(true)
+                .setMakeBeforeBreak(true)
+                .setOrder(false)
+                .setPathKey(false)
+                .setSupplyOf(false)
+                .setFragmentation(false)
+                .setP2mp(false)
+                .setEroCompression(false)
+                .setPriority(Uint8.valueOf(5))
+                .setRequestId(new RequestId(Uint32.valueOf(0xdeadbeefL)))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp
+                    .object.rp.TlvsBuilder().build());
 
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPRPObject1.bin"));
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
@@ -972,9 +986,9 @@ public class PCEPObjectParserTest {
         builder.setFragmentation(true);
         builder.setEroCompression(true);
 
-        final OrderBuilder b = new OrderBuilder();
-        b.setDelete(0xffffffffL);
-        b.setSetup(1L);
+        final OrderBuilder b = new OrderBuilder()
+                .setDelete(Uint32.valueOf(0xffffffffL))
+                .setSetup(Uint32.ONE);
 
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp
             .object.rp.TlvsBuilder().setOrder(b.build()).build());
@@ -1003,15 +1017,15 @@ public class PCEPObjectParserTest {
     public void testSvecObject() throws IOException, PCEPDeserializerException {
         final PCEPSvecObjectParser parser = new PCEPSvecObjectParser();
 
-        final SvecBuilder builder = new SvecBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-        builder.setLinkDiverse(false);
-        builder.setNodeDiverse(false);
-        builder.setSrlgDiverse(false);
-        builder.setPartialPathDiverse(false);
-        builder.setLinkDirectionDiverse(false);
-        builder.setRequestsIds(Lists.newArrayList(new RequestId(0xFFL)));
+        final SvecBuilder builder = new SvecBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setLinkDiverse(false)
+                .setNodeDiverse(false)
+                .setSrlgDiverse(false)
+                .setPartialPathDiverse(false)
+                .setLinkDirectionDiverse(false)
+                .setRequestsIds(Lists.newArrayList(new RequestId(Uint32.valueOf(0xFF))));
 
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPSvecObject2.bin"));
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
@@ -1027,16 +1041,16 @@ public class PCEPObjectParserTest {
         builder.setSrlgDiverse(true);
 
         final List<RequestId> requestIDs = new ArrayList<>();
-        requestIDs.add(new RequestId(0xFFFFFFFFL));
-        requestIDs.add(new RequestId(0x00000001L));
-        requestIDs.add(new RequestId(0x01234567L));
-        requestIDs.add(new RequestId(0x89ABCDEFL));
-        requestIDs.add(new RequestId(0xFEDCBA98L));
-        requestIDs.add(new RequestId(0x76543210L));
-        requestIDs.add(new RequestId(0x15825266L));
-        requestIDs.add(new RequestId(0x48120BBEL));
-        requestIDs.add(new RequestId(0x25FB7E52L));
-        requestIDs.add(new RequestId(0xB2F2546BL));
+        requestIDs.add(new RequestId(Uint32.valueOf(0xFFFFFFFFL)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0x00000001L)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0x01234567L)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0x89ABCDEFL)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0xFEDCBA98L)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0x76543210L)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0x15825266L)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0x48120BBEL)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0x25FB7E52L)));
+        requestIDs.add(new RequestId(Uint32.valueOf(0xB2F2546BL)));
 
         builder.setRequestsIds(requestIDs);
 
@@ -1066,10 +1080,10 @@ public class PCEPObjectParserTest {
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] {
             (byte) 0x16, (byte) 0x12, (byte) 0x00, (byte) 0x08, 0, 0, 0, (byte) 0x04 });
 
-        final ClassTypeBuilder builder = new ClassTypeBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(false);
-        builder.setClassType(new ClassType((short) 4));
+        final ClassTypeBuilder builder = new ClassTypeBuilder()
+                .setProcessingRule(true)
+                .setIgnore(false)
+                .setClassType(new ClassType(Uint8.valueOf(4)));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -1104,13 +1118,20 @@ public class PCEPObjectParserTest {
         builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
             .exclude.route.object.Xro.Flags(true));
         final List<Subobject> subs = new ArrayList<>();
-        subs.add(new SubobjectBuilder().setMandatory(true).setSubobjectType(
-            new IpPrefixCaseBuilder().setIpPrefix(
-                new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("192.168.0.0/16"))).build()).build())
-                    .setAttribute(Attribute.Node).build());
-        subs.add(new SubobjectBuilder().setMandatory(false).setSubobjectType(
-            new AsNumberCaseBuilder()
-                .setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x1234L)).build()).build()).build());
+        subs.add(new SubobjectBuilder()
+            .setMandatory(true)
+            .setSubobjectType(new IpPrefixCaseBuilder()
+                .setIpPrefix(new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("192.168.0.0/16"))).build())
+                .build())
+            .setAttribute(Attribute.Node).build());
+        subs.add(new SubobjectBuilder()
+            .setMandatory(false)
+            .setSubobjectType(new AsNumberCaseBuilder()
+                .setAsNumber(new AsNumberBuilder()
+                    .setAsNumber(new AsNumber(Uint32.valueOf(0x1234L)))
+                    .build())
+                .build())
+            .build());
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
@@ -1143,8 +1164,8 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         final List<PathKeys> list = new ArrayList<>();
-        list.add(new PathKeysBuilder().setLoose(true).setPathKey(new PathKey(0x1234)).setPceId(
-                new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 })).build());
+        list.add(new PathKeysBuilder().setLoose(true).setPathKey(new PathKey(Uint16.valueOf(0x1234)))
+            .setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 })).build());
         builder.setPathKeys(list);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
@@ -1174,12 +1195,12 @@ public class PCEPObjectParserTest {
         final ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPObjectiveFunctionObject.1.bin"));
 
-        final OfBuilder builder = new OfBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(false);
-        builder.setCode(new OfId(4));
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of
-            .object.of.TlvsBuilder().build());
+        final OfBuilder builder = new OfBuilder()
+                .setProcessingRule(true)
+                .setIgnore(false)
+                .setCode(new OfId(Uint16.valueOf(4)))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of
+                    .object.of.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -1208,15 +1229,15 @@ public class PCEPObjectParserTest {
         final ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPGlobalConstraintsObject.1.bin"));
 
-        final GcBuilder builder = new GcBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(false);
-        builder.setMaxHop((short) 1);
-        builder.setMaxUtilization((short) 0);
-        builder.setMinUtilization((short) 100);
-        builder.setOverBookingFactor((short) 99);
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.gc
-            .object.gc.TlvsBuilder().build());
+        final GcBuilder builder = new GcBuilder()
+                .setProcessingRule(true)
+                .setIgnore(false)
+                .setMaxHop(Uint8.ONE)
+                .setMaxUtilization(Uint8.ZERO)
+                .setMinUtilization(Uint8.valueOf(100))
+                .setOverBookingFactor(Uint8.valueOf(99))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.gc
+                    .object.gc.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -1311,13 +1332,14 @@ public class PCEPObjectParserTest {
 
         final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
         final VendorInformationTlv viTlv = new VendorInformationTlvBuilder()
-                .setEnterpriseNumber(new EnterpriseNumber(0L)).setEnterpriseSpecificInformation(esInfo).build();
-        final CCloseBuilder builder = new CCloseBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-        builder.setReason((short) 5);
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close
-            .object.c.close.TlvsBuilder().setVendorInformationTlv(Lists.newArrayList(viTlv)).build());
+                .setEnterpriseNumber(new EnterpriseNumber(Uint32.ZERO))
+                .setEnterpriseSpecificInformation(esInfo).build();
+        final CCloseBuilder builder = new CCloseBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setReason(Uint8.valueOf(5))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close
+                    .object.c.close.TlvsBuilder().setVendorInformationTlv(Lists.newArrayList(viTlv)).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -1340,7 +1362,8 @@ public class PCEPObjectParserTest {
         final TestVendorInformationObjectParser parser = new TestVendorInformationObjectParser();
         final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
         final VendorInformationObject viObj = new VendorInformationObjectBuilder()
-                .setEnterpriseNumber(new EnterpriseNumber(0L)).setEnterpriseSpecificInformation(esInfo).build();
+                .setEnterpriseNumber(new EnterpriseNumber(Uint32.ZERO))
+                .setEnterpriseSpecificInformation(esInfo).build();
         final ByteBuf result = Unpooled.wrappedBuffer(viObjBytes);
         result.readerIndex(8);
         final VendorInformationObject o = (VendorInformationObject) parser.parseObject(
@@ -1363,10 +1386,11 @@ public class PCEPObjectParserTest {
             0x00, 0x00, 0x00, 0x10
         };
         final PCEPMonitoringObjectParser parser = new PCEPMonitoringObjectParser(this.tlvRegistry, this.viTlvRegistry);
-        final Monitoring monitoring =
-            new MonitoringBuilder().setMonitoringId(16L).setFlags(new Flags(false, false, true, false, false)).setTlvs(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring
-                    .object.monitoring.TlvsBuilder().build()).build();
+        final Monitoring monitoring = new MonitoringBuilder()
+                .setMonitoringId(Uint32.valueOf(16L))
+                .setFlags(new Flags(false, false, true, false, false))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                    .monitoring.object.monitoring.TlvsBuilder().build()).build();
         final ByteBuf result = Unpooled.wrappedBuffer(monitoringBytes);
         assertEquals(monitoring, parser.parseObject(new ObjectHeaderImpl(false, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -1485,11 +1509,12 @@ public class PCEPObjectParserTest {
         final PCEPProcTimeObjectParser parser = new PCEPProcTimeObjectParser();
         final ProcTime procTime = new ProcTimeBuilder()
             .setEstimated(true)
-            .setAverageProcTime(4L)
-            .setCurrentProcTime(1L)
-            .setMaxProcTime(3L)
-            .setMinProcTime(2L)
-            .setVarianceProcTime(5L).build();
+            .setAverageProcTime(Uint32.valueOf(4))
+            .setCurrentProcTime(Uint32.ONE)
+            .setMaxProcTime(Uint32.valueOf(3))
+            .setMinProcTime(Uint32.valueOf(2))
+            .setVarianceProcTime(Uint32.valueOf(5))
+            .build();
         final ByteBuf result = Unpooled.wrappedBuffer(proctimeBytes);
         assertEquals(procTime, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4,
             result.readableBytes() - 4)));
@@ -1508,7 +1533,7 @@ public class PCEPObjectParserTest {
             0x00, 0x00, 0x00, 0x78
         };
         final PCEPOverloadObjectParser parser = new PCEPOverloadObjectParser();
-        final Overload overload = new OverloadBuilder().setDuration(120).build();
+        final Overload overload = new OverloadBuilder().setDuration(Uint16.valueOf(120)).build();
         final ByteBuf result = Unpooled.wrappedBuffer(overloadBytes);
         assertEquals(overload, parser.parseObject(new ObjectHeaderImpl(false, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -1528,23 +1553,26 @@ public class PCEPObjectParserTest {
 
         final PCEPRequestParameterObjectParser parser
             = new PCEPRequestParameterObjectParser(this.tlvRegistry, this.viTlvRegistry);
-        final RpBuilder builder = new RpBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-        builder.setReoptimization(true);
-        builder.setBiDirectional(false);
-        builder.setLoose(true);
-        builder.setMakeBeforeBreak(true);
-        builder.setOrder(false);
-        builder.setPathKey(false);
-        builder.setSupplyOf(false);
-        builder.setFragmentation(false);
-        builder.setP2mp(false);
-        builder.setEroCompression(false);
-        builder.setPriority((short) 5);
-        builder.setRequestId(new RequestId(0xdeadbeefL));
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp
-            .object.rp.TlvsBuilder().setPathSetupType(new PathSetupTypeBuilder().setPst((short) 0).build()).build());
+        final RpBuilder builder = new RpBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setReoptimization(true)
+                .setBiDirectional(false)
+                .setLoose(true)
+                .setMakeBeforeBreak(true)
+                .setOrder(false)
+                .setPathKey(false)
+                .setSupplyOf(false)
+                .setFragmentation(false)
+                .setP2mp(false)
+                .setEroCompression(false)
+                .setPriority(Uint8.valueOf(5))
+                .setRequestId(new RequestId(Uint32.valueOf(0xdeadbeefL)))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp
+                    .object.rp.TlvsBuilder()
+                        .setPathSetupType(new PathSetupTypeBuilder().setPst(Uint8.ZERO)
+                            .build())
+                        .build());
 
         final ByteBuf result = Unpooled.wrappedBuffer(rpObjectWithPstTlvBytes);
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
