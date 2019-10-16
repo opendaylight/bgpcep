@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "24d57577_867a81f5",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "185e7434_0d6ddffd",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9f11cd6_089dbbba",
         "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
         "patchSetId": 2
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "b9e7df2b_c7345d85",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9f11cd6_089dbbba",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bbfd9956_700486a9",
         "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionNegotiator.java",
         "patchSetId": 2
@@ -65,6 +101,24 @@
       "writtenOn": "2019-10-14T14:02:14Z",
       "side": 1,
       "message": "that\u0027s normal. Code is implementing only the server side for PCEP, while in BGP, the code is implementing both client and server. AbstractBGPSessionNegociator class is used in client and server class. PCEPSessionNegotiator is only used by the server class.",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c137aad_c27981c1",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionNegotiator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbfd9956_700486a9",
       "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
@@ -103,6 +157,24 @@
       "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e9f0fd5_f88e4869",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImplTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05d9f410_e3ea5451",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
