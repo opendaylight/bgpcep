@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ea9d612_565dcead",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractSessionNegotiator.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "not sure this is the best thing to do",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 5
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "177c04b8_b89e9149",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractSessionNegotiator.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "idem",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 9
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e962acaf_509ff1ce",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPProtocolSessionPromise.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "not sure this is the best thing to do.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 5
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "997aa1a2_6374f54a",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "not sure this is the best thing to do.\n\ncoding guidelines disadvises catching exceptions in tests and initialization phases\nRuntimeExceptionthe only one throwable. CG prefers it to Exception.\nhttps://wiki.opendaylight.org/view/BestPractices/Coding_Guidelines#IllegalCatch",
+      "range": {
+        "startLine": 373,
+        "startChar": 4,
+        "endLine": 373,
+        "endChar": 37
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "561363fe_1acc24b3",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "cf https://git.opendaylight.org/gerrit/c/bgpcep/+/83274/1/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+      "range": {
+        "startLine": 410,
+        "startChar": 4,
+        "endLine": 414,
+        "endChar": 5
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e59a2ae8_88e48f62",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionNegotiator.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "but also some discrepancies.\nI would appreciate another opinion.",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 116
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f5614b4_2dbe549b",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImplTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "seems reasonable for tests purpose",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 254,
+        "endChar": 9
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12f9fd7b_e81c91a8",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "try/catch might be removed but it seems not a bad option since this test is forcing the failure.",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 9
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44edee02_712e27db",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/UtilTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:37:27Z",
+      "side": 1,
+      "message": "seems reasonable for tests purpose",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 5
+      },
+      "revId": "14d43f9ad3529f72498af812db54ca4ef8fe78e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
