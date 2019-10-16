@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "185e7434_0d6ddffd",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:24:43Z",
+      "side": 1,
+      "message": "this was aimed to be moved in Gerrit comments",
+      "parentUuid": "0f4d726d_d4f08f91",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9f11cd6_089dbbba",
         "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
         "patchSetId": 2
@@ -64,6 +82,24 @@
       "writtenOn": "2019-10-14T14:02:14Z",
       "side": 1,
       "message": "not sure how to do that as Channel class is hard to understand and impose strict way to use it",
+      "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05d9f410_e3ea5451",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImplTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-16T10:24:43Z",
+      "side": 1,
+      "message": "in that case, it seems reasonable to keep it and suppress the warnings, since this is only a test.",
+      "parentUuid": "fd3f91be_0d4c7321",
       "revId": "5c383ee6a97e2015096d609c3559b106f78007fc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
