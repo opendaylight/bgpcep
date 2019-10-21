@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.unnumbered._interface.id.ero._case.UnnumberedInterfaceIdEro;
 
 public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int UNNUMBERED_ERO = 1165;
@@ -37,9 +38,12 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof UnnumberedInterfaceIdEroCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
-        final UnnumberedInterfaceIdEroCase unnumberedEro = (UnnumberedInterfaceIdEroCase) bindingSubTlv;
-        TlvUtil.writeTLV(getType(), serializeUnnumberedIdEro(unnumberedEro.isLoose(), unnumberedEro.getRouterId(), unnumberedEro.getInterfaceId()), aggregator);
+        Preconditions.checkArgument(bindingSubTlv instanceof UnnumberedInterfaceIdEroCase,
+            "Wrong BindingSubTlv instance expected", bindingSubTlv);
+        final UnnumberedInterfaceIdEro unnumberedEro =
+                ((UnnumberedInterfaceIdEroCase) bindingSubTlv).getUnnumberedInterfaceIdEro();
+        TlvUtil.writeTLV(getType(), serializeUnnumberedIdEro(unnumberedEro.isLoose(), unnumberedEro.getRouterId(),
+            unnumberedEro.getInterfaceId()), aggregator);
     }
 
     static UnnumberedInterfaceIdEroCase parseUnnumberedEroCase(final ByteBuf buffer) {

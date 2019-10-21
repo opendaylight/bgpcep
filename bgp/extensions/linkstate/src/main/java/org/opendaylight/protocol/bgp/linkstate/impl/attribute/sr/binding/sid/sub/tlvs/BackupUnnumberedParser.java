@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdBackupEroCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdBackupEroCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.unnumbered._interface.id.backup.ero._case.UnnumberedInterfaceIdBackupEro;
 
 public final class BackupUnnumberedParser implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int BACKUP_UNNUMBERED_ERO = 1168;
@@ -39,9 +40,11 @@ public final class BackupUnnumberedParser implements BindingSubTlvsParser, Bindi
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof UnnumberedInterfaceIdBackupEroCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
-        final UnnumberedInterfaceIdBackupEroCase unnumberedBackup = (UnnumberedInterfaceIdBackupEroCase) bindingSubTlv;
-        TlvUtil.writeTLV(BACKUP_UNNUMBERED_ERO, serializeUnnumberedIdEro(unnumberedBackup.isLoose(), unnumberedBackup.getRouterId(),
-            unnumberedBackup.getInterfaceId()), aggregator);
+        Preconditions.checkArgument(bindingSubTlv instanceof UnnumberedInterfaceIdBackupEroCase,
+            "Wrong BindingSubTlv instance expected", bindingSubTlv);
+        final UnnumberedInterfaceIdBackupEro unnumberedBackup =
+                ((UnnumberedInterfaceIdBackupEroCase) bindingSubTlv).getUnnumberedInterfaceIdBackupEro();
+        TlvUtil.writeTLV(BACKUP_UNNUMBERED_ERO, serializeUnnumberedIdEro(unnumberedBackup.isLoose(),
+            unnumberedBackup.getRouterId(), unnumberedBackup.getInterfaceId()), aggregator);
     }
 }
