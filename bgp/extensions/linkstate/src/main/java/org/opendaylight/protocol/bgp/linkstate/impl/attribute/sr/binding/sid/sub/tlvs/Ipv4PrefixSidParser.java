@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
 import com.google.common.base.Preconditions;
@@ -20,6 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.PrefixSidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.PrefixSidCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.prefix.sid._case.PrefixSid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.prefix.sid._case.PrefixSidBuilder;
 
 public final class Ipv4PrefixSidParser implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     public static final int PREFIX_SID = 1158;
@@ -27,8 +28,12 @@ public final class Ipv4PrefixSidParser implements BindingSubTlvsParser, BindingS
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
         final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(slice, protocolId);
-        return new PrefixSidCaseBuilder().setAlgorithm(prefix.getAlgorithm()).setFlags(prefix.getFlags())
-            .setSidLabelIndex(prefix.getSidLabelIndex()).build();
+        return new PrefixSidCaseBuilder()
+                .setPrefixSid(new PrefixSidBuilder()
+                    .setAlgorithm(prefix.getAlgorithm())
+                    .setFlags(prefix.getFlags())
+                    .build())
+                .build();
     }
 
     @Override
@@ -38,10 +43,12 @@ public final class Ipv4PrefixSidParser implements BindingSubTlvsParser, BindingS
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof PrefixSidCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
-        final PrefixSidCase prefix = (PrefixSidCase) bindingSubTlv;
+        Preconditions.checkArgument(bindingSubTlv instanceof PrefixSidCase, "Wrong BindingSubTlv instance expected",
+            bindingSubTlv);
+        final PrefixSid prefix = ((PrefixSidCase) bindingSubTlv).getPrefixSid();
         final ByteBuf buffer = Unpooled.buffer();
-        SrPrefixAttributesParser.serializePrefixAttributes(prefix.getFlags(), prefix.getAlgorithm(), prefix.getSidLabelIndex(), buffer);
+        SrPrefixAttributesParser.serializePrefixAttributes(prefix.getFlags(), prefix.getAlgorithm(),
+            prefix.getSidLabelIndex(), buffer);
         TlvUtil.writeTLV(getType(), buffer, aggregator);
     }
 }
