@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
 import com.google.common.base.Preconditions;
@@ -16,16 +15,14 @@ import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroBackupCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroBackupCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv4.ero.backup._case.Ipv4EroBackup;
 
 public final class Ipv4BackupEro implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int BACKUP_ERO_IPV4 = 1166;
 
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
-        final Ipv4EroCase ipv4Backup = Ipv4EroParser.parseIpv4EroCase(slice);
-        return new Ipv4EroBackupCaseBuilder().setAddress(ipv4Backup.getAddress()).setLoose(ipv4Backup.isLoose()).build();
+        return Ipv4EroParser.parseIpv4EroBackupCase(slice);
     }
 
     @Override
@@ -35,8 +32,10 @@ public final class Ipv4BackupEro implements BindingSubTlvsParser, BindingSubTlvs
 
     @Override
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
-        Preconditions.checkArgument(bindingSubTlv instanceof Ipv4EroBackupCase, "Wrong BindingSubTlv instance expected", bindingSubTlv);
-        final Ipv4EroBackupCase ipv4Backup = (Ipv4EroBackupCase) bindingSubTlv;
-        TlvUtil.writeTLV(getType(), Ipv4EroParser.serializeIpv4EroCase(ipv4Backup.isLoose(), ipv4Backup.getAddress()), aggregator);
+        Preconditions.checkArgument(bindingSubTlv instanceof Ipv4EroBackupCase, "Wrong BindingSubTlv instance expected",
+            bindingSubTlv);
+        final Ipv4EroBackup ipv4Backup = ((Ipv4EroBackupCase) bindingSubTlv).getIpv4EroBackup();
+        TlvUtil.writeTLV(getType(), Ipv4EroParser.serializeIpv4EroCase(ipv4Backup.isLoose(), ipv4Backup.getAddress()),
+            aggregator);
     }
 }
