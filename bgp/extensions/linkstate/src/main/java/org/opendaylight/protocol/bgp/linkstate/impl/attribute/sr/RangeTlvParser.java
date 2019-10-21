@@ -31,6 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.PrefixSidTlvCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.SidLabelTlvCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.SidLabelTlvCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.ipv6.prefix.sid.tlv._case.Ipv6PrefixSidTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.ipv6.prefix.sid.tlv._case.Ipv6PrefixSidTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.prefix.sid.tlv._case.PrefixSidTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.prefix.sid.tlv._case.PrefixSidTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.tlv.SubTlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.tlv.SubTlvsBuilder;
 import org.slf4j.Logger;
@@ -64,18 +68,17 @@ public final class RangeTlvParser {
     private static List<SubTlvs> parseRangeSubTlvs(final ByteBuf buffer, final ProtocolId protocolId) {
         final List<SubTlvs> subTlvs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final SubTlvsBuilder subTlv = new SubTlvsBuilder();
             final RangeSubTlv subTlvCase;
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
             switch (type) {
                 case PREFIX_SID:
-                    subTlvCase = new PrefixSidTlvCaseBuilder(
-                        SrPrefixAttributesParser.parseSrPrefix(buffer.readSlice(length), protocolId)).build();
+                    subTlvCase = new PrefixSidTlvCaseBuilder().setPrefixSidTlv(new PrefixSidTlvBuilder(
+                        SrPrefixAttributesParser.parseSrPrefix(buffer.readSlice(length), protocolId)).build()).build();
                     break;
                 case IPV6_PREFIX_SID:
-                    subTlvCase = new Ipv6PrefixSidTlvCaseBuilder(
-                        Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(buffer.readSlice(length))).build();
+                    subTlvCase = new Ipv6PrefixSidTlvCaseBuilder().setIpv6PrefixSidTlv(new Ipv6PrefixSidTlvBuilder(
+                        Ipv6SrPrefixAttributesParser.parseSrIpv6Prefix(buffer.readSlice(length))).build()).build();
                     break;
                 case BINDING_SID:
                     subTlvCase = new BindingSidTlvCaseBuilder(
@@ -91,7 +94,7 @@ public final class RangeTlvParser {
                     buffer.skipBytes(length);
                     continue;
             }
-            subTlvs.add(subTlv.setRangeSubTlv(subTlvCase).build());
+            subTlvs.add(new SubTlvsBuilder().setRangeSubTlv(subTlvCase).build());
         }
         return subTlvs;
     }
@@ -110,7 +113,7 @@ public final class RangeTlvParser {
             ByteBuf buffer = Unpooled.buffer();
             final RangeSubTlv rangeSubTlv = subTlv.getRangeSubTlv();
             if (rangeSubTlv instanceof PrefixSidTlvCase) {
-                final PrefixSidTlvCase prefixSidTlv = (PrefixSidTlvCase) rangeSubTlv;
+                final PrefixSidTlv prefixSidTlv = ((PrefixSidTlvCase) rangeSubTlv).getPrefixSidTlv();
                 SrPrefixAttributesParser.serializePrefixAttributes(
                     prefixSidTlv.getFlags(),
                     prefixSidTlv.getAlgorithm(),
@@ -118,7 +121,7 @@ public final class RangeTlvParser {
                     buffer);
                 TlvUtil.writeTLV(PREFIX_SID, buffer, aggregator);
             } else if (rangeSubTlv instanceof Ipv6PrefixSidTlvCase) {
-                final Ipv6PrefixSidTlvCase prefixSidTlv = (Ipv6PrefixSidTlvCase) rangeSubTlv;
+                final Ipv6PrefixSidTlv prefixSidTlv = ((Ipv6PrefixSidTlvCase) rangeSubTlv).getIpv6PrefixSidTlv();
                 Ipv6SrPrefixAttributesParser.serializePrefixAttributes(prefixSidTlv.getAlgorithm(), buffer);
                 TlvUtil.writeTLV(IPV6_PREFIX_SID, buffer, aggregator);
             } else if (rangeSubTlv instanceof BindingSidTlvCase) {
