@@ -53,6 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.OspfAdjFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.OspfAdjFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.isis.adj.flags._case.IsisAdjFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.ospf.adj.flags._case.OspfAdjFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.BindingSubTlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.BindingSubTlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.flags.IsisBindingFlagsCase;
@@ -66,13 +68,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.SidLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdBackupEroCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv4.ero._case.Ipv4EroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv4.ero.backup._case.Ipv4EroBackupBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv6.ero._case.Ipv6EroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv6.ero.backup._case.Ipv6EroBackupBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.prefix.sid._case.PrefixSidBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.unnumbered._interface.id.backup.ero._case.UnnumberedInterfaceIdBackupEroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.unnumbered._interface.id.ero._case.UnnumberedInterfaceIdEroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.IsisPrefixFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.OspfPrefixFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.OspfPrefixFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.BindingSidTlvCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.PrefixSidTlvCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.SidLabelTlvCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.range.sub.tlv.prefix.sid.tlv._case.PrefixSidTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.tlv.SubTlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.tlv.SubTlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.Ipv6AddressCaseBuilder;
@@ -90,28 +102,48 @@ public class SrAttributeParserTest {
     private static final Ipv6Address IPV6_B = new Ipv6Address("2001:db8::2");
 
     private static final IsisPrefixFlagsCase ISIS_PREFIX_FLAGS = new IsisPrefixFlagsCaseBuilder()
-            .setReadvertisement(Boolean.TRUE).setNodeSid(Boolean.FALSE).setNoPhp(Boolean.TRUE)
-            .setExplicitNull(Boolean.FALSE).build();
+            .setIsisPrefixFlags(new IsisPrefixFlagsBuilder()
+                .setReadvertisement(Boolean.TRUE)
+                .setNodeSid(Boolean.FALSE)
+                .setNoPhp(Boolean.TRUE)
+                .setExplicitNull(Boolean.FALSE)
+                .build())
+            .build();
     private static final OspfPrefixFlagsCase OSPF_PREFIX_FLAGS = new OspfPrefixFlagsCaseBuilder()
-            .setNoPhp(Boolean.FALSE).setMappingServer(Boolean.TRUE).setExplicitNull(Boolean.FALSE).build();
+            .setOspfPrefixFlags(new OspfPrefixFlagsBuilder()
+                .setNoPhp(Boolean.FALSE)
+                .setMappingServer(Boolean.TRUE)
+                .setExplicitNull(Boolean.FALSE)
+                .build())
+            .build();
 
     private static final IsisBindingFlagsCase BINDING_FLAGS = new IsisBindingFlagsCaseBuilder()
         .setAddressFamily(Boolean.FALSE)
         .setMirrorContext(Boolean.TRUE)
         .setSpreadTlv(Boolean.FALSE)
         .setLeakedFromLevel2(Boolean.FALSE)
-        .setAttachedFlag(Boolean.TRUE).build();
+        .setAttachedFlag(Boolean.TRUE)
+        .build();
 
     private static final IsisAdjFlagsCase ISIS_ADJ_FLAGS = new IsisAdjFlagsCaseBuilder()
-        .setAddressFamily(Boolean.FALSE)
-        .setBackup(Boolean.TRUE)
-        .setSet(Boolean.FALSE).build();
+            .setIsisAdjFlags(new IsisAdjFlagsBuilder()
+                .setAddressFamily(Boolean.FALSE)
+                .setBackup(Boolean.TRUE)
+                .setSet(Boolean.FALSE)
+                .build())
+            .build();
     private static final OspfAdjFlagsCase OSPF_ADJ_FLAGS = new OspfAdjFlagsCaseBuilder()
-        .setBackup(Boolean.TRUE)
-        .setSet(Boolean.FALSE).build();
+            .setOspfAdjFlags(new OspfAdjFlagsBuilder()
+                .setBackup(Boolean.TRUE)
+                .setSet(Boolean.FALSE)
+                .build())
+            .build();
     private static final OspfAdjFlagsCase OSPF_LAN_ADJ_FLAGS = new OspfAdjFlagsCaseBuilder()
-        .setBackup(Boolean.FALSE)
-        .setSet(Boolean.FALSE).build();
+            .setOspfAdjFlags(new OspfAdjFlagsBuilder()
+                .setBackup(Boolean.FALSE)
+                .setSet(Boolean.FALSE)
+                .build())
+            .build();
 
     @Before
     public void setUp() throws Exception {
@@ -228,14 +260,19 @@ public class SrAttributeParserTest {
     }
 
     private static void addSubTlvs(final List<SubTlvs> rangeSubTlvs) {
-        rangeSubTlvs.add(new SubTlvsBuilder().setRangeSubTlv(
-            new SidLabelTlvCaseBuilder()
-                .setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).build()).build());
-        rangeSubTlvs.add(new SubTlvsBuilder().setRangeSubTlv(
-            new PrefixSidTlvCaseBuilder()
-                .setFlags(ISIS_PREFIX_FLAGS)
-                .setAlgorithm(Algorithm.StrictShortestPathFirst)
-                .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(66048L)).build()).build())
+        rangeSubTlvs.add(new SubTlvsBuilder()
+            .setRangeSubTlv(new SidLabelTlvCaseBuilder()
+                .setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build())
+                .build())
+            .build());
+        rangeSubTlvs.add(new SubTlvsBuilder()
+            .setRangeSubTlv(new PrefixSidTlvCaseBuilder()
+                .setPrefixSidTlv(new PrefixSidTlvBuilder()
+                    .setFlags(ISIS_PREFIX_FLAGS)
+                    .setAlgorithm(Algorithm.StrictShortestPathFirst)
+                    .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(66048L)).build())
+                    .build())
+                .build())
             .build());
         final List<BindingSubTlvs> bindingSubTlvs = new ArrayList<>();
         addBindingSubTlvs(bindingSubTlvs);
@@ -247,28 +284,45 @@ public class SrAttributeParserTest {
     }
 
     private static void addBindingSubTlvs(final List<BindingSubTlvs> bindingSubTlvs) {
-        bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new PrefixSidCaseBuilder()
-                .setFlags(ISIS_PREFIX_FLAGS)
-                .setAlgorithm(Algorithm.StrictShortestPathFirst)
-                .setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build())
-                .build()).build());
+        bindingSubTlvs.add(new BindingSubTlvsBuilder()
+            .setBindingSubTlv(new PrefixSidCaseBuilder()
+                .setPrefixSid(new PrefixSidBuilder()
+                    .setFlags(ISIS_PREFIX_FLAGS)
+                    .setAlgorithm(Algorithm.StrictShortestPathFirst)
+                    .setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build())
+                    .build())
+                .build())
+            .build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
             new SidLabelCaseBuilder().setSidLabelIndex(new SidCaseBuilder().setSid(16909060L).build()).build())
             .build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
             new EroMetricCaseBuilder().setEroMetric(new TeMetric(6L)).build()).build());
-        bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new Ipv4EroCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv4Address("9.8.7.6")).build()).build());
-        bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new UnnumberedInterfaceIdEroCaseBuilder().setLoose(Boolean.FALSE).setRouterId(16843009L)
-            .setInterfaceId(33686018L).build()).build());
-        bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new Ipv4EroBackupCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv4Address("3.4.5.6")).build())
+        bindingSubTlvs.add(new BindingSubTlvsBuilder()
+            .setBindingSubTlv(new Ipv4EroCaseBuilder()
+                .setIpv4Ero(new Ipv4EroBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv4Address("9.8.7.6")).build())
+                .build())
             .build());
-        bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new UnnumberedInterfaceIdBackupEroCaseBuilder().setLoose(Boolean.FALSE).setRouterId(50529027L)
-            .setInterfaceId(67372036L).build()).build());
+        bindingSubTlvs.add(new BindingSubTlvsBuilder()
+            .setBindingSubTlv(new UnnumberedInterfaceIdEroCaseBuilder()
+                .setUnnumberedInterfaceIdEro(new UnnumberedInterfaceIdEroBuilder()
+                    .setLoose(Boolean.FALSE).setRouterId(16843009L).setInterfaceId(33686018L)
+                    .build())
+                .build())
+            .build());
+        bindingSubTlvs.add(new BindingSubTlvsBuilder()
+            .setBindingSubTlv(new Ipv4EroBackupCaseBuilder()
+                .setIpv4EroBackup(new Ipv4EroBackupBuilder()
+                    .setLoose(Boolean.FALSE).setAddress(new Ipv4Address("3.4.5.6"))
+                    .build())
+                .build())
+            .build());
+        bindingSubTlvs.add(new BindingSubTlvsBuilder()
+            .setBindingSubTlv(new UnnumberedInterfaceIdBackupEroCaseBuilder()
+                .setUnnumberedInterfaceIdBackupEro(new UnnumberedInterfaceIdBackupEroBuilder()
+                    .setLoose(Boolean.FALSE).setRouterId(50529027L).setInterfaceId(67372036L).build())
+                .build())
+            .build());
     }
 
     @Test
@@ -285,10 +339,19 @@ public class SrAttributeParserTest {
 
         final List<SubTlvs> rangeSubTlvs = new ArrayList<>();
         final List<BindingSubTlvs> bindingSubTlvs = new ArrayList<>();
-        bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new Ipv6EroCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_A)).build()).build());
-        bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
-            new Ipv6EroBackupCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_B)).build())
+        bindingSubTlvs.add(new BindingSubTlvsBuilder()
+            .setBindingSubTlv(new Ipv6EroCaseBuilder()
+                .setIpv6Ero(new Ipv6EroBuilder()
+                    .setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_A))
+                    .build())
+                .build())
+            .build());
+        bindingSubTlvs.add(new BindingSubTlvsBuilder()
+            .setBindingSubTlv(new Ipv6EroBackupCaseBuilder()
+                .setIpv6EroBackup(new Ipv6EroBackupBuilder()
+                    .setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_B))
+                    .build())
+                .build())
             .build());
         rangeSubTlvs.add(new SubTlvsBuilder().setRangeSubTlv(
             new BindingSidTlvCaseBuilder()
