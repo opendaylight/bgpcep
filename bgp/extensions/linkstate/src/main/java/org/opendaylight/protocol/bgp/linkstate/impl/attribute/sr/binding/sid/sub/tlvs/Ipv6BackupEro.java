@@ -16,17 +16,14 @@ import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv6EroBackupCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv6EroBackupCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv6EroCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv6.ero.backup._case.Ipv6EroBackup;
 
 public final class Ipv6BackupEro implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int BACKUP_ERO_IPV6 = 1167;
 
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
-        final Ipv6EroCase ipv6backup = Ipv6EroParser.parseIpv6EroCase(slice);
-        return new Ipv6EroBackupCaseBuilder().setAddress(ipv6backup.getAddress()).setLoose(ipv6backup.isLoose())
-                .build();
+        return Ipv6EroParser.parseIpv6EroBackupCase(slice);
     }
 
     @Override
@@ -38,7 +35,7 @@ public final class Ipv6BackupEro implements BindingSubTlvsParser, BindingSubTlvs
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
         checkArgument(bindingSubTlv instanceof Ipv6EroBackupCase, "Wrong BindingSubTlv instance expected",
             bindingSubTlv);
-        final Ipv6EroBackupCase ipv6Backup = (Ipv6EroBackupCase) bindingSubTlv;
+        final Ipv6EroBackup ipv6Backup = ((Ipv6EroBackupCase) bindingSubTlv).getIpv6EroBackup();
         TlvUtil.writeTLV(getType(), Ipv6EroParser.serializeIpv6EroCase(ipv6Backup.isLoose(), ipv6Backup.getAddress()),
             aggregator);
     }

@@ -19,8 +19,13 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroBackupCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroBackupCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv4.ero._case.Ipv4Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv4.ero._case.Ipv4EroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv4.ero.backup._case.Ipv4EroBackupBuilder;
 
 public final class Ipv4EroParser implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int ERO_IPV4 = 1163;
@@ -30,8 +35,7 @@ public final class Ipv4EroParser implements BindingSubTlvsParser, BindingSubTlvs
 
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
-        final Ipv4EroCase ipv4Ero = parseIpv4EroCase(slice);
-        return new Ipv4EroCaseBuilder().setAddress(ipv4Ero.getAddress()).setLoose(ipv4Ero.isLoose()).build();
+        return parseIpv4EroCase(slice);
     }
 
     @Override
@@ -43,19 +47,27 @@ public final class Ipv4EroParser implements BindingSubTlvsParser, BindingSubTlvs
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
         checkArgument(bindingSubTlv instanceof Ipv4EroCase, "Wrong BindingSubTlv instance expected",
             bindingSubTlv);
-        final Ipv4EroCase ipv4Ero = (Ipv4EroCase) bindingSubTlv;
+        final Ipv4Ero ipv4Ero = ((Ipv4EroCase) bindingSubTlv).getIpv4Ero();
         TlvUtil.writeTLV(getType(), serializeIpv4EroCase(ipv4Ero.isLoose(), ipv4Ero.getAddress()), aggregator);
     }
 
     static Ipv4EroCase parseIpv4EroCase(final ByteBuf buffer) {
-        final Ipv4EroCaseBuilder builder = new Ipv4EroCaseBuilder();
+        final Ipv4EroBuilder builder = new Ipv4EroBuilder();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setLoose(flags.get(LOOSE));
         buffer.skipBytes(RESERVED_ERO);
         builder.setAddress(Ipv4Util.addressForByteBuf(buffer));
-        return builder.build();
+        return new Ipv4EroCaseBuilder().setIpv4Ero(builder.build()).build();
     }
 
+    static Ipv4EroBackupCase parseIpv4EroBackupCase(final ByteBuf buffer) {
+        final Ipv4EroBackupBuilder builder = new Ipv4EroBackupBuilder();
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        builder.setLoose(flags.get(LOOSE));
+        buffer.skipBytes(RESERVED_ERO);
+        builder.setAddress(Ipv4Util.addressForByteBuf(buffer));
+        return new Ipv4EroBackupCaseBuilder().setIpv4EroBackup(builder.build()).build();
+    }
 
     static ByteBuf serializeIpv4EroCase(final Boolean loose, final Ipv4Address address) {
         final ByteBuf buffer = Unpooled.buffer();
