@@ -17,8 +17,8 @@ import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectPa
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.BasicSessionAttributeObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.BasicSessionAttributeObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.basic.session.attribute.object._case.BasicSessionAttributeObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.basic.session.attribute.object._case.BasicSessionAttributeObjectBuilder;
 
 public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 207;
@@ -30,7 +30,7 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
     private static final int PADDING = 4;
 
     static int getPadding(final int length) {
-        return (PADDING - (length % PADDING)) % PADDING;
+        return (PADDING - length % PADDING) % PADDING;
     }
 
     @Override
