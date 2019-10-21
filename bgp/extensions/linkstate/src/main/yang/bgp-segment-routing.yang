@@ -101,13 +101,17 @@ module bgp-segment-routing {
     grouping adj-flags {
         choice flags {
             case ospf-adj-flags-case {
-                uses ospf-adj-flags;
+                container ospf-adj-flags {
+                    uses ospf-adj-flags;
+                }
             }
             case isis-adj-flags-case {
                 reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-06#section-2.2.1";
-                uses ospf-adj-flags;
-                leaf address-family {
-                    type boolean;
+                container isis-adj-flags {
+                    uses ospf-adj-flags;
+                    leaf address-family {
+                        type boolean;
+                    }
                 }
             }
         }
@@ -154,20 +158,24 @@ module bgp-segment-routing {
         reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.1";
         choice flags {
             case isis-prefix-flags-case {
-                reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-08#section-5";
-                uses prefix-flags;
-                leaf readvertisement {
-                    type boolean;
-                }
-                leaf node-sid {
-                    type boolean;
+                container isis-prefix-flags {
+                    reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-08#section-5";
+                    uses prefix-flags;
+                    leaf readvertisement {
+                        type boolean;
+                    }
+                    leaf node-sid {
+                        type boolean;
+                    }
                 }
             }
             case ospf-prefix-flags-case {
-                reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-5";
-                uses prefix-flags;
-                leaf mapping-server {
-                    type boolean;
+                container ospf-prefix-flags {
+                    reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-5";
+                    uses prefix-flags;
+                    leaf mapping-server {
+                        type boolean;
+                    }
                 }
             }
         }
@@ -220,10 +228,14 @@ module bgp-segment-routing {
         reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.4";
         choice binding-sub-tlv {
             case prefix-sid-case {
-                uses prefix-sid-tlv;
+                container prefix-sid {
+                    uses prefix-sid-tlv;
+                }
             }
             case ipv6-prefix-sid-case {
-                uses ipv6-prefix-sid-tlv;
+                container ipv6-prefix-sid {
+                    uses ipv6-prefix-sid-tlv;
+                }
             }
             case sid-label-case {
                 uses sid-label-index;
@@ -234,22 +246,34 @@ module bgp-segment-routing {
                 }
             }
             case ipv4-ero-case {
-                uses ero-ipv4-address;
+                container ipv4-ero {
+                    uses ero-ipv4-address;
+                }
             }
             case ipv6-ero-case {
-                uses ero-ipv6-address;
+                container ipv6-ero {
+                    uses ero-ipv6-address;
+                }
             }
             case unnumbered-interface-id-ero-case {
-                uses ero-unnumbered;
+                container unnumbered-interface-id-ero {
+                    uses ero-unnumbered;
+                }
             }
             case ipv4-ero-backup-case {
-                uses ero-ipv4-address;
+                container ipv4-ero-backup {
+                    uses ero-ipv4-address;
+                }
             }
             case ipv6-ero-backup-case {
-                uses ero-ipv6-address;
+                container ipv6-ero-backup {
+                    uses ero-ipv6-address;
+                }
             }
             case unnumbered-interface-id-backup-ero-case {
-                uses ero-unnumbered;
+                container unnumbered-interface-id-backup-ero {
+                    uses ero-unnumbered;
+                }
             }
         }
     }
@@ -304,10 +328,14 @@ module bgp-segment-routing {
                 uses binding-sid-tlv;
             }
             case prefix-sid-tlv-case {
-                uses prefix-sid-tlv;
+                container prefix-sid-tlv {
+                    uses prefix-sid-tlv;
+                }
             }
             case ipv6-prefix-sid-tlv-case {
-                uses ipv6-prefix-sid-tlv;
+                container ipv6-prefix-sid-tlv {
+                    uses ipv6-prefix-sid-tlv;
+                }
             }
             case sid-label-tlv-case {
                 uses sid-label-index;
