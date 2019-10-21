@@ -862,11 +862,15 @@ module rsvp {
             description "FAST REROUTE Object";
             reference "http://tools.ietf.org/html/rfc4090#section-4.1";
 
-            case basic-fast-reroute-object {
-                uses common-fast-reroute-object;
+            case basic-fast-reroute-object-case {
+                container basic-fast-reroute-object {
+                    uses common-fast-reroute-object;
+                }
             }
-            case legacy-fast-reroute-object {
-                uses common-fast-reroute-object;
+            case legacy-fast-reroute-object-case {
+                container legacy-fast-reroute-object {
+                    uses common-fast-reroute-object;
+                }
             }
         }
     }
@@ -876,13 +880,17 @@ module rsvp {
             description "SESSION_ATTRIBUTE";
             reference "http://tools.ietf.org/html/rfc3209#section-4.7";
 
-            case basic-session-attribute-object {
-                uses rsvp-te-object;
-                uses tunnel-attributes;
+            case basic-session-attribute-object-case {
+                container basic-session-attribute-object {
+                    uses rsvp-te-object;
+                    uses tunnel-attributes;
+                }
             }
-            case session-attribute-object-with-resources-affinities {
-                uses rsvp-te-object;
-                uses tunnel-attributes;
+            case session-attribute-object-with-resources-affinities-case {
+                container session-attribute-object-with-resources-affinities {
+                    uses rsvp-te-object;
+                    uses tunnel-attributes;
+                }
             }
         }
     }
@@ -892,18 +900,22 @@ module rsvp {
             description "BANDWIDTH Object";
             reference "https://tools.ietf.org/html/rfc5440#section-7.7";
 
-            case basic-bandwidth-object {
-                uses rsvp-te-object;
-                // No possibility to carry TLVs
-                leaf bandwidth {
-                    type netc:bandwidth;
+            case basic-bandwidth-object-case {
+                container basic-bandwidth-object {
+                    uses rsvp-te-object;
+                    // No possibility to carry TLVs
+                    leaf bandwidth {
+                        type netc:bandwidth;
+                    }
                 }
             }
-            case reoptimization-bandwidth-object {
-                uses rsvp-te-object;
-                // No possibility to carry TLVs
-                leaf bandwidth {
-                    type netc:bandwidth;
+            case reoptimization-bandwidth-object-case {
+                container reoptimization-bandwidth-object {
+                    uses rsvp-te-object;
+                    // No possibility to carry TLVs
+                    leaf bandwidth {
+                        type netc:bandwidth;
+                    }
                 }
             }
         }

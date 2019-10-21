@@ -17,8 +17,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.FastRerouteFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.fast.reroute.object.fast.reroute.object.BasicFastRerouteObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.fast.reroute.object.fast.reroute.object.BasicFastRerouteObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.fast.reroute.object.fast.reroute.object.basic.fast.reroute.object._case.BasicFastRerouteObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.fast.reroute.object.fast.reroute.object.basic.fast.reroute.object._case.BasicFastRerouteObjectBuilder;
 
 public final class FastRerouteObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 205;
@@ -28,16 +28,32 @@ public final class FastRerouteObjectParser extends AbstractRSVPObjectParser {
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) {
         final BasicFastRerouteObjectBuilder builder = new BasicFastRerouteObjectBuilder()
+<<<<<<< HEAD   (2d0a37 Rework prependAS())
                 .setSetupPriority(ByteBufUtils.readUint8(byteBuf))
                 .setHoldPriority(ByteBufUtils.readUint8(byteBuf))
                 .setHopLimit(ByteBufUtils.readUint8(byteBuf))
+=======
+                .setSetupPriority(byteBuf.readUnsignedByte())
+                .setHoldPriority(byteBuf.readUnsignedByte())
+                .setHopLimit(byteBuf.readUnsignedByte())
+>>>>>>> CHANGE (e119dd Fix rsvp.yang)
                 .setFlags(FastRerouteFlags.forValue(byteBuf.readUnsignedByte()));
         final ByteBuf v = byteBuf.readSlice(METRIC_VALUE_F_LENGTH);
+<<<<<<< HEAD   (2d0a37 Rework prependAS())
         builder.setBandwidth(new Bandwidth(ByteArray.readAllBytes(v)));
         builder.setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));
         builder.setExcludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));
         builder.setIncludeAll(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));
         return builder.build();
+=======
+
+        return builder
+                .setBandwidth(new Bandwidth(ByteArray.readAllBytes(v)))
+                .setIncludeAny(new AttributeFilter(byteBuf.readUnsignedInt()))
+                .setExcludeAny(new AttributeFilter(byteBuf.readUnsignedInt()))
+                .setIncludeAll(new AttributeFilter(byteBuf.readUnsignedInt()))
+                .build();
+>>>>>>> CHANGE (e119dd Fix rsvp.yang)
     }
 
     @Override
