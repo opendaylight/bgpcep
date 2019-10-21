@@ -29,6 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.OspfAdjFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.OspfAdjFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.isis.adj.flags._case.IsisAdjFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.isis.adj.flags._case.IsisAdjFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.ospf.adj.flags._case.OspfAdjFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.ospf.adj.flags._case.OspfAdjFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.SidLabelIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -149,11 +153,21 @@ public final class SrLinkAttributesParser {
         switch (protocol) {
         case IsisLevel1:
         case IsisLevel2:
-            return new IsisAdjFlagsCaseBuilder().setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG)).setBackup(flags.get(BACKUP_ISIS))
-                .setSet(flags.get(SET_ISIS)).build();
+            return new IsisAdjFlagsCaseBuilder()
+                    .setIsisAdjFlags(new IsisAdjFlagsBuilder()
+                        .setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG))
+                        .setBackup(flags.get(BACKUP_ISIS))
+                        .setSet(flags.get(SET_ISIS))
+                        .build())
+                    .build();
         case Ospf:
         case OspfV3:
-            return new OspfAdjFlagsCaseBuilder().setBackup(flags.get(BACKUP_OSPF)).setSet(flags.get(SET_OSPF)).build();
+            return new OspfAdjFlagsCaseBuilder()
+                    .setOspfAdjFlags(new OspfAdjFlagsBuilder()
+                        .setBackup(flags.get(BACKUP_OSPF))
+                        .setSet(flags.get(SET_OSPF))
+                        .build())
+                    .build();
         default:
             return null;
         }
@@ -201,12 +215,12 @@ public final class SrLinkAttributesParser {
     private static BitArray serializeAdjFlags(final Flags flags, final SidLabelIndex sidLabelIndex) {
         final BitArray bitFlags = new BitArray(FLAGS_BITS_SIZE);
         if (flags instanceof OspfAdjFlagsCase) {
-            final OspfAdjFlagsCase ospfFlags = (OspfAdjFlagsCase) flags;
+            final OspfAdjFlags ospfFlags = ((OspfAdjFlagsCase) flags).getOspfAdjFlags();
             bitFlags.set(BACKUP_OSPF, ospfFlags.isBackup());
             bitFlags.set(SET_OSPF, ospfFlags.isSet());
             SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE_OSPF, LOCAL_OSPF);
         } else if (flags instanceof IsisAdjFlagsCase) {
-            final IsisAdjFlagsCase isisFlags = (IsisAdjFlagsCase) flags;
+            final IsisAdjFlags isisFlags = ((IsisAdjFlagsCase) flags).getIsisAdjFlags();
             bitFlags.set(ADDRESS_FAMILY_FLAG, isisFlags.isAddressFamily());
             bitFlags.set(BACKUP_ISIS, isisFlags.isBackup());
             bitFlags.set(SET_ISIS, isisFlags.isSet());
