@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.XroBuilder;
 
 /**
- * Parser for {@link Xro}
+ * Parser for {@link Xro}.
  */
 public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobjectsParser {
 

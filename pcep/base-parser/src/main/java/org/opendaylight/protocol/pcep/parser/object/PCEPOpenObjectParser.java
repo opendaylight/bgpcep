@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parser for {@link Open}
+ * Parser for {@link Open}.
  */
 public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPOpenObjectParser.class);
@@ -67,16 +67,16 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         final int versionValue = ByteArray.copyBitsRange(bytes.readByte(), VERSION_SF_OFFSET, VERSION_SF_LENGTH);
 
         final OpenBuilder builder = new OpenBuilder();
-        builder.setVersion(new ProtocolVersion((short) versionValue));
+        builder.setVersion(new ProtocolVersion(Uint8.valueOf(versionValue)));
         builder.setProcessingRule(header.isProcessingRule());
         builder.setIgnore(header.isIgnore());
         final short keepalive = bytes.readUnsignedByte();
-        builder.setKeepalive(keepalive);
+        builder.setKeepalive(Uint8.valueOf(keepalive));
         final short deadTimer = bytes.readUnsignedByte();
         if (keepalive == 0) {
             builder.setDeadTimer(Uint8.ZERO);
         } else {
-            builder.setDeadTimer(deadTimer);
+            builder.setDeadTimer(Uint8.valueOf(deadTimer));
         }
         builder.setSessionId(ByteBufUtils.readUint8(bytes));
 
@@ -107,7 +107,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
             object.getClass());
         final Open open = (Open) object;
         final ByteBuf body = Unpooled.buffer();
-        writeUnsignedByte((short) (PCEP_VERSION << Byte.SIZE - VERSION_SF_LENGTH), body);
+        writeUnsignedByte(Uint8.valueOf(PCEP_VERSION << Byte.SIZE - VERSION_SF_LENGTH), body);
         writeUnsignedByte(open.getKeepalive(), body);
         writeUnsignedByte(open.getDeadTimer(), body);
         checkArgument(open.getSessionId() != null, "SessionId is mandatory.");

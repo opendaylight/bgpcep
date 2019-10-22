@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link Monitoring}
+ * Parser for {@link Monitoring}.
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.1">Monitoring Object</a>
  *
  */

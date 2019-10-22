@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link Gc}
+ * Parser for {@link Gc}.
  */
 public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 

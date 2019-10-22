@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.load.balancing.object.LoadBalancingBuilder;
 
 /**
- * Parser for {@link LoadBalancing}
+ * Parser for {@link LoadBalancing}.
  */
 public final class PCEPLoadBalancingObjectParser extends CommonObjectParser implements ObjectSerializer {
 
