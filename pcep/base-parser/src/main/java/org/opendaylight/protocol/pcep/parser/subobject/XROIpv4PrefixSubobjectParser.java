@@ -28,9 +28,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
- * Parser for {@link IpPrefixCase}
+ * Parser for {@link IpPrefixCase}.
  */
 public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
@@ -45,8 +46,6 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
-        final SubobjectBuilder builder = new SubobjectBuilder();
-        builder.setMandatory(mandatory);
         if (buffer.readableBytes() != CONTENT4_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
                 + ";");
@@ -55,9 +54,11 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
         final IpPrefixBuilder prefix = new IpPrefixBuilder()
                 .setIpPrefix(new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH),
                     length)));
-        builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
         buffer.skipBytes(PREFIX_F_LENGTH);
-        builder.setAttribute(Attribute.forValue(buffer.readUnsignedByte()));
+        final SubobjectBuilder builder = new SubobjectBuilder()
+                .setMandatory(mandatory)
+                .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build())
+                .setAttribute(Attribute.forValue(buffer.readUnsignedByte()));
         return builder.build();
     }
 
@@ -76,7 +77,7 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
             Preconditions.checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
             writeIpv4Prefix(prefix.getIpv4Prefix(), body);
             Preconditions.checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
-            writeUnsignedByte((short) subobject.getAttribute().getIntValue(), body);
+            writeUnsignedByte(Uint8.valueOf(subobject.getAttribute().getIntValue()), body);
             XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
         }
     }

@@ -19,7 +19,7 @@ import org.opendaylight.protocol.pcep.parser.subobject.XROIpv4PrefixSubobjectPar
 import org.opendaylight.protocol.pcep.parser.subobject.XROIpv6PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey128SubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey32SubobjectParser;
-import org.opendaylight.protocol.pcep.parser.subobject.XROSRLGSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.XROSrlgSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -103,18 +103,18 @@ public class PCEPXROSubobjectParserTest {
     @Test
     public void testXROIp6PrefixSubobject() throws PCEPDeserializerException {
         final XROIpv6PrefixSubobjectParser parser = new XROIpv6PrefixSubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setMandatory(true);
-        subs.setAttribute(Attribute.Node);
-        subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
-            new IpPrefixBuilder().setIpPrefix(
-                new IpPrefix(Ipv6Util.prefixForBytes(new byte[] {
-                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                    (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-                }, 22)))
-            .build()).build());
+        final SubobjectBuilder subs = new SubobjectBuilder()
+                .setMandatory(true)
+                .setAttribute(Attribute.Node)
+                .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+                    new IpPrefixBuilder().setIpPrefix(
+                        new IpPrefix(Ipv6Util.prefixForBytes(new byte[] {
+                            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
+                        }, 22)))
+                .build()).build());
         assertEquals(
             subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(IP6_PREFIX_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
@@ -137,7 +137,7 @@ public class PCEPXROSubobjectParserTest {
 
     @Test
     public void testXROSrlgSubobject() throws PCEPDeserializerException {
-        final XROSRLGSubobjectParser parser = new XROSRLGSubobjectParser();
+        final XROSrlgSubobjectParser parser = new XROSrlgSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setMandatory(true)
                 .setAttribute(Attribute.Srlg)
@@ -227,14 +227,14 @@ public class PCEPXROSubobjectParserTest {
     @Test
     public void testXROPathKey32Subobject() throws PCEPDeserializerException {
         final XROPathKey32SubobjectParser parser = new XROPathKey32SubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setMandatory(true);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
-        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
-        subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-        assertEquals(subs.build(),
-            parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY32_BYTES, 2)), true));
+        final PathKeyBuilder pBuilder = new PathKeyBuilder()
+                .setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }))
+                .setPathKey(new PathKey(Uint16.valueOf(4660)));
+        final SubobjectBuilder subs = new SubobjectBuilder()
+                .setMandatory(true)
+                .setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
+        assertEquals(
+            subs.build(),parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY32_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(PATH_KEY32_BYTES, ByteArray.getAllBytes(buff));
@@ -256,16 +256,19 @@ public class PCEPXROSubobjectParserTest {
     @Test
     public void testXROPathKey128Subobject() throws PCEPDeserializerException {
         final XROPathKey128SubobjectParser parser = new XROPathKey128SubobjectParser();
-        final SubobjectBuilder subs = new SubobjectBuilder();
-        subs.setMandatory(true);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(new byte[] {
-            (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12,
-            (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
-        }));
-        pBuilder.setPathKey(new PathKey(Uint16.valueOf(4660)));
-        subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-        assertEquals(subs.build(),
+        final PathKeyBuilder pBuilder = new PathKeyBuilder()
+                .setPceId(new PceId(new byte[] {
+                    (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+                    (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12,
+                    (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00,
+                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+                }))
+                .setPathKey(new PathKey(Uint16.valueOf(4660)));
+        final SubobjectBuilder subs = new SubobjectBuilder()
+                .setMandatory(true)
+                .setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
+        assertEquals(
+            subs.build(),
             parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(PATH_KEY128_BYTES, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         XROPathKey128SubobjectParser.serializeSubobject(subs.build(), buff);

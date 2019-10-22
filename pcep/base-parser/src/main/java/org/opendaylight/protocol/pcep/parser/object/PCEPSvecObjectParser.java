@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec.object.SvecBuilder;
 
 /**
- * Parser for {@link Svec}
+ * Parser for {@link Svec}.
  */
 public final class PCEPSvecObjectParser extends CommonObjectParser implements ObjectSerializer {
 
@@ -80,17 +80,15 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         if (requestIDs.isEmpty()) {
             throw new PCEPDeserializerException("Empty Svec Object - no request ids.");
         }
-        final SvecBuilder builder = new SvecBuilder();
-
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-
-        builder.setLinkDiverse(flags.get(L_FLAG_OFFSET));
-        builder.setNodeDiverse(flags.get(N_FLAG_OFFSET));
-        builder.setSrlgDiverse(flags.get(S_FLAG_OFFSET));
-        builder.setLinkDirectionDiverse(flags.get(D_FLAG_OFFSET));
-        builder.setPartialPathDiverse(flags.get(P_FLAG_OFFSET));
-        builder.setRequestsIds(requestIDs);
+        final SvecBuilder builder = new SvecBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setLinkDiverse(flags.get(L_FLAG_OFFSET))
+                .setNodeDiverse(flags.get(N_FLAG_OFFSET))
+                .setSrlgDiverse(flags.get(S_FLAG_OFFSET))
+                .setLinkDirectionDiverse(flags.get(D_FLAG_OFFSET))
+                .setPartialPathDiverse(flags.get(P_FLAG_OFFSET))
+                .setRequestsIds(requestIDs);
         return builder.build();
     }
 

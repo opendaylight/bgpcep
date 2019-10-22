@@ -29,16 +29,19 @@ public abstract class AbstractPccIdReqObjectParser extends CommonObjectParser im
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof PccIdReq, "Wrong instance of PCEPObject. Passed %s. Needed PccIdReqObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof PccIdReq,
+                "Wrong instance of PCEPObject. Passed %s. Needed PccIdReqObject.", object.getClass());
         final PccIdReq pccIdReq = (PccIdReq) object;
         if (pccIdReq.getIpAddress().getIpv4AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH);
             ByteBufWriteUtil.writeIpv4Address(pccIdReq.getIpAddress().getIpv4AddressNoZone(), body);
-            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(), body, buffer);
+            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
+                    body, buffer);
         } else if (pccIdReq.getIpAddress().getIpv6AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv6Util.IPV6_LENGTH);
             ByteBufWriteUtil.writeIpv6Address(pccIdReq.getIpAddress().getIpv6AddressNoZone(), body);
-            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(), body, buffer);
+            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
+                    body, buffer);
         }
     }
 }

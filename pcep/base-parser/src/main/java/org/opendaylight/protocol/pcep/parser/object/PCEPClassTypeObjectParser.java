@@ -22,11 +22,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassTypeBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parser for {@link ClassType}
+ * Parser for {@link ClassType}.
  */
 public final class PCEPClassTypeObjectParser extends CommonObjectParser implements ObjectSerializer {
 
@@ -64,19 +65,18 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
             throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + SIZE
                 + "; Passed: " + bytes.readableBytes());
         }
-        final ClassTypeBuilder builder = new ClassTypeBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-
         final short ct = (short) bytes.readUnsignedInt();
-        builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType(ct));
+        final ClassTypeBuilder builder = new ClassTypeBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                        .ClassType(Uint8.valueOf(ct)));
 
-        final Object obj = builder.build();
         if (ct < 0 || ct > Byte.SIZE) {
             LOG.debug("Invalid class type {}", ct);
-            return new UnknownObject(PCEPErrors.INVALID_CT, obj);
+            return new UnknownObject(PCEPErrors.INVALID_CT, builder.build());
         }
-        return obj;
+        return builder.build();
     }
 
     @Override
@@ -85,7 +85,8 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
             object.getClass());
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(SIZE - 1);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType classType = ((ClassType) object).getClassType();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+            .ClassType classType = ((ClassType) object).getClassType();
         checkArgument(classType != null, "ClassType is mandatory.");
         writeUnsignedByte(classType.getValue(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

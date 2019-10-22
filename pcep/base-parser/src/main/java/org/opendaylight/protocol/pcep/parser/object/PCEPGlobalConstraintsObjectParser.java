@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link Gc}
+ * Parser for {@link Gc}.
  */
 public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
@@ -42,15 +42,13 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
     @Override
     public Gc parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
-        final GcBuilder builder = new GcBuilder();
-
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-
-        builder.setMaxHop(ByteBufUtils.readUint8(bytes));
-        builder.setMaxUtilization(ByteBufUtils.readUint8(bytes));
-        builder.setMinUtilization(ByteBufUtils.readUint8(bytes));
-        builder.setOverBookingFactor(ByteBufUtils.readUint8(bytes));
+        final GcBuilder builder = new GcBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setMaxHop(ByteBufUtils.readUint8(bytes))
+                .setMaxUtilization(ByteBufUtils.readUint8(bytes))
+                .setMinUtilization(ByteBufUtils.readUint8(bytes))
+                .setOverBookingFactor(ByteBufUtils.readUint8(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         builder.setTlvs(tlvsBuilder.build());

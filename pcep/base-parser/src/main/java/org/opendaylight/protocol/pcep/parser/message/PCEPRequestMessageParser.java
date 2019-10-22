@@ -83,7 +83,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
 
 /**
- * Parser for {@link Pcreq}
+ * Parser for {@link Pcreq}.
  */
 public class PCEPRequestMessageParser extends AbstractMessageParser {
 
@@ -95,9 +95,11 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcreq, "Wrong instance of Message. Passed instance of %s. Need Pcreq.", message.getClass());
+        Preconditions.checkArgument(message instanceof Pcreq,
+                "Wrong instance of Message. Passed instance of %s. Need Pcreq.", message.getClass());
         final PcreqMessage msg = ((Pcreq) message).getPcreqMessage();
-        Preconditions.checkArgument(msg.getRequests() != null && !msg.getRequests().isEmpty(), "Requests cannot be null or empty.");
+        Preconditions.checkArgument(msg.getRequests() != null && !msg.getRequests().isEmpty(),
+                "Requests cannot be null or empty.");
         final ByteBuf buffer = Unpooled.buffer();
         if (msg.getMonitoringRequest() != null) {
             serializeMonitoringRequest(msg.getMonitoringRequest(), buffer);
@@ -135,7 +137,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             serializeObject(s.getGc(), buffer);
             serializeObject(s.getXro(), buffer);
             if (s.getMetric() != null) {
-                for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.svec.Metric m : s.getMetric()) {
+                for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
+                        .message.pcreq.message.svec.Metric m : s.getMetric()) {
                     serializeObject(m.getMetric(), buffer);
                 }
             }
@@ -217,13 +220,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected Message validate(final List<Object> objects, final List<Message> errors)
+            throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrep message cannot be empty.");
         }
-        final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
-        mBuilder.setMonitoringRequest(getMonitoring(objects));
+        final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder().setMonitoringRequest(getMonitoring(objects));
         final List<Svec> svecs = getSvecs(objects);
         if (!svecs.isEmpty()) {
             mBuilder.setSvec(svecs);
@@ -276,7 +279,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             }
             // expansion
             if (rpObj.isPathKey() && objects.get(0) instanceof PathKey) {
-                rBuilder.setPathKeyExpansion(new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
+                rBuilder.setPathKeyExpansion(
+                        new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
             }
 
             if (objects.isEmpty() || !(objects.get(0) instanceof EndpointsObj)) {
@@ -332,10 +336,10 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             builder.setVendorInformationObject(viObjects);
         }
 
-        if (rp.isReoptimization()
-                && builder.getBandwidth() != null
+        if (rp.isReoptimization() && builder.getBandwidth() != null
                 && !builder.getReportedRoute().getReoptimizationBandwidth().getBandwidth().equals(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 }))
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network
+                            .concepts.rev131125.Bandwidth(new byte[] { 0 }))
                 && builder.getReportedRoute().getRro() == null) {
             errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, Optional.of(rp)));
             return null;
@@ -365,61 +369,61 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     }
                     return P2PState.REPORTED_IN;
                 }
-                // fall-through
+                // fallthrough
             case REPORTED_IN:
                 if (obj instanceof VendorInformationObject) {
                     viObjects.add((VendorInformationObject) obj);
                     return P2PState.REPORTED_IN;
                 }
-                // fall-through
+                // fallthrough
             case VENDOR_INFO_LIST:
                 if (obj instanceof LoadBalancing) {
                     builder.setLoadBalancing((LoadBalancing) obj);
                     return P2PState.LOAD_BIN;
                 }
-                // fall-through
+                // fallthrough
             case LOAD_BIN:
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
                     return P2PState.LSPA_IN;
                 }
-                // fall-through
+                // fallthrough
             case LSPA_IN:
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     return P2PState.BANDWIDTH_IN;
                 }
-                // fall-through
+                // fallthrough
             case BANDWIDTH_IN:
                 if (obj instanceof Metric) {
                     metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
                     return P2PState.BANDWIDTH_IN;
                 }
-                // fall-through
+                // fallthrough
             case METRIC_IN:
                 if (obj instanceof Iro) {
                     builder.setIro((Iro) obj);
                     return P2PState.IRO_IN;
                 }
-                // fall-through
+                // fallthrough
             case IRO_IN:
                 if (obj instanceof Rro) {
                     builder.setRro((Rro) obj);
                     return P2PState.RRO_IN;
                 }
-                // fall-through
+                // fallthrough
             case RRO_IN:
                 if (obj instanceof Xro) {
                     builder.setXro((Xro) obj);
                     return P2PState.XRO_IN;
                 }
-                // fall-through
+                // fallthrough
             case XRO_IN:
                 if (obj instanceof Of) {
                     builder.setOf((Of) obj);
                     return P2PState.OF_IN;
                 }
-                // fall-through
+                // fallthrough
             case OF_IN:
                 if (obj instanceof ClassType) {
                     final ClassType classType = (ClassType) obj;
@@ -430,9 +434,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     }
                     return P2PState.CT_IN;
                 }
-                // fall-through
+                // fallthrough
             case CT_IN:
-                // fall-through
             case END:
                 return P2PState.END;
             default:
@@ -440,15 +443,66 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
     }
 
-    private enum P2PState {
-        INIT, REPORTED_IN, VENDOR_INFO_LIST, LOAD_BIN, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, RRO_IN, XRO_IN, OF_IN, CT_IN, END
+    private static SvecState insertP2PObject(final SvecState state, final Object obj, final SvecBuilder builder,
+            final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
+        switch (state) {
+            case INIT:
+                if (obj instanceof Of) {
+                    builder.setOf((Of) obj);
+                    return SvecState.OF_IN;
+                }
+                // fallthrough
+            case OF_IN:
+                if (obj instanceof Gc) {
+                    builder.setGc((Gc) obj);
+                    return SvecState.GC_IN;
+                }
+                // fallthrough
+            case GC_IN:
+                if (obj instanceof Xro) {
+                    builder.setXro((Xro) obj);
+                    return SvecState.XRO_IN;
+                }
+                // fallthrough
+            case XRO_IN:
+                if (obj instanceof Metric) {
+                    metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return SvecState.XRO_IN;
+                }
+                // fallthrough
+            case METRIC_IN:
+                if (obj instanceof VendorInformationObject) {
+                    viObjects.add((VendorInformationObject) obj);
+                    return SvecState.METRIC_IN;
+                }
+                // fallthrough
+            case VENDOR_INFO:
+            case END:
+                return SvecState.END;
+            default:
+                return state;
+        }
     }
 
-    protected SegmentComputation  getP2MPSegmentComputation(final List<Object> objects,
-                                                            final List<Message> errors,
-                                                            final Rp rp) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.p2mp.Metric> metrics =
-                new ArrayList<>();
+    private enum P2PState {
+        INIT,
+        REPORTED_IN,
+        VENDOR_INFO_LIST,
+        LOAD_BIN, LSPA_IN,
+        BANDWIDTH_IN,
+        METRIC_IN,
+        IRO_IN,
+        RRO_IN,
+        XRO_IN,
+        OF_IN,
+        CT_IN,
+        END
+    }
+
+    protected SegmentComputation getP2MPSegmentComputation(final List<Object> objects, final List<Message> errors,
+            final Rp rp) {
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message
+            .pcreq.message.requests.segment.computation.p2mp.Metric> metrics = new ArrayList<>();
         final P2mpBuilder builder = new P2mpBuilder();
         final List<EndpointRroPair> epRros = new ArrayList<>();
 
@@ -493,13 +547,11 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return true;
     }
 
-    private static P2MPState insertP2MPObject(final P2MPState p2MPState,
-                                              final List<Object> objects,
-                                              final P2mpBuilder builder,
-                                              final List<EndpointRroPair> epRros,
-                                              final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.p2mp.Metric> metrics,
-                                              final List<Message> errors,
-                                              final Rp rp) {
+    private static P2MPState insertP2MPObject(final P2MPState p2MPState, final List<Object> objects,
+            final P2mpBuilder builder, final List<EndpointRroPair> epRros,
+            final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
+                .message.pcreq.message.requests.segment.computation.p2mp.Metric> metrics,
+            final List<Message> errors, final Rp rp) {
         final Object obj = objects.get(0);
         switch (p2MPState) {
             case RP:
@@ -513,7 +565,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     epRros.add(rroPairBuilder.setRros(new ArrayList<>()).build());
                     return P2MPState.ENDPOINT;
                 }
-                // fall-through
+                // fallthrough
             case ENDPOINT:
                 if (obj instanceof Rro || obj instanceof Srro) {
                     if (obj.isProcessingRule()) {
@@ -534,7 +586,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     }
                     return P2MPState.ENDPOINT;
                 }
-                // fall-through
+                // fallthrough
             case RRO_SRRO:
                 if (obj instanceof ReoptimizationBandwidth) {
                     final int lastIndex = epRros.size() - 1;
@@ -545,7 +597,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                             .build());
                     return P2MPState.BANDWIDTH;
                 }
-                // fall-through
+                // fallthrough
             case BANDWIDTH:
                 if (obj instanceof EndpointsObj) {
                     return P2MPState.RP;
@@ -554,25 +606,25 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     builder.setOf((Of) obj);
                     return P2MPState.OF_IN;
                 }
-                // fall-through
+                // fallthrough
             case OF_IN:
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
                     return P2MPState.LSPA_IN;
                 }
-                // fall-through
+                // fallthrough
             case LSPA_IN:
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     return P2MPState.BANDWIDTH_IN;
                 }
-                // fall-through
+                // fallthrough
             case BANDWIDTH_IN:
                 if (obj instanceof Metric) {
                     metrics.add(new MetricBuilder().setMetric((Metric) obj).build());
                     return P2MPState.BANDWIDTH_IN;
                 }
-                // fall-through
+                // fallthrough
             case METRIC_IN:
                 if (obj instanceof Iro) {
                     builder.setIroBncChoice(new IroCaseBuilder().setIro((Iro) obj).build());
@@ -588,17 +640,15 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                             .setNonBranchNodeList((NonBranchNodeList) obj).build()).build());
                     return P2MPState.IRO_BNC_IN;
                 }
-                // fall-through
+                // fallthrough
             case IRO_BNC_IN:
                 if (obj instanceof LoadBalancing) {
                     builder.setLoadBalancing((LoadBalancing) obj);
                     return P2MPState.LOAD_BIN;
                 }
-                // fall-through
+                // fallthrough
             case LOAD_BIN:
-                // fall-through
             case END:
-                // fall-through
             default:
                 return P2MPState.END;
         }
@@ -611,8 +661,10 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     private static Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
         Preconditions.checkArgument(objects != null && !objects.isEmpty(), "Passed list can't be null or empty.");
 
-        if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec.object.Svec) {
-            builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec.object.Svec) objects.get(0));
+        if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
+                .rev181109.svec.object.Svec) {
+            builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                                .svec.object.Svec) objects.get(0));
             objects.remove(0);
         } else {
             return null;
@@ -634,48 +686,6 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             builder.setVendorInformationObject(viObjects);
         }
         return builder.build();
-    }
-
-    private static SvecState insertP2PObject(final SvecState state, final Object obj, final SvecBuilder builder,
-                                             final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
-        switch (state) {
-            case INIT:
-                if (obj instanceof Of) {
-                    builder.setOf((Of) obj);
-                    return SvecState.OF_IN;
-                }
-                // fall-through
-            case OF_IN:
-                if (obj instanceof Gc) {
-                    builder.setGc((Gc) obj);
-                    return SvecState.GC_IN;
-                }
-                // fall-through
-            case GC_IN:
-                if (obj instanceof Xro) {
-                    builder.setXro((Xro) obj);
-                    return SvecState.XRO_IN;
-                }
-                // fall-through
-            case XRO_IN:
-                if (obj instanceof Metric) {
-                    metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    return SvecState.XRO_IN;
-                }
-                // fall-through
-            case METRIC_IN:
-                if (obj instanceof VendorInformationObject) {
-                    viObjects.add((VendorInformationObject) obj);
-                    return SvecState.METRIC_IN;
-                }
-                // fall-through
-            case VENDOR_INFO:
-                // fall-through
-            case END:
-                return SvecState.END;
-            default:
-                return state;
-        }
     }
 
     private enum SvecState {

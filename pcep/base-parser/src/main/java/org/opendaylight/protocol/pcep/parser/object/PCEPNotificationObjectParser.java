@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link CNotification}
+ * Parser for {@link CNotification}.
  */
 public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<CNotificationBuilder> {
 
@@ -50,12 +50,12 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
     public CNotification parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
-        final CNotificationBuilder builder = new CNotificationBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
         bytes.skipBytes(NT_F_OFFSET);
-        builder.setType(ByteBufUtils.readUint8(bytes));
-        builder.setValue(ByteBufUtils.readUint8(bytes));
+        final CNotificationBuilder builder = new CNotificationBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setType(ByteBufUtils.readUint8(bytes))
+                .setValue(ByteBufUtils.readUint8(bytes));
         parseTlvs(builder, bytes.slice());
         return builder.build();
     }

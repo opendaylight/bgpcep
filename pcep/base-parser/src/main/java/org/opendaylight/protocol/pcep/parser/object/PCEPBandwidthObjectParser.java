@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
 
 /**
- * Parser for Bandwidth
+ * Parser for Bandwidth.
  */
 public final class PCEPBandwidthObjectParser extends CommonObjectParser implements ObjectSerializer {
 
@@ -40,14 +40,16 @@ public final class PCEPBandwidthObjectParser extends CommonObjectParser implemen
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() != BANDWIDTH_F_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: "
-                + bytes.readableBytes() + "; Expected: " + BANDWIDTH_F_LENGTH + ".");
+            throw new PCEPDeserializerException(
+                "Wrong length of array of bytes. Passed: " + bytes.readableBytes()
+                + "; Expected: " + BANDWIDTH_F_LENGTH + ".");
         }
-        final BandwidthBuilder builder = new BandwidthBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        builder.setBandwidth(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts
-            .rev131125.Bandwidth(ByteArray.getAllBytes(bytes)));
+        final BandwidthBuilder builder = new BandwidthBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setBandwidth(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125
+                    .Bandwidth(ByteArray.getAllBytes(bytes)));
         return builder.build();
     }
 
