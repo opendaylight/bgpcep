@@ -24,7 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlvBuilder;
 
-public abstract class AbstractVendorInformationTlvParser implements TlvSerializer, TlvParser, EnterpriseSpecificInformationParser {
+public abstract class AbstractVendorInformationTlvParser
+        implements TlvSerializer, TlvParser, EnterpriseSpecificInformationParser {
 
     @Override
     public final void serializeTlv(final Tlv tlv, final ByteBuf buffer) {

@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec.object.SvecBuilder;
 
 /**
- * Parser for {@link Svec}
+ * Parser for {@link Svec}.
  */
 public final class PCEPSvecObjectParser extends CommonObjectParser implements ObjectSerializer {
 

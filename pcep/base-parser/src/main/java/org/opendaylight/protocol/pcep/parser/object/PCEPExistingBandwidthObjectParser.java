@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidthBuilder;
 
 /**
- * Parser for Bandwidth
+ * Parser for Bandwidth.
  */
 public class PCEPExistingBandwidthObjectParser extends CommonObjectParser implements ObjectSerializer {
 
@@ -35,23 +35,30 @@ public class PCEPExistingBandwidthObjectParser extends CommonObjectParser implem
     }
 
     @Override
-    public ReoptimizationBandwidth parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+    public ReoptimizationBandwidth parseObject(final ObjectHeader header, final ByteBuf bytes)
+            throws PCEPDeserializerException {
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() != PCEPBandwidthObjectParser.BANDWIDTH_F_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: "
-                + PCEPBandwidthObjectParser.BANDWIDTH_F_LENGTH + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes()
+                    + "; Expected: " + PCEPBandwidthObjectParser.BANDWIDTH_F_LENGTH + ".");
         }
-        final ReoptimizationBandwidthBuilder builder = new ReoptimizationBandwidthBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        builder.setBandwidth(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(ByteArray.getAllBytes(bytes)));
+        final ReoptimizationBandwidthBuilder builder = new ReoptimizationBandwidthBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setBandwidth(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125
+                        .Bandwidth(ByteArray.getAllBytes(bytes)));
         return builder.build();
     }
 
     @Override
-    public void serializeObject(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof ReoptimizationBandwidth, "Wrong instance of PCEPObject. Passed "
-            + "%s. Needed ReoptimizationBandwidthObject.", object.getClass());
+    public void serializeObject(
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object object,
+            final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof ReoptimizationBandwidth,
+                "Wrong instance of PCEPObject. Passed " + "%s. Needed ReoptimizationBandwidthObject.",
+                object.getClass());
         final ByteBuf body = Unpooled.buffer();
         writeFloat32(((ReoptimizationBandwidth) object).getBandwidth(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
