@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
 
 /**
- * Parser for {@link Ero}
+ * Parser for {@link Ero}.
  */
 public final class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsParser {
 
@@ -36,10 +36,10 @@ public final class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjec
     public Ero parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
         // Explicit approval of empty ERO
         Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
-        final EroBuilder builder = new EroBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        builder.setSubobject(parseSubobjects(buffer));
+        final EroBuilder builder = new EroBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setSubobject(parseSubobjects(buffer));
         return builder.build();
     }
 

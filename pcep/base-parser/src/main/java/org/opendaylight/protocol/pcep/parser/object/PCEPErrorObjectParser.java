@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link ErrorObject}
+ * Parser for {@link ErrorObject}.
  */
 public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObjectBuilder> {
 
@@ -48,12 +48,12 @@ public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<Er
     public ErrorObject parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
-        final ErrorObjectBuilder builder = new ErrorObjectBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
         bytes.skipBytes(FLAGS_F_LENGTH + RESERVED);
-        builder.setType(ByteBufUtils.readUint8(bytes));
-        builder.setValue(ByteBufUtils.readUint8(bytes));
+        final ErrorObjectBuilder builder = new ErrorObjectBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setType(ByteBufUtils.readUint8(bytes))
+                .setValue(ByteBufUtils.readUint8(bytes));
         parseTlvs(builder, bytes.slice());
         return builder.build();
     }

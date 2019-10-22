@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
- * Parser for {@link PathKey}
+ * Parser for {@link PathKey}.
  */
 public class XROPathKey128SubobjectParser implements XROSubobjectParser {
 
@@ -46,12 +46,12 @@ public class XROPathKey128SubobjectParser implements XROSubobjectParser {
         }
         final Uint16 pathKey = ByteBufUtils.readUint16(buffer);
         final byte[] pceId = ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH);
-        final SubobjectBuilder builder = new SubobjectBuilder();
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(pceId));
-        pBuilder.setPathKey(new PathKey(pathKey));
-        builder.setMandatory(mandatory);
-        builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
+        final PathKeyBuilder pBuilder = new PathKeyBuilder()
+                .setPceId(new PceId(pceId))
+                .setPathKey(new PathKey(pathKey));
+        final SubobjectBuilder builder = new SubobjectBuilder()
+                .setMandatory(mandatory)
+                .setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         return builder.build();
     }
 

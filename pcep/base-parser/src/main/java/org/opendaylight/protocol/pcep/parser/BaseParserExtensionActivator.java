@@ -79,7 +79,7 @@ import org.opendaylight.protocol.pcep.parser.subobject.XROIpv4PrefixSubobjectPar
 import org.opendaylight.protocol.pcep.parser.subobject.XROIpv6PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey128SubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey32SubobjectParser;
-import org.opendaylight.protocol.pcep.parser.subobject.XROSRLGSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.XROSrlgSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
@@ -413,8 +413,8 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         regs.add(context.registerXROSubobjectParser(XROAsNumberSubobjectParser.TYPE, asNumberParser));
         regs.add(context.registerXROSubobjectSerializer(AsNumberCase.class, asNumberParser));
 
-        final XROSRLGSubobjectParser srlgParser = new XROSRLGSubobjectParser();
-        regs.add(context.registerXROSubobjectParser(XROSRLGSubobjectParser.TYPE, srlgParser));
+        final XROSrlgSubobjectParser srlgParser = new XROSrlgSubobjectParser();
+        regs.add(context.registerXROSubobjectParser(XROSrlgSubobjectParser.TYPE, srlgParser));
         regs.add(context.registerXROSubobjectSerializer(SrlgCase.class, srlgParser));
 
         final XROUnnumberedInterfaceSubobjectParser unnumberedParser = new XROUnnumberedInterfaceSubobjectParser();

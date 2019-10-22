@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 
 /**
- * Parser for {@link Lspa}
+ * Parser for {@link Lspa}.
  */
 public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
@@ -58,22 +58,20 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     @Override
     public Lspa parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
-        final LspaBuilder builder = new LspaBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-
-        builder.setExcludeAny(new AttributeFilter(ByteBufUtils.readUint32(bytes)));
-        builder.setIncludeAll(new AttributeFilter(ByteBufUtils.readUint32(bytes)));
-        builder.setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(bytes)));
-        builder.setSetupPriority(ByteBufUtils.readUint8(bytes));
-        builder.setHoldPriority(ByteBufUtils.readUint8(bytes));
-
         final BitArray flags = BitArray.valueOf(bytes.readByte());
-        builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));
         final TlvsBuilder tbuilder = new TlvsBuilder();
         bytes.skipBytes(RESERVED);
         parseTlvs(tbuilder, bytes.slice());
-        builder.setTlvs(tbuilder.build());
+        final LspaBuilder builder = new LspaBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setExcludeAny(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
+                .setIncludeAll(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
+                .setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
+                .setSetupPriority(ByteBufUtils.readUint8(bytes))
+                .setHoldPriority(ByteBufUtils.readUint8(bytes))
+                .setLocalProtectionDesired(flags.get(L_FLAG_OFFSET))
+                .setTlvs(tbuilder.build());
         return builder.build();
     }
 

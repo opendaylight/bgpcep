@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
- * Parser for {@link Rp}
+ * Parser for {@link Rp}.
  */
 public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
