@@ -39,7 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 
 /**
- * Parser for {@link Pcmonrep}
+ * Parser for {@link Pcmonrep}.
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-3.2">Path Monitoring Replay Message</a>
  */
 public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
@@ -52,7 +52,8 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf buffer) {
-        Preconditions.checkArgument(message instanceof Pcmonrep, "Wrong instance of Message. Passed instance of %s. Need Pcmonrep.", message.getClass());
+        Preconditions.checkArgument(message instanceof Pcmonrep,
+                "Wrong instance of Message. Passed instance of %s. Need Pcmonrep.", message.getClass());
         final PcmonrepMessage monRepMsg = ((Pcmonrep) message).getPcmonrepMessage();
         Preconditions.checkArgument(monRepMsg.getMonitoring() != null, "MONITORING object is mandatory.");
         final ByteBuf body = Unpooled.buffer();
@@ -90,7 +91,8 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected Message validate(final List<Object> objects, final List<Message> errors)
+        throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcmonrep message cannot be empty.");
@@ -134,7 +136,8 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
             }
         }
         if (!specificMetrics.isEmpty()) {
-            builder.setMonitoringMetricsList(new SpecificMetricsListBuilder().setSpecificMetrics(specificMetrics).build());
+            builder.setMonitoringMetricsList(
+                    new SpecificMetricsListBuilder().setSpecificMetrics(specificMetrics).build());
         }
     }
 }

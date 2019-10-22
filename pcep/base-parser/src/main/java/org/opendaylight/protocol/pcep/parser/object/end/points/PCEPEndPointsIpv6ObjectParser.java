@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parser for IPv6 {@link EndpointsObj}
+ * Parser for IPv6 {@link EndpointsObj}.
  */
 public final class PCEPEndPointsIpv6ObjectParser extends CommonObjectParser {
 

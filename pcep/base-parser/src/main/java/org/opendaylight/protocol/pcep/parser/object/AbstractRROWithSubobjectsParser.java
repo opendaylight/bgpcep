@@ -30,21 +30,22 @@ public abstract class AbstractRROWithSubobjectsParser extends CommonObjectParser
 
     private static final int HEADER_LENGTH = 2;
 
-    protected AbstractRROWithSubobjectsParser(final RROSubobjectRegistry subobjReg,
-        final int objectClass, final int objectType) {
+    protected AbstractRROWithSubobjectsParser(final RROSubobjectRegistry subobjReg, final int objectClass,
+            final int objectType) {
         super(objectClass, objectType);
         this.subobjReg = requireNonNull(subobjReg);
     }
 
     protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedByte();
             final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
-                throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
-                        + buffer.readableBytes());
+                throw new PCEPDeserializerException(
+                        "Wrong length specified. Passed: " + length + "; Expected: <= " + buffer.readableBytes());
             }
             LOG.debug("Attempt to parse subobject from bytes: {}", ByteBufUtil.hexDump(buffer));
             final Subobject sub = this.subobjReg.parseSubobject(type, buffer.readSlice(length));
@@ -59,7 +60,8 @@ public abstract class AbstractRROWithSubobjectsParser extends CommonObjectParser
     }
 
     protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(), "RRO must contain at least one subobject.");
+        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(),
+                "RRO must contain at least one subobject.");
         for (final Subobject subobject : subobjects) {
             this.subobjReg.serializeSubobject(subobject, buffer);
         }

@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.object.Of;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcc.id.req.object.PccIdReq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pce.id.object.PceId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.PcrepMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.PcrepMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.Replies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.RepliesBuilder;
@@ -51,7 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
 
 /**
- * Parser for {@link Pcrep}
+ * Parser for {@link Pcrep}.
  */
 public class PCEPReplyMessageParser extends AbstractMessageParser {
 
@@ -63,9 +64,11 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcrep, "Wrong instance of Message. Passed instance of %s. Need Pcrep.", message.getClass());
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.PcrepMessage repMsg = ((Pcrep) message).getPcrepMessage();
-        Preconditions.checkArgument(repMsg.getReplies() != null && !repMsg.getReplies().isEmpty(), "Replies cannot be null or empty.");
+        Preconditions.checkArgument(message instanceof Pcrep,
+                "Wrong instance of Message. Passed instance of %s. Need Pcrep.", message.getClass());
+        final PcrepMessage repMsg = ((Pcrep) message).getPcrepMessage();
+        Preconditions.checkArgument(repMsg.getReplies() != null && !repMsg.getReplies().isEmpty(),
+                "Replies cannot be null or empty.");
         final ByteBuf buffer = Unpooled.buffer();
         for (final Replies reply : repMsg.getReplies()) {
             Preconditions.checkArgument(reply.getRp() != null, "Reply must contain RP object.");
@@ -91,26 +94,26 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         serializeMonitoringMetrics(reply, buffer);
     }
 
-    private void serializeFailure(final FailureCase f, final ByteBuf buffer) {
-        if (f == null) {
+    private void serializeFailure(final FailureCase failure, final ByteBuf buffer) {
+        if (failure == null) {
             return;
         }
-        serializeObject(f.getNoPath(), buffer);
-        serializeObject(f.getLspa(), buffer);
-        serializeObject(f.getBandwidth(), buffer);
-        if (f.getMetrics() != null) {
-            for (final Metrics m : f.getMetrics()) {
+        serializeObject(failure.getNoPath(), buffer);
+        serializeObject(failure.getLspa(), buffer);
+        serializeObject(failure.getBandwidth(), buffer);
+        if (failure.getMetrics() != null) {
+            for (final Metrics m : failure.getMetrics()) {
                 serializeObject(m.getMetric(), buffer);
             }
         }
-        serializeObject(f.getIro(), buffer);
+        serializeObject(failure.getIro(), buffer);
     }
 
-    private void serializeSuccess(final SuccessCase s, final ByteBuf buffer) {
-        if (s == null || s.getSuccess() == null) {
+    private void serializeSuccess(final SuccessCase success, final ByteBuf buffer) {
+        if (success == null || success.getSuccess() == null) {
             return;
         }
-        for (final Paths p : s.getSuccess().getPaths()) {
+        for (final Paths p : success.getSuccess().getPaths()) {
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getOf(), buffer);
@@ -122,7 +125,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
             }
             serializeObject(p.getIro(), buffer);
         }
-        serializeVendorInformationObjects(s.getSuccess().getVendorInformationObject(), buffer);
+        serializeVendorInformationObjects(success.getSuccess().getVendorInformationObject(), buffer);
     }
 
     private void serializeMonitoring(final Replies reply, final ByteBuf buffer) {
@@ -164,7 +167,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().setReplies(replies).build()).build();
     }
 
-    protected Replies getValidReply(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected Replies getValidReply(final List<Object> objects, final List<Message> errors)
+        throws PCEPDeserializerException {
         Object object = objects.remove(0);
         if (!(object instanceof Rp)) {
             errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.empty()));
@@ -258,27 +262,69 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                     builder.setLspa((Lspa) obj);
                     return State.LSPA_IN;
                 }
-                // fall-through
+                // fall through
             case LSPA_IN:
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     return State.BANDWIDTH_IN;
                 }
-                // fall-through
+                // fall through
             case BANDWIDTH_IN:
                 if (obj instanceof Metric) {
                     pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
                     return State.BANDWIDTH_IN;
                 }
-                // fall-through
+                // fall through
             case METRIC_IN:
                 if (obj instanceof Iro) {
                     builder.setIro((Iro) obj);
                     return State.IRO_IN;
                 }
-                // fall-through
+                // fall through
             case IRO_IN:
-                // fall-through
+                // fall through
+            case END:
+                return State.END;
+            default:
+                return state;
+        }
+    }
+
+    private static State insertObject(final State state, final Object obj, final PathsBuilder builder,
+            final List<Metrics> pathMetrics) {
+        switch (state) {
+            case INIT:
+                if (obj instanceof Lspa) {
+                    builder.setLspa((Lspa) obj);
+                    return State.LSPA_IN;
+                }
+                // fall through
+            case LSPA_IN:
+                if (obj instanceof Of) {
+                    builder.setOf((Of) obj);
+                    return State.OF_IN;
+                }
+                // fall through
+            case OF_IN:
+                if (obj instanceof Bandwidth) {
+                    builder.setBandwidth((Bandwidth) obj);
+                    return State.BANDWIDTH_IN;
+                }
+                // fall through
+            case BANDWIDTH_IN:
+                if (obj instanceof Metric) {
+                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    return State.BANDWIDTH_IN;
+                }
+                // fall through
+            case METRIC_IN:
+                if (obj instanceof Iro) {
+                    builder.setIro((Iro) obj);
+                    return State.IRO_IN;
+                }
+                // fall through
+            case IRO_IN:
+                // fall through
             case END:
                 return State.END;
             default:
@@ -300,48 +346,6 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
         if (!pathMetrics.isEmpty()) {
             builder.setMetrics(pathMetrics);
-        }
-    }
-
-    private static State insertObject(final State state, final Object obj, final PathsBuilder builder,
-            final List<Metrics> pathMetrics) {
-        switch (state) {
-            case INIT:
-                if (obj instanceof Lspa) {
-                    builder.setLspa((Lspa) obj);
-                    return State.LSPA_IN;
-                }
-                // fall-through
-            case LSPA_IN:
-                if (obj instanceof Of) {
-                    builder.setOf((Of) obj);
-                    return State.OF_IN;
-                }
-                // fall-through
-            case OF_IN:
-                if (obj instanceof Bandwidth) {
-                    builder.setBandwidth((Bandwidth) obj);
-                    return State.BANDWIDTH_IN;
-                }
-                // fall-through
-            case BANDWIDTH_IN:
-                if (obj instanceof Metric) {
-                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    return State.BANDWIDTH_IN;
-                }
-                // fall-through
-            case METRIC_IN:
-                if (obj instanceof Iro) {
-                    builder.setIro((Iro) obj);
-                    return State.IRO_IN;
-                }
-                // fall-through
-            case IRO_IN:
-                // fall-through
-            case END:
-                return State.END;
-            default:
-                return state;
         }
     }
 

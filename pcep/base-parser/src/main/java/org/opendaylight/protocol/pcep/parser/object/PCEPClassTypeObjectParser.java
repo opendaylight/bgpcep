@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parser for {@link ClassType}
+ * Parser for {@link ClassType}.
  */
 public final class PCEPClassTypeObjectParser extends CommonObjectParser implements ObjectSerializer {
 
@@ -69,7 +69,8 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
         builder.setProcessingRule(header.isProcessingRule());
 
         final short ct = (short) bytes.readUnsignedInt();
-        builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType(ct));
+        builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                .ClassType(ct));
 
         final Object obj = builder.build();
         if (ct < 0 || ct > Byte.SIZE) {
@@ -85,7 +86,8 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
             object.getClass());
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(SIZE - 1);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType classType = ((ClassType) object).getClassType();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+            .ClassType classType = ((ClassType) object).getClassType();
         checkArgument(classType != null, "ClassType is mandatory.");
         writeUnsignedByte(classType.getValue(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
