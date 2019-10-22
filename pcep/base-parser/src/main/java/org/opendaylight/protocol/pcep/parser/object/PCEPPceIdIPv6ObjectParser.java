@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pce.id.object.PceIdBuilder;
 
 /**
- * Parser for {@link org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pce.id.object.PceId} with IPv6 address
+ * Parser for {@link PceId} with IPv6 address.
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.3"></a>
  */
 public class PCEPPceIdIPv6ObjectParser extends AbstractPceIdObjectParser {
@@ -30,7 +30,8 @@ public class PCEPPceIdIPv6ObjectParser extends AbstractPceIdObjectParser {
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         final PceIdBuilder builder = new PceIdBuilder();
         builder.setIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)));
         return builder.build();

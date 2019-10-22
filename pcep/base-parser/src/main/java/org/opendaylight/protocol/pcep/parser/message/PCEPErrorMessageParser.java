@@ -39,7 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.Rp;
 
 /**
- * Parser for {@link PcerrMessage}
+ * Parser for {@link PcerrMessage}.
  */
 public class PCEPErrorMessageParser extends AbstractMessageParser {
 
@@ -51,9 +51,12 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof PcerrMessage, "Wrong instance of Message. Passed instance of %s. Need PcerrMessage.", message.getClass());
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
-        Preconditions.checkArgument(err.getErrors() != null && !err.getErrors().isEmpty(), "Errors should not be empty.");
+        Preconditions.checkArgument(message instanceof PcerrMessage,
+                "Wrong instance of Message. Passed instance of %s. Need PcerrMessage.", message.getClass());
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message
+            .PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
+        Preconditions.checkArgument(err.getErrors() != null && !err.getErrors().isEmpty(),
+                "Errors should not be empty.");
         final ByteBuf buffer = Unpooled.buffer();
         serializeCases(err, buffer);
         for (final Errors e : err.getErrors()) {
@@ -69,7 +72,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
     /**
      * If needed, subclasses can override this method.
      */
-    protected void serializeCases(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.PcerrMessage err, final ByteBuf buffer) {
+    protected void serializeCases(
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message
+                .PcerrMessage err, final ByteBuf buffer) {
         if (err.getErrorType() instanceof RequestCase) {
             final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
             for (final Rps r : rps) {
@@ -79,14 +84,15 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected PcerrMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected PcerrMessage validate(final List<Object> objects, final List<Message> errors)
+        throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Error message is empty.");
         }
         final List<Rps> requestParameters = new ArrayList<>();
         final List<Errors> errorObjects = new ArrayList<>();
-        final PcerrMessageBuilder b = new PcerrMessageBuilder();
+        final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
 
         Object obj = objects.get(0);
         State state = State.INIT;
@@ -111,9 +117,10 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
             if (obj instanceof UnknownObject) {
-                return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();
+                return new PcerrBuilder()
+                        .setPcerrMessage(msgBuilder.setErrors(((UnknownObject) obj).getErrors()).build()).build();
             }
-            state = insertObject(state, errorObjects, obj, requestParameters, b);
+            state = insertObject(state, errorObjects, obj, requestParameters, msgBuilder);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
@@ -125,9 +132,10 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
         }
         if (!requestParameters.isEmpty()) {
-            b.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(requestParameters).build()).build());
+            msgBuilder.setErrorType(new RequestCaseBuilder()
+                    .setRequest(new RequestBuilder().setRps(requestParameters).build()).build());
         }
-        return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();
+        return new PcerrBuilder().setPcerrMessage(msgBuilder.setErrors(errorObjects).build()).build();
     }
 
     private static State insertObject(final State state, final List<Errors> errorObjects, final Object obj,
@@ -149,7 +157,8 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                 // fall-through
             case OPEN:
                 if (obj instanceof Open) {
-                    b.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder().setOpen((Open) obj).build()).build());
+                b.setErrorType(
+                        new SessionCaseBuilder().setSession(new SessionBuilder().setOpen((Open) obj).build()).build());
                     return State.OPEN_IN;
                 }
                 // fall-through

@@ -83,7 +83,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
 
 /**
- * Parser for {@link Pcreq}
+ * Parser for {@link Pcreq}.
  */
 public class PCEPRequestMessageParser extends AbstractMessageParser {
 
@@ -95,9 +95,11 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcreq, "Wrong instance of Message. Passed instance of %s. Need Pcreq.", message.getClass());
+        Preconditions.checkArgument(message instanceof Pcreq,
+                "Wrong instance of Message. Passed instance of %s. Need Pcreq.", message.getClass());
         final PcreqMessage msg = ((Pcreq) message).getPcreqMessage();
-        Preconditions.checkArgument(msg.getRequests() != null && !msg.getRequests().isEmpty(), "Requests cannot be null or empty.");
+        Preconditions.checkArgument(msg.getRequests() != null && !msg.getRequests().isEmpty(),
+                "Requests cannot be null or empty.");
         final ByteBuf buffer = Unpooled.buffer();
         if (msg.getMonitoringRequest() != null) {
             serializeMonitoringRequest(msg.getMonitoringRequest(), buffer);
@@ -135,7 +137,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             serializeObject(s.getGc(), buffer);
             serializeObject(s.getXro(), buffer);
             if (s.getMetric() != null) {
-                for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.svec.Metric m : s.getMetric()) {
+                for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
+                        .message.pcreq.message.svec.Metric m : s.getMetric()) {
                     serializeObject(m.getMetric(), buffer);
                 }
             }
@@ -217,7 +220,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected Message validate(final List<Object> objects, final List<Message> errors)
+        throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrep message cannot be empty.");
@@ -276,7 +280,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             }
             // expansion
             if (rpObj.isPathKey() && objects.get(0) instanceof PathKey) {
-                rBuilder.setPathKeyExpansion(new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
+                rBuilder.setPathKeyExpansion(
+                        new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
             }
 
             if (objects.isEmpty() || !(objects.get(0) instanceof EndpointsObj)) {
@@ -332,10 +337,10 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             builder.setVendorInformationObject(viObjects);
         }
 
-        if (rp.isReoptimization()
-                && builder.getBandwidth() != null
+        if (rp.isReoptimization() && builder.getBandwidth() != null
                 && !builder.getReportedRoute().getReoptimizationBandwidth().getBandwidth().equals(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 }))
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network
+                            .concepts.rev131125.Bandwidth(new byte[] { 0 }))
                 && builder.getReportedRoute().getRro() == null) {
             errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, Optional.of(rp)));
             return null;
@@ -441,14 +446,24 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     private enum P2PState {
-        INIT, REPORTED_IN, VENDOR_INFO_LIST, LOAD_BIN, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, RRO_IN, XRO_IN, OF_IN, CT_IN, END
+        INIT,
+        REPORTED_IN,
+        VENDOR_INFO_LIST,
+        LOAD_BIN, LSPA_IN,
+        BANDWIDTH_IN,
+        METRIC_IN,
+        IRO_IN,
+        RRO_IN,
+        XRO_IN,
+        OF_IN,
+        CT_IN,
+        END
     }
 
-    protected SegmentComputation  getP2MPSegmentComputation(final List<Object> objects,
-                                                            final List<Message> errors,
-                                                            final Rp rp) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.p2mp.Metric> metrics =
-                new ArrayList<>();
+    protected SegmentComputation getP2MPSegmentComputation(final List<Object> objects, final List<Message> errors,
+            final Rp rp) {
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message
+            .pcreq.message.requests.segment.computation.p2mp.Metric> metrics = new ArrayList<>();
         final P2mpBuilder builder = new P2mpBuilder();
         final List<EndpointRroPair> epRros = new ArrayList<>();
 
@@ -493,13 +508,11 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return true;
     }
 
-    private static P2MPState insertP2MPObject(final P2MPState p2MPState,
-                                              final List<Object> objects,
-                                              final P2mpBuilder builder,
-                                              final List<EndpointRroPair> epRros,
-                                              final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.p2mp.Metric> metrics,
-                                              final List<Message> errors,
-                                              final Rp rp) {
+    private static P2MPState insertP2MPObject(final P2MPState p2MPState, final List<Object> objects,
+            final P2mpBuilder builder, final List<EndpointRroPair> epRros,
+            final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
+                .message.pcreq.message.requests.segment.computation.p2mp.Metric> metrics,
+            final List<Message> errors, final Rp rp) {
         final Object obj = objects.get(0);
         switch (p2MPState) {
             case RP:
@@ -611,8 +624,10 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     private static Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
         Preconditions.checkArgument(objects != null && !objects.isEmpty(), "Passed list can't be null or empty.");
 
-        if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec.object.Svec) {
-            builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec.object.Svec) objects.get(0));
+        if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
+                .rev181109.svec.object.Svec) {
+            builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                                .svec.object.Svec) objects.get(0));
             objects.remove(0);
         } else {
             return null;
@@ -637,7 +652,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     private static SvecState insertP2PObject(final SvecState state, final Object obj, final SvecBuilder builder,
-                                             final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
+            final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
         switch (state) {
             case INIT:
                 if (obj instanceof Of) {

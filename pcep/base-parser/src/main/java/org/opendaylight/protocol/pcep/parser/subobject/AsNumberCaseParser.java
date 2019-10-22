@@ -38,7 +38,6 @@ final class AsNumberCaseParser {
             new AsNumber(Uint32.valueOf(buffer.readUnsignedShort()))).build()).build();
     }
 
-
     static ByteBuf serializeSubobject(final AsNumberCase asCase) {
         final AsNumberSubobject asNumber = asCase.getAsNumber();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);

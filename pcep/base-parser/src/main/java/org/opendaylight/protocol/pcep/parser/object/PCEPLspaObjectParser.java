@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 
 /**
- * Parser for {@link Lspa}
+ * Parser for {@link Lspa}.
  */
 public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 

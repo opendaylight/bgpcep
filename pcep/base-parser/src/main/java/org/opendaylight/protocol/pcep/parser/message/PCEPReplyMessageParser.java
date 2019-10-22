@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.object.Of;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcc.id.req.object.PccIdReq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pce.id.object.PceId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.PcrepMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.PcrepMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.Replies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.RepliesBuilder;
@@ -51,7 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
 
 /**
- * Parser for {@link Pcrep}
+ * Parser for {@link Pcrep}.
  */
 public class PCEPReplyMessageParser extends AbstractMessageParser {
 
@@ -63,9 +64,11 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcrep, "Wrong instance of Message. Passed instance of %s. Need Pcrep.", message.getClass());
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.PcrepMessage repMsg = ((Pcrep) message).getPcrepMessage();
-        Preconditions.checkArgument(repMsg.getReplies() != null && !repMsg.getReplies().isEmpty(), "Replies cannot be null or empty.");
+        Preconditions.checkArgument(message instanceof Pcrep,
+                "Wrong instance of Message. Passed instance of %s. Need Pcrep.", message.getClass());
+        final PcrepMessage repMsg = ((Pcrep) message).getPcrepMessage();
+        Preconditions.checkArgument(repMsg.getReplies() != null && !repMsg.getReplies().isEmpty(),
+                "Replies cannot be null or empty.");
         final ByteBuf buffer = Unpooled.buffer();
         for (final Replies reply : repMsg.getReplies()) {
             Preconditions.checkArgument(reply.getRp() != null, "Reply must contain RP object.");
@@ -164,7 +167,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().setReplies(replies).build()).build();
     }
 
-    protected Replies getValidReply(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected Replies getValidReply(final List<Object> objects, final List<Message> errors)
+        throws PCEPDeserializerException {
         Object object = objects.remove(0);
         if (!(object instanceof Rp)) {
             errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.empty()));

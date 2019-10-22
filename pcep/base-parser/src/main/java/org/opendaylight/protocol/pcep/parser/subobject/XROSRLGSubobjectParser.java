@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
- * Parser for {@link SrlgCase}
+ * Parser for {@link SrlgCase}.
  */
 public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 

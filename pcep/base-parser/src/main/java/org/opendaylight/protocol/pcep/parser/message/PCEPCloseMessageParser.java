@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CClose;
 
 /**
- * Parser for {@link CloseMessage}
+ * Parser for {@link CloseMessage}.
  */
 public class PCEPCloseMessageParser extends AbstractMessageParser {
 
@@ -37,7 +37,8 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof CloseMessage, "Wrong instance of Message. Passed instance of %s. Need CloseMessage.", message.getClass());
+        Preconditions.checkArgument(message instanceof CloseMessage,
+                "Wrong instance of Message. Passed instance of %s. Need CloseMessage.", message.getClass());
         final CCloseMessage close = ((CloseMessage) message).getCCloseMessage();
         Preconditions.checkArgument(close.getCClose() != null, "Close Object must be present in Close Message.");
         final ByteBuf buffer = Unpooled.buffer();

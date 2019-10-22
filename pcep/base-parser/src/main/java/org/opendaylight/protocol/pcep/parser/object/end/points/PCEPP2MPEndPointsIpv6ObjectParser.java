@@ -48,7 +48,8 @@ public class PCEPP2MPEndPointsIpv6ObjectParser extends CommonObjectParser {
         final ByteBuf buffer) {
         final List<Ipv6AddressNoZone> dest = p2mpIpv6.getDestinationIpv6Address();
         Preconditions.checkArgument(dest != null, "DestinationIpv6Address is mandatory.");
-        final ByteBuf body = Unpooled.buffer(LEAF_TYPE_SIZE + Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH * dest.size());
+        final ByteBuf body = Unpooled
+                .buffer(LEAF_TYPE_SIZE + Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH * dest.size());
         Preconditions.checkArgument(p2mpIpv6.getSourceIpv6Address() != null,
             "SourceIpv6Address is mandatory.");
         body.writeInt(p2mpIpv6.getP2mpLeaves().getIntValue());
