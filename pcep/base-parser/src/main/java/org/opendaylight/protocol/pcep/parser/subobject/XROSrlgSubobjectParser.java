@@ -29,9 +29,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
- * Parser for {@link SrlgCase}
+ * Parser for {@link SrlgCase}.
  */
-public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
+public class XROSrlgSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
     public static final int TYPE = 34;
 
@@ -66,7 +66,7 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
         writeUnsignedInt(specObj.getSrlgId().getValue(), body);
         checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
         writeUnsignedByte((Uint8) null, body);
-        writeUnsignedByte((short) subobject.getAttribute().getIntValue(), body);
+        writeUnsignedByte(Uint8.valueOf(subobject.getAttribute().getIntValue()), body);
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }

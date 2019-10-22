@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
- * Parser for {@link PathKey}
+ * Parser for {@link PathKey}.
  */
 public class XROPathKey128SubobjectParser implements XROSubobjectParser {
 

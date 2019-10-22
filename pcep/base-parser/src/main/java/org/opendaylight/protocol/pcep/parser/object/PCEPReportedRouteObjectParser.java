@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.RroBuilder;
 
 /**
- * Parser for {@link Rro}
+ * Parser for {@link Rro}.
  */
 public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsParser {
 
