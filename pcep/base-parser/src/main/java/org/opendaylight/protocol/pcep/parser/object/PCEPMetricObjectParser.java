@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.MetricBuilder;
 
 /**
- * Parser for {@link Metric}
+ * Parser for {@link Metric}.
  */
 public final class PCEPMetricObjectParser extends CommonObjectParser implements ObjectSerializer {
 

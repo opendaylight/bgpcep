@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.load.balancing.object.LoadBalancingBuilder;
 
 /**
- * Parser for {@link LoadBalancing}
+ * Parser for {@link LoadBalancing}.
  */
 public final class PCEPLoadBalancingObjectParser extends CommonObjectParser implements ObjectSerializer {
 
@@ -48,12 +48,12 @@ public final class PCEPLoadBalancingObjectParser extends CommonObjectParser impl
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: "
                 + bytes.readableBytes() + "; Expected: " + SIZE + ".");
         }
-        final LoadBalancingBuilder builder = new LoadBalancingBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
         bytes.skipBytes(RESERVED + FLAGS_F_LENGTH);
-        builder.setMaxLsp(ByteBufUtils.readUint8(bytes));
-        builder.setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)));
+        final LoadBalancingBuilder builder = new LoadBalancingBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setMaxLsp(ByteBufUtils.readUint8(bytes))
+                .setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)));
         return builder.build();
     }
 

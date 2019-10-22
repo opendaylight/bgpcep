@@ -42,12 +42,15 @@ public abstract class AbstractEROWithSubobjectsParser extends CommonObjectParser
         Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final boolean loose = ((buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
-            final int type = (buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET);
+            final boolean loose = ((buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0)
+                    ? true
+                    : false;
+            final int type = (buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES)
+                    & ~(1 << Values.FIRST_BIT_OFFSET);
             final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
-                throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
-                        + buffer.readableBytes());
+                throw new PCEPDeserializerException(
+                        "Wrong length specified. Passed: " + length + "; Expected: <= " + buffer.readableBytes());
             }
             LOG.debug("Attempt to parse subobject from bytes: {}", ByteBufUtil.hexDump(buffer));
             final Subobject sub = this.subobjReg.parseSubobject(type, buffer.readSlice(length), loose);

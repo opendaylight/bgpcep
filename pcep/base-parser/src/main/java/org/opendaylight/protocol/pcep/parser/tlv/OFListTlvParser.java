@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfListBuilder;
 
 /**
- * Parser for {@link OfList}
+ * Parser for {@link OfList}.
  */
 public class OFListTlvParser implements TlvParser, TlvSerializer {
 
