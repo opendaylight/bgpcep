@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parser for IPv4 {@link EndpointsObj}
+ * Parser for IPv4 {@link EndpointsObj}.
  */
 public class PCEPEndPointsIpv4ObjectParser extends CommonObjectParser {
 
@@ -68,12 +68,12 @@ public class PCEPEndPointsIpv4ObjectParser extends CommonObjectParser {
         if (bytes.readableBytes() != Ipv4Util.IP4_LENGTH * 2) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        final Ipv4Builder b = new Ipv4Builder();
-        b.setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
-        b.setDestinationIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
-        builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(b.build()).build());
+        final Ipv4Builder ipv4bldr = new Ipv4Builder()
+                .setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes))
+                .setDestinationIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
+        builder.setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setAddressFamily(new Ipv4CaseBuilder().setIpv4(ipv4bldr.build()).build());
         return builder.build();
     }
 }

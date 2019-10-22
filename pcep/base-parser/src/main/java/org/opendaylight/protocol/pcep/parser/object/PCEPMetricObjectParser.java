@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.MetricBuilder;
 
 /**
- * Parser for {@link Metric}
+ * Parser for {@link Metric}.
  */
 public final class PCEPMetricObjectParser extends CommonObjectParser implements ObjectSerializer {
 
@@ -66,13 +66,13 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
         }
         bytes.skipBytes(RESERVED);
         final BitArray flags = BitArray.valueOf(bytes.readByte());
-        final MetricBuilder builder = new MetricBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        builder.setBound(flags.get(B_FLAG_OFFSET));
-        builder.setComputed(flags.get(C_FLAG_OFFSET));
-        builder.setMetricType(ByteBufUtils.readUint8(bytes));
-        builder.setValue(new Float32(ByteArray.readBytes(bytes, METRIC_VALUE_F_LENGTH)));
+        final MetricBuilder builder = new MetricBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setBound(flags.get(B_FLAG_OFFSET))
+                .setComputed(flags.get(C_FLAG_OFFSET))
+                .setMetricType(ByteBufUtils.readUint8(bytes))
+                .setValue(new Float32(ByteArray.readBytes(bytes, METRIC_VALUE_F_LENGTH)));
         return builder.build();
     }
 

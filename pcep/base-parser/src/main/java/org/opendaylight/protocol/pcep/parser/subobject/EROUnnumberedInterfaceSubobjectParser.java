@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
 /**
- * Parser for {@link UnnumberedCase}
+ * Parser for {@link UnnumberedCase}.
  */
 public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -42,13 +42,13 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
                 + "; Expected: " + CONTENT_LENGTH + ".");
         }
-        final SubobjectBuilder builder = new SubobjectBuilder();
-        builder.setLoose(loose);
-        final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
         buffer.skipBytes(RESERVED);
-        ubuilder.setRouterId(ByteBufUtils.readUint32(buffer));
-        ubuilder.setInterfaceId(ByteBufUtils.readUint32(buffer));
-        builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
+        final UnnumberedBuilder ubuilder = new UnnumberedBuilder()
+                .setRouterId(ByteBufUtils.readUint32(buffer))
+                .setInterfaceId(ByteBufUtils.readUint32(buffer));
+        final SubobjectBuilder builder = new SubobjectBuilder()
+                .setLoose(loose)
+                .setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
         return builder.build();
     }
 

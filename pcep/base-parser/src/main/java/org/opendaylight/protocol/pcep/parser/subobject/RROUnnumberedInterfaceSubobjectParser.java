@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
 /**
- * Parser for {@link UnnumberedCase}
+ * Parser for {@link UnnumberedCase}.
  */
 public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
@@ -47,15 +47,15 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
                 + "; Expected: " + CONTENT_LENGTH + ".");
         }
-        final SubobjectBuilder builder = new SubobjectBuilder();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
-        builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
-        final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
         buffer.skipBytes(RESERVED);
-        ubuilder.setRouterId(ByteBufUtils.readUint32(buffer));
-        ubuilder.setInterfaceId(ByteBufUtils.readUint32(buffer));
-        builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
+        final UnnumberedBuilder ubuilder = new UnnumberedBuilder()
+                .setRouterId(ByteBufUtils.readUint32(buffer))
+                .setInterfaceId(ByteBufUtils.readUint32(buffer));
+        final SubobjectBuilder builder = new SubobjectBuilder()
+                .setProtectionAvailable(flags.get(LPA_F_OFFSET))
+                .setProtectionInUse(flags.get(LPIU_F_OFFSET))
+                .setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
         return builder.build();
     }
 

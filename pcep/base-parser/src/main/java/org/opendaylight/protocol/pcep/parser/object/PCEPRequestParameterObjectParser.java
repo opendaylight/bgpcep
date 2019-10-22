@@ -31,10 +31,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.rp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.rp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
- * Parser for {@link Rp}
+ * Parser for {@link Rp}.
  */
 public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
@@ -97,10 +98,24 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
-
-        final RpBuilder builder = new RpBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        final Uint32 reqId = ByteBufUtils.readUint32(bytes);
+        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
+        parseTlvs(tlvsBuilder, bytes.slice());
+        final RpBuilder builder = new RpBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setFragmentation(flags.get(F_FLAG_OFFSET))
+                .setP2mp(flags.get(N_FLAG_OFFSET))
+                .setEroCompression(flags.get(E_FLAG_OFFSET))
+                .setMakeBeforeBreak(flags.get(M_FLAG_OFFSET))
+                .setOrder(flags.get(D_FLAG_OFFSET))
+                .setPathKey(flags.get(P_FLAG_OFFSET))
+                .setSupplyOf(flags.get(S_FLAG_OFFSET))
+                .setLoose(flags.get(O_FLAG_OFFSET))
+                .setBiDirectional(flags.get(B_FLAG_OFFSET))
+                .setReoptimization(flags.get(R_FLAG_OFFSET))
+                .setRequestId(new RequestId(reqId))
+                .setTlvs(tlvsBuilder.build());
 
         short priority = 0;
         priority |= flags.get(PRI_SF_OFFSET + 2) ? 1 : 0;
@@ -109,21 +124,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         if (priority != 0) {
             builder.setPriority(Uint8.valueOf(priority));
         }
-        builder.setFragmentation(flags.get(F_FLAG_OFFSET));
-        builder.setP2mp(flags.get(N_FLAG_OFFSET));
-        builder.setEroCompression(flags.get(E_FLAG_OFFSET));
-        builder.setMakeBeforeBreak(flags.get(M_FLAG_OFFSET));
-        builder.setOrder(flags.get(D_FLAG_OFFSET));
-        builder.setPathKey(flags.get(P_FLAG_OFFSET));
-        builder.setSupplyOf(flags.get(S_FLAG_OFFSET));
-        builder.setLoose(flags.get(O_FLAG_OFFSET));
-        builder.setBiDirectional(flags.get(B_FLAG_OFFSET));
-        builder.setReoptimization(flags.get(R_FLAG_OFFSET));
 
-        builder.setRequestId(new RequestId(ByteBufUtils.readUint32(bytes)));
-        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
-        parseTlvs(tlvsBuilder, bytes.slice());
-        builder.setTlvs(tlvsBuilder.build());
         return builder.build();
     }
 

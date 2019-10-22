@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parser for IPv6 {@link EndpointsObj}
+ * Parser for IPv6 {@link EndpointsObj}.
  */
 public final class PCEPEndPointsIpv6ObjectParser extends CommonObjectParser {
 
@@ -68,12 +68,12 @@ public final class PCEPEndPointsIpv6ObjectParser extends CommonObjectParser {
         if (bytes.readableBytes() != Ipv6Util.IPV6_LENGTH * 2) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        final Ipv6Builder b = new Ipv6Builder();
-        b.setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
-        b.setDestinationIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
-        builder.setAddressFamily(new Ipv6CaseBuilder().setIpv6(b.build()).build());
+        final Ipv6Builder ipv6bldr = new Ipv6Builder()
+                .setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes))
+                .setDestinationIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
+        builder.setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setAddressFamily(new Ipv6CaseBuilder().setIpv6(ipv6bldr.build()).build());
         return builder.build();
     }
 }

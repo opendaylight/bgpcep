@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObjectBuilder;
 
 public abstract class AbstractVendorInformationObjectParser extends CommonObjectParser
-    implements ObjectSerializer, EnterpriseSpecificInformationParser {
+        implements ObjectSerializer, EnterpriseSpecificInformationParser {
 
     public AbstractVendorInformationObjectParser(final int objectClass, final int objectType) {
         super(objectClass, objectType);
@@ -35,7 +35,8 @@ public abstract class AbstractVendorInformationObjectParser extends CommonObject
 
     @Override
     public final Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         final VendorInformationObjectBuilder builder = new VendorInformationObjectBuilder();
         builder.setEnterpriseNumber(new EnterpriseNumber(getEnterpriseNumber()));
         builder.setEnterpriseSpecificInformation(parseEnterpriseSpecificInformation(buffer));
@@ -44,11 +45,14 @@ public abstract class AbstractVendorInformationObjectParser extends CommonObject
 
     @Override
     public final void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof VendorInformationObject, "Wrong instance of PCEPObject. Passed %s. Needed VendorInformationObject.", object.getClass());
+        Preconditions.checkArgument(object instanceof VendorInformationObject,
+                "Wrong instance of PCEPObject. Passed %s. Needed VendorInformationObject.", object.getClass());
         final ByteBuf body = Unpooled.buffer();
         writeUnsignedInt(getEnterpriseNumber().getValue(), body);
-        serializeEnterpriseSpecificInformation(((VendorInformationObject) object).getEnterpriseSpecificInformation(), body);
-        ObjectUtil.formatSubobject(VENDOR_INFORMATION_OBJECT_TYPE, VENDOR_INFORMATION_OBJECT_CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        serializeEnterpriseSpecificInformation(((VendorInformationObject) object).getEnterpriseSpecificInformation(),
+                body);
+        ObjectUtil.formatSubobject(VENDOR_INFORMATION_OBJECT_TYPE, VENDOR_INFORMATION_OBJECT_CLASS,
+                object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
 }

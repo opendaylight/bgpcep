@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.XroBuilder;
 
 /**
- * Parser for {@link Xro}
+ * Parser for {@link Xro}.
  */
 public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobjectsParser {
 
@@ -38,12 +38,12 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
     public Xro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
-        final XroBuilder builder = new XroBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
         bytes.skipBytes(FLAGS_OFFSET);
-        builder.setFlags(new Flags(bytes.readBoolean()));
-        builder.setSubobject(parseSubobjects(bytes.slice()));
+        final XroBuilder builder = new XroBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setFlags(new Flags(bytes.readBoolean()))
+                .setSubobject(parseSubobjects(bytes.slice()));
         return builder.build();
     }
 

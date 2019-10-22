@@ -29,9 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
- * Parser for {@link NoPath}
+ * Parser for {@link NoPath}.
  */
 public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
@@ -56,17 +57,18 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
     @Override
     public NoPath parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
-        final NoPathBuilder builder = new NoPathBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
 
-        builder.setNatureOfIssue(ByteBufUtils.readUint8(bytes));
+        final Uint8 issue = ByteBufUtils.readUint8(bytes);
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
-        builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
         bytes.skipBytes(RESERVED_F_LENGTH);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
-        builder.setTlvs(tlvsBuilder.build());
+        final NoPathBuilder builder = new NoPathBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setNatureOfIssue(issue)
+                .setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET))
+                .setTlvs(tlvsBuilder.build());
         return builder.build();
     }
 

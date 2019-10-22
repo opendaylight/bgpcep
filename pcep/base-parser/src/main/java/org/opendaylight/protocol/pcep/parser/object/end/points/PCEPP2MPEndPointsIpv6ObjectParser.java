@@ -48,7 +48,8 @@ public class PCEPP2MPEndPointsIpv6ObjectParser extends CommonObjectParser {
         final ByteBuf buffer) {
         final List<Ipv6AddressNoZone> dest = p2mpIpv6.getDestinationIpv6Address();
         Preconditions.checkArgument(dest != null, "DestinationIpv6Address is mandatory.");
-        final ByteBuf body = Unpooled.buffer(LEAF_TYPE_SIZE + Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH * dest.size());
+        final ByteBuf body =
+            Unpooled.buffer(LEAF_TYPE_SIZE + Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH * dest.size());
         Preconditions.checkArgument(p2mpIpv6.getSourceIpv6Address() != null,
             "SourceIpv6Address is mandatory.");
         body.writeInt(p2mpIpv6.getP2mpLeaves().getIntValue());
@@ -61,25 +62,26 @@ public class PCEPP2MPEndPointsIpv6ObjectParser extends CommonObjectParser {
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
-        final EndpointsObjBuilder builder = new EndpointsObjBuilder();
         if (!header.isProcessingRule()) {
             LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");
-            return new UnknownObject(PCEPErrors.P_FLAG_NOT_SET, builder.build());
+            return new UnknownObject(PCEPErrors.P_FLAG_NOT_SET, new EndpointsObjBuilder().build());
         }
         if (bytes.readableBytes() % Ipv6Util.IPV6_LENGTH != 4) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        final P2mpIpv6Builder p2mpIpv6Builder = new P2mpIpv6Builder();
-        p2mpIpv6Builder.setP2mpLeaves(P2mpLeaves.forValue(bytes.readInt()));
-        p2mpIpv6Builder.setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
+
+        final P2mpIpv6Builder p2mpIpv6Builder = new P2mpIpv6Builder()
+                .setP2mpLeaves(P2mpLeaves.forValue(bytes.readInt()))
+                .setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
         List<Ipv6AddressNoZone> dest = new ArrayList<>();
         while (bytes.isReadable()) {
             dest.add(Ipv6Util.noZoneAddressForByteBuf(bytes));
         }
         p2mpIpv6Builder.setDestinationIpv6Address(dest);
-        builder.setAddressFamily(new P2mpIpv6CaseBuilder().setP2mpIpv6(p2mpIpv6Builder.build()).build());
+        final EndpointsObjBuilder builder = new EndpointsObjBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setAddressFamily(new P2mpIpv6CaseBuilder().setP2mpIpv6(p2mpIpv6Builder.build()).build());
         return builder.build();
     }
 }

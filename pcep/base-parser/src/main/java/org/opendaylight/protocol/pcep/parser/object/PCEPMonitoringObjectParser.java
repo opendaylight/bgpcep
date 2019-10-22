@@ -28,9 +28,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.monitoring.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.monitoring.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
- * Parser for {@link Monitoring}
+ * Parser for {@link Monitoring}.
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.1">Monitoring Object</a>
  *
  */
@@ -54,16 +55,17 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
-        final MonitoringBuilder builder = new MonitoringBuilder();
         buffer.readBytes(RESERVED);
         final BitArray flagBits = BitArray.valueOf(buffer, FLAGS_SIZE);
         final Flags flags = new Flags(flagBits.get(G_FLAG_POS), flagBits.get(I_FLAG_POS), flagBits.get(L_FLAG_POS),
                 flagBits.get(C_FLAG_POS), flagBits.get(P_FLAG_POS));
-        builder.setFlags(flags);
-        builder.setMonitoringId(ByteBufUtils.readUint32(buffer));
+        final Uint32 monitoring = ByteBufUtils.readUint32(buffer);
         final TlvsBuilder tbuilder = new TlvsBuilder();
         parseTlvs(tbuilder, buffer.slice());
-        builder.setTlvs(tbuilder.build());
+        final MonitoringBuilder builder = new MonitoringBuilder()
+                .setFlags(flags)
+                .setMonitoringId(monitoring)
+                .setTlvs(tbuilder.build());
         return builder.build();
     }
 

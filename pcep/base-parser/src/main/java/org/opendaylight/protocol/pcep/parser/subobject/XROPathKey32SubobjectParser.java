@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
- * Parser for {@link PathKey}
+ * Parser for {@link PathKey}.
  */
 public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
@@ -47,12 +47,12 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
         }
         final Uint16 pathKey = ByteBufUtils.readUint16(buffer);
         final byte[] pceId = ByteArray.readBytes(buffer, PCE_ID_F_LENGTH);
-        final SubobjectBuilder builder = new SubobjectBuilder();
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(pceId));
-        pBuilder.setPathKey(new PathKey(pathKey));
-        builder.setMandatory(mandatory);
-        builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
+        final PathKeyBuilder pBuilder = new PathKeyBuilder()
+                .setPceId(new PceId(pceId))
+                .setPathKey(new PathKey(pathKey));
+        final SubobjectBuilder builder = new SubobjectBuilder()
+                .setMandatory(mandatory)
+                .setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
         return builder.build();
     }
 
@@ -68,7 +68,7 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
 
         final byte[] pceId = pk.getPceId().getValue();
         if (pceId.length == XROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
-            XROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
+            XROPathKey128SubobjectParser.serializeSubobject(subobject, buffer);
         }
         checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);

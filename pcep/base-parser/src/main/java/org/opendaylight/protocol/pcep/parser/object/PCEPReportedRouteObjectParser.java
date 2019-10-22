@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.RroBuilder;
 
 /**
- * Parser for {@link Rro}
+ * Parser for {@link Rro}.
  */
 public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsParser {
 
@@ -37,10 +37,10 @@ public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjec
     public Rro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
-        final RroBuilder builder = new RroBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        builder.setSubobject(parseSubobjects(bytes.slice()));
+        final RroBuilder builder = new RroBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setSubobject(parseSubobjects(bytes.slice()));
         return builder.build();
     }
 

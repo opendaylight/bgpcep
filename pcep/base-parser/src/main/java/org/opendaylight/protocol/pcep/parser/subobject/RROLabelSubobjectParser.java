@@ -49,10 +49,11 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() < HEADER_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
-                    + HEADER_LENGTH + ".");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
+                    + "; Expected: >" + HEADER_LENGTH + ".");
         }
         final BitArray reserved = BitArray.valueOf(buffer, FLAGS_SIZE);
 
@@ -62,11 +63,14 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
         if (labelType == null) {
             throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + cType);
         }
-        final LabelBuilder builder = new LabelBuilder();
-        builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
-        builder.setGlobal(reserved.get(G_FLAG_OFFSET));
-        builder.setLabelType(labelType);
-        return new SubobjectBuilder().setSubobjectType(new LabelCaseBuilder().setLabel(builder.build()).build()).build();
+        final LabelBuilder builder = new LabelBuilder()
+                .setUniDirectional(reserved.get(U_FLAG_OFFSET))
+                .setGlobal(reserved.get(G_FLAG_OFFSET))
+                .setLabelType(labelType);
+        return new SubobjectBuilder()
+                .setSubobjectType(new LabelCaseBuilder()
+                .setLabel(builder.build()).build())
+                .build();
     }
 
     @Override
