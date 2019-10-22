@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
 
 /**
- * Parser for {@link AsNumberCase}
+ * Parser for {@link AsNumberCase}.
  */
 public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -26,12 +26,14 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
-        return new SubobjectBuilder().setLoose(loose).setSubobjectType(AsNumberCaseParser.parseSubobject(buffer)).build();
+        return new SubobjectBuilder().setLoose(loose).setSubobjectType(AsNumberCaseParser.parseSubobject(buffer))
+                .build();
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase,
+                "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }

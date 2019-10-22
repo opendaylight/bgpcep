@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
 
 /**
- * Parser for Bandwidth
+ * Parser for Bandwidth.
  */
 public final class PCEPBandwidthObjectParser extends CommonObjectParser implements ObjectSerializer {
 

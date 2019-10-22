@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link ErrorObject}
+ * Parser for {@link ErrorObject}.
  */
 public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObjectBuilder> {
 

@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
 /**
- * Parser for {@link IpPrefixCase}
+ * Parser for {@link IpPrefixCase}.
  */
 public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
@@ -43,15 +43,17 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setMandatory(mandatory);
         if (buffer.readableBytes() != CONTENT6_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
+            throw new PCEPDeserializerException(
+                    "Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
         final int length = buffer.getUnsignedByte(PREFIX6_F_OFFSET);
-        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
-                Ipv6Util.IPV6_LENGTH), length)));
+        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(
+                new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer, Ipv6Util.IPV6_LENGTH), length)));
         builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
         buffer.skipBytes(PREFIX_F_LENGTH);
         builder.setAttribute(Attribute.forValue(buffer.readUnsignedByte()));
@@ -60,7 +62,8 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase,
+                "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
         final ByteBuf body = Unpooled.buffer(CONTENT6_LENGTH);

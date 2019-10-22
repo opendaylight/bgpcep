@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
- * Parser for {@link PathKey}
+ * Parser for {@link PathKey}.
  */
 public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
@@ -68,7 +68,7 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
 
         final byte[] pceId = pk.getPceId().getValue();
         if (pceId.length == XROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
-            XROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
+            XROPathKey128SubobjectParser.serializeSubobject(subobject, buffer);
         }
         checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);

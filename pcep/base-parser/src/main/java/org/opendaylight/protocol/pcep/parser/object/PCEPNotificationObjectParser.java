@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link CNotification}
+ * Parser for {@link CNotification}.
  */
 public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<CNotificationBuilder> {
 
