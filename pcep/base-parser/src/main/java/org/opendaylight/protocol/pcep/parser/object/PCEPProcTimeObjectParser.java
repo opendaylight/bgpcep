@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.proc.time.object.ProcTimeBuilder;
 
 /**
- * Parser for {@link ProcTime}
+ * Parser for {@link ProcTime}.
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.4">PROC-TIME Object</a>
  */
 public class PCEPProcTimeObjectParser extends CommonObjectParser implements ObjectSerializer {

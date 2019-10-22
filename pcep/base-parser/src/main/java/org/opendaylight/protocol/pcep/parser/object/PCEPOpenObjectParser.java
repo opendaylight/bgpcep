@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parser for {@link Open}
+ * Parser for {@link Open}.
  */
 public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPOpenObjectParser.class);

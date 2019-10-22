@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabelBuilder;
 
 /**
- * Parser for {@link WavebandSwitchingLabelCase}
+ * Parser for {@link WavebandSwitchingLabelCase}.
  */
 public class WavebandSwitchingLabelParser implements LabelParser, LabelSerializer {
 
@@ -53,7 +53,8 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
     }
 
     @Override
-    public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject, final ByteBuf buffer) {
+    public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject,
+            final ByteBuf buffer) {
         checkArgument(subobject instanceof WavebandSwitchingLabelCase,
             "Unknown Label Subobject instance. Passed {}. Needed WavebandSwitchingLabelCase.", subobject.getClass());
         final WavebandSwitchingLabel obj = ((WavebandSwitchingLabelCase) subobject).getWavebandSwitchingLabel();

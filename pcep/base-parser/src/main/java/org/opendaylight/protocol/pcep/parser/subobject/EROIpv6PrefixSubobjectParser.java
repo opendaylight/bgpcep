@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
 /**
- * Parser for {@link IpPrefixCase}
+ * Parser for {@link IpPrefixCase}.
  */
 public class EROIpv6PrefixSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -41,22 +41,25 @@ public class EROIpv6PrefixSubobjectParser implements EROSubobjectParser, EROSubo
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+                "Array of bytes is mandatory. Can't be null or empty.");
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setLoose(loose);
         if (buffer.readableBytes() != CONTENT_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
+            throw new PCEPDeserializerException(
+                    "Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
         final int length = buffer.getUnsignedByte(PREFIX_F_OFFSET);
-        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
-                Ipv6Util.IPV6_LENGTH), length)));
+        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(
+                new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer, Ipv6Util.IPV6_LENGTH), length)));
         builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
         return builder.build();
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase,
+                "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
         final ByteBuf body = Unpooled.buffer();

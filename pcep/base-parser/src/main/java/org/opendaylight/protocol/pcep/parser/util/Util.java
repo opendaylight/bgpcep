@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.proc.time.object.ProcTime;
 
 /**
- * Utilities used in pcep-base-parser
+ * Utilities used in pcep-base-parser.
  */
 public final class Util {
 
@@ -32,15 +32,15 @@ public final class Util {
                     metricPceBuilder.setProcTime((ProcTime) obj);
                     return State.PROC_TIME;
                 }
-                // fall-through
+                // fall through
             case PROC_TIME :
                 if (obj instanceof Overload) {
                     metricPceBuilder.setOverload((Overload) obj);
                     return State.OVERLOAD;
                 }
-                // fall-through
+                // fall through
             case OVERLOAD :
-                // fall-through
+                // fall through
             case END :
                 return State.END;
             default:
