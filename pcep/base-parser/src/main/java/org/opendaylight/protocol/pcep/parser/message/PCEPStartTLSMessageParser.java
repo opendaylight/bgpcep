@@ -32,12 +32,14 @@ public class PCEPStartTLSMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof StartTlsMessage, "Wrong instance of Message. Passed instance of %s. Need StartTlsMessage.", message.getClass());
+        Preconditions.checkArgument(message instanceof StartTlsMessage,
+                "Wrong instance of Message. Passed instance of %s. Need StartTlsMessage.", message.getClass());
         MessageUtil.formatMessage(TYPE, Unpooled.EMPTY_BUFFER, out);
     }
 
     @Override
-    protected StartTlsMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected StartTlsMessage validate(final List<Object> objects, final List<Message> errors)
+            throws PCEPDeserializerException {
         if (objects != null && !objects.isEmpty()) {
             throw new PCEPDeserializerException("StartTLS message should not contain any objects.");
         }

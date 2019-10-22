@@ -28,7 +28,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 
 /**
- * Parser for {@link org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CClose PCEPCloseObject}
+ * Parser for {@link
+ *     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CClose
+ *     PCEPCloseObject
+ * }.
  */
 public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
@@ -48,16 +51,15 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
 
     @Override
     public CClose parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        checkArgument(bytes != null && bytes.isReadable(),
-                "Array of bytes is mandatory. Cannot be null or empty.");
-        final CCloseBuilder builder = new CCloseBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         bytes.skipBytes(FLAGS_F_LENGTH + RESERVED);
-        builder.setReason(ByteBufUtils.readUint8(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
-        builder.setTlvs(tlvsBuilder.build());
+        final CCloseBuilder builder = new CCloseBuilder()
+                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.isProcessingRule())
+                .setReason(ByteBufUtils.readUint8(bytes))
+                .setTlvs(tlvsBuilder.build());
         return builder.build();
     }
 

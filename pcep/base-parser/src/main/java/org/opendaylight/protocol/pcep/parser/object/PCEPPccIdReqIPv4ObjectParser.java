@@ -18,7 +18,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcc.id.req.object.PccIdReqBuilder;
 
 /**
- * Parser for {@link org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcc.id.req.object.PccIdReq} with IPv4 address
+ * Parser for {@link
+ *     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcc.id.req.object.PccIdReq
+ * } with IPv4 address.
  * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.2">PCC-ID-REQ Object</a>
  */
 public final class PCEPPccIdReqIPv4ObjectParser extends AbstractPccIdReqObjectParser {

@@ -25,10 +25,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.keepalive.message.KeepaliveMessageBuilder;
 
 /**
- * Parser for {@link KeepaliveMessage}
+ * Parser for {@link KeepaliveMessage}.
  */
 public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
-    private static final KeepaliveMessage MESSAGE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+    private static final KeepaliveMessage MESSAGE = new KeepaliveBuilder()
+            .setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
     public static final int TYPE = 2;
 
     public PCEPKeepAliveMessageParser(final ObjectRegistry registry) {
@@ -37,12 +38,14 @@ public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof KeepaliveMessage, "Wrong instance of Message. Passed instance of %s. Need KeepaliveMessage.", message.getClass());
+        Preconditions.checkArgument(message instanceof KeepaliveMessage,
+                "Wrong instance of Message. Passed instance of %s. Need KeepaliveMessage.", message.getClass());
         MessageUtil.formatMessage(TYPE, Unpooled.EMPTY_BUFFER, out);
     }
 
     @Override
-    protected KeepaliveMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected KeepaliveMessage validate(final List<Object> objects, final List<Message> errors)
+            throws PCEPDeserializerException {
         if (objects != null && !objects.isEmpty()) {
             throw new PCEPDeserializerException("Keepalive message should not contain any objects.");
         }

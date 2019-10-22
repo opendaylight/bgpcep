@@ -25,9 +25,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
- * Parser for {@link UnnumberedCase}
+ * Parser for {@link UnnumberedCase}.
  */
 public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
@@ -62,7 +63,8 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
-        writeUnsignedByte(subobject.getAttribute() != null ? (short) subobject.getAttribute().getIntValue() : null,
+        writeUnsignedByte(
+                subobject.getAttribute() != null ? Uint8.valueOf(subobject.getAttribute().getIntValue()) : (Uint8) null,
                 body);
         checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
         writeUnsignedInt(specObj.getRouterId(), body);
