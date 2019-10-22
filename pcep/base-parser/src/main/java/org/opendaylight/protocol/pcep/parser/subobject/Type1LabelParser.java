@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.type1.label._case.Type1LabelBuilder;
 
 /**
- * Parser for {@link Type1LabelCase}
+ * Parser for {@link Type1LabelCase}.
  */
 public class Type1LabelParser implements LabelParser, LabelSerializer {
 

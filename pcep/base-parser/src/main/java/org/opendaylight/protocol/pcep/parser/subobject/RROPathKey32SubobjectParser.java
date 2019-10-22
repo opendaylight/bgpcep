@@ -63,14 +63,14 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
         checkArgument(subobject.getSubobjectType() instanceof PathKeyCase,
             "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final PathKeyCase pkcase = (PathKeyCase) subobject.getSubobjectType();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
-            .subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route
+            .subobjects.subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
         checkArgument(pk.getPceId() != null, "PceId is mandatory.");
 
         final byte[] pceId = pk.getPceId().getValue();
         if (pceId.length == RROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
-            RROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
+            RROPathKey128SubobjectParser.serializeSubobject(subobject, buffer);
         }
         checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);

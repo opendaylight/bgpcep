@@ -19,7 +19,7 @@ import org.opendaylight.protocol.pcep.parser.subobject.XROIpv4PrefixSubobjectPar
 import org.opendaylight.protocol.pcep.parser.subobject.XROIpv6PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey128SubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey32SubobjectParser;
-import org.opendaylight.protocol.pcep.parser.subobject.XROSRLGSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.XROSrlgSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -137,7 +137,7 @@ public class PCEPXROSubobjectParserTest {
 
     @Test
     public void testXROSrlgSubobject() throws PCEPDeserializerException {
-        final XROSRLGSubobjectParser parser = new XROSRLGSubobjectParser();
+        final XROSrlgSubobjectParser parser = new XROSrlgSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setMandatory(true)
                 .setAttribute(Attribute.Srlg)

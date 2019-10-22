@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.iro.SubobjectBuilder;
 
 /**
- * Parser for {@link Iro}
+ * Parser for {@link Iro}.
  */
 public final class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParser {
 
