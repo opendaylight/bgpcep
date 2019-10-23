@@ -49,6 +49,52 @@
     },
     {
       "key": {
+        "uuid": "ac94a2a1_581bfc8e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-23T12:40:47Z",
+      "side": 1,
+      "message": "\u003e72 char",
+      "range": {
+        "startLine": 12,
+        "startChar": 69,
+        "endLine": 12,
+        "endChar": 75
+      },
+      "revId": "08ea8c3a200b87afcdf88d63b40de832b8f086fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f9b5fe1_91ef8490",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-23T12:40:47Z",
+      "side": 1,
+      "message": "\u003e72 char",
+      "range": {
+        "startLine": 14,
+        "startChar": 67,
+        "endLine": 14,
+        "endChar": 74
+      },
+      "revId": "08ea8c3a200b87afcdf88d63b40de832b8f086fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e9662aaa_287b234d",
         "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/message/PCEPErrorMessageParser.java",
         "patchSetId": 2
