@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1732ff5d_f3d3b7c9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-23T10:11:59Z",
+      "side": 1,
+      "message": "This orthograph used to work with java 8.\nAccorded to wiktionary, fall-through is also the primary correct orthograph. https://en.wiktionary.org/wiki/fall-through\nSince \u0027fallthru\u0027 is authorized, this must be considered a bug in maven checkstyle...",
+      "range": {
+        "startLine": 12,
+        "startChar": 11,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "08ea8c3a200b87afcdf88d63b40de832b8f086fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
