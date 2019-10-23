@@ -10,7 +10,6 @@ module bgp-labeled-unicast {
     import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
     import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
-    import bgp-inet { prefix bgp-inet; revision-date 2018-03-29; }
 
     organization "Cisco Systems, Inc.";
     contact "GE QU <gequ@cisco.com>"
