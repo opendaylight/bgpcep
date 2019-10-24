@@ -13,7 +13,6 @@ module bgp-linkstate {
     import bgp-segment-routing { prefix bgp-sr; revision-date 2015-10-14; }
     import bgp-epe { prefix bgp-epe; revision-date 2015-06-22; }
     import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
-    import yang-ext { prefix ext; revision-date 2013-07-09; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";

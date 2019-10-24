@@ -5,7 +5,6 @@ module topology-tunnel-programming {
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-programming { prefix tp; revision-date 2013-11-02; }
-    import topology-tunnel { prefix tt; revision-date 2013-08-19; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";

@@ -3,7 +3,6 @@ module network-topology-programming {
     namespace "urn:opendaylight:params:xml:ns:yang:topology:programming";
     prefix "tp";
 
-    import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import programming { prefix pgm; revision-date 2015-07-20; }
 

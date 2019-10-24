@@ -3,7 +3,6 @@ module topology-tunnel-pcep-programming {
         namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep:programming";
         prefix "ttpp";
 
-    import pcep-types { prefix pcep; revision-date 2018-11-09; }
     import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
     import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
     import topology-tunnel-pcep { prefix ptp; revision-date 2018-11-09; }
