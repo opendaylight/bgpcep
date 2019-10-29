@@ -1,0 +1,579 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b655b28_51ecb148",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPClassTypeObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "can be improve by moving the ct declaration close to ClassTypeBuilder declaration and removing the superfluous builder",
+      "range": {
+        "startLine": 68,
+        "startChar": 1,
+        "endLine": 76,
+        "endChar": 0
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4fbd174_4d7cb6c1",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPMetricObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "Remove the superfluous builder",
+      "range": {
+        "startLine": 69,
+        "startChar": 1,
+        "endLine": 76,
+        "endChar": 0
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e51fbfb9_8e256b8c",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPMonitoringObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "idem",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 1
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0a01c7e_65a6b598",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPNoPathObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder for ever",
+      "range": {
+        "startLine": 59,
+        "startChar": 1,
+        "endLine": 69,
+        "endChar": 45
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0cd6668_287686f5",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPNotificationObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder ....",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 42
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b656e53_4fb9ac10",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPObjectiveFunctionObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "always builder ;-)",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 45
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93fb672c_f0173ded",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPOpenObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "improve builder if possible",
+      "range": {
+        "startLine": 69,
+        "startChar": 1,
+        "endLine": 81,
+        "endChar": 0
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98482ec2_8b8dd2d9",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPPathKeyObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "improve builder",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 32
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4092989a_267346a5",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPPathKeyObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "readability ???",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 9
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f44b3d95_1fe1a6ae",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPReportedRouteObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder again",
+      "range": {
+        "startLine": 40,
+        "startChar": 1,
+        "endLine": 44,
+        "endChar": 31
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f50fba3_0e1d104f",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPRequestParameterObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "beautiful builder isn\u0027t it?",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 45
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a514b308_8b7c65d6",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPSvecObjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder ...",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 31
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddee3a77_813213f2",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/EROExplicitExclusionRouteSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "change variable name",
+      "range": {
+        "startLine": 52,
+        "startChar": 84,
+        "endLine": 52,
+        "endChar": 89
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4d7f391_93cbe419",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/EROIpv4PrefixSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "improve builder if possible",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 96
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c33a03a_f31f5bad",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/EROIpv6PrefixSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 96
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b28ca01e_ec2339e3",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/EROLabelSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 64,
+        "startChar": 1,
+        "endLine": 68,
+        "endChar": 100
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0c6c9f3_0bae904f",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/EROUnnumberedInterfaceSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 45,
+        "startChar": 1,
+        "endLine": 52,
+        "endChar": 31
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f99d9fd6_7033fd13",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/RROIpv4PrefixSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 88
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ed0e48c_41fc6000",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/RROIpv6PrefixSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 96
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d3836b2_c3bb92db",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/RROPathKey32SubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 96
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80552d6d_8e726ec9",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/RROUnnumberedInterfaceSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 102
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44ae19c6_8f11721c",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/XROIpv4PrefixSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 76
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62590ec2_4519c8d1",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/XROIpv6PrefixSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 76
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5923fc3_4118683f",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/XROPathKey32SubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 96
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aca68467_01c3ca6e",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/subobject/XROUnnumberedInterfaceSubobjectParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2019-10-29T17:42:48Z",
+      "side": 1,
+      "message": "builder",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 102
+      },
+      "revId": "fcc24e9610d2ca5ee6c857b02eed28bb449bdfc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
