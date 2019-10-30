@@ -23,13 +23,22 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+<<<<<<< HEAD   (258371 Bump odlparent/yangtools/mdsal to 4.0.14/2.1.14/3.0.13)
 import java.util.HashSet;
+=======
+import java.util.HashMap;
+>>>>>>> CHANGE (d50e0d Address deadlock scenarios in BGP peer, session mgmt code)
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+<<<<<<< HEAD   (258371 Bump odlparent/yangtools/mdsal to 4.0.14/2.1.14/3.0.13)
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+=======
+import java.util.concurrent.ConcurrentHashMap;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+>>>>>>> CHANGE (d50e0d Address deadlock scenarios in BGP peer, session mgmt code)
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -71,11 +80,17 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionId> sessionIds = Maps.newHashMap();
     @GuardedBy("this")
+<<<<<<< HEAD   (258371 Bump odlparent/yangtools/mdsal to 4.0.14/2.1.14/3.0.13)
     private final Map<IpAddress, BGPSessionPreferences> peerPreferences = Maps.newHashMap();
     @GuardedBy("this")
     private final Set<PeerRegistryListener> listeners = new HashSet<>();
     @GuardedBy("this")
     private final Set<PeerRegistrySessionListener> sessionListeners = new HashSet<>();
+=======
+    private final Map<IpAddress, BGPSessionPreferences> peerPreferences = new HashMap<>();
+    private final Set<PeerRegistryListener> listeners = ConcurrentHashMap.newKeySet();
+    private final Set<PeerRegistrySessionListener> sessionListeners = ConcurrentHashMap.newKeySet();
+>>>>>>> CHANGE (d50e0d Address deadlock scenarios in BGP peer, session mgmt code)
 
     public static BGPPeerRegistry instance() {
         return new StrictBGPPeerRegistry();
@@ -368,9 +383,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                synchronized (StrictBGPPeerRegistry.this) {
-                    StrictBGPPeerRegistry.this.listeners.remove(listener);
-                }
+                StrictBGPPeerRegistry.this.listeners.remove(listener);
             }
         };
     }
@@ -384,9 +397,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                synchronized (StrictBGPPeerRegistry.this) {
-                    StrictBGPPeerRegistry.this.sessionListeners.remove(listener);
-                }
+                StrictBGPPeerRegistry.this.sessionListeners.remove(listener);
             }
         };
     }
