@@ -21,11 +21,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
@@ -67,10 +67,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private final Map<IpAddress, BGPSessionId> sessionIds = new HashMap<>();
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionPreferences> peerPreferences = new HashMap<>();
-    @GuardedBy("this")
-    private final Set<PeerRegistryListener> listeners = new HashSet<>();
-    @GuardedBy("this")
-    private final Set<PeerRegistrySessionListener> sessionListeners = new HashSet<>();
+    private final Set<PeerRegistryListener> listeners = ConcurrentHashMap.newKeySet();
+    private final Set<PeerRegistrySessionListener> sessionListeners = ConcurrentHashMap.newKeySet();
 
     public static BGPPeerRegistry instance() {
         return new StrictBGPPeerRegistry();
@@ -364,9 +362,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                synchronized (StrictBGPPeerRegistry.this) {
-                    StrictBGPPeerRegistry.this.listeners.remove(listener);
-                }
+                StrictBGPPeerRegistry.this.listeners.remove(listener);
             }
         };
     }
@@ -380,9 +376,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                synchronized (StrictBGPPeerRegistry.this) {
-                    StrictBGPPeerRegistry.this.sessionListeners.remove(listener);
-                }
+                StrictBGPPeerRegistry.this.sessionListeners.remove(listener);
             }
         };
     }
