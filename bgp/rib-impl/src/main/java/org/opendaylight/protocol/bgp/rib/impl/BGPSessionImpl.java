@@ -266,48 +266,52 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      *
      * @param msg incoming message
      */
-    synchronized void handleMessage(final Notification msg) {
-        if (this.state == State.IDLE) {
-            return;
-        }
-        try {
-            // Update last reception time
-            this.lastMessageReceivedAt = System.nanoTime();
-
-            if (msg instanceof Open) {
-                // Open messages should not be present here
-                this.terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
-            } else if (msg instanceof Notify) {
-                final Notify notify = (Notify) msg;
-                // Notifications are handled internally
-                LOG.info("Session closed because Notification message received: {} / {}, data={}",
-                        notify.getErrorCode(),
-                        notify.getErrorSubcode(),
-                        notify.getData() != null ? ByteBufUtil.hexDump(notify.getData()) : null);
-                notifyTerminationReasonAndCloseWithoutMessage(notify.getErrorCode(), notify.getErrorSubcode());
-            } else if (msg instanceof Keepalive) {
-                // Keepalives are handled internally
-                LOG.trace("Received KeepAlive message.");
-                this.kaCounter++;
-                if (this.kaCounter >= 2) {
-                    this.sync.kaReceived();
+    void handleMessage(final Notification msg) {
+        // synchronize on listener and then on this object to ensure correct order of locking
+        synchronized (this.listener) {
+            synchronized (this) {
+                if (this.state == State.IDLE) {
+                    return;
                 }
-            } else if (msg instanceof RouteRefresh) {
-                this.listener.onMessage(this, msg);
-            } else if (msg instanceof Update) {
-                this.listener.onMessage(this, msg);
-                this.sync.updReceived((Update) msg);
-            } else {
-                LOG.warn("Ignoring unhandled message: {}.", msg.getClass());
-            }
+                try {
+                    // Update last reception time
+                    this.lastMessageReceivedAt = System.nanoTime();
 
-            this.sessionState.messageReceived(msg);
-        } catch (final BGPDocumentedException e) {
-            this.terminate(e);
+                    if (msg instanceof Open) {
+                        // Open messages should not be present here
+                        this.terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
+                    } else if (msg instanceof Notify) {
+                        final Notify notify = (Notify) msg;
+                        // Notifications are handled internally
+                        LOG.info("Session closed because Notification message received: {} / {}, data={}",
+                                notify.getErrorCode(), notify.getErrorSubcode(),
+                                notify.getData() != null ? ByteBufUtil.hexDump(notify.getData()) : null);
+                        notifyTerminationReasonAndCloseWithoutMessage(notify.getErrorCode(), notify.getErrorSubcode());
+                    } else if (msg instanceof Keepalive) {
+                        // Keepalives are handled internally
+                        LOG.trace("Received KeepAlive message.");
+                        this.kaCounter++;
+                        if (this.kaCounter >= 2) {
+                            this.sync.kaReceived();
+                        }
+                    } else if (msg instanceof RouteRefresh) {
+                        this.listener.onMessage(this, msg);
+                    } else if (msg instanceof Update) {
+                        this.listener.onMessage(this, msg);
+                        this.sync.updReceived((Update) msg);
+                    } else {
+                        LOG.warn("Ignoring unhandled message: {}.", msg.getClass());
+                    }
+
+                    this.sessionState.messageReceived(msg);
+                } catch (final BGPDocumentedException e) {
+                    this.terminate(e);
+                }
+            }
         }
     }
 
-    private synchronized void notifyTerminationReasonAndCloseWithoutMessage(
+    private void notifyTerminationReasonAndCloseWithoutMessage(
             final Short errorCode,
             final Short errorSubcode) {
         this.terminationReasonNotified = true;
@@ -316,10 +320,15 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                 BGPError.forValue(errorCode, errorSubcode)));
     }
 
-    synchronized void endOfInput() {
-        if (this.state == State.UP) {
-            LOG.info(END_OF_INPUT);
-            this.listener.onSessionDown(this, new IOException(END_OF_INPUT));
+    void endOfInput() {
+        // synchronize on listener and then on this object to ensure correct order of locking
+        synchronized (this.listener) {
+            synchronized (this) {
+                if (this.state == State.UP) {
+                    LOG.info(END_OF_INPUT);
+                    this.listener.onSessionDown(this, new IOException(END_OF_INPUT));
+                }
+            }
         }
     }
 
@@ -376,7 +385,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      * @param e BGPDocumentedException
      */
     @VisibleForTesting
-    synchronized void terminate(final BGPDocumentedException e) {
+    void terminate(final BGPDocumentedException e) {
         final BGPError error = e.getError();
         final byte[] data = e.getData();
         final NotifyBuilder builder = new NotifyBuilder().setErrorCode(error.getCode())
@@ -400,19 +409,24 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      * which the message was received. If the session was closed by the time this method starts to execute (the session
      * state will become IDLE), then rescheduling won't occur.
      */
-    private synchronized void handleHoldTimer() {
-        if (this.state == State.IDLE) {
-            return;
-        }
+    private void handleHoldTimer() {
+        // synchronize on listener and then on this object to ensure correct order of locking
+        synchronized (this.listener) {
+            synchronized (this) {
+                if (this.state == State.IDLE) {
+                    return;
+                }
 
-        final long ct = System.nanoTime();
-        final long nextHold = this.lastMessageReceivedAt + holdTimerNanos;
+                final long ct = System.nanoTime();
+                final long nextHold = this.lastMessageReceivedAt + holdTimerNanos;
 
-        if (ct >= nextHold) {
-            LOG.debug("HoldTimer expired. {}", new Date());
-            this.terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
-        } else {
-            this.channel.eventLoop().schedule(this::handleHoldTimer, nextHold - ct, TimeUnit.NANOSECONDS);
+                if (ct >= nextHold) {
+                    LOG.debug("HoldTimer expired. {}", new Date());
+                    this.terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
+                } else {
+                    this.channel.eventLoop().schedule(this::handleHoldTimer, nextHold - ct, TimeUnit.NANOSECONDS);
+                }
+            }
         }
     }
 
@@ -479,14 +493,19 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @VisibleForTesting
-    synchronized void sessionUp() {
-        this.state = State.UP;
-        try {
-            this.sessionState.setSessionState(this.state);
-            this.listener.onSessionUp(this);
-        } catch (final Exception e) {
-            handleException(e);
-            throw e;
+    void sessionUp() {
+        // synchronize on listener and then on this object to ensure correct order of locking
+        synchronized (this.listener) {
+            synchronized (this) {
+                this.state = State.UP;
+                try {
+                    this.sessionState.setSessionState(this.state);
+                    this.listener.onSessionUp(this);
+                } catch (final Exception e) {
+                    handleException(e);
+                    throw e;
+                }
+            }
         }
     }
 
@@ -536,8 +555,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
-    public synchronized void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        handleException(cause);
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
+        // synchronize on listener and then on this object to ensure correct order of locking
+        synchronized (this.listener) {
+            synchronized (this) {
+                handleException(cause);
+            }
+        }
     }
 
     /**
