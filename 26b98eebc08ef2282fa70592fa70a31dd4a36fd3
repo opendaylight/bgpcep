@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7795a5a_4a5617b3",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPClassTypeObjectParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-31T15:02:17Z",
+      "side": 1,
+      "message": "I think it can be more optimized.\nwhat\u0027s the point of build obj if (ct \u003c 0 || ct \u003e Byte.SIZE)\ncan we assign that directly to obj without creating an intermediate builder object ?",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 5
+      },
+      "revId": "26b98eebc08ef2282fa70592fa70a31dd4a36fd3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9263a802_7aaa375d",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPGlobalConstraintsObjectParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-10-31T15:02:17Z",
+      "side": 1,
+      "message": "OK",
+      "range": {
+        "startLine": 52,
+        "startChar": 1,
+        "endLine": 54,
+        "endChar": 45
+      },
+      "revId": "26b98eebc08ef2282fa70592fa70a31dd4a36fd3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
