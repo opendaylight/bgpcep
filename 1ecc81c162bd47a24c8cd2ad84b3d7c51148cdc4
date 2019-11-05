@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "def0d5fc_a5acb410",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionState.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-11-05T16:01:32Z",
+      "side": 1,
+      "message": "can be improved",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 70
+      },
+      "revId": "1ecc81c162bd47a24c8cd2ad84b3d7c51148cdc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "095b6b8a_9c17e139",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionState.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-11-05T16:01:32Z",
+      "side": 1,
+      "message": "can be improved",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 35
+      },
+      "revId": "1ecc81c162bd47a24c8cd2ad84b3d7c51148cdc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
