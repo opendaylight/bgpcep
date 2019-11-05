@@ -22,6 +22,30 @@
       "revId": "b738632fabb3f817ea0a78f1eb958880ca7b67f1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a36f498b_0cd6fda1",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2019-11-05T00:07:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c29d0ccf_8028e74e",
+      "range": {
+        "startLine": 173,
+        "startChar": 8,
+        "endLine": 173,
+        "endChar": 50
+      },
+      "revId": "b738632fabb3f817ea0a78f1eb958880ca7b67f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
