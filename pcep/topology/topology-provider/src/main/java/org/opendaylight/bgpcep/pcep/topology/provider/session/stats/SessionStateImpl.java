@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.sta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class SessionStateImpl implements PcepSessionState {
     private final LongAdder lastReceivedRptMsgTimestamp = new LongAdder();
@@ -145,10 +146,10 @@ public final class SessionStateImpl implements PcepSessionState {
 
     private StatefulMessagesStatsAug createStatefulMessages() {
         return new StatefulMessagesStatsAugBuilder()
-                .setLastReceivedRptMsgTimestamp(this.lastReceivedRptMsgTimestamp.longValue())
-                .setReceivedRptMsgCount(this.receivedRptMsgCount.longValue())
-                .setSentInitMsgCount(this.sentInitMsgCount.longValue())
-                .setSentUpdMsgCount(this.sentUpdMsgCount.longValue())
+                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(this.lastReceivedRptMsgTimestamp.longValue()))
+                .setReceivedRptMsgCount(Uint32.valueOf(this.receivedRptMsgCount.longValue()))
+                .setSentInitMsgCount(Uint32.valueOf(this.sentInitMsgCount.longValue()))
+                .setSentUpdMsgCount(Uint32.valueOf(this.sentUpdMsgCount.longValue()))
                 .build();
     }
 
@@ -158,9 +159,9 @@ public final class SessionStateImpl implements PcepSessionState {
             avg = Math.round((double) this.totalTime.longValue() / this.reqCount.longValue());
         }
         return new ReplyTimeBuilder()
-                .setAverageTime(avg)
-                .setMaxTime(this.maxReplyTime.longValue())
-                .setMinTime(this.minReplyTime.longValue())
+                .setAverageTime(Uint32.valueOf(avg))
+                .setMaxTime(Uint32.valueOf(this.maxReplyTime.longValue()))
+                .setMinTime(Uint32.valueOf(this.minReplyTime.longValue()))
                 .build();
     }
 

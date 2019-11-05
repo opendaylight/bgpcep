@@ -32,9 +32,6 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
 
     Registration registerObjectParser(ObjectParser parser);
 
-    @Deprecated
-    Registration registerObjectParser(int objectClass, int objectType, ObjectParser parser);
-
     Registration registerObjectSerializer(Class<? extends Object> objClass, ObjectSerializer serializer);
 
     Registration registerRROSubobjectParser(int subobjectType, RROSubobjectParser parser);
