@@ -126,12 +126,6 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     }
 
     @Override
-    public final Registration registerObjectParser(final int objectClass, final int objectType,
-            final ObjectParser parser) {
-        return this.objReg.registerObjectParser(objectClass, objectType, parser);
-    }
-
-    @Override
     public final Registration registerObjectParser(final ObjectParser parser) {
         return this.objReg.registerObjectParser(parser.getObjectClass(), parser.getObjectType(), parser);
     }

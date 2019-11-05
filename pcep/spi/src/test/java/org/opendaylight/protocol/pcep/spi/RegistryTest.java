@@ -111,6 +111,7 @@ public class RegistryTest {
 
     final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws PCEPDeserializerException {
         doReturn(null).when(this.xroParser).parseSubobject(any(ByteBuf.class), anyBoolean());
