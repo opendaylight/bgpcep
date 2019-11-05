@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacencyBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public abstract class AbstractSrSubobjectParser {
 
@@ -95,7 +96,7 @@ public abstract class AbstractSrSubobjectParser {
     public ByteBuf serializeSubobject(final SrSubobject srSubobject) {
         final ByteBuf buffer = Unpooled.buffer(MINIMAL_LENGTH);
         // sid type
-        writeUnsignedByte((short)(srSubobject.getSidType().getIntValue() << SID_TYPE_BITS_OFFSET), buffer);
+        writeUnsignedByte(Uint8.valueOf(srSubobject.getSidType().getIntValue() << SID_TYPE_BITS_OFFSET), buffer);
 
         final BitArray bits = new BitArray(BITSET_LENGTH);
         bits.set(M_FLAG_POSITION, srSubobject.isMFlag());
@@ -113,7 +114,7 @@ public abstract class AbstractSrSubobjectParser {
                 "Both SID and NAI are absent in SR subobject.");
         if (srSubobject.getSid() != null) {
             if (srSubobject.isMFlag()) {
-                writeUnsignedInt(srSubobject.getSid().toJava() << MPLS_LABEL_OFFSET, buffer);
+                writeUnsignedInt(Uint32.valueOf(srSubobject.getSid().intValue() << MPLS_LABEL_OFFSET), buffer);
             } else {
                 writeUnsignedInt(srSubobject.getSid(), buffer);
             }
