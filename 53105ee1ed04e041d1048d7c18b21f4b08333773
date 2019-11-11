@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4aa0c70d_d3fd0a8b",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractSessionNegotiator.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-11-11T18:06:39Z",
+      "side": 1,
+      "message": "checkstyle:illegalCatch is what is generally used",
+      "range": {
+        "startLine": 58,
+        "startChar": 23,
+        "endLine": 58,
+        "endChar": 35
+      },
+      "revId": "53105ee1ed04e041d1048d7c18b21f4b08333773",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
