@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_6b6f3bc6",
+        "filename": "bgp/rib-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 7786
+      },
+      "writtenOn": "2019-11-15T23:09:16Z",
+      "side": 1,
+      "message": "remove whitespace, please",
+      "range": {
+        "startLine": 226,
+        "startChar": 0,
+        "endLine": 226,
+        "endChar": 8
+      },
+      "revId": "1aea6874f5d33cdff865d5c25459c2bb38895cf1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_0ba15ff8",
+        "filename": "pcep/pcc-mock/src/test/java/org/opendaylight/protocol/pcep/pcc/mock/PCCDispatcherImplTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7786
+      },
+      "writtenOn": "2019-11-15T23:09:16Z",
+      "side": 1,
+      "message": "remove whitespace, please",
+      "range": {
+        "startLine": 35,
+        "startChar": 82,
+        "endLine": 35,
+        "endChar": 83
+      },
+      "revId": "1aea6874f5d33cdff865d5c25459c2bb38895cf1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
