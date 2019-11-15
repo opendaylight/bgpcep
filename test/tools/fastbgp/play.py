@@ -407,9 +407,11 @@ class MessageGenerator(object):
         s1_slots = ((self.total_prefix_amount -
                      self.remaining_prefixes_threshold - 1) /
                     self.prefix_count_to_add_default + 1)
-        s2_slots = ((self.remaining_prefixes_threshold - 1) /
-                    (self.prefix_count_to_add_default -
-                     self.prefix_count_to_del_default) + 1)
+        s2_slots = (
+            (self.remaining_prefixes_threshold - 1)
+            / (self.prefix_count_to_add_default - self.prefix_count_to_del_default)
+            + 1
+        )
         # S1_First_Index = 0
         # S1_Last_Index = s1_slots * self.prefix_count_to_add_default - 1
         s2_first_index = s1_slots * self.prefix_count_to_add_default
@@ -715,9 +717,10 @@ class MessageGenerator(object):
             if not self.phase2_start_time:
                 self.phase2_start_time = time.time()
         # tailor the number of prefixes if needed
-        prefix_count_to_add = (prefix_count_to_del +
-                               min(prefix_count_to_add - prefix_count_to_del,
-                                   self.remaining_prefixes))
+        prefix_count_to_add = (
+            prefix_count_to_del
+            + min(prefix_count_to_add - prefix_count_to_del, self.remaining_prefixes)
+        )
         # prefix slots selection for insertion and withdrawal
         slot_index_to_add = self.iteration
         slot_index_to_del = slot_index_to_add - self.slot_gap_default
