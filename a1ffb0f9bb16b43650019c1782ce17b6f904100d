@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_3aa62d11",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSDestinationPortHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-08T12:57:47Z",
+      "side": 1,
+      "message": "Just two things regarding the imports:\n-do not use \".*\"\n-no white lines between imports\n\nhttps://wiki.opendaylight.org/view/GettingStarted:_Eclipse#Import_ordering or https://wiki.opendaylight.org/view/OpenDaylight_Controller:Developing_With_Intellij#Import_ordering",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 57
+      },
+      "revId": "a1ffb0f9bb16b43650019c1782ce17b6f904100d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
