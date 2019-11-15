@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_31523c67",
+        "filename": "bgp/bmp-impl/src/test/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitorImplTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2017-03-06T07:32:22Z",
+      "side": 1,
+      "message": "In bgpcep, we keep imports ordered alphabetically, please do not move imports unrelated to mdsal.",
+      "revId": "a79408f9a7fc18ac299d666c15c97ef45ef954ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
