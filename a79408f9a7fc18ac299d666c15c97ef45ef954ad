@@ -16,6 +16,24 @@
       "revId": "a79408f9a7fc18ac299d666c15c97ef45ef954ad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c23cfbd",
+        "filename": "bgp/bmp-impl/src/test/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitorImplTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 7786
+      },
+      "writtenOn": "2019-11-15T23:09:16Z",
+      "side": 1,
+      "message": "Sorry, I missed javassist from my organize imports settings in IDE. Fixed everywhere in this patch.",
+      "parentUuid": "fafc7978_31523c67",
+      "revId": "a79408f9a7fc18ac299d666c15c97ef45ef954ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
