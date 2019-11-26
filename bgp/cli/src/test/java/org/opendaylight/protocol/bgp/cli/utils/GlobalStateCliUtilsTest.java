@@ -55,7 +55,7 @@ public class GlobalStateCliUtilsTest {
         final GlobalBuilder builder = new GlobalBuilder().setState(new StateBuilder()
                 .setAs(AsNumber.getDefaultInstance("100"))
                 .setTotalPaths(Uint32.ONE)
-                .setTotalPrefixes(Uint32.valueOf(2))
+                .setTotalPrefixes(Uint32.TWO)
                 .build());
 
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp

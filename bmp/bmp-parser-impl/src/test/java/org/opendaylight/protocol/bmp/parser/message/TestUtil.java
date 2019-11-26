@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.parser.message;
 
 import com.google.common.collect.ImmutableList;
@@ -158,7 +157,7 @@ public final class TestUtil {
             .setAs(PEER_AS)
             .setBgpId(new Ipv4Address(bgpId))
             .setAdjRibInType(ribType)
-            .setTimestampMicro(new Timestamp(Uint32.valueOf(10)))
+            .setTimestampMicro(new Timestamp(Uint32.TEN))
             .setTimestampSec(new Timestamp(Uint32.valueOf(5)))
             .setIpv4(true)
             .setType(PeerType.forValue(0));
@@ -370,7 +369,7 @@ public final class TestUtil {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.stat
                         .TlvsBuilder();
         tlvsBuilder.setAdjRibsInRoutesTlv(new AdjRibsInRoutesTlvBuilder()
-                .setCount(new Gauge64(Uint64.valueOf(10L))).build());
+                .setCount(new Gauge64(Uint64.TEN)).build());
         tlvsBuilder.setDuplicatePrefixAdvertisementsTlv(new DuplicatePrefixAdvertisementsTlvBuilder()
                 .setCount(new Counter32(Uint32.valueOf(16L))).build());
         tlvsBuilder.setDuplicateWithdrawsTlv(new DuplicateWithdrawsTlvBuilder()
@@ -392,7 +391,7 @@ public final class TestUtil {
                 .setCount(new Gauge64(Uint64.valueOf(9L))).build());
         tlvsBuilder.setPerAfiSafiLocRibTlv(new PerAfiSafiLocRibTlvBuilder()
                 .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setCount(new Gauge64(Uint64.valueOf(10L))).build());
+                .setCount(new Gauge64(Uint64.TEN)).build());
         tlvsBuilder.setUpdatesTreatedAsWithdrawTlv(new UpdatesTreatedAsWithdrawTlvBuilder()
                 .setCount(new Counter32(Uint32.valueOf(11L))).build());
         tlvsBuilder.setPrefixesTreatedAsWithdrawTlv(new PrefixesTreatedAsWithdrawTlvBuilder()

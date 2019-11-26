@@ -43,7 +43,7 @@ public final class PeerGroupStateCliUtilsTest {
 
         final PeerGroupStateAugmentation groupState = new PeerGroupStateAugmentationBuilder()
                 .setTotalPrefixes(Uint32.ONE)
-                .setTotalPaths(Uint32.valueOf(2))
+                .setTotalPaths(Uint32.TWO)
                 .build();
 
         peerGroup.setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group

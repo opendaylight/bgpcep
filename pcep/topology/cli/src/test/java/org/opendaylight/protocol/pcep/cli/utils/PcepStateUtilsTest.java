@@ -115,18 +115,18 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
         final ReplyTime reply = new ReplyTimeBuilder()
                 .setAverageTime(Uint32.ONE)
                 .setMaxTime(Uint32.valueOf(3))
-                .setMinTime(Uint32.valueOf(2))
+                .setMinTime(Uint32.TWO)
                 .build();
 
         final ErrorMessages errorMsg = new ErrorMessagesBuilder()
                 .setReceivedErrorMsgCount(Uint32.ONE)
-                .setSentErrorMsgCount(Uint32.valueOf(2))
+                .setSentErrorMsgCount(Uint32.TWO)
                 .build();
 
         final StatefulMessagesStatsAug statefulMsg = new StatefulMessagesStatsAugBuilder()
                 .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1512043769L))
                 .setSentUpdMsgCount(Uint32.ONE)
-                .setReceivedRptMsgCount(Uint32.valueOf(2))
+                .setReceivedRptMsgCount(Uint32.TWO)
                 .setSentInitMsgCount(Uint32.valueOf(3))
                 .build();
 

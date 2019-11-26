@@ -30,10 +30,10 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class BasePathSelectorTest {
     private static final List<AsNumber> SEQ_SEGMENT = Arrays.asList(
-        new AsNumber(Uint32.ONE), new AsNumber(Uint32.valueOf(2)), new AsNumber(Uint32.valueOf(3)));
+        new AsNumber(Uint32.ONE), new AsNumber(Uint32.TWO), new AsNumber(Uint32.valueOf(3)));
     static final RouterId ROUTER_ID2 = RouterId.forPeerId(new PeerId("bgp://127.0.0.1"));
     private static final List<AsNumber> SEQ_SEGMENT2 = Arrays.asList(
-        new AsNumber(Uint32.valueOf(20)), new AsNumber(Uint32.valueOf(2)), new AsNumber(Uint32.valueOf(3)));
+        new AsNumber(Uint32.valueOf(20)), new AsNumber(Uint32.TWO), new AsNumber(Uint32.valueOf(3)));
     private static final RouterId ROUTER_ID = RouterId.forAddress("127.0.0.1");
     private static final RouterId ROUTER_ID3 = RouterId.forPeerId(new PeerId("bgp://127.0.0.2"));
     private final BasePathSelector selector = new BasePathSelector(20L);

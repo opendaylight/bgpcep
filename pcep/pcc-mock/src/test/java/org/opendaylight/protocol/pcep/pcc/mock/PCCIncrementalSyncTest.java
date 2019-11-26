@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import io.netty.channel.Channel;
@@ -43,7 +42,7 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
         checkSynchronizedSession(8, pceSessionListener, numberOflspAndDBv);
         Thread.sleep(6000);
         final int expetecdNumberOfLspAndEndOfSync = 3;
-        final Uint64 expectedFinalDBVersion = Uint64.valueOf(10);
+        final Uint64 expectedFinalDBVersion = Uint64.TEN;
         final TestingSessionListener sessionListenerAfterReconnect = getListener(factory);
         checkResyncSession(Optional.empty(), expetecdNumberOfLspAndEndOfSync, 3, numberOflspAndDBv,
                 expectedFinalDBVersion, sessionListenerAfterReconnect);

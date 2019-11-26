@@ -199,7 +199,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
                 if (m instanceof Pcerr) {
                     final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
                     assertEquals(Uint8.ONE, obj.getErrorObject().getType());
-                    assertEquals(Uint8.valueOf(2), obj.getErrorObject().getValue());
+                    assertEquals(Uint8.TWO, obj.getErrorObject().getValue());
                 }
             }
         });

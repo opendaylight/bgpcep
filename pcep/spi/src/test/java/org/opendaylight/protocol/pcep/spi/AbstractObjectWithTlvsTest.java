@@ -81,7 +81,7 @@ public class AbstractObjectWithTlvsTest {
 
     @Before
     public void setUp() throws PCEPDeserializerException {
-        this.tlv = new OfListBuilder().setCodes(Collections.singletonList(new OfId(Uint16.valueOf(10)))).build();
+        this.tlv = new OfListBuilder().setCodes(Collections.singletonList(new OfId(Uint16.TEN))).build();
         this.viTlv = new VendorInformationTlvBuilder().setEnterpriseNumber(EN).build();
         doNothing().when(this.viTlvRegistry).serializeVendorInformationTlv(any(VendorInformationTlv.class),
             any(ByteBuf.class));

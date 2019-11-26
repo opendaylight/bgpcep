@@ -88,7 +88,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
             return pcc;
         });
 
-        pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", Uint32.valueOf(2), false);
+        pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", Uint32.TWO, false);
         this.listener.onMessage(this.session, pcRptMsg);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check second lsp sr-path

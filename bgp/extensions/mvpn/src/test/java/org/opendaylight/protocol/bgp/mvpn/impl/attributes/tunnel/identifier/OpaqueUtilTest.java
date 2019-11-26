@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -71,7 +70,7 @@ public final class OpaqueUtilTest {
     private static final Opaque OPAQUE = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST)
             .setOpaqueType(Uint8.ONE).build();
     private static final Opaque OPAQUE_EXTENDED = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)
-            .setOpaqueType(Uint8.valueOf(2)).setOpaqueType(Uint8.MAX_VALUE).setOpaqueExtendedType(Uint16.valueOf(4))
+            .setOpaqueType(Uint8.TWO).setOpaqueType(Uint8.MAX_VALUE).setOpaqueExtendedType(Uint16.valueOf(4))
             .build();
     private static final List<OpaqueValue> OPAQUE_VALUE_LIST = Arrays.asList((OpaqueValue) OPAQUE,
             (OpaqueValue) OPAQUE_EXTENDED);

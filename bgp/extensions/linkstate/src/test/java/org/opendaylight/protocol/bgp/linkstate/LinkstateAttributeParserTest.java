@@ -238,7 +238,7 @@ public class LinkstateAttributeParserTest {
         assertEquals(LinkProtectionType.Dedicated1to1, ls.getLinkProtection());
         assertTrue(ls.getMplsProtocol().isLdp());
         assertTrue(ls.getMplsProtocol().isRsvpte());
-        assertEquals(Uint32.valueOf(10), ls.getMetric().getValue());
+        assertEquals(Uint32.TEN, ls.getMetric().getValue());
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
@@ -267,7 +267,7 @@ public class LinkstateAttributeParserTest {
         assertEquals(Uint32.valueOf(5000L), ls.getLinkMinMaxDelay().getMinDelay().getValue());
         assertEquals(Uint32.valueOf(20000L), ls.getLinkMinMaxDelay().getMaxDelay().getValue());
         assertEquals(Uint32.valueOf(10000L), ls.getDelayVariation().getValue());
-        assertEquals(Uint32.valueOf(0L), ls.getLinkLoss().getValue());
+        assertEquals(Uint32.ZERO, ls.getLinkLoss().getValue());
         assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
                 ls.getResidualBandwidth().getValue());
         assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },

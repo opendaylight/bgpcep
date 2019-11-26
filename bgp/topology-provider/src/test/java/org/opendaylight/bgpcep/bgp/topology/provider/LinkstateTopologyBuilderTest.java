@@ -109,7 +109,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private static final String ROUTER_2_ID = "127.0.0.2";
     private static final String NODE_1_PREFIX = "127.0.1.1/32";
     private static final AsNumber NODE_1_AS = new AsNumber(Uint32.ONE);
-    private static final AsNumber NODE_2_AS = new AsNumber(Uint32.valueOf(2));
+    private static final AsNumber NODE_2_AS = new AsNumber(Uint32.TWO);
     private static final String NODE_1_ISIS_ID = "bgpls://IsisLevel2:1/type=node&as=1&router=0000.0102.0304";
     private static final String NODE_2_ISIS_ID = "bgpls://IsisLevel2:1/type=node&as=2";
     private static final String NODE_1_OSPF_ID = "bgpls://Ospf:1/type=node&as=1&router=0000.0102.0304";

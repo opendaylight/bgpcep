@@ -209,7 +209,7 @@ public class PCEPValidatorTest {
                 .setP2mp(false)
                 .setEroCompression(false)
                 .setPriority(Uint8.ONE)
-                .setRequestId(new RequestId(Uint32.valueOf(10)))
+                .setRequestId(new RequestId(Uint32.TEN))
                 .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp
                     .object.rp.TlvsBuilder().build());
         this.rpTrue = rpBuilder.build();
@@ -339,7 +339,7 @@ public class PCEPValidatorTest {
         this.procTime = new ProcTimeBuilder()
                 .setEstimated(false)
                 .setCurrentProcTime(Uint32.ONE)
-                .setMinProcTime(Uint32.valueOf(2))
+                .setMinProcTime(Uint32.TWO)
                 .setMaxProcTime(Uint32.valueOf(3))
                 .setAverageProcTime(Uint32.valueOf(4))
                 .setVarianceProcTime(Uint32.valueOf(5))

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -35,7 +34,7 @@ public final class EvpnTestUtil {
     public static final Uint32 MPLS_LABEL_MODEL = Uint32.valueOf(24001L);
     public static final MplsLabel MPLS_LABEL = new MplsLabel(MPLS_LABEL_MODEL);
     public static final int COMMUNITY_VALUE_SIZE = 6;
-    public static final Uint32 VLAN = Uint32.valueOf(10);
+    public static final Uint32 VLAN = Uint32.TEN;
     public static final String IP_MODEL = "127.0.0.1";
     public static final IpAddress IP = new IpAddress(new Ipv4Address(IP_MODEL));
     public static final String IPV6_MODEL = "2001::1";
@@ -54,7 +53,7 @@ public final class EvpnTestUtil {
         return ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(nid);
     }
 
-    public static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, NodeIdentifier nid) {
+    public static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, final NodeIdentifier nid) {
         final ImmutableLeafNodeBuilder<T> valueBuilder = new ImmutableLeafNodeBuilder<>();
         valueBuilder.withNodeIdentifier(nid).withValue(value);
         return valueBuilder;

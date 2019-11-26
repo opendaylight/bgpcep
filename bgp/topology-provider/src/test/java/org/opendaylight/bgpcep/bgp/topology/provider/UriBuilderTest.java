@@ -42,7 +42,7 @@ public class UriBuilderTest {
     @Test
     public void test() {
         final LinkstateRouteBuilder routeB = new LinkstateRouteBuilder().setProtocolId(ProtocolId.Direct)
-                .setIdentifier(new Identifier(Uint64.valueOf(10)));
+                .setIdentifier(new Identifier(Uint64.TEN));
         final UriBuilder a = new UriBuilder(routeB.build());
         assertEquals("bgpls://Direct:10/", a.toString());
 
@@ -62,7 +62,7 @@ public class UriBuilderTest {
                 .setIpv4NeighborAddress(new Ipv4InterfaceIdentifier("20.20.20.20"))
                 .setMultiTopologyId(new TopologyIdentifier(Uint16.valueOf(55)))
                 .setLinkLocalIdentifier(Uint32.ONE)
-                .setLinkRemoteIdentifier(Uint32.valueOf(2))
+                .setLinkRemoteIdentifier(Uint32.TWO)
                 .build());
         final LocalNodeDescriptorsBuilder nodeB = new LocalNodeDescriptorsBuilder();
         nodeB.setAsNumber(new AsNumber(Uint32.valueOf(12))).setDomainId(new DomainIdentifier(Uint32.valueOf(15)))
@@ -74,7 +74,7 @@ public class UriBuilderTest {
         nodeR.setCRouterIdentifier(new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder()
                 .setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder()
                         .setIsoSystemId(new IsoSystemIdentifier(new byte[]{1, 2, 3, 4, 5, 6}))
-                        .build()).setPsn(Uint8.valueOf(2)).build()).build());
+                        .build()).setPsn(Uint8.TWO).build()).build());
         linkB.setRemoteNodeDescriptors(nodeR.build());
         c.add(linkB.build());
         assertEquals("bgpls://1.2.3.4:258:Direct:10/type=foo&local-as=12&local-domain=15&local-area=17&"

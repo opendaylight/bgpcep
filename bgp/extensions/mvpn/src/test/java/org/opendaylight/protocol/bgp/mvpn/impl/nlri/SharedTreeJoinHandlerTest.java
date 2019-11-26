@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -46,7 +45,7 @@ public final class SharedTreeJoinHandlerTest {
             .setSharedTreeJoin(new SharedTreeJoinBuilder()
                     .setCMulticast(new CMulticastBuilder()
                             .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
-                            .setSourceAs(new AsNumber(Uint32.valueOf(10)))
+                            .setSourceAs(new AsNumber(Uint32.TEN))
                             .setMulticastSource(new IpAddress(new Ipv4Address("1.0.0.1")))
                             .setMulticastGroup(new CGAddressCaseBuilder()
                                     .setCGAddress(new IpAddress(new Ipv4Address("2.0.0.2"))).build()).build())

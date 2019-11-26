@@ -110,7 +110,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static final int HOLDTIMER = 2180;
     private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
     static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(Uint32.ONE), CLUSTER_ID, 100);
-    static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(Uint32.valueOf(2)), CLUSTER_ID, 50);
+    static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(Uint32.TWO), CLUSTER_ID, 50);
     static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(Uint32.valueOf(3)), CLUSTER_ID, 200);
     static final Update UPD_20 = createSimpleUpdate(PREFIX1, new PathId(Uint32.ONE), CLUSTER_ID, 20);
     static final Update UPD_NA_100 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 100);

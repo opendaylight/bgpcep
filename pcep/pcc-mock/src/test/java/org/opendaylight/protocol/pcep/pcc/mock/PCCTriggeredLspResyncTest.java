@@ -58,7 +58,7 @@ public class PCCTriggeredLspResyncTest extends PCCMockCommon {
         srpBuilder.setProcessingRule(Boolean.TRUE);
 
         final Srp srp = srpBuilder.build();
-        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Uint32.valueOf(2))).setSync(Boolean.TRUE).build();
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Uint32.TWO)).setSync(Boolean.TRUE).build();
         final UpdatesBuilder rb = new UpdatesBuilder();
         rb.setSrp(srp);
         rb.setLsp(lsp);

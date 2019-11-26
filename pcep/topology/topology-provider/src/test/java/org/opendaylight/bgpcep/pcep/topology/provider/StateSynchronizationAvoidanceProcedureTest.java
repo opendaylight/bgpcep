@@ -133,7 +133,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
 
         //session up - expect sync (LSP-DBs do not match)
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()
-                .setLspDbVersionValue(Uint64.valueOf(2L)).build();
+                .setLspDbVersionValue(Uint64.TWO).build();
         session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
         this.listener.onSessionUp(session);
 
@@ -152,7 +152,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                                 .params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs1.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
                                 .optimizations.rev181109.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
-                                .setLspDbVersionValue(Uint64.valueOf(2L)).build()).build()).build()),
+                                .setLspDbVersionValue(Uint64.TWO).build()).build()).build()),
                 true, false), Optional.empty(),
                 createPath(Collections.emptyList()));
         this.listener.onMessage(session, syncMsg);

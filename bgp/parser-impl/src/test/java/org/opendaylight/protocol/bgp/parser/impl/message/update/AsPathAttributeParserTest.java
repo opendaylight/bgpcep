@@ -43,8 +43,7 @@ public class AsPathAttributeParserTest {
     public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final List<Segments> segments = new ArrayList<>();
         segments.add(new SegmentsBuilder()
-                .setAsSet(Arrays.asList(new AsNumber(Uint32.ONE), new AsNumber(Uint32.valueOf(2))))
-                .build());
+                .setAsSet(Arrays.asList(new AsNumber(Uint32.ONE), new AsNumber(Uint32.TWO))).build());
         segments.add(new SegmentsBuilder()
                 .setAsSequence(Arrays.asList(new AsNumber(Uint32.valueOf(3)), new AsNumber(Uint32.valueOf(4))))
                 .build());

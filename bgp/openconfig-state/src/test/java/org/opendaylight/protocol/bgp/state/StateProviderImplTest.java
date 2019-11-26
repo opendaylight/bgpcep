@@ -487,7 +487,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .setActive(true)
                 .setPrefixes(new PrefixesBuilder()
                     .setSent(Uint32.ONE)
-                    .setReceived(Uint32.valueOf(2))
+                    .setReceived(Uint32.TWO)
                     .setInstalled(Uint32.ONE)
                     .build());
         final AfiSafi afiSafi = new AfiSafiBuilder()
