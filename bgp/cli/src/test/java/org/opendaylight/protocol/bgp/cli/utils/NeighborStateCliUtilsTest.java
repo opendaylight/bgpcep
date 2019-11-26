@@ -108,7 +108,7 @@ public class NeighborStateCliUtilsTest {
                 .setPrefixes(new PrefixesBuilder()
                     .setInstalled(Uint32.ONE)
                     .setReceived(Uint32.ONE)
-                    .setSent(Uint32.valueOf(2)).build())
+                    .setSent(Uint32.TWO).build())
                 .build());
         final AfiSafi afiSafi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
                 .setState(builder.build()).build();
@@ -122,11 +122,11 @@ public class NeighborStateCliUtilsTest {
 
         final Received received = new ReceivedBuilder()
                 .setNOTIFICATION(Uint64.ONE)
-                .setUPDATE(Uint64.valueOf(10))
+                .setUPDATE(Uint64.TEN)
                 .build();
 
         final Sent sent = new SentBuilder()
-                .setNOTIFICATION(Uint64.valueOf(10))
+                .setNOTIFICATION(Uint64.TEN)
                 .setUPDATE(Uint64.ONE)
                 .build();
 

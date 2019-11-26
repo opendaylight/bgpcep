@@ -582,7 +582,7 @@ public class PCEPValidatorTest {
                     .setP2mp(false)
                     .setEroCompression(false)
                     .setPriority(Uint8.ONE)
-                    .setRequestId(new RequestId(Uint32.valueOf(10)))
+                    .setRequestId(new RequestId(Uint32.TEN))
                     .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                         .rp.object.rp.TlvsBuilder().build())
                     .setProcessingRule(false);

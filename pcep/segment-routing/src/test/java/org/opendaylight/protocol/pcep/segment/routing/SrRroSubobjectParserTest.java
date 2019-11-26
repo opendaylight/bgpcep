@@ -180,7 +180,7 @@ public class SrRroSubobjectParserTest {
                 .setCFlag(false)
                 .setMFlag(false)
                 .setNai(new UnnumberedAdjacencyBuilder()
-                    .setLocalNodeId(Uint32.ONE).setLocalInterfaceId(Uint32.valueOf(2))
+                    .setLocalNodeId(Uint32.ONE).setLocalInterfaceId(Uint32.TWO)
                     .setRemoteNodeId(Uint32.valueOf(3)).setRemoteInterfaceId(Uint32.valueOf(4))
                     .build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build());

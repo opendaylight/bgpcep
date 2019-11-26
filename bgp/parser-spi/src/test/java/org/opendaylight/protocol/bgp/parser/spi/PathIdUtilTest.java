@@ -46,7 +46,7 @@ public class PathIdUtilTest {
 
     @Test
     public void testWritePathId() {
-        PathIdUtil.writePathId(new PathId(Uint32.valueOf(10)), this.buffer);
+        PathIdUtil.writePathId(new PathId(Uint32.TEN), this.buffer);
         Assert.assertEquals(Integer.BYTES, this.buffer.readableBytes());
     }
 

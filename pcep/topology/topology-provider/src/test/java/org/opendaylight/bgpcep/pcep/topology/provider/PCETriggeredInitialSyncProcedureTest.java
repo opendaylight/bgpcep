@@ -67,7 +67,7 @@ public class PCETriggeredInitialSyncProcedureTest
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()
                 .setLspDbVersionValue(Uint64.ONE).build();
         final LspDbVersion localDbVersion2 = new LspDbVersionBuilder()
-                .setLspDbVersionValue(Uint64.valueOf(2L)).build();
+                .setLspDbVersionValue(Uint64.TWO).build();
         final PCEPSession session = getPCEPSession(getOpen(localDbVersion, Boolean.FALSE),
                 getOpen(localDbVersion2, Boolean.FALSE));
         this.listener.onSessionUp(session);

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertEquals;
@@ -73,7 +72,7 @@ public class IncrementalSynchronizationProcedureTest
 
         //session up - expect sync (LSP-DBs do not match)
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()
-                .setLspDbVersionValue(Uint64.valueOf(2L)).build();
+                .setLspDbVersionValue(Uint64.TWO).build();
         session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
         this.listener.onSessionUp(session);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
@@ -85,7 +84,7 @@ public class IncrementalSynchronizationProcedureTest
         });
 
         //report LSP2 + LSP-DB version number 2
-        final Pcrpt pcRpt2 = getPcrpt(Uint32.valueOf(2), "testsecond");
+        final Pcrpt pcRpt2 = getPcrpt(Uint32.TWO, "testsecond");
         this.listener.onMessage(session, pcRpt2);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check node - synchronized

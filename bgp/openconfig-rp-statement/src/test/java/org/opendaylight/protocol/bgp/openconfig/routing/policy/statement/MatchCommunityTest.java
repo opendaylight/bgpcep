@@ -58,7 +58,7 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(
                 Collections.singletonList(new CommunitiesBuilder()
                         .setAsNumber(AsNumber.getDefaultInstance("65"))
-                        .setSemantics(Uint16.valueOf(10))
+                        .setSemantics(Uint16.TEN)
                         .build())).build());
 
         result = this.statementRegistry.applyExportStatement(
@@ -87,7 +87,7 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(
                 Collections.singletonList(new CommunitiesBuilder()
                         .setAsNumber(AsNumber.getDefaultInstance("65"))
-                        .setSemantics(Uint16.valueOf(10))
+                        .setSemantics(Uint16.TEN)
                         .build())).build());
 
         result = this.statementRegistry.applyExportStatement(
@@ -115,7 +115,7 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(Arrays.asList(
                 new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("65"))
-                        .setSemantics(Uint16.valueOf(10)).build(),
+                        .setSemantics(Uint16.TEN).build(),
                 new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("66"))
                         .setSemantics(Uint16.valueOf(11)).build())).build());
 

@@ -314,8 +314,7 @@ public class BGPParserTest {
         asNumbers.add(new AsNumber(Uint32.valueOf(30)));
         final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
-        final List<AsNumber> asSet = Lists.newArrayList(new AsNumber(Uint32.valueOf(10)),
-            new AsNumber(Uint32.valueOf(20)));
+        final List<AsNumber> asSet = Lists.newArrayList(new AsNumber(Uint32.TEN), new AsNumber(Uint32.valueOf(20)));
         asPath.add(new SegmentsBuilder().setAsSet(asSet).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(30)))
@@ -667,7 +666,7 @@ public class BGPParserTest {
         final List<Nlri> nlris = new ArrayList<>();
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.ONE))
             .build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.valueOf(2)))
+        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.TWO))
             .build());
         nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).setPathId(new PathId(Uint32.ONE))
             .build());
@@ -738,7 +737,7 @@ public class BGPParserTest {
         withdrawnRoutes.add(new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("172.16.0.4/30"))
             .setPathId(new PathId(Uint32.ONE)).build());
         withdrawnRoutes.add(new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("172.16.0.4/30"))
-            .setPathId(new PathId(Uint32.valueOf(2))).build());
+            .setPathId(new PathId(Uint32.TWO)).build());
 
         // check API message
         final Update expectedMessage = new UpdateBuilder().setWithdrawnRoutes(withdrawnRoutes).build();

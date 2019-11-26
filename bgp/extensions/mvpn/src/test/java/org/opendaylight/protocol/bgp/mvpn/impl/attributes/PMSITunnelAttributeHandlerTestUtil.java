@@ -399,7 +399,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST)
                 .setOpaqueType(GENERIC_LSP_IDENTIFIER).build());
         opaqueValues.add(new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)
-                .setOpaqueType(Uint8.valueOf(2)).setOpaqueType(EXTENDED_TYPE)
+                .setOpaqueType(Uint8.TWO).setOpaqueType(EXTENDED_TYPE)
                 .setOpaqueExtendedType(Uint16.valueOf(4)).build());
         return opaqueValues;
     }

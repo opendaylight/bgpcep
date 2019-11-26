@@ -460,7 +460,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
 
     private static FlowspecType createIcmpType() {
         final List<Types> types = Lists.newArrayList(
-            new TypesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue(Uint8.valueOf(2))
+            new TypesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue(Uint8.TWO)
                 .build(),
             new TypesBuilder().setOp(new NumericOperand(false, true, false, false, true)).setValue(Uint8.valueOf(3))
                 .build());

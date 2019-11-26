@@ -81,7 +81,7 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
                 .build());
         peAtt.add(new PeDistinguisherLabelAttributeBuilder()
                 .setPeAddress(new IpAddress(new Ipv4Address("127.0.0.2")))
-                .setMplsLabel(new MplsLabel(Uint32.valueOf(2)))
+                .setMplsLabel(new MplsLabel(Uint32.TWO))
                 .build());
         return new AttributesBuilder()
                 .setUnrecognizedAttributes(Collections.emptyList())

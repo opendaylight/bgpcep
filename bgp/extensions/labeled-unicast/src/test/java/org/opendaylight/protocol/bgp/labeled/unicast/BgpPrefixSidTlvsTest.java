@@ -46,7 +46,7 @@ public final class BgpPrefixSidTlvsTest {
         final List<SrgbValue> list = new ArrayList<>();
 
         final Srgb srgb1 = new Srgb(Uint32.ONE);
-        final Srgb srgb2 = new Srgb(Uint32.valueOf(2));
+        final Srgb srgb2 = new Srgb(Uint32.TWO);
         list.add(new SrgbValueBuilder().setBase(srgb1).setRange(srgb2).build());
         list.add(new SrgbValueBuilder().setBase(srgb2).setRange(srgb1).build());
 

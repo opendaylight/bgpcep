@@ -76,7 +76,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     private static final String NODE2_IPV4 = "40.40.40.40";
     private static final NodeId NODE2_ID = new NodeId("pcc://" + NODE2_IPV4);
     private static final String LSP2_NAME = "lsp2";
-    private static final Uint32 LSP2_ID = Uint32.valueOf(2);
+    private static final Uint32 LSP2_ID = Uint32.TWO;
 
     private static final InstanceIdentifier<Topology> PCEP_TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(PCEP_TOPOLOGY_ID)).build();

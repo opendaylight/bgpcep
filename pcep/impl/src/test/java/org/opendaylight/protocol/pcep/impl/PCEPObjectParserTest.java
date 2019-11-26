@@ -827,7 +827,7 @@ public class PCEPObjectParserTest {
 
         builder.setComputed(true)
             .setBound(false)
-            .setMetricType(Uint8.valueOf(2))
+            .setMetricType(Uint8.TWO)
             .setValue(new Float32(new byte[] { (byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00 }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
@@ -923,7 +923,7 @@ public class PCEPObjectParserTest {
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNotificationObject1WithTlv.bin"));
 
-        builder.setType(Uint8.valueOf(2))
+        builder.setType(Uint8.TWO)
             .setValue(Uint8.ONE)
             .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
             .notification.object.c.notification.TlvsBuilder().setOverloadDuration(
@@ -1511,7 +1511,7 @@ public class PCEPObjectParserTest {
             .setAverageProcTime(Uint32.valueOf(4))
             .setCurrentProcTime(Uint32.ONE)
             .setMaxProcTime(Uint32.valueOf(3))
-            .setMinProcTime(Uint32.valueOf(2))
+            .setMinProcTime(Uint32.TWO)
             .setVarianceProcTime(Uint32.valueOf(5))
             .build();
         final ByteBuf result = Unpooled.wrappedBuffer(proctimeBytes);

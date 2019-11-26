@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.stats.rpc;
 
 import static org.junit.Assert.assertEquals;
@@ -118,7 +117,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         final ReplyTime replyTime = new ReplyTimeBuilder()
                 .setAverageTime(Uint32.ONE)
                 .setMaxTime(Uint32.valueOf(3))
-                .setMinTime(Uint32.valueOf(2))
+                .setMinTime(Uint32.TWO)
                 .build();
 
         final ErrorMessages errorMsg = new ErrorMessagesBuilder()
@@ -129,7 +128,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         final StatefulMessagesStatsAug statefulMsg = new StatefulMessagesStatsAugBuilder()
                 .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1553183614L))
                 .setSentUpdMsgCount(Uint32.ONE)
-                .setReceivedRptMsgCount(Uint32.valueOf(2))
+                .setReceivedRptMsgCount(Uint32.TWO)
                 .setSentInitMsgCount(Uint32.valueOf(3))
                 .build();
 
@@ -167,16 +166,16 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         final ReplyTime replyTime = new ReplyTimeBuilder()
                 .setAverageTime(Uint32.ONE)
                 .setMaxTime(Uint32.valueOf(3))
-                .setMinTime(Uint32.valueOf(2))
+                .setMinTime(Uint32.TWO)
                 .build();
 
         final ErrorMessages errorMsg = new ErrorMessagesBuilder()
-                .setReceivedErrorMsgCount(Uint32.ONE).setSentErrorMsgCount(Uint32.valueOf(2)).build();
+                .setReceivedErrorMsgCount(Uint32.ONE).setSentErrorMsgCount(Uint32.TWO).build();
 
         final StatefulMessagesRpcAug statefulMsg = new StatefulMessagesRpcAugBuilder()
                 .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1553183614L))
                 .setSentUpdMsgCount(Uint32.ONE)
-                .setReceivedRptMsgCount(Uint32.valueOf(2))
+                .setReceivedRptMsgCount(Uint32.TWO)
                 .setSentInitMsgCount(Uint32.valueOf(3))
                 .build();
 

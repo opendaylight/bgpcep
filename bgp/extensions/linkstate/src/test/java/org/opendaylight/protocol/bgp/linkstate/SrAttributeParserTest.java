@@ -180,10 +180,11 @@ public class SrAttributeParserTest {
         final SrCapabilities capsIsis = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.TRUE).setMplsIpv6(Boolean.TRUE)
                 .setSrIpv6(Boolean.FALSE)
                 .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
-                .setRangeSize(Uint32.valueOf(10)).build();
+                .setRangeSize(Uint32.TEN).build();
         final SrCapabilities capsOspf = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.FALSE)
-                .setMplsIpv6(Boolean.FALSE).setSrIpv6(Boolean.FALSE).setSidLabelIndex(new SidCaseBuilder()
-                    .setSid(Uint32.valueOf(16909060L)).build()).setRangeSize(Uint32.valueOf(10)).build();
+                .setMplsIpv6(Boolean.FALSE).setSrIpv6(Boolean.FALSE)
+                .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
+                .setRangeSize(Uint32.TEN).build();
         assertEquals(capsIsis,
             SrNodeAttributesParser.parseSrCapabilities(Unpooled.wrappedBuffer(bytesIsis), ProtocolId.IsisLevel1));
         assertEquals(capsOspf,
@@ -391,12 +392,12 @@ public class SrAttributeParserTest {
         final byte[] sidLabel = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
         final SrAdjIds srAdjId = new SrAdjIdsBuilder()
             .setFlags(ISIS_ADJ_FLAGS)
-            .setWeight(new Weight(Uint8.valueOf(10)))
+            .setWeight(new Weight(Uint8.TEN))
             .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(
                 Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
         final SrAdjIds ospfAdj = new SrAdjIdsBuilder()
             .setFlags(OSPF_ADJ_FLAGS)
-            .setWeight(new Weight(Uint8.valueOf(10)))
+            .setWeight(new Weight(Uint8.TEN))
             .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(
                 Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
 
@@ -415,7 +416,7 @@ public class SrAttributeParserTest {
         final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 0,  0x5d, (byte)0xc0 };
         final SrLanAdjIds srLanAdjId = new SrLanAdjIdsBuilder()
             .setFlags(OSPF_LAN_ADJ_FLAGS)
-            .setWeight(new Weight(Uint8.valueOf(10)))
+            .setWeight(new Weight(Uint8.TEN))
             .setNeighborId(new Ipv4Address("1.2.3.4"))
             .setSidLabelIndex(new LocalLabelCaseBuilder()
                 .setLocalLabel(new MplsLabel(Uint32.valueOf(24000L)))
@@ -435,7 +436,7 @@ public class SrAttributeParserTest {
         final byte[] systemId = { 1, 2, 3, 4, 5, 6 };
         final SrLanAdjIds srLanAdjId = new SrLanAdjIdsBuilder()
             .setFlags(ISIS_ADJ_FLAGS)
-            .setWeight(new Weight(Uint8.valueOf(10)))
+            .setWeight(new Weight(Uint8.TEN))
             .setIsoSystemId(new IsoSystemIdentifier(systemId))
             .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(
                 Unpooled.copiedBuffer(sidLabel))).build()).build();

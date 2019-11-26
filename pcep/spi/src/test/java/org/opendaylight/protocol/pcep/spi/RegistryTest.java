@@ -162,7 +162,7 @@ public class RegistryTest {
         this.regs.add(this.ctx.registerLabelParser(7, this.labelParser));
         this.regs.add(this.ctx.registerLabelSerializer(Type1LabelCase.class, this.labelSerializer));
 
-        this.regs.add(this.ctx.registerVendorInformationObjectParser(new EnterpriseNumber(Uint32.valueOf(10)),
+        this.regs.add(this.ctx.registerVendorInformationObjectParser(new EnterpriseNumber(Uint32.TEN),
             this.objectParser));
         this.regs.add(this.ctx.registerVendorInformationObjectSerializer(EnterpriseSpecificInformation.class,
             this.objectSerializer));
@@ -200,7 +200,7 @@ public class RegistryTest {
         this.ctx.getMessageHandlerRegistry().serializeMessage(new KeepaliveBuilder().build(), buffer);
 
         this.ctx.getVendorInformationObjectRegistry().parseVendorInformationObject(
-            new EnterpriseNumber(Uint32.valueOf(10)), new ObjectHeaderImpl(true, false), buffer);
+            new EnterpriseNumber(Uint32.TEN), new ObjectHeaderImpl(true, false), buffer);
         this.ctx.getVendorInformationObjectRegistry().serializeVendorInformationObject(this.esi, buffer);
 
         this.ctx.getVendorInformationTlvRegistry().parseVendorInformationTlv(

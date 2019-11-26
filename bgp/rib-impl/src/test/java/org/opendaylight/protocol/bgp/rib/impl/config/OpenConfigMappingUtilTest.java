@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static junit.framework.TestCase.assertFalse;
@@ -120,7 +119,7 @@ public class OpenConfigMappingUtilTest {
     private static final Ipv4Address LOCAL_HOST = new Ipv4Address("127.0.0.1");
 
     private static final Uint8 ALL_PATHS = Uint8.ZERO;
-    private static final Uint8 N_PATHS = Uint8.valueOf(2);
+    private static final Uint8 N_PATHS = Uint8.TWO;
     private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION =
             new AddPathBestNPathSelection(N_PATHS.toJava());
     private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection();
