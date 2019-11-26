@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.impl;
 
 import static java.util.Objects.requireNonNull;
@@ -78,7 +77,7 @@ final class PCEPSessionState {
                 .setDeadtimer(open.getDeadTimer())
                 .setKeepalive(open.getKeepalive())
                 .setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress())
-                .setSessionId(Uint16.valueOf(open.getSessionId().intValue()));
+                .setSessionId(open.getSessionId().toUint16());
         return peerBuilder.build();
     }
 
@@ -119,7 +118,7 @@ final class PCEPSessionState {
         peerBuilder.setDeadtimer(open.getDeadTimer())
             .setKeepalive(open.getKeepalive())
             .setIpAddress(((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress())
-            .setSessionId(Uint16.valueOf(open.getSessionId().intValue()));
+            .setSessionId(open.getSessionId().toUint16());
         return peerBuilder.build();
     }
 
