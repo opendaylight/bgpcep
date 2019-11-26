@@ -50,7 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
-import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -249,7 +248,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
             LOG.info("Closing PCEP session with reason {}: {}", reason, this);
             sendMessage(new CloseBuilder().setCCloseMessage(
                     new CCloseMessageBuilder().setCClose(new CCloseBuilder()
-                        .setReason(Uint8.valueOf(reason.getShortValue())).build()).build()).build());
+                        .setReason(reason.getUintValue()).build()).build()).build());
         } else {
             LOG.info("Closing PCEP session: {}", this);
         }
@@ -348,7 +347,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
              */
             close();
             this.listener.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason
-                    .forValue(((CloseMessage) msg).getCCloseMessage().getCClose().getReason().toJava())));
+                    .forValue(((CloseMessage) msg).getCCloseMessage().getCClose().getReason())));
         } else {
             // This message needs to be handled by the user
             if (msg instanceof PcerrMessage) {
