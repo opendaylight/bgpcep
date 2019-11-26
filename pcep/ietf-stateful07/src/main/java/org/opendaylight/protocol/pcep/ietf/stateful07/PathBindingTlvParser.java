@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
+import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.path.binding.tlv.PathBinding;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.path.binding.tlv.PathBindingBuilder;
@@ -40,8 +41,8 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
     // TODO: to be confirmed by IANA
     public static final int TYPE = 31;
 
-    private static final int MPLS_LABEL = 0;
-    private static final int MPLS_STACK_ENTRY = 1;
+    private static final Uint16 MPLS_LABEL = Uint16.ZERO;
+    private static final Uint16 MPLS_STACK_ENTRY = Uint16.ONE;
 
     private static final int LABEL_MASK = 0xfffff;
     private static final int TC_MASK = 0x7;
@@ -53,13 +54,13 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
     private static final int MPLS_ENTRY_LENGTH = 4;
     private static final int MPLS_BINDING_LENGTH = MPLS_ENTRY_LENGTH + 2;
 
-    private static final Map<Integer, PathBindingTlvCodec> BT_PARSERS;
+    private static final Map<Uint16, PathBindingTlvCodec> BT_PARSERS;
     private static final Map<Class<? extends BindingTypeValue>, PathBindingTlvCodec> BT_SERIALIZERS;
 
     static {
         final MplsLabelCodec mplsLabelCodec = new MplsLabelCodec();
         final MplsLabelEntryCodec mplsLabelEntryCodec = new MplsLabelEntryCodec();
-        final Builder<Integer, PathBindingTlvCodec> parsers = ImmutableMap.builder();
+        final Builder<Uint16, PathBindingTlvCodec> parsers = ImmutableMap.builder();
         final Builder<Class<? extends BindingTypeValue>, PathBindingTlvCodec> serializers =
                 ImmutableMap.builder();
 
@@ -85,7 +86,7 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         final PathBindingTlvCodec codec = BT_SERIALIZERS.get(bindingTypeValue.implementedInterface());
         Preconditions.checkArgument(codec != null,
             "Unsupported Path Binding Type: %s", bindingTypeValue.implementedInterface());
-        ByteBufWriteUtil.writeUnsignedShort(Uint16.valueOf(codec.getBindingType()), body);
+        ByteBufUtils.writeMandatory(body, codec.getBindingType(), "bindingType");
         body.writeBytes(codec.serialize(bindingTypeValue));
 
         TlvUtil.formatTlv(TYPE, body, buffer);
@@ -96,7 +97,7 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         if (buffer == null) {
             return null;
         }
-        final int type = buffer.readUnsignedShort();
+        final Uint16 type = ByteBufUtils.readUint16(buffer);
         final PathBindingTlvCodec codec = BT_PARSERS.get(type);
         if (codec == null) {
             throw new PCEPDeserializerException("Unsupported Path Binding Type: " + type);
@@ -123,7 +124,7 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         }
 
         @Override
-        public int getBindingType() {
+        public Uint16 getBindingType() {
             return MPLS_LABEL;
         }
     }
@@ -156,13 +157,13 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         }
 
         @Override
-        public int getBindingType() {
+        public Uint16 getBindingType() {
             return MPLS_STACK_ENTRY;
         }
     }
 
     private interface PathBindingTlvCodec extends IllegalArgumentCodec<ByteBuf, BindingTypeValue> {
-        int getBindingType();
+        Uint16 getBindingType();
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
