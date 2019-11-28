@@ -27,3 +27,4 @@ User Guides
    bgp/index
    bmp/index
    pcep/index
+   graph/index
