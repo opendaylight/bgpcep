@@ -1,0 +1,291 @@
+module graph {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:graph";
+    prefix "graph";
+
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import odl-uint24 { prefix uint24; }
+
+    organization "Orange";
+    contact "Philippe Niger <philippe.niger@orange.com>";
+
+    description
+        "This module contains the graph data model for network topology and datastore
+         used in the Path Computation Algorithms.
+
+        Copyright (c)2019 Orange. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2019-11-25" {
+        description
+             "Initial revision.";
+        reference "";
+    }
+
+    typedef delay {
+        description "Link delay is in the range 0 - 16.777215 seconds. Larger value is also encoded with Max value.";
+        units "microseconds";
+        type uint24:uint24;
+    }
+
+    typedef loss {
+        description "Link loss is in the range 0 - 50.331642% (= 2^24 - 2). Larger value is also encoded with Max value.";
+        units "0.000003%";
+        type uint24:uint24;
+    }
+
+    typedef decimal-bandwidth {
+        description "Bandwidth in decimal format for easy comparison";
+        units "bytes/second";
+        type decimal64 {
+            fraction-digits 2;
+        }
+    }
+
+    grouping edge-attributes {
+        description "Attributes associated with the Edge";
+        reference "RFC 3630 & RFC 7471, RFC 3784 & RFC8570: OSPF / IS-IS Traffic Engineering (TE) & Extended Metrics";
+
+        leaf metric {
+            description "Standard Metric from the routing protocol";
+            type uint32;
+        }
+        leaf te-metric {
+            description "Traffic Engineering Metric";
+            type uint32;
+        }
+        leaf admin-group {
+            description "Administrative group or color of the link";
+            type uint32;
+        }
+        leaf local-address {
+            type inet:ip-address;
+        }
+        leaf remote-address {
+            type inet:ip-address;
+        }
+        leaf local-identifier {
+            type uint32;
+        }
+        leaf remote-identifier {
+            type uint32;
+        }
+        leaf max-link-bandwidth {
+            description "Maximum bandwidth that can be use";
+            type decimal-bandwidth;
+        }
+        leaf max-resv-link-bandwidth {
+            description "Maximum amount of bandwidth that can be reserved";
+            type decimal-bandwidth;
+        }
+        list unreserved-bandwidth {
+            description "Unreserved bandwidth for 0-7 class type";
+            max-elements "8";
+            ordered-by user;
+            key "class-type";
+            leaf class-type {
+                type uint8 {
+                    range "0..7";
+                }
+            }
+            leaf bandwidth {
+                description "Unreserved bandwidth for this class type";
+                type decimal-bandwidth;
+            }
+        }
+        leaf delay {
+            description "Unidirectional Delay.";
+            type delay;
+        }
+        container min-max-delay {
+            description "Min/Max Unidirectional Delay";
+            leaf min-delay {
+                type delay;
+            }
+            leaf max-delay {
+                type delay;
+            }
+        }
+        leaf jitter {
+            description "Unidirectional Delay Variation";
+            type delay;
+        }
+        leaf loss {
+            description "Unidirectional Loss";
+            type loss;
+        }
+        leaf residual-bandwidth {
+            description "Unidirectional Residual Bandwidth";
+            type decimal-bandwidth;
+        }
+        leaf available-bandwidth {
+            description "Unidirectional Available Bandwidth";
+            type decimal-bandwidth;
+        }
+        leaf utilized-bandwidth {
+            description "Unidirectional Utilized Bandwidth";
+            type decimal-bandwidth;
+        }
+        leaf adj-sid {
+            description "Segment Routing Adjacency Identifier";
+            units "MPLS label";
+            type uint32;
+        }
+        leaf backup-adj-sid {
+            description "Segment Routing Backup Adjacency Identifier";
+            units "MPLS label";
+            type uint32;
+        }
+        leaf-list srlgs {
+            description "List of Shared Risk Link Group Attributes";
+            type uint32;
+        }
+    }
+
+    grouping edge {
+        description "Unidirectional Edge (link) representation for the network topology";
+        leaf edge-id {
+            type uint64;
+            mandatory true;
+        }
+        leaf local-vertex-id {
+            description "Vertex identifier where the Edge is attached";
+            type uint64;
+        }
+        leaf remote-vertex-id {
+            description "Vertex identifier where the Edge is going to";
+            type uint64;
+        }
+        leaf name {
+            description "Edge name";
+            type string;
+        }
+        container edge-attributes {
+            description "All attributes associated to the Edge";
+            uses edge-attributes;
+        }
+    }
+
+    grouping srgb {
+        description "Segment Routing Global Block: lower-bound + range-size";
+        leaf lower-bound {
+            description "Lower bound of label range in SRGB. Unit MPLS label";
+            type uint32;
+        }
+        leaf range-size {
+            description "Label range size in SRGB. Unit MPLS label";
+            type uint32;
+        }
+    }
+
+    grouping vertex {
+        description "Vertex (node) representation for the network topology";
+        leaf vertex-id {
+            description "Identifier of the Vertex";
+            type uint64;
+            mandatory true;
+        }
+        leaf name {
+            description "Name of the Vertex when known";
+            type string;
+        }
+        leaf router-id {
+            description "Global unique IP Trafic Engineering Router ID";
+            type inet:ip-address;
+        }
+        leaf vertex-type {
+            type enumeration {
+                enum standard {
+                    value 0;
+                }
+                enum abr {
+                    value 1;
+                }
+                enum asbr-in {
+                    value 2;
+                }
+                enum asbr-out {
+                    value 3;
+                }
+                enum pseudo {
+                    value 4;
+                }
+            }
+            default standard;
+        }
+        container srgb {
+            description "Segment Routing Global Block";
+            uses srgb;
+        }
+        leaf asn {
+            description "AS Number";
+            type uint32;
+        }
+    }
+
+    grouping prefix {
+        leaf prefix {
+            description "IP (v4 or v6) Prefix.";
+            type inet:ip-prefix;
+            mandatory true;
+        }
+        leaf prefix-sid {
+            description "Segment Routing prefix Identifier. Unit MPLS label";
+            type uint32;
+        }
+        leaf node-sid {
+            description "Prefix is a Node Segment Routing Identifier (Node-SID)";
+            type boolean;
+        }
+        leaf vertex-id {
+            description "Reference to the Vertex where the prefix is attached";
+            type uint64;
+        }
+    }
+
+    container graph-topology {
+        list graph {
+            description "Graph representation of the Network Topology";
+            key "name";
+            leaf name {
+                type string;
+            }
+            leaf domain-scope {
+                description "Network domain scope: intra or inter domain";
+                type enumeration {
+                    enum intra-domain {
+                        value 1;
+                    }
+                    enum inter-domain {
+                        value 2;
+                    }
+                }
+                default intra-domain;
+            }
+            leaf asn {
+                description "AS Number";
+                type uint32;
+            }
+            list vertex {
+                description "The list of Vertices defined for the Graph.";
+                key "vertex-id";
+                uses vertex;
+            }
+            list edge {
+                description "The list of Edges defined for the Graph.";
+                key "edge-id";
+                uses edge;
+            }
+            list prefix {
+                description "The list of prefixes for the Graph.";
+                key "prefix";
+                uses prefix;
+            }
+        }
+    }
+}
+
