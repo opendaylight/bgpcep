@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6ce45c1_f6c74d9f",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful07/PathBindingTlvParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2019-11-29T15:03:59Z",
+      "side": 1,
+      "message": "private static final int MPLS_BINDING_LENGTH \u003d 6;\n\nThe detail 4 +2 doesn\u0027t help that much.\nIf needed, it \u0027d betted be in a comment.\n\n// MPLS_BINDING_LENGTH \u003d MPLS_ENTRY_LENGTH + 2 \u003d 4 + 2 \u003d 6",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 57
+      },
+      "revId": "373715b4b2f1e0b996e8595545ef2de845f18528",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
