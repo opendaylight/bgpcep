@@ -98,7 +98,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
                 }
             }, MoreExecutors.directExecutor());
         } catch (final Exception e) {
-            LOG.warn("Failed to prepare Tx for BGP stats update", e);
+            LOG.warn("Failed to prepare Tx for PCEP stats update", e);
             tx.cancel();
         }
     }
