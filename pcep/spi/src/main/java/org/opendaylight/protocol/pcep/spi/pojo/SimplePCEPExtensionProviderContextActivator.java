@@ -42,7 +42,7 @@ public class SimplePCEPExtensionProviderContextActivator implements AutoCloseabl
 
     @Override
     public void close() {
-        LOG.debug("Stopping {} BGPExtensionProviderActivator instances", this.extensionActivators.size());
+        LOG.debug("Stopping {} PCEPExtensionProviderActivator instances", this.extensionActivators.size());
 
         for (final PCEPExtensionProviderActivator e : this.extensionActivators) {
             e.stop();

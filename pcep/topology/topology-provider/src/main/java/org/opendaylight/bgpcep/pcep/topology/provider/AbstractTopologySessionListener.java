@@ -153,7 +153,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
         this.session = psession;
         this.nodeState = state;
-        this.serverSessionManager.bind(this.nodeState.getNodeId(), this.listenerState);
 
         LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
 
@@ -176,6 +175,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         state.storeNode(topologyAugment,
                 new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), this.session);
         this.listenerState.init(psession);
+        this.serverSessionManager.bind(this.nodeState.getNodeId(), this.listenerState);
         LOG.info("Session with {} attached to topology node {}", psession.getRemoteAddress(), state.getNodeId());
     }
 
