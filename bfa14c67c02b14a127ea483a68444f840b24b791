@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "83c31957_e49efd66",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-12-09T11:09:49Z",
+      "side": 1,
+      "message": "Well, honestly, coding Java without an IDE is quite inefficient.\n\nOn the technical point, though, toJava() is safer in face of refactors, for example if the base type is being changed. It is a widening conversion, so Uint8.toJava() has different type than Uint16.toJava() while they have the same semantics. That is in stark contrast to shortValue(), which has different semantics between Uint8 and Uint16. while retaining the same type.",
+      "parentUuid": "b8289f82_e3492363",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 9
+      },
+      "revId": "bfa14c67c02b14a127ea483a68444f840b24b791",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "99996356_098e40cc",
         "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
         "patchSetId": 2
