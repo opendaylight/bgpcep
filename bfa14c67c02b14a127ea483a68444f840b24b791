@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "e331274e_1c289a63",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-12-10T23:15:00Z",
+      "side": 1,
+      "message": "That\u0027s interesting. All of yangtools (including -sources.jar and -javadoc.jar) is on Maven Central, so this should Just Work(tm) these days.\n\nI am fine not rushing this in, nor have made my mind up on what to do -- so let\u0027s get the IDE sorted first :)",
+      "parentUuid": "3ab35009_59c67102",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 9
+      },
+      "revId": "bfa14c67c02b14a127ea483a68444f840b24b791",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "99996356_098e40cc",
         "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
         "patchSetId": 2
