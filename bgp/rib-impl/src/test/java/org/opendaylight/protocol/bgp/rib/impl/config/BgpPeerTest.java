@@ -158,16 +158,18 @@ public class BgpPeerTest extends AbstractConfig {
         verify(this.serviceRegistration).unregister();
 
         this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
-        this.bgpPeer.instantiateServiceInstance();
         verify(this.rib, times(2)).createPeerDOMChain(any());
         verify(this.rib, times(4)).getLocalAs();
         verify(this.rib, times(2)).getLocalTables();
+        this.bgpPeer.instantiateServiceInstance();
+        verify(this.bgpPeerRegistry, times(2)).addPeer(any(), any(), any());
+        verify(this.dispatcher, times(2)).createReconnectingClient(any(InetSocketAddress.class),
+                any(), anyInt(), any(KeyMapping.class));
 
         final Neighbor neighborExpected = createNeighborExpected(NEIGHBOR_ADDRESS);
         assertTrue(this.bgpPeer.containsEqualConfiguration(neighborExpected));
         assertFalse(this.bgpPeer.containsEqualConfiguration(createNeighborExpected(
                 new IpAddress(new Ipv4Address("127.0.0.2")))));
-        verify(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
 
         this.bgpPeer.closeServiceInstance();
         verify(this.bgpPeerRegistry, times(2)).removePeer(any());
@@ -181,6 +183,19 @@ public class BgpPeerTest extends AbstractConfig {
         this.bgpPeer.closeServiceInstance();
         verify(this.bgpPeerRegistry, times(3)).removePeer(any());
         verify(this.future, times(3)).cancel(true);
+        verify(this.rib, times(3)).createPeerDOMChain(any());
+
+        this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
+        verify(this.rib, times(4)).createPeerDOMChain(any());
+        verify(this.rib, times(6)).getLocalAs();
+        verify(this.rib, times(3)).getLocalTables();
+        this.bgpPeer.instantiateServiceInstance();
+        verify(this.bgpPeerRegistry, times(4)).addPeer(any(), any(), any());
+        verify(this.dispatcher, times(4)).createReconnectingClient(any(InetSocketAddress.class),
+                any(), anyInt(), any(KeyMapping.class));
+        this.bgpPeer.closeServiceInstance();
+        verify(this.bgpPeerRegistry, times(4)).removePeer(any());
+        verify(this.future, times(4)).cancel(true);
         this.bgpPeer.close();
         verify(this.serviceRegistration).unregister();
 

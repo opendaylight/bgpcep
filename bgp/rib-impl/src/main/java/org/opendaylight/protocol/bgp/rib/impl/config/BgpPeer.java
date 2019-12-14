@@ -144,6 +144,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     public synchronized void restart(final RIB rib, final InstanceIdentifier<Bgp> bgpIid,
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.currentConfiguration != null);
+        if (this.bgpPeerSingletonService != null) {
+            this.bgpPeerSingletonService.closeServiceInstance();
+            this.bgpPeerSingletonService = null;
+        }
         start(rib, this.currentConfiguration, bgpIid, peerGroupLoader, tableTypeRegistry);
     }
 
