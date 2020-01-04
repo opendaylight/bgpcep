@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.uint24.rev200104.Uint24;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
                     .setAfi(afi)
                     .setSafi(safi)
                     .setAfiFlags(new Tables.AfiFlags(Boolean.valueOf(afiFlags == AFI_FLAG_FORWARDING_STATE)))
-                    .setLongLivedStaleTime(Uint32.valueOf(staleTime))
+                    .setLongLivedStaleTime(new Uint24(Uint32.valueOf(staleTime)))
                     .build();
             tables.add(table);
         }
@@ -130,8 +131,8 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
             } else {
                 buffer.writeZero(1);
             }
-            final Uint32 staleTime = table.getLongLivedStaleTime();
-            final int timeval = staleTime != null ? staleTime.intValue() : 0;
+            final Uint24 staleTime = table.getLongLivedStaleTime();
+            final int timeval = staleTime != null ? staleTime.getValue().intValue() : 0;
             checkArgument(timeval >= 0 && timeval <= MAX_STALE_TIME, "Restart time is %s", staleTime);
             buffer.writeMedium(timeval);
         }

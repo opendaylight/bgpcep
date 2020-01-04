@@ -13,6 +13,7 @@ module odl-bgp-evpn {
     import bgp-message { prefix bgp-msg; revision-date 2018-03-29; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2018-03-29; }
     import pmsi-tunnel { prefix pmsi; revision-date 2018-03-29; }
+    import odl-uint24 { prefix uint24; }
 
     organization "Cisco Systems, Inc.";
 
@@ -99,14 +100,6 @@ module odl-bgp-evpn {
         }
     }
 
-    typedef uint24 {
-        type uint32 {
-            range "0 .. 16777215";
-        }
-        description
-            "24-bit unsigned integer.";
-    }
-
     grouping ethernet-tag-id {
         reference "https://tools.ietf.org/html/rfc7432#section-7.1";
         description "An Ethernet Tag ID is a 32-bit field containing either
@@ -190,7 +183,7 @@ module odl-bgp-evpn {
                         mandatory true;
                     }
                     leaf local-discriminator {
-                        type uint24;
+                        type uint24:uint24;
                         mandatory true;
                     }
                 }
