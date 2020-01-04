@@ -50,7 +50,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteIntegerValue() {
         final byte[] result = { 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.INT_BYTES_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Integer.BYTES);
         writeInt(5, output);
         assertArrayEquals(result, output.array());
 
@@ -62,7 +62,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteShortValue() {
         final byte[] result = { 0, 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Short.BYTES);
         writeShort((short) 5, output);
         assertArrayEquals(result, output.array());
 
@@ -87,7 +87,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteLongValue() {
         final byte[] result = { 0, 0, 0, 0, 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.LONG_BYTES_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Long.BYTES);
         writeLong((long) 5, output);
         assertArrayEquals(result, output.array());
 
@@ -99,7 +99,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteBooleanValue() {
         final byte[] result = { 1 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Byte.BYTES);
         writeBoolean(true, output);
         assertArrayEquals(result, output.array());
 
@@ -111,7 +111,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteUnsignedByteValue() {
         final byte[] result = { 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Byte.BYTES);
         writeUnsignedByte(Uint8.valueOf(5), output);
         assertArrayEquals(result, output.array());
 
@@ -123,7 +123,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteUnsignedShortValue() {
         final byte[] result = { 0, 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Short.BYTES);
         writeUnsignedShort(Uint16.valueOf(5), output);
         assertArrayEquals(result, output.array());
 
@@ -135,7 +135,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteUnsignedIntValue() {
         final byte[] result = { 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.INT_BYTES_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Integer.BYTES);
         ByteBufWriteUtil.writeUnsignedInt(Uint32.valueOf(5), output);
         assertArrayEquals(result, output.array());
 
@@ -147,7 +147,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteUnsignedLongValue() {
         final byte[] result = { 0, 0, 0, 0, 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.LONG_BYTES_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Long.BYTES);
         writeUnsignedLong(Uint64.valueOf(5), output);
         assertArrayEquals(result, output.array());
 
@@ -212,7 +212,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteFloat32() {
         final byte[] result = { 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.FLOAT32_BYTES_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Float.BYTES);
         writeFloat32(new Float32(result), output);
         assertArrayEquals(result, output.array());
 

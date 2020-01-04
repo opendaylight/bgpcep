@@ -5,10 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.parser.message;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
@@ -62,7 +60,7 @@ public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<Tlv
         final StatsReportsMessageBuilder statReport = new StatsReportsMessageBuilder()
                 .setPeerHeader(parsePerPeerHeader(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
-        bytes.skipBytes(INT_BYTES_LENGTH);
+        bytes.skipBytes(Integer.BYTES);
         parseTlvs(tlvsBuilder, bytes);
 
         return statReport.setTlvs(tlvsBuilder.build()).build();

@@ -15,7 +15,6 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufUtils;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
@@ -36,7 +35,7 @@ public final class InformationalFastRerouteObjectParser extends AbstractRSVPObje
                 .setHopLimit(ByteBufUtils.readUint8(byteBuf));
 
         //skip reserved
-        byteBuf.skipBytes(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        byteBuf.skipBytes(Byte.BYTES);
         final ByteBuf v = byteBuf.readSlice(METRIC_VALUE_F_LENGTH);
         builder.setBandwidth(new Bandwidth(ByteArray.readAllBytes(v)));
         builder.setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));

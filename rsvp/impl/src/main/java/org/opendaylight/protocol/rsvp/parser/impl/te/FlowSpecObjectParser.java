@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
@@ -17,7 +16,6 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufUtils;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ServiceNumber;
@@ -40,14 +38,14 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
         final FlowSpecObjectBuilder builder = new FlowSpecObjectBuilder();
         //skip version number, reserved, overall length
-        byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
+        byteBuf.skipBytes(Integer.BYTES);
         builder.setServiceHeader(ServiceNumber.forValue(byteBuf.readUnsignedByte()));
         //skip reserved
-        byteBuf.skipBytes(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        byteBuf.skipBytes(Byte.BYTES);
         //skip Length of controlled-load data
-        byteBuf.skipBytes(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        byteBuf.skipBytes(Short.BYTES);
         //skip parameter ID 127 and 127 flags
-        byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
+        byteBuf.skipBytes(Integer.BYTES);
         final TspecObjectBuilder tBuilder = new TspecObjectBuilder()
                 .setTokenBucketRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
                 .setTokenBucketSize(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
@@ -57,7 +55,7 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
         builder.setTspecObject(tBuilder.build());
         if (builder.getServiceHeader().getIntValue() == 2) {
             //skip parameter ID 130, flags, lenght
-            byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
+            byteBuf.skipBytes(Integer.BYTES);
             builder.setRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)));
             builder.setSlackTerm(ByteBufUtils.readUint32(byteBuf));
         }

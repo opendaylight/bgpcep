@@ -16,7 +16,6 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufUtils;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
@@ -31,11 +30,11 @@ public class SenderTspecObjectParser extends AbstractRSVPObjectParser {
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
         //skip version number, reserved, Overall length
-        byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
+        byteBuf.skipBytes(Integer.BYTES);
         //skip Service header, reserved, Length of service
-        byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
+        byteBuf.skipBytes(Integer.BYTES);
         //skip Parameter ID, Parameter 127 flags, Parameter 127 length
-        byteBuf.skipBytes(ByteBufWriteUtil.INT_BYTES_LENGTH);
+        byteBuf.skipBytes(Integer.BYTES);
 
         return new TspecObjectBuilder()
                 .setTokenBucketRate(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
@@ -54,7 +53,7 @@ public class SenderTspecObjectParser extends AbstractRSVPObjectParser {
         output.writeShort(0);
         output.writeShort(OVERALL_LENGTH);
         // FIXME: this is weird. Use explicit 1?
-        output.writeByte(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        output.writeByte(Byte.BYTES);
         output.writeByte(0);
         output.writeShort(SERVICE_LENGTH);
         output.writeByte(TOKEN_BUCKET_TSPEC);

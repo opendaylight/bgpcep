@@ -5,12 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.spi.parser;
-
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.LONG_BYTES_LENGTH;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.SHORT_BYTES_LENGTH;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -31,20 +26,20 @@ public final class TlvUtil {
     }
 
     public static void formatTlvShort16(final int type, final int value, final ByteBuf out) {
-        formatTlvHeader(type, SHORT_BYTES_LENGTH, out);
+        formatTlvHeader(type, Short.BYTES, out);
         ByteBufWriteUtil.writeUnsignedShort(value, out);
     }
 
     public static void formatTlvCounter32(final int type, final Counter32 value, final ByteBuf out) {
         if (value != null && value.getValue() != null) {
-            formatTlvHeader(type, INT_BYTES_LENGTH, out);
+            formatTlvHeader(type, Integer.BYTES, out);
             ByteBufWriteUtil.writeUnsignedInt(value.getValue(), out);
         }
     }
 
     public static void formatTlvGauge64(final int type, final Gauge64 value, final ByteBuf out) {
         if (value != null && value.getValue() != null) {
-            formatTlvHeader(type, LONG_BYTES_LENGTH, out);
+            formatTlvHeader(type, Long.BYTES, out);
             ByteBufWriteUtil.writeUnsignedLong(value.getValue(), out);
         }
     }

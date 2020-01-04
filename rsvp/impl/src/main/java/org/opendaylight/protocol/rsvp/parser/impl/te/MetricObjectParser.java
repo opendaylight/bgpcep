@@ -16,7 +16,6 @@ import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectPa
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufUtils;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.metric.object.MetricObject;
@@ -31,7 +30,7 @@ public final class MetricObjectParser extends AbstractRSVPObjectParser {
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        byteBuf.skipBytes(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        byteBuf.skipBytes(Short.BYTES);
         final BitArray flags = BitArray.valueOf(byteBuf.readByte());
 
         return new MetricObjectBuilder()

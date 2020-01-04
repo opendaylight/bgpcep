@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -35,7 +34,7 @@ public class PCEPProcTimeObjectParser extends CommonObjectParser implements Obje
     private static final int RESERVED = 2;
     private static final int FLAGS = 16;
     private static final int COUNT_FIELDS = 5;
-    private static final int BODY_SIZE = RESERVED + FLAGS + COUNT_FIELDS * INT_BYTES_LENGTH;
+    private static final int BODY_SIZE = RESERVED + FLAGS + COUNT_FIELDS * Integer.BYTES;
     private static final int E_FLAG_POSITION = 15;
 
     public PCEPProcTimeObjectParser() {

@@ -56,7 +56,7 @@ public final class PathIdUtil {
      * @return Decoded PathId.
      */
     public static PathId readPathId(final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(ByteBufWriteUtil.INT_BYTES_LENGTH));
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(Integer.BYTES));
         return new PathId(ByteBufUtils.readUint32(buffer));
     }
 

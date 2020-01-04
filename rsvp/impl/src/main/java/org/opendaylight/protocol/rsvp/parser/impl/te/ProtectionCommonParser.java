@@ -10,7 +10,6 @@ package org.opendaylight.protocol.rsvp.parser.impl.te;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LinkFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspFlag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.protection.subobject.ProtectionSubobject;
@@ -78,7 +77,7 @@ public class ProtectionCommonParser {
         final int lspFlags = byteBuf.readByte();
         sub.setLspFlag(LspFlag.forValue(lspFlags)).build();
         //Skip Reserved
-        byteBuf.skipBytes(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        byteBuf.skipBytes(Byte.BYTES);
         final int linkFlags = byteBuf.readByte();
         sub.setLinkFlags(LinkFlags.forValue(linkFlags));
 
@@ -88,7 +87,7 @@ public class ProtectionCommonParser {
 
         final int segFlags = byteBuf.readByte();
         sub.setSegFlag(LspFlag.forValue(segFlags));
-        byteBuf.skipBytes(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        byteBuf.skipBytes(Short.BYTES);
         return sub.build();
     }
 
@@ -97,7 +96,7 @@ public class ProtectionCommonParser {
         final ProtectionSubobjectBuilder sub = new ProtectionSubobjectBuilder();
         sub.setSecondary(bitArray.get(SECONDARY));
         //Skip Reserved
-        byteBuf.skipBytes(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        byteBuf.skipBytes(Short.BYTES);
         final int linkFlags = byteBuf.readByte();
         sub.setLinkFlags(LinkFlags.forValue(linkFlags));
         return sub.build();

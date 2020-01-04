@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.object;
 
 import com.google.common.base.Preconditions;
@@ -28,7 +27,7 @@ public class PCEPOverloadObjectParser extends CommonObjectParser implements Obje
     private static final int TYPE = 1;
     private static final int RESERVED = 1;
     private static final int FLAGS = RESERVED;
-    private static final int BODY_SIZE = RESERVED + FLAGS + ByteBufWriteUtil.SHORT_BYTES_LENGTH;
+    private static final int BODY_SIZE = RESERVED + FLAGS + Short.BYTES;
 
     public PCEPOverloadObjectParser() {
         super(CLASS, TYPE);

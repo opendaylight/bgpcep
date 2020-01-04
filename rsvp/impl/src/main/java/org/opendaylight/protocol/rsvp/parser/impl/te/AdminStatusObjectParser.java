@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import com.google.common.base.Preconditions;
@@ -13,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.admin.status.object.AdminStatusObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.admin.status.object.AdminStatusObjectBuilder;
@@ -32,7 +30,7 @@ public final class AdminStatusObjectParser extends AbstractRSVPObjectParser {
         final AdminStatusObjectBuilder adm = new AdminStatusObjectBuilder();
         final BitArray reflect = BitArray.valueOf(byteBuf, FLAGS_SIZE);
         adm.setReflect(reflect.get(REFLECT));
-        byteBuf.skipBytes(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        byteBuf.skipBytes(Short.BYTES);
         final BitArray flags = BitArray.valueOf(byteBuf, FLAGS_SIZE);
         adm.setTesting(flags.get(TESTING));
         adm.setAdministrativelyDown(flags.get(DOWN));

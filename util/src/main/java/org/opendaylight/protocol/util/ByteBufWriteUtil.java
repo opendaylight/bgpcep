@@ -27,19 +27,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
  * Utility class for ByteBuf's write methods.
  */
 public final class ByteBufWriteUtil {
-
-    public static final int SHORT_BYTES_LENGTH = Short.SIZE / Byte.SIZE;
-
-    public static final int INT_BYTES_LENGTH = Integer.SIZE / Byte.SIZE;
-
-    public static final int LONG_BYTES_LENGTH = Long.SIZE / Byte.SIZE;
-
-    public static final int FLOAT32_BYTES_LENGTH = INT_BYTES_LENGTH;
-
-    public static final int ONE_BYTE_LENGTH = 1;
-
     public static final int IPV4_PREFIX_BYTE_LENGTH = Ipv4Util.IP4_LENGTH + 1;
-
     public static final int IPV6_PREFIX_BYTE_LENGTH = Ipv6Util.IPV6_LENGTH + 1;
 
     private ByteBufWriteUtil() {
