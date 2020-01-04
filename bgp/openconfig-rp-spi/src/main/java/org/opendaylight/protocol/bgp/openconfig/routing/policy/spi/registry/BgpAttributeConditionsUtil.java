@@ -38,7 +38,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
  */
 final class BgpAttributeConditionsUtil {
     private BgpAttributeConditionsUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static boolean matchConditions(

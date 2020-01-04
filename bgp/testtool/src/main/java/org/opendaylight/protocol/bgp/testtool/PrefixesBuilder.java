@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.testtool;
 
 import static org.opendaylight.protocol.bgp.testtool.CommunitiesBuilder.createExtComm;
@@ -41,15 +40,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PrefixesBuilder {
-    private static final Ipv4NextHopCase NEXT_HOP;
-
-    static {
-        NEXT_HOP = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(new Ipv4Address("127.1.1.1")).build()).build();
-    }
+    private static final Ipv4NextHopCase NEXT_HOP new Ipv4NextHopCaseBuilder()
+        .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.1.1.1")).build())
+        .build();
 
     private PrefixesBuilder() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static void advertiseIpv4Prefixes(final ChannelOutputLimiter session, final int nprefixes,

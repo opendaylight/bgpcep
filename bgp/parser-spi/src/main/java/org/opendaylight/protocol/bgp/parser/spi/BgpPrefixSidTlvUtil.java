@@ -10,9 +10,8 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import io.netty.buffer.ByteBuf;
 
 public final class BgpPrefixSidTlvUtil {
-
     private BgpPrefixSidTlvUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

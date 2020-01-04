@@ -48,7 +48,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 final class BmpMockUtil {
-
     private static final String DESCRIPTION = "OpenDaylight";
     private static final String NAME = "BMP mock";
     private static final int HOLD_TIMER = 180;
@@ -60,7 +59,7 @@ final class BmpMockUtil {
     private static final AsPath AS_PATH = new AsPathBuilder().setSegments(Collections.emptyList()).build();
 
     private BmpMockUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static InitiationMessage createInitiation() {

@@ -264,7 +264,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     private static final Uint8 EXTENDED_TYPE = Uint8.MAX_VALUE;
 
     private PMSITunnelAttributeHandlerTestUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     private static PAddressPMulticastGroup buildPAddressPMulticastGroup() {

@@ -70,7 +70,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 final class OpenConfigMappingUtil {
-
     static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
     static final Optional<String> APPLICATION_PEER_GROUP_NAME_OPT = Optional.of(APPLICATION_PEER_GROUP_NAME);
     static final int HOLDTIMER = 90;
@@ -80,7 +79,7 @@ final class OpenConfigMappingUtil {
     private static final PortNumber PORT = new PortNumber(Uint16.valueOf(179).intern());
 
     private OpenConfigMappingUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static String getRibInstanceName(final InstanceIdentifier<?> rootIdentifier) {

@@ -31,7 +31,7 @@ public final class ExportAttributeTestUtil {
     public static final ClusterIdentifier CLUSTER = new ClusterIdentifier(IPV4);
 
     private ExportAttributeTestUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

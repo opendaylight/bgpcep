@@ -26,7 +26,7 @@ public final class IdentifierUtils {
     private static final QName PEER_ID = QName.create(Peer.QNAME, "peer-id").intern();
 
     private IdentifierUtils() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     // FIXME: implement as id.firstIdentifierOf(IS_PEER), null indicating not found

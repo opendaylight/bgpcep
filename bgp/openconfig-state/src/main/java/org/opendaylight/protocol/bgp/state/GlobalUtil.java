@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 
 public final class GlobalUtil {
     private GlobalUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

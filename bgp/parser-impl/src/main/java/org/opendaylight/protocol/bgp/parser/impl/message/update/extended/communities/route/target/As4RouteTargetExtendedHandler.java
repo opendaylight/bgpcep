@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.route.target;
 
 import io.netty.buffer.ByteBuf;
@@ -20,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  */
 public final class As4RouteTargetExtendedHandler {
     private As4RouteTargetExtendedHandler() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static As4RouteTargetExtendedCommunity parse(final ByteBuf body) {

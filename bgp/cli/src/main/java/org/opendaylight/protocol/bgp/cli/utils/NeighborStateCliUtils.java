@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 //NeighborStateCliUtils sends Neighbor Operational State to PrintStream
 final class NeighborStateCliUtils {
     private NeighborStateCliUtils() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static void displayNeighborOperationalState(@NonNull final String neighborId,

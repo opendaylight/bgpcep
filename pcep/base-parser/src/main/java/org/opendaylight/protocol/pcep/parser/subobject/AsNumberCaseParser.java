@@ -21,12 +21,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class AsNumberCaseParser {
+    private static final int CONTENT_LENGTH = 2;
 
     private AsNumberCaseParser() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
-
-    private static final int CONTENT_LENGTH = 2;
 
     static AsNumberCase parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");

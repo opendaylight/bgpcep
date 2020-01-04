@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  */
 final class CMulticastUtil {
     private CMulticastUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static CMulticast parseCMulticastGrouping(final ByteBuf buffer) {

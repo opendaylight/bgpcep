@@ -35,7 +35,7 @@ public final class Ipv4Util {
     private static final Ipv4Prefix EMPTY_PREFIX = new Ipv4Prefix("0.0.0.0/0");
 
     private Ipv4Util() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

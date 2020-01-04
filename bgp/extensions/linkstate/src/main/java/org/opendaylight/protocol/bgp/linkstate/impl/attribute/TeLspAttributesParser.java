@@ -50,13 +50,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class TeLspAttributesParser {
-
     private static final Logger LOG = LoggerFactory.getLogger(TeLspAttributesParser.class);
     //TBD BY IANA
     private static final int MAGIC_NUMBER = 99;
 
     private TeLspAttributesParser() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static LinkStateAttribute parseTeLspAttributes(final RSVPTeObjectRegistry registry, final ByteBuf attributes)

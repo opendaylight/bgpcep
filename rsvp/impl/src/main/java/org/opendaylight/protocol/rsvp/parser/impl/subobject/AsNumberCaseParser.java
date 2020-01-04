@@ -24,7 +24,7 @@ public final class AsNumberCaseParser {
     private static final int CONTENT_LENGTH = 2;
 
     private AsNumberCaseParser() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static AsNumberCase parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
@@ -39,7 +39,6 @@ public final class AsNumberCaseParser {
                     .build())
                 .build();
     }
-
 
     public static ByteBuf serializeSubobject(final AsNumberCase asCase) {
         final AsNumberSubobject asNumber = asCase.getAsNumber();

@@ -36,17 +36,12 @@ import org.slf4j.LoggerFactory;
  * BGPOperationalStateUtils reads Operational state from DS and prints to stream.
  */
 public final class BGPOperationalStateUtils {
-
-    static final InstanceIdentifier<Protocols> PROTOCOLS_IID;
     private static final Logger LOG = LoggerFactory.getLogger(BGPOperationalStateUtils.class);
-
-    static {
-        PROTOCOLS_IID = InstanceIdentifier.create(NetworkInstances.class)
-                .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp")).child(Protocols.class);
-    }
+    static final InstanceIdentifier<Protocols> PROTOCOLS_IID = InstanceIdentifier.create(NetworkInstances.class)
+        .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp")).child(Protocols.class);
 
     private BGPOperationalStateUtils() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

@@ -16,7 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class FourOctAsCommonECUtil {
     private FourOctAsCommonECUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static As4SpecificCommon parseCommon(final ByteBuf body) {

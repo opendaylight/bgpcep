@@ -22,9 +22,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
 
 public final class BgpPeerUtil {
-
     private BgpPeerUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**
