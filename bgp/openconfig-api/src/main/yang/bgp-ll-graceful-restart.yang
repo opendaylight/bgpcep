@@ -6,6 +6,7 @@ module bgp-ll-graceful-restart {
     import openconfig-network-instance { prefix netinst; }
     import bgp-openconfig-extensions { prefix bgp-op-ext; }
     import openconfig-bgp-types { prefix bgp-types; }
+    import odl-uint24 { prefix uint24; }
 
     description
             "This module contains the extensions from
@@ -45,9 +46,7 @@ module bgp-ll-graceful-restart {
                         "Value of time in second which we keep routes of given af-safi after
                         graceful restart timer expired. If zero value afi-safi wil not be advertised
                         in long-lived graceful restart capability";
-                    type uint32 {
-                        range 0..16777215;
-                    }
+                    type uint24:uint24;
                     units seconds;
                     default 0;
                 }

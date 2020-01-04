@@ -6,6 +6,7 @@ module bgp-multiprotocol {
     import bgp-message { prefix bgp-msg; revision-date 2018-03-29; }
     import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import odl-uint24 { prefix uint24; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -132,9 +133,7 @@ module bgp-multiprotocol {
                     mandatory true;
                 }
                 leaf long-lived-stale-time {
-                    type uint32 {
-                        range 0..16777215;
-                    }
+                    type uint24:uint24;
                     units seconds;
                     default 0;
                 }

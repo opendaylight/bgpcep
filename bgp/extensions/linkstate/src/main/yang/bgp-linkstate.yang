@@ -13,6 +13,7 @@ module bgp-linkstate {
     import bgp-segment-routing { prefix bgp-sr; revision-date 2015-10-14; }
     import bgp-epe { prefix bgp-epe; revision-date 2015-06-22; }
     import bmp-monitor { prefix bmp-mon; revision-date 2018-03-29; }
+    import odl-uint24 { prefix uint24; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -541,9 +542,7 @@ module bgp-linkstate {
             the maximum value 16,777,215 (16.777215 sec), then the delay is at
             least that value, and it may be larger.";
         reference "https://tools.ietf.org/html/rfc7471#section-4.1.5";
-        type uint32 {
-            range "0..16777215";
-        }
+        type uint24:uint24;
         units microseconds;
     }
 
@@ -555,9 +554,7 @@ module bgp-linkstate {
             Therefore, measured values that are larger than the field maximum
             SHOULD be encoded as the maximum value.";
         reference "https://tools.ietf.org/html/rfc7471#section-4.4.5";
-        type uint32 {
-            range "0..16777215";
-        }
+        type uint24:uint24;
         units percent;
     }
 

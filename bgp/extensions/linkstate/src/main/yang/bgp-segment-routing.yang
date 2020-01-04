@@ -5,6 +5,7 @@ module bgp-segment-routing {
 
     import network-concepts { prefix netc; revision-date 2013-11-25; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import odl-uint24 { prefix uint24; }
 
     organization "Cisco Systems, Inc.";
     contact "Iveta Halanova <ihalanov@cisco.com>";
@@ -75,9 +76,7 @@ module bgp-segment-routing {
             type boolean;
         }
         leaf range-size {
-            type uint32 {
-                range "0..16777215";
-            }
+            type uint24:uint24;
         }
         uses sid-label-index;
     }
