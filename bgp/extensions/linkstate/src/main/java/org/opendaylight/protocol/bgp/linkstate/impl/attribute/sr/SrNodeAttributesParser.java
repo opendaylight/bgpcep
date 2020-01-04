@@ -64,7 +64,7 @@ public final class SrNodeAttributesParser {
         bs.set(SR_IPV6, caps.isSrIpv6());
         bs.toByteBuf(buffer);
         buffer.writeZero(RESERVERED);
-        buffer.writeMedium(caps.getRangeSize().intValue());
+        buffer.writeMedium(caps.getRangeSize().getValue().intValue());
         TlvUtil.writeTLV(SID_TYPE, SidLabelIndexParser.serializeSidValue(caps.getSidLabelIndex()), buffer);
     }
 

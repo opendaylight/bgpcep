@@ -434,7 +434,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
                     .capabilities.ll.graceful.restart.capability.Tables table : advertisedLLTables) {
                 llTablesReceived.put(new TablesKey(table.getAfi(), table.getSafi()),
-                    table.getLongLivedStaleTime().intValue());
+                    table.getLongLivedStaleTime().getValue().intValue());
             }
         } else {
             llTablesReceived = Collections.emptyMap();

@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.uint24.rev200104.Uint24;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class GracefulRestartUtilTest {
@@ -175,7 +176,7 @@ public class GracefulRestartUtilTest {
                 .capabilities.ll.graceful.restart.capability.Tables> tables = llGracefulCapability.getTables();
         assertNotNull(tables);
         assertEquals(2, tables.size());
-        assertEquals(STALE_TIME, tables.get(0).getLongLivedStaleTime().intValue());
+        assertEquals(STALE_TIME, tables.get(0).getLongLivedStaleTime().getValue().intValue());
         tables.forEach(table -> {
             assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()
                 || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState());
@@ -193,7 +194,7 @@ public class GracefulRestartUtilTest {
                         .setLlGracefulRestart(new LlGracefulRestartBuilder()
                             .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll
                                 .graceful.restart.rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart
-                                .ConfigBuilder().setLongLivedStaleTime(Uint32.valueOf(STALE_TIME)).build())
+                                .ConfigBuilder().setLongLivedStaleTime(new Uint24(Uint32.valueOf(STALE_TIME))).build())
                             .build())
                         .build())
                     .build())

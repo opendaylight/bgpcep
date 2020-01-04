@@ -93,6 +93,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.uint24.rev200104.Uint24;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -180,11 +181,11 @@ public class SrAttributeParserTest {
         final SrCapabilities capsIsis = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.TRUE).setMplsIpv6(Boolean.TRUE)
                 .setSrIpv6(Boolean.FALSE)
                 .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
-                .setRangeSize(Uint32.TEN).build();
+                .setRangeSize(new Uint24(Uint32.TEN)).build();
         final SrCapabilities capsOspf = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.FALSE)
                 .setMplsIpv6(Boolean.FALSE).setSrIpv6(Boolean.FALSE)
                 .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
-                .setRangeSize(Uint32.TEN).build();
+                .setRangeSize(new Uint24(Uint32.TEN)).build();
         assertEquals(capsIsis,
             SrNodeAttributesParser.parseSrCapabilities(Unpooled.wrappedBuffer(bytesIsis), ProtocolId.IsisLevel1));
         assertEquals(capsOspf,

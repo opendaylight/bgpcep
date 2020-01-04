@@ -10,6 +10,7 @@ package org.opendaylight.protocol.util;
 import io.netty.buffer.ByteBuf;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.uint24.rev200104.Uint24;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -32,9 +33,8 @@ public final class ByteBufUtils {
         return Uint16.fromShortBits(buf.readShort());
     }
 
-    // TODO: this probably wants a dedicated concept
-    public static @NonNull Uint32 readUint24(final ByteBuf buf) {
-        return Uint32.fromIntBits(buf.readMedium());
+    public static @NonNull Uint24 readUint24(final ByteBuf buf) {
+        return new Uint24(Uint32.fromIntBits(buf.readMedium()));
     }
 
     public static @NonNull Uint32 readUint32(final ByteBuf buf) {
