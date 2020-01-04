@@ -25,8 +25,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
  * @author Claudio D. Gasparini
  */
 public final class IpAddressUtil {
-    private static final int ZERO_BYTE = 1;
-
     private IpAddressUtil() {
         throw new UnsupportedOperationException();
     }
@@ -78,7 +76,7 @@ public final class IpAddressUtil {
             body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
             body.writeBytes(Ipv6Util.bytesForAddress(address.getIpv6Address()));
         } else {
-            body.writeZero(ZERO_BYTE);
+            body.writeByte(0);
         }
         return body;
     }
@@ -96,7 +94,7 @@ public final class IpAddressUtil {
         } else if (address.getIpv6Address() != null) {
             body.writeBytes(Ipv6Util.bytesForAddress(address.getIpv6Address()));
         } else {
-            body.writeZero(ZERO_BYTE);
+            body.writeByte(0);
         }
         return body;
     }

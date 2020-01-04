@@ -24,7 +24,6 @@ abstract class AbstractEvpnNlri implements EvpnParser, EvpnSerializer {
     static final int MAC_ADDRESS_LENGTH = 6;
     static final int ESI_SIZE = 10;
     private static final NodeIdentifier ESI_NID = NodeIdentifier.create(Esi.QNAME);
-    static final int ZERO_BYTE = 1;
 
     @Override
     public final ByteBuf serializeEvpn(final EvpnChoice evpn, final ByteBuf common) {

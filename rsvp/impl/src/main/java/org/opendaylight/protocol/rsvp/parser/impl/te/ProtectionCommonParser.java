@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 public class ProtectionCommonParser {
 
-    protected static final int BYTE_SIZE = 1;
     protected static final short PROTECTION_SUBOBJECT_TYPE_1 = 1;
     protected static final short PROTECTION_SUBOBJECT_TYPE_2 = 2;
     protected static final int CONTENT_LENGTH_C2 = 8;
@@ -41,7 +40,7 @@ public class ProtectionCommonParser {
         final BitArray flagBitArray = new BitArray(FLAGS_SIZE);
         flagBitArray.set(SECONDARY, protObj.isSecondary());
         flagBitArray.toByteBuf(output);
-        output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        output.writeShort(0);
         output.writeByte(protObj.getLinkFlags().getIntValue());
     }
 
@@ -53,14 +52,14 @@ public class ProtectionCommonParser {
         flagBitArray.set(OPERATIONAL, protObj.isOperational());
         flagBitArray.toByteBuf(output);
         output.writeByte(protObj.getLspFlag().getIntValue());
-        output.writeZero(BYTE_SIZE);
+        output.writeByte(0);
         output.writeByte(protObj.getLinkFlags().getIntValue());
         final BitArray flagInPlaceBitArray = new BitArray(FLAGS_SIZE);
         flagInPlaceBitArray.set(IN_PLACE, protObj.isInPlace());
         flagInPlaceBitArray.set(REQUIRED, protObj.isRequired());
         flagInPlaceBitArray.toByteBuf(output);
         output.writeByte(protObj.getSegFlag().getIntValue());
-        output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        output.writeShort(0);
     }
 
     protected static ProtectionSubobject parseCommonProtectionBodyType2(final ByteBuf byteBuf) throws
@@ -106,7 +105,7 @@ public class ProtectionCommonParser {
 
     protected static void serializeBody(final short ctype, final ProtectionSubobject protObj,
         final ByteBuf output) {
-        output.writeZero(BYTE_SIZE);
+        output.writeByte(0);
         output.writeByte(ctype);
         switch (ctype) {
             case PROTECTION_SUBOBJECT_TYPE_1:

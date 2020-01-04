@@ -26,7 +26,7 @@ public class SenderTspecObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 12;
     public static final short CTYPE = 2;
     private static final int BODY_SIZE = 32;
-    private static final int SERVICE_LENGHT = 6;
+    private static final int SERVICE_LENGTH = 6;
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
@@ -51,13 +51,14 @@ public class SenderTspecObjectParser extends AbstractRSVPObjectParser {
         checkArgument(teLspObject instanceof TspecObject, "SenderTspecObject is mandatory.");
         final TspecObject tspecObj = (TspecObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE, CLASS_NUM, CTYPE, output);
-        output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        output.writeShort(0);
         output.writeShort(OVERALL_LENGTH);
+        // FIXME: this is weird. Use explicit 1?
         output.writeByte(ByteBufWriteUtil.ONE_BYTE_LENGTH);
-        output.writeZero(ByteBufWriteUtil.ONE_BYTE_LENGTH);
-        output.writeShort(SERVICE_LENGHT);
+        output.writeByte(0);
+        output.writeShort(SERVICE_LENGTH);
         output.writeByte(TOKEN_BUCKET_TSPEC);
-        output.writeZero(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        output.writeByte(0);
         output.writeShort(PARAMETER_127_LENGTH);
         writeFloat32(tspecObj.getTokenBucketRate(), output);
         writeFloat32(tspecObj.getTokenBucketSize(), output);

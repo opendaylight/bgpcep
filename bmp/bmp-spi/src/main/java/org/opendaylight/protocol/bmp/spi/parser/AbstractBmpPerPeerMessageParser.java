@@ -129,12 +129,12 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
         if (peerHeader.getTimestampSec() != null) {
             ByteBufWriteUtil.writeUnsignedInt(peerHeader.getTimestampSec().getValue(), output);
         } else {
-            output.writeZero(ByteBufWriteUtil.INT_BYTES_LENGTH);
+            output.writeInt(0);
         }
         if (peerHeader.getTimestampMicro() != null) {
             ByteBufWriteUtil.writeUnsignedInt(peerHeader.getTimestampMicro().getValue(), output);
         } else {
-            output.writeZero(ByteBufWriteUtil.INT_BYTES_LENGTH);
+            output.writeInt(0);
         }
     }
 

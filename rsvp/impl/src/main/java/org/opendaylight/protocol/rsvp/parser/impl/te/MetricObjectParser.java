@@ -47,7 +47,7 @@ public final class MetricObjectParser extends AbstractRSVPObjectParser {
         checkArgument(teLspObject instanceof MetricObject, "BandwidthObject is mandatory.");
         final MetricObject metric = (MetricObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE, CLASS_NUM, CTYPE, output);
-        output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        output.writeShort(0);
         final BitArray reflect = new BitArray(FLAGS_SIZE);
         reflect.set(BOUND, metric.isBound());
         reflect.set(COMPUTED, metric.isComputed());

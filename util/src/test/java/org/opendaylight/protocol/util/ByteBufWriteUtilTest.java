@@ -74,7 +74,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteMediumValue() {
         final byte[] result = { 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.MEDIUM_BYTES_LENGTH);
+        final ByteBuf output = Unpooled.buffer(3);
         writeMedium(5, output);
         assertArrayEquals(result, output.array());
 

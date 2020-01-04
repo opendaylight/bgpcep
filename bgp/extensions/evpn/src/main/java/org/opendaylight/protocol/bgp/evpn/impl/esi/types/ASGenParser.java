@@ -31,7 +31,7 @@ final class ASGenParser extends AbstractEsiType {
         final AsGenerated asGen = ((AsGeneratedCase) esi).getAsGenerated();
         writeUnsignedInt(asGen.getAs().getValue(), body);
         writeUnsignedInt(asGen.getLocalDiscriminator(), body);
-        return body.writeZero(ZERO_BYTE);
+        return body.writeByte(0);
     }
 
     @Override

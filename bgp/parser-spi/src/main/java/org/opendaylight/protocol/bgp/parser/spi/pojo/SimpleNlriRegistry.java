@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
 final class SimpleNlriRegistry implements NlriRegistry {
 
     private static final int RESERVED = 1;
-    private static final int NEXT_HOP_LENGHT = 1;
     private static final String PARSER_NOT_FOUND = "Nlri parser not found for table type {}";
     private static final Logger LOG = LoggerFactory.getLogger(SimpleNlriRegistry.class);
 
@@ -186,7 +185,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
             byteAggregator.writeBytes(nextHopBuffer);
 
         } else {
-            byteAggregator.writeZero(NEXT_HOP_LENGHT);
+            byteAggregator.writeByte(0);
         }
         byteAggregator.writeZero(RESERVED);
     }

@@ -48,7 +48,7 @@ public final class AdminStatusObjectParser extends AbstractRSVPObjectParser {
         final BitArray reflect = new BitArray(FLAGS_SIZE);
         reflect.set(REFLECT, addObject.isReflect());
         reflect.toByteBuf(output);
-        output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+        output.writeShort(0);
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(TESTING, addObject.isTesting());
         flags.set(DOWN, addObject.isAdministrativelyDown());

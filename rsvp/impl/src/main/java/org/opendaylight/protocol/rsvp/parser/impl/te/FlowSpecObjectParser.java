@@ -71,15 +71,15 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
         final int sHeader = flowObj.getServiceHeader().getIntValue();
         if (sHeader == 2) {
             serializeAttributeHeader(BODY_SIZE_REQUESTING, CLASS_NUM, CTYPE, output);
-            output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+            output.writeShort(0);
             output.writeShort(REQUESTING_OVERALL_LENGTH);
         } else {
             serializeAttributeHeader(BODY_SIZE_CONTROLLED, CLASS_NUM, CTYPE, output);
-            output.writeZero(ByteBufWriteUtil.SHORT_BYTES_LENGTH);
+            output.writeShort(0);
             output.writeShort(CONTROLLER_OVERALL_LENGHT);
         }
         output.writeByte(sHeader);
-        output.writeZero(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        output.writeByte(0);
         if (sHeader == 2) {
             output.writeShort(SERVICE_LENGHT);
         } else {
@@ -87,7 +87,7 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
         }
 
         output.writeByte(TOKEN_BUCKET_TSPEC);
-        output.writeZero(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        output.writeByte(0);
         output.writeShort(PARAMETER_127_LENGTH);
         final TspecObject tSpec = flowObj.getTspecObject();
         writeFloat32(tSpec.getTokenBucketRate(), output);
@@ -100,7 +100,7 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
             return;
         }
         output.writeByte(GUARANTEED_SERVICE_RSPEC);
-        output.writeZero(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        output.writeByte(0);
         output.writeShort(PARAMETER_130_LENGTH);
         writeFloat32(flowObj.getRate(), output);
         writeUnsignedInt(flowObj.getSlackTerm(), output);

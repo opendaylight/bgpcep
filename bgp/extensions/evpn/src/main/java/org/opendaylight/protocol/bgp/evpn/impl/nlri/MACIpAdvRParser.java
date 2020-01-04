@@ -133,10 +133,10 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
                 body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
                 body.writeBytes(Ipv6Util.bytesForAddress(ipAddress.getIpv6Address()));
             } else {
-                body.writeZero(ZERO_BYTE);
+                body.writeByte(0);
             }
         } else {
-            body.writeZero(ZERO_BYTE);
+            body.writeByte(0);
         }
         return body;
     }

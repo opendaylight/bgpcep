@@ -86,7 +86,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             if (t.getAfiFlags() != null && t.getAfiFlags().isForwardingState()) {
                 bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
             } else {
-                bytes.writeZero(1);
+                bytes.writeByte(0);
             }
         }
     }

@@ -17,7 +17,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 
 abstract class AbstractEsiType implements EsiParser, EsiSerializer {
     private static final int BODY_LENGTH = 9;
-    static final int ZERO_BYTE = 1;
     static final int MAC_ADDRESS_LENGTH = 6;
 
     @Override

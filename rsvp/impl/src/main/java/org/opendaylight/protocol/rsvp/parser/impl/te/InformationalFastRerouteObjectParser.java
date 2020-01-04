@@ -53,7 +53,7 @@ public final class InformationalFastRerouteObjectParser extends AbstractRSVPObje
         byteAggregator.writeByte(fastRerouteObject.getSetupPriority().toJava());
         byteAggregator.writeByte(fastRerouteObject.getHoldPriority().toJava());
         byteAggregator.writeByte(fastRerouteObject.getHopLimit().toJava());
-        byteAggregator.writeZero(ByteBufWriteUtil.ONE_BYTE_LENGTH);
+        byteAggregator.writeByte(0);
         byteAggregator.writeBytes(Unpooled.wrappedBuffer(fastRerouteObject.getBandwidth().getValue()));
         writeAttributeFilter(fastRerouteObject.getIncludeAny(), byteAggregator);
         writeAttributeFilter(fastRerouteObject.getExcludeAny(), byteAggregator);

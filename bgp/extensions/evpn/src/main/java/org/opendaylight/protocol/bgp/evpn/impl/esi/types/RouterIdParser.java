@@ -32,7 +32,7 @@ final class RouterIdParser extends AbstractEsiType {
         final RouterIdGenerated routerID = ((RouterIdGeneratedCase) esi).getRouterIdGenerated();
         ByteBufWriteUtil.writeIpv4Address(routerID.getRouterId(), body);
         ByteBufWriteUtil.writeUnsignedInt(routerID.getLocalDiscriminator(), body);
-        return body.writeZero(ZERO_BYTE);
+        return body.writeByte(0);
     }
 
     @Override

@@ -70,10 +70,6 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
 
     public static final int TYPE = 2;
 
-    private static final int WITHDRAWN_ROUTES_LENGTH_SIZE = 2;
-
-    private static final int TOTAL_PATH_ATTR_LENGTH_SIZE = 2;
-
     private final AttributeRegistry attrReg;
 
     private final NlriRegistry nlriReg;
@@ -97,7 +93,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             messageBody.writeShort(withdrawnRoutesBuf.writerIndex());
             messageBody.writeBytes(withdrawnRoutesBuf);
         } else {
-            messageBody.writeZero(WITHDRAWN_ROUTES_LENGTH_SIZE);
+            messageBody.writeShort(0);
         }
         if (update.getAttributes() != null) {
             final ByteBuf pathAttributesBuf = Unpooled.buffer();
@@ -105,7 +101,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             messageBody.writeShort(pathAttributesBuf.writerIndex());
             messageBody.writeBytes(pathAttributesBuf);
         } else {
-            messageBody.writeZero(TOTAL_PATH_ATTR_LENGTH_SIZE);
+            messageBody.writeShort(0);
         }
         final List<Nlri> nlris = update.getNlri();
         if (nlris != null) {

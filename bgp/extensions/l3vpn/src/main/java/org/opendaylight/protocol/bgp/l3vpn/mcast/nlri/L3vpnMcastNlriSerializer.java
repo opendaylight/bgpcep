@@ -67,8 +67,9 @@ public final class L3vpnMcastNlriSerializer {
                 output.writeByte(IPV6_BITS_LENGTH);
                 ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv6Prefix(), prefixBuf);
             }
+            // FIXME: remove this funky loop
             while (prefixBuf.readableBytes() % 8 != 0) {
-                prefixBuf.writeZero(1);
+                prefixBuf.writeByte(0);
             }
             output.writeBytes(prefixBuf);
         }

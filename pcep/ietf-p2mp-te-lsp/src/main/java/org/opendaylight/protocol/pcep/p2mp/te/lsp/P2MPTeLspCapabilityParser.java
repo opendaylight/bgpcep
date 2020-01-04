@@ -23,13 +23,13 @@ public final class P2MPTeLspCapabilityParser implements TlvParser, TlvSerializer
     public static final int TYPE = 6;
     private static final int CONTENT_LENGTH = 2;
     @VisibleForTesting
-    static P2mpPceCapability P2MP_CAPABILITY = new P2mpPceCapabilityBuilder().build();
+    static final P2mpPceCapability P2MP_CAPABILITY = new P2mpPceCapabilityBuilder().build();
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof P2mpPceCapability, "P2mpPceCapability is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        body.writeZero(2);
+        body.writeShort(0);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 

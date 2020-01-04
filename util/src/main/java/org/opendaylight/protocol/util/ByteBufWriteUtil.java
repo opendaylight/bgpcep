@@ -30,8 +30,6 @@ public final class ByteBufWriteUtil {
 
     public static final int SHORT_BYTES_LENGTH = Short.SIZE / Byte.SIZE;
 
-    public static final int MEDIUM_BYTES_LENGTH = 3;
-
     public static final int INT_BYTES_LENGTH = Integer.SIZE / Byte.SIZE;
 
     public static final int LONG_BYTES_LENGTH = Long.SIZE / Byte.SIZE;
@@ -59,11 +57,7 @@ public final class ByteBufWriteUtil {
      *            ByteBuf, where value or zeros are written.
      */
     public static void writeInt(final Integer value, final ByteBuf output) {
-        if (value != null) {
-            output.writeInt(value);
-        } else {
-            output.writeZero(INT_BYTES_LENGTH);
-        }
+        output.writeInt(value != null ? value : 0);
     }
 
     /**
@@ -77,11 +71,7 @@ public final class ByteBufWriteUtil {
      *            ByteBuf, where value or zeros are written.
      */
     public static void writeMedium(final Integer value, final ByteBuf output) {
-        if (value != null) {
-            output.writeMedium(value);
-        } else {
-            output.writeZero(MEDIUM_BYTES_LENGTH);
-        }
+        output.writeMedium(value != null ? value : 0);
     }
 
     /**
@@ -95,11 +85,7 @@ public final class ByteBufWriteUtil {
      *            ByteBuf, where value or zeros are written.
      */
     public static void writeShort(final Short value, final ByteBuf output) {
-        if (value != null) {
-            output.writeShort(value);
-        } else {
-            output.writeZero(SHORT_BYTES_LENGTH);
-        }
+        output.writeShort(value != null ? value : 0);
     }
 
     /**
@@ -113,11 +99,7 @@ public final class ByteBufWriteUtil {
      *            ByteBuf, where value or zeros are written.
      */
     public static void writeLong(final Long value, final ByteBuf output) {
-        if (value != null) {
-            output.writeLong(value);
-        } else {
-            output.writeZero(LONG_BYTES_LENGTH);
-        }
+        output.writeLong(value != null ? value : 0L);
     }
 
     /**
@@ -133,7 +115,7 @@ public final class ByteBufWriteUtil {
         if (value != null) {
             output.writeBoolean(value);
         } else {
-            output.writeZero(ONE_BYTE_LENGTH);
+            output.writeByte(0);
         }
     }
 
@@ -150,11 +132,7 @@ public final class ByteBufWriteUtil {
      */
     @Deprecated(forRemoval = true)
     public static void writeUnsignedByte(final Short value, final ByteBuf output) {
-        if (value != null) {
-            output.writeByte(value);
-        } else {
-            output.writeZero(ONE_BYTE_LENGTH);
-        }
+        output.writeByte(value != null ? value : 0);
     }
 
     /**
@@ -168,11 +146,7 @@ public final class ByteBufWriteUtil {
      *            ByteBuf, where value or zeros are written.
      */
     public static void writeUnsignedByte(final Uint8 value, final ByteBuf output) {
-        if (value != null) {
-            output.writeByte(value.byteValue());
-        } else {
-            output.writeZero(ONE_BYTE_LENGTH);
-        }
+        output.writeByte(value != null ? value.byteValue() : 0);
     }
 
     /**
@@ -188,11 +162,7 @@ public final class ByteBufWriteUtil {
      */
     @Deprecated(forRemoval = true)
     public static void writeUnsignedShort(final Integer value, final ByteBuf output) {
-        if (value != null) {
-            output.writeShort(value.shortValue());
-        } else {
-            output.writeZero(SHORT_BYTES_LENGTH);
-        }
+        output.writeShort(value != null ? value.shortValue() : 0);
     }
 
     /**
@@ -206,11 +176,7 @@ public final class ByteBufWriteUtil {
      *            ByteBuf, where value or zeros are written.
      */
     public static void writeUnsignedShort(final Uint16 value, final ByteBuf output) {
-        if (value != null) {
-            output.writeShort(value.shortValue());
-        } else {
-            output.writeZero(SHORT_BYTES_LENGTH);
-        }
+        output.writeShort(value != null ? value.shortValue() : 0);
     }
 
     /**
@@ -226,11 +192,7 @@ public final class ByteBufWriteUtil {
      */
     @Deprecated(forRemoval = true)
     public static void writeUnsignedInt(final Long value, final ByteBuf output) {
-        if (value != null) {
-            output.writeInt(value.intValue());
-        } else {
-            output.writeZero(INT_BYTES_LENGTH);
-        }
+        output.writeInt(value != null ? value.intValue() : 0);
     }
 
     /**
@@ -244,11 +206,7 @@ public final class ByteBufWriteUtil {
      *            ByteBuf, where value or zeros are written.
      */
     public static void writeUnsignedInt(final Uint32 value, final ByteBuf output) {
-        if (value != null) {
-            output.writeInt(value.intValue());
-        } else {
-            output.writeZero(INT_BYTES_LENGTH);
-        }
+        output.writeInt(value != null ? value.intValue() : 0);
     }
 
     /**
@@ -264,11 +222,7 @@ public final class ByteBufWriteUtil {
      */
     @Deprecated(forRemoval = true)
     public static void writeUnsignedLong(final BigInteger value, final ByteBuf output) {
-        if (value != null) {
-            output.writeLong(value.longValue());
-        } else {
-            output.writeZero(LONG_BYTES_LENGTH);
-        }
+        output.writeLong(value != null ? value.longValue() : 0L);
     }
 
     /**
@@ -282,11 +236,7 @@ public final class ByteBufWriteUtil {
      *            ByteBuf, where value or zeros are written.
      */
     public static void writeUnsignedLong(final Uint64 value, final ByteBuf output) {
-        if (value != null) {
-            output.writeLong(value.longValue());
-        } else {
-            output.writeZero(LONG_BYTES_LENGTH);
-        }
+        output.writeLong(value != null ? value.longValue() : 0L);
     }
 
     /**
@@ -302,7 +252,7 @@ public final class ByteBufWriteUtil {
         if (ipv4Address != null) {
             output.writeBytes(Ipv4Util.bytesForAddress(ipv4Address));
         } else {
-            output.writeZero(Ipv4Util.IP4_LENGTH);
+            output.writeInt(0);
         }
     }
 
@@ -319,7 +269,7 @@ public final class ByteBufWriteUtil {
         if (ipv4Address != null) {
             output.writeBytes(IetfInetUtil.INSTANCE.ipv4AddressNoZoneBytes(ipv4Address));
         } else {
-            output.writeZero(Ipv4Util.IP4_LENGTH);
+            output.writeInt(0);
         }
     }
 
@@ -421,7 +371,7 @@ public final class ByteBufWriteUtil {
         if (value != null) {
             output.writeBytes(value.getValue());
         } else {
-            output.writeZero(FLOAT32_BYTES_LENGTH);
+            output.writeInt(0);
         }
     }
 }

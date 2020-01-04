@@ -129,7 +129,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
             if (table.getAfiFlags() != null && table.getAfiFlags().isForwardingState()) {
                 buffer.writeByte(AFI_FLAG_FORWARDING_STATE);
             } else {
-                buffer.writeZero(1);
+                buffer.writeByte(0);
             }
             final Uint24 staleTime = table.getLongLivedStaleTime();
             final int timeval = staleTime != null ? staleTime.getValue().intValue() : 0;
