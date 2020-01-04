@@ -16,7 +16,6 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgSubobject;
@@ -26,12 +25,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainerBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Parser for {@link SrlgCase}.
  */
 public class XROSrlgSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
-
     public static final int TYPE = 34;
 
     private static final int CONTENT_LENGTH = 6;

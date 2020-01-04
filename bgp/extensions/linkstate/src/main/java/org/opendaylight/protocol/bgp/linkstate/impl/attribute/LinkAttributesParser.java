@@ -20,7 +20,6 @@ import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttribute
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -55,13 +54,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
 import org.opendaylight.yangtools.yang.common.Uint8;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
 public final class LinkAttributesParser {
-
     public static final int SR_LAN_ADJ_ID = 1100;
+
     private static final Logger LOG = LoggerFactory.getLogger(LinkAttributesParser.class);
     private static final int UNRESERVED_BW_COUNT = 8;
 

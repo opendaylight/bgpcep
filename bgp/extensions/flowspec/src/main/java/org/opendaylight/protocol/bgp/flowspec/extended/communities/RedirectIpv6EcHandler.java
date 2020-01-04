@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.RedirectIpv6ExtendedCommunity;
@@ -19,11 +18,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.ipv6.extended.community.RedirectIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class RedirectIpv6EcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
-
     private static final int TYPE = 128;
-
     private static final int SUBTYPE = 11;
 
     @Override
@@ -47,11 +45,11 @@ public final class RedirectIpv6EcHandler implements ExtendedCommunityParser, Ext
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
-        return new RedirectIpv6ExtendedCommunityCaseBuilder().setRedirectIpv6(
-                new RedirectIpv6Builder()
-                    .setGlobalAdministrator(Ipv6Util.addressForByteBuf(buffer))
-                    .setLocalAdministrator(ByteBufUtils.readUint16(buffer))
-                    .build()).build();
+        return new RedirectIpv6ExtendedCommunityCaseBuilder()
+            .setRedirectIpv6(new RedirectIpv6Builder()
+                .setGlobalAdministrator(Ipv6Util.addressForByteBuf(buffer))
+                .setLocalAdministrator(ByteBufUtils.readUint16(buffer))
+                .build())
+            .build();
     }
-
 }

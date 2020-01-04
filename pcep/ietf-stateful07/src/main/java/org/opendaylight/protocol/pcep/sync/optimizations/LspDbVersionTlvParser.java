@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.pcep.sync.optimizations;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufUtils.readUint64;
-import static org.opendaylight.protocol.util.ByteBufUtils.writeOrZero;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint64;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeOrZero;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

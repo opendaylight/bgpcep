@@ -19,7 +19,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
@@ -33,12 +32,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Parser for {@link Rp}.
  */
 public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
-
     private static final int CLASS = 2;
     private static final int TYPE = 1;
 
@@ -55,14 +54,12 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
     /*
      * offsets of subfields inside multi-field in bits
      */
-
     private static final int FLAGS_SF_OFFSET = 0;
     private static final int PRI_SF_OFFSET = FLAGS_SF_OFFSET + FLAGS_SF_LENGTH;
 
     /*
      * flags offsets inside flags sub-field in bits
      */
-
     private static final int O_FLAG_OFFSET = 26;
     private static final int B_FLAG_OFFSET = 27;
     private static final int R_FLAG_OFFSET = 28;
@@ -85,9 +82,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
      * RFC6006 flags
      */
     private static final int F_FLAG_OFFSET = 18;
-
     private static final int N_FLAG_OFFSET = 19;
-
     private static final int E_FLAG_OFFSET = 20;
 
     public PCEPRequestParameterObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {

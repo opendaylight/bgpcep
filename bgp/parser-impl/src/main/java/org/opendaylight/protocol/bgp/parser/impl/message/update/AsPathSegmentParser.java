@@ -14,9 +14,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Representation of one AS Path Segment. It is, in fact, a TLV, but the length field is representing the count of AS

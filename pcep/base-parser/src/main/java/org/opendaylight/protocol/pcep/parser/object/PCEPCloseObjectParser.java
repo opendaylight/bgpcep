@@ -18,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CClose;
@@ -27,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.c.close.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yangtools.yang.common.Uint8;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Parser for {@link
@@ -35,7 +35,6 @@ import org.opendaylight.yangtools.yang.common.Uint8;
  * }.
  */
 public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
-
     private static final int CLASS = 15;
     private static final int TYPE = 1;
 
@@ -48,7 +47,6 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
     public PCEPCloseObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg, CLASS, TYPE);
     }
-
 
     @Override
     public CClose parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
@@ -84,7 +82,6 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
         }
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
-
 
     @Override
     protected void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {

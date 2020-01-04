@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.MPLS1_NID;
@@ -22,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEsiTypeRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -39,11 +37,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.mac.ip.adv.route.MacIpAdvRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.mac.ip.adv.route.MacIpAdvRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class MACIpAdvRParser extends AbstractEvpnNlri {
-    static final NodeIdentifier MAC_IP_ADV_ROUTE_NID = new NodeIdentifier(MacIpAdvRoute.QNAME);
+    static final NodeIdentifier MAC_IP_ADV_ROUTE_NID = NodeIdentifier.create(MacIpAdvRoute.QNAME);
     private static final int BITS_SIZE = 8;
 
     @Override

@@ -16,11 +16,11 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.session.attribute.object.with.resources.affinities._case.SessionAttributeObjectWithResourcesAffinities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.session.attribute.object.with.resources.affinities._case.SessionAttributeObjectWithResourcesAffinitiesBuilder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 207;

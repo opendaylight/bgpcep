@@ -15,7 +15,6 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer;
@@ -24,15 +23,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class RROPathKey128SubobjectParser implements RROSubobjectParser {
-
     public static final int TYPE = 65;
+
     protected static final int PCE128_ID_F_LENGTH = 16;
+
     private static final int PK_F_LENGTH = 2;
     private static final int PK_F_OFFSET = 0;
     private static final int PCE_ID_F_OFFSET = PK_F_OFFSET + PK_F_LENGTH;
-
     private static final int CONTENT128_LENGTH = PCE_ID_F_OFFSET + PCE128_ID_F_LENGTH;
 
     public static void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {

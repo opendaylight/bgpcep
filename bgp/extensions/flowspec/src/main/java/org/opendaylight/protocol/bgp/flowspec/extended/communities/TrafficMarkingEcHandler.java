@@ -12,20 +12,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.Dscp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.marking.extended.community.TrafficMarkingExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.marking.extended.community.TrafficMarkingExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class TrafficMarkingEcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
-
     private static final int TYPE = 128;
-
     private static final int SUBTYPE = 9;
-
     private static final int RESERVED = 5;
 
     @Override
@@ -55,8 +52,10 @@ public class TrafficMarkingEcHandler implements ExtendedCommunityParser, Extende
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         buffer.skipBytes(RESERVED);
         final Dscp dscp = new Dscp(ByteBufUtils.readUint8(buffer));
-        return new TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(
-                new TrafficMarkingExtendedCommunityBuilder()
-                    .setGlobalAdministrator(dscp).build()).build();
+        return new TrafficMarkingExtendedCommunityCaseBuilder()
+            .setTrafficMarkingExtendedCommunity(new TrafficMarkingExtendedCommunityBuilder()
+                .setGlobalAdministrator(dscp)
+                .build())
+            .build();
     }
 }

@@ -8,11 +8,11 @@
 package org.opendaylight.protocol.bgp.parser.spi.extended.community;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.as._4.spec.common.As4SpecificCommon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.as._4.spec.common.As4SpecificCommonBuilder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class FourOctAsCommonECUtil {
     private FourOctAsCommonECUtil() {

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.flowspec.extended.communities;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -14,7 +13,6 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.extended.community.RedirectExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.extended.community.RedirectExtendedCommunityBuilder;
@@ -22,13 +20,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ShortAsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class RedirectAsTwoOctetEcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
-
     private static final int TYPE = 128;
-
     private static final int SUBTYPE = 8;
-
     private static final int TRAFFIC_RATE_SIZE = 4;
 
     @Override
@@ -57,10 +53,11 @@ public class RedirectAsTwoOctetEcHandler implements ExtendedCommunityParser, Ext
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
         final ShortAsNumber as1 = new ShortAsNumber(Uint32.valueOf(ByteBufUtils.readUint16(buffer)));
         final byte[] byteValue = ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE);
-        return new RedirectExtendedCommunityCaseBuilder().setRedirectExtendedCommunity(
-                new RedirectExtendedCommunityBuilder()
-                    .setGlobalAdministrator(as1)
-                    .setLocalAdministrator(byteValue)
-                    .build()).build();
+        return new RedirectExtendedCommunityCaseBuilder()
+            .setRedirectExtendedCommunity(new RedirectExtendedCommunityBuilder()
+                .setGlobalAdministrator(as1)
+                .setLocalAdministrator(byteValue)
+                .build())
+            .build();
     }
 }

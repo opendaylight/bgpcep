@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.extractETI;
@@ -15,7 +14,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
@@ -26,11 +24,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.evpn.choice.IncMultiEthernetTagResCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.inc.multi.ethernet.tag.res.IncMultiEthernetTagRes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.inc.multi.ethernet.tag.res.IncMultiEthernetTagResBuilder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class IncMultEthTagRParser extends AbstractEvpnNlri {
-    static final NodeIdentifier INC_MULT_ROUTE_NID = new NodeIdentifier(IncMultiEthernetTagRes.QNAME);
+    static final NodeIdentifier INC_MULT_ROUTE_NID = NodeIdentifier.create(IncMultiEthernetTagRes.QNAME);
     private static final int CONTENT_LENGTH = 9;
     private static final int CONTENT_LENGTH2 = 21;
 

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
 import com.google.common.base.Preconditions;
@@ -13,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.AbstractIpv4ExtendedCommunity;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
@@ -21,9 +19,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.route.origin.ipv4._case.RouteOriginIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.route.origin.ipv4._case.RouteOriginIpv4Builder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class RouteOriginIpv4EcHandler extends AbstractIpv4ExtendedCommunity {
-
     private static final int SUBTYPE = 3;
 
     @Override
@@ -49,5 +47,4 @@ public final class RouteOriginIpv4EcHandler extends AbstractIpv4ExtendedCommunit
     public int getSubType() {
         return SUBTYPE;
     }
-
 }

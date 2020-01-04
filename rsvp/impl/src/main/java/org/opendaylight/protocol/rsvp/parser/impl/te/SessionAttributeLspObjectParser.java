@@ -16,17 +16,19 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.basic.session.attribute.object._case.BasicSessionAttributeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.basic.session.attribute.object._case.BasicSessionAttributeObjectBuilder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 207;
     public static final short CTYPE = 7;
+
     static final int LOCAL_PROTECTION = 7;
     static final int LABEL_RECORDING = 6;
     static final int SE_STYLE = 5;
+
     private static final int BODY_SIZE_C7 = 4;
     private static final int PADDING = 4;
 

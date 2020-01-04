@@ -18,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
@@ -29,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.monitoring.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Parser for {@link Monitoring}.
@@ -36,7 +36,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
  *
  */
 public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
-
     private static final int CLASS = 19;
     private static final int TYPE = 1;
 
@@ -102,5 +101,4 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
         }
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
-
 }
