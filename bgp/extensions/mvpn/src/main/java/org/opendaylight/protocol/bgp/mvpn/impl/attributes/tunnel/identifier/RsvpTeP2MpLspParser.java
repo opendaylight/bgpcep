@@ -13,7 +13,7 @@ import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifi
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier.AbstractTunnelIdentifier;
-import org.opendaylight.protocol.util.ByteBufUtils;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.PmsiTunnelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;

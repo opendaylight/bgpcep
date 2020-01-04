@@ -15,24 +15,22 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelParser;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.WavebandSwitchingLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.WavebandSwitchingLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabelBuilder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Parser for {@link WavebandSwitchingLabelCase}.
  */
 public class WavebandSwitchingLabelParser implements LabelParser, LabelSerializer {
-
     public static final int CTYPE = 3;
 
     private static final int WAVEB_F_LENGTH = 4;
     private static final int START_F_LENGTH = 4;
     private static final int END_F_LENGTH = 4;
-
     private static final int CONTENT_LENGTH = WAVEB_F_LENGTH + START_F_LENGTH + END_F_LENGTH;
 
     @Override
