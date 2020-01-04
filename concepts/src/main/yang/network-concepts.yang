@@ -4,6 +4,7 @@ module network-concepts {
     prefix "netc";
 
     import ieee754 { prefix ieee754; revision-date 2013-08-19; }
+    import odl-uint24 { prefix uint24; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -38,9 +39,7 @@ module network-concepts {
 
     typedef igp-metric {
         reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.3";
-        type uint32 {
-            range "0..16777215";
-        }
+        type uint24:uint24;
     }
 
     typedef te-metric {

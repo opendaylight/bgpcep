@@ -31,9 +31,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.uint24.rev200104.Uint24;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class LlGracefulCapabilityHandlerTest {
+    private static final Uint24 TEN = new Uint24(Uint32.TEN);
 
     private LlGracefulCapabilityHandler handler;
 
@@ -63,13 +65,13 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
-                                .setLongLivedStaleTime(Uint32.TEN)
+                                .setLongLivedStaleTime(TEN)
                                 .build(),
                         new TablesBuilder()
                                 .setAfi(Ipv6AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.TRUE))
-                                .setLongLivedStaleTime(Uint32.valueOf(160))
+                                .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())
                 ).build();
 
@@ -90,7 +92,7 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setAfi(AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
-                                .setLongLivedStaleTime(Uint32.TEN)
+                                .setLongLivedStaleTime(TEN)
                                 .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
@@ -106,41 +108,7 @@ public class LlGracefulCapabilityHandlerTest {
                         .setAfi(Ipv4AddressFamily.class)
                         .setSafi(SubsequentAddressFamily.class)
                         .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
-                        .setLongLivedStaleTime(Uint32.TEN)
-                        .build())).build();
-
-        final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setLlGracefulRestartCapability(capability).build()).build();
-        final ByteBuf buffer = Unpooled.buffer();
-        this.handler.serializeCapability(cParameters, buffer);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMinStaleTime() {
-        final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(Arrays.asList(new TablesBuilder()
-                                .setAfi(Ipv4AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
-                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
-                                // FIXME: this is throwing IAE, why is the rest of the test even here?
-                                .setLongLivedStaleTime(Uint32.MAX_VALUE)
-                                .build())).build();
-
-        final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setLlGracefulRestartCapability(capability).build()).build();
-        final ByteBuf buffer = Unpooled.buffer();
-        this.handler.serializeCapability(cParameters, buffer);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMaxStaleTime() {
-
-        final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(Arrays.asList(new TablesBuilder()
-                        .setAfi(Ipv4AddressFamily.class)
-                        .setSafi(UnicastSubsequentAddressFamily.class)
-                        .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
-                        .setLongLivedStaleTime(Uint32.valueOf(16777216L))
+                        .setLongLivedStaleTime(TEN)
                         .build())).build();
 
         final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
