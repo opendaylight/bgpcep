@@ -24,12 +24,10 @@ module rfc2385 {
             "Initial revision";
     }
 
-
     typedef rfc2385-key {
         reference "https://tools.ietf.org/html/rfc2385#section-4.5";
         type string {
             length 1..80;
         }
     }
-
 }
