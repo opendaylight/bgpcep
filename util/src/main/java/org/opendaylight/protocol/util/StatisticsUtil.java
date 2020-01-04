@@ -15,9 +15,8 @@ import java.util.concurrent.TimeUnit;
  * Statistics utility class.
  */
 public final class StatisticsUtil {
-
     private StatisticsUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

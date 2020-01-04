@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
@@ -29,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  */
 public final class Ipv6NlriHandler {
     private Ipv6NlriHandler() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static DestinationMvpnIpv6AdvertizedCase parseIpv6ReachNlri(

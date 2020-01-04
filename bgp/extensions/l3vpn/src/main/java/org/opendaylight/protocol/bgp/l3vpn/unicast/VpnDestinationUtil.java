@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 
 final class VpnDestinationUtil {
     private VpnDestinationUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static List<VpnDestination> parseNlri(

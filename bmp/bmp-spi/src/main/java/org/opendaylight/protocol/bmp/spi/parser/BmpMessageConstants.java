@@ -5,17 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.spi.parser;
 
 public final class BmpMessageConstants {
-
-    private BmpMessageConstants() {
-        throw new UnsupportedOperationException();
-    }
-
     public static final short BMP_VERSION = 3;
-
     public static final int COMMON_HEADER_LENGTH = 6;
 
+    private BmpMessageConstants() {
+        // Hidden on purpose
+    }
 }

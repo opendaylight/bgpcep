@@ -27,9 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 
 final class PCEPTopologyProviderUtil {
-
     private PCEPTopologyProviderUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static KeyMapping contructKeys(final @NonNull Topology topology) {

@@ -90,7 +90,7 @@ public final class NeighborUtil {
     private static final long TIMETICK_ROLLOVER_VALUE = UnsignedInteger.MAX_VALUE.longValue() + 1;
 
     private NeighborUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

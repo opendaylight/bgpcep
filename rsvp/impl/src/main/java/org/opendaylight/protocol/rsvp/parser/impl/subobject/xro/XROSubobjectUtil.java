@@ -5,19 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.xro;
 
 import io.netty.buffer.ByteBuf;
 
 public final class XROSubobjectUtil {
-
     private static final int HEADER_SIZE = 2;
-
     private static final int MANDATORY_BIT = 7;
 
     private XROSubobjectUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void formatSubobject(final int type, final Boolean mandatory, final ByteBuf body,

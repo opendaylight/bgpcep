@@ -11,11 +11,6 @@ package org.opendaylight.protocol.util;
  * Util class for storing various util values as constants.
  */
 public final class Values {
-
-    private Values() {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Maximum unsigned Short value (65535).
      */
@@ -40,4 +35,8 @@ public final class Values {
      * In order to get the value in first bit, we need to shift the byte by 7.
      */
     public static final int FIRST_BIT_OFFSET = 7;
+
+    private Values() {
+        // Hidden on purpose
+    }
 }

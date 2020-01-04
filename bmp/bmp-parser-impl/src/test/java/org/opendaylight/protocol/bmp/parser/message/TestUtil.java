@@ -112,11 +112,6 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class TestUtil {
-
-    private TestUtil() {
-        throw new UnsupportedOperationException();
-    }
-
     public static final Ipv4Address IPV4_ADDRESS_10 = new Ipv4Address("10.10.10.10");
     private static final Ipv4Address IPV4_ADDRESS_20 = new Ipv4Address("20.20.20.20");
     private static final Ipv4Address IPV4_ADDRESS_30 = new Ipv4Address("30.30.30.30");
@@ -126,6 +121,10 @@ public final class TestUtil {
     public static final AsNumber PEER_AS = new AsNumber(Uint32.valueOf(72L));
     public static final PortNumber PEER_LOCAL_PORT = new PortNumber(Uint16.valueOf(220));
     public static final PortNumber PEER_REMOTE_PORT = new PortNumber(Uint16.valueOf(5000));
+
+    private TestUtil() {
+        // Hidden on purpose
+    }
 
     public static InitiationMessage createInitMsg(final String sysDescr, final String sysName, final String info) {
         final InitiationMessageBuilder initMsgBuilder = new InitiationMessageBuilder();

@@ -12,7 +12,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 public final class BesthPathStateUtil {
     private BesthPathStateUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static long getPeerAs(final List<Segments> segments) {

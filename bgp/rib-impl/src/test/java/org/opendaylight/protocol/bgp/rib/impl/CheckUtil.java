@@ -17,12 +17,11 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 
 public final class CheckUtil {
-
     private static final int SLEEP_FOR_MILLIS = 50;
     private static final int TIMEOUT_SECONDS = 10;
 
     private CheckUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void checkIdleState(final SimpleSessionListener sessionListener) {

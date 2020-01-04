@@ -25,9 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * Utility class for of CNextHop serialization and parsing.
  */
 public final class NextHopUtil {
-
     private NextHopUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

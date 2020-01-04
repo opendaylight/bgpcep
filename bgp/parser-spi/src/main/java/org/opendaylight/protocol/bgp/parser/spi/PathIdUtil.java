@@ -29,7 +29,7 @@ public final class PathIdUtil {
     public static final PathId NON_PATH_ID = new PathId(NON_PATH_ID_VALUE);
 
     private PathIdUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

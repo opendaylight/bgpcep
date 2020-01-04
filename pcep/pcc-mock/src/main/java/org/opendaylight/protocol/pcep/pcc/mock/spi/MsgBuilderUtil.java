@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock.spi;
 
 import com.google.common.collect.Lists;
@@ -58,9 +57,8 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class MsgBuilderUtil {
-
     private MsgBuilderUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static Pcrpt createPcRtpMessage(final Lsp lsp, final Optional<Srp> srp, final Path path) {

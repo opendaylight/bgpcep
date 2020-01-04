@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
 import io.netty.buffer.ByteBuf;
@@ -17,7 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 
 final class PAddressPMulticastGroupUtil {
     private PAddressPMulticastGroupUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static void serializeIpAddress(final IpAddress ipAddress, final ByteBuf byteBuf) {
@@ -48,5 +47,4 @@ final class PAddressPMulticastGroupUtil {
         final IpAddress pMulticastGroup = parseIpAddress(ipLength, buffer);
         return new BidirPimTreeBuilder().setPAddress(pSenderAddress).setPMulticastGroup(pMulticastGroup).build();
     }
-
 }

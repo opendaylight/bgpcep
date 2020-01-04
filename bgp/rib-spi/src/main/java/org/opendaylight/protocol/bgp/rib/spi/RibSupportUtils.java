@@ -29,7 +29,7 @@ public final class RibSupportUtils {
                 QName.create(BgpAddPathTableType.QNAME, "safi").intern()));
 
     private RibSupportUtils() {
-        throw new UnsupportedOperationException("Utility class");
+        // Hidden on purpose
     }
 
     /**
