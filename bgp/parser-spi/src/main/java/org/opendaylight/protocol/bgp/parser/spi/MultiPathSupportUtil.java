@@ -15,9 +15,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 
 public final class MultiPathSupportUtil {
-
     private MultiPathSupportUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

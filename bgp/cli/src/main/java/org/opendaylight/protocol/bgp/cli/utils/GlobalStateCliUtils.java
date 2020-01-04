@@ -17,13 +17,11 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.g
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAfiSafiStateAugmentation;
 
-//GlobalStateCliUtils sends Global Operational State to PrintStream
+// GlobalStateCliUtils sends Global Operational State to PrintStream
 final class GlobalStateCliUtils {
-
     private GlobalStateCliUtils() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
-
 
     static void displayRibOperationalState(@NonNull final String ribId, @NonNull final Global global,
             @NonNull final PrintStream stream) {

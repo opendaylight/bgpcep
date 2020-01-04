@@ -26,7 +26,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
  */
 public final class IpAddressUtil {
     private IpAddressUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

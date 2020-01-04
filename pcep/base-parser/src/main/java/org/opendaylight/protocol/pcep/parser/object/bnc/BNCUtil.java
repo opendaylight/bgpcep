@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public final class BNCUtil {
     private BNCUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static List<Subobject> toBncSubobject(final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml

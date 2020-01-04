@@ -14,9 +14,8 @@ import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Values;
 
 public final class Util {
-
     private Util() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

@@ -31,7 +31,7 @@ public final class ImportAttributeTestUtil {
     static final AsNumber AS = new AsNumber(Uint32.valueOf(65));
 
     private ImportAttributeTestUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static Attributes createInput() {

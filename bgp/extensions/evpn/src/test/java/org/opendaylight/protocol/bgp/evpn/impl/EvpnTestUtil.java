@@ -45,7 +45,7 @@ public final class EvpnTestUtil {
     public static final RouteDistinguisher RD = RouteDistinguisherBuilder.getDefaultInstance(RD_MODEL);
 
     private EvpnTestUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static DataContainerNodeBuilder<NodeIdentifier, ContainerNode> createContBuilder(

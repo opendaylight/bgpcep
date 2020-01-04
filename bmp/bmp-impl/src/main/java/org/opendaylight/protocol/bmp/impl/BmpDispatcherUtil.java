@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl;
 
 import io.netty.bootstrap.Bootstrap;
@@ -33,7 +32,7 @@ public final class BmpDispatcherUtil {
     private static final int MAX_CONNECTIONS_COUNT = 128;
 
     private BmpDispatcherUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static ChannelInitializer<AbstractChannel> createChannelWithDecoder(

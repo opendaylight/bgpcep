@@ -10,9 +10,8 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 
 public final class BasePathSelectionModeFactory {
-
     private BasePathSelectionModeFactory() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static PathSelectionMode createBestPathSelectionStrategy() {

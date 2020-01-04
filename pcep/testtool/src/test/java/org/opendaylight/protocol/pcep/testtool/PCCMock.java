@@ -25,9 +25,8 @@ import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProvide
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public final class PCCMock {
-
     private PCCMock() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException {

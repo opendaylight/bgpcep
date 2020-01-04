@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
 import java.util.ServiceLoader;
@@ -14,7 +13,7 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
 
 public final class ServiceLoaderRSVPExtensionProviderContext {
     private ServiceLoaderRSVPExtensionProviderContext() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static RSVPExtensionProviderContext create() {

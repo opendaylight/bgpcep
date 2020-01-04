@@ -20,9 +20,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 public final class AsNumberUtil {
-
     private AsNumberUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

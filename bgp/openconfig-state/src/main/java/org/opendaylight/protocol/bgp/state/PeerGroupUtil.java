@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
  */
 public final class PeerGroupUtil {
     private PeerGroupUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

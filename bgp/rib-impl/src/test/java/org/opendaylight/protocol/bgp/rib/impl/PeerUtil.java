@@ -70,9 +70,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PeerUtil {
-
     private PeerUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static MpReachNlri createMpReachNlri(final IpAddress nextHop, final List<IpPrefix> prefixes) {

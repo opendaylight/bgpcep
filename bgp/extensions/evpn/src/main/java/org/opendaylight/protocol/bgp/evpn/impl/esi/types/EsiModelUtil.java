@@ -42,7 +42,7 @@ final class EsiModelUtil {
             "router-id").intern());
 
     private EsiModelUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static Uint32 extractLD(final ContainerNode cont) {

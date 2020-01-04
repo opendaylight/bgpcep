@@ -31,7 +31,7 @@ public final class CheckTestUtil {
     private static final int TIMEOUT = 30;
 
     private CheckTestUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static <T extends Future<?>> void waitFutureSuccess(final T future) {

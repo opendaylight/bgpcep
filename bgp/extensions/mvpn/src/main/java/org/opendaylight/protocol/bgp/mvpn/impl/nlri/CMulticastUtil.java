@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
  */
 final class CMulticastUtil {
     private CMulticastUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static CMulticast parseCMulticastGrouping(final ByteBuf buffer) {

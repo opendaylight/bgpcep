@@ -56,9 +56,8 @@ final class RIBTestsUtil {
     }
 
     private RIBTestsUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
-
 
     public static Global createGlobalIpv4() {
         return new GlobalBuilder()

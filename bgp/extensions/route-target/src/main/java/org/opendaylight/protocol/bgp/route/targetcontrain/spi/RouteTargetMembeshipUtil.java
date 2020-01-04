@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.route.targetcontrain.spi;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
@@ -18,21 +17,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class RouteTargetMembeshipUtil {
     private RouteTargetMembeshipUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static RouteTarget getRT(final RouteTargetConstrainRoute route) {
         final RouteTargetConstrainChoice rtc = route.getRouteTargetConstrainChoice();
-        RouteTarget rt;
         if (rtc instanceof RouteTargetConstrainDefaultCase) {
-            rt = ((RouteTargetConstrainDefaultCase) rtc).getRouteTargetConstrainDefaultRoute();
+            return ((RouteTargetConstrainDefaultCase) rtc).getRouteTargetConstrainDefaultRoute();
         } else if (rtc instanceof RouteTargetConstrainAs4ExtendedCommunityCase) {
-            rt = ((RouteTargetConstrainAs4ExtendedCommunityCase) rtc).getAs4RouteTargetExtendedCommunity();
+            return ((RouteTargetConstrainAs4ExtendedCommunityCase) rtc).getAs4RouteTargetExtendedCommunity();
         } else if (rtc instanceof RouteTargetConstrainIpv4RouteCase) {
-            rt = ((RouteTargetConstrainIpv4RouteCase) rtc).getRouteTargetIpv4();
+            return ((RouteTargetConstrainIpv4RouteCase) rtc).getRouteTargetIpv4();
         } else {
-            rt = ((RouteTargetConstrainRouteCase) rtc).getRouteTargetExtendedCommunity();
+            return ((RouteTargetConstrainRouteCase) rtc).getRouteTargetExtendedCommunity();
         }
-        return rt;
     }
 }

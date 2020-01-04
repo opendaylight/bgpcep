@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 @NonNullByDefault
 public final class RouterIds {
     private RouterIds() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static PeerId createPeerId(final IpAddress address) {

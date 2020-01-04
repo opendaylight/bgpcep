@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.spi.util;
 
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -20,13 +19,12 @@ import org.slf4j.LoggerFactory;
  * Utility class which provides helper functionality for ClusterSingletonService.
  */
 public final class ClusterSingletonServiceRegistrationHelper {
-
     private static final Logger LOG = LoggerFactory.getLogger(ClusterSingletonServiceRegistrationHelper.class);
     private static final int MAX_REGISTRATION_ATTEMPTS = 10;
     private static final int SLEEP_TIME_MILLIS = MAX_REGISTRATION_ATTEMPTS;
 
     private ClusterSingletonServiceRegistrationHelper() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

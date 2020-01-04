@@ -30,7 +30,7 @@ public final class Ipv6Util {
     private static final Ipv6Prefix EMPTY_PREFIX = new Ipv6Prefix("::/0");
 
     private Ipv6Util() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

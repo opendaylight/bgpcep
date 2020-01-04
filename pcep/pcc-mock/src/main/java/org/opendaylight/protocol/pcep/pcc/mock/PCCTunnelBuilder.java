@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
@@ -31,7 +30,7 @@ final class PCCTunnelBuilder {
     private static final Subobject DEFAULT_ENDPOINT_HOP = getDefaultEROEndpointHop();
 
     private PCCTunnelBuilder() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static Map<PlspId, PCCTunnel> createTunnels(final String address, final int lsps) {

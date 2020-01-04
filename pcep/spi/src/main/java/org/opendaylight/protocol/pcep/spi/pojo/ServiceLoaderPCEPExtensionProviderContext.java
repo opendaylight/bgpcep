@@ -20,7 +20,7 @@ public final class ServiceLoaderPCEPExtensionProviderContext extends SimplePCEPE
     }
 
     private ServiceLoaderPCEPExtensionProviderContext() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static PCEPExtensionProviderContext create() {

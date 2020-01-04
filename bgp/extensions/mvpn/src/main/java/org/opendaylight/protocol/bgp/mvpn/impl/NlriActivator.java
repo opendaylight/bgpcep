@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl;
 
 import java.util.List;
@@ -26,7 +25,7 @@ import org.opendaylight.yangtools.concepts.Registration;
  */
 public final class NlriActivator {
     private NlriActivator() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void registerNlriParsers(final List<Registration> regs) {

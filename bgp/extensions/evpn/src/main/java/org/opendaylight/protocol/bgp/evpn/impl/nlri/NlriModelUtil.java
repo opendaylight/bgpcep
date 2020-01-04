@@ -44,7 +44,7 @@ final class NlriModelUtil {
             "mpls-label2").intern());
 
     private NlriModelUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<? extends PathArgument> evpn) {

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.util;
 
 import ch.qos.logback.classic.Level;
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public final class LoggerUtil {
     private LoggerUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void initiateLogger(final ArgumentsInput arguments) {

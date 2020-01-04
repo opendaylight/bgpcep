@@ -16,9 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 
 public final class KeyConstructorUtil {
-
     private KeyConstructorUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static KeyMapping constructKeys(final List<MonitoredRouter> mrs) {

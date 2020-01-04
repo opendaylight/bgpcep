@@ -36,7 +36,7 @@ public final class RouteDistinguisherUtil {
     private static final String SEPARATOR = ":";
 
     private RouteDistinguisherUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

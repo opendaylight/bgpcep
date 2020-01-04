@@ -26,7 +26,7 @@ import org.opendaylight.yangtools.concepts.Registration;
  */
 final class TunnelIdentifierActivator {
     private TunnelIdentifierActivator() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static void registerTunnelIdentifierHandlers(final BGPExtensionProviderContext context,

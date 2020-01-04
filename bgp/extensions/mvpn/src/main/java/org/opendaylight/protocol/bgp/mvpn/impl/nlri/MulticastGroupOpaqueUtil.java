@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  */
 final class MulticastGroupOpaqueUtil {
     private MulticastGroupOpaqueUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static MulticastGroup multicastGroupForByteBuf(final ByteBuf buffer) {

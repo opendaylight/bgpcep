@@ -27,7 +27,7 @@ public final class BinaryBGPDumpFileParser {
     private static final int MARKER_LENGTH = 16;
 
     private BinaryBGPDumpFileParser() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

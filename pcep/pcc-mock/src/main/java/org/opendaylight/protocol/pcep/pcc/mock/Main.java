@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import ch.qos.logback.classic.Level;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class Main {
-
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private static final int DEFAULT_REMOTE_PORT = 4189;
@@ -41,9 +39,8 @@ public final class Main {
     private static int reconnectAfterXSeconds;
     private static int disonnectAfterXSeconds;
 
-
     private Main() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void main(final String[] args) {

@@ -17,7 +17,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class TunnelProgrammingUtil {
     private TunnelProgrammingUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology,

@@ -16,12 +16,11 @@ import org.opendaylight.yangtools.yang.common.Uint32;
  * Util class for encoding/decoding 20bit leftmost value.
  */
 public final class MplsLabelUtil {
-
     private static final int LABEL_OFFSET = 4;
     private static final byte BOTTOM_LABEL_BIT = 0x1;
 
     private MplsLabelUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

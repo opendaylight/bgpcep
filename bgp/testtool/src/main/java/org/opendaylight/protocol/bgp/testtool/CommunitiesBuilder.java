@@ -55,7 +55,7 @@ final class CommunitiesBuilder {
     private static final Uint16 LA = Uint16.valueOf(4660).intern();
 
     private CommunitiesBuilder() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static List<ExtendedCommunities> createExtComm(final List<String> extCom) {

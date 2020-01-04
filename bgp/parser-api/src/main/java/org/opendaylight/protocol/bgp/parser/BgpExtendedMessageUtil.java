@@ -16,13 +16,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 
 public final class BgpExtendedMessageUtil {
-
     public static final CParameters EXTENDED_MESSAGE_CAPABILITY =
             new CParametersBuilder().setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder()
                     .build()).build();
 
     private BgpExtendedMessageUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

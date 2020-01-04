@@ -25,7 +25,7 @@ import org.opendaylight.yangtools.concepts.Registration;
 
 public final class ESIActivator {
     private ESIActivator() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void registerEsiTypeParsers(final List<Registration> regs) {

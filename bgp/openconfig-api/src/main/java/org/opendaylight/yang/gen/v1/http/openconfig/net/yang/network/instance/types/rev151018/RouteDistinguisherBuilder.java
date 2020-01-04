@@ -17,7 +17,7 @@ public final class RouteDistinguisherBuilder {
     private static final Pattern[] PATTERNS = CodeHelpers.compilePatterns(RouteDistinguisher.PATTERN_CONSTANTS);
 
     private RouteDistinguisherBuilder() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static RouteDistinguisher getDefaultInstance(final String defaultValue) {

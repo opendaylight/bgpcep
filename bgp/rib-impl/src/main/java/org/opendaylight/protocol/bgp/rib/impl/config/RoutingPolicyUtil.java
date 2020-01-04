@@ -15,13 +15,12 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.apply.policy.group.apply.policy.ConfigBuilder;
 
 public final class RoutingPolicyUtil {
-
     private static final Config DEFAULT_POLICY = new ConfigBuilder().setDefaultImportPolicy(ACCEPTROUTE)
             .setDefaultExportPolicy(ACCEPTROUTE).setImportPolicy(Collections.emptyList())
             .setExportPolicy(Collections.emptyList()).build();
 
     private RoutingPolicyUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static Config getApplyPolicy(final ApplyPolicy applyPolicy) {

@@ -16,7 +16,7 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class FourOctAsCommonECUtil {
     private FourOctAsCommonECUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static As4SpecificCommon parseCommon(final ByteBuf body) {

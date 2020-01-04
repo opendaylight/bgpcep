@@ -34,7 +34,7 @@ public final class OpaqueUtil {
     private static final String EMPTY_SEPARATOR = "";
 
     private OpaqueUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static boolean serializeOpaque(final Opaque opaque, final ByteBuf byteBuf) {

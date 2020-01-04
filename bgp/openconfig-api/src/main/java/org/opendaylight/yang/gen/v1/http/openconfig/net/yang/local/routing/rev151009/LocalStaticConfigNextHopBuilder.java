@@ -5,21 +5,18 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.local.routing.rev151009;
+
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.local.routing.rev151009.LocalStaticConfig.NextHop;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 
 /**
-*
-* Helper builder utility for {@code NextHop} union type.
-*
-*/
+ * Helper builder utility for {@code NextHop} union type.
+ */
 public final class LocalStaticConfigNextHopBuilder {
-
     private LocalStaticConfigNextHopBuilder() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static NextHop getDefaultInstance(final String defaultValue) {
@@ -35,5 +32,4 @@ public final class LocalStaticConfigNextHopBuilder {
             }
         }
     }
-
 }

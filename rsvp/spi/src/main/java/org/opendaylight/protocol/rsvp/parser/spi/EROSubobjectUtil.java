@@ -10,13 +10,11 @@ package org.opendaylight.protocol.rsvp.parser.spi;
 import io.netty.buffer.ByteBuf;
 
 public final class EROSubobjectUtil {
-
     private static final int HEADER_SIZE = 2;
-
     private static final int LOOSE_BIT = 7;
 
     private EROSubobjectUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void formatSubobject(final int type, final Boolean loose, final ByteBuf body, final ByteBuf buffer) {
