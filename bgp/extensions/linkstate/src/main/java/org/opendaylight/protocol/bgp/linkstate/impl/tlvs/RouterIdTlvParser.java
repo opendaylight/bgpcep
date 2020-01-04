@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.OspfInterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.isis.lan.identifier.IsIsRouterIdentifier;
@@ -33,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdentifier>,
         LinkstateTlvParser.LinkstateTlvSerializer<CRouterIdentifier> {
@@ -41,7 +41,6 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
     private static final int OSPF_ROUTER_ID_LENGTH = 4;
     private static final int ISO_SYSTEM_ID_LENGTH = 6;
     private static final int PSN_LENGTH = 1;
-
     private static final int IGP_ROUTER_ID = 515;
 
     @Override

@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
@@ -21,14 +20,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Parser for {@link PathKey}.
  */
 public abstract class AbstractEROPathKeySubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
-
     public static final int TYPE_32 = 64;
     public static final int TYPE_128 = 65;
+
     protected static final int PCE_ID_F_LENGTH = 4;
     protected static final int PCE128_ID_F_LENGTH = 16;
     protected static final int CONTENT128_LENGTH = 2 + PCE128_ID_F_LENGTH;
