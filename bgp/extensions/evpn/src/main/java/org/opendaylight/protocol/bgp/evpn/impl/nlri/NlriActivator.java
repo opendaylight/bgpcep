@@ -21,7 +21,7 @@ import org.opendaylight.yangtools.concepts.Registration;
 
 public final class NlriActivator {
     private NlriActivator() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void registerNlriParsers(final List<Registration> regs) {

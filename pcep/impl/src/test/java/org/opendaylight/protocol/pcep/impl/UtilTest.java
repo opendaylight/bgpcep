@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
@@ -21,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.error.type.SessionCase;
 
 public class UtilTest {
-
     private static final Open OPEN = new OpenBuilder().build();
 
     @Test
@@ -47,17 +44,4 @@ public class UtilTest {
         Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
         Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
     }
-
-    @Test(expected = UnsupportedOperationException.class)
-    @SuppressWarnings({"checkstyle:IllegalThrows","checkstyle:AvoidHidingCauseException"})
-    public void testPrivateConstructor() throws Throwable {
-        final Constructor<Util> c = Util.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
 }

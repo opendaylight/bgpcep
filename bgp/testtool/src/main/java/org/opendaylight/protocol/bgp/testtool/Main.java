@@ -22,7 +22,7 @@ public final class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private Main() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void main(final String[] args) throws IOException {

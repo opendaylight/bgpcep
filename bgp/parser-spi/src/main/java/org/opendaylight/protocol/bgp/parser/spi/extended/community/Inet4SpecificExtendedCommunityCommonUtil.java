@@ -18,9 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class Inet4SpecificExtendedCommunityCommonUtil {
     private Inet4SpecificExtendedCommunityCommonUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
-
 
     public static Inet4SpecificExtendedCommunityCommon parseCommon(final ByteBuf buffer) {
         return new Inet4SpecificExtendedCommunityCommonBuilder()
@@ -29,11 +28,9 @@ public final class Inet4SpecificExtendedCommunityCommonUtil {
                 .build();
     }
 
-    public static void serializeCommon(
-            final Inet4SpecificExtendedCommunityCommon extComm,
+    public static void serializeCommon(final Inet4SpecificExtendedCommunityCommon extComm,
             final ByteBuf byteAggregator) {
         ByteBufWriteUtil.writeIpv4Address(extComm.getGlobalAdministrator(), byteAggregator);
         byteAggregator.writeBytes(extComm.getLocalAdministrator());
     }
-
 }

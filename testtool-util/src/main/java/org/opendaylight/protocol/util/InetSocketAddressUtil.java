@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.util;
 
 import com.google.common.collect.Lists;
@@ -25,7 +24,7 @@ public final class InetSocketAddressUtil {
     private static final List<Integer> ASSIGNED_PORTS = new ArrayList<>();
 
     private InetSocketAddressUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static List<InetSocketAddress> parseAddresses(final String address, final int defaultPort) {

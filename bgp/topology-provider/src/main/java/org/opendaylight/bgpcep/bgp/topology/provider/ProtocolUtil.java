@@ -60,7 +60,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class ProtocolUtil {
     private ProtocolUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void augmentProtocolId(final LinkstateRoute value, final PrefixAttributes pa,

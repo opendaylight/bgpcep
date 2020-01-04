@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.mock;
 
 import com.google.common.net.InetAddresses;
@@ -26,17 +25,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BmpMock {
-
     private static final Logger LOG = LoggerFactory.getLogger(BmpMock.class);
 
     private BmpMock() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void main(final String[] args) {
         deploy(args);
     }
-
 
     private static BmpMockDispatcher initiateMock(final BmpMockArguments arguments) {
         final BGPExtensionProviderContext bgpCtx = new SimpleBGPExtensionProviderContext();
@@ -90,5 +87,4 @@ public final class BmpMock {
             return deployClients(dispatcher, arguments);
         }
     }
-
 }

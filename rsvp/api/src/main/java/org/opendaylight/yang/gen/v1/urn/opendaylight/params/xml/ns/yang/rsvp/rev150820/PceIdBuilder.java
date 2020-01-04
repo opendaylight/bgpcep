@@ -20,7 +20,7 @@ import com.google.common.net.InetAddresses;
  */
 public final class PceIdBuilder {
     private PceIdBuilder() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

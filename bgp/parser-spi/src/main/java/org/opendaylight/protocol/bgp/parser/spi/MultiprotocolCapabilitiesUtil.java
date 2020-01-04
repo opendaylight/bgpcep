@@ -23,17 +23,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class MultiprotocolCapabilitiesUtil {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MultiprotocolCapabilitiesUtil.class);
-
     public static final CParameters RR_CAPABILITY = new CParametersBuilder().addAugmentation(CParameters1.class,
         new CParameters1Builder().setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build()).build())
             .build();
 
+    private static final Logger LOG = LoggerFactory.getLogger(MultiprotocolCapabilitiesUtil.class);
     private static final int RESERVED = 1;
 
     private MultiprotocolCapabilitiesUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void serializeMPAfiSafi(final AddressFamilyRegistry afiReg,

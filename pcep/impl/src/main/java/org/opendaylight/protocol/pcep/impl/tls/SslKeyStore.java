@@ -17,11 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class SslKeyStore {
-
     private static final Logger LOG = LoggerFactory.getLogger(SslKeyStore.class);
 
     private SslKeyStore() {
-        throw new UnsupportedOperationException("Utility class shouldn't be instantiated");
+        // Hidden on purpose
     }
 
     /**

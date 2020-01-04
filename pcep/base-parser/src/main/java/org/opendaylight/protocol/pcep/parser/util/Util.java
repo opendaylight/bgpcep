@@ -20,9 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Utilities used in pcep-base-parser.
  */
 public final class Util {
-
     private Util() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     private static State insertObject(final MetricPceBuilder metricPceBuilder, final State state, final Object obj) {

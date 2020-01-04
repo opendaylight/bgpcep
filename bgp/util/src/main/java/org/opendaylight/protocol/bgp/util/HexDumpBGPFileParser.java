@@ -37,7 +37,7 @@ public final class HexDumpBGPFileParser {
     private static final String FF_16 = Strings.repeat("FF", 16);
 
     private HexDumpBGPFileParser() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static List<byte[]> parseMessages(final File file) throws IOException {

@@ -24,9 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Utilities used in pcep-impl.
  */
 public final class Util {
-
     private Util() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static Message createErrorMessage(final PCEPErrors error, final Open openObject) {

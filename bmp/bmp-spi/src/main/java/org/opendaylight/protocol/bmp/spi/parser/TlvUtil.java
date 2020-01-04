@@ -15,9 +15,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
 
 public final class TlvUtil {
-
     private TlvUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static void formatTlv(final int type, final ByteBuf value, final ByteBuf out) {

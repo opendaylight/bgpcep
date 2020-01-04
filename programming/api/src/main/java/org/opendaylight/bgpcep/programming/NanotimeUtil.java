@@ -22,7 +22,7 @@ public final class NanotimeUtil {
     private static volatile Long nanoTimeOffset = null;
 
     private NanotimeUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

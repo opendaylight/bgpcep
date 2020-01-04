@@ -22,7 +22,7 @@ public final class CountersUtil {
     private static final Logger LOG = LoggerFactory.getLogger(CountersUtil.class);
 
     private CountersUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

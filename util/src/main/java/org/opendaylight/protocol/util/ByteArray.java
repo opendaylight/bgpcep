@@ -25,11 +25,10 @@ import org.slf4j.LoggerFactory;
  * Util class for methods working with byte array.
  */
 public final class ByteArray {
-
     private static final Logger LOG = LoggerFactory.getLogger(ByteArray.class);
 
     private ByteArray() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     /**

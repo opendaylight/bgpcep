@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
  */
 public final class RouteTargetExtendedCommunityHandler {
     private RouteTargetExtendedCommunityHandler() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     public static RouteTargetExtendedCommunity parse(final ByteBuf buffer) {

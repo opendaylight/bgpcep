@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.l3vpn.mcast.nlri;
 
 import static org.opendaylight.protocol.util.Ipv6Util.IPV6_BITS_LENGTH;
@@ -25,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vp
 
 public final class L3vpnMcastNlriSerializer {
     private L3vpnMcastNlriSerializer() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static List<L3vpnMcastDestination> extractDest(final ByteBuf nlri, final boolean addPath) {

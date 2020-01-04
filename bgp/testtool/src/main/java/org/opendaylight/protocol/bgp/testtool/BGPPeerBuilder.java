@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.testtool;
 
 import com.google.common.base.Preconditions;
@@ -30,7 +29,7 @@ final class BGPPeerBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeerBuilder.class);
 
     private BGPPeerBuilder() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
     static void createPeer(final BGPDispatcher dispatcher, final Arguments arguments,
