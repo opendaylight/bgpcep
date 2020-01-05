@@ -7,11 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
-import com.google.common.primitives.UnsignedBytes;
-import com.google.common.primitives.UnsignedInts;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Values;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class Util {
     private Util() {
@@ -19,21 +18,36 @@ public final class Util {
     }
 
     /**
-     * Given the integer values, this method instead of writing the value
-     * in 4B field, compresses the value to lowest required byte field
-     * depending on the value.
+     * Given an uint16, this method instead of writing the value in 2B field, compresses the value to lowest required
+     * byte field depending on the value.
      *
-     * @param value integer to be written
+     * @param value uint16 to be written
      * @param buffer ByteBuf where the value will be written
      */
-    public static void writeShortest(final int value, final ByteBuf buffer) {
-        if (value <= Values.UNSIGNED_BYTE_MAX_VALUE) {
-            buffer.writeByte(UnsignedBytes.checkedCast(value));
-        } else if (value <= Values.UNSIGNED_SHORT_MAX_VALUE) {
-            ByteBufWriteUtil.writeUnsignedShort(value, buffer);
+    public static void writeShortest(final Uint16 value, final ByteBuf buffer) {
+        final int unsigned = value.toJava();
+        if (unsigned <= Values.UNSIGNED_BYTE_MAX_VALUE) {
+            buffer.writeByte(unsigned);
         } else {
-            //value <= Values.UNSIGNED_INT_MAX_VALUE
-            ByteBufWriteUtil.writeUnsignedInt(UnsignedInts.toLong(value), buffer);
+            buffer.writeShort(unsigned);
+        }
+    }
+
+    /**
+     * Given an uint32, this method instead of writing the value in 4B field, compresses the value to lowest required
+     * byte field depending on the value.
+     *
+     * @param value uint32 to be written
+     * @param buffer ByteBuf where the value will be written
+     */
+    public static void writeShortest(final Uint32 value, final ByteBuf buffer) {
+        final long unsigned = value.toJava();
+        if (unsigned <= Values.UNSIGNED_BYTE_MAX_VALUE) {
+            buffer.writeByte((int) unsigned);
+        } else if (unsigned <= Values.UNSIGNED_SHORT_MAX_VALUE) {
+            buffer.writeShort((int) unsigned);
+        } else {
+            buffer.writeInt(value.intValue());
         }
     }
 }
