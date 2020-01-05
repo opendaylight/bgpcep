@@ -33,7 +33,7 @@ public final class FSIpv6FlowLabelHandler implements FlowspecTypeParser, Flowspe
         for (final Iterator<FlowLabel> it = list.iterator(); it.hasNext(); ) {
             final FlowLabel label = it.next();
             final ByteBuf protoBuf = Unpooled.buffer();
-            Util.writeShortest(label.getValue().intValue(), protoBuf);
+            Util.writeShortest(label.getValue(), protoBuf);
             NumericOneByteOperandParser.INSTANCE.serialize(label.getOp(), protoBuf.readableBytes(),
                     !it.hasNext(), nlriByteBuf);
             nlriByteBuf.writeBytes(protoBuf);
