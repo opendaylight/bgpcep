@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.rsvp.parser.impl.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -44,7 +43,7 @@ public final class AsNumberCaseParser {
         final AsNumberSubobject asNumber = asCase.getAsNumber();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         checkArgument(asNumber.getAsNumber() != null, "AsNumber is mandatory.");
-        writeShort(asNumber.getAsNumber().getValue().shortValue(), body);
+        body.writeShort(asNumber.getAsNumber().getValue().shortValue());
         return body;
     }
 }

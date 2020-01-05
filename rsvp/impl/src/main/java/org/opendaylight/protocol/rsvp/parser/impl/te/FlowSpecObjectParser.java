@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
@@ -64,7 +63,7 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
-        Preconditions.checkArgument(teLspObject instanceof FlowSpecObject, "SenderTspecObject is mandatory.");
+        checkArgument(teLspObject instanceof FlowSpecObject, "SenderTspecObject is mandatory.");
         final FlowSpecObject flowObj = (FlowSpecObject) teLspObject;
         final int sHeader = flowObj.getServiceHeader().getIntValue();
         if (sHeader == 2) {
@@ -91,8 +90,8 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
         writeFloat32(tSpec.getTokenBucketRate(), output);
         writeFloat32(tSpec.getTokenBucketSize(), output);
         writeFloat32(tSpec.getPeakDataRate(), output);
-        writeUnsignedInt(tSpec.getMinimumPolicedUnit(), output);
-        writeUnsignedInt(tSpec.getMaximumPacketSize(), output);
+        ByteBufUtils.writeOrZero(output, tSpec.getMinimumPolicedUnit());
+        ByteBufUtils.writeOrZero(output, tSpec.getMaximumPacketSize());
 
         if (sHeader != 2) {
             return;
@@ -101,6 +100,6 @@ public final class FlowSpecObjectParser extends AbstractRSVPObjectParser {
         output.writeByte(0);
         output.writeShort(PARAMETER_130_LENGTH);
         writeFloat32(flowObj.getRate(), output);
-        writeUnsignedInt(flowObj.getSlackTerm(), output);
+        ByteBufUtils.writeOrZero(output, flowObj.getSlackTerm());
     }
 }

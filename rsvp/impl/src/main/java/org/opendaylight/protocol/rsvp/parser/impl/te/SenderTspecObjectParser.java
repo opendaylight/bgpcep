@@ -9,7 +9,6 @@ package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
@@ -62,7 +61,7 @@ public class SenderTspecObjectParser extends AbstractRSVPObjectParser {
         writeFloat32(tspecObj.getTokenBucketRate(), output);
         writeFloat32(tspecObj.getTokenBucketSize(), output);
         writeFloat32(tspecObj.getPeakDataRate(), output);
-        writeUnsignedInt(tspecObj.getMinimumPolicedUnit(), output);
-        writeUnsignedInt(tspecObj.getMaximumPacketSize(), output);
+        ByteBufUtils.writeOrZero(output, tspecObj.getMinimumPolicedUnit());
+        ByteBufUtils.writeOrZero(output, tspecObj.getMaximumPacketSize());
     }
 }
