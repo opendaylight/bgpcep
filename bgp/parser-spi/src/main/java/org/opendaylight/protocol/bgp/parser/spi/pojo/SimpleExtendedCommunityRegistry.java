@@ -19,7 +19,6 @@ import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommu
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -64,9 +63,8 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
         if (serializer == null) {
             return;
         }
-        ByteBufWriteUtil.writeUnsignedByte(Shorts.checkedCast(serializer.getType(extendedCommunity.isTransitive())),
-            byteAggregator);
-        ByteBufWriteUtil.writeUnsignedByte(Shorts.checkedCast(serializer.getSubType()), byteAggregator);
+        byteAggregator.writeByte(Shorts.checkedCast(serializer.getType(extendedCommunity.isTransitive())));
+        byteAggregator.writeByte(Shorts.checkedCast(serializer.getSubType()));
         serializer.serializeExtendedCommunity(extendedCommunity.getExtendedCommunity(), byteAggregator);
     }
 
