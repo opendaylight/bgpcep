@@ -5,13 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.label;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelParser;
@@ -50,8 +47,8 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
             "Unknown Label Subobject instance. Passed %s. Needed Type1LabelCase.", subobject.getClass());
         final ByteBuf body = Unpooled.buffer(LABEL_LENGTH);
         final Type1Label type1Label = ((Type1LabelCase) subobject).getType1Label();
-        Preconditions.checkArgument(type1Label != null, "Type1Label is mandatory.");
-        writeUnsignedInt(type1Label.getType1Label(), body);
+        checkArgument(type1Label != null, "Type1Label is mandatory.");
+        ByteBufUtils.writeOrZero(body, type1Label.getType1Label());
         LabelUtil.formatLabel(CTYPE, unidirectional, global, body, buffer);
     }
 }

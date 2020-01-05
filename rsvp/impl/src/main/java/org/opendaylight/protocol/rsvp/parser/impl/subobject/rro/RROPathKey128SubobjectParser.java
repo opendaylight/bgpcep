@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.rro;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectParser;
@@ -22,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
-import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class RROPathKey128SubobjectParser implements RROSubobjectParser {
@@ -40,28 +38,31 @@ public class RROPathKey128SubobjectParser implements RROSubobjectParser {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
             .subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
-        Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
-        writeUnsignedShort(pk.getPathKey().getValue(), body);
-        Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        body.writeBytes(pk.getPceId().getValue());
+
+        final PathKey pathKey = pk.getPathKey();
+        checkArgument(pathKey != null, "PathKey is mandatory.");
+        ByteBufUtils.write(body, pathKey.getValue());
+
+        final PceId pceId = pk.getPceId();
+        checkArgument(pceId != null, "PceId is mandatory.");
+        body.writeBytes(pceId.getValue());
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 
     @Override
     public SubobjectContainer parseSubobject(final ByteBuf buffer) throws RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT128_LENGTH) {
             throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; "
                 + "Expected: >" + CONTENT128_LENGTH + ".");
         }
-        final Uint16 pathKey = ByteBufUtils.readUint16(buffer);
-        final byte[] pceId = ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH);
-        final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(pceId));
-        pBuilder.setPathKey(new PathKey(pathKey));
-        builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-        return builder.build();
+        return new SubobjectContainerBuilder()
+                .setSubobjectType(new PathKeyCaseBuilder()
+                    .setPathKey(new PathKeyBuilder()
+                        .setPathKey(new PathKey(ByteBufUtils.readUint16(buffer)))
+                        .setPceId(new PceId(ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH)))
+                        .build())
+                    .build())
+                .build();
     }
 }
