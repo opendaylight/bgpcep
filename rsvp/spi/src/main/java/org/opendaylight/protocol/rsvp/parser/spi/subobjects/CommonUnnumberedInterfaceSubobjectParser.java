@@ -7,10 +7,7 @@
  */
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.Unnumbered;
@@ -32,9 +29,7 @@ public class CommonUnnumberedInterfaceSubobjectParser {
     }
 
     protected static void serializeUnnumeredInterface(final Unnumbered unnumbered, final ByteBuf body) {
-        checkArgument(unnumbered.getRouterId() != null, "RouterId is mandatory.");
-        ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRouterId(), body);
-        checkArgument(unnumbered.getInterfaceId() != null, "InterfaceId is mandatory.");
-        ByteBufWriteUtil.writeUnsignedInt(unnumbered.getInterfaceId(), body);
+        ByteBufUtils.writeMandatory(body, unnumbered.getRouterId(), "RouterId");
+        ByteBufUtils.writeMandatory(body, unnumbered.getInterfaceId(), "InterfaceId");
     }
 }

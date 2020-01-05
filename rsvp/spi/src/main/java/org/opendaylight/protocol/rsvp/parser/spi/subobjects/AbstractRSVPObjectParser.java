@@ -5,10 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
-
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
@@ -16,6 +13,7 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public abstract class AbstractRSVPObjectParser implements RSVPTeObjectSerializer, RSVPTeObjectParser {
 
@@ -35,7 +33,11 @@ public abstract class AbstractRSVPObjectParser implements RSVPTeObjectSerializer
     }
 
     protected static void writeAttributeFilter(final AttributeFilter attributeFilter, final ByteBuf body) {
-        writeUnsignedInt(attributeFilter != null ? attributeFilter.getValue() : null, body);
+        if (attributeFilter != null) {
+            ByteBufUtils.write(body, attributeFilter.getValue());
+        } else {
+            body.writeInt(0);
+        }
     }
 
     @Override
