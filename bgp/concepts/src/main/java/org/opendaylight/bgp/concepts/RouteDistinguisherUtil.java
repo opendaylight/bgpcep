@@ -7,11 +7,12 @@
  */
 package org.opendaylight.bgp.concepts;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdAs;
@@ -32,8 +33,10 @@ import org.slf4j.LoggerFactory;
  */
 public final class RouteDistinguisherUtil {
     public static final int RD_LENGTH = 8;
+
     private static final Logger LOG = LoggerFactory.getLogger(RouteDistinguisherUtil.class);
-    private static final String SEPARATOR = ":";
+    @VisibleForTesting
+    static final char SEPARATOR = ':';
 
     private RouteDistinguisherUtil() {
         // Hidden on purpose
@@ -45,29 +48,58 @@ public final class RouteDistinguisherUtil {
     public static void serializeRouteDistinquisher(final RouteDistinguisher distinguisher,
             final ByteBuf byteAggregator) {
         requireNonNull(distinguisher);
-        Preconditions.checkState(byteAggregator != null && byteAggregator.isWritable(RD_LENGTH),
+        checkState(byteAggregator != null && byteAggregator.isWritable(RD_LENGTH),
                 "Cannot write Route Distinguisher to provided buffer.");
         if (distinguisher.getRdTwoOctetAs() != null) {
-            byteAggregator.writeShort(RDType.AS_2BYTE.value);
-            final String[] values = distinguisher.getRdTwoOctetAs().getValue().split(SEPARATOR);
-            ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
-            final long assignedNumber = Integer.parseUnsignedInt(values[2]);
-            ByteBufWriteUtil.writeUnsignedInt(assignedNumber, byteAggregator);
+            serialize(byteAggregator, distinguisher.getRdTwoOctetAs());
         } else if (distinguisher.getRdAs() != null) {
-            byteAggregator.writeShort(RDType.AS_4BYTE.value);
-            final String[] values = distinguisher.getRdAs().getValue().split(SEPARATOR);
-            final long admin = Integer.parseUnsignedInt(values[0]);
-            ByteBufWriteUtil.writeUnsignedInt(admin, byteAggregator);
-            ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
+            serialize(byteAggregator, distinguisher.getRdAs());
         } else if (distinguisher.getRdIpv4() != null) {
-            final String[] values = distinguisher.getRdIpv4().getValue().split(SEPARATOR);
-            final Ipv4Address ip = new Ipv4Address(values[0]);
-            byteAggregator.writeShort(RDType.IPV4.value);
-            ByteBufWriteUtil.writeIpv4Address(ip, byteAggregator);
-            ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
+            serialize(byteAggregator, distinguisher.getRdIpv4());
         } else {
             LOG.warn("Unable to serialize Route Distinguisher. Invalid RD value found. RD={}", distinguisher);
         }
+    }
+
+    private static void serialize(final ByteBuf buf, final RdAs as) {
+        final String value = as.getValue();
+        final int first = findSeparator(value, 0);
+        checkNoColon(value, first);
+
+        buf.writeShort(RDType.AS_4BYTE.value);
+        buf.writeInt(Integer.parseUnsignedInt(value.substring(0, first)));
+        buf.writeShort(Integer.parseUnsignedInt(value.substring(first + 1)));
+    }
+
+    private static void serialize(final ByteBuf buf, final RdTwoOctetAs as) {
+        final String value = as.getValue();
+        final int first = findSeparator(value, 0) + 1;
+        final int second = findSeparator(value, first);
+        checkNoColon(value, second);
+
+        buf.writeShort(RDType.AS_2BYTE.value);
+        buf.writeShort(Integer.parseUnsignedInt(value.substring(first, second)));
+        buf.writeInt(Integer.parseUnsignedInt(value.substring(second + 1)));
+    }
+
+    private static void serialize(final ByteBuf buf, final RdIpv4 ipv4) {
+        final String value = ipv4.getValue();
+        final int first = findSeparator(value, 0);
+        checkNoColon(value, first);
+
+        buf.writeShort(RDType.IPV4.value);
+        buf.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(value.substring(0, first))));
+        buf.writeShort(Integer.parseUnsignedInt(value.substring(first + 1)));
+    }
+
+    private static int findSeparator(final String str, final int fromIndex) {
+        final int found = str.indexOf(SEPARATOR, fromIndex);
+        checkState(found != -1, "Invalid route distinguiser %s", str);
+        return found;
+    }
+
+    private static void checkNoColon(final String str, final int lastIndex) {
+        checkState(str.indexOf(SEPARATOR, lastIndex + 1) == -1, "Invalid route distinguiser %s", str);
     }
 
     /**
@@ -88,7 +120,6 @@ public final class RouteDistinguisherUtil {
                     .append(buffer.readUnsignedInt())
                     .toString()));
             case IPV4:
-
                 return new RouteDistinguisher(new RdIpv4(new StringBuilder()
                     .append(Ipv4Util.addressForByteBuf(buffer).getValue())
                     .append(SEPARATOR)
@@ -130,10 +161,7 @@ public final class RouteDistinguisherUtil {
     public static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<?> route,
             final NodeIdentifier rdNid) {
         final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
-        if (rdNode != null) {
-            return parseRouteDistinguisher(rdNode.getValue());
-        }
-        return null;
+        return rdNode == null ? null : parseRouteDistinguisher(rdNode.getValue());
     }
 
     private enum RDType {
@@ -144,7 +172,7 @@ public final class RouteDistinguisherUtil {
 
         public final int value;
 
-        RDType(int val) {
+        RDType(final int val) {
             this.value = val;
         }
 
