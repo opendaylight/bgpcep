@@ -20,8 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
-public class CommonPathKeyParserTest {
-    private final byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
+public class PathKeyUtilsTest {
+    private final byte[] bytes = new byte[] { 0, 1, 2, 3, 4, 5 };
     private PathKey key1;
     private PathKey key2;
     private PathKey key3;
@@ -40,22 +40,22 @@ public class CommonPathKeyParserTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSerializationExcption1() {
-        CommonPathKeyParser.serializePathKey(this.key1);
+        PathKeyUtils.serializePathKey(this.key1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSerializationExcption2() {
-        CommonPathKeyParser.serializePathKey(this.key2);
+        PathKeyUtils.serializePathKey(this.key2);
     }
 
     @Test
     public void testSerialization() {
-        final ByteBuf output = CommonPathKeyParser.serializePathKey(this.key3);
+        final ByteBuf output = PathKeyUtils.serializePathKey(this.key3);
         assertArrayEquals(this.bytes, ByteArray.readAllBytes(output));
     }
 
     @Test
     public void testParsing() {
-        assertEquals(this.key3, CommonPathKeyParser.parsePathKey(4, Unpooled.copiedBuffer(this.bytes)));
+        assertEquals(this.key3, PathKeyUtils.parsePathKey(4, Unpooled.copiedBuffer(this.bytes)));
     }
 }

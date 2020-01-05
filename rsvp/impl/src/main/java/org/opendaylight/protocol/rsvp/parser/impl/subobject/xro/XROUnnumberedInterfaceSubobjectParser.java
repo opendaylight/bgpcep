@@ -8,14 +8,14 @@
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.xro;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.protocol.rsvp.parser.spi.subobjects.UnnumberedInterfaceSubobjectUtils.parseUnnumeredInterface;
+import static org.opendaylight.protocol.rsvp.parser.spi.subobjects.UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
-import org.opendaylight.protocol.rsvp.parser.spi.subobjects.CommonUnnumberedInterfaceSubobjectParser;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
@@ -25,8 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link UnnumberedCase}.
  */
-public class XROUnnumberedInterfaceSubobjectParser extends CommonUnnumberedInterfaceSubobjectParser
-        implements XROSubobjectParser, XROSubobjectSerializer {
+public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
     public static final int TYPE = 4;
 
     private static final int RESERVED = 1;
@@ -43,7 +42,7 @@ public class XROUnnumberedInterfaceSubobjectParser extends CommonUnnumberedInter
         buffer.readerIndex(buffer.readerIndex() + RESERVED);
         return new SubobjectContainerBuilder()
                 .setMandatory(mandatory)
-                .setAttribute(ExcludeRouteSubobjects.Attribute.forValue(buffer.readUnsignedByte()))
+                .setAttribute(Attribute.forValue(buffer.readUnsignedByte()))
                 .setSubobjectType(parseUnnumeredInterface(buffer))
                 .build();
     }

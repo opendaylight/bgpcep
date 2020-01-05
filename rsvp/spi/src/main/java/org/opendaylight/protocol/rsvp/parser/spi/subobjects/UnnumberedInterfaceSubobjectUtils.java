@@ -14,12 +14,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
-public class CommonUnnumberedInterfaceSubobjectParser {
-    protected CommonUnnumberedInterfaceSubobjectParser() {
-
+public final class UnnumberedInterfaceSubobjectUtils {
+    private UnnumberedInterfaceSubobjectUtils() {
+        // Hidden on purpose
     }
 
-    protected static UnnumberedCase parseUnnumeredInterface(final ByteBuf buffer) {
+    public static UnnumberedCase parseUnnumeredInterface(final ByteBuf buffer) {
         return new UnnumberedCaseBuilder()
                 .setUnnumbered(new UnnumberedBuilder()
                     .setRouterId(ByteBufUtils.readUint32(buffer))
@@ -28,7 +28,7 @@ public class CommonUnnumberedInterfaceSubobjectParser {
                 .build();
     }
 
-    protected static void serializeUnnumeredInterface(final Unnumbered unnumbered, final ByteBuf body) {
+    public static void serializeUnnumeredInterface(final Unnumbered unnumbered, final ByteBuf body) {
         ByteBufUtils.writeMandatory(body, unnumbered.getRouterId(), "RouterId");
         ByteBufUtils.writeMandatory(body, unnumbered.getInterfaceId(), "InterfaceId");
     }

@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.ero;
 
+import static org.opendaylight.protocol.rsvp.parser.spi.subobjects.UnnumberedInterfaceSubobjectUtils.parseUnnumeredInterface;
+import static org.opendaylight.protocol.rsvp.parser.spi.subobjects.UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -14,7 +17,6 @@ import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
-import org.opendaylight.protocol.rsvp.parser.spi.subobjects.CommonUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainerBuilder;
@@ -22,13 +24,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link UnnumberedCase}.
  */
-public class EROUnnumberedInterfaceSubobjectParser extends CommonUnnumberedInterfaceSubobjectParser implements
-    EROSubobjectParser, EROSubobjectSerializer {
-
+public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
     public static final int TYPE = 4;
 
     private static final int RESERVED = 2;
-
     private static final int CONTENT_LENGTH = 10;
 
     @Override

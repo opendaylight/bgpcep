@@ -17,9 +17,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
-public class CommonPathKeyParser {
-    protected CommonPathKeyParser() {
-
+public final class PathKeyUtils {
+    private PathKeyUtils() {
+        // Hidden on purpose
     }
 
     public static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route

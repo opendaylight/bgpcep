@@ -5,15 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.xro;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.protocol.rsvp.parser.spi.subobjects.PathKeyUtils.parsePathKey;
+import static org.opendaylight.protocol.rsvp.parser.spi.subobjects.PathKeyUtils.serializePathKey;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
-import org.opendaylight.protocol.rsvp.parser.spi.subobjects.CommonPathKeyParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainerBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCase;
@@ -22,18 +23,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for { PathKey}.
  */
-public class XROPathKey32SubobjectParser extends CommonPathKeyParser implements XROSubobjectParser,
-    XROSubobjectSerializer {
+public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
     public static final int TYPE = 64;
 
     private static final int PCE_ID_F_LENGTH = 4;
-
     private static final int CONTENT_LENGTH = 2 + PCE_ID_F_LENGTH;
 
     @Override
-    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws
-        RSVPParsingException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
+    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory)
+            throws RSVPParsingException {
+        checkArgument(buffer != null && buffer.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT_LENGTH) {
             throw new RSVPParsingException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
@@ -48,9 +47,8 @@ public class XROPathKey32SubobjectParser extends CommonPathKeyParser implements 
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase,
-            "Unknown subobject instance.Passed %s. Needed PathKey.",
-            subobject.getSubobjectType().getClass());
+        checkArgument(subobject.getSubobjectType() instanceof PathKeyCase,
+            "Unknown subobject instance.Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
             .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType())
             .getPathKey();

@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class CUISubobjectParserTest {
+public class UnnumberedInterfaceSubobjectUtilsTest {
     private final Uint32 routerId = Uint32.valueOf(3735928559L);
     private final Uint32 interfaceId = Uint32.valueOf(3736059631L);
     private final Unnumbered unnumbered1 = new UnnumberedBuilder().setRouterId((Uint32) null).build();
@@ -30,23 +30,22 @@ public class CUISubobjectParserTest {
         final ByteBuf input = Unpooled.buffer(8);
         input.writeInt(this.routerId.intValue());
         input.writeInt(this.interfaceId.intValue());
-        final UnnumberedCase output = CommonUnnumberedInterfaceSubobjectParser.parseUnnumeredInterface(input);
+        final UnnumberedCase output = UnnumberedInterfaceSubobjectUtils.parseUnnumeredInterface(input);
         assertEquals(this.routerId, output.getUnnumbered().getRouterId());
         assertEquals(this.interfaceId, output.getUnnumbered().getInterfaceId());
 
         final ByteBuf bytebuf = Unpooled.buffer(8);
-        CommonUnnumberedInterfaceSubobjectParser.serializeUnnumeredInterface(output.getUnnumbered(), bytebuf);
+        UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface(output.getUnnumbered(), bytebuf);
         assertArrayEquals(input.array(), bytebuf.array());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testException1() {
-        CommonUnnumberedInterfaceSubobjectParser.serializeUnnumeredInterface(this.unnumbered1, Unpooled.EMPTY_BUFFER);
+        UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface(this.unnumbered1, Unpooled.EMPTY_BUFFER);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testException2() {
-        CommonUnnumberedInterfaceSubobjectParser.serializeUnnumeredInterface(this.unnumbered2, Unpooled.buffer(4));
+        UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface(this.unnumbered2, Unpooled.buffer(4));
     }
-
 }
