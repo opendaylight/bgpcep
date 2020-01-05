@@ -5,10 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri;
-
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -85,7 +82,7 @@ public final class RouteTargetConstrainNlriHandler implements NlriParser, NlriSe
                 nlri.writeByte(RT_BITS_LENGTH);
                 final AsNumber originAs = dest.getOriginAs();
                 if (originAs != null) {
-                    writeUnsignedInt(originAs.getValue(), nlri);
+                    ByteBufUtils.write(nlri, originAs.getValue());
                 }
                 nlri.writeBytes(SimpleRouteTargetConstrainNlriRegistry.getInstance()
                         .serializeRouteTargetConstrain(rtcChoice));
