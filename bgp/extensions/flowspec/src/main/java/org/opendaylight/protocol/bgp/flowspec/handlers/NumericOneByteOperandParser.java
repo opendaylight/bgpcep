@@ -13,17 +13,13 @@ import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOneByteValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
 import org.opendaylight.yangtools.yang.common.Uint8;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Parser class for NumericOneByteValues.
  */
 public final class NumericOneByteOperandParser extends AbstractNumericByteOperandParser<NumericOneByteValue, Uint8> {
-
-    public static final NumericOneByteOperandParser INSTANCE;
-
-    static {
-        INSTANCE = new NumericOneByteOperandParser();
-    }
+    public static final NumericOneByteOperandParser INSTANCE = new NumericOneByteOperandParser();
 
     private NumericOneByteOperandParser() {
 
@@ -39,8 +35,8 @@ public final class NumericOneByteOperandParser extends AbstractNumericByteOperan
     public <T extends NumericOneByteValue> void serialize(final List<T> list, final ByteBuf nlriByteBuf) {
         for (final Iterator<T> it = list.iterator(); it.hasNext(); ) {
             final T operand = it.next();
-            super.serialize(operand.getOp(), 1, !it.hasNext(), nlriByteBuf);
-            Util.writeShortest(operand.getValue().toJava(), nlriByteBuf);
+            serialize(operand.getOp(), 1, !it.hasNext(), nlriByteBuf);
+            ByteBufUtils.write(nlriByteBuf, operand.getValue());
         }
     }
 
