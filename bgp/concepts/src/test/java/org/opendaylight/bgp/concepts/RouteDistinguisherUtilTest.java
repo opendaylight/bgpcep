@@ -9,6 +9,7 @@ package org.opendaylight.bgp.concepts;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.SEPARATOR;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -28,7 +29,6 @@ public class RouteDistinguisherUtilTest {
     private static final byte[] IP_BYTES = {0, 1, 1, 2, 3, 4, 0, 10};
     private static final byte[] AS_4B_BYTES = {0, 2, 0, 0, 0, 55, (byte) 0xff, (byte) 0xff};
     private static final byte[] INVALID_RD_TYPE_BYTES = {0, 3, 0, 0, 0, 55, (byte) 0xff, (byte) 0xff};
-    private static final char SEPARATOR = ':';
 
     /**
      * Create 4-octet AS RD or IPv4 RD, 2-octet AS RD cannot be created with this function.
