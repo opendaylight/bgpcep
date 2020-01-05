@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -103,9 +102,9 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         Preconditions.checkArgument(timeval >= 0 && timeval <= MAX_RESTART_TIME, "Restart time is " + time);
         final GracefulRestartCapability.RestartFlags flags = grace.getRestartFlags();
         if (flags != null && flags.isRestartState()) {
-            writeUnsignedShort(RESTART_FLAG_STATE | timeval, bytes);
+            bytes.writeShort(RESTART_FLAG_STATE | timeval);
         } else {
-            writeUnsignedShort(timeval, bytes);
+            bytes.writeShort(timeval);
         }
         serializeTables(tables, bytes);
         return bytes;
