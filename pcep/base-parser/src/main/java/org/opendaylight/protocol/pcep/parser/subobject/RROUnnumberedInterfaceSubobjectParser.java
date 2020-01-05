@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -48,14 +47,16 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
         }
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         buffer.skipBytes(RESERVED);
-        final UnnumberedBuilder ubuilder = new UnnumberedBuilder()
-                .setRouterId(ByteBufUtils.readUint32(buffer))
-                .setInterfaceId(ByteBufUtils.readUint32(buffer));
-        final SubobjectBuilder builder = new SubobjectBuilder()
+        return new SubobjectBuilder()
                 .setProtectionAvailable(flags.get(LPA_F_OFFSET))
                 .setProtectionInUse(flags.get(LPIU_F_OFFSET))
-                .setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
-        return builder.build();
+                .setSubobjectType(new UnnumberedCaseBuilder()
+                    .setUnnumbered(new UnnumberedBuilder()
+                        .setRouterId(ByteBufUtils.readUint32(buffer))
+                        .setInterfaceId(ByteBufUtils.readUint32(buffer))
+                        .build())
+                    .build())
+                .build();
     }
 
     @Override
@@ -69,10 +70,8 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         flags.toByteBuf(body);
         body.writeZero(RESERVED);
-        checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
-        writeUnsignedInt(specObj.getRouterId(), body);
-        checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory.");
-        writeUnsignedInt(specObj.getInterfaceId(), body);
+        ByteBufUtils.writeMandatory(body, specObj.getRouterId(), "RouterId");
+        ByteBufUtils.writeMandatory(body, specObj.getInterfaceId(), "InterfaceId");
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

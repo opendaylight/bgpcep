@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -23,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassTypeBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  * Parser for {@link ClassType}.
  */
 public final class PCEPClassTypeObjectParser extends CommonObjectParser implements ObjectSerializer {
-
     private static final Logger LOG = LoggerFactory.getLogger(PCEPClassTypeObjectParser.class);
     private static final int CLASS = 22;
     private static final int TYPE = 1;
@@ -39,12 +38,10 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
      * Length of Class Type field in bits.
      */
     private static final int CT_F_LENGTH = 3;
-
     /**
      * Reserved field bit length.
      */
     private static final int RESERVED = 29;
-
     /**
      * Size of the object in bytes.
      */
@@ -88,7 +85,7 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
             .ClassType classType = ((ClassType) object).getClassType();
         checkArgument(classType != null, "ClassType is mandatory.");
-        writeUnsignedByte(classType.getValue(), body);
+        ByteBufUtils.write(body, classType.getValue());
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

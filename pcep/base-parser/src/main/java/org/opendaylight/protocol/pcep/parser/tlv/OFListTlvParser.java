@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.tlv;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -55,7 +54,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
         final ByteBuf body = Unpooled.buffer();
         final List<OfId> ofCodes = oft.getCodes();
         for (OfId id : ofCodes) {
-            writeUnsignedShort(id.getValue(), body);
+            ByteBufUtils.write(body, id.getValue());
         }
         TlvUtil.formatTlv(TYPE, body, buffer);
     }

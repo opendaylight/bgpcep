@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.overload.object.Overload;
@@ -34,22 +34,21 @@ public class PCEPOverloadObjectParser extends CommonObjectParser implements Obje
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Overload,
-            "Wrong instance of PCEPObject. Passed %s. Needed OverloadObject.", object.getClass());
+        checkArgument(object instanceof Overload, "Wrong instance of PCEPObject. Passed %s. Needed OverloadObject.",
+            object.getClass());
         final Overload overload = (Overload) object;
         final ByteBuf body = Unpooled.buffer(BODY_SIZE);
         body.writeZero(RESERVED + FLAGS);
-        ByteBufWriteUtil.writeUnsignedShort(overload.getDuration(), body);
+        ByteBufUtils.writeOrZero(body, overload.getDuration());
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
-        final OverloadBuilder builder = new OverloadBuilder();
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         buffer.readBytes(RESERVED + FLAGS);
-        builder.setDuration(ByteBufUtils.readUint16(buffer));
-        return builder.build();
+        return new OverloadBuilder()
+                .setDuration(ByteBufUtils.readUint16(buffer))
+                .build();
     }
 }
