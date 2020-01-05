@@ -35,7 +35,7 @@ public final class FSTcpFlagsHandler implements FlowspecTypeParser, FlowspecType
         for (final Iterator<TcpFlags> it = flags.iterator(); it.hasNext(); ) {
             final TcpFlags flag = it.next();
             final ByteBuf flagsBuf = Unpooled.buffer();
-            Util.writeShortest(flag.getValue().toJava(), flagsBuf);
+            Util.writeShortest(flag.getValue(), flagsBuf);
             BitmaskOperandParser.INSTANCE.serialize(flag.getOp(), flagsBuf.readableBytes(),
                     !it.hasNext(), nlriByteBuf);
             nlriByteBuf.writeBytes(flagsBuf);
