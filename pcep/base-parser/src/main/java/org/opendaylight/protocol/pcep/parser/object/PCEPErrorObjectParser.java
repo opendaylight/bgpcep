@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -45,8 +44,7 @@ public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<Er
 
     @Override
     public ErrorObject parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         bytes.skipBytes(FLAGS_F_LENGTH + RESERVED);
         final ErrorObjectBuilder builder = new ErrorObjectBuilder()
                 .setIgnore(header.isIgnore())
@@ -67,33 +65,28 @@ public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<Er
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof ErrorObject,
-            "Wrong instance of PCEPObject. Passed %s. Needed ErrorObject.", object.getClass());
+        checkArgument(object instanceof ErrorObject, "Wrong instance of PCEPObject. Passed %s. Needed ErrorObject.",
+            object.getClass());
         final ErrorObject errObj = (ErrorObject) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_F_LENGTH + RESERVED);
-        Preconditions.checkArgument(errObj.getType() != null, "Type is mandatory.");
-        writeUnsignedByte(errObj.getType(), body);
-        Preconditions.checkArgument(errObj.getValue() != null, "Value is mandatory.");
-        writeUnsignedByte(errObj.getValue(), body);
+        ByteBufUtils.writeMandatory(body, errObj.getType(), "Type");
+        ByteBufUtils.writeMandatory(body, errObj.getValue(), "Value");
         serializeTlvs(errObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            if (tlvs.getReqMissing() != null) {
+                serializeTlv(tlvs.getReqMissing(), body);
+            }
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        if (tlvs.getReqMissing() != null) {
-            serializeTlv(tlvs.getReqMissing(), body);
-        }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     @Override
-    protected void addVendorInformationTlvs(
-        final ErrorObjectBuilder builder,
-        final List<VendorInformationTlv> tlvs) {
+    protected void addVendorInformationTlvs(final ErrorObjectBuilder builder, final List<VendorInformationTlv> tlvs) {
         if (!tlvs.isEmpty()) {
             builder.setTlvs(new TlvsBuilder(builder.getTlvs()).setVendorInformationTlv(tlvs).build());
         }

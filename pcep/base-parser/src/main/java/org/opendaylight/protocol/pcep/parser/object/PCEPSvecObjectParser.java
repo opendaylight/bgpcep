@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -63,8 +62,7 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
 
     @Override
     public Svec parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() < MIN_SIZE) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: "
                 + bytes.readableBytes() + "; Expected: >=" + MIN_SIZE + ".");
@@ -79,7 +77,7 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         if (requestIDs.isEmpty()) {
             throw new PCEPDeserializerException("Empty Svec Object - no request ids.");
         }
-        final SvecBuilder builder = new SvecBuilder()
+        return new SvecBuilder()
                 .setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
                 .setLinkDiverse(flags.get(L_FLAG_OFFSET))
@@ -87,14 +85,14 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
                 .setSrlgDiverse(flags.get(S_FLAG_OFFSET))
                 .setLinkDirectionDiverse(flags.get(D_FLAG_OFFSET))
                 .setPartialPathDiverse(flags.get(P_FLAG_OFFSET))
-                .setRequestsIds(requestIDs);
-        return builder.build();
+                .setRequestsIds(requestIDs)
+                .build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Svec,
-            "Wrong instance of PCEPObject. Passed %s. Needed SvecObject.", object.getClass());
+        checkArgument(object instanceof Svec, "Wrong instance of PCEPObject. Passed %s. Needed SvecObject.",
+            object.getClass());
         final Svec svecObj = (Svec) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_F_OFFSET);
@@ -107,9 +105,10 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         flags.toByteBuf(body);
 
         final List<RequestId> requestIDs = svecObj.getRequestsIds();
+        // FIXME: remove this assert
         assert !requestIDs.isEmpty() : "Empty Svec Object - no request ids.";
         for (final RequestId requestId : requestIDs) {
-            writeUnsignedInt(requestId.getValue(), body);
+            ByteBufUtils.write(body, requestId.getValue());
         }
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

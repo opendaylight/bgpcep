@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.tlv;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -39,7 +38,7 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         checkArgument(tlv instanceof OverloadDuration, "OverloadedTlv is mandatory.");
         final ByteBuf body = Unpooled.buffer();
-        writeUnsignedInt(((OverloadDuration) tlv).getDuration(), body);
+        ByteBufUtils.writeOrZero(body, ((OverloadDuration) tlv).getDuration());
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

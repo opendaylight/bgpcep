@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -50,29 +49,27 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
                 .setOverBookingFactor(ByteBufUtils.readUint8(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
-        builder.setTlvs(tlvsBuilder.build());
-        return builder.build();
+        return builder.setTlvs(tlvsBuilder.build()).build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        checkArgument(object instanceof Gc,
-            "Wrong instance of PCEPObject. Passed %s. Needed GcObject.", object.getClass());
+        checkArgument(object instanceof Gc, "Wrong instance of PCEPObject. Passed %s. Needed GcObject.",
+            object.getClass());
         final Gc specObj = (Gc) object;
         final ByteBuf body = Unpooled.buffer();
-        writeUnsignedByte(specObj.getMaxHop(), body);
-        writeUnsignedByte(specObj.getMaxUtilization(), body);
-        writeUnsignedByte(specObj.getMinUtilization(), body);
-        writeUnsignedByte(specObj.getOverBookingFactor(), body);
+        ByteBufUtils.writeOrZero(body, specObj.getMaxHop());
+        ByteBufUtils.writeOrZero(body, specObj.getMaxUtilization());
+        ByteBufUtils.writeOrZero(body, specObj.getMinUtilization());
+        ByteBufUtils.writeOrZero(body, specObj.getOverBookingFactor());
         serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     @Override

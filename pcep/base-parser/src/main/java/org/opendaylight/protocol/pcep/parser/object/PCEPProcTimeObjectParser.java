@@ -16,7 +16,6 @@ import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.proc.time.object.ProcTime;
@@ -50,18 +49,17 @@ public class PCEPProcTimeObjectParser extends CommonObjectParser implements Obje
         final BitArray flagBits = new BitArray(FLAGS);
         flagBits.set(E_FLAG_POSITION, procTime.isEstimated());
         flagBits.toByteBuf(body);
-        ByteBufWriteUtil.writeUnsignedInt(procTime.getCurrentProcTime(), body);
-        ByteBufWriteUtil.writeUnsignedInt(procTime.getMinProcTime(), body);
-        ByteBufWriteUtil.writeUnsignedInt(procTime.getMaxProcTime(), body);
-        ByteBufWriteUtil.writeUnsignedInt(procTime.getAverageProcTime(), body);
-        ByteBufWriteUtil.writeUnsignedInt(procTime.getVarianceProcTime(), body);
+        ByteBufUtils.writeOrZero(body, procTime.getCurrentProcTime());
+        ByteBufUtils.writeOrZero(body, procTime.getMinProcTime());
+        ByteBufUtils.writeOrZero(body, procTime.getMaxProcTime());
+        ByteBufUtils.writeOrZero(body, procTime.getAverageProcTime());
+        ByteBufUtils.writeOrZero(body, procTime.getVarianceProcTime());
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        checkArgument(buffer != null && buffer.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         buffer.skipBytes(RESERVED);
         final BitArray flagBits = BitArray.valueOf(buffer, FLAGS);
 

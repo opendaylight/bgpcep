@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -43,38 +42,38 @@ public final class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithT
 
     @Override
     public Of parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final Uint16 ofId = ByteBufUtils.readUint16(bytes);
         bytes.readBytes(RESERVED);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
-        final OfBuilder builder = new OfBuilder()
+        return new OfBuilder()
                 .setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
                 .setCode(new OfId(ofId))
-                .setTlvs(tlvsBuilder.build());
-        return builder.build();
+                .setTlvs(tlvsBuilder.build())
+                .build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Of,
-            "Wrong instance of PCEPObject. Passed %s. Needed OfObject.", object.getClass());
+        checkArgument(object instanceof Of, "Wrong instance of PCEPObject. Passed %s. Needed OfObject.",
+            object.getClass());
         final Of specObj = (Of) object;
         final ByteBuf body = Unpooled.buffer();
-        Preconditions.checkArgument(specObj.getCode() != null, "Code is mandatory");
-        writeUnsignedShort(specObj.getCode().getValue(), body);
+
+        final OfId code = specObj.getCode();
+        checkArgument(code != null, "Code is mandatory");
+        ByteBufUtils.write(body, code.getValue());
         body.writeZero(RESERVED);
         serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     @Override

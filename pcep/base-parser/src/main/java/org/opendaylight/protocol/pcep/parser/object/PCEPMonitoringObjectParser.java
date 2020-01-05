@@ -18,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.Monitoring;
@@ -61,11 +60,11 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
         final Uint32 monitoring = ByteBufUtils.readUint32(buffer);
         final TlvsBuilder tbuilder = new TlvsBuilder();
         parseTlvs(tbuilder, buffer.slice());
-        final MonitoringBuilder builder = new MonitoringBuilder()
+        return new MonitoringBuilder()
                 .setFlags(flags)
                 .setMonitoringId(monitoring)
-                .setTlvs(tbuilder.build());
-        return builder.build();
+                .setTlvs(tbuilder.build())
+                .build();
     }
 
     @Override
@@ -83,7 +82,7 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
         flagBits.set(G_FLAG_POS, flags.isGeneral());
         flagBits.set(L_FLAG_POS, flags.isLiveness());
         flagBits.toByteBuf(body);
-        ByteBufWriteUtil.writeUnsignedInt(monitoring.getMonitoringId(), body);
+        ByteBufUtils.writeOrZero(body, monitoring.getMonitoringId());
         serializeTlvs(monitoring.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
@@ -96,9 +95,8 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 }

@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBoolean;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -25,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link Xro}.
  */
 public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobjectsParser {
-
     private static final int CLASS = 17;
     private static final int TYPE = 1;
     private static final int FLAGS_OFFSET = 3;
@@ -36,25 +34,25 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 
     @Override
     public Xro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         bytes.skipBytes(FLAGS_OFFSET);
-        final XroBuilder builder = new XroBuilder()
+        return new XroBuilder()
                 .setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
                 .setFlags(new Flags(bytes.readBoolean()))
-                .setSubobject(parseSubobjects(bytes.slice()));
-        return builder.build();
+                .setSubobject(parseSubobjects(bytes.slice()))
+                .build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Xro,
-            "Wrong instance of PCEPObject. Passed %s. Needed XroObject.", object.getClass());
+        checkArgument(object instanceof Xro, "Wrong instance of PCEPObject. Passed %s. Needed XroObject.",
+            object.getClass());
         final Xro obj = (Xro) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_OFFSET);
-        writeBoolean(obj.getFlags() != null ? obj.getFlags().isFail() : null, body);
+        final Flags flags = obj.getFlags();
+        body.writeBoolean(flags != null && Boolean.TRUE.equals(flags.isFail()));
         serializeSubobject(obj.getSubobject(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

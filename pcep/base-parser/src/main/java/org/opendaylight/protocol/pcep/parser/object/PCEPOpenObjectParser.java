@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -107,23 +106,21 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
             object.getClass());
         final Open open = (Open) object;
         final ByteBuf body = Unpooled.buffer();
-        writeUnsignedByte(Uint8.valueOf(PCEP_VERSION << Byte.SIZE - VERSION_SF_LENGTH), body);
-        writeUnsignedByte(open.getKeepalive(), body);
-        writeUnsignedByte(open.getDeadTimer(), body);
-        checkArgument(open.getSessionId() != null, "SessionId is mandatory.");
-        writeUnsignedByte(open.getSessionId(), body);
+        body.writeByte(PCEP_VERSION << Byte.SIZE - VERSION_SF_LENGTH);
+        ByteBufUtils.writeOrZero(body, open.getKeepalive());
+        ByteBufUtils.writeOrZero(body, open.getDeadTimer());
+        ByteBufUtils.writeMandatory(body, open.getSessionId(), "SessionId");
         serializeTlvs(open.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            if (tlvs.getOfList() != null) {
+                serializeTlv(tlvs.getOfList(), body);
+            }
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        if (tlvs.getOfList() != null) {
-            serializeTlv(tlvs.getOfList(), body);
-        }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     @Override

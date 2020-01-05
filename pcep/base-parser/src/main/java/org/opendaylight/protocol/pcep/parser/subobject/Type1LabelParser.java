@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -50,7 +49,7 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
         final ByteBuf body = Unpooled.buffer(LABEL_LENGTH);
         final Type1Label type1Label = ((Type1LabelCase) subobject).getType1Label();
         checkArgument(type1Label != null, "Type1Label is mandatory.");
-        writeUnsignedInt(type1Label.getType1Label(), body);
+        ByteBufUtils.writeOrZero(body, type1Label.getType1Label());
         LabelUtil.formatLabel(CTYPE, unidirectional, global, body, buffer);
     }
 }
