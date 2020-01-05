@@ -9,8 +9,8 @@ package org.opendaylight.protocol.pcep.impl.spi;
 
 import java.util.Collections;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcerrBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObjectBuilder;
@@ -28,7 +28,7 @@ public final class Util {
         // Hidden on purpose
     }
 
-    public static Message createErrorMessage(final PCEPErrors error, final Open openObject) {
+    public static Pcerr createErrorMessage(final PCEPErrors error, final Open openObject) {
         final PcerrBuilder errMessageBuilder = new PcerrBuilder();
         final ErrorObject err =
             new ErrorObjectBuilder().setType(error.getErrorType()).setValue(error.getErrorValue()).build();

@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import org.junit.Assert;
+import static org.hamcrest.Matchers.isA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcerr;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObject;
@@ -23,25 +26,21 @@ public class UtilTest {
 
     @Test
     public void testCreateErrorMessageWithOpen() {
-        final Message msg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, OPEN);
-        Assert.assertTrue(msg instanceof Pcerr);
-        final Pcerr errMsg = (Pcerr) msg;
-        Assert.assertTrue(errMsg.getPcerrMessage().getErrorType() instanceof SessionCase);
+        final Pcerr errMsg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, OPEN);
+        assertThat(errMsg.getPcerrMessage().getErrorType(), isA(SessionCase.class));
         final SessionCase sessionCase = (SessionCase) errMsg.getPcerrMessage().getErrorType();
-        Assert.assertEquals(OPEN, sessionCase.getSession().getOpen());
+        assertEquals(OPEN, sessionCase.getSession().getOpen());
         final ErrorObject errorObject = errMsg.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
+        assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
+        assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
     }
 
     @Test
     public void testCreateErrorMessage() {
-        final Message msg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, null);
-        Assert.assertTrue(msg instanceof Pcerr);
-        final Pcerr errMsg = (Pcerr) msg;
-        Assert.assertNull(errMsg.getPcerrMessage().getErrorType());
+        final Pcerr errMsg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, null);
+        assertNull(errMsg.getPcerrMessage().getErrorType());
         final ErrorObject errorObject = errMsg.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
+        assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
+        assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
     }
 }
