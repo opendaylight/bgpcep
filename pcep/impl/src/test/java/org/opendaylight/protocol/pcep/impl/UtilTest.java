@@ -7,7 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import org.junit.Assert;
+import static org.hamcrest.Matchers.isA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -24,24 +28,24 @@ public class UtilTest {
     @Test
     public void testCreateErrorMessageWithOpen() {
         final Message msg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, OPEN);
-        Assert.assertTrue(msg instanceof Pcerr);
+        assertThat(msg, isA(Pcerr.class));
         final Pcerr errMsg = (Pcerr) msg;
-        Assert.assertTrue(errMsg.getPcerrMessage().getErrorType() instanceof SessionCase);
+        assertThat(errMsg.getPcerrMessage().getErrorType(), isA(SessionCase.class));
         final SessionCase sessionCase = (SessionCase) errMsg.getPcerrMessage().getErrorType();
-        Assert.assertEquals(OPEN, sessionCase.getSession().getOpen());
+        assertEquals(OPEN, sessionCase.getSession().getOpen());
         final ErrorObject errorObject = errMsg.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
+        assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
+        assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
     }
 
     @Test
     public void testCreateErrorMessage() {
         final Message msg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, null);
-        Assert.assertTrue(msg instanceof Pcerr);
+        assertThat(msg, isA(Pcerr.class));
         final Pcerr errMsg = (Pcerr) msg;
-        Assert.assertNull(errMsg.getPcerrMessage().getErrorType());
+        assertNull(errMsg.getPcerrMessage().getErrorType());
         final ErrorObject errorObject = errMsg.getPcerrMessage().getErrors().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
-        Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
+        assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());
+        assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorValue(), errorObject.getValue());
     }
 }
