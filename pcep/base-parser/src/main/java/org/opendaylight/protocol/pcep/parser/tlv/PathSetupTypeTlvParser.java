@@ -5,12 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.tlv;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.HashSet;
@@ -23,9 +21,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
-
     public static final int TYPE = 28;
 
     private static final int CONTENT_LENGTH = 4;
@@ -47,12 +45,12 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof PathSetupType, "PathSetupType is mandatory.");
+        checkArgument(tlv instanceof PathSetupType, "PathSetupType is mandatory.");
         final PathSetupType pstTlv = (PathSetupType) tlv;
-        Preconditions.checkArgument(checkPST(pstTlv.getPst()), UNSUPPORTED_PST);
+        checkArgument(checkPST(pstTlv.getPst()), UNSUPPORTED_PST);
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(OFFSET);
-        writeUnsignedByte(pstTlv.getPst(), body);
+        ByteBufUtils.writeOrZero(body, pstTlv.getPst());
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
@@ -61,7 +59,7 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
         if (buffer == null) {
             return null;
         }
-        final Uint8 pst = Uint8.valueOf(buffer.readerIndex(OFFSET).readUnsignedByte());
+        final Uint8 pst = ByteBufUtils.readUint8(buffer.readerIndex(OFFSET));
         if (!checkPST(pst)) {
             throw new PCEPDeserializerException(UNSUPPORTED_PST);
         }

@@ -8,8 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -20,12 +18,12 @@ import org.opendaylight.protocol.pcep.spi.XROSubobjectUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.xro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.SrlgCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.SrlgCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.srlg._case.SrlgBuilder;
-import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
@@ -61,11 +59,15 @@ public class XROSrlgSubobjectParser implements XROSubobjectParser, XROSubobjectS
             "Unknown subobject instance. Passed %s. Needed SrlgCase.", subobject.getSubobjectType().getClass());
         final SrlgSubobject specObj = ((SrlgCase) subobject.getSubobjectType()).getSrlg();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        checkArgument(specObj.getSrlgId() != null, "SrlgId is mandatory.");
-        writeUnsignedInt(specObj.getSrlgId().getValue(), body);
-        checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
-        writeUnsignedByte((Uint8) null, body);
-        writeUnsignedByte(Uint8.valueOf(subobject.getAttribute().getIntValue()), body);
+
+        final SrlgId srlgId = specObj.getSrlgId();
+        checkArgument(srlgId != null, "SrlgId is mandatory.");
+        ByteBufUtils.write(body, srlgId.getValue());
+
+        final Attribute attribute = subobject.getAttribute();
+        checkArgument(attribute != null, "Attribute is mandatory.");
+        body.writeByte(0);
+        body.writeByte(attribute.getIntValue());
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }
