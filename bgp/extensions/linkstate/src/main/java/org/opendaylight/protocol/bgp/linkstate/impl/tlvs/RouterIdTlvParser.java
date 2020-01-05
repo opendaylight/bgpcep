@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.OspfInterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.isis.lan.identifier.IsIsRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.isis.lan.identifier.IsIsRouterIdentifierBuilder;
@@ -36,7 +35,6 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdentifier>,
         LinkstateTlvParser.LinkstateTlvSerializer<CRouterIdentifier> {
-
     private static final int OSPF_PSEUDONODE_ROUTER_ID_LENGTH = 8;
     private static final int OSPF_ROUTER_ID_LENGTH = 4;
     private static final int ISO_SYSTEM_ID_LENGTH = 6;
@@ -51,13 +49,13 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
         } else if (tlv instanceof IsisPseudonodeCase) {
             final IsisPseudonode isis = ((IsisPseudonodeCase) tlv).getIsisPseudonode();
             body.writeBytes(isis.getIsIsRouterIdentifier().getIsoSystemId().getValue());
-            ByteBufWriteUtil.writeUnsignedByte(isis.getPsn(), body);
+            ByteBufUtils.writeOrZero(body, isis.getPsn());
         } else if (tlv instanceof OspfNodeCase) {
-            ByteBufWriteUtil.writeUnsignedInt(((OspfNodeCase) tlv).getOspfNode().getOspfRouterId(), body);
+            ByteBufUtils.writeOrZero(body, ((OspfNodeCase) tlv).getOspfNode().getOspfRouterId());
         } else if (tlv instanceof OspfPseudonodeCase) {
             final OspfPseudonode node = ((OspfPseudonodeCase) tlv).getOspfPseudonode();
-            ByteBufWriteUtil.writeUnsignedInt(node.getOspfRouterId(), body);
-            ByteBufWriteUtil.writeUnsignedInt(node.getLanInterface().getValue(), body);
+            ByteBufUtils.writeOrZero(body, node.getOspfRouterId());
+            ByteBufUtils.write(body, node.getLanInterface().getValue());
         }
     }
 

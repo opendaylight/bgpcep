@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.epe.rev150622.EpeNodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -23,7 +22,7 @@ public final class MemAsNumTlvParser implements LinkstateTlvParser<AsNumber>,
 
     @Override
     public void serializeTlvBody(final AsNumber tlv, final ByteBuf body) {
-        ByteBufWriteUtil.writeUnsignedInt(tlv.getValue(), body);
+        ByteBufUtils.write(body, tlv.getValue());
     }
 
     @Override

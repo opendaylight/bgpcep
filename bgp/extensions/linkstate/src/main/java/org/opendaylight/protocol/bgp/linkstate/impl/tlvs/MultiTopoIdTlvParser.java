@@ -10,22 +10,21 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public final class MultiTopoIdTlvParser implements LinkstateTlvParser<TopologyIdentifier>,
         LinkstateTlvParser.LinkstateTlvSerializer<TopologyIdentifier> {
-
     public static final QName MULTI_TOPOLOGY_ID_QNAME = QName.create(LinkDescriptors.QNAME, "multi-topology-id")
             .intern();
 
     @Override
     public void serializeTlvBody(final TopologyIdentifier tlv, final ByteBuf body) {
-        ByteBufWriteUtil.writeUnsignedShort(tlv.getValue(), body);
+        ByteBufUtils.write(body, tlv.getValue());
     }
 
     @Override
@@ -44,10 +43,8 @@ public final class MultiTopoIdTlvParser implements LinkstateTlvParser<TopologyId
     }
 
     public static TopologyIdentifier serializeModel(final ContainerNode prefixDesc) {
-        if (prefixDesc.getChild(TlvUtil.MULTI_TOPOLOGY_NID).isPresent()) {
-            return new TopologyIdentifier((Uint16) prefixDesc.getChild(TlvUtil.MULTI_TOPOLOGY_NID).get().getValue());
-        }
-        return null;
+        return prefixDesc.getChild(TlvUtil.MULTI_TOPOLOGY_NID)
+                .map(child -> new TopologyIdentifier((Uint16) child.getValue()))
+                .orElse(null);
     }
 }
-

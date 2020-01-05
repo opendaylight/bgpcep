@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
@@ -59,14 +60,13 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
     }
 
     public static TeLspCase serializeTeLsp(final ChoiceNode objectType) {
-        final TeLspCaseBuilder teLsp = new TeLspCaseBuilder();
-        teLsp.setLspId(new LspId((Uint32) objectType.getChild(LSP_ID).get().getValue()));
-        teLsp.setTunnelId(new TunnelId((Uint16) objectType.getChild(TUNNEL_ID).get().getValue()));
         final ChoiceNode addressFamily = (ChoiceNode) objectType.getChild(ADDRESS_FAMILY).get();
-        teLsp.setAddressFamily(serializeAddressFamily(addressFamily,
-            addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).isPresent()));
-
-        return teLsp.build();
+        return new TeLspCaseBuilder()
+                .setLspId(new LspId((Uint32) objectType.getChild(LSP_ID).get().getValue()))
+                .setTunnelId(new TunnelId((Uint16) objectType.getChild(TUNNEL_ID).get().getValue()))
+                .setAddressFamily(serializeAddressFamily(addressFamily,
+                    addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).isPresent()))
+                .build();
     }
 
     private static AddressFamily serializeAddressFamily(final ChoiceNode addressFamily, final boolean ipv4Case) {
@@ -112,7 +112,7 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
     }
 
     private static void serializeTunnelIdAndLspId(final ByteBuf buffer, final TeLspCase teLSP) {
-        ByteBufWriteUtil.writeUnsignedShort(teLSP.getTunnelId().getValue(), buffer);
-        ByteBufWriteUtil.writeUnsignedShort(teLSP.getLspId().getValue().intValue(), buffer);
+        ByteBufUtils.write(buffer, teLSP.getTunnelId().getValue());
+        buffer.writeShort(teLSP.getLspId().getValue().intValue());
     }
 }
