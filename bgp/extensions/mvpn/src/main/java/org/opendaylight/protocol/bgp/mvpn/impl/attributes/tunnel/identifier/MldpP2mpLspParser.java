@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
 import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.OpaqueUtil.serializeOpaqueList;
@@ -19,7 +18,6 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.OpaqueUtil;
 import org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier.AbstractTunnelIdentifier;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -53,12 +51,12 @@ public final class MldpP2mpLspParser extends AbstractTunnelIdentifier<MldpP2mpLs
             return NO_TUNNEL_INFORMATION_PRESENT;
         }
         final IpAddress rootNode = mldpP2mpLsp.getRootNodeAddress();
-        ByteBufWriteUtil.writeUnsignedByte(P2MP_TYPE, buffer);
-        ByteBufWriteUtil.writeUnsignedShort(addressFamily, buffer);
-        ByteBufWriteUtil.writeUnsignedByte(getAdressFamilyLength(rootNode), buffer);
+        buffer.writeByte(P2MP_TYPE);
+        buffer.writeShort(addressFamily);
+        buffer.writeByte(rootNode.getIpv4Address() != null ? Ipv4Util.IP4_LENGTH : Ipv6Util.IPV6_LENGTH);
         serializeIpAddress(rootNode, buffer);
 
-        ByteBufWriteUtil.writeUnsignedShort(opaqueValues.readableBytes(), buffer);
+        buffer.writeShort(opaqueValues.readableBytes());
         buffer.writeBytes(opaqueValues);
         return getType();
     }
@@ -73,19 +71,9 @@ public final class MldpP2mpLspParser extends AbstractTunnelIdentifier<MldpP2mpLs
         return PmsiTunnelType.MldpP2mpLsp.getIntValue();
     }
 
-    private static short getAdressFamilyLength(final IpAddress ipAddress) {
-        if (ipAddress.getIpv4Address() == null) {
-            return Ipv6Util.IPV6_LENGTH;
-        }
-        return Ipv4Util.IP4_LENGTH;
-    }
-
     private int getAddressFamilyValue(final Class<? extends AddressFamily> addressFamily) {
         final Integer type = this.addressFamilyRegistry.numberForClass(addressFamily);
-        if (type == null) {
-            return 0;
-        }
-        return type;
+        return type == null ? 0 : type;
     }
 
     @Override
