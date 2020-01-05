@@ -41,7 +41,7 @@ public final class NumericTwoByteOperandParser extends AbstractNumericByteOperan
         for (final Iterator<T> it = list.iterator(); it.hasNext(); ) {
             final T operand = it.next();
             final ByteBuf protoBuf = Unpooled.buffer();
-            Util.writeShortest(operand.getValue().toJava(), protoBuf);
+            Util.writeShortest(operand.getValue(), protoBuf);
             super.serialize(operand.getOp(), protoBuf.readableBytes(), !it.hasNext(), nlriByteBuf);
             nlriByteBuf.writeBytes(protoBuf);
         }
