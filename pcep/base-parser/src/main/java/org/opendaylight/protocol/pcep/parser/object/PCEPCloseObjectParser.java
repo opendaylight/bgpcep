@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -70,17 +69,15 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
         final CClose obj = (CClose) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(RESERVED + FLAGS_F_LENGTH);
-        checkArgument(obj.getReason() != null, "Reason is mandatory.");
-        writeUnsignedByte(obj.getReason(), body);
+        ByteBufUtils.writeMandatory(body, obj.getReason(), "Reason");
         serializeTlvs(obj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     @Override

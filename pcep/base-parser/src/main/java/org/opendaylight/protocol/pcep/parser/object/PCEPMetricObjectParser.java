@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -38,12 +37,10 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
      */
     private static final int FLAGS_SIZE = 8;
     private static final int METRIC_VALUE_F_LENGTH = 4;
-
     /*
      * offsets of fields in bytes
      */
     private static final int RESERVED = 2;
-
     /*
      * flags offsets inside flags field in bits
      */
@@ -65,14 +62,14 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
         }
         bytes.skipBytes(RESERVED);
         final BitArray flags = BitArray.valueOf(bytes.readByte());
-        final MetricBuilder builder = new MetricBuilder()
+        return new MetricBuilder()
                 .setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
                 .setBound(flags.get(B_FLAG_OFFSET))
                 .setComputed(flags.get(C_FLAG_OFFSET))
                 .setMetricType(ByteBufUtils.readUint8(bytes))
-                .setValue(new Float32(ByteArray.readBytes(bytes, METRIC_VALUE_F_LENGTH)));
-        return builder.build();
+                .setValue(new Float32(ByteArray.readBytes(bytes, METRIC_VALUE_F_LENGTH)))
+                .build();
     }
 
     @Override
@@ -86,8 +83,7 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
         flags.set(C_FLAG_OFFSET, mObj.isComputed());
         flags.set(B_FLAG_OFFSET, mObj.isBound());
         flags.toByteBuf(body);
-        checkArgument(mObj.getMetricType() != null, "MetricType is mandatory.");
-        writeUnsignedByte(mObj.getMetricType(), body);
+        ByteBufUtils.writeMandatory(body, mObj.getMetricType(), "MetricType");
         writeFloat32(mObj.getValue(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

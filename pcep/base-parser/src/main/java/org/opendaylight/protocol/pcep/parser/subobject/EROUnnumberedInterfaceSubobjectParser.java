@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -41,13 +40,15 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
                 + "; Expected: " + CONTENT_LENGTH + ".");
         }
         buffer.skipBytes(RESERVED);
-        final UnnumberedBuilder ubuilder = new UnnumberedBuilder()
-                .setRouterId(ByteBufUtils.readUint32(buffer))
-                .setInterfaceId(ByteBufUtils.readUint32(buffer));
-        final SubobjectBuilder builder = new SubobjectBuilder()
+        return new SubobjectBuilder()
                 .setLoose(loose)
-                .setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
-        return builder.build();
+                .setSubobjectType(new UnnumberedCaseBuilder()
+                    .setUnnumbered(new UnnumberedBuilder()
+                        .setRouterId(ByteBufUtils.readUint32(buffer))
+                        .setInterfaceId(ByteBufUtils.readUint32(buffer))
+                        .build())
+                    .build())
+                .build();
     }
 
     @Override
@@ -57,10 +58,8 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
-        checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
-        writeUnsignedInt(specObj.getRouterId(), body);
-        checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory");
-        writeUnsignedInt(specObj.getInterfaceId(), body);
+        ByteBufUtils.writeMandatory(body, specObj.getRouterId(), "RouterId");
+        ByteBufUtils.writeMandatory(body, specObj.getInterfaceId(), "InterfaceId");
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 }

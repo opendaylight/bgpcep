@@ -8,8 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -41,12 +39,10 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
      * lengths of fields in bytes
      */
     private static final int FLAGS_SIZE = 8;
-
     /*
      * offsets of flags inside flags field in bits
      */
     private static final int L_FLAG_OFFSET = 7;
-
     private static final int RESERVED = 1;
 
     public PCEPLspaObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
@@ -70,8 +66,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         final TlvsBuilder tbuilder = new TlvsBuilder();
         bytes.skipBytes(RESERVED);
         parseTlvs(tbuilder, bytes.slice());
-        builder.setTlvs(tbuilder.build());
-        return builder.build();
+        return builder.setTlvs(tbuilder.build()).build();
     }
 
     @Override
@@ -83,8 +78,8 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         writeAttributeFilter(lspaObj.getExcludeAny(), body);
         writeAttributeFilter(lspaObj.getIncludeAny(), body);
         writeAttributeFilter(lspaObj.getIncludeAll(), body);
-        writeUnsignedByte(lspaObj.getSetupPriority(), body);
-        writeUnsignedByte(lspaObj.getHoldPriority(), body);
+        ByteBufUtils.writeOrZero(body, lspaObj.getSetupPriority());
+        ByteBufUtils.writeOrZero(body, lspaObj.getHoldPriority());
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
         flags.toByteBuf(body);
@@ -94,14 +89,17 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     private static void writeAttributeFilter(final AttributeFilter attributeFilter, final ByteBuf body) {
-        writeUnsignedInt(attributeFilter != null ? attributeFilter.getValue() : null, body);
+        if (attributeFilter != null) {
+            ByteBufUtils.write(body, attributeFilter.getValue());
+        } else {
+            body.writeInt(0);
+        }
     }
 
     @Override
