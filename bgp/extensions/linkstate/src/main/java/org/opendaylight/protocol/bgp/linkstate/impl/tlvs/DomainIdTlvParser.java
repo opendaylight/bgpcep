@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.DomainIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -23,7 +22,7 @@ public final class DomainIdTlvParser implements LinkstateTlvParser<DomainIdentif
 
     @Override
     public void serializeTlvBody(final DomainIdentifier tlv, final ByteBuf body) {
-        ByteBufWriteUtil.writeUnsignedInt(tlv.getValue(), body);
+        ByteBufUtils.write(body, tlv.getValue());
     }
 
     @Override

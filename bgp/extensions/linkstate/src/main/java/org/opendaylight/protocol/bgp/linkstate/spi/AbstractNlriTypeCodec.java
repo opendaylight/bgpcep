@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.linkstate.spi;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Identifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
@@ -19,17 +18,17 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 public abstract class AbstractNlriTypeCodec implements NlriTypeCaseParser, NlriTypeCaseSerializer {
     @Override
     public final CLinkstateDestination parseTypeNlri(final ByteBuf nlri) {
-        final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
-        builder.setProtocolId(ProtocolId.forValue(nlri.readUnsignedByte()));
-        builder.setIdentifier(new Identifier(ByteBufUtils.readUint64(nlri)));
-        builder.setObjectType(parseObjectType(nlri));
-        return builder.build();
+        return new CLinkstateDestinationBuilder()
+                .setProtocolId(ProtocolId.forValue(nlri.readUnsignedByte()))
+                .setIdentifier(new Identifier(ByteBufUtils.readUint64(nlri)))
+                .setObjectType(parseObjectType(nlri))
+                .build();
     }
 
     @Override
     public final void serializeTypeNlri(final CLinkstateDestination nlriType, final ByteBuf byteAggregator) {
-        ByteBufWriteUtil.writeUnsignedByte((short) nlriType.getProtocolId().getIntValue(), byteAggregator);
-        ByteBufWriteUtil.writeUnsignedLong(nlriType.getIdentifier().getValue(), byteAggregator);
+        byteAggregator.writeByte(nlriType.getProtocolId().getIntValue());
+        ByteBufUtils.write(byteAggregator, nlriType.getIdentifier().getValue());
         serializeObjectType(nlriType.getObjectType(), byteAggregator);
     }
 
