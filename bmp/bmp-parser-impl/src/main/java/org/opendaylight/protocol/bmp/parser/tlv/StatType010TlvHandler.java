@@ -9,9 +9,6 @@ package org.opendaylight.protocol.bmp.parser.tlv;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedLong;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -33,7 +30,7 @@ public class StatType010TlvHandler implements BmpTlvParser, BmpTlvSerializer {
     private final AddressFamilyRegistry afiRegistry;
     private final SubsequentAddressFamilyRegistry safiRegistry;
 
-    public StatType010TlvHandler(final AddressFamilyRegistry afiReg, SubsequentAddressFamilyRegistry safiReg) {
+    public StatType010TlvHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
         this.afiRegistry = requireNonNull(afiReg, "AddressFamily cannot be null");
         this.safiRegistry = requireNonNull(safiReg, "SubsequentAddressFamily cannot be null");
     }
@@ -41,10 +38,13 @@ public class StatType010TlvHandler implements BmpTlvParser, BmpTlvSerializer {
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
         checkArgument(tlv instanceof PerAfiSafiLocRibTlv, "PerAfiSafiLocRibInTlv is mandatory.");
+        final PerAfiSafiLocRibTlv perAfiSafi = (PerAfiSafiLocRibTlv) tlv;
+
         final ByteBuf buffer = Unpooled.buffer();
-        writeUnsignedShort(this.afiRegistry.numberForClass(((PerAfiSafiLocRibTlv) tlv).getAfi()), buffer);
-        writeUnsignedByte(this.safiRegistry.numberForClass(((PerAfiSafiLocRibTlv) tlv).getSafi()).shortValue(), buffer);
-        writeUnsignedLong(((PerAfiSafiLocRibTlv) tlv).getCount().getValue(), buffer);
+        final Integer afiInt = this.afiRegistry.numberForClass(perAfiSafi.getAfi());
+        buffer.writeShort(afiInt != null ? afiInt : 0);
+        buffer.writeByte(this.safiRegistry.numberForClass(perAfiSafi.getSafi()));
+        ByteBufUtils.write(buffer, perAfiSafi.getCount().getValue());
         TlvUtil.formatTlv(TYPE, buffer, output);
     }
 

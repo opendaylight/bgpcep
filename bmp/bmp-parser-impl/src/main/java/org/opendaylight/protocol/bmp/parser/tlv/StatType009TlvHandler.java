@@ -18,7 +18,6 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.stat.tlvs.PerAfiSafiAdjRibInTlv;
@@ -31,7 +30,7 @@ public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
     private final AddressFamilyRegistry afiRegistry;
     private final SubsequentAddressFamilyRegistry safiRegistry;
 
-    public StatType009TlvHandler(final AddressFamilyRegistry afiReg, SubsequentAddressFamilyRegistry safiReg) {
+    public StatType009TlvHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
         this.afiRegistry = requireNonNull(afiReg, "AddressFamily cannot be null");
         this.safiRegistry = requireNonNull(safiReg, "SubsequentAddressFamily cannot be null");
     }
@@ -39,12 +38,13 @@ public class StatType009TlvHandler implements BmpTlvParser, BmpTlvSerializer {
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
         checkArgument(tlv instanceof PerAfiSafiAdjRibInTlv, "PerAfiSafiAdjRibInTlv is mandatory.");
+        final PerAfiSafiAdjRibInTlv perAfiSafi = (PerAfiSafiAdjRibInTlv) tlv;
+
         final ByteBuf buffer = Unpooled.buffer();
-        ByteBufWriteUtil.writeUnsignedShort(this.afiRegistry.numberForClass(((PerAfiSafiAdjRibInTlv) tlv)
-                .getAfi()), buffer);
-        ByteBufWriteUtil.writeUnsignedByte(this.safiRegistry.numberForClass(((PerAfiSafiAdjRibInTlv) tlv)
-                .getSafi()).shortValue(), buffer);
-        ByteBufWriteUtil.writeUnsignedLong(((PerAfiSafiAdjRibInTlv) tlv).getCount().getValue(), buffer);
+        final Integer afiInt = this.afiRegistry.numberForClass(perAfiSafi.getAfi());
+        buffer.writeShort(afiInt != null ? afiInt : 0);
+        buffer.writeByte(this.safiRegistry.numberForClass(perAfiSafi.getSafi()));
+        ByteBufUtils.write(buffer, perAfiSafi.getCount().getValue());
         TlvUtil.formatTlv(TYPE, buffer, output);
     }
 

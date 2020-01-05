@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.spi.registry;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -17,7 +16,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class SimpleBmpMessageRegistryTest {
@@ -73,10 +71,9 @@ public class SimpleBmpMessageRegistryTest {
     }
 
     private static final class BmpTestParser extends AbstractBmpMessageParser {
-
         @Override
         public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
-            ByteBufWriteUtil.writeUnsignedInt(((BmpTestMessage) message).getValue(), buffer);
+            buffer.writeInt((int) ((BmpTestMessage) message).getValue());
         }
 
         @Override
@@ -91,7 +88,6 @@ public class SimpleBmpMessageRegistryTest {
     }
 
     private static final class BmpTestMessage implements Notification {
-
         private final long value;
 
         BmpTestMessage(final long value) {
@@ -111,7 +107,5 @@ public class SimpleBmpMessageRegistryTest {
         public String toString() {
             return "BmpTestMessage [value=" + this.value + "]";
         }
-
     }
-
 }

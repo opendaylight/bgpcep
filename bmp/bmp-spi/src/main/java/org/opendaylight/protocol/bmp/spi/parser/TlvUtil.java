@@ -10,9 +10,9 @@ package org.opendaylight.protocol.bmp.spi.parser;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter32;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class TlvUtil {
     private TlvUtil() {
@@ -26,20 +26,20 @@ public final class TlvUtil {
 
     public static void formatTlvShort16(final int type, final int value, final ByteBuf out) {
         formatTlvHeader(type, Short.BYTES, out);
-        ByteBufWriteUtil.writeUnsignedShort(value, out);
+        out.writeShort(value);
     }
 
     public static void formatTlvCounter32(final int type, final Counter32 value, final ByteBuf out) {
-        if (value != null && value.getValue() != null) {
+        if (value != null) {
             formatTlvHeader(type, Integer.BYTES, out);
-            ByteBufWriteUtil.writeUnsignedInt(value.getValue(), out);
+            ByteBufUtils.write(out, value.getValue());
         }
     }
 
     public static void formatTlvGauge64(final int type, final Gauge64 value, final ByteBuf out) {
-        if (value != null && value.getValue() != null) {
+        if (value != null) {
             formatTlvHeader(type, Long.BYTES, out);
-            ByteBufWriteUtil.writeUnsignedLong(value.getValue(), out);
+            ByteBufUtils.write(out, value.getValue());
         }
     }
 
@@ -53,11 +53,10 @@ public final class TlvUtil {
         if (value != null) {
             TlvUtil.formatTlv(type, Unpooled.copiedBuffer(value, StandardCharsets.US_ASCII), out);
         }
-
     }
 
     private static void formatTlvHeader(final int type, final int length, final ByteBuf output) {
-        ByteBufWriteUtil.writeUnsignedShort(type, output);
-        ByteBufWriteUtil.writeUnsignedShort(length, output);
+        output.writeShort(type);
+        output.writeShort(length);
     }
 }

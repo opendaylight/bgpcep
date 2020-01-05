@@ -22,7 +22,6 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.PeerDownNotification;
@@ -50,22 +49,22 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         final PeerDownNotification peerDown = (PeerDownNotification) message;
         if (peerDown.isLocalSystemClosed()) {
             if (peerDown.getData() instanceof FsmEventCode) {
-                ByteBufWriteUtil.writeUnsignedByte(REASON_TWO.getValue(), buffer);
-                ByteBufWriteUtil.writeUnsignedShort(((FsmEventCode) peerDown.getData()).getFsmEventCode(), buffer);
+                buffer.writeByte(REASON_TWO.getValue());
+                ByteBufUtils.writeOrZero(buffer, ((FsmEventCode) peerDown.getData()).getFsmEventCode());
             } else if (peerDown.getData()
                     instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329
                     .peer.down.data.Notification) {
-                ByteBufWriteUtil.writeUnsignedByte(REASON_ONE.getValue(), buffer);
+                buffer.writeByte(REASON_ONE.getValue());
                 serializePDU(peerDown.getData(), buffer);
             }
         } else {
             if (peerDown.getData()
                     instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329
                     .peer.down.data.Notification) {
-                ByteBufWriteUtil.writeUnsignedByte(REASON_THREE.getValue(), buffer);
+                buffer.writeByte(REASON_THREE.getValue());
                 serializePDU(peerDown.getData(), buffer);
             } else {
-                ByteBufWriteUtil.writeUnsignedByte(REASON_FOUR.getValue(), buffer);
+                buffer.writeByte(REASON_FOUR.getValue());
             }
         }
     }

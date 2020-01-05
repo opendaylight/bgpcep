@@ -62,8 +62,8 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         } else {
             ByteBufWriteUtil.writeIpv6Address(peerUp.getLocalAddress().getIpv6Address(), buffer);
         }
-        ByteBufWriteUtil.writeUnsignedShort(peerUp.getLocalPort().getValue(), buffer);
-        ByteBufWriteUtil.writeUnsignedShort(peerUp.getRemotePort().getValue(), buffer);
+        ByteBufUtils.write(buffer, peerUp.getLocalPort().getValue());
+        ByteBufUtils.write(buffer, peerUp.getRemotePort().getValue());
 
         this.msgRegistry.serializeMessage(new OpenBuilder(peerUp.getSentOpen()).build(), buffer);
         this.msgRegistry.serializeMessage(new OpenBuilder(peerUp.getReceivedOpen()).build(), buffer);
@@ -71,8 +71,8 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
     }
 
     private void serializeTlvs(final Information tlvs, final ByteBuf output) {
-        if (tlvs != null && tlvs.getStringInformation() != null) {
-            for (final StringInformation stringInfo : tlvs.getStringInformation()) {
+        if (tlvs != null) {
+            for (final StringInformation stringInfo : tlvs.nonnullStringInformation()) {
                 if (stringInfo.getStringTlv() != null) {
                     serializeTlv(stringInfo.getStringTlv(), output);
                 }

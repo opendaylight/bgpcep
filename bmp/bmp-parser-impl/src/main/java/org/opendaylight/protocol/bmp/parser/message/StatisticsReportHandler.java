@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bmp.parser.message;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -89,7 +87,7 @@ public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<Tlv
         serializeStatTlv(tlvs.getPrefixesTreatedAsWithdrawTlv(), tlvsBuffer, counter);
         serializeStatTlv(tlvs.getDuplicateUpdatesTlv(), tlvsBuffer, counter);
 
-        writeUnsignedInt(counter.longValue(), output);
+        output.writeInt(counter.get());
         output.writeBytes(tlvsBuffer);
     }
 

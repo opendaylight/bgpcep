@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.spi.parser;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
@@ -32,7 +31,6 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> extends AbstractBmpMessageWithTlvParser<T> {
-
     private static final int L_FLAG_POS = 1;
     private static final int V_FLAG_POS = 0;
     private static final int FLAGS_SIZE = 8;
@@ -63,7 +61,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
     }
 
     protected static PeerHeader parsePerPeerHeader(final ByteBuf bytes) {
-        Preconditions.checkArgument(bytes.readableBytes() >= PER_PEER_HEADER_SIZE);
+        checkArgument(bytes.readableBytes() >= PER_PEER_HEADER_SIZE);
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
         final PeerType peerType = PeerType.forValue(bytes.readByte());
         phBuilder.setType(peerType);
@@ -98,7 +96,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
     }
 
     protected void serializePerPeerHeader(final PeerHeader peerHeader, final ByteBuf output) {
-        Preconditions.checkArgument(peerHeader != null, "Per-peer header cannot be null.");
+        checkArgument(peerHeader != null, "Per-peer header cannot be null.");
         final PeerType peerType = peerHeader.getType();
         output.writeByte(peerType.getIntValue());
         final BitArray flags = new BitArray(FLAGS_SIZE);
@@ -124,15 +122,18 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
         } else {
             ByteBufWriteUtil.writeIpv6Address(peerHeader.getAddress().getIpv6Address(), output);
         }
-        ByteBufWriteUtil.writeUnsignedInt(peerHeader.getAs().getValue(), output);
+        ByteBufUtils.write(output, peerHeader.getAs().getValue());
         ByteBufWriteUtil.writeIpv4Address(peerHeader.getBgpId(), output);
-        if (peerHeader.getTimestampSec() != null) {
-            ByteBufWriteUtil.writeUnsignedInt(peerHeader.getTimestampSec().getValue(), output);
+
+        final Timestamp stampSec = peerHeader.getTimestampSec();
+        if (stampSec != null) {
+            ByteBufUtils.write(output, stampSec.getValue());
         } else {
             output.writeInt(0);
         }
-        if (peerHeader.getTimestampMicro() != null) {
-            ByteBufWriteUtil.writeUnsignedInt(peerHeader.getTimestampMicro().getValue(), output);
+        final Timestamp stampMicro = peerHeader.getTimestampMicro();
+        if (stampMicro != null) {
+            ByteBufUtils.write(output, stampMicro.getValue());
         } else {
             output.writeInt(0);
         }
