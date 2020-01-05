@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.extractAS;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.extractLD;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -29,8 +28,8 @@ final class ASGenParser extends AbstractEsiType {
     public ByteBuf serializeBody(final Esi esi, final ByteBuf body) {
         checkArgument(esi instanceof AsGeneratedCase, "Unknown esi instance. Passed %s. Needed AsGeneratedCase.", esi);
         final AsGenerated asGen = ((AsGeneratedCase) esi).getAsGenerated();
-        writeUnsignedInt(asGen.getAs().getValue(), body);
-        writeUnsignedInt(asGen.getLocalDiscriminator(), body);
+        ByteBufUtils.write(body, asGen.getAs().getValue());
+        ByteBufUtils.writeOrZero(body, asGen.getLocalDiscriminator());
         return body.writeByte(0);
     }
 

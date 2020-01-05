@@ -37,7 +37,7 @@ public final class ESImpRouteTargetExtCom extends AbstractExtendedCommunities {
                 extendedCommunity);
         final EsImportRouteExtendedCommunity extCom = ((EsImportRouteExtendedCommunityCase) extendedCommunity)
                 .getEsImportRouteExtendedCommunity();
-        byteAggregator.writeBytes(IetfYangUtil.INSTANCE.bytesFor(extCom.getEsImport()));
+        byteAggregator.writeBytes(IetfYangUtil.INSTANCE.macAddressBytes(extCom.getEsImport()));
     }
 
     @Override

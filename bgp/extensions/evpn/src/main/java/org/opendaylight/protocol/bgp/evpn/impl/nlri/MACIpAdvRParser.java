@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEsiTypeRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -81,11 +80,11 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         if (esi != null) {
             SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
         }
-        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
+        ByteBufUtils.writeOrZero(body, evpn.getEthernetTagId().getVlanId());
 
         final MacAddress mac = evpn.getMacAddress();
         body.writeByte(MAC_ADDRESS_LENGTH * BITS_SIZE);
-        body.writeBytes(IetfYangUtil.INSTANCE.bytesFor(mac));
+        body.writeBytes(IetfYangUtil.INSTANCE.macAddressBytes(mac));
         final ByteBuf ipAddress = serializeIp(evpn.getIpAddress());
         Preconditions.checkArgument(ipAddress.readableBytes() > 0);
         body.writeBytes(ipAddress);

@@ -31,7 +31,7 @@ final class RouterIdParser extends AbstractEsiType {
             "Unknown esi instance. Passed %s. Needed RouterIdGeneratedCase.", esi);
         final RouterIdGenerated routerID = ((RouterIdGeneratedCase) esi).getRouterIdGenerated();
         ByteBufWriteUtil.writeIpv4Address(routerID.getRouterId(), body);
-        ByteBufWriteUtil.writeUnsignedInt(routerID.getLocalDiscriminator(), body);
+        ByteBufUtils.writeOrZero(body, routerID.getLocalDiscriminator());
         return body.writeByte(0);
     }
 

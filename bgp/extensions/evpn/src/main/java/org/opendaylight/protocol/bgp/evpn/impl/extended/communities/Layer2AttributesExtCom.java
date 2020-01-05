@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NormalizationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.OperationalMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.Layer2AttributesExtendedCommunityCase;
@@ -43,16 +42,17 @@ public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf body) {
-        final Layer2AttributesExtendedCommunityBuilder builder = new Layer2AttributesExtendedCommunityBuilder();
         final BitArray flags = BitArray.valueOf(body, FLAGS_SIZE);
-        builder.setBackupPe(flags.get(BACKUP_PE_OFFSET));
-        builder.setPrimaryPe(flags.get(PRIMARY_PE_OFFSET));
-        builder.setControlWord(flags.get(CONTROL_WORD_OFFSET));
 
-        builder.setModeOfOperation(OperationalMode.forValue(getFlagShort(flags, MODE_OF_OPERATION)));
-        builder.setOperatingPer(NormalizationType.forValue(getFlagShort(flags, NORMALIZATION_TYPE)));
+        final Layer2AttributesExtendedCommunityBuilder builder = new Layer2AttributesExtendedCommunityBuilder()
+                .setBackupPe(flags.get(BACKUP_PE_OFFSET))
+                .setPrimaryPe(flags.get(PRIMARY_PE_OFFSET))
+                .setControlWord(flags.get(CONTROL_WORD_OFFSET))
 
-        builder.setL2Mtu(ByteBufUtils.readUint16(body));
+                .setModeOfOperation(OperationalMode.forValue(getFlagShort(flags, MODE_OF_OPERATION)))
+                .setOperatingPer(NormalizationType.forValue(getFlagShort(flags, NORMALIZATION_TYPE)))
+
+                .setL2Mtu(ByteBufUtils.readUint16(body));
         body.skipBytes(RESERVED);
         return new Layer2AttributesExtendedCommunityCaseBuilder()
                 .setLayer2AttributesExtendedCommunity(builder.build()).build();
@@ -85,8 +85,8 @@ public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
             aux = (byte) (aux << FIVE_BITS_SHIFT);
             res[res.length - 1] = (byte) (res[res.length - 1] | aux);
         }
-        ByteBufWriteUtil.writeUnsignedShort((int) res[res.length - 1], body);
-        ByteBufWriteUtil.writeUnsignedShort(extCom.getL2Mtu(), body);
+        body.writeShort(res[res.length - 1]);
+        ByteBufUtils.writeOrZero(body, extCom.getL2Mtu());
         body.writeZero(RESERVED);
     }
 

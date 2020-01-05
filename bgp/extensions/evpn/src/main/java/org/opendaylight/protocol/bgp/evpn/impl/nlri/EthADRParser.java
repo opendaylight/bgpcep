@@ -17,7 +17,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEsiTypeRegistry;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.ethernet.a.d.route.EthernetADRoute;
@@ -61,7 +60,7 @@ final class EthADRParser extends AbstractEvpnNlri {
         final EthernetADRoute evpn = ((EthernetADRouteCase) evpnChoice).getEthernetADRoute();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
-        ByteBufWriteUtil.writeUnsignedInt(evpn.getEthernetTagId().getVlanId(), body);
+        ByteBufUtils.writeOrZero(body, evpn.getEthernetTagId().getVlanId());
 
         final MplsLabel mpls = evpn.getMplsLabel();
         if (mpls != null) {
@@ -83,9 +82,8 @@ final class EthADRParser extends AbstractEvpnNlri {
     }
 
     private static EthernetADRouteBuilder serializeKeyModel(final ContainerNode evpn) {
-        final EthernetADRouteBuilder builder = new EthernetADRouteBuilder();
-        builder.setEsi(serializeEsi(evpn));
-        builder.setEthernetTagId(extractETI(evpn));
-        return builder;
+        return new EthernetADRouteBuilder()
+                .setEsi(serializeEsi(evpn))
+                .setEthernetTagId(extractETI(evpn));
     }
 }
