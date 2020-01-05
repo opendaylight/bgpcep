@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.segment.routing;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -33,7 +32,7 @@ public class SrPceCapabilityTlvParser implements TlvParser, TlvSerializer {
         checkArgument(tlv instanceof SrPceCapability, "SrPceCapability is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writerIndex(OFFSET);
-        writeUnsignedByte(((SrPceCapability) tlv).getMsd(), body);
+        ByteBufUtils.writeOrZero(body, ((SrPceCapability) tlv).getMsd());
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 

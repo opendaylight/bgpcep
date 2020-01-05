@@ -10,14 +10,11 @@ package org.opendaylight.protocol.pcep.segment.routing;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -31,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacencyBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public abstract class AbstractSrSubobjectParser {
@@ -95,7 +91,7 @@ public abstract class AbstractSrSubobjectParser {
     public ByteBuf serializeSubobject(final SrSubobject srSubobject) {
         final ByteBuf buffer = Unpooled.buffer(MINIMAL_LENGTH);
         // sid type
-        writeUnsignedByte(Uint8.valueOf(srSubobject.getSidType().getIntValue() << SID_TYPE_BITS_OFFSET), buffer);
+        buffer.writeByte(srSubobject.getSidType().getIntValue() << SID_TYPE_BITS_OFFSET);
 
         final BitArray bits = new BitArray(BITSET_LENGTH);
         bits.set(M_FLAG_POSITION, srSubobject.isMFlag());
@@ -113,9 +109,9 @@ public abstract class AbstractSrSubobjectParser {
                 "Both SID and NAI are absent in SR subobject.");
         if (srSubobject.getSid() != null) {
             if (srSubobject.isMFlag()) {
-                writeUnsignedInt(Uint32.valueOf(srSubobject.getSid().intValue() << MPLS_LABEL_OFFSET), buffer);
+                buffer.writeInt(srSubobject.getSid().intValue() << MPLS_LABEL_OFFSET);
             } else {
-                writeUnsignedInt(srSubobject.getSid(), buffer);
+                ByteBufUtils.writeOrZero(buffer, srSubobject.getSid());
             }
         }
         // nai
@@ -144,10 +140,10 @@ public abstract class AbstractSrSubobjectParser {
                 break;
             case Unnumbered:
                 final UnnumberedAdjacency unnumbered = (UnnumberedAdjacency) nai;
-                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getLocalNodeId(), buffer);
-                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getLocalInterfaceId(), buffer);
-                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteNodeId(), buffer);
-                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteInterfaceId(), buffer);
+                ByteBufUtils.writeOrZero(buffer, unnumbered.getLocalNodeId());
+                ByteBufUtils.writeOrZero(buffer, unnumbered.getLocalInterfaceId());
+                ByteBufUtils.writeOrZero(buffer, unnumbered.getRemoteNodeId());
+                ByteBufUtils.writeOrZero(buffer, unnumbered.getRemoteInterfaceId());
                 break;
             default:
                 break;
