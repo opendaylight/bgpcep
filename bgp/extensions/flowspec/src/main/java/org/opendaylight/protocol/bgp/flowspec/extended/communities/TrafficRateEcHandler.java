@@ -13,7 +13,6 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.rate.extended.community.TrafficRateExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.rate.extended.community.TrafficRateExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCaseBuilder;
@@ -38,7 +37,7 @@ public class TrafficRateEcHandler implements ExtendedCommunityParser, ExtendedCo
         final TrafficRateExtendedCommunity trafficRate = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                 .yang.bgp.flowspec.rev180329.TrafficRateExtendedCommunity) extendedCommunity)
                 .getTrafficRateExtendedCommunity();
-        ByteBufWriteUtil.writeShort(trafficRate.getInformativeAs().getValue().shortValue(), byteAggregator);
+        byteAggregator.writeShort(trafficRate.getInformativeAs().getValue().intValue());
         byteAggregator.writeBytes(trafficRate.getLocalAdministrator().getValue());
     }
 
@@ -55,13 +54,12 @@ public class TrafficRateEcHandler implements ExtendedCommunityParser, ExtendedCo
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
-        final ShortAsNumber as = new ShortAsNumber(Uint32.valueOf(buffer.readUnsignedShort()));
-        final Bandwidth value = new Bandwidth(ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE));
-        return new TrafficRateExtendedCommunityCaseBuilder().setTrafficRateExtendedCommunity(
-                new TrafficRateExtendedCommunityBuilder()
-                    .setInformativeAs(as)
-                    .setLocalAdministrator(value)
-                    .build()).build();
+        return new TrafficRateExtendedCommunityCaseBuilder()
+                .setTrafficRateExtendedCommunity(new TrafficRateExtendedCommunityBuilder()
+                    .setInformativeAs(new ShortAsNumber(Uint32.valueOf(buffer.readUnsignedShort())))
+                    .setLocalAdministrator(new Bandwidth(ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE)))
+                    .build())
+                .build();
     }
 
 }

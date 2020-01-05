@@ -22,12 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 
 public class RedirectIpNextHopEcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
-
     //https://tools.ietf.org/html/draft-ietf-idr-flowspec-redirect-ip-00#section-7
     private static final int TYPE = 8;
-
     private static final int SUBTYPE = 0;
-
     private static final byte COPY = 0x1;
 
     @Override
@@ -44,7 +41,7 @@ public class RedirectIpNextHopEcHandler implements ExtendedCommunityParser, Exte
         } else {
             ByteBufWriteUtil.writeIpv6Address(nextHopAddress.getIpv6Address(), byteAggregator);
         }
-        ByteBufWriteUtil.writeUnsignedShort(redirect.isCopy() == null || !redirect.isCopy() ? 0 : 1, byteAggregator);
+        byteAggregator.writeShort(Boolean.TRUE.equals(redirect.isCopy()) ? 1 : 0);
     }
 
     @Override

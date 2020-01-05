@@ -32,15 +32,17 @@ public class RedirectIpv4EcHandler implements ExtendedCommunityParser, ExtendedC
         final RedirectIpv4 redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec
                 .rev180329.RedirectIpv4ExtendedCommunity) extendedCommunity).getRedirectIpv4();
         ByteBufWriteUtil.writeIpv4Address(redirect.getGlobalAdministrator(), byteAggregator);
-        ByteBufWriteUtil.writeUnsignedShort(redirect.getLocalAdministrator(), byteAggregator);
+        ByteBufUtils.writeOrZero(byteAggregator, redirect.getLocalAdministrator());
     }
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
-        final RedirectIpv4Builder builder = new RedirectIpv4Builder();
-        builder.setGlobalAdministrator(Ipv4Util.addressForByteBuf(buffer));
-        builder.setLocalAdministrator(ByteBufUtils.readUint16(buffer));
-        return new RedirectIpv4ExtendedCommunityCaseBuilder().setRedirectIpv4(builder.build()).build();
+        return new RedirectIpv4ExtendedCommunityCaseBuilder()
+                .setRedirectIpv4(new RedirectIpv4Builder()
+                    .setGlobalAdministrator(Ipv4Util.addressForByteBuf(buffer))
+                    .setLocalAdministrator(ByteBufUtils.readUint16(buffer))
+                    .build())
+                .build();
     }
 
     @Override

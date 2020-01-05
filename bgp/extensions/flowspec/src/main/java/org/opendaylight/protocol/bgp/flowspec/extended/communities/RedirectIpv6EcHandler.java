@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.RedirectIpv6ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.ipv6.extended.community.RedirectIpv6;
@@ -30,7 +29,7 @@ public final class RedirectIpv6EcHandler implements ExtendedCommunityParser, Ext
             "The extended community %s is not RedirectIpv6ExtendedCommunity type.", extendedCommunity);
         final RedirectIpv6 redirectIpv6 = ((RedirectIpv6ExtendedCommunity) extendedCommunity).getRedirectIpv6();
         byteAggregator.writeBytes(Ipv6Util.byteBufForAddress(redirectIpv6.getGlobalAdministrator()));
-        ByteBufWriteUtil.writeUnsignedShort(redirectIpv6.getLocalAdministrator(), byteAggregator);
+        ByteBufUtils.writeOrZero(byteAggregator, redirectIpv6.getLocalAdministrator());
     }
 
     @Override

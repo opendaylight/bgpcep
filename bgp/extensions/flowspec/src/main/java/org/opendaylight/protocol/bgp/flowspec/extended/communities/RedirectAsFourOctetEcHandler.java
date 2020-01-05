@@ -12,7 +12,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.as4.extended.community.RedirectAs4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.as4.extended.community.RedirectAs4Builder;
@@ -31,16 +30,18 @@ public final class RedirectAsFourOctetEcHandler implements ExtendedCommunityPars
                 "The extended community %s is not RedirectAs4ExtendedCommunityCase type.", extendedCommunity);
         final RedirectAs4 redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec
                 .rev180329.RedirectAs4ExtendedCommunity) extendedCommunity).getRedirectAs4();
-        ByteBufWriteUtil.writeUnsignedInt(redirect.getGlobalAdministrator().getValue(), byteAggregator);
-        ByteBufWriteUtil.writeUnsignedShort(redirect.getLocalAdministrator(), byteAggregator);
+        ByteBufUtils.write(byteAggregator, redirect.getGlobalAdministrator().getValue());
+        ByteBufUtils.writeOrZero(byteAggregator, redirect.getLocalAdministrator());
     }
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
-        final RedirectAs4Builder builder = new RedirectAs4Builder();
-        builder.setGlobalAdministrator(new AsNumber(ByteBufUtils.readUint32(buffer)));
-        builder.setLocalAdministrator(ByteBufUtils.readUint16(buffer));
-        return new RedirectAs4ExtendedCommunityCaseBuilder().setRedirectAs4(builder.build()).build();
+        return new RedirectAs4ExtendedCommunityCaseBuilder()
+                .setRedirectAs4(new RedirectAs4Builder()
+                    .setGlobalAdministrator(new AsNumber(ByteBufUtils.readUint32(buffer)))
+                    .setLocalAdministrator(ByteBufUtils.readUint16(buffer))
+                    .build())
+                .build();
     }
 
     @Override
