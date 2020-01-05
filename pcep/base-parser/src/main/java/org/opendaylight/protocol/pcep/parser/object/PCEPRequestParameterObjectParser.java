@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -156,23 +155,23 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
             res[res.length - 1] = (byte) (res[res.length - 1] | p);
         }
         body.writeBytes(res);
-        checkArgument(rpObj.getRequestId() != null, "RequestId is mandatory");
-        writeUnsignedInt(rpObj.getRequestId().getValue(), body);
+        final RequestId requestId = rpObj.getRequestId();
+        checkArgument(requestId != null, "RequestId is mandatory");
+        ByteBufUtils.write(body, requestId.getValue());
         serializeTlvs(rpObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            if (tlvs.getOrder() != null) {
+                serializeTlv(tlvs.getOrder(), body);
+            }
+            if (tlvs.getPathSetupType() != null) {
+                serializeTlv(tlvs.getPathSetupType(), body);
+            }
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        if (tlvs.getOrder() != null) {
-            serializeTlv(tlvs.getOrder(), body);
-        }
-        if (tlvs.getPathSetupType() != null) {
-            serializeTlv(tlvs.getPathSetupType(), body);
-        }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     @Override

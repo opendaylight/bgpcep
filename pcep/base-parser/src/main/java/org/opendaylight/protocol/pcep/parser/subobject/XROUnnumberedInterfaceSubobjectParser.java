@@ -8,8 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -24,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
-import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
@@ -62,13 +59,12 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
-        writeUnsignedByte(
-                subobject.getAttribute() != null ? Uint8.valueOf(subobject.getAttribute().getIntValue()) : (Uint8) null,
-                body);
-        checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
-        writeUnsignedInt(specObj.getRouterId(), body);
-        checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory.");
-        writeUnsignedInt(specObj.getInterfaceId(), body);
+
+        final Attribute attribute = subobject.getAttribute();
+        body.writeByte(attribute != null ? attribute.getIntValue() : 0);
+
+        ByteBufUtils.writeMandatory(body, specObj.getRouterId(), "RouterId");
+        ByteBufUtils.writeMandatory(body, specObj.getInterfaceId(), "InterfaceId");
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }

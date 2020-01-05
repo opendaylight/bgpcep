@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.tlv;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.EnterpriseSpecificInformationParser;
@@ -23,16 +21,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.EnterpriseSpecificInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlvBuilder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public abstract class AbstractVendorInformationTlvParser
         implements TlvSerializer, TlvParser, EnterpriseSpecificInformationParser {
 
     @Override
     public final void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof VendorInformationTlv, "Vendor Specific Tlv is mandatory.");
+        checkArgument(tlv instanceof VendorInformationTlv, "Vendor Specific Tlv is mandatory.");
         final VendorInformationTlv viTlv = (VendorInformationTlv) tlv;
         final ByteBuf body = Unpooled.buffer();
-        writeUnsignedInt(getEnterpriseNumber().getValue(), body);
+        ByteBufUtils.write(body, getEnterpriseNumber().getValue());
         serializeEnterpriseSpecificInformation(viTlv.getEnterpriseSpecificInformation(), body);
         TlvUtil.formatTlv(VENDOR_INFORMATION_TLV_TYPE, body, buffer);
     }
@@ -42,8 +41,8 @@ public abstract class AbstractVendorInformationTlvParser
         if (buffer == null) {
             return null;
         }
-        final VendorInformationTlvBuilder viTlvBuider = new VendorInformationTlvBuilder();
-        viTlvBuider.setEnterpriseNumber(getEnterpriseNumber());
+        final VendorInformationTlvBuilder viTlvBuider = new VendorInformationTlvBuilder()
+                .setEnterpriseNumber(getEnterpriseNumber());
         if (buffer.isReadable()) {
             final EnterpriseSpecificInformation esInformation = parseEnterpriseSpecificInformation(buffer.slice());
             if (esInformation != null) {

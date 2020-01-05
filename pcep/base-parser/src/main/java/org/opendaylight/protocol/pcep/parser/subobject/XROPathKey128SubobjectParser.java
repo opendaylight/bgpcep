@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -20,10 +19,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.xro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
-import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
@@ -43,28 +42,30 @@ public class XROPathKey128SubobjectParser implements XROSubobjectParser {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
                 + "; Expected: >" + CONTENT128_LENGTH + ".");
         }
-        final Uint16 pathKey = ByteBufUtils.readUint16(buffer);
-        final byte[] pceId = ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder()
-                .setPceId(new PceId(pceId))
-                .setPathKey(new PathKey(pathKey));
-        final SubobjectBuilder builder = new SubobjectBuilder()
+        return new SubobjectBuilder()
                 .setMandatory(mandatory)
-                .setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-        return builder.build();
+                .setSubobjectType(new PathKeyCaseBuilder()
+                    .setPathKey(new PathKeyBuilder()
+                        .setPathKey(new PathKey(ByteBufUtils.readUint16(buffer)))
+                        .setPceId(new PceId(ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH)))
+                        .build())
+                    .build())
+                .build();
     }
 
     public static void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        checkArgument(subobject.getSubobjectType() instanceof PathKeyCase,
-            "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
+        final SubobjectType type = subobject.getSubobjectType();
+        checkArgument(type instanceof PathKeyCase, "Unknown subobject instance. Passed %s. Needed PathKey.",
+            type.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
-            .subobjects.subobject.type.path.key._case.PathKey pk =
-                ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
+            .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) type).getPathKey();
         final ByteBuf body = Unpooled.buffer();
-        checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
-        writeUnsignedShort(pk.getPathKey().getValue(), body);
-        checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        body.writeBytes(pk.getPceId().getValue());
+        final PathKey pathKey = pk.getPathKey();
+        checkArgument(pathKey != null, "PathKey is mandatory.");
+        ByteBufUtils.write(body, pathKey.getValue());
+        final PceId pceId = pk.getPceId();
+        checkArgument(pceId != null, "PceId is mandatory.");
+        body.writeBytes(pceId.getValue());
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }

@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
@@ -41,30 +40,28 @@ public final class PCEPLoadBalancingObjectParser extends CommonObjectParser impl
 
     @Override
     public LoadBalancing parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() != SIZE) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: "
                 + bytes.readableBytes() + "; Expected: " + SIZE + ".");
         }
         bytes.skipBytes(RESERVED + FLAGS_F_LENGTH);
-        final LoadBalancingBuilder builder = new LoadBalancingBuilder()
+        return new LoadBalancingBuilder()
                 .setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
                 .setMaxLsp(ByteBufUtils.readUint8(bytes))
-                .setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)));
-        return builder.build();
+                .setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)))
+                .build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof LoadBalancing,
-            "Wrong instance of PCEPObject. Passed %s. Needed LoadBalancingObject.",
-            object.getClass());
+        checkArgument(object instanceof LoadBalancing,
+            "Wrong instance of PCEPObject. Passed %s. Needed LoadBalancingObject.", object.getClass());
         final LoadBalancing specObj = (LoadBalancing) object;
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(RESERVED + FLAGS_F_LENGTH);
-        writeUnsignedByte(specObj.getMaxLsp(), body);
+        ByteBufUtils.writeOrZero(body, specObj.getMaxLsp());
         writeFloat32(specObj.getMinBandwidth(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

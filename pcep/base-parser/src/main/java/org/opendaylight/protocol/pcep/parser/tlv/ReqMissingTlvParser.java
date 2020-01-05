@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.tlv;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -38,11 +37,13 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof ReqMissing, "ReqMissingTlv is mandatory.");
+        checkArgument(tlv instanceof ReqMissing, "ReqMissingTlv is mandatory.");
         final ReqMissing req = (ReqMissing) tlv;
         final ByteBuf body = Unpooled.buffer();
-        Preconditions.checkArgument(req.getRequestId() != null, "RequestId is mandatory.");
-        writeUnsignedInt(req.getRequestId().getValue(), body);
+
+        final RequestId reqId = req.getRequestId();
+        checkArgument(reqId != null, "RequestId is mandatory.");
+        ByteBufUtils.write(body, reqId.getValue());
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

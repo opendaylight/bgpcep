@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -62,13 +61,13 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
         bytes.skipBytes(RESERVED_F_LENGTH);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
-        final NoPathBuilder builder = new NoPathBuilder()
+        return new NoPathBuilder()
                 .setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
                 .setNatureOfIssue(issue)
                 .setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET))
-                .setTlvs(tlvsBuilder.build());
-        return builder.build();
+                .setTlvs(tlvsBuilder.build())
+                .build();
     }
 
     @Override
@@ -84,8 +83,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
             object.getClass());
         final NoPath nPObj = (NoPath) object;
         final ByteBuf body = Unpooled.buffer();
-        checkArgument(nPObj.getNatureOfIssue() != null, "NatureOfIssue is mandatory.");
-        writeUnsignedByte(nPObj.getNatureOfIssue(), body);
+        ByteBufUtils.writeMandatory(body, nPObj.getNatureOfIssue(), "NatureOfIssue");
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
         flags.toByteBuf(body);
@@ -95,13 +93,12 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            if (tlvs.getNoPathVector() != null) {
+                serializeTlv(tlvs.getNoPathVector(), body);
+            }
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        if (tlvs.getNoPathVector() != null) {
-            serializeTlv(tlvs.getNoPathVector(), body);
-        }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     @Override

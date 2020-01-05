@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -23,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
-import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class RROPathKey128SubobjectParser implements RROSubobjectParser {
@@ -44,14 +42,14 @@ public class RROPathKey128SubobjectParser implements RROSubobjectParser {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
                     + "; Expected: >" + CONTENT128_LENGTH + ".");
         }
-        final Uint16 pathKey = ByteBufUtils.readUint16(buffer);
-        final byte[] pceId = ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH);
-        final SubobjectBuilder builder = new SubobjectBuilder();
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(pceId));
-        pBuilder.setPathKey(new PathKey(pathKey));
-        builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-        return builder.build();
+        return new SubobjectBuilder()
+                .setSubobjectType(new PathKeyCaseBuilder()
+                    .setPathKey(new PathKeyBuilder()
+                        .setPathKey(new PathKey(ByteBufUtils.readUint16(buffer)))
+                        .setPceId(new PceId(ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH)))
+                        .build())
+                    .build())
+                .build();
     }
 
     public static void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
@@ -59,10 +57,12 @@ public class RROPathKey128SubobjectParser implements RROSubobjectParser {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
             .subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
-        checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
-        writeUnsignedShort(pk.getPathKey().getValue(), body);
-        checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        body.writeBytes(pk.getPceId().getValue());
+        final PathKey pathKey = pk.getPathKey();
+        checkArgument(pathKey != null, "PathKey is mandatory.");
+        ByteBufUtils.write(body, pathKey.getValue());
+        final PceId pceId = pk.getPceId();
+        checkArgument(pceId != null, "PceId is mandatory.");
+        body.writeBytes(pceId.getValue());
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -47,8 +46,7 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
 
     @Override
     public CNotification parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         bytes.skipBytes(NT_F_OFFSET);
         final CNotificationBuilder builder = new CNotificationBuilder()
                 .setIgnore(header.isIgnore())
@@ -68,34 +66,28 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof CNotification,
-            "Wrong instance of PCEPObject. Passed %s. Needed CNotificationObject.",
-            object.getClass());
+        checkArgument(object instanceof CNotification,
+            "Wrong instance of PCEPObject. Passed %s. Needed CNotificationObject.", object.getClass());
         final CNotification notObj = (CNotification) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(NT_F_OFFSET);
-        Preconditions.checkArgument(notObj.getType() != null, "Type is mandatory.");
-        writeUnsignedByte(notObj.getType(), body);
-        Preconditions.checkArgument(notObj.getValue() != null, "Value is mandatory.");
-        writeUnsignedByte(notObj.getValue(), body);
+        ByteBufUtils.writeMandatory(body, notObj.getType(), "Type");
+        ByteBufUtils.writeMandatory(body, notObj.getValue(), "Value");
         serializeTlvs(notObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
+        if (tlvs != null) {
+            if (tlvs.getOverloadDuration() != null) {
+                serializeTlv(tlvs.getOverloadDuration(), body);
+            }
+            serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
-        if (tlvs.getOverloadDuration() != null) {
-            serializeTlv(tlvs.getOverloadDuration(), body);
-        }
-        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }
 
     @Override
-    protected void addVendorInformationTlvs(
-        final CNotificationBuilder builder,
-        final List<VendorInformationTlv> tlvs) {
+    protected void addVendorInformationTlvs(final CNotificationBuilder builder, final List<VendorInformationTlv> tlvs) {
         if (!tlvs.isEmpty()) {
             builder.setTlvs(new TlvsBuilder(builder.getTlvs()).setVendorInformationTlv(tlvs).build());
         }
