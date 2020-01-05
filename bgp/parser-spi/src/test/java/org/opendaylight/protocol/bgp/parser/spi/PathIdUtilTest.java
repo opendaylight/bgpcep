@@ -14,7 +14,6 @@ import io.netty.buffer.Unpooled;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -52,10 +51,9 @@ public class PathIdUtilTest {
 
     @Test
     public void testReadPathId() {
-        final long expected = 10L;
-        ByteBufWriteUtil.writeUnsignedInt(expected, this.buffer);
+        this.buffer.writeInt(10);
         final PathId pathId = PathIdUtil.readPathId(this.buffer);
-        Assert.assertEquals(expected, pathId.getValue().longValue());
+        Assert.assertEquals(Uint32.TEN, pathId.getValue());
     }
 
     @Test

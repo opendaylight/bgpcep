@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -33,17 +32,16 @@ public final class PathIdUtil {
     }
 
     /**
-     * Writes path-id value into the buffer when
-     * the path-id is not null or does not equal to zero.
+     * Writes path-id value into the buffer when the path-id is not null or does not equal to zero.
      *
      * @param pathId The NLRI Path Identifier.
      * @param buffer The ByteBuf where path-id value can be written.
      */
     public static void writePathId(final PathId pathId, final ByteBuf buffer) {
         if (pathId != null) {
-            final Uint32 value = pathId.getValue();
-            if (value.toJava() != 0) {
-                ByteBufWriteUtil.writeUnsignedInt(value, buffer);
+            final int value = pathId.getValue().intValue();
+            if (value != 0) {
+                buffer.writeInt(value);
             }
         }
     }
