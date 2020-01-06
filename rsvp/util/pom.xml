@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
- Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ Copyright (c) 2020 PANTHEON.tech, s.r.o. and others.  All rights reserved.
 
  This program and the accompanying materials are made available under the
  terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -18,8 +18,8 @@
         <relativePath>../../binding-parent</relativePath>
     </parent>
 
-    <artifactId>rsvp-spi</artifactId>
-    <description>RSVP SPI</description>
+    <artifactId>rsvp-util</artifactId>
+    <description>RSVP utilities</description>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
 
@@ -33,26 +33,6 @@
             <artifactId>rsvp-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>rsvp-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>concepts</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common-netty</artifactId>
         </dependency>
@@ -63,10 +43,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
