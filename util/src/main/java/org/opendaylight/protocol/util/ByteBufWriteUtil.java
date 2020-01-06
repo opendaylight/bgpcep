@@ -29,20 +29,6 @@ public final class ByteBufWriteUtil {
     }
 
     /**
-     * Writes 24-bit integer <code>value</code> if not null, otherwise writes
-     * zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 3.
-     *
-     * @param value
-     *            Medium value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     */
-    public static void writeMedium(final Integer value, final ByteBuf output) {
-        output.writeMedium(value != null ? value : 0);
-    }
-
-    /**
      * Writes IPv4 address if not null, otherwise writes zeros to the
      * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 4.
      *

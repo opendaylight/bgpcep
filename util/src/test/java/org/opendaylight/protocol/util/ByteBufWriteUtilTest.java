@@ -13,7 +13,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Prefix;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeMedium;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -26,19 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
 
 public class ByteBufWriteUtilTest {
     private static final byte[] FOUR_BYTE_ZEROS = { 0, 0, 0, 0 };
-
-    @Test
-    public void testWriteMediumValue() {
-        final byte[] result = { 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(3);
-        writeMedium(5, output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        final byte[] resultZero = { 0, 0, 0 };
-        writeMedium(null, output);
-        assertArrayEquals(resultZero, output.array());
-    }
 
     @Test
     public void testWriteIpv4Address() {
