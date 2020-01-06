@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import io.netty.buffer.ByteBuf;
@@ -67,7 +66,7 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
         checkArgument(ipv6.getIpv6TunnelSenderAddress() != null, "Ipv6TunnelSenderAddress is mandatory.");
         writeIpv6Address(ipv6.getIpv6TunnelSenderAddress(), body);
         checkArgument(lsp.getLspId() != null, "LspId is mandatory.");
-        writeShort(lsp.getLspId().getValue().shortValue(), body);
+        body.writeShort(lsp.getLspId().getValue().shortValue());
         checkArgument(lsp.getTunnelId() != null, "TunnelId is mandatory.");
         writeUnsignedShort(lsp.getTunnelId().getValue(), body);
         checkArgument(ipv6.getIpv6ExtendedTunnelId() != null, "Ipv6ExtendedTunnelId is mandatory.");

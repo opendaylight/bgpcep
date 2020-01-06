@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -21,7 +21,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.path.binding.tlv.PathBinding;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.path.binding.tlv.PathBindingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.path.binding.tlv.path.binding.BindingTypeValue;
@@ -77,16 +76,13 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof PathBinding,
-            "The TLV must be PathBinding type, but was %s", tlv.getClass());
+        checkArgument(tlv instanceof PathBinding, "The TLV must be PathBinding type, but was %s", tlv.getClass());
         final PathBinding pTlv = (PathBinding) tlv;
         final BindingTypeValue bindingTypeValue = pTlv.getBindingTypeValue();
-        Preconditions.checkArgument(bindingTypeValue != null,
-            "Missing Binding Value in Path Bidning TLV: %s", pTlv);
+        checkArgument(bindingTypeValue != null, "Missing Binding Value in Path Bidning TLV: %s", pTlv);
         final ByteBuf body = Unpooled.buffer(MPLS_BINDING_LENGTH);
         final PathBindingTlvCodec codec = BT_SERIALIZERS.get(bindingTypeValue.implementedInterface());
-        Preconditions.checkArgument(codec != null,
-            "Unsupported Path Binding Type: %s", bindingTypeValue.implementedInterface());
+        checkArgument(codec != null, "Unsupported Path Binding Type: %s", bindingTypeValue.implementedInterface());
         codec.writeBinding(body, bindingTypeValue);
 
         TlvUtil.formatTlv(TYPE, body, buffer);
@@ -112,9 +108,9 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
 
         @Override
         void writeEntry(final ByteBuf buf, final BindingTypeValue bindingValue) {
-            Preconditions.checkArgument(bindingValue instanceof MplsLabel, "bindingValue is not MplsLabel");
+            checkArgument(bindingValue instanceof MplsLabel, "bindingValue is not MplsLabel");
             final MplsLabel mplsLabel = (MplsLabel) bindingValue;
-            ByteBufWriteUtil.writeUnsignedInt(Uint32.valueOf(getMplsStackEntry(mplsLabel.getMplsLabel())), buf);
+            ByteBufUtils.write(buf, Uint32.valueOf(getMplsStackEntry(mplsLabel.getMplsLabel())));
         }
 
         @Override
@@ -130,14 +126,13 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
 
         @Override
         void writeEntry(final ByteBuf buf, final BindingTypeValue bindingValue) {
-            Preconditions.checkArgument(bindingValue instanceof MplsLabelEntry,
-                    "bindingValue is not MplsLabelEntry");
+            checkArgument(bindingValue instanceof MplsLabelEntry, "bindingValue is not MplsLabelEntry");
             final MplsLabelEntry mplsEntry = (MplsLabelEntry) bindingValue;
             final long entry = getMplsStackEntry(mplsEntry.getLabel())
                     | mplsEntry.getTrafficClass().toJava() << TC_SHIFT
                     | (mplsEntry.isBottomOfStack() ? 1 : 0) << S_SHIFT
                     | mplsEntry.getTimeToLive().toJava();
-            ByteBufWriteUtil.writeUnsignedInt(Uint32.valueOf(entry), buf);
+            ByteBufUtils.write(buf, Uint32.valueOf(entry));
         }
 
         @Override

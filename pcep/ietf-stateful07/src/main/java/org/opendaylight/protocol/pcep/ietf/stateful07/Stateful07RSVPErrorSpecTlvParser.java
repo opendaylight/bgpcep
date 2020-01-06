@@ -7,13 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
@@ -81,7 +78,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof RsvpErrorSpec, "RSVPErrorSpecTlv is mandatory.");
+        checkArgument(tlv instanceof RsvpErrorSpec, "RSVPErrorSpecTlv is mandatory.");
         final RsvpErrorSpec rsvp = (RsvpErrorSpec) tlv;
         final ByteBuf body = Unpooled.buffer();
         if (rsvp.getErrorType().implementedInterface().equals(RsvpCase.class)) {
@@ -96,8 +93,8 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     }
 
     private static UserCase parseUserError(final ByteBuf buffer) {
-        final UserErrorBuilder error = new UserErrorBuilder();
-        error.setEnterprise(new EnterpriseNumber(ByteBufUtils.readUint32(buffer)));
+        final UserErrorBuilder error = new UserErrorBuilder()
+                .setEnterprise(new EnterpriseNumber(ByteBufUtils.readUint32(buffer)));
         error.setSubOrg(ByteBufUtils.readUint8(buffer));
         final int errDescrLength = buffer.readUnsignedByte();
         error.setValue(ByteBufUtils.readUint16(buffer));
@@ -107,15 +104,15 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     }
 
     private static void serializerUserError(final UserError ue, final ByteBuf body) {
-        final byte[] desc = ue.getDescription() == null ? new byte[0]
-                : ue.getDescription().getBytes(StandardCharsets.UTF_8);
+        final String description = ue.getDescription();
+        final byte[] desc = description == null ? new byte[0] : description.getBytes(StandardCharsets.UTF_8);
         final ByteBuf userErrorBuf = Unpooled.buffer();
-        Preconditions.checkArgument(ue.getEnterprise() != null, "EnterpriseNumber is mandatory");
-        writeUnsignedInt(ue.getEnterprise().getValue(), userErrorBuf);
-        writeUnsignedByte(ue.getSubOrg(), userErrorBuf);
+        final EnterpriseNumber enterprise = ue.getEnterprise();
+        checkArgument(enterprise != null, "EnterpriseNumber is mandatory");
+        ByteBufUtils.write(userErrorBuf, enterprise.getValue());
+        ByteBufUtils.writeOrZero(userErrorBuf, ue.getSubOrg());
         userErrorBuf.writeByte(desc.length);
-        Preconditions.checkArgument(ue.getValue() != null, "Value is mandatory.");
-        writeUnsignedShort(ue.getValue(), userErrorBuf);
+        ByteBufUtils.writeMandatory(userErrorBuf, ue.getValue(), "Value");
         userErrorBuf.writeBytes(desc);
         userErrorBuf.writeZero(TlvUtil.getPadding(desc.length, TlvUtil.PADDED_TO));
         formatRSVPObject(USER_ERROR_CLASS_NUM, USER_ERROR_CLASS_TYPE, userErrorBuf, body);
@@ -140,7 +137,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         flags.set(IN_PLACE, rsvp.getFlags().isInPlace());
         flags.set(NOT_GUILTY, rsvp.getFlags().isNotGuilty());
         final IpAddressNoZone node = rsvp.getNode();
-        Preconditions.checkArgument(node != null, "Node is mandatory.");
+        checkArgument(node != null, "Node is mandatory.");
         final ByteBuf rsvpObjBuf = Unpooled.buffer();
         int type = 0;
         if (node.getIpv4AddressNoZone() != null) {
@@ -151,10 +148,8 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
             writeIpv6Address(node.getIpv6AddressNoZone(), rsvpObjBuf);
         }
         flags.toByteBuf(rsvpObjBuf);
-        Preconditions.checkArgument(rsvp.getCode() != null, "Code is mandatory.");
-        writeUnsignedByte(rsvp.getCode(), rsvpObjBuf);
-        Preconditions.checkArgument(rsvp.getValue() != null, "Value is mandatory.");
-        writeUnsignedShort(rsvp.getValue(), rsvpObjBuf);
+        ByteBufUtils.writeMandatory(rsvpObjBuf, rsvp.getCode(), "Code");
+        ByteBufUtils.writeMandatory(rsvpObjBuf, rsvp.getValue(), "Value");
         formatRSVPObject(RSVP_ERROR_CLASS_NUM, type, rsvpObjBuf, body);
     }
 
