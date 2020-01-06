@@ -92,7 +92,7 @@ public final class Ipv4Util {
      * Returns number of minimum bytes needed to cover all bits of prefix.
      */
     public static int getPrefixLengthBytes(final String prefix) {
-        return prefixBitsToBytes(Ipv4Util.getPrefixLength(prefix));
+        return prefixBitsToBytes(getPrefixLength(prefix));
     }
 
     /**
@@ -254,5 +254,68 @@ public final class Ipv4Util {
             return ipAddress.getIpv4Address().getValue();
         }
         return ipAddress.getIpv6Address().getValue();
+    }
+
+
+    /**
+     * Writes IPv4 address if not null, otherwise writes zeros to the
+     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 4.
+     *
+     * @param ipv4Address
+     *            IPv4 address to be written to the output.
+     * @param output
+     *            ByteBuf, where ipv4Address or zeros are written.
+     */
+    public static void writeIpv4Address(final Ipv4Address ipv4Address, final ByteBuf output) {
+        if (ipv4Address != null) {
+            output.writeBytes(bytesForAddress(ipv4Address));
+        } else {
+            output.writeInt(0);
+        }
+    }
+
+    /**
+     * Writes IPv4 address if not null, otherwise writes zeros to the
+     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 4.
+     *
+     * @param ipv4Address
+     *            IPv4 address to be written to the output.
+     * @param output
+     *            ByteBuf, where ipv4Address or zeros are written.
+     */
+    public static void writeIpv4Address(final Ipv4AddressNoZone ipv4Address, final ByteBuf output) {
+        if (ipv4Address != null) {
+            output.writeBytes(IetfInetUtil.INSTANCE.ipv4AddressNoZoneBytes(ipv4Address));
+        } else {
+            output.writeInt(0);
+        }
+    }
+
+    /**
+     * Writes IPv4 prefix if not null, otherwise writes zeros to the
+     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 5.
+     *
+     * @param ipv4Prefix
+     *            IPv4 prefix value to be written to the output. Prefix is
+     *            written in the last byte.
+     * @param output
+     *            ByteBuf, where ipv4Prefix or zeros are written.
+     */
+    public static void writeIpv4Prefix(final Ipv4Prefix ipv4Prefix, final ByteBuf output) {
+        if (ipv4Prefix != null) {
+            output.writeBytes(bytesForPrefix(ipv4Prefix));
+        } else {
+            output.writeZero(PREFIX_BYTE_LENGTH);
+        }
+    }
+
+    public static void writeMinimalPrefix(final Ipv4Prefix ipv4Prefix, final ByteBuf output) {
+        final byte[] bytes = IetfInetUtil.INSTANCE.ipv4PrefixToBytes(ipv4Prefix);
+        writeMinimalPrefix(output, bytes, bytes[IP4_LENGTH]);
+    }
+
+    static void writeMinimalPrefix(final ByteBuf output, final byte[] bytes, final byte prefixBits) {
+        output.writeByte(prefixBits);
+        output.writeBytes(bytes, 0, prefixBitsToBytes(Byte.toUnsignedInt(prefixBits)));
     }
 }

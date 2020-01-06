@@ -11,7 +11,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.FlowspecType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.group.ipv4.flowspec.flowspec.type.DestinationPrefixCase;
@@ -24,7 +23,7 @@ public final class FSIpv4DestinationPrefixHandler implements FlowspecTypeParser,
     public void serializeType(final FlowspecType value, final ByteBuf output) {
         checkArgument(value instanceof DestinationPrefixCase, "DestinationPrefixCase class is mandatory!");
         output.writeByte(DESTINATION_PREFIX_VALUE);
-        ByteBufWriteUtil.writeMinimalPrefix(((DestinationPrefixCase) value).getDestinationPrefix(), output);
+        Ipv4Util.writeMinimalPrefix(((DestinationPrefixCase) value).getDestinationPrefix(), output);
     }
 
     @Override

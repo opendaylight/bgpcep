@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.link._case.LinkDescriptors;
@@ -17,7 +16,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 
 public final class Ipv4InterfaceTlvParser implements LinkstateTlvParser<Ipv4InterfaceIdentifier>,
         LinkstateTlvParser.LinkstateTlvSerializer<Ipv4InterfaceIdentifier> {
-
     private static final int IPV4_IFACE_ADDRESS = 259;
 
     public static final QName IPV4_IFACE_ADDRESS_QNAME = QName.create(LinkDescriptors.QNAME, "ipv4-interface-address")
@@ -25,7 +23,7 @@ public final class Ipv4InterfaceTlvParser implements LinkstateTlvParser<Ipv4Inte
 
     @Override
     public void serializeTlvBody(final Ipv4InterfaceIdentifier tlv, final ByteBuf body) {
-        ByteBufWriteUtil.writeIpv4Address(tlv, body);
+        Ipv4Util.writeIpv4Address(tlv, body);
     }
 
     @Override

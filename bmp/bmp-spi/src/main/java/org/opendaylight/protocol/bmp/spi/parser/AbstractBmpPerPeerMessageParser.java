@@ -15,7 +15,6 @@ import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -118,12 +117,12 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
         }
         if (peerHeader.isIpv4()) {
             output.writeZero(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
-            ByteBufWriteUtil.writeIpv4Address(peerHeader.getAddress().getIpv4Address(), output);
+            Ipv4Util.writeIpv4Address(peerHeader.getAddress().getIpv4Address(), output);
         } else {
-            ByteBufWriteUtil.writeIpv6Address(peerHeader.getAddress().getIpv6Address(), output);
+            Ipv6Util.writeIpv6Address(peerHeader.getAddress().getIpv6Address(), output);
         }
         ByteBufUtils.write(output, peerHeader.getAs().getValue());
-        ByteBufWriteUtil.writeIpv4Address(peerHeader.getBgpId(), output);
+        Ipv4Util.writeIpv4Address(peerHeader.getBgpId(), output);
 
         final Timestamp stampSec = peerHeader.getTimestampSec();
         if (stampSec != null) {

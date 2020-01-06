@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import io.netty.buffer.ByteBuf;
@@ -35,7 +35,6 @@ import org.opendaylight.protocol.bgp.parser.spi.ParsedAttributes;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
@@ -65,13 +64,11 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.3">BGP-4 Update Message Format</a>
  */
 public final class BGPUpdateMessageParser implements MessageParser, MessageSerializer {
-
     private static final Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
 
     public static final int TYPE = 2;
 
     private final AttributeRegistry attrReg;
-
     private final NlriRegistry nlriReg;
 
     public BGPUpdateMessageParser(final AttributeRegistry attrReg, final NlriRegistry nlriReg) {
@@ -81,7 +78,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
 
     @Override
     public void serializeMessage(final Notification message, final ByteBuf bytes) {
-        Preconditions.checkArgument(message instanceof Update, "Message needs to be of type Update");
+        checkArgument(message instanceof Update, "Message needs to be of type Update");
         final Update update = (Update) message;
 
         final ByteBuf messageBody = Unpooled.buffer();
@@ -112,7 +109,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
 
     private static void writePathIdPrefix(final ByteBuf byteBuf, final PathId pathId, final Ipv4Prefix ipv4Prefix) {
         PathIdUtil.writePathId(pathId, byteBuf);
-        ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix, byteBuf);
+        Ipv4Util.writeMinimalPrefix(ipv4Prefix, byteBuf);
     }
 
     /**
@@ -127,8 +124,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
     @Override
     public Update parseMessageBody(final ByteBuf buffer, final int messageLength,
             final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-                "Buffer cannot be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(),"Buffer cannot be null or empty.");
 
         final UpdateBuilder builder = new UpdateBuilder();
         final boolean isMultiPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint,

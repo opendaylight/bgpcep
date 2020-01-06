@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object.unreach;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -39,17 +38,16 @@ public final class PCEPIpv4UnreachDestinationParser extends CommonObjectParser {
         final Ipv4DestinationCase ipv4Case,
         final ByteBuf buffer) {
         final List<Ipv4AddressNoZone> dest = ipv4Case.getDestinationIpv4Address();
-        Preconditions.checkArgument(dest != null, "DestinationIpv4Address is mandatory.");
+        checkArgument(dest != null, "DestinationIpv4Address is mandatory.");
         final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH * dest.size());
-        dest.forEach(ipv4 -> writeIpv4Address(ipv4, body));
+        dest.forEach(ipv4 -> Ipv4Util.writeIpv4Address(ipv4, body));
         ObjectUtil.formatSubobject(TYPE, CLASS, processing, ignore, body, buffer);
     }
 
     @Override
     public UnreachDestinationObj parseObject(final ObjectHeader header, final ByteBuf bytes)
         throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final UnreachDestinationObjBuilder builder = new UnreachDestinationObjBuilder();
         if (bytes.readableBytes() % Ipv4Util.IP4_LENGTH != 0) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");

@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.spi;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
+import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
@@ -89,7 +91,7 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
 
     @Override
     protected final void serializeObjectType(final ObjectType objectType, final ByteBuf buffer) {
-        Preconditions.checkArgument(objectType instanceof TeLspCase);
+        checkArgument(objectType instanceof TeLspCase);
         final TeLspCase teLSP = (TeLspCase) objectType;
         final AddressFamily addressFamily = teLSP.getAddressFamily();
         if (addressFamily instanceof Ipv4Case) {
@@ -100,15 +102,15 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
     }
 
     private static void serializeIpv4Case(final TeLspCase teLSP, final Ipv4Case ipv4Case, final ByteBuf buffer) {
-        ByteBufWriteUtil.writeIpv4Address(ipv4Case.getIpv4TunnelSenderAddress(), buffer);
+        Ipv4Util.writeIpv4Address(ipv4Case.getIpv4TunnelSenderAddress(), buffer);
         serializeTunnelIdAndLspId(buffer, teLSP);
-        ByteBufWriteUtil.writeIpv4Address(ipv4Case.getIpv4TunnelEndpointAddress(), buffer);
+        Ipv4Util.writeIpv4Address(ipv4Case.getIpv4TunnelEndpointAddress(), buffer);
     }
 
     private static void serializeIpv6Case(final TeLspCase teLSP, final Ipv6Case ipv6Case, final ByteBuf buffer) {
-        ByteBufWriteUtil.writeIpv6Address(ipv6Case.getIpv6TunnelSenderAddress(), buffer);
+        Ipv6Util.writeIpv6Address(ipv6Case.getIpv6TunnelSenderAddress(), buffer);
         serializeTunnelIdAndLspId(buffer, teLSP);
-        ByteBufWriteUtil.writeIpv6Address(ipv6Case.getIpv6TunnelEndpointAddress(), buffer);
+        Ipv6Util.writeIpv6Address(ipv6Case.getIpv6TunnelEndpointAddress(), buffer);
     }
 
     private static void serializeTunnelIdAndLspId(final ByteBuf buffer, final TeLspCase teLSP) {

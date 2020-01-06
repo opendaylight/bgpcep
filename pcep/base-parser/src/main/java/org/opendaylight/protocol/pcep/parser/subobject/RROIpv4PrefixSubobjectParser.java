@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -20,6 +19,7 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.IpPrefixSubobject;
@@ -46,8 +46,7 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() != CONTENT4_LENGTH) {
             throw new PCEPDeserializerException(
                     "Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
@@ -68,23 +67,23 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase,
+        checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase,
                 "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
-        Preconditions.checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null,
-                "Unknown AbstractPrefix instance. Passed %s.", prefix.getClass());
-        if (prefix.getIpv6Prefix() != null) {
-            new RROIpv6PrefixSubobjectParser().serializeSubobject(subobject, buffer);
-        } else {
-            final BitArray flags = new BitArray(FLAGS_SIZE);
-            flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-            flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
-            final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
-            Preconditions.checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
-            writeIpv4Prefix(prefix.getIpv4Prefix(), body);
-            flags.toByteBuf(body);
-            RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
+        final Ipv6Prefix ipv6Prefix = prefix.getIpv6Prefix();
+        if (ipv6Prefix != null) {
+            RROIpv6PrefixSubobjectParser.serializeSubobject(buffer, subobject, ipv6Prefix);
+            return;
         }
+
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
+        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
+        final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
+        checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
+        Ipv4Util.writeIpv4Prefix(prefix.getIpv4Prefix(), body);
+        flags.toByteBuf(body);
+        RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

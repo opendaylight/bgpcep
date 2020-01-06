@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.inet.codec;
 
 import static org.junit.Assert.assertEquals;
@@ -27,7 +26,7 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
+import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
@@ -106,11 +105,11 @@ public class Ipv4NlriParserTest {
                 .setIpv4Prefixes(fakePrefixes).build()).build();
 
         final ByteBuf buffer1 = Unpooled.buffer(5);
-        ByteBufWriteUtil.writeMinimalPrefix(prefix1, buffer1);
+        Ipv4Util.writeMinimalPrefix(prefix1, buffer1);
         this.inputBytes.writeBytes(buffer1.array());
 
         final ByteBuf buffer2 = Unpooled.buffer(5);
-        ByteBufWriteUtil.writeMinimalPrefix(prefix2, buffer2);
+        Ipv4Util.writeMinimalPrefix(prefix2, buffer2);
         this.inputBytes.writeBytes(buffer2.array());
 
         Mockito.doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(Mockito.any());

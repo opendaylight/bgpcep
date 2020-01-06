@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.AbstractIpv4ExtendedCommunity;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.RouteOriginIpv4Case;
@@ -26,21 +26,22 @@ public final class RouteOriginIpv4EcHandler extends AbstractIpv4ExtendedCommunit
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(extendedCommunity instanceof RouteOriginIpv4Case,
+        checkArgument(extendedCommunity instanceof RouteOriginIpv4Case,
                 "The extended community %s is not RouteOriginIpv4Case type.", extendedCommunity);
         final RouteOriginIpv4 routeTarget = ((RouteOriginIpv4Case) extendedCommunity).getRouteOriginIpv4();
-        ByteBufWriteUtil.writeIpv4Address(routeTarget.getGlobalAdministrator(), byteAggregator);
+        Ipv4Util.writeIpv4Address(routeTarget.getGlobalAdministrator(), byteAggregator);
         ByteBufUtils.writeOrZero(byteAggregator, routeTarget.getLocalAdministrator());
     }
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer)
             throws BGPDocumentedException, BGPParsingException {
-        final RouteOriginIpv4 routeTarget = new RouteOriginIpv4Builder()
-            .setGlobalAdministrator(Ipv4Util.addressForByteBuf(buffer))
-            .setLocalAdministrator(ByteBufUtils.readUint16(buffer))
-            .build();
-        return new RouteOriginIpv4CaseBuilder().setRouteOriginIpv4(routeTarget).build();
+        return new RouteOriginIpv4CaseBuilder()
+                .setRouteOriginIpv4(new RouteOriginIpv4Builder()
+                    .setGlobalAdministrator(Ipv4Util.addressForByteBuf(buffer))
+                    .setLocalAdministrator(ByteBufUtils.readUint16(buffer))
+                    .build())
+                .build();
     }
 
     @Override

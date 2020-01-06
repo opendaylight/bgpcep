@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bmp.parser.message;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -19,7 +19,6 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvRegistry;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -52,15 +51,14 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
     @Override
     public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
         super.serializeMessageBody(message, buffer);
-        Preconditions.checkArgument(message instanceof PeerUpNotification,
-            "An instance of Peer Up notification is required");
+        checkArgument(message instanceof PeerUpNotification, "An instance of Peer Up notification is required");
         final PeerUpNotification peerUp = (PeerUpNotification) message;
 
         if (peerUp.getLocalAddress().getIpv4Address() != null) {
             buffer.writeZero(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
-            ByteBufWriteUtil.writeIpv4Address(peerUp.getLocalAddress().getIpv4Address(), buffer);
+            Ipv4Util.writeIpv4Address(peerUp.getLocalAddress().getIpv4Address(), buffer);
         } else {
-            ByteBufWriteUtil.writeIpv6Address(peerUp.getLocalAddress().getIpv6Address(), buffer);
+            Ipv6Util.writeIpv6Address(peerUp.getLocalAddress().getIpv6Address(), buffer);
         }
         ByteBufUtils.write(buffer, peerUp.getLocalPort().getValue());
         ByteBufUtils.write(buffer, peerUp.getRemotePort().getValue());
@@ -96,18 +94,14 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         try {
             final Notification opSent = this.msgRegistry
                     .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
-            requireNonNull(opSent,
-                    "Error on parse Sent OPEN Message, Sent OPEN Message is null");
-            Preconditions.checkArgument(opSent instanceof OpenMessage,
-                    "An instance of OpenMessage notification is required");
+            requireNonNull(opSent, "Error on parse Sent OPEN Message, Sent OPEN Message is null");
+            checkArgument(opSent instanceof OpenMessage, "An instance of OpenMessage notification is required");
             final OpenMessage sent = (OpenMessage) opSent;
 
             final Notification opRec = this.msgRegistry
                     .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
-            requireNonNull(opRec,
-                    "Error on parse Received  OPEN Message, Received  OPEN Message is null");
-            Preconditions.checkArgument(opRec instanceof OpenMessage,
-                    "An instance of OpenMessage notification is required");
+            requireNonNull(opRec, "Error on parse Received  OPEN Message, Received  OPEN Message is null");
+            checkArgument(opRec instanceof OpenMessage, "An instance of OpenMessage notification is required");
             final OpenMessage received = (OpenMessage) opRec;
 
             peerUpNot.setSentOpen(new SentOpenBuilder(sent).build());

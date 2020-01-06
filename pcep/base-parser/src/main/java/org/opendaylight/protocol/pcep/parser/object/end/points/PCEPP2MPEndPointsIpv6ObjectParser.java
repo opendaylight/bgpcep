@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object.end.points;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -47,21 +46,19 @@ public class PCEPP2MPEndPointsIpv6ObjectParser extends CommonObjectParser {
         final P2mpIpv6 p2mpIpv6,
         final ByteBuf buffer) {
         final List<Ipv6AddressNoZone> dest = p2mpIpv6.getDestinationIpv6Address();
-        Preconditions.checkArgument(dest != null, "DestinationIpv6Address is mandatory.");
+        checkArgument(dest != null, "DestinationIpv6Address is mandatory.");
         final ByteBuf body =
             Unpooled.buffer(LEAF_TYPE_SIZE + Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH * dest.size());
-        Preconditions.checkArgument(p2mpIpv6.getSourceIpv6Address() != null,
-            "SourceIpv6Address is mandatory.");
+        checkArgument(p2mpIpv6.getSourceIpv6Address() != null, "SourceIpv6Address is mandatory.");
         body.writeInt(p2mpIpv6.getP2mpLeaves().getIntValue());
-        writeIpv6Address(p2mpIpv6.getSourceIpv6Address(), body);
-        dest.forEach(ipv6 -> writeIpv6Address(ipv6, body));
+        Ipv6Util.writeIpv6Address(p2mpIpv6.getSourceIpv6Address(), body);
+        dest.forEach(ipv6 -> Ipv6Util.writeIpv6Address(ipv6, body));
         ObjectUtil.formatSubobject(TYPE, CLASS, processing, ignore, body, buffer);
     }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (!header.isProcessingRule()) {
             LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");
             return new UnknownObject(PCEPErrors.P_FLAG_NOT_SET, new EndpointsObjBuilder().build());

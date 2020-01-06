@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -33,13 +32,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
  * Parser for {@link IpPrefixCase}.
  */
 public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
-
     public static final int TYPE = 1;
 
     private static final int PREFIX_F_LENGTH = 1;
-
     private static final int PREFIX4_F_OFFSET = Ipv4Util.IP4_LENGTH;
-
     private static final int CONTENT4_LENGTH = PREFIX4_F_OFFSET + PREFIX_F_LENGTH + 1;
 
     @Override
@@ -77,7 +73,7 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
         checkArgument(ipv4Prefix != null, "Ipv4Prefix is mandatory.");
 
         final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
-        writeIpv4Prefix(ipv4Prefix, body);
+        Ipv4Util.writeIpv4Prefix(ipv4Prefix, body);
         final Attribute attribute = subobject.getAttribute();
         checkArgument(attribute != null, "Attribute is mandatory.");
         body.writeByte(attribute.getIntValue());

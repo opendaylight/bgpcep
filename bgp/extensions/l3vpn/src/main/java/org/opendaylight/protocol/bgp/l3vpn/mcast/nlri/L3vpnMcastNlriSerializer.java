@@ -7,15 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn.mcast.nlri;
 
-import static org.opendaylight.protocol.util.Ipv6Util.IPV6_BITS_LENGTH;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -38,7 +35,7 @@ public final class L3vpnMcastNlriSerializer {
 
             final int initialLength = nlri.readableBytes();
             builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(nlri));
-            if (length == IPV6_BITS_LENGTH) {
+            if (length == Ipv6Util.IPV6_BITS_LENGTH) {
                 builder.setPrefix(new IpPrefix(Ipv6Util.prefixForByteBuf(nlri)));
             } else {
                 builder.setPrefix(new IpPrefix(Ipv4Util.prefixForByteBuf(nlri)));
@@ -61,10 +58,10 @@ public final class L3vpnMcastNlriSerializer {
             final IpPrefix prefix = dest.getPrefix();
             if (prefix.getIpv4Prefix() != null) {
                 output.writeByte(Ipv4Util.IP4_BITS_LENGTH);
-                ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv4Prefix(), prefixBuf);
+                Ipv4Util.writeMinimalPrefix(prefix.getIpv4Prefix(), prefixBuf);
             } else {
-                output.writeByte(IPV6_BITS_LENGTH);
-                ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv6Prefix(), prefixBuf);
+                output.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
+                Ipv6Util.writeMinimalPrefix(prefix.getIpv6Prefix(), prefixBuf);
             }
             // FIXME: remove this funky loop
             while (prefixBuf.readableBytes() % 8 != 0) {

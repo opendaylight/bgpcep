@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.xro;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -18,7 +17,9 @@ import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.IpPrefixSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
@@ -35,8 +36,8 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
     private static final int CONTENT4_LENGTH = PREFIX4_F_OFFSET + PREFIX_F_LENGTH + 1;
 
     @Override
-    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory) throws
-        RSVPParsingException {
+    public SubobjectContainer parseSubobject(final ByteBuf buffer, final boolean mandatory)
+            throws RSVPParsingException {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final SubobjectContainerBuilder builder = new SubobjectContainerBuilder();
         builder.setMandatory(mandatory);
@@ -59,17 +60,18 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
             type.getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) type).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
-        checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null,
-            "Unknown AbstractPrefix instance. Passed %s.", prefix.getClass());
-        if (prefix.getIpv6Prefix() != null) {
-            new XROIpv6PrefixSubobjectParser().serializeSubobject(subobject, buffer);
-        } else {
-            final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
-            checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
-            writeIpv4Prefix(prefix.getIpv4Prefix(), body);
-            checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
-            body.writeByte(subobject.getAttribute().getIntValue());
-            XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        final Ipv6Prefix ipv6Prefix = prefix.getIpv6Prefix();
+        if (ipv6Prefix != null) {
+            XROIpv6PrefixSubobjectParser.serializeSubobject(buffer, subobject, ipv6Prefix);
+            return;
         }
+
+        final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
+        checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
+        Ipv4Util.writeIpv4Prefix(prefix.getIpv4Prefix(), body);
+        final Attribute attribute = subobject.getAttribute();
+        checkArgument(attribute != null, "Attribute is mandatory.");
+        body.writeByte(attribute.getIntValue());
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }

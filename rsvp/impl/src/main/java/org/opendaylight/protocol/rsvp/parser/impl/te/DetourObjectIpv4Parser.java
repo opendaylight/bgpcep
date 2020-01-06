@@ -5,15 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.AbstractRSVPObjectParser;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.detour.object.detour.object.Ipv4DetourObject;
@@ -41,14 +40,14 @@ public final class DetourObjectIpv4Parser extends AbstractRSVPObjectParser {
 
     @Override
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(teLspObject instanceof Ipv4DetourObject, "DetourObject is mandatory.");
+        checkArgument(teLspObject instanceof Ipv4DetourObject, "DetourObject is mandatory.");
         final Ipv4DetourObject detourObject = (Ipv4DetourObject) teLspObject;
 
         final List<Plr> list = detourObject.getPlr();
         serializeAttributeHeader(list.size() * 2 * Ipv4Util.IP4_LENGTH, CLASS_NUM, CTYPE, byteAggregator);
         for (final Plr plr : list) {
-            ByteBufWriteUtil.writeIpv4Address(plr.getPlrId(), byteAggregator);
-            ByteBufWriteUtil.writeIpv4Address(plr.getAvoidNode(), byteAggregator);
+            Ipv4Util.writeIpv4Address(plr.getPlrId(), byteAggregator);
+            Ipv4Util.writeIpv4Address(plr.getAvoidNode(), byteAggregator);
         }
     }
 }

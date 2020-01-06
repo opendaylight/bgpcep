@@ -8,8 +8,6 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -142,10 +140,10 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         int type = 0;
         if (node.getIpv4AddressNoZone() != null) {
             type = RSVP_IPV4_ERROR_CLASS_TYPE;
-            writeIpv4Address(node.getIpv4AddressNoZone(), rsvpObjBuf);
+            Ipv4Util.writeIpv4Address(node.getIpv4AddressNoZone(), rsvpObjBuf);
         } else {
             type = RSVP_IPV6_ERROR_CLASS_TYPE;
-            writeIpv6Address(node.getIpv6AddressNoZone(), rsvpObjBuf);
+            Ipv6Util.writeIpv6Address(node.getIpv6AddressNoZone(), rsvpObjBuf);
         }
         flags.toByteBuf(rsvpObjBuf);
         ByteBufUtils.writeMandatory(rsvpObjBuf, rsvp.getCode(), "Code");
