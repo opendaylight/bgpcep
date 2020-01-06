@@ -32,6 +32,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 public final class Ipv4Util {
     public static final int IP4_LENGTH = 4;
     public static final int IP4_BITS_LENGTH = 32;
+
+    static final int PREFIX_BYTE_LENGTH = IP4_LENGTH + 1;
+
     private static final Ipv4Prefix EMPTY_PREFIX = new Ipv4Prefix("0.0.0.0/0");
 
     private Ipv4Util() {
