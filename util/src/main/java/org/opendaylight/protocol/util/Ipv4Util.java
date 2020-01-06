@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.util;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.net.InetAddresses;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.InetAddress;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -113,7 +113,7 @@ public final class Ipv4Util {
      * @return Ipv4Prefix object
      */
     public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
-        Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
+        checkArgument(length <= bytes.length * Byte.SIZE);
 
         final byte[] tmp;
         if (bytes.length != IP4_LENGTH) {
@@ -133,8 +133,7 @@ public final class Ipv4Util {
      * @return Ipv4Prefix object
      */
     public static Ipv4Prefix prefixForByteBuf(final ByteBuf buf) {
-        final int prefixLength = UnsignedBytes.toInt(buf.readByte());
-        return prefixForByteBuf(buf, prefixLength);
+        return prefixForByteBuf(buf, Byte.toUnsignedInt(buf.readByte()));
     }
 
     /**
@@ -147,7 +146,7 @@ public final class Ipv4Util {
     public static Ipv4Prefix prefixForByteBuf(final ByteBuf buf, final int prefixLength) {
         final int size = prefixLength / Byte.SIZE + (prefixLength % Byte.SIZE == 0 ? 0 : 1);
         final int readable = buf.readableBytes();
-        Preconditions.checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
+        checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
 
         final byte[] bytes = new byte[IP4_LENGTH];
         buf.readBytes(bytes, 0, size);
@@ -167,7 +166,7 @@ public final class Ipv4Util {
         final List<Ipv4Prefix> list = new ArrayList<>();
         int byteOffset = 0;
         while (byteOffset < bytes.length) {
-            final int bitLength = UnsignedBytes.toInt(bytes[byteOffset]);
+            final int bitLength = Byte.toUnsignedInt(bytes[byteOffset]);
             byteOffset += 1;
             // if length == 0, default route will be added
             if (bitLength == 0) {
@@ -239,7 +238,7 @@ public final class Ipv4Util {
     }
 
     public static Ipv4Prefix incrementIpv4Prefix(final Ipv4Prefix ipv4Prefix) {
-        final Map.Entry<Ipv4Address, Integer> splitIpv4Prefix = IetfInetUtil.INSTANCE.splitIpv4Prefix(ipv4Prefix);
+        final Entry<Ipv4Address, Integer> splitIpv4Prefix = IetfInetUtil.INSTANCE.splitIpv4Prefix(ipv4Prefix);
         return IetfInetUtil.INSTANCE.ipv4PrefixFor(incrementIpv4Address(splitIpv4Prefix.getKey()),
                 splitIpv4Prefix.getValue());
     }
