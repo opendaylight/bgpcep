@@ -5,11 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.util;
 
 import io.netty.buffer.ByteBuf;
-import java.math.BigInteger;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -18,10 +16,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
-import org.opendaylight.yangtools.yang.common.Uint16;
-import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.Uint64;
-import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Utility class for ByteBuf's write methods.
@@ -60,171 +54,6 @@ public final class ByteBufWriteUtil {
      */
     public static void writeMedium(final Integer value, final ByteBuf output) {
         output.writeMedium(value != null ? value : 0);
-    }
-
-    /**
-     * Writes 16-bit short <code>value</code> if not null, otherwise writes
-     * zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 2.
-     *
-     * @param value
-     *            Short value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     */
-    public static void writeShort(final Short value, final ByteBuf output) {
-        output.writeShort(value != null ? value : 0);
-    }
-
-    /**
-     * Writes 64-bit long <code>value</code> if not null, otherwise writes zeros
-     * to the <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by
-     * 8.
-     *
-     * @param value
-     *            Long value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     */
-    public static void writeLong(final Long value, final ByteBuf output) {
-        output.writeLong(value != null ? value : 0L);
-    }
-
-    /**
-     * Writes boolean <code>value</code> if not null, otherwise writes zero to
-     * the <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 1.
-     *
-     * @param value
-     *            Boolean value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zero is written.
-     */
-    public static void writeBoolean(final Boolean value, final ByteBuf output) {
-        if (value != null) {
-            output.writeBoolean(value);
-        } else {
-            output.writeByte(0);
-        }
-    }
-
-    /**
-     * Writes unsigned byte <code>value</code> if not null, otherwise writes
-     * zero to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 1.
-     *
-     * @param value
-     *            Short value to be write to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     * @deprecated Use {@link #writeUnsignedByte(Uint8, ByteBuf)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static void writeUnsignedByte(final Short value, final ByteBuf output) {
-        output.writeByte(value != null ? value : 0);
-    }
-
-    /**
-     * Writes unsigned byte <code>value</code> if not null, otherwise writes
-     * zero to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 1.
-     *
-     * @param value
-     *            Short value to be write to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     */
-    public static void writeUnsignedByte(final Uint8 value, final ByteBuf output) {
-        output.writeByte(value != null ? value.byteValue() : 0);
-    }
-
-    /**
-     * Writes unsigned 16-bit short integer <code>value</code> if not null,
-     * otherwise writes zeros to the <code>output</code> ByteBuf. ByteBuf's
-     * writerIndex is increased by 2.
-     *
-     * @param value
-     *            Integer value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     * @deprecated Use {@link #writeUnsignedShort(Uint16, ByteBuf)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static void writeUnsignedShort(final Integer value, final ByteBuf output) {
-        output.writeShort(value != null ? value.shortValue() : 0);
-    }
-
-    /**
-     * Writes unsigned 16-bit short integer <code>value</code> if not null,
-     * otherwise writes zeros to the <code>output</code> ByteBuf. ByteBuf's
-     * writerIndex is increased by 2.
-     *
-     * @param value
-     *            Integer value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     */
-    public static void writeUnsignedShort(final Uint16 value, final ByteBuf output) {
-        output.writeShort(value != null ? value.shortValue() : 0);
-    }
-
-    /**
-     * Writes unsigned 32-bit integer <code>value</code> if not null, otherwise
-     * writes zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 4.
-     *
-     * @param value
-     *            Long value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     * @deprecated Use {@link #writeUnsignedInt(Uint32, ByteBuf)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static void writeUnsignedInt(final Long value, final ByteBuf output) {
-        output.writeInt(value != null ? value.intValue() : 0);
-    }
-
-    /**
-     * Writes unsigned 32-bit integer <code>value</code> if not null, otherwise
-     * writes zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 4.
-     *
-     * @param value
-     *            Long value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     */
-    public static void writeUnsignedInt(final Uint32 value, final ByteBuf output) {
-        output.writeInt(value != null ? value.intValue() : 0);
-    }
-
-    /**
-     * Writes unsigned 64-bit integer <code>value</code> if not null, otherwise
-     * writes zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 8.
-     *
-     * @param value
-     *            BigInteger value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     * @deprecated Use {@link #writeUnsignedLong(Uint64, ByteBuf)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static void writeUnsignedLong(final BigInteger value, final ByteBuf output) {
-        output.writeLong(value != null ? value.longValue() : 0L);
-    }
-
-    /**
-     * Writes unsigned 64-bit integer <code>value</code> if not null, otherwise
-     * writes zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 8.
-     *
-     * @param value
-     *            BigInteger value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     */
-    public static void writeUnsignedLong(final Uint64 value, final ByteBuf output) {
-        output.writeLong(value != null ? value.longValue() : 0L);
     }
 
     /**
