@@ -5,24 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.util;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBoolean;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeInt;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Prefix;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeLong;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeMedium;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedLong;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -32,20 +24,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
-import org.opendaylight.yangtools.yang.common.Uint16;
-import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.Uint64;
-import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class ByteBufWriteUtilTest {
-
-    private static final byte[] ONE_BYTE_ZERO = {0};
-
-    private static final byte[] TWO_BYTE_ZEROS = {0, 0};
-
-    private static final byte[] FOUR_BYTE_ZEROS = {0, 0, 0, 0};
-
-    private static final byte[] EIGHT_BYTE_ZEROS = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    private static final byte[] FOUR_BYTE_ZEROS = { 0, 0, 0, 0 };
 
     @Test
     public void testWriteIntegerValue() {
@@ -60,18 +41,6 @@ public class ByteBufWriteUtilTest {
     }
 
     @Test
-    public void testWriteShortValue() {
-        final byte[] result = { 0, 5 };
-        final ByteBuf output = Unpooled.buffer(Short.BYTES);
-        writeShort((short) 5, output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeShort(null, output);
-        assertArrayEquals(TWO_BYTE_ZEROS, output.array());
-    }
-
-    @Test
     public void testWriteMediumValue() {
         final byte[] result = { 0, 0, 5 };
         final ByteBuf output = Unpooled.buffer(3);
@@ -82,78 +51,6 @@ public class ByteBufWriteUtilTest {
         final byte[] resultZero = { 0, 0, 0 };
         writeMedium(null, output);
         assertArrayEquals(resultZero, output.array());
-    }
-
-    @Test
-    public void testWriteLongValue() {
-        final byte[] result = { 0, 0, 0, 0, 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(Long.BYTES);
-        writeLong((long) 5, output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeLong(null, output);
-        assertArrayEquals(EIGHT_BYTE_ZEROS, output.array());
-    }
-
-    @Test
-    public void testWriteBooleanValue() {
-        final byte[] result = { 1 };
-        final ByteBuf output = Unpooled.buffer(Byte.BYTES);
-        writeBoolean(true, output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeBoolean(null, output);
-        assertArrayEquals(ONE_BYTE_ZERO, output.array());
-    }
-
-    @Test
-    public void testWriteUnsignedByteValue() {
-        final byte[] result = { 5 };
-        final ByteBuf output = Unpooled.buffer(Byte.BYTES);
-        writeUnsignedByte(Uint8.valueOf(5), output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeUnsignedByte((Uint8) null, output);
-        assertArrayEquals(ONE_BYTE_ZERO, output.array());
-    }
-
-    @Test
-    public void testWriteUnsignedShortValue() {
-        final byte[] result = { 0, 5 };
-        final ByteBuf output = Unpooled.buffer(Short.BYTES);
-        writeUnsignedShort(Uint16.valueOf(5), output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeUnsignedShort((Uint16) null, output);
-        assertArrayEquals(TWO_BYTE_ZEROS, output.array());
-    }
-
-    @Test
-    public void testWriteUnsignedIntValue() {
-        final byte[] result = { 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(Integer.BYTES);
-        ByteBufWriteUtil.writeUnsignedInt(Uint32.valueOf(5), output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeUnsignedInt((Uint32) null, output);
-        assertArrayEquals(FOUR_BYTE_ZEROS, output.array());
-    }
-
-    @Test
-    public void testWriteUnsignedLongValue() {
-        final byte[] result = { 0, 0, 0, 0, 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(Long.BYTES);
-        writeUnsignedLong(Uint64.valueOf(5), output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeUnsignedLong((Uint64) null, output);
-        assertArrayEquals(EIGHT_BYTE_ZEROS, output.array());
     }
 
     @Test
