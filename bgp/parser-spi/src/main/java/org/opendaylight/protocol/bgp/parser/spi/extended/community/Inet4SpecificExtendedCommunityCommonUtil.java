@@ -11,7 +11,6 @@ import static org.opendaylight.protocol.bgp.parser.spi.extended.community.Abstra
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.inet4.specific.extended.community.common.Inet4SpecificExtendedCommunityCommon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.inet4.specific.extended.community.common.Inet4SpecificExtendedCommunityCommonBuilder;
@@ -30,7 +29,7 @@ public final class Inet4SpecificExtendedCommunityCommonUtil {
 
     public static void serializeCommon(final Inet4SpecificExtendedCommunityCommon extComm,
             final ByteBuf byteAggregator) {
-        ByteBufWriteUtil.writeIpv4Address(extComm.getGlobalAdministrator(), byteAggregator);
+        Ipv4Util.writeIpv4Address(extComm.getGlobalAdministrator(), byteAggregator);
         byteAggregator.writeBytes(extComm.getLocalAdministrator());
     }
 }

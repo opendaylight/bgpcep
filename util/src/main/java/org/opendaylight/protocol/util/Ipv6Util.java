@@ -161,4 +161,61 @@ public final class Ipv6Util {
         }
         return list;
     }
+
+    /**
+     * Writes IPv6 address if not null, otherwise writes zeros to the
+     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 16.
+     *
+     * @param ipv6Address
+     *            IPv6 address to be written to the output.
+     * @param output
+     *            ByteBuf, where ipv6Address or zeros are written.
+     */
+    public static void writeIpv6Address(final Ipv6Address ipv6Address, final ByteBuf output) {
+        if (ipv6Address != null) {
+            output.writeBytes(bytesForAddress(ipv6Address));
+        } else {
+            output.writeZero(IPV6_LENGTH);
+        }
+    }
+
+    /**
+     * Writes IPv6 address if not null, otherwise writes zeros to the
+     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 16.
+     *
+     * @param ipv6Address
+     *            IPv6 address to be written to the output.
+     * @param output
+     *            ByteBuf, where ipv6Address or zeros are written.
+     */
+    public static void writeIpv6Address(final Ipv6AddressNoZone ipv6Address, final ByteBuf output) {
+        if (ipv6Address != null) {
+            output.writeBytes(IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(ipv6Address));
+        } else {
+            output.writeZero(IPV6_LENGTH);
+        }
+    }
+
+    /**
+     * Writes IPv6 prefix if not null, otherwise writes zeros to the
+     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 17.
+     *
+     * @param ipv6Prefix
+     *            IPv6 prefix to be written to the output. Prefix is written in
+     *            the last byte.
+     * @param output
+     *            ByteBuf, where ipv6Prefix or zeros are written.
+     */
+    public static void writeIpv6Prefix(final Ipv6Prefix ipv6Prefix, final ByteBuf output) {
+        if (ipv6Prefix != null) {
+            output.writeBytes(bytesForPrefix(ipv6Prefix));
+        } else {
+            output.writeZero(PREFIX_BYTE_LENGTH);
+        }
+    }
+
+    public static void writeMinimalPrefix(final Ipv6Prefix ipv6Prefix, final ByteBuf output) {
+        final byte[] bytes = IetfInetUtil.INSTANCE.ipv6PrefixToBytes(ipv6Prefix);
+        Ipv4Util.writeMinimalPrefix(output, bytes, bytes[IPV6_LENGTH]);
+    }
 }
