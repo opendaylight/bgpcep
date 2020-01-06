@@ -9,7 +9,6 @@ package org.opendaylight.protocol.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeInt;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
@@ -27,18 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
 
 public class ByteBufWriteUtilTest {
     private static final byte[] FOUR_BYTE_ZEROS = { 0, 0, 0, 0 };
-
-    @Test
-    public void testWriteIntegerValue() {
-        final byte[] result = { 0, 0, 0, 5 };
-        final ByteBuf output = Unpooled.buffer(Integer.BYTES);
-        writeInt(5, output);
-        assertArrayEquals(result, output.array());
-
-        output.clear();
-        writeInt(null, output);
-        assertArrayEquals(FOUR_BYTE_ZEROS, output.array());
-    }
 
     @Test
     public void testWriteMediumValue() {

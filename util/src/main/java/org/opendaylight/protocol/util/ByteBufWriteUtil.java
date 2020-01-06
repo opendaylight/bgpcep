@@ -29,20 +29,6 @@ public final class ByteBufWriteUtil {
     }
 
     /**
-     * Writes 32-bit integer <code>value</code> if not null, otherwise writes
-     * zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
-     * increased by 4.
-     *
-     * @param value
-     *            Integer value to be written to the output.
-     * @param output
-     *            ByteBuf, where value or zeros are written.
-     */
-    public static void writeInt(final Integer value, final ByteBuf output) {
-        output.writeInt(value != null ? value : 0);
-    }
-
-    /**
      * Writes 24-bit integer <code>value</code> if not null, otherwise writes
      * zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
      * increased by 3.
