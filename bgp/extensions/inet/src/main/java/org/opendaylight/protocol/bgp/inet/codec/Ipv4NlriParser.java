@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.inet.codec;
 
 import io.netty.buffer.ByteBuf;
@@ -17,7 +16,6 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
@@ -82,7 +80,7 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
                         (DestinationIpv4Case) advertizedRoutes.getDestinationType();
                 for (final Ipv4Prefixes ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
                     PathIdUtil.writePathId(ipv4Prefix.getPathId(), byteAggregator);
-                    ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix.getPrefix(), byteAggregator);
+                    Ipv4Util.writeMinimalPrefix(ipv4Prefix.getPrefix(), byteAggregator);
                 }
             }
         } else if (pathAttributes2 != null) {
@@ -97,7 +95,7 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
                         .destination.type.DestinationIpv4Case) withdrawnRoutes.getDestinationType();
                 for (final Ipv4Prefixes ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
                     PathIdUtil.writePathId(ipv4Prefix.getPathId(), byteAggregator);
-                    ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix.getPrefix(), byteAggregator);
+                    Ipv4Util.writeMinimalPrefix(ipv4Prefix.getPrefix(), byteAggregator);
                 }
             }
         }

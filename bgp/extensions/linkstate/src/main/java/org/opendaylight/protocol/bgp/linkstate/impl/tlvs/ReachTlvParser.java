@@ -11,8 +11,8 @@ import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -45,9 +45,9 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
     @Override
     public void serializeTlvBody(final IpPrefix tlv, final ByteBuf body) {
         if (tlv.getIpv4Prefix() != null) {
-            ByteBufWriteUtil.writeMinimalPrefix(tlv.getIpv4Prefix(), body);
+            Ipv4Util.writeMinimalPrefix(tlv.getIpv4Prefix(), body);
         } else if (tlv.getIpv6Prefix() != null) {
-            ByteBufWriteUtil.writeMinimalPrefix(tlv.getIpv6Prefix(), body);
+            Ipv6Util.writeMinimalPrefix(tlv.getIpv6Prefix(), body);
         }
     }
 
@@ -57,17 +57,18 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
     }
 
     public static IpPrefix serializeModel(final ContainerNode prefixDesc) {
-        if (prefixDesc.getChild(IP_REACH_NID).isPresent()) {
-            final String prefix = (String) prefixDesc.getChild(IP_REACH_NID).get().getValue();
-            try {
-                final ByteBuf buffer = Unpooled.buffer(5);
-                ByteBufWriteUtil.writeMinimalPrefix(new Ipv4Prefix(prefix), buffer);
-                return new IpPrefix(new Ipv4Prefix(prefix));
-            } catch (final IllegalArgumentException e) {
-                LOG.debug("Creating Ipv6 prefix because", e);
-                return new IpPrefix(new Ipv6Prefix(prefix));
-            }
-        }
-        return null;
+        return prefixDesc.getChild(IP_REACH_NID)
+                .map(child -> {
+                    final String prefix = (String) child.getValue();
+                    try {
+                        final ByteBuf buffer = Unpooled.buffer(5);
+                        Ipv4Util.writeMinimalPrefix(new Ipv4Prefix(prefix), buffer);
+                        return new IpPrefix(new Ipv4Prefix(prefix));
+                    } catch (final IllegalArgumentException e) {
+                        LOG.debug("Creating Ipv6 prefix because", e);
+                        return new IpPrefix(new Ipv6Prefix(prefix));
+                    }
+                })
+                .orElse(null);
     }
 }

@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object.end.points;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
@@ -47,19 +46,16 @@ public final class PCEPEndPointsIpv6ObjectParser extends CommonObjectParser {
         final Ipv6 ipv6,
         final ByteBuf buffer) {
         final ByteBuf body = Unpooled.buffer(Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH);
-        Preconditions.checkArgument(ipv6.getSourceIpv6Address() != null,
-            "SourceIpv6Address is mandatory.");
-        writeIpv6Address(ipv6.getSourceIpv6Address(), body);
-        Preconditions.checkArgument(ipv6.getDestinationIpv6Address() != null,
-            "DestinationIpv6Address is mandatory.");
-        writeIpv6Address(ipv6.getDestinationIpv6Address(), body);
+        checkArgument(ipv6.getSourceIpv6Address() != null, "SourceIpv6Address is mandatory.");
+        Ipv6Util.writeIpv6Address(ipv6.getSourceIpv6Address(), body);
+        checkArgument(ipv6.getDestinationIpv6Address() != null, "DestinationIpv6Address is mandatory.");
+        Ipv6Util.writeIpv6Address(ipv6.getDestinationIpv6Address(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, processing, ignore, body, buffer);
     }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
         if (!header.isProcessingRule()) {
             LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");

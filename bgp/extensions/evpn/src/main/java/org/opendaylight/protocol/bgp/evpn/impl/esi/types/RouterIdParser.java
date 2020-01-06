@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.ext
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.extractRD;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.EsiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.Esi;
@@ -30,7 +29,7 @@ final class RouterIdParser extends AbstractEsiType {
         checkArgument(esi instanceof RouterIdGeneratedCase,
             "Unknown esi instance. Passed %s. Needed RouterIdGeneratedCase.", esi);
         final RouterIdGenerated routerID = ((RouterIdGeneratedCase) esi).getRouterIdGenerated();
-        ByteBufWriteUtil.writeIpv4Address(routerID.getRouterId(), body);
+        Ipv4Util.writeIpv4Address(routerID.getRouterId(), body);
         ByteBufUtils.writeOrZero(body, routerID.getLocalDiscriminator());
         return body.writeByte(0);
     }

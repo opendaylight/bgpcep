@@ -5,16 +5,15 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.object;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
@@ -29,17 +28,17 @@ public abstract class AbstractPceIdObjectParser extends CommonObjectParser imple
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof PceId,
-            "Wrong instance of PCEPObject. Passed %s. Needed PccIdReqObject.", object.getClass());
+        checkArgument(object instanceof PceId, "Wrong instance of PCEPObject. Passed %s. Needed PccIdReqObject.",
+            object.getClass());
         final PceId pceId = (PceId) object;
         if (pceId.getIpAddress().getIpv4AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH);
-            ByteBufWriteUtil.writeIpv4Address(pceId.getIpAddress().getIpv4AddressNoZone(), body);
+            Ipv4Util.writeIpv4Address(pceId.getIpAddress().getIpv4AddressNoZone(), body);
             ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
                 body, buffer);
         } else if (pceId.getIpAddress().getIpv6AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv6Util.IPV6_LENGTH);
-            ByteBufWriteUtil.writeIpv6Address(pceId.getIpAddress().getIpv6AddressNoZone(), body);
+            Ipv6Util.writeIpv6Address(pceId.getIpAddress().getIpv6AddressNoZone(), body);
             ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
                 body, buffer);
         }

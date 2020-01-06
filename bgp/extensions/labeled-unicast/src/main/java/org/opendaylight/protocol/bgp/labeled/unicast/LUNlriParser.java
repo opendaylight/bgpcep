@@ -20,7 +20,6 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.MplsLabelUtil;
@@ -162,9 +161,9 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         final ByteBuf buffer = Unpooled.buffer();
 
         if (prefix.getIpv4Prefix() != null) {
-            ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv4Prefix(), buffer);
+            Ipv4Util.writeMinimalPrefix(prefix.getIpv4Prefix(), buffer);
         } else {
-            ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv6Prefix(), buffer);
+            Ipv6Util.writeMinimalPrefix(prefix.getIpv6Prefix(), buffer);
         }
         return ByteArray.readAllBytes(buffer);
     }

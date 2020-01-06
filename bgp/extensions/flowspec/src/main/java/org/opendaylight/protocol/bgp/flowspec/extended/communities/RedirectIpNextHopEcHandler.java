@@ -12,7 +12,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -37,9 +36,9 @@ public class RedirectIpNextHopEcHandler implements ExtendedCommunityParser, Exte
                 .getRedirectIpNhExtendedCommunity();
         final IpAddress nextHopAddress = redirect.getNextHopAddress();
         if (nextHopAddress.getIpv4Address() != null) {
-            ByteBufWriteUtil.writeIpv4Address(nextHopAddress.getIpv4Address(), byteAggregator);
+            Ipv4Util.writeIpv4Address(nextHopAddress.getIpv4Address(), byteAggregator);
         } else {
-            ByteBufWriteUtil.writeIpv6Address(nextHopAddress.getIpv6Address(), byteAggregator);
+            Ipv6Util.writeIpv6Address(nextHopAddress.getIpv6Address(), byteAggregator);
         }
         byteAggregator.writeShort(Boolean.TRUE.equals(redirect.isCopy()) ? 1 : 0);
     }

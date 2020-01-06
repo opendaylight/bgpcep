@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object.end.points;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
@@ -47,19 +46,16 @@ public class PCEPEndPointsIpv4ObjectParser extends CommonObjectParser {
         final Ipv4 ipv4,
         final ByteBuf buffer) {
         final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH + Ipv4Util.IP4_LENGTH);
-        Preconditions.checkArgument(ipv4.getSourceIpv4Address() != null,
-            "SourceIpv4Address is mandatory.");
-        writeIpv4Address(ipv4.getSourceIpv4Address(), body);
-        Preconditions.checkArgument(ipv4.getDestinationIpv4Address() != null,
-            "DestinationIpv4Address is mandatory.");
-        writeIpv4Address(ipv4.getDestinationIpv4Address(), body);
+        checkArgument(ipv4.getSourceIpv4Address() != null, "SourceIpv4Address is mandatory.");
+        Ipv4Util.writeIpv4Address(ipv4.getSourceIpv4Address(), body);
+        checkArgument(ipv4.getDestinationIpv4Address() != null, "DestinationIpv4Address is mandatory.");
+        Ipv4Util.writeIpv4Address(ipv4.getDestinationIpv4Address(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, processing, ignore, body, buffer);
     }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
         if (!header.isProcessingRule()) {
             LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");

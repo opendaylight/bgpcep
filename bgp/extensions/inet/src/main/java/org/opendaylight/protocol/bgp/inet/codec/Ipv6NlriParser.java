@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.inet.codec;
 
 import io.netty.buffer.ByteBuf;
@@ -17,7 +16,6 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.DestinationIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.DestinationIpv6Builder;
@@ -82,7 +80,7 @@ public final class Ipv6NlriParser implements NlriParser, NlriSerializer {
                         (DestinationIpv6Case) advertizedRoutes.getDestinationType();
                 for (final Ipv6Prefixes ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
                     PathIdUtil.writePathId(ipv6Prefix.getPathId(), byteAggregator);
-                    ByteBufWriteUtil.writeMinimalPrefix(ipv6Prefix.getPrefix(), byteAggregator);
+                    Ipv6Util.writeMinimalPrefix(ipv6Prefix.getPrefix(), byteAggregator);
                 }
             }
         } else if (pathAttributes2 != null) {
@@ -98,7 +96,7 @@ public final class Ipv6NlriParser implements NlriParser, NlriSerializer {
                                 .DestinationIpv6Case) withdrawnRoutes.getDestinationType();
                 for (final Ipv6Prefixes ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
                     PathIdUtil.writePathId(ipv6Prefix.getPathId(), byteAggregator);
-                    ByteBufWriteUtil.writeMinimalPrefix(ipv6Prefix.getPrefix(), byteAggregator);
+                    Ipv6Util.writeMinimalPrefix(ipv6Prefix.getPrefix(), byteAggregator);
                 }
             }
         }

@@ -8,8 +8,6 @@
 package org.opendaylight.protocol.pcep.segment.routing;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -125,18 +123,18 @@ public abstract class AbstractSrSubobjectParser {
     private static void serializeNai(final Nai nai, final SidType sidType, final ByteBuf buffer) {
         switch (sidType) {
             case Ipv4NodeId:
-                writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4AddressNoZone(), buffer);
+                Ipv4Util.writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4AddressNoZone(), buffer);
                 break;
             case Ipv6NodeId:
-                writeIpv6Address(((IpNodeId) nai).getIpAddress().getIpv6AddressNoZone(), buffer);
+                Ipv6Util.writeIpv6Address(((IpNodeId) nai).getIpAddress().getIpv6AddressNoZone(), buffer);
                 break;
             case Ipv4Adjacency:
-                writeIpv4Address(((IpAdjacency) nai).getLocalIpAddress().getIpv4AddressNoZone(), buffer);
-                writeIpv4Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv4AddressNoZone(), buffer);
+                Ipv4Util.writeIpv4Address(((IpAdjacency) nai).getLocalIpAddress().getIpv4AddressNoZone(), buffer);
+                Ipv4Util.writeIpv4Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv4AddressNoZone(), buffer);
                 break;
             case Ipv6Adjacency:
-                writeIpv6Address(((IpAdjacency) nai).getLocalIpAddress().getIpv6AddressNoZone(), buffer);
-                writeIpv6Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv6AddressNoZone(), buffer);
+                Ipv6Util.writeIpv6Address(((IpAdjacency) nai).getLocalIpAddress().getIpv6AddressNoZone(), buffer);
+                Ipv6Util.writeIpv6Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv6AddressNoZone(), buffer);
                 break;
             case Unnumbered:
                 final UnnumberedAdjacency unnumbered = (UnnumberedAdjacency) nai;

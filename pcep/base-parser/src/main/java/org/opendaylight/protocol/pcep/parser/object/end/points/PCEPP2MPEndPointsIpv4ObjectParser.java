@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object.end.points;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -47,20 +46,18 @@ public class PCEPP2MPEndPointsIpv4ObjectParser extends CommonObjectParser {
         final P2mpIpv4 p2mpIpv4,
         final ByteBuf buffer) {
         final List<Ipv4AddressNoZone> dest = p2mpIpv4.getDestinationIpv4Address();
-        Preconditions.checkArgument(dest != null, "DestinationIpv4Address is mandatory.");
+        checkArgument(dest != null, "DestinationIpv4Address is mandatory.");
         final ByteBuf body = Unpooled.buffer(LEAF_TYPE_SIZE + Ipv4Util.IP4_LENGTH + Ipv4Util.IP4_LENGTH * dest.size());
-        Preconditions.checkArgument(p2mpIpv4.getSourceIpv4Address() != null,
-            "SourceIpv4Address is mandatory.");
+        checkArgument(p2mpIpv4.getSourceIpv4Address() != null, "SourceIpv4Address is mandatory.");
         body.writeInt(p2mpIpv4.getP2mpLeaves().getIntValue());
-        writeIpv4Address(p2mpIpv4.getSourceIpv4Address(), body);
-        dest.forEach(ipv4 -> writeIpv4Address(ipv4, body));
+        Ipv4Util.writeIpv4Address(p2mpIpv4.getSourceIpv4Address(), body);
+        dest.forEach(ipv4 -> Ipv4Util.writeIpv4Address(ipv4, body));
         ObjectUtil.formatSubobject(TYPE, CLASS, processing, ignore, body, buffer);
     }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
         if (!header.isProcessingRule()) {
             LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");

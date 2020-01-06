@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Prefix;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -68,7 +67,7 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
 
     static void serializeSubobject(final ByteBuf buffer, final Subobject subobject, final Ipv6Prefix ipv6Prefix) {
         final ByteBuf body = Unpooled.buffer(CONTENT6_LENGTH);
-        writeIpv6Prefix(ipv6Prefix, body);
+        Ipv6Util.writeIpv6Prefix(ipv6Prefix, body);
         final Attribute attribute = subobject.getAttribute();
         checkArgument(attribute != null, "Attribute is mandatory.");
         body.writeByte(attribute.getIntValue());
