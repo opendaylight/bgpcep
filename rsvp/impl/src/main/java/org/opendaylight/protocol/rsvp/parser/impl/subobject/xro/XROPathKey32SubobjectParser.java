@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.rsvp.parser.spi.subobjects.PathKeyUtils.
 import static org.opendaylight.protocol.rsvp.parser.spi.subobjects.PathKeyUtils.serializePathKey;
 
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.bgpcep.rsvp.util.XROSubobjectUtil;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;

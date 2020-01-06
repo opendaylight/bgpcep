@@ -28,6 +28,7 @@
         <module>api</module>
         <module>spi</module>
         <module>impl</module>
+        <module>util</module>
     </modules>
 
     <properties>

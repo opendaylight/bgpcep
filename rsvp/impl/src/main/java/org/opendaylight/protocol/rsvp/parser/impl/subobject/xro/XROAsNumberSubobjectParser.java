@@ -5,11 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.xro;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.bgpcep.rsvp.util.XROSubobjectUtil;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.AsNumberCaseParser;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
@@ -33,9 +34,8 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
 
     @Override
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase,
-            "Unknown subobject instance. Passed %s. Needed AsNumberCase.",
-            subobject.getSubobjectType().getClass());
+        checkArgument(subobject.getSubobjectType() instanceof AsNumberCase,
+            "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }

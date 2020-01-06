@@ -5,14 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.spi;
+package org.opendaylight.bgpcep.rsvp.util;
 
 import io.netty.buffer.ByteBuf;
 
 public final class XROSubobjectUtil {
-
     private static final int HEADER_SIZE = 2;
-
     private static final int MANDATORY_BIT = 7;
 
     private XROSubobjectUtil() {
@@ -20,10 +18,10 @@ public final class XROSubobjectUtil {
 
     public static void formatSubobject(final int type, final Boolean mandatory, final ByteBuf body,
             final ByteBuf buffer) {
-        if (mandatory == null) {
-            buffer.writeByte(type);
+        if (Boolean.TRUE.equals(mandatory)) {
+            buffer.writeByte(type | 1 << MANDATORY_BIT);
         } else {
-            buffer.writeByte(type | (mandatory ? 1 << MANDATORY_BIT : 0));
+            buffer.writeByte(type);
         }
         buffer.writeByte(body.writerIndex() + HEADER_SIZE);
         buffer.writeBytes(body);

@@ -67,27 +67,6 @@ public class UtilsTest {
     }
 
     @Test
-    public void testXROSubobjectUtil() {
-        byte[] expected = { (byte) 0x82, 6, 0, 1, 2, 3 };
-        final ByteBuf out = Unpooled.buffer();
-        final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
-        body.markReaderIndex();
-        XROSubobjectUtil.formatSubobject(2, true, body, out);
-        assertArrayEquals(expected, ByteArray.getAllBytes(out));
-
-        expected = new byte[]{ 2, 6, 0, 1, 2, 3 };
-        out.clear();
-        body.resetReaderIndex();
-        XROSubobjectUtil.formatSubobject(2, false, body, out);
-        assertArrayEquals(expected, ByteArray.getAllBytes(out));
-
-        out.clear();
-        body.resetReaderIndex();
-        XROSubobjectUtil.formatSubobject(2, null, body, out);
-        assertArrayEquals(expected, ByteArray.getAllBytes(out));
-    }
-
-    @Test
     public void testTlvUtil() {
         byte[] expected = { 0, 4, 0, 4, 1, 2, 3, 4 };
         final ByteBuf out = Unpooled.buffer();
