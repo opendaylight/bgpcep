@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link Pcrpt}.
  */
 public class Stateful07PCReportMessageParser extends AbstractMessageParser {
-
     public static final int TYPE = 10;
 
     public Stateful07PCReportMessageParser(final ObjectRegistry registry) {
@@ -171,12 +170,12 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         return true;
     }
 
+    // FIXME: this is a dead ringer for PCEPReplyMessageParser.parsePath()
     private static void parsePath(final List<Object> objects, final PathBuilder builder) {
         final List<Metrics> pathMetrics = new ArrayList<>();
-        Object obj;
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
+            final Object obj = objects.get(0);
             state = insertObject(state, obj, builder, pathMetrics);
             if (!state.equals(State.END)) {
                 objects.remove(0);

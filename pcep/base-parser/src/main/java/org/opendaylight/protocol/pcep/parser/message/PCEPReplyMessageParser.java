@@ -55,7 +55,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link Pcrep}.
  */
 public class PCEPReplyMessageParser extends AbstractMessageParser {
-
     public static final int TYPE = 4;
 
     public PCEPReplyMessageParser(final ObjectRegistry registry) {
@@ -236,13 +235,12 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new SuccessCaseBuilder().setSuccess(builder.build()).build();
     }
 
+    // FIXME: this is a dead ringer for parsePath()
     protected void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
         final List<Metrics> pathMetrics = new ArrayList<>();
-
-        Object obj;
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
+            final Object obj = objects.get(0);
             state = insertObject(state, obj, builder, pathMetrics);
             if (!state.equals(State.END)) {
                 objects.remove(0);
@@ -329,13 +327,12 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
+    // FIXME: this is a dead ringer for parseAttributes() and PCEPReplyMessageParser.parsePath()
     protected void parsePath(final PathsBuilder builder, final List<Object> objects) {
         final List<Metrics> pathMetrics = new ArrayList<>();
-
-        Object obj;
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
+            final Object obj = objects.get(0);
             state = insertObject(state, obj, builder, pathMetrics);
             if (!state.equals(State.END)) {
                 objects.remove(0);
