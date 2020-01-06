@@ -21,9 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
  * Utility class for ByteBuf's write methods.
  */
 public final class ByteBufWriteUtil {
-    public static final int IPV4_PREFIX_BYTE_LENGTH = Ipv4Util.IP4_LENGTH + 1;
-    public static final int IPV6_PREFIX_BYTE_LENGTH = Ipv6Util.IPV6_LENGTH + 1;
-
     private ByteBufWriteUtil() {
         // Hidden on purpose
     }
@@ -76,7 +73,7 @@ public final class ByteBufWriteUtil {
         if (ipv4Prefix != null) {
             output.writeBytes(Ipv4Util.bytesForPrefix(ipv4Prefix));
         } else {
-            output.writeZero(IPV4_PREFIX_BYTE_LENGTH);
+            output.writeZero(Ipv4Util.PREFIX_BYTE_LENGTH);
         }
     }
 
@@ -128,7 +125,7 @@ public final class ByteBufWriteUtil {
         if (ipv6Prefix != null) {
             output.writeBytes(Ipv6Util.bytesForPrefix(ipv6Prefix));
         } else {
-            output.writeZero(IPV6_PREFIX_BYTE_LENGTH);
+            output.writeZero(Ipv6Util.PREFIX_BYTE_LENGTH);
         }
     }
 

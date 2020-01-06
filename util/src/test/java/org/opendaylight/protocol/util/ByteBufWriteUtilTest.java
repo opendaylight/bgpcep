@@ -41,7 +41,7 @@ public class ByteBufWriteUtilTest {
     @Test
     public void testWriteIpv4Prefix() {
         final byte[] result = { 123, 122, 4, 5, 8 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.IPV4_PREFIX_BYTE_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Ipv4Util.PREFIX_BYTE_LENGTH);
         writeIpv4Prefix(new Ipv4Prefix("123.122.4.5/8"), output);
         assertArrayEquals(result, output.array());
 
@@ -69,7 +69,7 @@ public class ByteBufWriteUtilTest {
     public void testWriteIpv6Prefix() {
         final byte[] result = { 0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x40 };
-        final ByteBuf output = Unpooled.buffer(ByteBufWriteUtil.IPV6_PREFIX_BYTE_LENGTH);
+        final ByteBuf output = Unpooled.buffer(Ipv6Util.PREFIX_BYTE_LENGTH);
         writeIpv6Prefix(new Ipv6Prefix("2001:db8:1:2::/64"), output);
         assertArrayEquals(result, output.array());
 
