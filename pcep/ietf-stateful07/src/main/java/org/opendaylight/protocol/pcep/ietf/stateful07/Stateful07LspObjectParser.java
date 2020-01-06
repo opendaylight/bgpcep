@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeMedium;
 
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -116,8 +115,9 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             object.getClass());
         final Lsp specObj = (Lsp) object;
         final ByteBuf body = Unpooled.buffer();
-        checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
-        writeMedium(specObj.getPlspId().getValue().intValue() << FOUR_BITS_SHIFT, body);
+        final PlspId plspId = specObj.getPlspId();
+        checkArgument(plspId != null, "PLSP-ID not present");
+        body.writeMedium(plspId.getValue().intValue() << FOUR_BITS_SHIFT);
         final BitArray flags = serializeFlags(specObj);
         byte op = 0;
         if (specObj.getOperational() != null) {
