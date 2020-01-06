@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.util;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.net.InetAddresses;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -103,7 +103,7 @@ public final class Ipv6Util {
      * @return Ipv6Prefix object
      */
     public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
-        Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
+        checkArgument(length <= bytes.length * Byte.SIZE);
 
         final byte[] tmp;
         if (bytes.length != IPV6_LENGTH) {
@@ -123,10 +123,10 @@ public final class Ipv6Util {
      * @return Ipv6Prefix object
      */
     public static Ipv6Prefix prefixForByteBuf(final ByteBuf buf) {
-        final int prefixLength = UnsignedBytes.toInt(buf.readByte());
+        final int prefixLength = buf.readUnsignedByte();
         final int size = prefixLength / Byte.SIZE + (prefixLength % Byte.SIZE == 0 ? 0 : 1);
         final int readable = buf.readableBytes();
-        Preconditions.checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
+        checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
 
         final byte[] bytes = new byte[IPV6_LENGTH];
         buf.readBytes(bytes, 0, size);
@@ -146,7 +146,7 @@ public final class Ipv6Util {
         final List<Ipv6Prefix> list = new ArrayList<>();
         int byteOffset = 0;
         while (byteOffset < bytes.length) {
-            final int bitLength = UnsignedBytes.toInt(bytes[byteOffset]);
+            final int bitLength = Byte.toUnsignedInt(bytes[byteOffset]);
             byteOffset += 1;
             // if length == 0, default route will be added
             if (bitLength == 0) {
