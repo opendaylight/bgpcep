@@ -10,9 +10,9 @@ package org.opendaylight.protocol.rsvp.parser.impl.subobject.rro;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
+import org.opendaylight.protocol.rsvp.parser.spi.subobjects.PathKeyUtils;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
@@ -35,18 +35,7 @@ public class RROPathKey128SubobjectParser implements RROSubobjectParser {
 
     public static void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
         final PathKeyCase pkcase = (PathKeyCase) subobject.getSubobjectType();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
-            .subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
-        final ByteBuf body = Unpooled.buffer();
-
-        final PathKey pathKey = pk.getPathKey();
-        checkArgument(pathKey != null, "PathKey is mandatory.");
-        ByteBufUtils.write(body, pathKey.getValue());
-
-        final PceId pceId = pk.getPceId();
-        checkArgument(pceId != null, "PceId is mandatory.");
-        body.writeBytes(pceId.getValue());
-        RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
+        RROSubobjectUtil.formatSubobject(TYPE, PathKeyUtils.serializePathKey(pkcase.getPathKey()), buffer);
     }
 
     @Override

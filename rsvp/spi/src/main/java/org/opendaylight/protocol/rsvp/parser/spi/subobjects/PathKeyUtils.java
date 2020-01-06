@@ -13,6 +13,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKeySubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -30,8 +31,7 @@ public final class PathKeyUtils {
                 .build();
     }
 
-    public static ByteBuf serializePathKey(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-        .rsvp.rev150820.explicit.route.subobjects.subobject.type.path.key._case.PathKey pk) {
+    public static ByteBuf serializePathKey(final PathKeySubobject pk) {
         final ByteBuf body = Unpooled.buffer();
         final PathKey pathKey = pk.getPathKey();
         checkArgument(pathKey != null, "PathKey is mandatory.");
