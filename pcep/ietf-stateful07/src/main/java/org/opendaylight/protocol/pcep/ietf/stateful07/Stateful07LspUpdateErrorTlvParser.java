@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -39,9 +38,9 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof LspErrorCode, "LspErrorCodeTlv is mandatory.");
+        checkArgument(tlv instanceof LspErrorCode, "LspErrorCodeTlv is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        writeUnsignedInt(((LspErrorCode) tlv).getErrorCode(), body);
+        ByteBufUtils.writeOrZero(body, ((LspErrorCode) tlv).getErrorCode());
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

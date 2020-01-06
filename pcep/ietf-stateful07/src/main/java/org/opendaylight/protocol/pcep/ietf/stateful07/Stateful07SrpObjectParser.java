@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -86,7 +85,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         serializeFlags(srp, body);
         final SrpIdNumber srpId = srp.getOperationId();
         checkArgument(srpId != null, "SrpId is mandatory.");
-        writeUnsignedInt(srpId.getValue(), body);
+        ByteBufUtils.write(body, srpId.getValue());
         serializeTlvs(srp.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
@@ -96,14 +95,13 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs == null) {
-            return;
-        }
-        if (tlvs.getSymbolicPathName() != null) {
-            serializeTlv(tlvs.getSymbolicPathName(), body);
-        }
-        if (tlvs.getPathSetupType() != null) {
-            serializeTlv(tlvs.getPathSetupType(), body);
+        if (tlvs != null) {
+            if (tlvs.getSymbolicPathName() != null) {
+                serializeTlv(tlvs.getSymbolicPathName(), body);
+            }
+            if (tlvs.getPathSetupType() != null) {
+                serializeTlv(tlvs.getPathSetupType(), body);
+            }
         }
     }
 
