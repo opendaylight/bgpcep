@@ -56,7 +56,7 @@ public final class PCEPIpv4UnreachDestinationParser extends CommonObjectParser {
         builder.setProcessingRule(header.isProcessingRule());
         List<Ipv4AddressNoZone> dest = new ArrayList<>();
         while (bytes.isReadable()) {
-            dest.add(Ipv4Util.noZoneAddressForByteBuf(bytes));
+            dest.add(Ipv4Util.addressForByteBuf(bytes));
         }
         builder.setDestination(new Ipv4DestinationCaseBuilder().setDestinationIpv4Address(dest).build());
         return builder.build();

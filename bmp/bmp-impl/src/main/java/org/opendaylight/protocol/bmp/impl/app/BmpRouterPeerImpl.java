@@ -25,7 +25,7 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.impl.spi.BmpRouterPeer;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timestamp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
@@ -425,12 +425,11 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         }
     }
 
-
-    private static String getStringIpAddress(final IpAddress ipAddress) {
-        if (ipAddress.getIpv4Address() != null) {
-            return ipAddress.getIpv4Address().getValue();
+    private static String getStringIpAddress(final IpAddressNoZone ipAddress) {
+        if (ipAddress.getIpv4AddressNoZone() != null) {
+            return ipAddress.getIpv4AddressNoZone().getValue();
         }
-        return ipAddress.getIpv6Address().getValue();
+        return ipAddress.getIpv6AddressNoZone().getValue();
     }
 
 }

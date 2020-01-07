@@ -66,8 +66,8 @@ import org.opendaylight.protocol.bmp.parser.message.TestUtil;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.opendaylight.protocol.util.CheckUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bmp.monitor.monitor.router.peer.pre.policy.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -109,7 +109,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     // the router (monitee) address where we are going to simulate a BMP request from
     private static final String REMOTE_ROUTER_ADDRESS_1 = "127.0.0.12";
     private static final String REMOTE_ROUTER_ADDRESS_2 = "127.0.0.13";
-    private static final Ipv4Address PEER1 = new Ipv4Address("20.20.20.20");
+    private static final Ipv4AddressNoZone PEER1 = new Ipv4AddressNoZone("20.20.20.20");
     private static final MonitorId MONITOR_ID = new MonitorId("monitor");
     private static final KeyedInstanceIdentifier<Monitor, MonitorKey> MONITOR_IID = InstanceIdentifier
         .create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
@@ -331,7 +331,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             assertEquals(PeerType.Global, peer.getType());
             assertEquals(PEER_ID, peer.getPeerId());
             assertEquals(PEER1, peer.getBgpId());
-            assertEquals(TestUtil.IPV4_ADDRESS_10, peer.getAddress().getIpv4Address());
+            assertEquals(TestUtil.IPV4_ADDRESS_10, peer.getAddress().getIpv4AddressNoZone());
             assertEquals(TestUtil.PEER_AS, peer.getAs());
             assertNull(peer.getPeerDistinguisher());
             assertNull(peer.getStats());
@@ -352,7 +352,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
             assertNotNull(peer.getPeerSession());
             final PeerSession peerSession = peer.getPeerSession();
-            assertEquals(TestUtil.IPV4_ADDRESS_10, peerSession.getLocalAddress().getIpv4Address());
+            assertEquals(TestUtil.IPV4_ADDRESS_10, peerSession.getLocalAddress().getIpv4AddressNoZone());
             assertEquals(TestUtil.PEER_LOCAL_PORT, peerSession.getLocalPort());
             assertEquals(TestUtil.PEER_REMOTE_PORT, peerSession.getRemotePort());
             assertEquals(Status.Up, peerSession.getStatus());
@@ -481,6 +481,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     }
 
     private static RouterId getRouterId(final String routerIp) {
-        return new RouterId(new IpAddress(new Ipv4Address(routerIp)));
+        return new RouterId(new IpAddressNoZone(new Ipv4AddressNoZone(routerIp)));
     }
 }

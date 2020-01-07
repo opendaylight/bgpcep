@@ -13,8 +13,8 @@ import static org.junit.Assert.assertEquals;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.intra.as.i.pmsi.a.d.grouping.IntraAsIPmsiADBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.IntraAsIPmsiADCase;
@@ -36,7 +36,7 @@ public class IntraAsIPmsiADHandlerTest {
     private final IntraAsIPmsiADCase expected = new IntraAsIPmsiADCaseBuilder()
             .setIntraAsIPmsiAD(new IntraAsIPmsiADBuilder()
                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
-                    .setOrigRouteIp(new IpAddress(new Ipv4Address("1.0.0.1")))
+                    .setOrigRouteIp(new IpAddressNoZone(new Ipv4AddressNoZone("1.0.0.1")))
                     .build()).build();
     private final IntraAsIPmsiADHandler handler = new IntraAsIPmsiADHandler();
 

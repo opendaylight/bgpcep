@@ -74,7 +74,7 @@ public final class ProtocolUtil {
                 if (pa != null && pa.getOspfForwardingAddress() != null) {
                     pb.addAugmentation(Prefix1.class, new Prefix1Builder().setOspfPrefixAttributes(
                             new OspfPrefixAttributesBuilder().setForwardingAddress(pa.getOspfForwardingAddress()
-                                    .getIpv4Address()).build()).build());
+                                    .getIpv4AddressNoZone()).build()).build());
                 }
                 break;
             default:

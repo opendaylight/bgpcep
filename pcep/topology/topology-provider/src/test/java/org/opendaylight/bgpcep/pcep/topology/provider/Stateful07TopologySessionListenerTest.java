@@ -155,7 +155,7 @@ public class Stateful07TopologySessionListenerTest
                 Optional.of(MsgBuilderUtil.createSrp(Uint32.ZERO)), null);
         this.listener.onMessage(this.session, esm);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            assertEquals(this.testAddress, pcc.getIpAddress().getIpv4Address().getValue());
+            assertEquals(this.testAddress, pcc.getIpAddress().getIpv4AddressNoZone().getValue());
             // reported lsp so far empty, has not received response (PcRpt) yet
             assertTrue(pcc.getReportedLsp().isEmpty());
             return pcc;

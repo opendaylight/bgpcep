@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.bgp.evpn.impl;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisherBuilder;
@@ -36,9 +36,9 @@ public final class EvpnTestUtil {
     public static final int COMMUNITY_VALUE_SIZE = 6;
     public static final Uint32 VLAN = Uint32.TEN;
     public static final String IP_MODEL = "127.0.0.1";
-    public static final IpAddress IP = new IpAddress(new Ipv4Address(IP_MODEL));
+    public static final IpAddressNoZone IP = new IpAddressNoZone(new Ipv4AddressNoZone(IP_MODEL));
     public static final String IPV6_MODEL = "2001::1";
-    public static final IpAddress IPV6 = new IpAddress(new Ipv6Address(IPV6_MODEL));
+    public static final IpAddressNoZone IPV6 = new IpAddressNoZone(new Ipv6AddressNoZone(IPV6_MODEL));
     public static final Uint32 MPLS_LABEL2_MODEL = Uint32.valueOf(24002L);
     public static final MplsLabel MPLS_LABEL2 = new MplsLabel(MPLS_LABEL2_MODEL);
     public static final String RD_MODEL = "1.2.3.4:258";

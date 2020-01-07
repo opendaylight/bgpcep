@@ -16,7 +16,7 @@ import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
@@ -31,7 +31,7 @@ public class VpnIpv4NextHopTest {
         final ByteBuf buffer = Unpooled.buffer();
         final byte[] nextHop = {0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42};
         final CNextHop hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(new Ipv4Address("42.42.42.42")).build()).build();
+                .setGlobal(new Ipv4AddressNoZone("42.42.42.42")).build()).build();
 
         HANDLER.serializeNextHop(hop, buffer);
         assertArrayEquals(nextHop, ByteArray.readAllBytes(buffer));

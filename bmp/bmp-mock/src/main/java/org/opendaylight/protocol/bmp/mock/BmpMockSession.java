@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.mock;
 
 import static org.opendaylight.protocol.util.Ipv4Util.incrementIpv4Address;
@@ -18,7 +17,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bmp.api.BmpSession;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.AdjRibInType;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -29,9 +28,9 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockSession.class);
 
-    private static final Ipv4Address NEXT_HOP = new Ipv4Address("1.1.1.1");
+    private static final Ipv4AddressNoZone NEXT_HOP = new Ipv4AddressNoZone("1.1.1.1");
     private static final Ipv4Prefix PREFIX = new Ipv4Prefix("1.1.1.1/32");
-    private static final Ipv4Address PEER_ADDRESS = NEXT_HOP;
+    private static final Ipv4AddressNoZone PEER_ADDRESS = NEXT_HOP;
 
     private final int peersCount;
     private final int prePolicyRoutesCount;
@@ -75,7 +74,7 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
 
     private void advertizePeers(final InetSocketAddress localAddress) {
         channel.writeAndFlush(BmpMockUtil.createInitiation());
-        Ipv4Address peerAddress = PEER_ADDRESS;
+        Ipv4AddressNoZone peerAddress = PEER_ADDRESS;
         for (int i = 0; i < this.peersCount; i++) {
             channel.writeAndFlush(BmpMockUtil.createPeerUp(peerAddress, localAddress.getAddress()));
             LOG.debug("BMP router {} advertized peer {}", channel.localAddress(), peerAddress);
@@ -86,7 +85,7 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
     }
 
     private static void advertizeRoutes(final int count, final AdjRibInType type, final Channel channel,
-            final Ipv4Address peerAddress) {
+            final Ipv4AddressNoZone peerAddress) {
         Ipv4Prefix prefix = PREFIX;
         for (int i = 0; i < count; i++) {
             channel.writeAndFlush(BmpMockUtil.createRouteMonitoring(peerAddress, type, prefix));

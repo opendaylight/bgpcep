@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.ImmutableList;
@@ -49,7 +50,11 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
@@ -102,8 +107,21 @@ final class OpenConfigMappingUtil {
         return rootIdentifier.child(Neighbors.class).child(Neighbor.class, neighborKey);
     }
 
+    static IpAddressNoZone convertIpAddress(final IpAddress addr) {
+        if (addr == null) {
+            return null;
+        }
+        final Ipv4Address ipv4 = addr.getIpv4Address();
+        if (ipv4 != null) {
+            return new IpAddressNoZone(INSTANCE.ipv4AddressNoZoneFor(ipv4));
+        }
+        final Ipv6Address ipv6 = addr.getIpv6Address();
+        checkState(ipv6 != null, "Unexpected address %s", addr);
+        return new IpAddressNoZone(INSTANCE.ipv6AddressNoZoneFor(ipv6));
+    }
+
     static String getNeighborInstanceName(final InstanceIdentifier<?> rootIdentifier) {
-        return Ipv4Util.toStringIP(rootIdentifier.firstKeyOf(Neighbor.class).getNeighborAddress());
+        return Ipv4Util.toStringIP(convertIpAddress(rootIdentifier.firstKeyOf(Neighbor.class).getNeighborAddress()));
     }
 
     //make sure IPv4 Unicast (RFC 4271) when required
@@ -130,10 +148,13 @@ final class OpenConfigMappingUtil {
             .yang.bgp.rev151009.bgp.global.base.Config globalConfig) {
         final GlobalConfigAugmentation globalConfigAugmentation
                 = globalConfig.augmentation(GlobalConfigAugmentation.class);
+        final Ipv4Address addr;
         if (globalConfigAugmentation != null && globalConfigAugmentation.getRouteReflectorClusterId() != null) {
-            return new ClusterIdentifier(globalConfigAugmentation.getRouteReflectorClusterId().getIpv4Address());
+            addr = globalConfigAugmentation.getRouteReflectorClusterId().getIpv4Address();
+        } else {
+            addr = globalConfig.getRouterId();
         }
-        return new ClusterIdentifier(globalConfig.getRouterId());
+        return new ClusterIdentifier(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(addr));
     }
 
     static @Nullable ClusterIdentifier getNeighborClusterIdentifier(
@@ -153,7 +174,8 @@ final class OpenConfigMappingUtil {
             final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route
                     .reflector.Config config = routeReflector.getConfig();
             if (config != null && config.getRouteReflectorClusterId() != null) {
-                return new ClusterIdentifier(config.getRouteReflectorClusterId().getIpv4Address());
+                return new ClusterIdentifier(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(
+                    config.getRouteReflectorClusterId().getIpv4Address()));
             }
         }
         return null;
@@ -448,11 +470,11 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    static @Nullable IpAddress getLocalAddress(@Nullable final Transport transport) {
+    static @Nullable IpAddressNoZone getLocalAddress(@Nullable final Transport transport) {
         if (transport != null && transport.getConfig() != null) {
             final BgpNeighborTransportConfig.LocalAddress localAddress = transport.getConfig().getLocalAddress();
             if (localAddress != null) {
-                return localAddress.getIpAddress();
+                return convertIpAddress(localAddress.getIpAddress());
             }
         }
         return null;

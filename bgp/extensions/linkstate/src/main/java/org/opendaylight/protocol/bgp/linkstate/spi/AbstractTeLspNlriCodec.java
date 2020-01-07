@@ -13,8 +13,8 @@ import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.TeLspCase;
@@ -74,18 +74,18 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
     private static AddressFamily serializeAddressFamily(final ChoiceNode addressFamily, final boolean ipv4Case) {
         if (ipv4Case) {
             return new Ipv4CaseBuilder()
-                .setIpv4TunnelSenderAddress(
-                    new Ipv4Address((String) addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).get().getValue()))
-                .setIpv4TunnelEndpointAddress(
-                    new Ipv4Address((String) addressFamily.getChild(IPV4_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
+                .setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(
+                    (String) addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).get().getValue()))
+                .setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone(
+                    (String) addressFamily.getChild(IPV4_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
                 .build();
         }
 
         return new Ipv6CaseBuilder()
             .setIpv6TunnelSenderAddress(
-                new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_SENDER_ADDRESS).get().getValue()))
+                new Ipv6AddressNoZone((String) addressFamily.getChild(IPV6_TUNNEL_SENDER_ADDRESS).get().getValue()))
             .setIpv6TunnelEndpointAddress(
-                new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
+                new Ipv6AddressNoZone((String) addressFamily.getChild(IPV6_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
             .build();
     }
 

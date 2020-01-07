@@ -30,8 +30,9 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderC
 import org.opendaylight.protocol.rsvp.parser.spi.pojo.ServiceLoaderRSVPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.SrAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.SrAdjIdsBuilder;
@@ -312,7 +313,10 @@ public class SrAttributeParserTest {
             new EroMetricCaseBuilder().setEroMetric(new TeMetric(Uint32.valueOf(6))).build()).build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder()
             .setBindingSubTlv(new Ipv4EroCaseBuilder()
-                .setIpv4Ero(new Ipv4EroBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv4Address("9.8.7.6")).build())
+                .setIpv4Ero(new Ipv4EroBuilder()
+                    .setLoose(Boolean.FALSE)
+                    .setAddress(new Ipv4AddressNoZone("9.8.7.6"))
+                    .build())
                 .build())
             .build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder()
@@ -327,7 +331,7 @@ public class SrAttributeParserTest {
         bindingSubTlvs.add(new BindingSubTlvsBuilder()
             .setBindingSubTlv(new Ipv4EroBackupCaseBuilder()
                 .setIpv4EroBackup(new Ipv4EroBackupBuilder()
-                    .setLoose(Boolean.FALSE).setAddress(new Ipv4Address("3.4.5.6"))
+                    .setLoose(Boolean.FALSE).setAddress(new Ipv4AddressNoZone("3.4.5.6"))
                     .build())
                 .build())
             .build());
@@ -359,14 +363,14 @@ public class SrAttributeParserTest {
         bindingSubTlvs.add(new BindingSubTlvsBuilder()
             .setBindingSubTlv(new Ipv6EroCaseBuilder()
                 .setIpv6Ero(new Ipv6EroBuilder()
-                    .setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_A))
+                    .setLoose(Boolean.FALSE).setAddress(new Ipv6AddressNoZone(IPV6_A))
                     .build())
                 .build())
             .build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder()
             .setBindingSubTlv(new Ipv6EroBackupCaseBuilder()
                 .setIpv6EroBackup(new Ipv6EroBackupBuilder()
-                    .setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_B))
+                    .setLoose(Boolean.FALSE).setAddress(new Ipv6AddressNoZone(IPV6_B))
                     .build())
                 .build())
             .build());
@@ -418,7 +422,7 @@ public class SrAttributeParserTest {
         final SrLanAdjIds srLanAdjId = new SrLanAdjIdsBuilder()
             .setFlags(OSPF_LAN_ADJ_FLAGS)
             .setWeight(new Weight(Uint8.TEN))
-            .setNeighborId(new Ipv4Address("1.2.3.4"))
+            .setNeighborId(new Ipv4AddressNoZone("1.2.3.4"))
             .setSidLabelIndex(new LocalLabelCaseBuilder()
                 .setLocalLabel(new MplsLabel(Uint32.valueOf(24000L)))
                 .build())

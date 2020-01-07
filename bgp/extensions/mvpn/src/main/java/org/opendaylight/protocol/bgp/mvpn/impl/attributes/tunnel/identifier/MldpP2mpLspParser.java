@@ -20,7 +20,7 @@ import org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier.Abstr
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.PmsiTunnelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
@@ -50,10 +50,10 @@ public final class MldpP2mpLspParser extends AbstractTunnelIdentifier<MldpP2mpLs
         if (!serializeOpaqueList(mldpP2mpLsp.getOpaqueValue(), opaqueValues) || addressFamily == 0) {
             return NO_TUNNEL_INFORMATION_PRESENT;
         }
-        final IpAddress rootNode = mldpP2mpLsp.getRootNodeAddress();
+        final IpAddressNoZone rootNode = mldpP2mpLsp.getRootNodeAddress();
         buffer.writeByte(P2MP_TYPE);
         buffer.writeShort(addressFamily);
-        buffer.writeByte(rootNode.getIpv4Address() != null ? Ipv4Util.IP4_LENGTH : Ipv6Util.IPV6_LENGTH);
+        buffer.writeByte(rootNode.getIpv4AddressNoZone() != null ? Ipv4Util.IP4_LENGTH : Ipv6Util.IPV6_LENGTH);
         serializeIpAddress(rootNode, buffer);
 
         buffer.writeShort(opaqueValues.readableBytes());

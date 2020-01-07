@@ -13,7 +13,7 @@ import static org.opendaylight.protocol.util.Ipv4Util.incrementIpv4Prefix;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.protocol.bgp.rib.impl.ChannelOutputLimiter;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
@@ -41,7 +41,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PrefixesBuilder {
     private static final Ipv4NextHopCase NEXT_HOP = new Ipv4NextHopCaseBuilder()
-        .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.1.1.1")).build())
+        .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("127.1.1.1")).build())
         .build();
 
     private PrefixesBuilder() {

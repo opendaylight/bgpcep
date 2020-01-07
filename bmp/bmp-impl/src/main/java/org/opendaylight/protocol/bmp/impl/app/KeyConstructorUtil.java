@@ -26,7 +26,7 @@ public final class KeyConstructorUtil {
             mrs.stream().filter(Objects::nonNull).filter(KeyConstructorUtil::isNotNullorEmpty)
                 .forEach(mr -> {
                     final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
-                    ret.put(IetfInetUtil.INSTANCE.inetAddressFor(mr.getAddress()),
+                    ret.put(IetfInetUtil.INSTANCE.inetAddressForNoZone(mr.getAddress()),
                         rfc2385KeyPassword.getValue().getBytes(StandardCharsets.US_ASCII));
                 });
         }

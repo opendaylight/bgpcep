@@ -151,19 +151,19 @@ public abstract class AbstractSrSubobjectParser {
     private static Nai parseNai(final SidType sidType, final ByteBuf buffer) {
         switch (sidType) {
             case Ipv4NodeId:
-                return new IpNodeIdBuilder().setIpAddress(
-                    new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer))).build();
+                return new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
+                        .build();
             case Ipv6NodeId:
-                return new IpNodeIdBuilder().setIpAddress(
-                    new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
+                return new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)))
+                        .build();
             case Ipv4Adjacency:
                 return new IpAdjacencyBuilder()
-                        .setLocalIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer)))
-                        .setRemoteIpAddress(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer))).build();
+                        .setLocalIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
+                        .setRemoteIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer))).build();
             case Ipv6Adjacency:
                 return new IpAdjacencyBuilder()
-                        .setLocalIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)))
-                        .setRemoteIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
+                        .setLocalIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)))
+                        .setRemoteIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer))).build();
             case Unnumbered:
                 return new UnnumberedAdjacencyBuilder()
                         .setLocalNodeId(ByteBufUtils.readUint32(buffer))
