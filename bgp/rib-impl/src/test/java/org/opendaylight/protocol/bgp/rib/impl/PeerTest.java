@@ -39,6 +39,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceA
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.KeepaliveBuilder;
@@ -161,7 +162,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+                .setGlobal(new Ipv4AddressNoZone("127.0.0.1")).build()).build();
         final AttributesBuilder ab = new AttributesBuilder();
         ub.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
         try {
@@ -238,7 +239,7 @@ public class PeerTest extends AbstractRIBTestSetup {
                                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                                 .build()).build()).build()).build())).build());
         final Open openObj = new OpenBuilder()
-                .setBgpIdentifier(new Ipv4Address("1.1.1.1"))
+                .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.1"))
                 .setHoldTimer(Uint16.valueOf(50))
                 .setMyAsNumber(Uint16.valueOf(72))
                 .setBgpParameters(params).build();

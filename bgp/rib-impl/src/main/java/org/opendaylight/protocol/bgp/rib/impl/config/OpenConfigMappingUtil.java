@@ -49,7 +49,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
@@ -130,10 +132,13 @@ final class OpenConfigMappingUtil {
             .yang.bgp.rev151009.bgp.global.base.Config globalConfig) {
         final GlobalConfigAugmentation globalConfigAugmentation
                 = globalConfig.augmentation(GlobalConfigAugmentation.class);
+        final Ipv4Address addr;
         if (globalConfigAugmentation != null && globalConfigAugmentation.getRouteReflectorClusterId() != null) {
-            return new ClusterIdentifier(globalConfigAugmentation.getRouteReflectorClusterId().getIpv4Address());
+            addr = globalConfigAugmentation.getRouteReflectorClusterId().getIpv4Address();
+        } else {
+            addr = globalConfig.getRouterId();
         }
-        return new ClusterIdentifier(globalConfig.getRouterId());
+        return new ClusterIdentifier(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(addr));
     }
 
     static @Nullable ClusterIdentifier getNeighborClusterIdentifier(
@@ -153,7 +158,8 @@ final class OpenConfigMappingUtil {
             final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route
                     .reflector.Config config = routeReflector.getConfig();
             if (config != null && config.getRouteReflectorClusterId() != null) {
-                return new ClusterIdentifier(config.getRouteReflectorClusterId().getIpv4Address());
+                return new ClusterIdentifier(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(
+                    config.getRouteReflectorClusterId().getIpv4Address()));
             }
         }
         return null;

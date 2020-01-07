@@ -12,8 +12,8 @@ import io.netty.buffer.Unpooled;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZoneBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -33,14 +33,14 @@ public final class IpAddressUtil {
      * Returns IpAddress from byte array containing ipAddress lenght + ipAddress.
      *
      * @param buffer containing ip address
-     * @return IpAddress
+     * @return IpAddressNoZone
      */
-    public static @NonNull IpAddress addressForByteBuf(final ByteBuf buffer) {
+    public static @NonNull IpAddressNoZone addressForByteBuf(final ByteBuf buffer) {
         final int ipLength = buffer.readUnsignedByte();
         if (ipLength == Ipv6Util.IPV6_BITS_LENGTH) {
-            return new IpAddress(Ipv6Util.addressForByteBuf(buffer));
+            return new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer));
         } else if (ipLength == Ipv4Util.IP4_BITS_LENGTH) {
-            return new IpAddress(Ipv4Util.addressForByteBuf(buffer));
+            return new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer));
         }
         throw new IllegalStateException("Unexpected size");
     }
@@ -49,14 +49,14 @@ public final class IpAddressUtil {
      * Returns IpAddress from byte array containing ipAddress based on ByteArray length.
      *
      * @param buffer containing ip address
-     * @return IpAddress
+     * @return IpAddressNoZone
      */
-    public static @NonNull IpAddress addressForByteBufWOLength(final ByteBuf buffer) {
+    public static @NonNull IpAddressNoZone addressForByteBufWOLength(final ByteBuf buffer) {
         final int ipLength = buffer.readableBytes();
         if (ipLength == Ipv6Util.IPV6_LENGTH) {
-            return new IpAddress(Ipv6Util.addressForByteBuf(buffer));
+            return new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer));
         } else if (ipLength == Ipv4Util.IP4_LENGTH) {
-            return new IpAddress(Ipv4Util.addressForByteBuf(buffer));
+            return new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer));
         }
         throw new IllegalStateException("Unexpected size");
     }
@@ -67,14 +67,14 @@ public final class IpAddressUtil {
      * @param address containing ipv4 or ipv6 address
      * @return byte array
      */
-    public static @NonNull ByteBuf bytesFor(final IpAddress address) {
+    public static @NonNull ByteBuf bytesFor(final IpAddressNoZone address) {
         final ByteBuf body = Unpooled.buffer();
-        if (address.getIpv4Address() != null) {
+        if (address.getIpv4AddressNoZone() != null) {
             body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
-            body.writeBytes(Ipv4Util.bytesForAddress(address.getIpv4Address()));
-        } else if (address.getIpv6Address() != null) {
+            body.writeBytes(Ipv4Util.bytesForAddress(address.getIpv4AddressNoZone()));
+        } else if (address.getIpv6AddressNoZone() != null) {
             body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
-            body.writeBytes(Ipv6Util.bytesForAddress(address.getIpv6Address()));
+            body.writeBytes(Ipv6Util.bytesForAddress(address.getIpv6AddressNoZone()));
         } else {
             body.writeByte(0);
         }
@@ -87,22 +87,22 @@ public final class IpAddressUtil {
      * @param address containing ipv4 or ipv6 address
      * @return byte array
      */
-    public static @NonNull ByteBuf bytesWOLengthFor(final IpAddress address) {
+    public static @NonNull ByteBuf bytesWOLengthFor(final IpAddressNoZone address) {
         final ByteBuf body = Unpooled.buffer();
-        if (address.getIpv4Address() != null) {
-            body.writeBytes(Ipv4Util.bytesForAddress(address.getIpv4Address()));
-        } else if (address.getIpv6Address() != null) {
-            body.writeBytes(Ipv6Util.bytesForAddress(address.getIpv6Address()));
+        if (address.getIpv4AddressNoZone() != null) {
+            body.writeBytes(Ipv4Util.bytesForAddress(address.getIpv4AddressNoZone()));
+        } else if (address.getIpv6AddressNoZone() != null) {
+            body.writeBytes(Ipv6Util.bytesForAddress(address.getIpv6AddressNoZone()));
         } else {
             body.writeByte(0);
         }
         return body;
     }
 
-    public static IpAddress extractIpAddress(final DataContainerNode<?> route, final NodeIdentifier rdNid) {
+    public static IpAddressNoZone extractIpAddress(final DataContainerNode<?> route, final NodeIdentifier rdNid) {
         final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
         if (rdNode != null) {
-            return IpAddressBuilder.getDefaultInstance((String) rdNode.getValue());
+            return IpAddressNoZoneBuilder.getDefaultInstance((String) rdNode.getValue());
         }
         return null;
     }

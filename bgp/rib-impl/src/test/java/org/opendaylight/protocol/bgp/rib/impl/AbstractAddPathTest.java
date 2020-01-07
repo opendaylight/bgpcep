@@ -49,6 +49,7 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
@@ -97,18 +98,18 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     private static final int RETRY_TIMER = 10;
     static final String RIB_ID = "127.0.0.1";
     static final BgpId BGP_ID = new BgpId(RIB_ID);
-    static final Ipv4Address PEER1 = new Ipv4Address("127.0.0.2");
-    static final Ipv4Address PEER2 = new Ipv4Address("127.0.0.3");
-    static final Ipv4Address PEER3 = new Ipv4Address("127.0.0.4");
-    static final Ipv4Address PEER4 = new Ipv4Address("127.0.0.5");
-    static final Ipv4Address PEER5 = new Ipv4Address("127.0.0.6");
-    static final Ipv4Address PEER6 = new Ipv4Address("127.0.0.7");
+    static final Ipv4AddressNoZone PEER1 = new Ipv4AddressNoZone("127.0.0.2");
+    static final Ipv4AddressNoZone PEER2 = new Ipv4AddressNoZone("127.0.0.3");
+    static final Ipv4AddressNoZone PEER3 = new Ipv4AddressNoZone("127.0.0.4");
+    static final Ipv4AddressNoZone PEER4 = new Ipv4AddressNoZone("127.0.0.5");
+    static final Ipv4AddressNoZone PEER5 = new Ipv4AddressNoZone("127.0.0.6");
+    static final Ipv4AddressNoZone PEER6 = new Ipv4AddressNoZone("127.0.0.7");
     static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(AS));
     static final Uint16 PORT = Uint16.valueOf(InetSocketAddressUtil.getRandomPort());
     static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
     private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
     static final int HOLDTIMER = 2180;
-    private static final Ipv4Address NH1 = new Ipv4Address("2.2.2.2");
+    private static final Ipv4AddressNoZone NH1 = new Ipv4AddressNoZone("2.2.2.2");
     static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(Uint32.ONE), CLUSTER_ID, 100);
     static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(Uint32.TWO), CLUSTER_ID, 50);
     static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(Uint32.valueOf(3)), CLUSTER_ID, 200);
@@ -203,7 +204,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     }
 
     void causeBGPError(final BGPSessionImpl session) {
-        final Open openObj = new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1"))
+        final Open openObj = new OpenBuilder().setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.1"))
             .setHoldTimer(Uint16.valueOf(50)).setMyAsNumber(Uint16.valueOf(72)).build();
         waitFutureSuccess(session.writeAndFlush(openObj));
     }
@@ -239,12 +240,12 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         });
     }
 
-    BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
+    BGPSessionImpl createPeerSession(final Ipv4AddressNoZone peer, final BgpParameters bgpParameters,
         final SimpleSessionListener sessionListener) throws InterruptedException {
         return createPeerSession(peer, bgpParameters, sessionListener, AS_NUMBER);
     }
 
-    BGPSessionImpl createPeerSession(final Ipv4Address peer, final BgpParameters bgpParameters,
+    BGPSessionImpl createPeerSession(final Ipv4AddressNoZone peer, final BgpParameters bgpParameters,
                                      final SimpleSessionListener sessionListener,
                                      final AsNumber remoteAsNumber) throws InterruptedException {
         final StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
@@ -332,7 +333,9 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         if (clusterId != null) {
             attBuilder.setClusterId(new ClusterIdBuilder().setCluster(Collections.singletonList(clusterId)).build());
-            attBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4Address(clusterId)).build());
+            attBuilder.setOriginatorId(new OriginatorIdBuilder()
+                .setOriginator(new Ipv4AddressNoZone(clusterId))
+                .build());
         }
         addAttributeAugmentation(attBuilder, prefix, pathId);
         return new UpdateBuilder().setAttributes(attBuilder.build()).build();

@@ -42,6 +42,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Keepalive;
@@ -161,7 +162,7 @@ public class FSMTest {
                 .setHoldTimer(Uint16.valueOf(3))
                 .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
                 .setBgpParameters(tlvs)
-                .setBgpIdentifier(new Ipv4Address("1.1.1.2"))
+                .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.2"))
                 .build();
     }
 
@@ -194,7 +195,7 @@ public class FSMTest {
         this.clientSession.handleMessage(new OpenBuilder()
             .setMyAsNumber(Uint16.valueOf(30))
             .setHoldTimer(Uint16.ONE)
-            .setBgpIdentifier(new Ipv4Address("127.0.0.1"))
+            .setBgpIdentifier(new Ipv4AddressNoZone("127.0.0.1"))
             .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
             .build());
         assertEquals(2, this.receivedMsgs.size());
@@ -226,7 +227,7 @@ public class FSMTest {
             .setHoldTimer(Uint16.ONE)
             .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
             .setBgpParameters(tlvs)
-            .setBgpIdentifier(new Ipv4Address("1.1.1.2"))
+            .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.2"))
             .build());
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Notify);
@@ -267,7 +268,7 @@ public class FSMTest {
             .setHoldTimer(Uint16.ONE)
             .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
             .setBgpParameters(tlvs)
-            .setBgpIdentifier(new Ipv4Address("1.1.1.2"))
+            .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.2"))
             .build());
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
@@ -298,7 +299,7 @@ public class FSMTest {
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
 
         this.clientSession.handleMessage(new OpenBuilder(this.classicOpen)
-                .setBgpIdentifier(new Ipv4Address("1.1.1.1")).build());
+                .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.1")).build());
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Notify);
         final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);

@@ -45,7 +45,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
@@ -77,7 +79,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
     private List<AfiSafi> afiSafi;
     private AsNumber asNumber;
-    private Ipv4Address routerId;
+    private Ipv4AddressNoZone routerId;
 
     private ClusterIdentifier clusterId;
     private final DataBroker dataBroker;
@@ -247,7 +249,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
         this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
-        this.routerId = globalConfig.getRouterId();
+        this.routerId = IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(globalConfig.getRouterId());
         this.clusterId = getGlobalClusterIdentifier(globalConfig);
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
                 .toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
