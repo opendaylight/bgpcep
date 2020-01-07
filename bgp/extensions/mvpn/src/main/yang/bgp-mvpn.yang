@@ -73,7 +73,7 @@ module bgp-mvpn {
         uses bgp-t:route-distinguisher-grouping;
 
         leaf multicast-source {
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
             mandatory true;
         }
     }
@@ -82,7 +82,7 @@ module bgp-mvpn {
         choice multicast-group {
             case c-g-address-case {
                 leaf c-g-address {
-                    type inet:ip-address;
+                    type inet:ip-address-no-zone;
                 }
             }
 
@@ -146,7 +146,7 @@ module bgp-mvpn {
 
             uses multicast-source-rd-grouping;
             leaf multicast-group {
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
                 mandatory true;
             }
         }
@@ -202,7 +202,7 @@ module bgp-mvpn {
         container pe-distinguisher-labels-attribute {
             list pe-distinguisher-label-attribute {
                 leaf pe-address  {
-                    type inet:ip-address;
+                    type inet:ip-address-no-zone;
                     mandatory true;
                 }
                 leaf mpls-label {
