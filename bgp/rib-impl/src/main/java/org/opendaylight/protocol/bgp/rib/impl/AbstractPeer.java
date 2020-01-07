@@ -49,7 +49,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameter
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
@@ -94,7 +94,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final PeerRole role,
             final @Nullable ClusterIdentifier clusterId,
             final @Nullable AsNumber localAs,
-            final IpAddress neighborAddress,
+            final IpAddressNoZone neighborAddress,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized,
             final Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
@@ -113,7 +113,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final String peerName,
             final String groupId,
             final PeerRole role,
-            final IpAddress neighborAddress,
+            final IpAddressNoZone neighborAddress,
             final Set<TablesKey> afiSafisGracefulAdvertized) {
         this(rib, peerName, groupId, role, null, null, neighborAddress,
                 rib.getLocalTablesKeys(), afiSafisGracefulAdvertized, Collections.emptyMap());

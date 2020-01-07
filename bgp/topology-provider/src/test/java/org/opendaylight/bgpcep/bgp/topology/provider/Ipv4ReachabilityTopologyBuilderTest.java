@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4Routes;
@@ -118,7 +118,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final Attributes attribute = new AttributesBuilder()
             .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
             .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(new Ipv4Address(nextHop)).build()).build()).build();
+                .setGlobal(new Ipv4AddressNoZone(nextHop)).build()).build()).build();
         return new Ipv4RouteBuilder().withKey(new Ipv4RouteKey(new PathId(PATH_ID), ROUTE_IP4PREFIX))
             .setPrefix(new Ipv4Prefix(ROUTE_IP4PREFIX)).setAttributes(attribute).build();
     }

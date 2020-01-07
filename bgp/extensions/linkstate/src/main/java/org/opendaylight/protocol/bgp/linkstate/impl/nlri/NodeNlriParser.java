@@ -18,7 +18,7 @@ import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.MemAsNumTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.AbstractNlriTypeCodec;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.AreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.DomainIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.NlriType;
@@ -208,9 +208,9 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
             dataContainerChild -> new AreaIdentifier((Uint32) dataContainerChild.getValue())).orElse(null);
     }
 
-    private static Ipv4Address serializeBgpRouterId(final ContainerNode descriptorsData) {
+    private static Ipv4AddressNoZone serializeBgpRouterId(final ContainerNode descriptorsData) {
         return descriptorsData.getChild(BGP_ROUTER_NID).map(
-            dataContainerChild -> new Ipv4Address((String) dataContainerChild.getValue())).orElse(null);
+            dataContainerChild -> new Ipv4AddressNoZone((String) dataContainerChild.getValue())).orElse(null);
     }
 
     private static AsNumber serializeMemberAsn(final ContainerNode descriptorsData) {

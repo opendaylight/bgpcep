@@ -80,11 +80,11 @@ module pmsi-tunnel {
     grouping p-address-p-multicast-group {
         leaf p-address {
             mandatory true;
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
         }
         leaf p-multicast-group {
             mandatory true;
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
         }
     }
 
@@ -115,7 +115,7 @@ module pmsi-tunnel {
                         }
                         leaf extended-tunnel-id {
                             mandatory true;
-                            type inet:ip-address;
+                            type inet:ip-address-no-zone;
                         }
                     }
                 }
@@ -130,7 +130,7 @@ module pmsi-tunnel {
                         }
                         leaf root-node-address {
                             mandatory true;
-                            type inet:ip-address;
+                            type inet:ip-address-no-zone;
                         }
                         list opaque-value {
                             uses opaque;
@@ -158,7 +158,7 @@ module pmsi-tunnel {
                 case ingress-replication {
                     container ingress-replication {
                         leaf receiving-endpoint-address {
-                            type inet:ip-address;
+                            type inet:ip-address-no-zone;
                         }
                     }
                 }

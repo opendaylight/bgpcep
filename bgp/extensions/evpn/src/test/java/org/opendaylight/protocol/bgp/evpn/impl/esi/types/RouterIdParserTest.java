@@ -21,7 +21,7 @@ import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.esi.ArbitraryCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.esi.RouterIdGeneratedCase;
@@ -39,7 +39,7 @@ public class RouterIdParserTest {
         (byte) 0x02, (byte) 0x02, (byte) 0x02, (byte) 0x00};
     private static final byte[] VALUE = {(byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x02, (byte) 0x02,
         (byte) 0x02, (byte) 0x02, (byte) 0x00};
-    private static final Ipv4Address ROUTE_ID = new Ipv4Address("42.42.42.42");
+    private static final Ipv4AddressNoZone ROUTE_ID = new Ipv4AddressNoZone("42.42.42.42");
     public static final RouterIdGeneratedCase ROUTE_ID_CASE = new RouterIdGeneratedCaseBuilder()
             .setRouterIdGenerated(new RouterIdGeneratedBuilder()
                     .setLocalDiscriminator(LD).setRouterId(ROUTE_ID).build()).build();

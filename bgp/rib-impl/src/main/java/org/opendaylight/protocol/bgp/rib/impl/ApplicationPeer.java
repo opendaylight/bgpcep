@@ -47,8 +47,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
@@ -127,9 +127,9 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     public ApplicationPeer(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIB rib) {
+            final ApplicationRibId applicationRibId, final Ipv4AddressNoZone ipAddress, final RIB rib) {
         super(rib, applicationRibId.getValue(), APP_PEER_GROUP, PeerRole.Internal,
-                new IpAddress(ipAddress), Collections.emptySet());
+                new IpAddressNoZone(ipAddress), Collections.emptySet());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         final RIB targetRib = requireNonNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();

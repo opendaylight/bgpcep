@@ -13,7 +13,7 @@ import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.OpaqueUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.MulticastGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.CGAddressCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.CGAddressCaseBuilder;
@@ -36,10 +36,10 @@ final class MulticastGroupOpaqueUtil {
         switch (multicastGroupLength) {
             case Ipv4Util.IP4_BITS_LENGTH:
                 return new CGAddressCaseBuilder()
-                    .setCGAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer))).build();
+                    .setCGAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer))).build();
             case Ipv6Util.IPV6_BITS_LENGTH:
                 return new CGAddressCaseBuilder()
-                    .setCGAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build();
+                    .setCGAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer))).build();
             default:
                 return new LdpMpOpaqueValueCaseBuilder()
                     .setLdpMpOpaqueValue(new LdpMpOpaqueValueBuilder(OpaqueUtil.parseOpaque(buffer)).build()).build();

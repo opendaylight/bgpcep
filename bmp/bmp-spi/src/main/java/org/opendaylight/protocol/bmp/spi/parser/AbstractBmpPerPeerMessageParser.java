@@ -18,7 +18,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timestamp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.AdjRibInType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.Peer.PeerDistinguisher;
@@ -83,9 +83,9 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
         }
         if (phBuilder.isIpv4()) {
             bytes.skipBytes(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
-            phBuilder.setAddress(new IpAddress(Ipv4Util.addressForByteBuf(bytes)));
+            phBuilder.setAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(bytes)));
         } else {
-            phBuilder.setAddress(new IpAddress(Ipv6Util.addressForByteBuf(bytes)));
+            phBuilder.setAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(bytes)));
         }
         phBuilder.setAs(new AsNumber(ByteBufUtils.readUint32(bytes)));
         phBuilder.setBgpId(Ipv4Util.addressForByteBuf(bytes));
@@ -117,9 +117,9 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
         }
         if (peerHeader.isIpv4()) {
             output.writeZero(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
-            Ipv4Util.writeIpv4Address(peerHeader.getAddress().getIpv4Address(), output);
+            Ipv4Util.writeIpv4Address(peerHeader.getAddress().getIpv4AddressNoZone(), output);
         } else {
-            Ipv6Util.writeIpv6Address(peerHeader.getAddress().getIpv6Address(), output);
+            Ipv6Util.writeIpv6Address(peerHeader.getAddress().getIpv6AddressNoZone(), output);
         }
         ByteBufUtils.write(output, peerHeader.getAs().getValue());
         Ipv4Util.writeIpv4Address(peerHeader.getBgpId(), output);

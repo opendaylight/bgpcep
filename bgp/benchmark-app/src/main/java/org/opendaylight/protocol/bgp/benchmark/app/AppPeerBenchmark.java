@@ -28,7 +28,7 @@ import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.application.rib.tables.routes.Ipv4RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
@@ -188,17 +188,17 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         return this.routesIId;
     }
 
-    private long addRoute(final Ipv4Prefix ipv4Prefix, final Ipv4Address nextHop, final Uint32 count,
+    private long addRoute(final Ipv4Prefix ipv4Prefix, final Ipv4AddressNoZone nextHop, final Uint32 count,
             final Uint32 batch) {
-        final AttributesBuilder attributesBuilder = new AttributesBuilder();
-        attributesBuilder.setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address(nextHop)).build()).build());
-        attributesBuilder.setMultiExitDisc(MED);
-        attributesBuilder.setLocalPref(LOC_PREF);
-        attributesBuilder.setOrigin(ORIGIN);
-        attributesBuilder.setAsPath(AS_PATH);
-        final Attributes attributes = attributesBuilder.build();
-        return processRoutes(ipv4Prefix, count, batch, attributes);
+        return processRoutes(ipv4Prefix, count, batch, new AttributesBuilder()
+            .setCNextHop(new Ipv4NextHopCaseBuilder()
+                .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(nextHop).build())
+                .build())
+            .setMultiExitDisc(MED)
+            .setLocalPref(LOC_PREF)
+            .setOrigin(ORIGIN)
+            .setAsPath(AS_PATH)
+            .build());
     }
 
     private long deleteRoute(final Ipv4Prefix ipv4Prefix, final Uint32 count, final Uint32 batch) {

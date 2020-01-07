@@ -22,8 +22,8 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.PeDistinguisherLabelsAttributeAugmentation;
@@ -76,11 +76,11 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
         final List<PeDistinguisherLabelAttribute> peAtt = new ArrayList<>(2);
 
         peAtt.add(new PeDistinguisherLabelAttributeBuilder()
-                .setPeAddress(new IpAddress(new Ipv4Address("127.0.0.1")))
+                .setPeAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1")))
                 .setMplsLabel(new MplsLabel(Uint32.ONE))
                 .build());
         peAtt.add(new PeDistinguisherLabelAttributeBuilder()
-                .setPeAddress(new IpAddress(new Ipv4Address("127.0.0.2")))
+                .setPeAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.2")))
                 .setMplsLabel(new MplsLabel(Uint32.TWO))
                 .build());
         return new AttributesBuilder()

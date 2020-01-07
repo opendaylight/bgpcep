@@ -20,9 +20,9 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timestamp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdTwoOctetAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RouteDistinguisher;
@@ -94,9 +94,9 @@ public class AbstractBmpPerPeerMessageParserTest {
             .setType(PeerType.forValue(0))
             .setAdjRibInType(AdjRibInType.forValue(1))
             .setIpv4(true)
-            .setAddress(new IpAddress(new Ipv4Address("192.168.1.1")))
+            .setAddress(new IpAddressNoZone(new Ipv4AddressNoZone("192.168.1.1")))
             .setAs(new AsNumber(Uint32.valueOf(168)))
-            .setBgpId(new Ipv4Address("1.1.1.1"))
+            .setBgpId(new Ipv4AddressNoZone("1.1.1.1"))
             .setTimestampSec(new Timestamp(Uint32.valueOf(16909060)))
             .setTimestampMicro(new Timestamp(Uint32.valueOf(16909060)))
             .build());
@@ -118,9 +118,9 @@ public class AbstractBmpPerPeerMessageParserTest {
                     new RouteDistinguisher(new RdTwoOctetAs("0:" + RD))))
                 .setAdjRibInType(AdjRibInType.forValue(1))
                 .setIpv4(false)
-                .setAddress(new IpAddress(new Ipv6Address("2001::1")))
+                .setAddress(new IpAddressNoZone(new Ipv6AddressNoZone("2001::1")))
                 .setAs(new AsNumber(Uint32.valueOf(168)))
-                .setBgpId(new Ipv4Address("1.1.1.2"))
+                .setBgpId(new Ipv4AddressNoZone("1.1.1.2"))
                 .setTimestampSec(new Timestamp(Uint32.ZERO))
                 .setTimestampMicro(new Timestamp(Uint32.ZERO));
 

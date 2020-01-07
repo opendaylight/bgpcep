@@ -31,8 +31,8 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupport
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.DestinationIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.destination.ipv6.Ipv6Prefixes;
@@ -176,11 +176,12 @@ public class BGPParserTest {
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-                new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1"))
-                        .setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
+                new Ipv6NextHopBuilder().setGlobal(new Ipv6AddressNoZone("2001:db8::1"))
+                        .setLinkLocal(new Ipv6AddressNoZone("fe80::c001:bff:fe7e:0")).build()).build();
 
-        final List<ClusterIdentifier> clusters = Lists.newArrayList(new ClusterIdentifier(new Ipv4Address("1.2.3.4")),
-                new ClusterIdentifier(new Ipv4Address("5.6.7.8")));
+        final List<ClusterIdentifier> clusters = Lists.newArrayList(
+            new ClusterIdentifier(new Ipv4AddressNoZone("1.2.3.4")),
+                new ClusterIdentifier(new Ipv4AddressNoZone("5.6.7.8")));
 
         // check path attributes
 
@@ -197,7 +198,7 @@ public class BGPParserTest {
         paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         assertEquals(paBuilder.getMultiExitDisc(), attrs.getMultiExitDisc());
 
-        paBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4Address("127.0.0.1")).build());
+        paBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4AddressNoZone("127.0.0.1")).build());
         assertEquals(paBuilder.getOriginatorId(), attrs.getOriginatorId());
 
         paBuilder.setClusterId(new ClusterIdBuilder().setCluster(clusters).build());

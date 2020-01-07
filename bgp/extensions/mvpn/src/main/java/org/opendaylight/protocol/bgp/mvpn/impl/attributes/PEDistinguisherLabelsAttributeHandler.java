@@ -23,7 +23,7 @@ import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.MplsLabelUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.bgp.rib.route.PeDistinguisherLabelsAttributeAugmentation;
@@ -79,9 +79,9 @@ public final class PEDistinguisherLabelsAttributeHandler extends AbstractAttribu
         for (int i = 0; i < count; ++i) {
             final PeDistinguisherLabelAttributeBuilder attribute = new PeDistinguisherLabelAttributeBuilder();
             if (isIpv4) {
-                attribute.setPeAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer)));
+                attribute.setPeAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)));
             } else {
-                attribute.setPeAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer)));
+                attribute.setPeAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)));
             }
             attribute.setMplsLabel(MplsLabelUtil.mplsLabelForByteBuf(buffer));
             list.add(attribute.build());
@@ -106,10 +106,10 @@ public final class PEDistinguisherLabelsAttributeHandler extends AbstractAttribu
                 = att.getPeDistinguisherLabelsAttribute().getPeDistinguisherLabelAttribute();
         final ByteBuf buffer = Unpooled.buffer();
         for (final PeDistinguisherLabelAttribute peDist : distinguishers) {
-            if (peDist.getPeAddress().getIpv4Address() != null) {
-                buffer.writeBytes(Ipv4Util.bytesForAddress(peDist.getPeAddress().getIpv4Address()));
+            if (peDist.getPeAddress().getIpv4AddressNoZone() != null) {
+                buffer.writeBytes(Ipv4Util.bytesForAddress(peDist.getPeAddress().getIpv4AddressNoZone()));
             } else {
-                buffer.writeBytes(Ipv6Util.bytesForAddress(peDist.getPeAddress().getIpv6Address()));
+                buffer.writeBytes(Ipv6Util.bytesForAddress(peDist.getPeAddress().getIpv6AddressNoZone()));
             }
             buffer.writeBytes(MplsLabelUtil.byteBufForMplsLabel(peDist.getMplsLabel()));
         }

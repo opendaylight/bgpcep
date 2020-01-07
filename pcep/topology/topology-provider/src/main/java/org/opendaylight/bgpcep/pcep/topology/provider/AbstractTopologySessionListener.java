@@ -43,7 +43,7 @@ import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.TerminationReason;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZoneBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.LspObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.Lsp;
@@ -162,7 +162,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         onSessionUp(psession, pccBuilder);
         this.synced.set(isSynchronized());
 
-        pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
+        pccBuilder.setIpAddress(IpAddressNoZoneBuilder.getDefaultInstance(peerAddress.getHostAddress()));
         final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
         this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
         final Node initialNodeState = state.getInitialNodeState();

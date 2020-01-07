@@ -39,9 +39,9 @@ import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.AdministrativeGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Identifier;
@@ -399,7 +399,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 .addAugmentation(Attributes1.class, new Attributes1Builder()
                         .setLinkStateAttribute(new PrefixAttributesCaseBuilder()
                             .setPrefixAttributes(new PrefixAttributesBuilder()
-                                .setOspfForwardingAddress(new IpAddress(new Ipv4Address(ospfFwdAddress)))
+                                .setOspfForwardingAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ospfFwdAddress)))
                                 .setPrefixMetric(new IgpMetric(Uint32.valueOf(igpMetric)))
                                 .build())
                             .build())

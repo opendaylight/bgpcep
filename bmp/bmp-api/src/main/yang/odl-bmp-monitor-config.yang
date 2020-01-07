@@ -33,7 +33,7 @@ module odl-bmp-monitor-config {
     grouping server-config {
         container server {
             leaf binding-address {
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
                 default "0.0.0.0";
             }
 
@@ -56,7 +56,7 @@ module odl-bmp-monitor-config {
 
             list monitored-router {
                 leaf address {
-                    type inet:ip-address;
+                    type inet:ip-address-no-zone;
                     mandatory true;
                 }
 

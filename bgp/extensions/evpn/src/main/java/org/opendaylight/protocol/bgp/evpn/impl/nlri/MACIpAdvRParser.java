@@ -23,7 +23,7 @@ import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEsiTypeRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
@@ -50,7 +50,7 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(ByteBufUtils.readUint32(buffer)).build();
         buffer.skipBytes(1);
         final MacAddress mac = IetfYangUtil.INSTANCE.macAddressFor(ByteArray.readBytes(buffer, MAC_ADDRESS_LENGTH));
-        final IpAddress ip = parseIp(buffer);
+        final IpAddressNoZone ip = parseIp(buffer);
         final MplsLabel label1 = mplsLabelForByteBuf(buffer);
         MplsLabel label2;
         if (buffer.readableBytes() > 0) {
@@ -121,15 +121,15 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         return builder;
     }
 
-    private static ByteBuf serializeIp(final IpAddress ipAddress) {
+    private static ByteBuf serializeIp(final IpAddressNoZone ipAddress) {
         final ByteBuf body = Unpooled.buffer();
         if (ipAddress != null) {
-            if (ipAddress.getIpv4Address() != null) {
+            if (ipAddress.getIpv4AddressNoZone() != null) {
                 body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
-                body.writeBytes(Ipv4Util.bytesForAddress(ipAddress.getIpv4Address()));
-            } else if (ipAddress.getIpv6Address() != null) {
+                body.writeBytes(Ipv4Util.bytesForAddress(ipAddress.getIpv4AddressNoZone()));
+            } else if (ipAddress.getIpv6AddressNoZone() != null) {
                 body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
-                body.writeBytes(Ipv6Util.bytesForAddress(ipAddress.getIpv6Address()));
+                body.writeBytes(Ipv6Util.bytesForAddress(ipAddress.getIpv6AddressNoZone()));
             } else {
                 body.writeByte(0);
             }
@@ -139,12 +139,12 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         return body;
     }
 
-    private static IpAddress parseIp(final ByteBuf buffer) {
+    private static IpAddressNoZone parseIp(final ByteBuf buffer) {
         final int ipLength = buffer.readUnsignedByte();
         if (ipLength == Ipv6Util.IPV6_BITS_LENGTH) {
-            return new IpAddress(Ipv6Util.addressForByteBuf(buffer));
+            return new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer));
         } else if (ipLength == Ipv4Util.IP4_BITS_LENGTH) {
-            return new IpAddress(Ipv4Util.addressForByteBuf(buffer));
+            return new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer));
         }
         return null;
     }

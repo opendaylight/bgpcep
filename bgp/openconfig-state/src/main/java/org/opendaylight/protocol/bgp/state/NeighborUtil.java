@@ -58,6 +58,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.GRACEFULRESTART;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.MPBGP;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.ROUTEREFRESH;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timeticks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.BgpNeighborStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.BgpNeighborStateAugmentationBuilder;
@@ -121,7 +124,7 @@ public final class NeighborUtil {
     public static @NonNull Neighbor buildNeighbor(final @NonNull BGPPeerState neighbor,
             final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         return new NeighborBuilder()
-                .setNeighborAddress(neighbor.getNeighborAddress())
+                .setNeighborAddress(convertIpAddress(neighbor.getNeighborAddress()))
                 .setState(buildNeighborState(neighbor.getBGPSessionState(), neighbor.getBGPPeerMessagesState()))
                 .setTimers(buildTimer(neighbor.getBGPTimersState()))
                 .setTransport(buildTransport(neighbor.getBGPTransportState()))
@@ -129,6 +132,17 @@ public final class NeighborUtil {
                 .setGracefulRestart(buildGracefulRestart(neighbor.getBGPGracelfulRestart()))
                 .setAfiSafis(buildAfisSafis(neighbor, bgpTableTypeRegistry))
                 .build();
+    }
+
+    private static IpAddress convertIpAddress(final IpAddressNoZone addr) {
+        if (addr == null) {
+            return null;
+        }
+        final Ipv4AddressNoZone ipv4 = addr.getIpv4AddressNoZone();
+        if (ipv4 != null) {
+            return new IpAddress(ipv4);
+        }
+        return new IpAddress(addr.getIpv6AddressNoZone());
     }
 
     /**
@@ -186,7 +200,7 @@ public final class NeighborUtil {
             return null;
         }
         final NeighborTransportStateAugmentation transportState = new NeighborTransportStateAugmentationBuilder()
-                .setLocalPort(neighbor.getLocalPort()).setRemoteAddress(neighbor.getRemoteAddress())
+                .setLocalPort(neighbor.getLocalPort()).setRemoteAddress(convertIpAddress(neighbor.getRemoteAddress()))
                 .setRemotePort(neighbor.getRemotePort()).build();
 
         return new TransportBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009

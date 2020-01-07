@@ -17,8 +17,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.mvpn.impl.NlriActivator;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.inter.as.i.pmsi.a.d.grouping.InterAsIPmsiADBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.leaf.a.d.grouping.LeafADBuilder;
@@ -54,7 +54,7 @@ public class LeafADHandlerTest {
                                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
                                     .build()
                     ).build())
-            .setOrigRouteIp(new IpAddress(new Ipv4Address("1.0.0.1"))).build())
+            .setOrigRouteIp(new IpAddressNoZone(new Ipv4AddressNoZone("1.0.0.1"))).build())
             .build();
     private final LeafADHandler handler = new LeafADHandler();
 

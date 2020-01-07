@@ -36,14 +36,14 @@ public final class DetourObjectIpv6Parser extends AbstractRSVPObjectParser {
 
         while (plrId.isReadable()) {
             final PlrIdBuilder plr = new PlrIdBuilder();
-            plr.setPlrId(Ipv6Util.noZoneAddressForByteBuf(plrId));
+            plr.setPlrId(Ipv6Util.addressForByteBuf(plrId));
             plrIdList.add(plr.build());
         }
 
         final List<AvoidNode> avoidNodeList = new ArrayList<>();
         while (byteBuf.isReadable()) {
             final AvoidNodeBuilder plr = new AvoidNodeBuilder();
-            plr.setAvoidNode(Ipv6Util.noZoneAddressForByteBuf(byteBuf));
+            plr.setAvoidNode(Ipv6Util.addressForByteBuf(byteBuf));
             avoidNodeList.add(plr.build());
         }
 

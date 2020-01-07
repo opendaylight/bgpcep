@@ -17,7 +17,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.ClusterIdBuilder;
@@ -38,8 +38,8 @@ public class ClusterIdAttributeParserTest {
     @Test
     public void testParserAttribute() throws Exception {
         final List<ClusterIdentifier> list = new ArrayList<>();
-        final Ipv4Address ip1 = new Ipv4Address("192.168.1.1");
-        final Ipv4Address ip2 = new Ipv4Address("192.168.1.2");
+        final Ipv4AddressNoZone ip1 = new Ipv4AddressNoZone("192.168.1.1");
+        final Ipv4AddressNoZone ip2 = new Ipv4AddressNoZone("192.168.1.2");
         list.add(new ClusterIdentifier(ip1));
         list.add(new ClusterIdentifier(ip2));
         final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster(list)

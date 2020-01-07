@@ -392,7 +392,7 @@ module bmp-message {
                  belong to one address domain from the other.";
         }
         leaf address {
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
             mandatory true;
             description
                 "The remote IP address associated with the TCP
@@ -411,7 +411,7 @@ module bmp-message {
                  significant bits.";
         }
         leaf bgp-id {
-            type inet:ipv4-address;
+            type inet:ipv4-address-no-zone;
             mandatory true;
             description
                 "The BGP Identifier of the peer from which the
@@ -458,7 +458,7 @@ module bmp-message {
 
     grouping peer-up {
         leaf local-address {
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
             mandatory true;
             description
                 "The local IP address associated with the peering
