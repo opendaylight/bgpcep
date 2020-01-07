@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
 import org.opendaylight.yangtools.concepts.Registration;
 
@@ -28,21 +28,21 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param peer configured peer as BGPSessionListener
      * @param prefs session preferences for configured peer
      */
-    void addPeer(IpAddress ip, BGPSessionListener peer, BGPSessionPreferences prefs);
+    void addPeer(IpAddressNoZone ip, BGPSessionListener peer, BGPSessionPreferences prefs);
 
     /**
      * Remove configured peer from registry.
      *
      * @param ip address of remote peer
      */
-    void removePeer(@NonNull IpAddress ip);
+    void removePeer(@NonNull IpAddressNoZone ip);
 
     /**
      * Remove peer session from registry.
      *
      * @param ip address of remote peer
      */
-    void removePeerSession(@NonNull IpAddress ip);
+    void removePeerSession(@NonNull IpAddressNoZone ip);
 
     /**
      * Check whether peer on provided IP address is present in this registry.
@@ -50,7 +50,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param ip address of remote peer
      * @return true if peer is present false otherwise
      */
-    boolean isPeerConfigured(@NonNull IpAddress ip);
+    boolean isPeerConfigured(@NonNull IpAddressNoZone ip);
 
     /**
      * Get configured peer after BGP session was successfully established. Called by negotiators.
@@ -64,7 +64,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @throws BGPDocumentedException if session establishment cannot be finished successfully
      * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
      */
-    BGPSessionListener getPeer(IpAddress ip, Ipv4Address sourceId, Ipv4Address remoteId, Open open)
+    BGPSessionListener getPeer(IpAddressNoZone ip, Ipv4AddressNoZone sourceId, Ipv4AddressNoZone remoteId, Open open)
             throws BGPDocumentedException;
 
     /**
@@ -74,7 +74,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @return BGP session preferences for configured peer
      * @throws IllegalStateException if there is no peer configured for provided ip address
      */
-    BGPSessionPreferences getPeerPreferences(IpAddress ip);
+    BGPSessionPreferences getPeerPreferences(IpAddressNoZone ip);
 
     /**
      * Register PeerRegistryListener, which listens to the changes in peer
@@ -106,5 +106,5 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param ip of neighbor
      * @param preferences to send in OPEN message
      */
-    void updatePeerPreferences(IpAddress ip, BGPSessionPreferences preferences);
+    void updatePeerPreferences(IpAddressNoZone ip, BGPSessionPreferences preferences);
 }

@@ -14,7 +14,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.RdTwoOctetAs;
@@ -88,7 +88,7 @@ public final class RouteDistinguisherUtil {
         checkNoColon(value, first);
 
         buf.writeShort(RDType.IPV4.value);
-        buf.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(value.substring(0, first))));
+        buf.writeBytes(Ipv4Util.bytesForAddress(new Ipv4AddressNoZone(value.substring(0, first))));
         buf.writeShort(Integer.parseUnsignedInt(value.substring(first + 1)));
     }
 

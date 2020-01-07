@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -74,14 +74,14 @@ final class PeerUtil {
         // Hidden on purpose
     }
 
-    static MpReachNlri createMpReachNlri(final IpAddress nextHop, final List<IpPrefix> prefixes) {
+    static MpReachNlri createMpReachNlri(final IpAddressNoZone nextHop, final List<IpPrefix> prefixes) {
         final Class<? extends AddressFamily> afi;
         final CNextHop cNextHop;
         final DestinationType destinationType;
-        if (nextHop.getIpv4Address() != null) {
+        if (nextHop.getIpv4AddressNoZone() != null) {
             afi = Ipv4AddressFamily.class;
             cNextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                    .setGlobal(nextHop.getIpv4Address())
+                    .setGlobal(nextHop.getIpv4AddressNoZone())
                     .build()).build();
             destinationType = new DestinationIpv4CaseBuilder().setDestinationIpv4(
                     new DestinationIpv4Builder().setIpv4Prefixes(prefixes.stream()
@@ -93,7 +93,7 @@ final class PeerUtil {
         } else {
             afi = Ipv6AddressFamily.class;
             cNextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
-                    .setGlobal(nextHop.getIpv6Address())
+                    .setGlobal(nextHop.getIpv6AddressNoZone())
                     .build()).build();
             destinationType = new DestinationIpv6CaseBuilder().setDestinationIpv6(
                     new DestinationIpv6Builder().setIpv6Prefixes(prefixes.stream()

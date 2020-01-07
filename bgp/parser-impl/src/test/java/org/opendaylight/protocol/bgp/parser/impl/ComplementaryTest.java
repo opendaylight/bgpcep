@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
@@ -89,11 +89,11 @@ public class ComplementaryTest {
     public void testBGPAggregatorImpl() {
         final BgpAggregator ipv4 = new AggregatorBuilder()
                 .setAsNumber(new AsNumber(Uint32.valueOf(5524)))
-                .setNetworkAddress(new Ipv4Address("124.55.42.1"))
+                .setNetworkAddress(new Ipv4AddressNoZone("124.55.42.1"))
                 .build();
         final BgpAggregator ipv4i = new AggregatorBuilder()
                 .setAsNumber(new AsNumber(Uint32.valueOf(5525)))
-                .setNetworkAddress(new Ipv4Address("124.55.42.1"))
+                .setNetworkAddress(new Ipv4AddressNoZone("124.55.42.1"))
                 .build();
 
         assertNotSame(ipv4.hashCode(), ipv4i.hashCode());

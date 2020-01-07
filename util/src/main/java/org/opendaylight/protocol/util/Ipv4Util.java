@@ -20,8 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
@@ -45,19 +44,9 @@ public final class Ipv4Util {
      * Reads from ByteBuf buffer and converts bytes to Ipv4Address.
      *
      * @param buffer containing Ipv4 address, starting at reader index
-     * @return Ipv4Address
-     */
-    public static Ipv4Address addressForByteBuf(final ByteBuf buffer) {
-        return IetfInetUtil.INSTANCE.ipv4AddressFor(ByteArray.readBytes(buffer, IP4_LENGTH));
-    }
-
-    /**
-     * Reads from ByteBuf buffer and converts bytes to Ipv4Address.
-     *
-     * @param buffer containing Ipv4 address, starting at reader index
      * @return Ipv4AddressNoZone
      */
-    public static Ipv4AddressNoZone noZoneAddressForByteBuf(final ByteBuf buffer) {
+    public static Ipv4AddressNoZone addressForByteBuf(final ByteBuf buffer) {
         return IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(ByteArray.readBytes(buffer, IP4_LENGTH));
     }
 
@@ -67,7 +56,7 @@ public final class Ipv4Util {
      * @param ipAddress Ipv4 address
      * @return ByteBuf with filled in bytes from ipAddress
      */
-    public static ByteBuf byteBufForAddress(final Ipv4Address ipAddress) {
+    public static ByteBuf byteBufForAddress(final Ipv4AddressNoZone ipAddress) {
         return Unpooled.wrappedBuffer(bytesForAddress(ipAddress));
     }
 
@@ -77,8 +66,8 @@ public final class Ipv4Util {
      * @param address Ipv4Address to be converted
      * @return byte array
      */
-    public static byte[] bytesForAddress(final Ipv4Address address) {
-        return IetfInetUtil.INSTANCE.ipv4AddressBytes(address);
+    public static byte[] bytesForAddress(final Ipv4AddressNoZone address) {
+        return IetfInetUtil.INSTANCE.ipv4AddressNoZoneBytes(address);
     }
 
     public static int prefixBitsToBytes(final int bits) {
@@ -199,10 +188,10 @@ public final class Ipv4Util {
      * Converts InetAddress to IpAddress.
      *
      * @param inetAddress address
-     * @return IpAddress
+     * @return IpAddressNoZone
      */
-    public static IpAddress getIpAddress(final InetAddress inetAddress) {
-        return IetfInetUtil.INSTANCE.ipAddressFor(inetAddress);
+    public static IpAddressNoZone getIpAddress(final InetAddress inetAddress) {
+        return IetfInetUtil.INSTANCE.ipAddressNoZoneFor(inetAddress);
     }
 
     /**
@@ -212,7 +201,7 @@ public final class Ipv4Util {
      * @param port      number
      * @return InetSocketAddress
      */
-    public static InetSocketAddress toInetSocketAddress(final IpAddress ipAddress, final PortNumber port) {
+    public static InetSocketAddress toInetSocketAddress(final IpAddressNoZone ipAddress, final PortNumber port) {
         final String ipString = toStringIP(ipAddress);
         return new InetSocketAddress(InetAddresses.forString(ipString), port.getValue().toJava());
     }
@@ -233,12 +222,13 @@ public final class Ipv4Util {
      * @param ipv4Address ipv4 address to be incremented
      * @return new ipv4 address
      */
-    public static Ipv4Address incrementIpv4Address(final Ipv4Address ipv4Address) {
-        return new Ipv4Address(incrementIpv4Address(ipv4Address.getValue()));
+    public static Ipv4AddressNoZone incrementIpv4Address(final Ipv4AddressNoZone ipv4Address) {
+        return new Ipv4AddressNoZone(incrementIpv4Address(ipv4Address.getValue()));
     }
 
     public static Ipv4Prefix incrementIpv4Prefix(final Ipv4Prefix ipv4Prefix) {
-        final Entry<Ipv4Address, Integer> splitIpv4Prefix = IetfInetUtil.INSTANCE.splitIpv4Prefix(ipv4Prefix);
+        final Entry<Ipv4AddressNoZone, Integer> splitIpv4Prefix =
+                IetfInetUtil.INSTANCE.splitIpv4PrefixNoZone(ipv4Prefix);
         return IetfInetUtil.INSTANCE.ipv4PrefixFor(incrementIpv4Address(splitIpv4Prefix.getKey()),
                 splitIpv4Prefix.getValue());
     }
@@ -249,29 +239,11 @@ public final class Ipv4Util {
      * @param ipAddress address
      * @return String value of Ipv4Address or Ipv6Address
      */
-    public static String toStringIP(final IpAddress ipAddress) {
-        if (ipAddress.getIpv4Address() != null) {
-            return ipAddress.getIpv4Address().getValue();
+    public static String toStringIP(final IpAddressNoZone ipAddress) {
+        if (ipAddress.getIpv4AddressNoZone() != null) {
+            return ipAddress.getIpv4AddressNoZone().getValue();
         }
-        return ipAddress.getIpv6Address().getValue();
-    }
-
-
-    /**
-     * Writes IPv4 address if not null, otherwise writes zeros to the
-     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 4.
-     *
-     * @param ipv4Address
-     *            IPv4 address to be written to the output.
-     * @param output
-     *            ByteBuf, where ipv4Address or zeros are written.
-     */
-    public static void writeIpv4Address(final Ipv4Address ipv4Address, final ByteBuf output) {
-        if (ipv4Address != null) {
-            output.writeBytes(bytesForAddress(ipv4Address));
-        } else {
-            output.writeInt(0);
-        }
+        return ipAddress.getIpv6AddressNoZone().getValue();
     }
 
     /**

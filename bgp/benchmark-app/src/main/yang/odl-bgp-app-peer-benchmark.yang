@@ -70,7 +70,7 @@ module odl-bgp-app-peer-benchmark {
             uses input;
             leaf nexthop {
                 mandatory true;
-                type inet:ipv4-address;
+                type inet:ipv4-address-no-zone;
                 description
                     "nexthop";
             }
