@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bmp.mock;
 import java.net.InetAddress;
 import java.util.Collections;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.OpenBuilder;
@@ -52,7 +52,7 @@ final class BmpMockUtil {
     private static final String NAME = "BMP mock";
     private static final int HOLD_TIMER = 180;
     private static final AsNumber ASN = new AsNumber(Uint32.valueOf(65431));
-    private static final Ipv4Address NEXT_HOP = new Ipv4Address("1.2.3.4");
+    private static final Ipv4AddressNoZone NEXT_HOP = new Ipv4AddressNoZone("1.2.3.4");
     private static final PortNumber PEER_PORT = new PortNumber(Uint16.valueOf(179).intern());
     private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion(Uint8.valueOf(4));
     private static final Origin ORIGIN = new OriginBuilder().setValue(BgpOrigin.Igp).build();
@@ -72,18 +72,19 @@ final class BmpMockUtil {
         return msgBuilder.build();
     }
 
-    static PeerUpNotification createPeerUp(final Ipv4Address peerIp, final InetAddress localAddress) {
+    static PeerUpNotification createPeerUp(final Ipv4AddressNoZone peerIp, final InetAddress localAddress) {
         final PeerUpNotificationBuilder msgBuilder = new PeerUpNotificationBuilder();
-        msgBuilder.setLocalAddress(new IpAddress(new Ipv4Address(localAddress.getHostAddress())));
+        msgBuilder.setLocalAddress(new IpAddressNoZone(new Ipv4AddressNoZone(localAddress.getHostAddress())));
         msgBuilder.setLocalPort(PEER_PORT);
         msgBuilder.setRemotePort(PEER_PORT);
         msgBuilder.setReceivedOpen(new ReceivedOpenBuilder(createOpen(peerIp)).build());
-        msgBuilder.setSentOpen(new SentOpenBuilder(createOpen(new Ipv4Address(localAddress.getHostAddress()))).build());
+        msgBuilder.setSentOpen(new SentOpenBuilder(createOpen(new Ipv4AddressNoZone(localAddress.getHostAddress())))
+            .build());
         msgBuilder.setPeerHeader(createPeerHeader(peerIp, AdjRibInType.PrePolicy));
         return msgBuilder.build();
     }
 
-    private static OpenMessage createOpen(final Ipv4Address address) {
+    private static OpenMessage createOpen(final Ipv4AddressNoZone address) {
         final OpenBuilder msgBuilder = new OpenBuilder();
         msgBuilder.setBgpIdentifier(address);
         msgBuilder.setHoldTimer(HOLD_TIMER);
@@ -92,9 +93,9 @@ final class BmpMockUtil {
         return msgBuilder.build();
     }
 
-    private static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
+    private static PeerHeader createPeerHeader(final Ipv4AddressNoZone bgpId, final AdjRibInType ribType) {
         return new PeerHeaderBuilder()
-            .setAddress(new IpAddress(bgpId))
+            .setAddress(new IpAddressNoZone(bgpId))
             .setAdjRibInType(ribType)
             .setAs(new AsNumber(ASN))
             .setBgpId(bgpId)
@@ -103,7 +104,7 @@ final class BmpMockUtil {
             .build();
     }
 
-    static RouteMonitoringMessage createRouteMonitoring(final Ipv4Address bgpId, final AdjRibInType ribType,
+    static RouteMonitoringMessage createRouteMonitoring(final Ipv4AddressNoZone bgpId, final AdjRibInType ribType,
             final Ipv4Prefix prefix) {
         final RouteMonitoringMessageBuilder routeMonitMsgBuilder = new RouteMonitoringMessageBuilder()
             .setPeerHeader(createPeerHeader(bgpId, ribType))

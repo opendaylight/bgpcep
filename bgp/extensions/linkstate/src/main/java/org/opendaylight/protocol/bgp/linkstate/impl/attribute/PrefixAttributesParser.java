@@ -27,7 +27,7 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ExtendedRouteTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.IgpBits.UpDown;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
@@ -117,7 +117,7 @@ public final class PrefixAttributesParser {
                 LOG.debug("Parsed Metric: {}", metric);
                 break;
             case FORWARDING_ADDRESS:
-                final IpAddress fwdAddress = parseForwardingAddress(value);
+                final IpAddressNoZone fwdAddress = parseForwardingAddress(value);
                 builder.setOspfForwardingAddress(fwdAddress);
                 LOG.debug("Parsed FWD Address: {}", fwdAddress);
                 break;
@@ -190,12 +190,12 @@ public final class PrefixAttributesParser {
         }
     }
 
-    private static IpAddress parseForwardingAddress(final ByteBuf value) {
+    private static IpAddressNoZone parseForwardingAddress(final ByteBuf value) {
         switch (value.readableBytes()) {
             case Ipv4Util.IP4_LENGTH:
-                return new IpAddress(Ipv4Util.addressForByteBuf(value));
+                return new IpAddressNoZone(Ipv4Util.addressForByteBuf(value));
             case Ipv6Util.IPV6_LENGTH:
-                return new IpAddress(Ipv6Util.addressForByteBuf(value));
+                return new IpAddressNoZone(Ipv6Util.addressForByteBuf(value));
             default:
                 LOG.debug("Ignoring unsupported forwarding address length {}", value.readableBytes());
                 return null;
@@ -287,13 +287,14 @@ public final class PrefixAttributesParser {
         }
     }
 
-    private static void serializeForwardingAddress(final IpAddress forwardingAddress, final ByteBuf byteAggregator) {
+    private static void serializeForwardingAddress(final IpAddressNoZone forwardingAddress,
+            final ByteBuf byteAggregator) {
         if (forwardingAddress != null) {
             final ByteBuf ospfBuf = Unpooled.buffer();
-            if (forwardingAddress.getIpv4Address() != null) {
-                ospfBuf.writeBytes(Ipv4Util.bytesForAddress(forwardingAddress.getIpv4Address()));
-            } else if (forwardingAddress.getIpv6Address() != null) {
-                ospfBuf.writeBytes(Ipv6Util.bytesForAddress(forwardingAddress.getIpv6Address()));
+            if (forwardingAddress.getIpv4AddressNoZone() != null) {
+                ospfBuf.writeBytes(Ipv4Util.bytesForAddress(forwardingAddress.getIpv4AddressNoZone()));
+            } else if (forwardingAddress.getIpv6AddressNoZone() != null) {
+                ospfBuf.writeBytes(Ipv6Util.bytesForAddress(forwardingAddress.getIpv6AddressNoZone()));
             }
             TlvUtil.writeTLV(FORWARDING_ADDRESS, ospfBuf, byteAggregator);
         }

@@ -65,11 +65,11 @@ public final class PCEPEndPointsIpv6ObjectParser extends CommonObjectParser {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
         final Ipv6Builder ipv6bldr = new Ipv6Builder()
-                .setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes))
-                .setDestinationIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
-        builder.setIgnore(header.isIgnore())
+                .setSourceIpv6Address(Ipv6Util.addressForByteBuf(bytes))
+                .setDestinationIpv6Address(Ipv6Util.addressForByteBuf(bytes));
+        return builder.setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
-                .setAddressFamily(new Ipv6CaseBuilder().setIpv6(ipv6bldr.build()).build());
-        return builder.build();
+                .setAddressFamily(new Ipv6CaseBuilder().setIpv6(ipv6bldr.build()).build())
+                .build();
     }
 }

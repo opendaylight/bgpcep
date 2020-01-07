@@ -14,8 +14,8 @@ import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.c.multicast.grouping.CMulticastBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.CGAddressCaseBuilder;
@@ -43,13 +43,13 @@ public final class SharedTreeJoinHandlerTest {
 
     private final SharedTreeJoinCase expected = new SharedTreeJoinCaseBuilder()
             .setSharedTreeJoin(new SharedTreeJoinBuilder()
-                    .setCMulticast(new CMulticastBuilder()
-                            .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
-                            .setSourceAs(new AsNumber(Uint32.TEN))
-                            .setMulticastSource(new IpAddress(new Ipv4Address("1.0.0.1")))
-                            .setMulticastGroup(new CGAddressCaseBuilder()
-                                    .setCGAddress(new IpAddress(new Ipv4Address("2.0.0.2"))).build()).build())
-                    .build()).build();
+                .setCMulticast(new CMulticastBuilder()
+                    .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
+                    .setSourceAs(new AsNumber(Uint32.TEN))
+                    .setMulticastSource(new IpAddressNoZone(new Ipv4AddressNoZone("1.0.0.1")))
+                    .setMulticastGroup(new CGAddressCaseBuilder()
+                        .setCGAddress(new IpAddressNoZone(new Ipv4AddressNoZone("2.0.0.2"))).build()).build())
+                .build()).build();
     private final SharedTreeJoinHandler handler = new SharedTreeJoinHandler();
 
     @Test

@@ -102,7 +102,7 @@ module network-topology-pcep {
                     nor its relationship to other control, management, or
                     data plane addresses.";
 
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
             }
 
             container stateful-tlv {

@@ -119,9 +119,9 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     private static RsvpCase parseRsvp(final int classType, final ByteBuf buffer) {
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
         if (classType == RSVP_IPV4_ERROR_CLASS_TYPE) {
-            builder.setNode(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(buffer)));
+            builder.setNode(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)));
         } else if (classType == RSVP_IPV6_ERROR_CLASS_TYPE) {
-            builder.setNode(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer)));
+            builder.setNode(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)));
         }
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setFlags(new Flags(flags.get(IN_PLACE), flags.get(NOT_GUILTY)));

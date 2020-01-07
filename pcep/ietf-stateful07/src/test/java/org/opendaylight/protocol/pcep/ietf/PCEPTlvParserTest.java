@@ -146,11 +146,11 @@ public class PCEPTlvParserTest {
     public void testLspIdentifiers4Tlv() throws PCEPDeserializerException {
         final Stateful07LSPIdentifierIpv4TlvParser parser = new Stateful07LSPIdentifierIpv4TlvParser();
         final Ipv4Builder afi = new Ipv4Builder();
-        afi.setIpv4TunnelSenderAddress(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+        afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(
             new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
-        afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.noZoneAddressForByteBuf(
+        afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForByteBuf(
             Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))));
-        afi.setIpv4TunnelEndpointAddress(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+        afi.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(
             new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
         final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(
             new Ipv4CaseBuilder().setIpv4(afi.build()).build()).setLspId(new LspId(Uint32.valueOf(65535)))
@@ -165,19 +165,19 @@ public class PCEPTlvParserTest {
     public void testLspIdentifiers6Tlv() throws PCEPDeserializerException {
         final Stateful07LSPIdentifierIpv6TlvParser parser = new Stateful07LSPIdentifierIpv6TlvParser();
         final Ipv6Builder afi = new Ipv6Builder();
-        afi.setIpv6TunnelSenderAddress(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+        afi.setIpv6TunnelSenderAddress(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(
             new byte[] {
                 (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
                 (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
                 (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0xF0
             })));
-        afi.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+        afi.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(
             new byte[] {
                 (byte) 0x12, (byte) 0x34, (byte) 0x56,
                 (byte) 0x78, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x01, (byte) 0x23, (byte) 0x45,
                 (byte) 0x67, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67
             }))));
-        afi.setIpv6TunnelEndpointAddress(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+        afi.setIpv6TunnelEndpointAddress(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(
             new byte[] {
                 (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
                 (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
@@ -196,7 +196,7 @@ public class PCEPTlvParserTest {
     public void testRSVPError4SpecTlv() throws PCEPDeserializerException {
         final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
         final RsvpErrorBuilder builder = new RsvpErrorBuilder()
-                .setNode(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+                .setNode(new IpAddressNoZone(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(
                     new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))))
                 .setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ErrorSpec
                     .Flags(false, true))
@@ -214,7 +214,7 @@ public class PCEPTlvParserTest {
     public void testRSVPError6SpecTlv() throws PCEPDeserializerException {
         final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
         final RsvpErrorBuilder builder = new RsvpErrorBuilder()
-                .setNode(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(new byte[] {
+                .setNode(new IpAddressNoZone(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] {
                     (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
                     (byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x12, (byte) 0x34, (byte) 0x56,
                     (byte) 0x78, (byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0

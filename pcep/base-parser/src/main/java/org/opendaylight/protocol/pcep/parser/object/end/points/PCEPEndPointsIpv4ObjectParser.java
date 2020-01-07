@@ -65,8 +65,8 @@ public class PCEPEndPointsIpv4ObjectParser extends CommonObjectParser {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
         final Ipv4Builder ipv4bldr = new Ipv4Builder()
-                .setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes))
-                .setDestinationIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
+                .setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes))
+                .setDestinationIpv4Address(Ipv4Util.addressForByteBuf(bytes));
         builder.setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
                 .setAddressFamily(new Ipv4CaseBuilder().setIpv4(ipv4bldr.build()).build());

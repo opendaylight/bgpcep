@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZoneBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.ethernet.tag.id.EthernetTagId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.ethernet.tag.id.EthernetTagIdBuilder;
@@ -51,10 +51,9 @@ final class NlriModelUtil {
         return RouteDistinguisherBuilder.getDefaultInstance((String) evpn.getChild(RD_NID).get().getValue());
     }
 
-    static IpAddress extractOrigRouteIp(final DataContainerNode<? extends PathArgument> evpn) {
-        return IpAddressBuilder.getDefaultInstance((String) evpn.getChild(ORI_NID).get().getValue());
+    static IpAddressNoZone extractOrigRouteIp(final DataContainerNode<? extends PathArgument> evpn) {
+        return IpAddressNoZoneBuilder.getDefaultInstance((String) evpn.getChild(ORI_NID).get().getValue());
     }
-
 
     static EthernetTagId extractETI(final ContainerNode evpn) {
         final ContainerNode eti = (ContainerNode) evpn.getChild(ETI_NID).get();
@@ -65,19 +64,13 @@ final class NlriModelUtil {
         return new MacAddress((String) evpn.getChild(MAC_NID).get().getValue());
     }
 
-
-    static IpAddress extractIp(final DataContainerNode<? extends PathArgument> evpn) {
-        if (evpn.getChild(IP_NID).isPresent()) {
-            return IpAddressBuilder.getDefaultInstance((String) evpn.getChild(IP_NID).get().getValue());
-        }
-        return null;
+    static IpAddressNoZone extractIp(final DataContainerNode<? extends PathArgument> evpn) {
+        return evpn.getChild(IP_NID).map(child -> IpAddressNoZoneBuilder.getDefaultInstance((String) child.getValue()))
+            .orElse(null);
     }
 
     static MplsLabel extractMplsLabel(final DataContainerNode<? extends PathArgument> evpn,
             final NodeIdentifier mplsNid) {
-        if (evpn.getChild(mplsNid).isPresent()) {
-            return new MplsLabel((Uint32) evpn.getChild(mplsNid).get().getValue());
-        }
-        return null;
+        return evpn.getChild(mplsNid).map(child -> new MplsLabel((Uint32) child.getValue())).orElse(null);
     }
 }

@@ -21,8 +21,8 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameter
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.MultiExitDiscBuilder;
@@ -115,7 +115,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
                 .filter(st -> st.getName().equals("nexthop-in-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
-                        .setGlobal(new Ipv6Address("2001:db8::1")).build()).build())
+                        .setGlobal(new Ipv6AddressNoZone("2001:db8::1")).build()).build())
                 .build());
 
         RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
@@ -129,7 +129,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                        .setGlobal(new Ipv4Address("42.42.42.42")).build()).build())
+                        .setGlobal(new Ipv4AddressNoZone("42.42.42.42")).build()).build())
                 .build());
         result = this.statementRegistry.applyExportStatement(
                 this.baseAttributes,

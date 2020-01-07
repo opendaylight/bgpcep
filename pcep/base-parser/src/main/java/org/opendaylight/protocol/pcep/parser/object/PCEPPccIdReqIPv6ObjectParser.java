@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.object;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -32,9 +32,7 @@ public final class PCEPPccIdReqIPv6ObjectParser extends AbstractPccIdReqObjectPa
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
-        return
-            new PccIdReqBuilder().setIpAddress(new IpAddressNoZone(Ipv6Util.noZoneAddressForByteBuf(buffer))).build();
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        return new PccIdReqBuilder().setIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer))).build();
     }
 }

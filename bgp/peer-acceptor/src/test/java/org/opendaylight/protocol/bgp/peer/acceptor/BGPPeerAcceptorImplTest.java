@@ -19,8 +19,8 @@ import org.opendaylight.protocol.bgp.rib.impl.AbstractBGPDispatcherTest;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
@@ -28,7 +28,7 @@ public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
     @Test
     public void testBGPPeerAcceptorImpl() throws Exception {
         final InetSocketAddress inetServerAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final IpAddress serverIpAddress = new IpAddress(new Ipv4Address(InetSocketAddressUtil
+        final IpAddressNoZone serverIpAddress = new IpAddressNoZone(new Ipv4AddressNoZone(InetSocketAddressUtil
                 .toHostAndPort(inetServerAddress).getHost()));
         final PortNumber portNumber = new PortNumber(Uint16.valueOf(
             InetSocketAddressUtil.toHostAndPort(inetServerAddress).getPort()));

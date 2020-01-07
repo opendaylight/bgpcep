@@ -133,7 +133,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
                 if (mr.isActive()) {
                     requireNonNull(mr.getAddress());
                     requireNonNull(mr.getPort());
-                    final String s = mr.getAddress().getIpv4Address().getValue();
+                    final String s = mr.getAddress().getIpv4AddressNoZone().getValue();
                     final InetAddress addr = InetAddresses.forString(s);
                     final KeyMapping ret;
                     final Rfc2385Key rfc2385KeyPassword = mr.getPassword();

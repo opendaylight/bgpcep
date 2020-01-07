@@ -36,7 +36,7 @@ module pcep-config {
             }
 
             leaf listen-address {
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
                 default "0.0.0.0";
             }
 

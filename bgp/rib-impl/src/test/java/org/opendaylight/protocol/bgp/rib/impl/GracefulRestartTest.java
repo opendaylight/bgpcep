@@ -39,11 +39,11 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv6RoutesCase;
@@ -85,7 +85,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     private static final RibId RIBID = new RibId("test-rib");
     private static final Ipv4Prefix PREFIX2 = new Ipv4Prefix("2.2.2.2/32");
     private static final Ipv6Prefix PREFIX3 = new Ipv6Prefix("dead:beef::/64");
-    private static final Ipv6Address IPV6_NEXT_HOP = new Ipv6Address("dead:beef::1");
+    private static final Ipv6AddressNoZone IPV6_NEXT_HOP = new Ipv6AddressNoZone("dead:beef::1");
     private static final TablesKey IPV6_TABLES_KEY = new TablesKey(Ipv6AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
 
@@ -390,8 +390,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         insertRoutes(ipv4prefixes, PEER1, ipv6prefixes, IPV6_NEXT_HOP, this.session, BgpOrigin.Igp);
     }
 
-    private static void insertRoutes(final List<Ipv4Prefix> ipv4prefixes, final Ipv4Address ipv4NeighborAddress,
-                              final List<Ipv6Prefix> ipv6prefixes, final Ipv6Address ipv6NeighborAddress,
+    private static void insertRoutes(final List<Ipv4Prefix> ipv4prefixes, final Ipv4AddressNoZone ipv4NeighborAddress,
+                              final List<Ipv6Prefix> ipv6prefixes, final Ipv6AddressNoZone ipv6NeighborAddress,
                               final BGPSessionImpl session, final BgpOrigin peerRole) {
         if (ipv4prefixes == null && ipv6prefixes == null) {
             waitFutureSuccess(session.writeAndFlush(BgpPeerUtil.createEndOfRib(TABLES_KEY)));
@@ -400,7 +400,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         }
 
         if (ipv4prefixes != null && !ipv4prefixes.isEmpty()) {
-            final MpReachNlri reachIpv4 = PeerUtil.createMpReachNlri(new IpAddress(ipv4NeighborAddress),
+            final MpReachNlri reachIpv4 = PeerUtil.createMpReachNlri(new IpAddressNoZone(ipv4NeighborAddress),
                     ipv4prefixes.stream()
                             .map(IpPrefix::new)
                             .collect(Collectors.toList()));
@@ -409,7 +409,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         }
 
         if (ipv6prefixes != null && !ipv4prefixes.isEmpty()) {
-            final MpReachNlri reachIpv6 = PeerUtil.createMpReachNlri(new IpAddress(ipv6NeighborAddress),
+            final MpReachNlri reachIpv6 = PeerUtil.createMpReachNlri(new IpAddressNoZone(ipv6NeighborAddress),
                     ipv6prefixes.stream()
                             .map(IpPrefix::new)
                             .collect(Collectors.toList()));
