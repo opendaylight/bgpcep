@@ -63,7 +63,7 @@ module bgp-message {
 
     grouping originator-id {
         leaf originator {
-            type inet:ipv4-address;
+            type inet:ipv4-address-no-zone;
         }
     }
 
@@ -101,7 +101,7 @@ module bgp-message {
             mandatory true;
         }
         leaf bgp-identifier {
-            type inet:ipv4-address;
+            type inet:ipv4-address-no-zone;
             mandatory true;
         }
         list bgp-parameters {

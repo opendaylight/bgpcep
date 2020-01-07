@@ -77,7 +77,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
@@ -116,7 +118,7 @@ public class OpenConfigMappingUtilTest {
     private static final NeighborKey NEIGHBOR_KEY = new NeighborKey(NEIGHBOR_ADDRESS);
     private static final Ipv4Address ROUTER_ID = new Ipv4Address("1.2.3.4");
     private static final Ipv4Address CLUSTER_ID = new Ipv4Address("4.3.2.1");
-    private static final Ipv4Address LOCAL_HOST = new Ipv4Address("127.0.0.1");
+    private static final Ipv4AddressNoZone LOCAL_HOST = new Ipv4AddressNoZone("127.0.0.1");
 
     private static final Uint8 ALL_PATHS = Uint8.ZERO;
     private static final Uint8 N_PATHS = Uint8.TWO;
@@ -314,7 +316,7 @@ public class OpenConfigMappingUtilTest {
         assertNull(OpenConfigMappingUtil.getLocalAddress(transport.setConfig(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport
                         .ConfigBuilder().build()).build()));
-        assertEquals(new IpAddress(LOCAL_HOST), OpenConfigMappingUtil.getLocalAddress(transport.setConfig(
+        assertEquals(new IpAddressNoZone(LOCAL_HOST), OpenConfigMappingUtil.getLocalAddress(transport.setConfig(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport
                         .ConfigBuilder().setLocalAddress(new BgpNeighborTransportConfig
                         .LocalAddress(new IpAddress(new Ipv4Address(LOCAL_HOST.getValue())))).build()).build()));

@@ -36,7 +36,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
@@ -106,7 +106,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         BGPPeerState peer4State = peer4.getPeerState();
         assertNull(peer4State.getGroupId());
-        assertEquals(new IpAddress(PEER4), peer4State.getNeighborAddress());
+        assertEquals(new IpAddressNoZone(PEER4), peer4State.getNeighborAddress());
         assertEquals(0L, peer4State.getTotalPathsCount());
         assertEquals(0L, peer4State.getTotalPrefixes());
 
@@ -150,7 +150,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         final BGPPeerState peer1State = peer1.getPeerState();
         assertNull(peer1State.getGroupId());
-        assertEquals(new IpAddress(PEER1), peer1State.getNeighborAddress());
+        assertEquals(new IpAddressNoZone(PEER1), peer1State.getNeighborAddress());
         assertEquals(1L, peer1State.getTotalPathsCount());
         assertEquals(1L, peer1State.getTotalPrefixes());
 
@@ -160,7 +160,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         final BGPTransportState transportStatePeer1 = peer1State.getBGPTransportState();
         assertEquals(new PortNumber(PORT), transportStatePeer1.getLocalPort());
-        assertEquals(new IpAddress(PEER1), transportStatePeer1.getRemoteAddress());
+        assertEquals(new IpAddressNoZone(PEER1), transportStatePeer1.getRemoteAddress());
 
         assertEquals(State.UP, peer1State.getBGPSessionState().getSessionState());
         checkEquals(() -> assertEquals(1L, peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
@@ -223,7 +223,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         peer4State = peer4.getPeerState();
         assertNull(peer4State.getGroupId());
-        assertEquals(new IpAddress(PEER4), peer4State.getNeighborAddress());
+        assertEquals(new IpAddressNoZone(PEER4), peer4State.getNeighborAddress());
         assertEquals(0L, peer4State.getTotalPathsCount());
         assertEquals(0L, peer4State.getTotalPrefixes());
 
@@ -233,7 +233,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
 
         final BGPTransportState transportState = peer4State.getBGPTransportState();
         assertEquals(new PortNumber(PORT), transportState.getLocalPort());
-        assertEquals(new IpAddress(PEER4), transportState.getRemoteAddress());
+        assertEquals(new IpAddressNoZone(PEER4), transportState.getRemoteAddress());
 
         final BGPPeerMessagesState peerMessagesState = peer4State.getBGPPeerMessagesState();
         assertEquals(0L, peerMessagesState.getNotificationMessagesReceivedCount());

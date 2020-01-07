@@ -26,7 +26,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private ChannelFuture futureChannel;
     private AutoCloseable listenerRegistration;
 
-    public BGPPeerAcceptorImpl(final IpAddress bindingAddress, final PortNumber portNumber,
+    public BGPPeerAcceptorImpl(final IpAddressNoZone bindingAddress, final PortNumber portNumber,
             final BGPDispatcher bgpDispatcher) {
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
         this.address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
@@ -66,11 +66,11 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         });
     }
 
-    private static InetSocketAddress getAddress(final IpAddress ipAddress, final PortNumber portNumber) {
+    private static InetSocketAddress getAddress(final IpAddressNoZone ipAddress, final PortNumber portNumber) {
         final InetAddress inetAddr;
         try {
-            inetAddr = InetAddress.getByName(ipAddress.getIpv4Address() != null
-                    ? ipAddress.getIpv4Address().getValue() : ipAddress.getIpv6Address().getValue());
+            inetAddr = InetAddress.getByName(ipAddress.getIpv4AddressNoZone() != null
+                    ? ipAddress.getIpv4AddressNoZone().getValue() : ipAddress.getIpv6AddressNoZone().getValue());
         } catch (final UnknownHostException e) {
             throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
         }
@@ -100,16 +100,16 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         }
 
         @Override
-        public void onPeerAdded(final IpAddress ip, final BGPSessionPreferences prefs) {
+        public void onPeerAdded(final IpAddressNoZone ip, final BGPSessionPreferences prefs) {
             if (prefs.getMd5Password().isPresent()) {
-                this.keys.put(IetfInetUtil.INSTANCE.inetAddressFor(ip), prefs.getMd5Password().get());
+                this.keys.put(IetfInetUtil.INSTANCE.inetAddressForNoZone(ip), prefs.getMd5Password().get());
                 this.channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, this.keys);
             }
         }
 
         @Override
-        public void onPeerRemoved(final IpAddress ip) {
-            if (this.keys.remove(IetfInetUtil.INSTANCE.inetAddressFor(ip)) != null) {
+        public void onPeerRemoved(final IpAddressNoZone ip) {
+            if (this.keys.remove(IetfInetUtil.INSTANCE.inetAddressForNoZone(ip)) != null) {
                 this.channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, this.keys);
             }
         }

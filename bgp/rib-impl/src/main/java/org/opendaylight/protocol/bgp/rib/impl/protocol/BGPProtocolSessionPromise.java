@@ -26,7 +26,7 @@ import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistrySessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,14 +162,14 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
     }
 
     private class PeerRegistrySessionListenerImpl implements PeerRegistrySessionListener {
-        private final IpAddress peerAddress;
+        private final IpAddressNoZone peerAddress;
 
-        PeerRegistrySessionListenerImpl(final IpAddress peerAddress) {
+        PeerRegistrySessionListenerImpl(final IpAddressNoZone peerAddress) {
             this.peerAddress = peerAddress;
         }
 
         @Override
-        public void onSessionCreated(final IpAddress ip) {
+        public void onSessionCreated(final IpAddressNoZone ip) {
             if (ip.equals(this.peerAddress)) {
                 LOG.debug("Callback for session creation with peer {} received", ip);
                 synchronized (BGPProtocolSessionPromise.this) {
@@ -179,7 +179,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
         }
 
         @Override
-        public void onSessionRemoved(final IpAddress ip) {
+        public void onSessionRemoved(final IpAddressNoZone ip) {
             if (ip.equals(this.peerAddress)) {
                 LOG.debug("Callback for session removal with peer {} received", ip);
                 synchronized (BGPProtocolSessionPromise.this) {

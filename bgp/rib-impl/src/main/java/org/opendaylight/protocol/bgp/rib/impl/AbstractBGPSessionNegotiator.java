@@ -27,8 +27,8 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.Values;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
@@ -96,7 +96,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
             return;
         }
         // Open can be sent first either from ODL (IDLE) or from peer (OPEN_CONFIRM)
-        final IpAddress remoteIp = getRemoteIp();
+        final IpAddressNoZone remoteIp = getRemoteIp();
         try {
             // Check if peer is configured in registry before retrieving preferences
             if (!this.registry.isPeerConfigured(remoteIp)) {
@@ -131,10 +131,10 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         }
     }
 
-    private IpAddress getRemoteIp() {
-        final IpAddress remoteIp = StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress());
-        if (remoteIp.getIpv6Address() != null) {
-            return new IpAddress(Ipv6Util.getFullForm(remoteIp.getIpv6Address()));
+    private IpAddressNoZone getRemoteIp() {
+        final IpAddressNoZone remoteIp = StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress());
+        if (remoteIp.getIpv6AddressNoZone() != null) {
+            return new IpAddressNoZone(Ipv6Util.getFullForm(remoteIp.getIpv6AddressNoZone()));
         }
         return remoteIp;
     }
@@ -197,7 +197,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     }
 
     private synchronized void handleOpen(final Open openObj) {
-        final IpAddress remoteIp = getRemoteIp();
+        final IpAddressNoZone remoteIp = getRemoteIp();
         final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
         try {
             final BGPSessionListener peer = this.registry.getPeer(remoteIp, getSourceId(openObj, preferences),
@@ -236,7 +236,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
      * @param preferences Local BGP speaker preferences
      * @return BGP Id of device that accepted the connection
      */
-    protected abstract Ipv4Address getDestinationId(Open openMsg, BGPSessionPreferences preferences);
+    protected abstract Ipv4AddressNoZone getDestinationId(Open openMsg, BGPSessionPreferences preferences);
 
     /**
      * Get source identifier.
@@ -245,7 +245,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
      * @param preferences Local BGP speaker preferences
      * @return BGP Id of device that accepted the connection
      */
-    protected abstract Ipv4Address getSourceId(Open openMsg, BGPSessionPreferences preferences);
+    protected abstract Ipv4AddressNoZone getSourceId(Open openMsg, BGPSessionPreferences preferences);
 
     public synchronized State getState() {
         return this.state;

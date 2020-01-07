@@ -12,9 +12,9 @@ import static java.util.Collections.singletonList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -253,14 +253,14 @@ final class PMSITunnelAttributeHandlerTestUtil {
         (byte) 0xfc, (byte) 0x00, (byte) 0x03, // Opaque Type - Length
         (byte) 0xb5, (byte) 0xeb, (byte) 0x2d,  //Value
     };
-    private static final IpAddress P_MULTICAST = new IpAddress(new Ipv4Address("23.1.1.1"));
-    private static final IpAddress IP_ADDRESS = new IpAddress(new Ipv4Address("1.1.1.1"));
+    private static final IpAddressNoZone P_MULTICAST = new IpAddressNoZone(new Ipv4AddressNoZone("23.1.1.1"));
+    private static final IpAddressNoZone IP_ADDRESS = new IpAddressNoZone(new Ipv4AddressNoZone("1.1.1.1"));
     private static final Uint8 NO_SUPPORTED_OPAQUE = Uint8.valueOf(200);
     private static final Uint8 GENERIC_LSP_IDENTIFIER = Uint8.ONE;
     private static final HexString OPAQUE_TEST = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00");
     private static final HexString OPAQUE_TEST2
             = new HexString("07:00:0b:00:00:01:00:00:00:01:00:00:00:00:01:02");
-    private static final IpAddress IPV6 = new IpAddress(new Ipv6Address("2001::1"));
+    private static final IpAddressNoZone IPV6 = new IpAddressNoZone(new Ipv6AddressNoZone("2001::1"));
     private static final Uint8 EXTENDED_TYPE = Uint8.MAX_VALUE;
 
     private PMSITunnelAttributeHandlerTestUtil() {
@@ -348,7 +348,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
         return buildAttribute(pmsiTunnelBuilder);
     }
 
-    private static TunnelIdentifier buildMldpP2mpLsp(final IpAddress ipAddress,
+    private static TunnelIdentifier buildMldpP2mpLsp(final IpAddressNoZone ipAddress,
             final Class<? extends AddressFamily> family, final List<OpaqueValue> opaqueList) {
         return new MldpP2mpLspBuilder()
                 .setMldpP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel

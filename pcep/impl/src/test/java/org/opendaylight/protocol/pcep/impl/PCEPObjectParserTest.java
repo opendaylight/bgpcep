@@ -531,13 +531,15 @@ public class PCEPObjectParserTest {
         final ByteBuf result
             = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject1IPv4.bin"));
 
-        final EndpointsObjBuilder builder = new EndpointsObjBuilder();
-        builder.setProcessingRule(true);
-        builder.setIgnore(false);
-        builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(
-            new Ipv4Builder().setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
-                .setDestinationIpv4Address(
-                Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
+        final EndpointsObjBuilder builder = new EndpointsObjBuilder()
+                .setProcessingRule(true)
+                .setIgnore(false)
+                .setAddressFamily(new Ipv4CaseBuilder()
+                    .setIpv4(new Ipv4Builder()
+                        .setSourceIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+                        .setDestinationIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes)))
+                        .build())
+                    .build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -579,7 +581,7 @@ public class PCEPObjectParserTest {
         builder.setIgnore(false);
         builder.setAddressFamily(new P2mpIpv4CaseBuilder().setP2mpIpv4(new P2mpIpv4Builder()
                 .setP2mpLeaves(P2mpLeaves.NewLeavesToAdd)
-                .setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+                .setSourceIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
                 .setDestinationIpv4Address(Arrays.asList(new Ipv4AddressNoZone("255.255.255.255"),
                         new Ipv4AddressNoZone("255.255.255.252"))).build()).build());
 
@@ -623,8 +625,8 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setAddressFamily(new Ipv6CaseBuilder().setIpv6(
-            new Ipv6Builder().setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
-                .setDestinationIpv6Address(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(destIPBytes)))
+            new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+                .setDestinationIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes)))
                 .build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
@@ -677,7 +679,7 @@ public class PCEPObjectParserTest {
         builder.setIgnore(false);
         builder.setAddressFamily(new P2mpIpv6CaseBuilder().setP2mpIpv6(new P2mpIpv6Builder()
                 .setP2mpLeaves(P2mpLeaves.NewLeavesToAdd)
-                .setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+                .setSourceIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
                 .setDestinationIpv6Address(Arrays.asList(
                         new Ipv6AddressNoZone("2:5dd2:ffec:a1b6:581e:9f50::"),
                         new Ipv6AddressNoZone("3:5dd2:ffec:a1b6:581e:9f50::")

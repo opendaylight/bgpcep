@@ -21,7 +21,7 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvRegistry;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.OpenMessage;
@@ -54,11 +54,11 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         checkArgument(message instanceof PeerUpNotification, "An instance of Peer Up notification is required");
         final PeerUpNotification peerUp = (PeerUpNotification) message;
 
-        if (peerUp.getLocalAddress().getIpv4Address() != null) {
+        if (peerUp.getLocalAddress().getIpv4AddressNoZone() != null) {
             buffer.writeZero(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
-            Ipv4Util.writeIpv4Address(peerUp.getLocalAddress().getIpv4Address(), buffer);
+            Ipv4Util.writeIpv4Address(peerUp.getLocalAddress().getIpv4AddressNoZone(), buffer);
         } else {
-            Ipv6Util.writeIpv6Address(peerUp.getLocalAddress().getIpv6Address(), buffer);
+            Ipv6Util.writeIpv6Address(peerUp.getLocalAddress().getIpv6AddressNoZone(), buffer);
         }
         ByteBufUtils.write(buffer, peerUp.getLocalPort().getValue());
         ByteBufUtils.write(buffer, peerUp.getRemotePort().getValue());
@@ -85,9 +85,9 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
 
         if (peerUpNot.getPeerHeader().isIpv4()) {
             bytes.skipBytes(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
-            peerUpNot.setLocalAddress(new IpAddress(Ipv4Util.addressForByteBuf(bytes)));
+            peerUpNot.setLocalAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(bytes)));
         } else {
-            peerUpNot.setLocalAddress(new IpAddress(Ipv6Util.addressForByteBuf(bytes)));
+            peerUpNot.setLocalAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(bytes)));
         }
         peerUpNot.setLocalPort(new PortNumber(ByteBufUtils.readUint16(bytes)));
         peerUpNot.setRemotePort(new PortNumber(ByteBufUtils.readUint16(bytes)));

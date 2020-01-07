@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 
@@ -42,8 +41,8 @@ public final class Ipv6Util {
      * @param ip to be uncompressed
      * @return Ipv6Address with same, but uncompressed, value
      */
-    public static Ipv6Address getFullForm(final Ipv6Address ip) {
-        return new Ipv6Address(InetAddresses.forString(ip.getValue()).getHostAddress());
+    public static Ipv6AddressNoZone getFullForm(final Ipv6AddressNoZone ip) {
+        return new Ipv6AddressNoZone(InetAddresses.forString(ip.getValue()).getHostAddress());
     }
 
     /**
@@ -52,17 +51,7 @@ public final class Ipv6Util {
      * @param buffer containing Ipv6 address, starting at reader index
      * @return Ipv6Address
      */
-    public static Ipv6Address addressForByteBuf(final ByteBuf buffer) {
-        return IetfInetUtil.INSTANCE.ipv6AddressFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
-    }
-
-    /**
-     * Reads from ByteBuf buffer and converts bytes to Ipv6AddressNoZone.
-     *
-     * @param buffer containing Ipv6 address, starting at reader index
-     * @return Ipv6AddressNoZone
-     */
-    public static Ipv6AddressNoZone noZoneAddressForByteBuf(final ByteBuf buffer) {
+    public static Ipv6AddressNoZone addressForByteBuf(final ByteBuf buffer) {
         return IetfInetUtil.INSTANCE.ipv6AddressNoZoneFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
     }
 
@@ -71,7 +60,7 @@ public final class Ipv6Util {
      * @param ipAddress Ipv6 address
      * @return ByteBuf with filled in bytes from ipAddress
      */
-    public static ByteBuf byteBufForAddress(final Ipv6Address ipAddress) {
+    public static ByteBuf byteBufForAddress(final Ipv6AddressNoZone ipAddress) {
         return Unpooled.wrappedBuffer(bytesForAddress(ipAddress));
     }
 
@@ -81,8 +70,8 @@ public final class Ipv6Util {
      * @param address Ipv6Address to be converted
      * @return byte array
      */
-    public static byte[] bytesForAddress(final Ipv6Address address) {
-        return IetfInetUtil.INSTANCE.ipv6AddressBytes(address);
+    public static byte[] bytesForAddress(final Ipv6AddressNoZone address) {
+        return IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(address);
     }
 
     /**
@@ -160,23 +149,6 @@ public final class Ipv6Util {
             }
         }
         return list;
-    }
-
-    /**
-     * Writes IPv6 address if not null, otherwise writes zeros to the
-     * <code>output</code> ByteBuf. ByteBuf's writerIndex is increased by 16.
-     *
-     * @param ipv6Address
-     *            IPv6 address to be written to the output.
-     * @param output
-     *            ByteBuf, where ipv6Address or zeros are written.
-     */
-    public static void writeIpv6Address(final Ipv6Address ipv6Address, final ByteBuf output) {
-        if (ipv6Address != null) {
-            output.writeBytes(bytesForAddress(ipv6Address));
-        } else {
-            output.writeZero(IPV6_LENGTH);
-        }
     }
 
     /**

@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 
 /**
@@ -29,7 +29,7 @@ public interface BGPTransportState {
      *
      * @return IpAddress
      */
-    IpAddress getRemoteAddress();
+    IpAddressNoZone getRemoteAddress();
 
     /**
      * Remote Port.

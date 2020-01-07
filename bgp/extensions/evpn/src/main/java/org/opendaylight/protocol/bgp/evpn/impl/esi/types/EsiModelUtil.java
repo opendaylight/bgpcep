@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
 import com.google.common.base.Preconditions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.esi.arbitrary._case.Arbitrary;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.esi.esi.arbitrary._case.ArbitraryBuilder;
@@ -85,7 +85,7 @@ final class EsiModelUtil {
         return new MacAddress((String) macGEn.getChild(SYSTEM_MAC_NID).get().getValue());
     }
 
-    static Ipv4Address extractRD(final ContainerNode t4) {
-        return new Ipv4Address((String) t4.getChild(RD_NID).get().getValue());
+    static Ipv4AddressNoZone extractRD(final ContainerNode t4) {
+        return new Ipv4AddressNoZone((String) t4.getChild(RD_NID).get().getValue());
     }
 }

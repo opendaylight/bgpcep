@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 
 /**
  * Listens to the changes in a PeerRegisty.
@@ -21,12 +21,12 @@ public interface PeerRegistryListener {
      * @param ip The new peer's IP address.
      * @param prefs The new peer's preferences.
      */
-    void onPeerAdded(IpAddress ip, BGPSessionPreferences prefs);
+    void onPeerAdded(IpAddressNoZone ip, BGPSessionPreferences prefs);
 
     /**
      * Invoked when peer is removed from registry.
      * @param ip The removed peer's IP address.
      */
-    void onPeerRemoved(IpAddress ip);
+    void onPeerRemoved(IpAddressNoZone ip);
 
 }

@@ -29,6 +29,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
@@ -200,7 +201,7 @@ public class ParserTest {
         final Notification open = new OpenBuilder()
                 .setMyAsNumber(Uint16.valueOf(100))
                 .setHoldTimer(Uint16.valueOf(180))
-                .setBgpIdentifier(new Ipv4Address("20.20.20.20"))
+                .setBgpIdentifier(new Ipv4AddressNoZone("20.20.20.20"))
                 .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
                 .build();
         final ByteBuf bytes = Unpooled.buffer();

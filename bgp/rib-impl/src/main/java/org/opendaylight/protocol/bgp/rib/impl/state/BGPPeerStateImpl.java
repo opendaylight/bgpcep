@@ -33,7 +33,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState.Mode;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
@@ -46,7 +46,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         BGPGracelfulRestartState, BGPLlGracelfulRestartState,BGPErrorHandlingState, BGPPeerMessagesState,
         BGPPeerStateConsumer, BGPMessagesListener {
     private static final long NONE = 0L;
-    private final IpAddress neighborAddress;
+    private final IpAddressNoZone neighborAddress;
     private final Set<TablesKey> afiSafisAdvertized;
     private final Set<TablesKey> afiSafisGracefulAdvertized;
     private final Set<TablesKey> afiSafisGracefulReceived = new HashSet<>();
@@ -75,7 +75,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     private boolean peerRestarting;
 
     public BGPPeerStateImpl(final @NonNull KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
-            final @Nullable String groupId, final @NonNull IpAddress neighborAddress,
+            final @Nullable String groupId, final @NonNull IpAddressNoZone neighborAddress,
             final @NonNull Set<TablesKey> afiSafisAdvertized,
             final @NonNull Set<TablesKey> afiSafisGracefulAdvertized,
             final @NonNull Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
@@ -93,7 +93,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     @Override
-    public final IpAddress getNeighborAddress() {
+    public final IpAddressNoZone getNeighborAddress() {
         return this.neighborAddress;
     }
 

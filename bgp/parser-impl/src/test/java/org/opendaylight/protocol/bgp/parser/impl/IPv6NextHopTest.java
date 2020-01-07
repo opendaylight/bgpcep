@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 
@@ -22,9 +23,10 @@ public class IPv6NextHopTest {
 
     @Before
     public void init() {
-        this.nextHopA = new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:7331")).build();
-        this.nextHopB = new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:7331"))
-                .setLinkLocal(new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:0000")).build();
+        this.nextHopA = new Ipv6NextHopBuilder().setGlobal(new Ipv6AddressNoZone("2001:db8:85a3:0:0:8a2e:370:7331"))
+                .build();
+        this.nextHopB = new Ipv6NextHopBuilder().setGlobal(new Ipv6AddressNoZone("2001:db8:85a3:0:0:8a2e:370:7331"))
+                .setLinkLocal(new Ipv6AddressNoZone("2001:db8:85a3:0:0:8a2e:370:0000")).build();
     }
 
     @Test

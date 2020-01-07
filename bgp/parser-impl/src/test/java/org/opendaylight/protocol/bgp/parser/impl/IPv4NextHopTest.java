@@ -12,16 +12,16 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 
 public class IPv4NextHopTest {
-
     private Ipv4NextHop nextHop;
 
     @Before
     public void init() {
-        this.nextHop = new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.1")).build();
+        this.nextHop = new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("10.0.0.1")).build();
     }
 
     @Test

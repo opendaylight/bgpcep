@@ -22,7 +22,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev160309.AddPrefixInput;
@@ -64,7 +64,7 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
         final InstanceIdentifier<Ipv4Routes> routesIID = appPeerBenchmark.getIpv4RoutesIID();
 
         final AddPrefixInput addPrefix = new AddPrefixInputBuilder().setBatchsize(Uint32.ONE).setCount(Uint32.ONE)
-                .setNexthop(new Ipv4Address(NH)).setPrefix(new Ipv4Prefix(PREFIX)).build();
+                .setNexthop(new Ipv4AddressNoZone(NH)).setPrefix(new Ipv4Prefix(PREFIX)).build();
 
         final RpcResult<AddPrefixOutput> addRpcResult = appPeerBenchmark.addPrefix(addPrefix).get();
         final Result addResult = addRpcResult.getResult().getResult();
