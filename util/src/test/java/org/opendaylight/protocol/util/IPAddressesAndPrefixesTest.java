@@ -21,13 +21,14 @@ import io.netty.buffer.Unpooled;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yangtools.yang.common.Uint16;
@@ -115,16 +116,16 @@ public class IPAddressesAndPrefixesTest {
         final ByteBuf bb4 = Unpooled.wrappedBuffer(new byte[]{123, 122, 4, 5});
         final ByteBuf bb6 = Unpooled.wrappedBuffer(new byte[]{0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01});
-        assertEquals(bb4, Ipv4Util.byteBufForAddress(new Ipv4Address("123.122.4.5")));
-        assertEquals(bb6, Ipv6Util.byteBufForAddress(new Ipv6Address("2001::1")));
+        assertEquals(bb4, Ipv4Util.byteBufForAddress(new Ipv4AddressNoZone("123.122.4.5")));
+        assertEquals(bb6, Ipv6Util.byteBufForAddress(new Ipv6AddressNoZone("2001::1")));
     }
 
     @Test
     public void testBytesForAddress() {
         assertArrayEquals(new byte[]{12, 58, (byte) 201, 99},
-                Ipv4Util.bytesForAddress(new Ipv4Address("12.58.201.99")));
+                Ipv4Util.bytesForAddress(new Ipv4AddressNoZone("12.58.201.99")));
         assertArrayEquals(new byte[]{0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x01}, Ipv6Util.bytesForAddress(new Ipv6Address("2001::1")));
+            0x00, 0x00, 0x00, 0x01}, Ipv6Util.bytesForAddress(new Ipv6AddressNoZone("2001::1")));
     }
 
     @Test
@@ -187,30 +188,30 @@ public class IPAddressesAndPrefixesTest {
 
     @Test
     public void testFullFormOfIpv6() {
-        assertEquals(new Ipv6Address("0:0:0:0:0:0:0:1"), Ipv6Util.getFullForm(new Ipv6Address("::1")));
+        assertEquals(new Ipv6Address("0:0:0:0:0:0:0:1"), Ipv6Util.getFullForm(new Ipv6AddressNoZone("::1")));
     }
 
     @Test
     public void testInetAddressToIpAddress() {
-        final IpAddress ipAddress = Ipv4Util.getIpAddress(InetAddresses.forString("123.42.13.8"));
-        Assert.assertNotNull(ipAddress.getIpv4Address());
-        Assert.assertEquals(new Ipv4Address("123.42.13.8"), ipAddress.getIpv4Address());
+        final IpAddressNoZone ipAddress = Ipv4Util.getIpAddress(InetAddresses.forString("123.42.13.8"));
+        assertNotNull(ipAddress.getIpv4AddressNoZone());
+        assertEquals(new Ipv4Address("123.42.13.8"), ipAddress.getIpv4AddressNoZone());
 
-        final IpAddress ipAddress2 = Ipv4Util.getIpAddress(InetAddresses.forString("2001:db8:1:2::"));
-        Assert.assertNotNull(ipAddress2.getIpv6Address());
-        Assert.assertEquals(new Ipv6Address("2001:db8:1:2::"), ipAddress2.getIpv6Address());
+        final IpAddressNoZone ipAddress2 = Ipv4Util.getIpAddress(InetAddresses.forString("2001:db8:1:2::"));
+        assertNotNull(ipAddress2.getIpv6AddressNoZone());
+        assertEquals(new Ipv6Address("2001:db8:1:2::"), ipAddress2.getIpv6AddressNoZone());
     }
 
     @Test
     public void testToInetSocketAddress() {
-        final InetSocketAddress isa = Ipv4Util.toInetSocketAddress(new IpAddress(new Ipv4Address("123.42.13.8")),
-                new PortNumber(Uint16.TEN));
-        Assert.assertEquals(10, isa.getPort());
-        Assert.assertEquals("123.42.13.8", InetAddresses.toAddrString(isa.getAddress()));
+        final InetSocketAddress isa = Ipv4Util.toInetSocketAddress(
+            new IpAddressNoZone(new Ipv4AddressNoZone("123.42.13.8")), new PortNumber(Uint16.TEN));
+        assertEquals(10, isa.getPort());
+        assertEquals("123.42.13.8", InetAddresses.toAddrString(isa.getAddress()));
 
-        final InetSocketAddress isa2 = Ipv4Util.toInetSocketAddress(new IpAddress(new Ipv6Address("2001:db8:1:2::")),
-                new PortNumber(Uint16.TEN));
-        Assert.assertEquals(10, isa2.getPort());
-        Assert.assertEquals("2001:db8:1:2::", InetAddresses.toAddrString(isa2.getAddress()));
+        final InetSocketAddress isa2 = Ipv4Util.toInetSocketAddress(
+            new IpAddressNoZone(new Ipv6AddressNoZone("2001:db8:1:2::")), new PortNumber(Uint16.TEN));
+        assertEquals(10, isa2.getPort());
+        assertEquals("2001:db8:1:2::", InetAddresses.toAddrString(isa2.getAddress()));
     }
 }

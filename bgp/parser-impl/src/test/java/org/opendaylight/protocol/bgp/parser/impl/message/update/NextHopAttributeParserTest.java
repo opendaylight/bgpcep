@@ -17,8 +17,8 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
@@ -41,12 +41,12 @@ public class NextHopAttributeParserTest {
 
     private static final Attributes IPV4_RESULT = new AttributesBuilder()
             .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                    .setGlobal(new Ipv4Address("255.255.255.255"))
+                    .setGlobal(new Ipv4AddressNoZone("255.255.255.255"))
                     .build()).build()).build();
     private static final Attributes IPV6_RESULT = new AttributesBuilder()
             .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
-                    .setGlobal(new Ipv6Address("ffff::1"))
-                    .setLinkLocal(new Ipv6Address("ffff::2"))
+                    .setGlobal(new Ipv6AddressNoZone("ffff::1"))
+                    .setLinkLocal(new Ipv6AddressNoZone("ffff::2"))
                     .build()).build()).build();
 
     @Test

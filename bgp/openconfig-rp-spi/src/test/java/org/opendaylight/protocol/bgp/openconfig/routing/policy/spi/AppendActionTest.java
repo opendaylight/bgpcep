@@ -19,7 +19,7 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.Rout
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.LocalPrefBuilder;
@@ -64,7 +64,7 @@ public class AppendActionTest extends AbstractStatementRegistryTest {
         final Attributes expected = new AttributesBuilder()
                 .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
                 .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                        .setGlobal(new Ipv4Address("4.5.6.7")).build()).build())
+                        .setGlobal(new Ipv4AddressNoZone("4.5.6.7")).build()).build())
                 .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build())
                 .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(15)).build())
                 .build();

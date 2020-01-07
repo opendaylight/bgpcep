@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.inet.codec.nexthop;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -18,8 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
@@ -33,8 +32,8 @@ public class NextHopParserSerializerTest {
     private static final byte[] IPV6LB = {0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         1, (byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0xc0, 1, 0x0b, (byte) 0xff, (byte) 0xfe, 0x7e, 0, 0};
 
-    private static final Ipv6Address IPV6 = new Ipv6Address("2001:db8::1");
-    private static final Ipv6Address IPV6L = new Ipv6Address("fe80::c001:bff:fe7e:0");
+    private static final Ipv6AddressNoZone IPV6 = new Ipv6AddressNoZone("2001:db8::1");
+    private static final Ipv6AddressNoZone IPV6L = new Ipv6AddressNoZone("fe80::c001:bff:fe7e:0");
 
     private Ipv4NextHopParserSerializer ipv4NextHopParserSerializer;
     private Ipv6NextHopParserSerializer ipv6NextHopParserSerializer;
@@ -52,7 +51,7 @@ public class NextHopParserSerializerTest {
     public void testSerializeIpv4NextHopCase() throws BGPParsingException {
         final byte[] ipv4B = {42, 42, 42, 42};
         this.hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-            .setGlobal(new Ipv4Address("42.42.42.42")).build()).build();
+            .setGlobal(new Ipv4AddressNoZone("42.42.42.42")).build()).build();
 
         this.ipv4NextHopParserSerializer.serializeNextHop(this.hop, this.buffer);
         assertArrayEquals(ipv4B, ByteArray.readAllBytes(this.buffer));

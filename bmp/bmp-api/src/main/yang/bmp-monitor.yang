@@ -37,7 +37,7 @@ module bmp-monitor {
 
     typedef router-id {
         description "Monitored router identified by IP address.";
-        type inet:ip-address;
+        type inet:ip-address-no-zone;
     }
 
     typedef monitor-id {

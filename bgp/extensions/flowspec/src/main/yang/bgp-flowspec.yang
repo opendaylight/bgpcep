@@ -394,7 +394,7 @@ module bgp-flowspec {
     grouping redirect-ipv6-extended-community {
         container redirect-ipv6 {
             leaf global-administrator {
-                type inet:ipv6-address;
+                type inet:ipv6-address-no-zone;
             }
             leaf local-administrator {
                 type uint16;
@@ -426,7 +426,7 @@ module bgp-flowspec {
         reference "https://tools.ietf.org/html/draft-ietf-idr-flowspec-redirect-ip-02";
         container redirect-ip-nh-extended-community {
             leaf next-hop-address {
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
             }
             leaf copy {
                 type boolean;
