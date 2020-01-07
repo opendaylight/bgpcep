@@ -16,8 +16,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
@@ -33,9 +33,9 @@ public class NextHopUtilTest {
     private static final byte[] IPV6LB = {0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         1, (byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0xc0, 1, 0x0b, (byte) 0xff, (byte) 0xfe, 0x7e, 0, 0};
 
-    private static final Ipv4Address IPV4 = new Ipv4Address("42.42.42.42");
-    private static final Ipv6Address IPV6 = new Ipv6Address("2001:db8::1");
-    private static final Ipv6Address IPV6L = new Ipv6Address("fe80::c001:bff:fe7e:0");
+    private static final Ipv4AddressNoZone IPV4 = new Ipv4AddressNoZone("42.42.42.42");
+    private static final Ipv6AddressNoZone IPV6 = new Ipv6AddressNoZone("2001:db8::1");
+    private static final Ipv6AddressNoZone IPV6L = new Ipv6AddressNoZone("fe80::c001:bff:fe7e:0");
 
     @Test
     public void testSerializeNextHop() {

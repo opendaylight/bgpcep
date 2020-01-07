@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.BgpOriginAttrType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.generic.actions.route.disposition.RejectRoute;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.statement.Actions;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
@@ -188,11 +189,17 @@ final class ActionsRegistryImpl {
                     CNextHop nhNew;
                     if (address != null) {
                         if (address.getIpv4Address() != null) {
-                            nhNew = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                                    .setGlobal(address.getIpv4Address()).build()).build();
+                            nhNew = new Ipv4NextHopCaseBuilder()
+                                    .setIpv4NextHop(new Ipv4NextHopBuilder()
+                                        .setGlobal(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(address.getIpv4Address()))
+                                        .build())
+                                    .build();
                         } else {
-                            nhNew = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
-                                    .setGlobal(address.getIpv6Address()).build()).build();
+                            nhNew = new Ipv6NextHopCaseBuilder()
+                                    .setIpv6NextHop(new Ipv6NextHopBuilder()
+                                        .setGlobal(IetfInetUtil.INSTANCE.ipv6AddressNoZoneFor(address.getIpv6Address()))
+                                        .build())
+                                    .build();
                         }
 
                         attributesUpdatedBuilder.setCNextHop(nhNew);
