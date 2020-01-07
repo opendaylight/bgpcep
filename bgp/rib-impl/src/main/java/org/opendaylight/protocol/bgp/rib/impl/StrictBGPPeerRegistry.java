@@ -40,9 +40,10 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
@@ -62,11 +63,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
     @GuardedBy("this")
-    private final Map<IpAddress, BGPSessionListener> peers = new HashMap<>();
+    private final Map<IpAddressNoZone, BGPSessionListener> peers = new HashMap<>();
     @GuardedBy("this")
-    private final Map<IpAddress, BGPSessionId> sessionIds = new HashMap<>();
+    private final Map<IpAddressNoZone, BGPSessionId> sessionIds = new HashMap<>();
     @GuardedBy("this")
-    private final Map<IpAddress, BGPSessionPreferences> peerPreferences = new HashMap<>();
+    private final Map<IpAddressNoZone, BGPSessionPreferences> peerPreferences = new HashMap<>();
     private final Set<PeerRegistryListener> listeners = ConcurrentHashMap.newKeySet();
     private final Set<PeerRegistrySessionListener> sessionListeners = ConcurrentHashMap.newKeySet();
 
@@ -75,9 +76,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized void addPeer(final IpAddress oldIp, final BGPSessionListener peer,
+    public synchronized void addPeer(final IpAddressNoZone oldIp, final BGPSessionListener peer,
             final BGPSessionPreferences preferences) {
-        IpAddress fullIp = getFullIp(oldIp);
+        IpAddressNoZone fullIp = getFullIp(oldIp);
         Preconditions.checkArgument(!this.peers.containsKey(fullIp),
                 "Peer for %s already present", fullIp);
         this.peers.put(fullIp, requireNonNull(peer));
@@ -90,14 +91,14 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
     }
 
-    private static IpAddress getFullIp(final IpAddress ip) {
-        final Ipv6Address addr = ip.getIpv6Address();
-        return addr == null ? ip : new IpAddress(Ipv6Util.getFullForm(addr));
+    private static IpAddressNoZone getFullIp(final IpAddressNoZone ip) {
+        final Ipv6AddressNoZone addr = ip.getIpv6AddressNoZone();
+        return addr == null ? ip : new IpAddressNoZone(Ipv6Util.getFullForm(addr));
     }
 
     @Override
-    public synchronized void removePeer(final IpAddress oldIp) {
-        IpAddress fullIp = getFullIp(oldIp);
+    public synchronized void removePeer(final IpAddressNoZone oldIp) {
+        IpAddressNoZone fullIp = getFullIp(oldIp);
         this.peers.remove(fullIp);
         for (final PeerRegistryListener peerRegistryListener : this.listeners) {
             peerRegistryListener.onPeerRemoved(fullIp);
@@ -105,8 +106,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized void removePeerSession(final IpAddress oldIp) {
-        IpAddress fullIp = getFullIp(oldIp);
+    public synchronized void removePeerSession(final IpAddressNoZone oldIp) {
+        IpAddressNoZone fullIp = getFullIp(oldIp);
         this.sessionIds.remove(fullIp);
         for (final PeerRegistrySessionListener peerRegistrySessionListener : this.sessionListeners) {
             peerRegistrySessionListener.onSessionRemoved(fullIp);
@@ -114,20 +115,20 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public boolean isPeerConfigured(final IpAddress oldIp) {
-        IpAddress fullIp = getFullIp(oldIp);
+    public boolean isPeerConfigured(final IpAddressNoZone oldIp) {
+        IpAddressNoZone fullIp = getFullIp(oldIp);
         return this.peers.containsKey(fullIp);
     }
 
-    private void checkPeerConfigured(final IpAddress ip) {
+    private void checkPeerConfigured(final IpAddressNoZone ip) {
         Preconditions.checkState(isPeerConfigured(ip),
                 "BGP peer with ip: %s not configured, configured peers are: %s",
                 ip, this.peers.keySet());
     }
 
     @Override
-    public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId,
-        final Ipv4Address remoteId, final Open openObj) throws BGPDocumentedException {
+    public synchronized BGPSessionListener getPeer(final IpAddressNoZone ip, final Ipv4AddressNoZone sourceId,
+            final Ipv4AddressNoZone remoteId, final Open openObj) throws BGPDocumentedException {
         requireNonNull(ip);
         requireNonNull(sourceId);
         requireNonNull(remoteId);
@@ -241,7 +242,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
+    public BGPSessionPreferences getPeerPreferences(final IpAddressNoZone ip) {
         requireNonNull(ip);
         checkPeerConfigured(ip);
         return this.peerPreferences.get(ip);
@@ -255,7 +256,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
      * @return IpAddress equivalent to given socket address
      * @throws IllegalArgumentException if submitted socket address is not InetSocketAddress[ipv4 | ipv6]
      */
-    public static IpAddress getIpAddress(final SocketAddress socketAddress) {
+    public static IpAddressNoZone getIpAddress(final SocketAddress socketAddress) {
         requireNonNull(socketAddress);
         Preconditions.checkArgument(socketAddress instanceof InetSocketAddress,
                 "Expecting InetSocketAddress but was %s", socketAddress.getClass());
@@ -264,7 +265,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         Preconditions.checkArgument(inetAddress instanceof Inet4Address
                 || inetAddress instanceof Inet6Address, "Expecting %s or %s but was %s",
                 Inet4Address.class, Inet6Address.class, inetAddress.getClass());
-        return IetfInetUtil.INSTANCE.ipAddressFor(inetAddress);
+        return IetfInetUtil.INSTANCE.ipAddressNoZoneFor(inetAddress);
     }
 
     @Override
@@ -356,7 +357,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @Override
     public synchronized Registration registerPeerRegisterListener(final PeerRegistryListener listener) {
         this.listeners.add(listener);
-        for (final Entry<IpAddress, BGPSessionPreferences> entry : this.peerPreferences.entrySet()) {
+        for (final Entry<IpAddressNoZone, BGPSessionPreferences> entry : this.peerPreferences.entrySet()) {
             listener.onPeerAdded(entry.getKey(), entry.getValue());
         }
         return new AbstractRegistration() {
@@ -370,7 +371,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @Override
     public synchronized Registration registerPeerSessionListener(final PeerRegistrySessionListener listener) {
         this.sessionListeners.add(listener);
-        for (final IpAddress ipAddress : this.sessionIds.keySet()) {
+        for (final IpAddressNoZone ipAddress : this.sessionIds.keySet()) {
             listener.onSessionCreated(ipAddress);
         }
         return new AbstractRegistration() {
@@ -382,7 +383,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public void updatePeerPreferences(final IpAddress address, final BGPSessionPreferences preferences) {
+    public void updatePeerPreferences(final IpAddressNoZone address, final BGPSessionPreferences preferences) {
         if (this.peerPreferences.containsKey(address)) {
             this.peerPreferences.put(address, preferences);
         }

@@ -48,7 +48,7 @@ module bgp-types {
 
     typedef bgp-id {
         description "BGP identifier";
-        type inet:ipv4-address;
+        type inet:ipv4-address-no-zone;
     }
 
     identity address-family {
@@ -81,7 +81,7 @@ module bgp-types {
 
     typedef cluster-identifier {
         reference "http://tools.ietf.org/html/rfc4456#section-8";
-        type inet:ipv4-address;
+        type inet:ipv4-address-no-zone;
     }
 
     typedef short-as-number {
@@ -204,7 +204,7 @@ module bgp-types {
             type inet:as-number;
         }
         leaf network-address {
-            type inet:ipv4-address;
+            type inet:ipv4-address-no-zone;
         }
     }
 
@@ -222,7 +222,7 @@ module bgp-types {
     grouping route-ipv4-extended-community {
         reference "http://tools.ietf.org/html/rfc4360";
         leaf global-administrator {
-            type inet:ipv4-address;
+            type inet:ipv4-address-no-zone;
         }
         leaf local-administrator {
             type uint16;
@@ -273,7 +273,7 @@ module bgp-types {
     grouping inet4-specific-extended-community-common {
         container inet4-specific-extended-community-common {
             leaf global-administrator {
-                type inet:ipv4-address;
+                type inet:ipv4-address-no-zone;
             }
             leaf local-administrator {
                 type binary {
@@ -371,7 +371,7 @@ module bgp-types {
                     uses inet4-specific-extended-community-common;
                     leaf global-administrator {
                         status deprecated;
-                        type inet:ipv4-address;
+                        type inet:ipv4-address-no-zone;
                     }
                     leaf local-administrator {
                         status deprecated;
@@ -465,7 +465,7 @@ module bgp-types {
                 container ipv4-next-hop {
                     reference "http://tools.ietf.org/html/rfc4271#section-5.1.3";
                     leaf global {
-                        type inet:ipv4-address;
+                        type inet:ipv4-address-no-zone;
                         mandatory true;
                     }
                 }
@@ -474,11 +474,11 @@ module bgp-types {
                 container ipv6-next-hop {
                     reference "http://tools.ietf.org/html/rfc4760#section-3";
                     leaf global {
-                        type inet:ipv6-address;
+                        type inet:ipv6-address-no-zone;
                         mandatory true;
                     }
                     leaf link-local {
-                        type inet:ipv6-address;
+                        type inet:ipv6-address-no-zone;
                     }
                 }
             }
@@ -511,7 +511,7 @@ module bgp-types {
 
     grouping orig-route-ip-grouping {
         leaf orig-route-ip {
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
             mandatory true;
         }
     }

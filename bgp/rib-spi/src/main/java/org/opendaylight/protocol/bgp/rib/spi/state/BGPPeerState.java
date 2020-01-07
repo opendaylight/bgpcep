@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi.state;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.RibReference;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 
 /**
  * Representing operational state related to a particular BGP neighbor.
@@ -42,7 +42,7 @@ public interface BGPPeerState extends RibReference {
      *
      * @return neighbor Address
      */
-    @NonNull IpAddress getNeighborAddress();
+    @NonNull IpAddressNoZone getNeighborAddress();
 
     /**
      * Paths installed under Effective-Rib-In for a BGP neighbor.

@@ -14,7 +14,7 @@ import static org.opendaylight.protocol.util.Ipv4Util.writeIpv4Prefix;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 
 public class Ipv4UtilTest {
@@ -24,7 +24,7 @@ public class Ipv4UtilTest {
     public void testWriteIpv4Address() {
         final byte[] result = { 127, 0, 0, 1 };
         final ByteBuf output = Unpooled.buffer(Ipv4Util.IP4_LENGTH);
-        writeIpv4Address(new Ipv4Address("127.0.0.1"), output);
+        writeIpv4Address(new Ipv4AddressNoZone("127.0.0.1"), output);
         assertArrayEquals(result, output.array());
 
         output.clear();
