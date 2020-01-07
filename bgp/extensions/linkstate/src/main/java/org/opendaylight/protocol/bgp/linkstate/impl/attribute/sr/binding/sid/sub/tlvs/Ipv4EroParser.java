@@ -16,7 +16,7 @@ import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsSerializer;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroBackupCase;
@@ -69,7 +69,7 @@ public final class Ipv4EroParser implements BindingSubTlvsParser, BindingSubTlvs
         return new Ipv4EroBackupCaseBuilder().setIpv4EroBackup(builder.build()).build();
     }
 
-    static ByteBuf serializeIpv4EroCase(final Boolean loose, final Ipv4Address address) {
+    static ByteBuf serializeIpv4EroCase(final Boolean loose, final Ipv4AddressNoZone address) {
         final ByteBuf buffer = Unpooled.buffer();
         serializeEroFlags(buffer, loose);
         buffer.writeBytes(Ipv4Util.byteBufForAddress(address));

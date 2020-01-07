@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -22,7 +21,7 @@ import org.junit.runners.Parameterized;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.NlriActivator;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainAs4ExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainDefaultCaseBuilder;
@@ -76,7 +75,7 @@ public class SimpleRouteTargetConstrainNlriRegistryTest {
                     .build()).build();
     private static RouteTargetConstrainChoice RT_IPV4 = new RouteTargetConstrainIpv4RouteCaseBuilder()
             .setRouteTargetIpv4(new RouteTargetIpv4Builder()
-                    .setGlobalAdministrator(new Ipv4Address("12.51.2.5"))
+                    .setGlobalAdministrator(new Ipv4AddressNoZone("12.51.2.5"))
                     .setLocalAdministrator(Uint16.valueOf(5421))
                     .build()).build();
     private static RouteTargetConstrainChoice RT_AS_4_OCT = new RouteTargetConstrainAs4ExtendedCommunityCaseBuilder()

@@ -37,8 +37,8 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.KeepaliveBuilder;
@@ -87,7 +87,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 
 public class PeerTest extends AbstractRIBTestSetup {
 
-    private final IpAddress neighborAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
+    private final IpAddressNoZone neighborAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1"));
     private ApplicationPeer peer;
     private BGPSessionImpl session;
     private Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routes;
@@ -125,8 +125,8 @@ public class PeerTest extends AbstractRIBTestSetup {
         final Ipv4Prefix second = new Ipv4Prefix("127.0.0.1/32");
         final Ipv4Prefix third = new Ipv4Prefix("127.0.0.3/32");
         this.peer = new ApplicationPeer(this.tableRegistry,
-                new ApplicationRibId(this.neighborAddress.getIpv4Address().getValue()),
-                this.neighborAddress.getIpv4Address(), getRib());
+                new ApplicationRibId(this.neighborAddress.getIpv4AddressNoZone().getValue()),
+                this.neighborAddress.getIpv4AddressNoZone(), getRib());
         this.peer.instantiateServiceInstance(null, null);
         final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME)
                 .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
@@ -139,11 +139,11 @@ public class PeerTest extends AbstractRIBTestSetup {
 
     @Test
     public void testClassicPeer() throws Exception {
-        this.classic = AbstractAddPathTest.configurePeer(this.tableRegistry, this.neighborAddress.getIpv4Address(),
-                getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+        this.classic = AbstractAddPathTest.configurePeer(this.tableRegistry,
+            this.neighborAddress.getIpv4AddressNoZone(), getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         this.classic.instantiateServiceInstance();
         this.mockSession();
-        assertEquals(this.neighborAddress.getIpv4Address().getValue(), this.classic.getName());
+        assertEquals(this.neighborAddress.getIpv4AddressNoZone().getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
         Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
         assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=interface org.opendaylight.yang.gen.v1"
@@ -161,7 +161,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+                .setGlobal(new Ipv4AddressNoZone("127.0.0.1")).build()).build();
         final AttributesBuilder ab = new AttributesBuilder();
         ub.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
         try {
@@ -182,7 +182,7 @@ public class PeerTest extends AbstractRIBTestSetup {
 
         //create new peer so that it gets advertized routes from RIB
         final BGPPeer testingPeer = AbstractAddPathTest.configurePeer(this.tableRegistry,
-            this.neighborAddress.getIpv4Address(), getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+            this.neighborAddress.getIpv4AddressNoZone(), getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         testingPeer.instantiateServiceInstance();
         testingPeer.onSessionUp(this.session);
         assertEquals(3, this.routes.size());
@@ -238,7 +238,7 @@ public class PeerTest extends AbstractRIBTestSetup {
                                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                                 .build()).build()).build()).build())).build());
         final Open openObj = new OpenBuilder()
-                .setBgpIdentifier(new Ipv4Address("1.1.1.1"))
+                .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.1"))
                 .setHoldTimer(Uint16.valueOf(50))
                 .setMyAsNumber(Uint16.valueOf(72))
                 .setBgpParameters(params).build();

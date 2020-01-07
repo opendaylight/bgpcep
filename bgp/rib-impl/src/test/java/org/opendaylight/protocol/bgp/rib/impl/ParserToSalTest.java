@@ -44,8 +44,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -66,7 +66,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     private static final TablesKey TABLE_KEY
             = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
-    private final IpAddress localAddress = new IpAddress(new Ipv4Address("127.0.0.1"));
+    private final IpAddressNoZone localAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1"));
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact;
     private AbstractRIBExtensionProviderActivator lsact;
@@ -120,8 +120,8 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
-        final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry, this.localAddress.getIpv4Address(),
-                rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+        final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry,
+            this.localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
@@ -138,8 +138,8 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         rib.instantiateServiceInstance();
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);
-        final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry, this.localAddress.getIpv4Address(),
-                rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+        final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry,
+            this.localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();

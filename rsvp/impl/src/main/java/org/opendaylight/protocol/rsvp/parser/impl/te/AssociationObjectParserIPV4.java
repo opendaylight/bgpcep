@@ -14,6 +14,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 public final class AssociationObjectParserIPV4 extends AbstractAssociationParser {
     @Override
     protected IpAddressNoZone parseAssociationIpAddress(final ByteBuf byteBuf) {
-        return new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(byteBuf));
+        return new IpAddressNoZone(Ipv4Util.addressForByteBuf(byteBuf));
     }
 }

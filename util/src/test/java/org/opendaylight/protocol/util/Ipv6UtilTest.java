@@ -14,7 +14,7 @@ import static org.opendaylight.protocol.util.Ipv6Util.writeIpv6Prefix;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 
 public class Ipv6UtilTest {
@@ -23,7 +23,7 @@ public class Ipv6UtilTest {
         final byte[] result = { 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x01 };
         final ByteBuf output = Unpooled.buffer(Ipv6Util.IPV6_LENGTH);
-        writeIpv6Address(new Ipv6Address("2001::1"), output);
+        writeIpv6Address(new Ipv6AddressNoZone("2001::1"), output);
         assertArrayEquals(result, output.array());
 
         output.clear();

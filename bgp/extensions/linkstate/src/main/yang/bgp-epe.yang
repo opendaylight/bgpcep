@@ -28,7 +28,7 @@ module bgp-epe {
         reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-05#section-4.1";
         leaf bgp-router-id {
             description "BGP Router Identifier.";
-            type inet:ipv4-address;
+            type inet:ipv4-address-no-zone;
         }
 
         leaf member-asn {
