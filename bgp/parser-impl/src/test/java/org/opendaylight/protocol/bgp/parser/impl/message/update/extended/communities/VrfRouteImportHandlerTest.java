@@ -14,7 +14,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.As4GenericSpecExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.extended.community.VrfRouteImportExtendedCommunityCase;
@@ -32,7 +32,7 @@ public class VrfRouteImportHandlerTest {
         final VrfRouteImportExtendedCommunityCase expected = new VrfRouteImportExtendedCommunityCaseBuilder()
                 .setVrfRouteImportExtendedCommunity(new VrfRouteImportExtendedCommunityBuilder()
                         .setInet4SpecificExtendedCommunityCommon(new Inet4SpecificExtendedCommunityCommonBuilder()
-                                .setGlobalAdministrator(new Ipv4Address("12.51.2.5"))
+                                .setGlobalAdministrator(new Ipv4AddressNoZone("12.51.2.5"))
                                 .setLocalAdministrator(new byte[]{21, 45}).build())
                         .build())
                 .build();

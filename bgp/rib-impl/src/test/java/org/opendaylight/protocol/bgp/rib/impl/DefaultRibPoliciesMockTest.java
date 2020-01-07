@@ -22,15 +22,15 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.DefaultPolicyType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.apply.policy.group.apply.policy.Config;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 
 public class DefaultRibPoliciesMockTest extends AbstractStatementRegistryConsumerTest {
     protected static final long AS = 64496;
-    private final Ipv4Address bgpID = new BgpId(new Ipv4Address("127.0.0.1"));
-    private final ClusterIdentifier ci = new ClusterIdentifier(new Ipv4Address("127.0.0.1"));
+    private final BgpId bgpID = new BgpId(new Ipv4AddressNoZone("127.0.0.1"));
+    private final ClusterIdentifier ci = new ClusterIdentifier(new Ipv4AddressNoZone("127.0.0.1"));
     protected BGPRibRoutingPolicy policies;
     protected BGPRibRoutingPolicyFactory policyProvider;
     @Mock

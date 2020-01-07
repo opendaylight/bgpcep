@@ -164,7 +164,7 @@ module odl-bgp-policy {
             }
 
             leaf-list originator-id {
-                type inet:ipv4-address;
+                type inet:ipv4-address-no-zone;
                 description
                 "List of role expressions that are part of the set";
             }
@@ -303,7 +303,7 @@ module odl-bgp-policy {
             description "action to prepend Originator Id if non Originator Id is present. If no Originator Id"
             + "is defined, local Originator Id is used.";
             leaf originator-id {
-                type inet:ipv4-address;
+                type inet:ipv4-address-no-zone;
                 description "Originator Id";
             }
         }

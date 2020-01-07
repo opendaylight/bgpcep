@@ -29,8 +29,9 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
@@ -75,7 +76,8 @@ public class AbstractBGPDispatcherTest {
         this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker, this.registry);
 
         this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final IpAddress clientPeerIp = new IpAddress(new Ipv4Address(this.clientAddress.getAddress().getHostAddress()));
+        final IpAddressNoZone clientPeerIp = new IpAddressNoZone(new Ipv4AddressNoZone(
+            this.clientAddress.getAddress().getHostAddress()));
         this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(this.clientAddress));
         this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker, this.registry);
     }
@@ -109,12 +111,12 @@ public class AbstractBGPDispatcherTest {
         capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BgpId bgpId = new BgpId(new Ipv4Address(socketAddress.getAddress().getHostAddress()));
+        final BgpId bgpId = new BgpId(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(socketAddress.getAddress()));
         return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs);
     }
 
     Channel createServer(final InetSocketAddress serverAddress) {
-        this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())),
+        this.registry.addPeer(new IpAddressNoZone(new Ipv4AddressNoZone(serverAddress.getAddress().getHostAddress())),
                 this.serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(AbstractBGPDispatcherTest.class).info("createServer");
         final ChannelFuture future = this.serverDispatcher.createServer(serverAddress);

@@ -58,8 +58,8 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
@@ -109,7 +109,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final int HOLD_TIMER = 3;
     private static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(30));
-    private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
+    private static final Ipv4AddressNoZone BGP_ID = new Ipv4AddressNoZone("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
     private static final int LOCAL_PORT = 12345;
     private static final String RIB_ID = "1.1.1.2";
@@ -121,7 +121,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.class,
                     UnicastSubsequentAddressFamily.class))).node(ATTRIBUTES_NID)
             .node(UPTODATE_NID);
-    private final IpAddress neighbor = new IpAddress(new Ipv4Address(LOCAL_IP));
+    private final IpAddressNoZone neighbor = new IpAddressNoZone(new Ipv4AddressNoZone(LOCAL_IP));
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
     private Open classicOpen;
@@ -222,7 +222,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
-        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4Address(),
+        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4AddressNoZone(),
             ribImpl, null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
@@ -239,7 +239,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+                .setGlobal(new Ipv4AddressNoZone("127.0.0.1")).build()).build();
         final AttributesBuilder ab = new AttributesBuilder();
         wrongMessage.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
 
@@ -271,7 +271,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         ribImpl.instantiateServiceInstance();
         ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
-        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4Address(),
+        final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4AddressNoZone(),
             ribImpl, null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, this.speakerListener, this.classicOpen,
@@ -288,7 +288,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+                .setGlobal(new Ipv4AddressNoZone("127.0.0.1")).build()).build();
         final AttributesBuilder ab = new AttributesBuilder();
         wrongMessage.setAttributes(ab.setOrigin(origin).setAsPath(asPath).setCNextHop(nextHop).build());
 

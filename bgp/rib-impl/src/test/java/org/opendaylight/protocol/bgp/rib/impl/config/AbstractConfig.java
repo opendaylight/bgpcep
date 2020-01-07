@@ -40,7 +40,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
@@ -130,9 +130,9 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
                 UnicastSubsequentAddressFamily.class)))
                 .when(this.rib).getLocalTables();
 
-        doNothing().when(this.bgpPeerRegistry).addPeer(any(IpAddress.class),
+        doNothing().when(this.bgpPeerRegistry).addPeer(any(IpAddressNoZone.class),
                 any(BGPSessionListener.class), any(BGPSessionPreferences.class));
-        doNothing().when(this.bgpPeerRegistry).removePeer(any(IpAddress.class));
+        doNothing().when(this.bgpPeerRegistry).removePeer(any(IpAddressNoZone.class));
         doReturn("registry").when(this.bgpPeerRegistry).toString();
         doNothing().when(this.listener).close();
         doReturn(this.bgpPeerRegistry).when(this.dispatcher).getBGPPeerRegistry();

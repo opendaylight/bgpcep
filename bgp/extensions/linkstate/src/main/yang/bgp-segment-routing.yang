@@ -53,7 +53,7 @@ module bgp-segment-routing {
             }
             case ipv6-address-case {
                 leaf ipv6-address {
-                    type inet:ipv6-address;
+                    type inet:ipv6-address-no-zone;
                 }
             }
             case sid-case {
@@ -139,7 +139,7 @@ module bgp-segment-routing {
             type netc:iso-system-identifier;
         }
         leaf neighbor-id {
-            type inet:ipv4-address;
+            type inet:ipv4-address-no-zone;
         }
         uses sid-label-index;
     }
@@ -200,7 +200,7 @@ module bgp-segment-routing {
     grouping ero-ipv4-address {
         uses ero-flags;
         leaf address {
-            type inet:ipv4-address;
+            type inet:ipv4-address-no-zone;
             mandatory true;
         }
     }
@@ -208,7 +208,7 @@ module bgp-segment-routing {
     grouping ero-ipv6-address {
         uses ero-flags;
         leaf address {
-            type inet:ipv6-address;
+            type inet:ipv6-address-no-zone;
             mandatory true;
         }
     }

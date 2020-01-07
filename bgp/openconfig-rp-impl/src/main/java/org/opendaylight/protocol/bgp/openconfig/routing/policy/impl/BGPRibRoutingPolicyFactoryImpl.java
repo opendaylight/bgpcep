@@ -15,7 +15,7 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRouting
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.apply.policy.group.apply.policy.Config;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 
 public final class BGPRibRoutingPolicyFactoryImpl implements BGPRibRoutingPolicyFactory {
@@ -30,7 +30,7 @@ public final class BGPRibRoutingPolicyFactoryImpl implements BGPRibRoutingPolicy
     }
 
     @Override
-    public BGPRibRoutingPolicy buildBGPRibPolicy(final long localAs, final Ipv4Address bgpId,
+    public BGPRibRoutingPolicy buildBGPRibPolicy(final long localAs, final Ipv4AddressNoZone bgpId,
             final ClusterIdentifier clusterId, final Config policyConfig) {
         requireNonNull(policyConfig);
         return new BGPRibPolicyImpl(this.databroker, this.statementRegistryConsumer,
