@@ -24,6 +24,7 @@ import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
@@ -220,7 +221,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         node1Builder.setPathComputationClient(new PathComputationClientBuilder()
                 .setStateSync(PccSyncState.Synchronized)
                 .setReportedLsp(Lists.newArrayList(reportedLps))
-                .setIpAddress(new IpAddress(new Ipv4Address(ipv4Address)))
+                .setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ipv4Address)))
                 .build());
         nodeBuilder.addAugmentation(Node1.class, node1Builder.build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();

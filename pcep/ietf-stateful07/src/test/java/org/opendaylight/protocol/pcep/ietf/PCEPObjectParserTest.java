@@ -212,11 +212,11 @@ public class PCEPObjectParserTest {
         final LspIdentifiers tlv3 = new LspIdentifiersBuilder()
                 .setAddressFamily(new Ipv4CaseBuilder()
                     .setIpv4(new Ipv4Builder()
-                        .setIpv4TunnelSenderAddress(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+                        .setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(
                             new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })))
-                        .setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.noZoneAddressForByteBuf(
+                        .setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForByteBuf(
                             Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))))
-                        .setIpv4TunnelEndpointAddress(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+                        .setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(
                             new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })))
                         .build())
                     .build())
@@ -225,7 +225,7 @@ public class PCEPObjectParserTest {
         final RsvpErrorSpec tlv4 = new RsvpErrorSpecBuilder()
                 .setErrorType(new RsvpCaseBuilder()
                     .setRsvpError(new RsvpErrorBuilder()
-                        .setNode(new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(Unpooled.wrappedBuffer(
+                        .setNode(new IpAddressNoZone(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(
                             new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))))
                         .setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820
                             .ErrorSpec.Flags(false, true))

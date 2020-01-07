@@ -41,7 +41,7 @@ import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Update;
@@ -195,7 +195,7 @@ public class BGPParserTest {
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
+                new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("10.0.0.2")).build()).build();
 
         final List<Communities> comms = new ArrayList<>();
         comms.add((Communities) CommunityUtil.NO_EXPORT);
@@ -318,9 +318,9 @@ public class BGPParserTest {
         asPath.add(new SegmentsBuilder().setAsSet(asSet).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(30)))
-                .setNetworkAddress(new Ipv4Address("10.0.0.9")).build();
+                .setNetworkAddress(new Ipv4AddressNoZone("10.0.0.9")).build();
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
+                new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("10.0.0.9")).build()).build();
 
         // check path attributes
         final Attributes attrs = message.getAttributes();
@@ -415,14 +415,14 @@ public class BGPParserTest {
 
         // attributes
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
+                new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("3.3.3.3")).build()).build();
 
         final List<ExtendedCommunities> comms = new ArrayList<>();
         comms.add(new ExtendedCommunitiesBuilder()
             .setTransitive(true)
             .setExtendedCommunity(new RouteTargetIpv4CaseBuilder()
                 .setRouteTargetIpv4(new RouteTargetIpv4Builder()
-                    .setGlobalAdministrator(new Ipv4Address("192.168.1.0"))
+                    .setGlobalAdministrator(new Ipv4AddressNoZone("192.168.1.0"))
                     .setLocalAdministrator(Uint16.valueOf(4660))
                     .build())
                 .build())
@@ -651,7 +651,7 @@ public class BGPParserTest {
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
+                new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("10.0.0.2")).build()).build();
 
         final List<Communities> comms = new ArrayList<>();
         comms.add((Communities) CommunityUtil.NO_EXPORT);

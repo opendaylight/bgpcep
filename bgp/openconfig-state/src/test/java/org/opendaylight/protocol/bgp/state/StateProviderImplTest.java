@@ -109,7 +109,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timeticks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.BgpNeighborStateAugmentation;
@@ -165,7 +167,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private final AsNumber as = new AsNumber(Uint32.valueOf(72));
     private final BgpId bgpId = new BgpId("127.0.0.1");
-    private final IpAddress neighborAddress = new IpAddress(new Ipv4Address("127.0.0.2"));
+    private final IpAddressNoZone neighborAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.2"));
     private final List<Class<? extends BgpCapability>> supportedCap = Arrays.asList(ASN32.class, ROUTEREFRESH.class,
             MPBGP.class, ADDPATHS.class, GRACEFULRESTART.class);
     @Mock
@@ -361,7 +363,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
             Assert.assertNotNull(neighbors);
             assertEquals(peerGroupExpected, bgpRib.getPeerGroups().getPeerGroup().get(0));
             final Neighbor neighborResult = neighbors.getNeighbor().get(0);
-            assertEquals(this.neighborAddress, neighborResult.getNeighborAddress());
+            assertEquals(new IpAddress(neighborAddress.getIpv4AddressNoZone()), neighborResult.getNeighborAddress());
             assertEquals(expectedAfiSafis, neighborResult.getAfiSafis());
             assertEquals(expectedErrorHandling, neighborResult.getErrorHandling());
             assertEquals(expectedGracefulRestart, neighborResult.getGracefulRestart());
@@ -542,7 +544,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .addAugmentation(NeighborTransportStateAugmentation.class,
                         new NeighborTransportStateAugmentationBuilder().setLocalPort(this.localPort)
                                 .setRemotePort(this.remotePort)
-                                .setRemoteAddress(this.neighborAddress).build())
+                                .setRemoteAddress(new IpAddress(neighborAddress.getIpv4AddressNoZone())).build())
                 .build()).build();
         return transport;
     }

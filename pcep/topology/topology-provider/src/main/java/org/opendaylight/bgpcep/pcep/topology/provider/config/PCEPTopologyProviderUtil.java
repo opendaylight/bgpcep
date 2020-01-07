@@ -17,7 +17,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
@@ -54,8 +54,9 @@ final class PCEPTopologyProviderUtil {
         return ret;
     }
 
-    static InetSocketAddress getInetSocketAddress(final @NonNull IpAddress address, final @NonNull PortNumber port) {
-        return new InetSocketAddress(IetfInetUtil.INSTANCE.inetAddressFor(address), port.getValue().toJava());
+    static InetSocketAddress getInetSocketAddress(final @NonNull IpAddressNoZone address,
+            final @NonNull PortNumber port) {
+        return new InetSocketAddress(IetfInetUtil.INSTANCE.inetAddressForNoZone(address), port.getValue().toJava());
     }
 
     static boolean filterPcepTopologies(final @Nullable TopologyTypes topologyTypes) {

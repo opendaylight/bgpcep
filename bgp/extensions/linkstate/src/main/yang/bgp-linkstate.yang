@@ -174,12 +174,12 @@ module bgp-linkstate {
 
     typedef ipv4-interface-identifier {
         reference "http://tools.ietf.org/html/rfc5305#section-3.2";
-        type inet:ipv4-address;
+        type inet:ipv4-address-no-zone;
     }
 
     typedef ipv6-interface-identifier {
         reference "http://tools.ietf.org/html/rfc6119#section-4.2";
-        type inet:ipv6-address;
+        type inet:ipv6-address-no-zone;
     }
 
     typedef ospf-interface-identifier {
@@ -363,21 +363,21 @@ module bgp-linkstate {
                 choice address-family {
                     case ipv4-case {
                         leaf ipv4-tunnel-sender-address {
-                            type inet:ipv4-address;
+                            type inet:ipv4-address-no-zone;
                             mandatory true;
                         }
                         leaf ipv4-tunnel-endpoint-address {
-                            type inet:ipv4-address;
+                            type inet:ipv4-address-no-zone;
                             mandatory true;
                         }
                     }
                     case ipv6-case {
                         leaf ipv6-tunnel-sender-address {
-                            type inet:ipv6-address;
+                            type inet:ipv6-address-no-zone;
                             mandatory true;
                         }
                         leaf ipv6-tunnel-endpoint-address {
-                            type inet:ipv6-address;
+                            type inet:ipv6-address-no-zone;
                             mandatory true;
                         }
                     }
@@ -448,12 +448,12 @@ module bgp-linkstate {
 
     typedef ipv4-router-identifier {
         reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.4";
-        type inet:ipv4-address;
+        type inet:ipv4-address-no-zone;
     }
 
     typedef ipv6-router-identifier {
         reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.4";
-        type inet:ipv6-address;
+        type inet:ipv6-address-no-zone;
     }
 
     grouping node-state {
@@ -721,7 +721,7 @@ module bgp-linkstate {
             type netc:igp-metric;
         }
         leaf ospf-forwarding-address {
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
         }
         container sr-prefix {
             uses bgp-sr:prefix-sid-tlv;

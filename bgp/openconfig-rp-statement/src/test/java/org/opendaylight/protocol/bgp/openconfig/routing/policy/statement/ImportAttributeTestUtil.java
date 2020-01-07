@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import java.util.Collections;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPathBuilder;
@@ -48,7 +48,7 @@ public final class ImportAttributeTestUtil {
 
         // originator pref
         attBuilder.setOriginatorId(new OriginatorIdBuilder()
-                .setOriginator(new Ipv4Address("41.41.41.41")).build());
+                .setOriginator(new Ipv4AddressNoZone("41.41.41.41")).build());
 
         // origin pref
         attBuilder.setOrigin(createOrigin());
@@ -79,6 +79,6 @@ public final class ImportAttributeTestUtil {
      */
     private static Ipv4NextHopCase createNexHop() {
         return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(new Ipv4Address("199.20.160.41")).build()).build();
+                .setGlobal(new Ipv4AddressNoZone("199.20.160.41")).build()).build();
     }
 }

@@ -18,7 +18,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
@@ -27,6 +26,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -67,14 +67,20 @@ public final class BGPOperationalStateUtils {
         } else {
             if (neighbor != null) {
                 globalBgp.getNeighbors().getNeighbor().stream()
-                        .filter(neig -> Ipv4Util.toStringIP(neig.key().getNeighborAddress()).matches(neighbor))
+                        .filter(neig -> toString(neig.key().getNeighborAddress()).matches(neighbor))
                         .findFirst()
                         .ifPresent(neighbor1 -> displayNeighborOperationalState(neighbor, neighbor1, stream));
             } else {
                 displayPeerOperationalState(globalBgp.getPeerGroups().getPeerGroup(), stream);
             }
         }
+    }
 
+    private static String toString(final IpAddress addr) {
+        if (addr.getIpv4Address() != null) {
+            return addr.getIpv4Address().getValue();
+        }
+        return addr.getIpv6Address().getValue();
     }
 
     private static Bgp readGlobalFromDataStore(final DataBroker dataBroker, final String ribId) {

@@ -22,8 +22,8 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.AdministrativeGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.Ipv4RouterIdentifier;
@@ -290,13 +290,13 @@ public final class LinkAttributesParser {
         final LinkAttributes linkAttributes = linkAttributesCase.getLinkAttributes();
         LOG.trace("Started serializing Link Attributes");
         ifPresentApply(linkAttributes.getLocalIpv4RouterId(), value -> TlvUtil.writeTLV(TlvUtil.LOCAL_IPV4_ROUTER_ID,
-            Ipv4Util.byteBufForAddress((Ipv4Address) value), output));
+            Ipv4Util.byteBufForAddress((Ipv4AddressNoZone) value), output));
         ifPresentApply(linkAttributes.getLocalIpv6RouterId(), value -> TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID,
-            Ipv6Util.byteBufForAddress((Ipv6Address) value), output));
+            Ipv6Util.byteBufForAddress((Ipv6AddressNoZone) value), output));
         ifPresentApply(linkAttributes.getRemoteIpv4RouterId(), value -> TlvUtil.writeTLV(REMOTE_IPV4_ROUTER_ID,
-            Ipv4Util.byteBufForAddress((Ipv4Address) value), output));
+            Ipv4Util.byteBufForAddress((Ipv4AddressNoZone) value), output));
         ifPresentApply(linkAttributes.getRemoteIpv6RouterId(), value -> TlvUtil.writeTLV(REMOTE_IPV6_ROUTER_ID,
-            Ipv6Util.byteBufForAddress((Ipv6Address) value), output));
+            Ipv6Util.byteBufForAddress((Ipv6AddressNoZone) value), output));
         ifPresentApply(linkAttributes.getAdminGroup(), value -> TlvUtil.writeTLV(ADMIN_GROUP,
             Unpooled.copyInt(((AdministrativeGroup) value).getValue().intValue()), output));
         ifPresentApply(linkAttributes.getMaxLinkBandwidth(), value -> TlvUtil.writeTLV(MAX_BANDWIDTH,

@@ -343,7 +343,7 @@ public class LinkstateAttributeParserTest {
             (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x10, (byte) 0x30, (byte) 0x50, (byte) 0x70
         }, ls.getExtendedTags().get(0).getValue());
         assertEquals(10, ls.getPrefixMetric().getValue().intValue());
-        assertEquals("10.25.2.27", ls.getOspfForwardingAddress().getIpv4Address().getValue());
+        assertEquals("10.25.2.27", ls.getOspfForwardingAddress().getIpv4AddressNoZone().getValue());
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
@@ -375,7 +375,7 @@ public class LinkstateAttributeParserTest {
 
         final AssociationObject associationObject = teLspAttributes.getAssociationObject();
         assertEquals(AssociationType.Recovery, associationObject.getAssociationType());
-        final IpAddressNoZone ipv4 = new IpAddressNoZone(Ipv4Util.noZoneAddressForByteBuf(Unpooled.copiedBuffer(
+        final IpAddressNoZone ipv4 = new IpAddressNoZone(Ipv4Util.addressForByteBuf(Unpooled.copiedBuffer(
             new byte[]{0x01, 0x02, 0x03, 0x04})));
         assertEquals(ipv4, associationObject.getIpAddress());
         final short associationId = 2;

@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.AsPathBuilder;
@@ -27,7 +27,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 public final class ExportAttributeTestUtil {
     public static final Uint32 REMOTE_AS = Uint32.valueOf(8);
     public static final AsNumber LOCAL_AS = new AsNumber(Uint32.valueOf(65));
-    public static final Ipv4Address IPV4 = new Ipv4Address("1.2.3.4");
+    public static final Ipv4AddressNoZone IPV4 = new Ipv4AddressNoZone("1.2.3.4");
     public static final ClusterIdentifier CLUSTER = new ClusterIdentifier(IPV4);
 
     private ExportAttributeTestUtil() {
@@ -56,14 +56,14 @@ public final class ExportAttributeTestUtil {
     }
 
     private static ClusterId createClusterId() {
-        final ClusterIdentifier cluster1 = new ClusterIdentifier(new Ipv4Address("1.1.1.1"));
-        final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
+        final ClusterIdentifier cluster1 = new ClusterIdentifier(new Ipv4AddressNoZone("1.1.1.1"));
+        final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4AddressNoZone("1.1.1.2"));
         return new ClusterIdBuilder().setCluster(Arrays.asList(CLUSTER, cluster1, cluster2)).build();
     }
 
     private static ClusterId createClusterIdInput() {
-        final ClusterIdentifier cluster1 = new ClusterIdentifier(new Ipv4Address("1.1.1.1"));
-        final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
+        final ClusterIdentifier cluster1 = new ClusterIdentifier(new Ipv4AddressNoZone("1.1.1.1"));
+        final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4AddressNoZone("1.1.1.2"));
         return new ClusterIdBuilder().setCluster(Arrays.asList(cluster1, cluster2)).build();
     }
 

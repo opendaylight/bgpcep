@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -14,8 +13,8 @@ import static org.junit.Assert.assertEquals;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.multicast.group.opaque.grouping.multicast.group.CGAddressCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.SPmsiADCase;
@@ -42,10 +41,10 @@ public final class SPmsiADHandlerTest {
     private final SPmsiADCase expected = new SPmsiADCaseBuilder()
             .setSPmsiAD(new SPmsiADBuilder()
                     .setRouteDistinguisher(new RouteDistinguisher(new RdIpv4("1.2.3.4:258")))
-                    .setMulticastSource(new IpAddress(new Ipv4Address("10.0.0.10")))
+                    .setMulticastSource(new IpAddressNoZone(new Ipv4AddressNoZone("10.0.0.10")))
                     .setMulticastGroup(new CGAddressCaseBuilder()
-                            .setCGAddress(new IpAddress(new Ipv4Address("12.0.0.12"))).build())
-                    .setOrigRouteIp(new IpAddress(new Ipv4Address("1.0.0.1")))
+                            .setCGAddress(new IpAddressNoZone(new Ipv4AddressNoZone("12.0.0.12"))).build())
+                    .setOrigRouteIp(new IpAddressNoZone(new Ipv4AddressNoZone("1.0.0.1")))
                     .build()).build();
     private final SPmsiADHandler handler = new SPmsiADHandler();
 

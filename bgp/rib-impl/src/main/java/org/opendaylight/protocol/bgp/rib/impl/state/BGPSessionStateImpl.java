@@ -21,7 +21,7 @@ import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.bgp.parameters.OptionalCapabilities;
@@ -38,7 +38,7 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     private static final PortNumber NON_DEFINED_PORT = new PortNumber(Uint16.ZERO);
     private final Stopwatch sessionStopwatch;
     private int holdTimerValue;
-    private IpAddress remoteAddress;
+    private IpAddressNoZone remoteAddress;
     private PortNumber remotePort = NON_DEFINED_PORT;
     private PortNumber localPort = NON_DEFINED_PORT;
     @GuardedBy("this")
@@ -157,7 +157,7 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     }
 
     @Override
-    public synchronized IpAddress getRemoteAddress() {
+    public synchronized IpAddressNoZone getRemoteAddress() {
         return this.remoteAddress;
     }
 

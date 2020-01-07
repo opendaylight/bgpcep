@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertEquals;
@@ -17,7 +16,7 @@ import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.object.EndpointsObj;
@@ -39,8 +38,8 @@ public class PCCEndPointIpv4ObjectParserTest {
     public void testParseObject() throws PCEPDeserializerException {
         final ObjectHeader header = new ObjectHeaderImpl(false, false);
         final ByteBuf bytes = Unpooled.buffer();
-        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(IP1)));
-        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(IP2)));
+        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4AddressNoZone(IP1)));
+        bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4AddressNoZone(IP2)));
         final EndpointsObj output = (EndpointsObj) new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
 
         assertEquals(IP1, ((Ipv4Case) output.getAddressFamily()).getIpv4().getSourceIpv4Address().getValue());

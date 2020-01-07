@@ -70,10 +70,10 @@ public class PCEPP2MPEndPointsIpv4ObjectParser extends CommonObjectParser {
         builder.setProcessingRule(header.isProcessingRule());
         final P2mpIpv4Builder p2mpIpv4Builder = new P2mpIpv4Builder();
         p2mpIpv4Builder.setP2mpLeaves(P2mpLeaves.forValue(bytes.readInt()));
-        p2mpIpv4Builder.setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
+        p2mpIpv4Builder.setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes));
         List<Ipv4AddressNoZone> dest = new ArrayList<>();
         while (bytes.isReadable()) {
-            dest.add(Ipv4Util.noZoneAddressForByteBuf(bytes));
+            dest.add(Ipv4Util.addressForByteBuf(bytes));
         }
         p2mpIpv4Builder.setDestinationIpv4Address(dest);
         builder.setAddressFamily(new P2mpIpv4CaseBuilder().setP2mpIpv4(p2mpIpv4Builder.build()).build());

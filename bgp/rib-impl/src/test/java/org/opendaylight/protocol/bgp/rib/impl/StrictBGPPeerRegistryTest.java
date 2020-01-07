@@ -25,8 +25,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistrySessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
@@ -42,16 +42,16 @@ public class StrictBGPPeerRegistryTest {
 
     private static final AsNumber LOCAL_AS = new AsNumber(Uint32.valueOf(1234));
     private static final AsNumber REMOTE_AS = new AsNumber(Uint32.valueOf(1235));
-    private static final Ipv4Address FROM = new Ipv4Address("0.0.0.1");
-    private static final IpAddress REMOTE_IP = new IpAddress(FROM);
-    private static final Ipv4Address TO = new Ipv4Address("255.255.255.255");
+    private static final Ipv4AddressNoZone FROM = new Ipv4AddressNoZone("0.0.0.1");
+    private static final IpAddressNoZone REMOTE_IP = new IpAddressNoZone(FROM);
+    private static final Ipv4AddressNoZone TO = new Ipv4AddressNoZone("255.255.255.255");
 
     private final BGPSessionListener peer1 = getMockSession();
     private final Open classicOpen = createOpen(TO, LOCAL_AS);
     private StrictBGPPeerRegistry peerRegistry;
     private BGPSessionPreferences mockPreferences;
 
-    private static Open createOpen(final Ipv4Address bgpId, final AsNumber as) {
+    private static Open createOpen(final Ipv4AddressNoZone bgpId, final AsNumber as) {
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder()
             .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
                 .setCParameters(new CParametersBuilder()
@@ -75,16 +75,16 @@ public class StrictBGPPeerRegistryTest {
 
     private static PeerRegistrySessionListener getMockSessionListener() {
         final PeerRegistrySessionListener mock = Mockito.mock(PeerRegistrySessionListener.class);
-        Mockito.doNothing().when(mock).onSessionCreated(Mockito.any(IpAddress.class));
-        Mockito.doNothing().when(mock).onSessionRemoved(Mockito.any(IpAddress.class));
+        Mockito.doNothing().when(mock).onSessionCreated(Mockito.any(IpAddressNoZone.class));
+        Mockito.doNothing().when(mock).onSessionRemoved(Mockito.any(IpAddressNoZone.class));
         return mock;
     }
 
     @Test
     public void testIpAddressConstruction() throws BGPDocumentedException {
         final InetSocketAddress adr = new InetSocketAddress("127.0.0.1", 179);
-        final IpAddress ipAdr = StrictBGPPeerRegistry.getIpAddress(adr);
-        assertEquals("127.0.0.1", ipAdr.getIpv4Address().getValue());
+        final IpAddressNoZone ipAdr = StrictBGPPeerRegistry.getIpAddress(adr);
+        assertEquals("127.0.0.1", ipAdr.getIpv4AddressNoZone().getValue());
     }
 
     @Test
@@ -112,8 +112,8 @@ public class StrictBGPPeerRegistryTest {
 
     @Test
     public void testPeerConnectionSuccessfull() throws Exception {
-        final Ipv4Address to2 = new Ipv4Address("255.255.255.254");
-        final IpAddress remoteIp2 = new IpAddress(to2);
+        final Ipv4AddressNoZone to2 = new Ipv4AddressNoZone("255.255.255.254");
+        final IpAddressNoZone remoteIp2 = new IpAddressNoZone(to2);
 
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
         final BGPSessionListener session2 = getMockSession();
@@ -130,9 +130,9 @@ public class StrictBGPPeerRegistryTest {
 
     @Test
     public void testDropSecondPeer() throws BGPDocumentedException {
-        final Ipv4Address higher = new Ipv4Address("192.168.200.200");
-        final Ipv4Address lower = new Ipv4Address("10.10.10.10");
-        final IpAddress remoteIp = new IpAddress(lower);
+        final Ipv4AddressNoZone higher = new Ipv4AddressNoZone("192.168.200.200");
+        final Ipv4AddressNoZone lower = new Ipv4AddressNoZone("10.10.10.10");
+        final IpAddressNoZone remoteIp = new IpAddressNoZone(lower);
 
         this.peerRegistry.addPeer(remoteIp, this.peer1, this.mockPreferences);
 
@@ -148,9 +148,9 @@ public class StrictBGPPeerRegistryTest {
 
     @Test
     public void testDropFirstPeer() throws Exception {
-        final Ipv4Address higher = new Ipv4Address("123.123.123.123");
-        final Ipv4Address lower = new Ipv4Address("123.123.123.122");
-        final IpAddress remoteIp = new IpAddress(lower);
+        final Ipv4AddressNoZone higher = new Ipv4AddressNoZone("123.123.123.123");
+        final Ipv4AddressNoZone lower = new Ipv4AddressNoZone("123.123.123.122");
+        final IpAddressNoZone remoteIp = new IpAddressNoZone(lower);
 
         this.peerRegistry.addPeer(remoteIp, this.peer1, this.mockPreferences);
 

@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.parser.object.end.points.PCEPEndPointsIpv4ObjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -23,8 +23,7 @@ public class PCCEndPointIpv4ObjectParser extends PCEPEndPointsIpv4ObjectParser {
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
         if (bytes.readableBytes() != Ipv4Util.IP4_LENGTH * 2) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
@@ -32,8 +31,8 @@ public class PCCEndPointIpv4ObjectParser extends PCEPEndPointsIpv4ObjectParser {
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         final Ipv4Builder b = new Ipv4Builder();
-        b.setSourceIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
-        b.setDestinationIpv4Address(Ipv4Util.noZoneAddressForByteBuf(bytes));
+        b.setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes));
+        b.setDestinationIpv4Address(Ipv4Util.addressForByteBuf(bytes));
         builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(b.build()).build());
         return builder.build();
     }

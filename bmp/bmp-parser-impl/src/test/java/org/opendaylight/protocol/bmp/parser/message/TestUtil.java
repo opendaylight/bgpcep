@@ -12,8 +12,8 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter32;
@@ -112,12 +112,12 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class TestUtil {
-    public static final Ipv4Address IPV4_ADDRESS_10 = new Ipv4Address("10.10.10.10");
-    private static final Ipv4Address IPV4_ADDRESS_20 = new Ipv4Address("20.20.20.20");
-    private static final Ipv4Address IPV4_ADDRESS_30 = new Ipv4Address("30.30.30.30");
-    private static final Ipv4Address IPV4_ADDRESS_40 = new Ipv4Address("40.40.40.40");
-    private static final Ipv4Address IPV4_ADDRESS_12 = new Ipv4Address("12.12.12.12");
-    private static final Ipv4Address IPV4_ADDRESS_100 = new Ipv4Address("100.100.100.100");
+    public static final Ipv4AddressNoZone IPV4_ADDRESS_10 = new Ipv4AddressNoZone("10.10.10.10");
+    private static final Ipv4AddressNoZone IPV4_ADDRESS_20 = new Ipv4AddressNoZone("20.20.20.20");
+    private static final Ipv4AddressNoZone IPV4_ADDRESS_30 = new Ipv4AddressNoZone("30.30.30.30");
+    private static final Ipv4AddressNoZone IPV4_ADDRESS_40 = new Ipv4AddressNoZone("40.40.40.40");
+    private static final Ipv4AddressNoZone IPV4_ADDRESS_12 = new Ipv4AddressNoZone("12.12.12.12");
+    private static final Ipv4AddressNoZone IPV4_ADDRESS_100 = new Ipv4AddressNoZone("100.100.100.100");
     public static final AsNumber PEER_AS = new AsNumber(Uint32.valueOf(72L));
     public static final PortNumber PEER_LOCAL_PORT = new PortNumber(Uint16.valueOf(220));
     public static final PortNumber PEER_REMOTE_PORT = new PortNumber(Uint16.valueOf(5000));
@@ -150,11 +150,11 @@ public final class TestUtil {
         return terminatMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 
-    private static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
+    private static PeerHeader createPeerHeader(final Ipv4AddressNoZone bgpId, final AdjRibInType ribType) {
         final PeerHeaderBuilder peerHeaderBuilder = new PeerHeaderBuilder()
-            .setAddress(new IpAddress(IPV4_ADDRESS_10))
+            .setAddress(new IpAddressNoZone(IPV4_ADDRESS_10))
             .setAs(PEER_AS)
-            .setBgpId(new Ipv4Address(bgpId))
+            .setBgpId(bgpId)
             .setAdjRibInType(ribType)
             .setTimestampMicro(new Timestamp(Uint32.TEN))
             .setTimestampSec(new Timestamp(Uint32.valueOf(5)))
@@ -163,7 +163,7 @@ public final class TestUtil {
         return peerHeaderBuilder.build();
     }
 
-    private static PeerHeader createPeerHeader(final Ipv4Address bgpId) {
+    private static PeerHeader createPeerHeader(final Ipv4AddressNoZone bgpId) {
         return createPeerHeader(bgpId, AdjRibInType.PrePolicy);
     }
 
@@ -171,21 +171,21 @@ public final class TestUtil {
         return createPeerHeader(IPV4_ADDRESS_10);
     }
 
-    public static PeerUpNotification createPeerUpNotification(final Ipv4Address bgpId, final boolean multiprotocol) {
-        final PeerUpNotificationBuilder peerUpNotifBuilder = new PeerUpNotificationBuilder()
-            .setLocalAddress(new IpAddress(IPV4_ADDRESS_10))
-            .setLocalPort(PEER_LOCAL_PORT)
-            .setPeerHeader(createPeerHeader(bgpId))
-            .setReceivedOpen(new ReceivedOpenBuilder(createOpen(multiprotocol)).build())
-            .setRemotePort(PEER_REMOTE_PORT)
-            .setSentOpen((SentOpen) createOpen(multiprotocol))
-            .setInformation(new InformationBuilder().setStringInformation(
-                ImmutableList.<StringInformation>builder().add(
-                    new StringInformationBuilder().setStringTlv(
-                        new StringTlvBuilder().setStringInfo("aaaa")
-            .build()).build()).build()).build());
-
-        return peerUpNotifBuilder.build();
+    public static PeerUpNotification createPeerUpNotification(final Ipv4AddressNoZone bgpId,
+            final boolean multiprotocol) {
+        return new PeerUpNotificationBuilder()
+                .setLocalAddress(new IpAddressNoZone(IPV4_ADDRESS_10))
+                .setLocalPort(PEER_LOCAL_PORT)
+                .setPeerHeader(createPeerHeader(bgpId))
+                .setReceivedOpen(new ReceivedOpenBuilder(createOpen(multiprotocol)).build())
+                .setRemotePort(PEER_REMOTE_PORT)
+                .setSentOpen((SentOpen) createOpen(multiprotocol))
+                .setInformation(new InformationBuilder().setStringInformation(
+                    ImmutableList.of(new StringInformationBuilder()
+                        .setStringTlv(new StringTlvBuilder().setStringInfo("aaaa").build())
+                        .build()))
+                    .build())
+                .build();
     }
 
     static PeerUpNotification createPeerUpNotification() {
@@ -200,17 +200,17 @@ public final class TestUtil {
         return peerDownNotifBuilder.build();
     }
 
-    public static PeerDownNotification createPeerDownNotification(final Ipv4Address bgpId) {
+    public static PeerDownNotification createPeerDownNotification(final Ipv4AddressNoZone bgpId) {
         final NotificationBuilder notifBuilder = new NotificationBuilder()
             .setNotification(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message
                     .rev180329.peer.down.data.notification.NotificationBuilder()
             .setErrorCode(Uint8.ONE)
             .setErrorSubcode(Uint8.ONE).build());
-        final PeerDownNotificationBuilder peerDownNotifBuilder = new PeerDownNotificationBuilder()
+        return new PeerDownNotificationBuilder()
             .setData(notifBuilder.build())
             .setLocalSystemClosed(true)
-            .setPeerHeader(TestUtil.createPeerHeader(bgpId));
-        return peerDownNotifBuilder.build();
+            .setPeerHeader(TestUtil.createPeerHeader(bgpId))
+            .build();
     }
 
     static PeerDownNotification createPeerDownNotification() {
@@ -220,7 +220,7 @@ public final class TestUtil {
     private static List<BgpParameters> createBgpParameters(final boolean multiprotocol) {
         final BgpParametersBuilder bgpParamBuilder = new BgpParametersBuilder()
             .setOptionalCapabilities(createOptionalCapabilities(multiprotocol));
-        final List<BgpParameters> bgpParameters = Lists.newArrayList();
+        final List<BgpParameters> bgpParameters = new ArrayList<>();
         bgpParameters.add(bgpParamBuilder.build());
 
         return bgpParameters;
@@ -242,7 +242,7 @@ public final class TestUtil {
             .setCParameters(paramsBuilder
                     .setAs4BytesCapability(new As4BytesCapabilityBuilder()
                             .setAsNumber(new AsNumber(Uint32.valueOf(80))).build()).build());
-        final List<OptionalCapabilities> optCapabilities = Lists.newArrayList();
+        final List<OptionalCapabilities> optCapabilities = new ArrayList<>();
         optCapabilities.add(optCapabilitiesBuilder.build());
         optCapabilities.add(optCapabilitiesBuilder2.build());
 
@@ -251,7 +251,7 @@ public final class TestUtil {
 
     private static OpenMessage createOpen(final boolean mutiprotocol) {
         final SentOpenBuilder sentOpenBuilder = new SentOpenBuilder()
-            .setBgpIdentifier(new Ipv4Address(IPV4_ADDRESS_20))
+            .setBgpIdentifier(IPV4_ADDRESS_20)
             .setHoldTimer(Uint16.valueOf(1000))
             .setMyAsNumber(Uint16.valueOf(72))
             .setBgpParameters(createBgpParameters(mutiprotocol));
@@ -264,14 +264,14 @@ public final class TestUtil {
     }
 
     public static RouteMonitoringMessage createRouteMonitMsg(final boolean withNormalizedIpv4Prefixes,
-            final Ipv4Address bgpId, final AdjRibInType ribType) {
-        final RouteMonitoringMessageBuilder routeMonitMsgBuilder = new RouteMonitoringMessageBuilder()
+            final Ipv4AddressNoZone bgpId, final AdjRibInType ribType) {
+        return new RouteMonitoringMessageBuilder()
             .setPeerHeader(createPeerHeader(bgpId, ribType))
-            .setUpdate(createUpdate(withNormalizedIpv4Prefixes));
-        return routeMonitMsgBuilder.build();
+            .setUpdate(createUpdate(withNormalizedIpv4Prefixes))
+            .build();
     }
 
-    public static RouteMirroringMessage createRouteMirrorMsg(final Ipv4Address bgpId) {
+    public static RouteMirroringMessage createRouteMirrorMsg(final Ipv4AddressNoZone bgpId) {
         final RouteMirroringMessageBuilder routeMirrorMsgBuilder = new RouteMirroringMessageBuilder()
             .setPeerHeader(createPeerHeader(bgpId));
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.mirror
@@ -299,13 +299,13 @@ public final class TestUtil {
     private static Attributes createAttributes() {
         final List<AsNumber> asSequences = Lists.newArrayList(new AsNumber(Uint32.valueOf(72)),
             new AsNumber(Uint32.valueOf(82)), new AsNumber(Uint32.valueOf(92)));
-        final List<Segments> segments = Lists.newArrayList();
+        final List<Segments> segments = new ArrayList<>();
         final SegmentsBuilder segmentsBuild = new SegmentsBuilder();
         segmentsBuild.setAsSequence(asSequences).build();
 
         final AttributesBuilder attribBuilder = new AttributesBuilder()
             .setAggregator(new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(72)))
-                    .setNetworkAddress(new Ipv4Address(IPV4_ADDRESS_20)).build())
+                    .setNetworkAddress(IPV4_ADDRESS_20).build())
             .setAigp(new AigpBuilder().setAigpTlv(new AigpTlvBuilder()
                     .setMetric(new AccumulatedIgpMetric(Uint64.ONE)).build()).build())
             .setAsPath(new AsPathBuilder().setSegments(segments).build())
@@ -324,7 +324,7 @@ public final class TestUtil {
     }
 
     private static List<Communities> createCommunities() {
-        final List<Communities> communities = Lists.newArrayList();
+        final List<Communities> communities = new ArrayList<>();
         final CommunitiesBuilder commBuilder = new CommunitiesBuilder()
             .setAsNumber(new AsNumber(Uint32.valueOf(65535)))
             .setSemantics(Uint16.valueOf(65381));
@@ -360,7 +360,7 @@ public final class TestUtil {
         return Lists.newArrayList(w1, w2, w3);
     }
 
-    public static StatsReportsMessage createStatsReportMsg(final Ipv4Address bgpId) {
+    public static StatsReportsMessage createStatsReportMsg(final Ipv4AddressNoZone bgpId) {
         final StatsReportsMessageBuilder statsReportMsgBuilder = new StatsReportsMessageBuilder();
         statsReportMsgBuilder.setPeerHeader(TestUtil.createPeerHeader(bgpId));
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.stat
@@ -405,7 +405,7 @@ public final class TestUtil {
     }
 
 
-    public static RouteMonitoringMessage createRouteMonMsgWithEndOfRibMarker(final Ipv4Address bgpId,
+    public static RouteMonitoringMessage createRouteMonMsgWithEndOfRibMarker(final Ipv4AddressNoZone bgpId,
             final AdjRibInType ribType) {
         return new RouteMonitoringMessageBuilder().setPeerHeader(createPeerHeader(bgpId, ribType))
                 .setUpdate(createEndOfRibMarker()).build();
@@ -414,5 +414,4 @@ public final class TestUtil {
     private static Update createEndOfRibMarker() {
         return new UpdateBuilder().build();
     }
-
 }

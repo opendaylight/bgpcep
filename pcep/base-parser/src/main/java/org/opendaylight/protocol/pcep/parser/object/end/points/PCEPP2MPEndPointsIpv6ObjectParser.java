@@ -69,16 +69,16 @@ public class PCEPP2MPEndPointsIpv6ObjectParser extends CommonObjectParser {
 
         final P2mpIpv6Builder p2mpIpv6Builder = new P2mpIpv6Builder()
                 .setP2mpLeaves(P2mpLeaves.forValue(bytes.readInt()))
-                .setSourceIpv6Address(Ipv6Util.noZoneAddressForByteBuf(bytes));
+                .setSourceIpv6Address(Ipv6Util.addressForByteBuf(bytes));
         List<Ipv6AddressNoZone> dest = new ArrayList<>();
         while (bytes.isReadable()) {
-            dest.add(Ipv6Util.noZoneAddressForByteBuf(bytes));
+            dest.add(Ipv6Util.addressForByteBuf(bytes));
         }
         p2mpIpv6Builder.setDestinationIpv6Address(dest);
-        final EndpointsObjBuilder builder = new EndpointsObjBuilder()
+        return new EndpointsObjBuilder()
                 .setIgnore(header.isIgnore())
                 .setProcessingRule(header.isProcessingRule())
-                .setAddressFamily(new P2mpIpv6CaseBuilder().setP2mpIpv6(p2mpIpv6Builder.build()).build());
-        return builder.build();
+                .setAddressFamily(new P2mpIpv6CaseBuilder().setP2mpIpv6(p2mpIpv6Builder.build()).build())
+                .build();
     }
 }

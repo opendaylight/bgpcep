@@ -41,9 +41,9 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev171025.pcep.config.SessionConfig;
@@ -147,7 +147,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
         @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
-        doReturn(new IpAddress(new Ipv4Address(this.testAddress))).when(this.sessionConfig).getListenAddress();
+        doReturn(new IpAddressNoZone(new Ipv4AddressNoZone(this.testAddress))).when(this.sessionConfig)
+            .getListenAddress();
         doReturn(new PortNumber(Uint16.valueOf(4189))).when(this.sessionConfig).getListenPort();
         doReturn(RPC_TIMEOUT).when(this.sessionConfig).getRpcTimeout();
         doReturn(TEST_TOPOLOGY_ID).when(this.topology).getTopologyId();

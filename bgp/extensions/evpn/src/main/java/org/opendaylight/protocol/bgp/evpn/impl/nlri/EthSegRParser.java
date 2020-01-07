@@ -5,17 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.extractOrigRouteIp;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEsiTypeRegistry;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.es.route.EsRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev180329.es.route.EsRouteBuilder;
@@ -33,12 +32,11 @@ final class EthSegRParser extends AbstractEvpnNlri {
 
     @Override
     public EvpnChoice parseEvpn(final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH
-                        || buffer.readableBytes() == CONTENT_LENGTH2,
+        checkArgument(buffer.readableBytes() == CONTENT_LENGTH || buffer.readableBytes() == CONTENT_LENGTH2,
             "Wrong length of array of bytes. Passed: %s ;", buffer);
 
         final Esi esi = SimpleEsiTypeRegistry.getInstance().parseEsi(buffer.readSlice(ESI_SIZE));
-        final IpAddress ip = IpAddressUtil.addressForByteBuf(buffer);
+        final IpAddressNoZone ip = IpAddressUtil.addressForByteBuf(buffer);
 
         final EsRouteBuilder builder = new EsRouteBuilder().setEsi(esi).setOrigRouteIp(ip);
         return new EsRouteCaseBuilder().setEsRoute(builder.build()).build();
@@ -51,13 +49,13 @@ final class EthSegRParser extends AbstractEvpnNlri {
 
     @Override
     public ByteBuf serializeBody(final EvpnChoice evpnInput) {
-        Preconditions.checkArgument(evpnInput instanceof EsRouteCase,
-                "Unknown evpn instance. Passed %s. Needed EsRouteCase.", evpnInput.getClass());
+        checkArgument(evpnInput instanceof EsRouteCase, "Unknown evpn instance. Passed %s. Needed EsRouteCase.",
+            evpnInput.getClass());
         final EsRoute evpn = ((EsRouteCase) evpnInput).getEsRoute();
         final ByteBuf body = Unpooled.buffer();
         SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
         final ByteBuf orig = IpAddressUtil.bytesFor(evpn.getOrigRouteIp());
-        Preconditions.checkArgument(orig.readableBytes() > 0);
+        checkArgument(orig.readableBytes() > 0);
         body.writeBytes(orig);
         return body;
     }

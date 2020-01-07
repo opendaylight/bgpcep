@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
@@ -38,7 +38,7 @@ public class VpnIpv6NextHopTest {
         System.arraycopy(Inet6Address.getByName(TEST_IPV6).getAddress(), 0, nextHop,
                 RouteDistinguisherUtil.RD_LENGTH, Ipv6Util.IPV6_LENGTH);
         final CNextHop hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
-                .setGlobal(new Ipv6Address(TEST_IPV6)).build()).build();
+                .setGlobal(new Ipv6AddressNoZone(TEST_IPV6)).build()).build();
 
         HANDLER.serializeNextHop(hop, buffer);
         assertArrayEquals(nextHop, ByteArray.readAllBytes(buffer));
