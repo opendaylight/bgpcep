@@ -28,7 +28,7 @@ module odl-bgp-peer-acceptor-config {
 
         leaf binding-address {
             description "IP address to bind to";
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
             default "0.0.0.0";
         }
 

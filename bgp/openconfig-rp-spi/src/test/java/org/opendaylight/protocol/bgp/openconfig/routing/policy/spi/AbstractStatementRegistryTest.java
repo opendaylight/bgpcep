@@ -20,12 +20,12 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.PolicyDefinition;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.PolicyDefinitionKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.ClusterIdentifier;
 
 public class AbstractStatementRegistryTest extends AbstractOpenconfigRoutingPolicyLoaderTest {
     public static final long LOCAL_AS = 8;
-    public static final Ipv4Address IPV4 = new Ipv4Address("1.2.3.4");
+    public static final Ipv4AddressNoZone IPV4 = new Ipv4AddressNoZone("1.2.3.4");
     public static final ClusterIdentifier CLUSTER = new ClusterIdentifier(IPV4);
     protected StatementRegistry statementRegistry;
 

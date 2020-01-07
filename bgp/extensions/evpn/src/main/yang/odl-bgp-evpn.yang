@@ -194,7 +194,7 @@ module odl-bgp-evpn {
                      can be auto-generated or configured by the operator";
 
                     leaf router-id {
-                        type inet:ipv4-address;
+                        type inet:ipv4-address-no-zone;
                         mandatory true;
                     }
                     uses local-discriminator;
@@ -241,7 +241,7 @@ module odl-bgp-evpn {
                 mandatory true;
             }
             leaf ip-address {
-                type inet:ip-address;
+                type inet:ip-address-no-zone;
             }
             leaf mpls-label1 {
                 type netc:mpls-label;
