@@ -45,10 +45,12 @@ public final class SrPrefixAttributesParser {
 
     public static SrPrefix parseSrPrefix(final ByteBuf buffer, final ProtocolId protocol) {
         final SrPrefixBuilder builder = new SrPrefixBuilder();
-        builder.setFlags(parsePrefixFlags(BitArray.valueOf(buffer, FLAGS_SIZE), protocol));
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        builder.setFlags(parsePrefixFlags(flags, protocol));
         builder.setAlgorithm(Algorithm.forValue(buffer.readUnsignedByte()));
         buffer.skipBytes(RESERVED_PREFIX);
-        builder.setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndex(Size.forValue(buffer.readableBytes()), buffer));
+        builder.setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndexByFlags(Size.forValue(buffer.readableBytes()),
+                buffer, flags.get(VALUE), flags.get(LOCAL)));
         return builder.build();
     }
 
