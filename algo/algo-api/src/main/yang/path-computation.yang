@@ -1,0 +1,177 @@
+module path-computation {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:path:computation";
+    prefix "algo";
+
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import graph { prefix gr; revision-date 2019-11-25; }
+
+    organization "Orange";
+    contact "Olivier Dugeon <olivier.dugeon@orange.com>";
+
+    description
+        "This module contains the model of Computed Path
+         used in various Path Computation algorithms.
+
+        Copyright (c)2020 Orange. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2020-01-20" {
+        description
+             "Initial revision.";
+        reference "";
+    }
+
+    typedef computation-status {
+        type enumeration {
+            enum idle {
+                value 0;
+            }
+            enum on-going {
+                value 1;
+            }
+            enum completed {
+                value 2;
+            }
+            enum failed {
+                value 3;
+            }
+            enum active {
+                value 4;
+            }
+        }
+    }
+
+    grouping path-constraints {
+        leaf metric {
+            type uint32;
+        }
+        leaf te-metric {
+            type uint32;
+        }
+        leaf delay {
+            type gr:delay;
+        }
+        leaf jitter {
+            type gr:delay;
+        }
+        leaf loss {
+            type gr:loss;
+        }
+        leaf admin-group {
+            type uint32;
+        }
+        leaf address-family {
+            type enumeration {
+                enum ipv4 {
+                    value 0;
+                }
+                enum ipv6 {
+                    value 1;
+                }
+                enum sr-ipv4 {
+                    value 2;
+                }
+                enum sr-ipv6 {
+                    value 3;
+                }
+            }
+            default 0;
+        }
+        leaf class-type {
+            type uint8 {
+                range "0..7";
+            }
+        }
+        leaf bandwidth {
+            description "Requested bandwidth for this constrainted path. Units in bits/second";
+            type decimal64 {
+                fraction-digits 2;
+            }
+        }
+    }
+
+    grouping path-descriptions {
+        list path-description {
+            leaf ipv4 {
+                when "path-constraints/address-family = 0";
+                type inet:ipv4-address;
+            }
+            leaf ipv6 {
+                when "path-constraints/address-family = 1";
+                type inet:ipv6-address;
+            }
+            leaf label {
+                when "path-constraints/address-family = 2 or path-constraints/address-family = 3";
+                type netc:mpls-label;
+            }
+        }
+    }
+
+    container constrained-path {
+        uses path-constraints;
+        leaf source {
+            type uint64;
+        }
+        leaf destination {
+            type uint64;
+        }
+        uses path-descriptions;
+        leaf status {
+            type computation-status;
+        }
+    }
+
+    rpc get-constrained-path {
+        input {
+            leaf graph-name {
+                type string;
+                mandatory true;
+            }
+            leaf source {
+                type uint64;
+            }
+            leaf destination {
+                type uint64;
+            }
+            container constraints {
+                uses path-constraints;
+            }
+            leaf algorithm {
+                type enumeration {
+                    enum spf {
+                        value 0;
+                    }
+                    enum cspf {
+                        value 1;
+                    }
+                    enum samcra {
+                        value 2;
+                    }
+                }
+                default 0;
+            }
+        }
+        output {
+            uses path-descriptions;
+            leaf status {
+                type computation-status;
+            }
+            leaf computed-metric {
+                type uint32;
+            }
+            leaf computed-te-metric {
+                type uint32;
+            }
+            leaf computed-delay {
+                type gr:delay;
+            }
+        }
+    }
+}
+
