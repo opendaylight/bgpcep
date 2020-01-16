@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "de98fc79_f48e0260",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T10:21:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3022b52_44edf00a",
+      "range": {
+        "startLine": 22,
+        "startChar": 30,
+        "endLine": 22,
+        "endChar": 31
+      },
+      "revId": "c02b4a39408f1a91707e9a08035600c78b80fe32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4da9a66e_fb7693f6",
         "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "11576659_952b0026",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T10:21:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4da9a66e_fb7693f6",
+      "range": {
+        "startLine": 28,
+        "startChar": 27,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "c02b4a39408f1a91707e9a08035600c78b80fe32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f21e572_533f0be1",
         "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedVertex.java",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "c02b4a39408f1a91707e9a08035600c78b80fe32",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc2077e2_cc8c5947",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedVertex.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T10:21:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f21e572_533f0be1",
+      "range": {
+        "startLine": 26,
+        "startChar": 31,
+        "endLine": 26,
+        "endChar": 32
+      },
+      "revId": "c02b4a39408f1a91707e9a08035600c78b80fe32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
