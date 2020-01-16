@@ -1,0 +1,208 @@
+module path-computation {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:path:computation";
+    prefix "algo";
+
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import graph { prefix gr; revision-date 2019-11-25; }
+
+    organization "Orange";
+    contact "Olivier Dugeon <olivier.dugeon@orange.com>";
+
+    description
+        "This module contains the model of Computed Path
+         used in various Path Computation algorithms.
+
+        Copyright (c)2020 Orange. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2020-01-20" {
+        description
+             "Initial revision.";
+        reference "";
+    }
+
+    typedef computation-status {
+        description
+            "Status of the Path Computation Algorithm regaring current
+             computed path";
+        type enumeration {
+            enum idle {
+                description "Path Computeation Algorithm has not yet started";
+                value 0;
+            }
+            enum in-progress {
+                description
+                    "Path Computation has started but no path has been found";
+                value 1;
+            }
+            enum active {
+                description
+                    "A valid path has been found,
+                     but it is perhaps not the best one";
+                value 2;
+            }
+            enum completed {
+                description
+                    "Path Computation Algorithm has completed
+                     and a valid computed path found";
+                value 3;
+            }
+            enum failed {
+                value 4;
+            }
+        }
+    }
+
+    typedef algorithm-type {
+        description "Various type of Path Computation Algorithms";
+        type enumeration {
+            enum spf {
+                value 0;
+            }
+            enum cspf {
+                value 1;
+            }
+            enum samcra {
+                value 2;
+            }
+        }
+        default "spf";
+    }
+
+    grouping path-constraints {
+        description "Set of Constraints for Path Computation";
+        leaf metric {
+            description "Maximum end to end IGP metric";
+            type uint32;
+        }
+        leaf te-metric {
+            description "Maximum end to end Traffic Engineering metric";
+            type uint32;
+        }
+        leaf delay {
+            description "Maximum end to end delay";
+            units "micro-seconds";
+            type gr:delay;
+        }
+        leaf jitter {
+            description "Maximum delay variation for selected edges";
+            units "micro-seconds";
+            type gr:delay;
+        }
+        leaf loss {
+            description "Maximum loss for selected edges";
+            units "0.000003%";
+            type gr:loss;
+        }
+        leaf admin-group {
+            description "Admin group to select edges";
+            type uint32;
+        }
+        leaf address-family {
+            description "Address family of the computed path";
+            type enumeration {
+                enum ipv4 {
+                    value 0;
+                }
+                enum ipv6 {
+                    value 1;
+                }
+                enum sr-ipv4 {
+                    value 2;
+                }
+                enum sr-ipv6 {
+                    value 3;
+                }
+            }
+            default "ipv4";
+        }
+        leaf class-type {
+            description "Class Type for bandwidth constraints";
+            type uint8 {
+                range "0..7";
+            }
+        }
+        leaf bandwidth {
+            description "Requested bandwidth for the computed path";
+            units "bytes/second";
+            type gr:decimal-bandwidth;
+        }
+    }
+
+    grouping path-descriptions {
+        description
+            "Computed Path description as a list of IPv4, IPv6 or MPLS Label";
+        list path-description {
+            leaf ipv4 {
+                when "path-constraints/address-family = 0";
+                type inet:ipv4-address;
+            }
+            leaf ipv6 {
+                when "path-constraints/address-family = 1";
+                type inet:ipv6-address;
+            }
+            leaf label {
+                when "path-constraints/address-family = 2 or path-constraints/address-family = 3";
+                type netc:mpls-label;
+            }
+        }
+    }
+
+    container constrained-path {
+        description "Computed Path as result of Path Computation Algorithms";
+        uses path-constraints;
+        leaf source {
+            type uint64;
+        }
+        leaf destination {
+            type uint64;
+        }
+        uses path-descriptions;
+        leaf status {
+            type computation-status;
+        }
+    }
+
+    rpc get-constrained-path {
+        input {
+            leaf graph-name {
+                type string;
+                mandatory true;
+            }
+            leaf source {
+                type uint64;
+            }
+            leaf destination {
+                type uint64;
+            }
+            container constraints {
+                uses path-constraints;
+            }
+            leaf algorithm {
+                type algorithm-type;
+            }
+        }
+        output {
+            uses path-descriptions;
+            leaf status {
+                type computation-status;
+            }
+            leaf computed-metric {
+                type uint32;
+            }
+            leaf computed-te-metric {
+                type uint32;
+            }
+            leaf computed-delay {
+                type gr:delay;
+            }
+        }
+    }
+}
+
