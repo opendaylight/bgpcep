@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "9bb15f95_7092d0c0",
+        "filename": "docs/graph/graph-user-guide-manage-graph.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-16T13:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc5a51e2_5ef90eb8",
+      "range": {
+        "startLine": 16,
+        "startChar": 65,
+        "endLine": 16,
+        "endChar": 66
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "393d40fc_378cf268",
         "filename": "features/graph/pom.xml",
         "patchSetId": 1
@@ -131,6 +155,30 @@
     },
     {
       "key": {
+        "uuid": "4463e3f6_ff65e157",
+        "filename": "features/graph/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-16T13:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "393d40fc_378cf268",
+      "range": {
+        "startLine": 14,
+        "startChar": 17,
+        "endLine": 14,
+        "endChar": 22
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95d8bdaa_a8f255d0",
         "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
         "patchSetId": 1
@@ -142,6 +190,30 @@
       "writtenOn": "2020-01-16T09:01:26Z",
       "side": 1,
       "message": "2019 or 2020 ?",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea14dd8c_3d74c8a1",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-16T13:11:32Z",
+      "side": 1,
+      "message": "Work start in 2019. So I keep the starting date.",
+      "parentUuid": "95d8bdaa_a8f255d0",
       "range": {
         "startLine": 2,
         "startChar": 17,
@@ -186,6 +258,30 @@
         "id": 6731
       },
       "writtenOn": "2020-01-16T09:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "735260fe_c746475e",
+      "range": {
+        "startLine": 95,
+        "startChar": 9,
+        "endLine": 95,
+        "endChar": 21
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64680f7e_2f138128",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-16T13:11:32Z",
       "side": 1,
       "message": "Done",
       "parentUuid": "735260fe_c746475e",
@@ -248,6 +344,30 @@
     },
     {
       "key": {
+        "uuid": "6b34af46_baddeb69",
+        "filename": "graph/graph-artifacts/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-16T13:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2aca625f_b9ef2566",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 22
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f33471b0_6162f456",
         "filename": "graph/pom.xml",
         "patchSetId": 1
@@ -280,6 +400,30 @@
         "id": 6731
       },
       "writtenOn": "2020-01-16T09:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f33471b0_6162f456",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 22
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac327cd0_6bc0c0e1",
+        "filename": "graph/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-16T13:11:32Z",
       "side": 1,
       "message": "Done",
       "parentUuid": "f33471b0_6162f456",
