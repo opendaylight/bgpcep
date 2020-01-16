@@ -40,9 +40,9 @@
         <module>util</module>
 
         <!-- Subsystems -->
+        <module>graph</module>
         <module>bgp</module>
         <module>bmp</module>
-        <module>graph</module>
         <module>algo</module>
         <module>pcep</module>
         <module>programming</module>
