@@ -153,6 +153,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(RPC_TIMEOUT).when(this.sessionConfig).getRpcTimeout();
         doReturn(TEST_TOPOLOGY_ID).when(this.topology).getTopologyId();
         doReturn(Collections.emptyList()).when(this.topology).getNode();
+        doReturn(null).when(this.topologyDependencies).getPceServerProvider();
 
         final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(this.sessionConfig, this.topology);
         this.manager = new ServerSessionManager(this.topologyDependencies, listenerFactory, configDep);
