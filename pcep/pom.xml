@@ -32,6 +32,7 @@
         <module>ietf-stateful07</module>
         <module>ietf-p2mp-te-lsp</module>
         <module>testtool</module>
+        <module>server</module>
         <module>topology</module>
         <module>segment-routing</module>
         <module>pcc-mock</module>
