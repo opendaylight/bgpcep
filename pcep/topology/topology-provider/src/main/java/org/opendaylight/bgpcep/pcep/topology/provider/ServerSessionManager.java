@@ -275,4 +275,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     PCEPDispatcherDependencies getPCEPDispatcherDependencies() {
         return this.pcepDispatcherDependencies;
     }
+
+    PCEPTopologyProviderDependencies getPCEPTopologyProviderDependencies() {
+        return this.dependenciesProvider;
+    }
 }
