@@ -46,6 +46,30 @@
       "revId": "add91d25f32576753710a40592329a78d237884e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1b23cd0_b240de4d",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-16T13:11:32Z",
+      "side": 1,
+      "message": "\u003ccode\u003e is preferable to keep asci art as this directive used fixed font",
+      "parentUuid": "5eb04a8e_1e087ec3",
+      "range": {
+        "startLine": 28,
+        "startChar": 5,
+        "endLine": 29,
+        "endChar": 0
+      },
+      "revId": "add91d25f32576753710a40592329a78d237884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
