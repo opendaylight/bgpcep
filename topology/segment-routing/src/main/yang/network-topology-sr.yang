@@ -3,6 +3,7 @@ module network-topology-sr {
     namespace "urn:opendaylight:params:xml:ns:yang:topology:sr";
     prefix "sr";
 
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
 
     organization "Cisco Systems, Inc.";
@@ -59,11 +60,15 @@ module network-topology-sr {
                         }
                     }
                 }
-                case node-case {
-                    container node {
-                        leaf node {
-                            type nt:node-ref;
+                case prefix-case {
+                    container prefix {
+                        leaf prefix {
+                            type inet:ip-prefix;
                             mandatory true;
+                        }
+                        leaf node-sid {
+                            type boolean;
+                            default false;
                         }
                     }
                 }

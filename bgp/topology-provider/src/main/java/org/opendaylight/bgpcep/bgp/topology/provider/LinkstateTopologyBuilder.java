@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.ObjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.attribute.SrAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.object.type.PrefixCase;
@@ -48,17 +49,32 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.linkstate.routes.linkstate.routes.linkstate.route.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.SidLabelIndex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.LocalLabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.bgp.linkstate.topology.type.BgpLinkstateTopologyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.SegmentId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.sr.node.attributes.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.sr.node.attributes.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.sr.node.attributes.SegmentsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.sr.node.attributes.segments.segment.specification.AdjacencyCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.sr.node.attributes.segments.segment.specification.PrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.sr.node.attributes.segments.segment.specification.adjacency._case.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.topology.sr.type.TopologySrBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
@@ -92,9 +108,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
-    private static final TopologyTypes LINKSTATE_TOPOLOGY_TYPE = new TopologyTypesBuilder()
+    @VisibleForTesting
+    static final TopologyTypes LINKSTATE_TOPOLOGY_TYPE = new TopologyTypesBuilder()
             .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder()
                     .setBgpLinkstateTopology(new BgpLinkstateTopologyBuilder().build()).build()).build();
+    @SuppressWarnings("checkstyle:LineLength")
+    @VisibleForTesting
+    static final TopologyTypes SR_AWARE_LINKSTATE_TOPOLOGY_TYPE =
+            new TopologyTypesBuilder(LINKSTATE_TOPOLOGY_TYPE).addAugmentation(
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.TopologyTypes1.class,
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.TopologyTypes1Builder()
+                            .setTopologySr(new TopologySrBuilder().build()).build())
+                    .build();
 
     private static final String UNHANDLED_OBJECT_CLASS = "Unhandled object class {}";
 
@@ -124,7 +149,8 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
                 removed = this.local.remove(id);
             }
             if (!removed) {
-                LOG.warn("Removed non-reference link {} from TP {} isRemote {}", this.tp.getTpId(), id, isRemote);
+                LOG.warn("Removed non-reference link {} from TP {} isRemote {}", this.tp.getTpId().getValue(),
+                        id.getValue(), isRemote);
             }
 
             return this.local.isEmpty() && this.remote.isEmpty();
@@ -141,6 +167,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         private boolean advertized = false;
         private IgpNodeAttributesBuilder inab;
         private NodeBuilder nb;
+        private Long srgbFirstValue = null;
+        private Integer srgbRangeSize = null;
+        private List<Segments> segments = new ArrayList<>();
+        private Map<IpPrefix, SrPrefix> srPrefixes = new HashMap<>();
+        private Map<IpPrefix, Segments> prefixSegments = new HashMap<>();
+        private Map<LinkId, Segments> adjSegments = new HashMap<>();
 
         NodeHolder(final NodeId id) {
             this.inab = new IgpNodeAttributesBuilder();
@@ -153,6 +185,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
          * @param trans data modification transaction which to use
          * @return True if the node has been purged, false otherwise.
          */
+        @SuppressWarnings("checkstyle:LineLength")
         boolean syncState(final WriteTransaction trans) {
             final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(this.nb.key());
 
@@ -164,12 +197,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
             if (!this.advertized) {
                 if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
-                    LOG.trace("Removing unadvertized unused node {}", this.nb.getNodeId());
+                    LOG.trace("Removing unadvertized unused node {}", this.nb.getNodeId().getValue());
                     return true;
                 }
 
-                LOG.trace("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(),
-                        this.prefixes.size());
+                LOG.trace("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId().getValue(),
+                        this.tps.size(), this.prefixes.size());
             }
 
             // Re-generate termination points
@@ -179,8 +212,15 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             this.inab.setPrefix(Lists.newArrayList(this.prefixes.values()));
 
             // Write the node out
-            final Node n = this.nb.addAugmentation(Node1.class, new Node1Builder()
-                    .setIgpNodeAttributes(this.inab.build()).build()).build();
+            if (!this.segments.isEmpty()) {
+                this.nb.addAugmentation(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1Builder()
+                                .setSegments(this.segments).build());
+            }
+            final Node n = this.nb
+                    .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(this.inab.build()).build())
+                    .build();
             trans.put(LogicalDatastoreType.OPERATIONAL, nid, n);
             LOG.trace("Created node {} at {}", n, nid);
             return false;
@@ -192,11 +232,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             if (!this.advertized) {
                 if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
                     trans.delete(LogicalDatastoreType.OPERATIONAL, nid);
-                    LOG.trace("Removing unadvertized unused node {}", this.nb.getNodeId());
+                    LOG.trace("Removing unadvertized unused node {}", this.nb.getNodeId().getValue());
                     return true;
                 }
 
-                LOG.trace("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(),
+                LOG.trace("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId().getValue(),
                         this.tps.size(), this.prefixes.size());
             }
             return false;
@@ -207,10 +247,10 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             if (h != null) {
                 if (h.removeLink(link, isRemote)) {
                     this.tps.remove(tp);
-                    LOG.trace("Removed TP {}", tp);
+                    LOG.trace("Removed TP {}", tp.getValue());
                 }
             } else {
-                LOG.warn("Removed non-present TP {} by link {}", tp, link);
+                LOG.warn("Removed non-present TP {} by link {}", tp.getValue(), link.getValue());
             }
         }
 
@@ -231,23 +271,170 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             this.inab = new IgpNodeAttributesBuilder();
             this.nb = new NodeBuilder().withKey(this.nb.key()).setNodeId(this.nb.getNodeId());
             this.advertized = false;
-            LOG.debug("Node {} is unadvertized", this.nb.getNodeId());
+            LOG.debug("Node {} is unadvertized", this.nb.getNodeId().getValue());
         }
 
         void advertized(final NodeBuilder nodeBuilder, final IgpNodeAttributesBuilder igpNodeAttBuilder) {
             this.nb = requireNonNull(nodeBuilder);
             this.inab = requireNonNull(igpNodeAttBuilder);
             this.advertized = true;
-            LOG.debug("Node {} is advertized", nodeBuilder.getNodeId());
+            LOG.debug("Node {} is advertized", nodeBuilder.getNodeId().getValue());
         }
 
         NodeId getNodeId() {
             return this.nb.getNodeId();
         }
+
+        void addSrgb(final WriteTransaction trans, final boolean updateNode, final Long srgbFirstVal,
+                final Integer srgbRangeSz) {
+            this.srgbFirstValue = srgbFirstVal;
+            this.srgbRangeSize = srgbRangeSz;
+            this.srPrefixes.entrySet().forEach(entry -> {
+                final IpPrefix ippfx = entry.getKey();
+                final SrPrefix srPrefix = entry.getValue();
+                final Long sidIndex = getSegmentIdValue(srPrefix.getSidLabelIndex());
+                if (sidIndex >= this.srgbRangeSize) {
+                    LOG.warn("Prefix SID index {} is outside the SRGB range of {} for node {}", sidIndex,
+                            this.srgbRangeSize, this.nb.getNodeId().getValue());
+                    return;
+                }
+                final Long prefixSid = this.srgbFirstValue + sidIndex;
+                final boolean isNodeSid = isAssociatedWithNodeSid(ippfx, srPrefix);
+                addPrefixSid(trans, updateNode, ippfx, prefixSid, isNodeSid);
+            });
+        }
+
+        void removeSrgb(final WriteTransaction trans) {
+            this.srgbFirstValue = null;
+            this.srgbRangeSize = null;
+            this.srPrefixes.keySet().forEach(ippfx -> removePrefixSid(trans, false, ippfx));
+        }
+
+        void addSrPrefix(final WriteTransaction trans, final boolean updateNode, final IpPrefix ippfx,
+                final SrPrefix srPrefix) {
+            this.srPrefixes.put(ippfx, srPrefix);
+            if (this.srgbFirstValue != null && this.srgbRangeSize != null) {
+                final Long sidIndex = getSegmentIdValue(srPrefix.getSidLabelIndex());
+                if (sidIndex >= this.srgbRangeSize) {
+                    LOG.warn("Prefix SID index {} is outside the SRGB range of {} for node {}", sidIndex,
+                            this.srgbRangeSize, this.nb.getNodeId().getValue());
+                    return;
+                }
+                final Long prefixSid = this.srgbFirstValue + sidIndex;
+                final boolean isNodeSid = isAssociatedWithNodeSid(ippfx, srPrefix);
+                addPrefixSid(trans, updateNode, ippfx, prefixSid, isNodeSid);
+            }
+        }
+
+        void removeSrPrefix(final WriteTransaction trans, final IpPrefix ippfx) {
+            if (!this.srPrefixes.containsKey(ippfx)) {
+                return;
+            }
+            removePrefixSid(trans, true, ippfx);
+            this.srPrefixes.remove(ippfx);
+        }
+
+        @SuppressWarnings("checkstyle:LineLength")
+        void addPrefixSid(final WriteTransaction trans, final boolean updateNode, final IpPrefix ippfx,
+                final Long prefixSid, final boolean isNodeSid) {
+            LOG.trace("Adding prefix SID {} for prefix {} on node {}", prefixSid, ippfx.stringValue(),
+                    this.nb.getNodeId().getValue());
+            final SegmentId segmentId = new SegmentId(Uint32.valueOf(prefixSid));
+            final SegmentsBuilder sb = new SegmentsBuilder();
+            sb.setSegmentId(segmentId);
+            sb.withKey(new SegmentsKey(segmentId));
+            sb.setSegmentSpecification(new PrefixCaseBuilder().setPrefix(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.sr.node.attributes.segments.segment.specification.prefix._case.PrefixBuilder()
+                            .setPrefix(ippfx).setNodeSid(isNodeSid ? isNodeSid : null).build())
+                    .build());
+            final Segments prefixSegment = sb.build();
+            this.prefixSegments.put(ippfx, prefixSegment);
+            this.segments.add(prefixSegment);
+            addSegment(trans, updateNode, prefixSegment);
+        }
+
+        void removePrefixSid(final WriteTransaction trans, final boolean updateNode, final IpPrefix ippfx) {
+            if (!this.prefixSegments.containsKey(ippfx)) {
+                return;
+            }
+            LOG.trace("Removing prefix SID for prefix {} on node {}", ippfx.stringValue(),
+                    this.nb.getNodeId().getValue());
+            final Segments prefixSegment = this.prefixSegments.remove(ippfx);
+            this.segments.remove(prefixSegment);
+            removeSegment(trans, updateNode, prefixSegment);
+        }
+
+        void addAdjacencySid(final WriteTransaction trans, final boolean updateNode, final LinkId linkId,
+                final Long adjSid) {
+            LOG.trace("Adding adjacency SID {} for link {} on node {}", adjSid, linkId.getValue(),
+                    this.nb.getNodeId().getValue());
+            final SegmentId segmentId = new SegmentId(Uint32.valueOf(adjSid));
+            final SegmentsBuilder sb = new SegmentsBuilder();
+            sb.setSegmentId(segmentId);
+            sb.withKey(new SegmentsKey(segmentId));
+            sb.setSegmentSpecification(new AdjacencyCaseBuilder()
+                    .setAdjacency(new AdjacencyBuilder().setAdjacency(linkId).build()).build());
+            final Segments adjSegment = sb.build();
+            this.adjSegments.put(linkId, adjSegment);
+            this.segments.add(adjSegment);
+            addSegment(trans, updateNode, adjSegment);
+        }
+
+        void removeAdjacencySid(final WriteTransaction trans, final LinkId linkId) {
+            if (!this.adjSegments.containsKey(linkId)) {
+                return;
+            }
+            LOG.trace("Removing adjacency SID for link {} on node {}", linkId.getValue(),
+                    this.nb.getNodeId().getValue());
+            final Segments adjSegment = this.adjSegments.remove(linkId);
+            this.segments.remove(adjSegment);
+            removeSegment(trans, true, adjSegment);
+        }
+
+        @SuppressWarnings("checkstyle:LineLength")
+        void addSegment(final WriteTransaction trans, final boolean updateNode, final Segments segment) {
+            if (updateNode) {
+                final InstanceIdentifier<Node> nodeIId = getNodeInstanceIdentifier(this.nb.key());
+                final InstanceIdentifier<Segments> segmentIId = nodeIId.builder().augmentation(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class)
+                        .child(Segments.class, segment.key()).build();
+                trans.put(LogicalDatastoreType.OPERATIONAL, segmentIId, segment);
+            }
+            addSrAwareTopologyType(trans);
+        }
+
+        @SuppressWarnings("checkstyle:LineLength")
+        void removeSegment(final WriteTransaction trans, final boolean updateNode, final Segments segment) {
+            if (updateNode) {
+                final InstanceIdentifier<Node> nodeIId = getNodeInstanceIdentifier(this.nb.key());
+                final InstanceIdentifier<Segments> segmentIId = nodeIId.builder().augmentation(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class)
+                        .child(Segments.class, segment.key()).build();
+                trans.delete(LogicalDatastoreType.OPERATIONAL, segmentIId);
+            }
+            removeSrAwareTopologyTypeIfRequired(trans);
+        }
+
+        boolean isAssociatedWithNodeSid(final IpPrefix ippfx, final SrPrefix srPrefix) {
+            if ((ippfx.getIpv4Prefix() != null && !ippfx.stringValue().endsWith("/32"))
+                    || (ippfx.getIpv6Prefix() != null && !ippfx.stringValue().endsWith("/128"))) {
+                return false;
+            }
+            final Flags prefixFlags = srPrefix.getFlags();
+            if (prefixFlags instanceof IsisPrefixFlagsCase) {
+                return !Boolean.FALSE.equals(((IsisPrefixFlagsCase) prefixFlags).getIsisPrefixFlags().isNodeSid());
+            }
+            return true;
+        }
+
+        int getSegmentCount() {
+            return this.segments.size();
+        }
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilder.class);
     private final Map<NodeId, NodeHolder> nodes = new HashMap<>();
+    private boolean srAwareTopologyTypeAdded;
 
     public LinkstateTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId) {
@@ -365,7 +552,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
     private NodeHolder getNode(final NodeId id) {
         if (this.nodes.containsKey(id)) {
-            LOG.debug("Node {} is already present", id);
+            LOG.debug("Node {} is already present", id.getValue());
             return this.nodes.get(id);
         }
 
@@ -386,6 +573,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
     }
 
+    @SuppressWarnings("checkstyle:LineLength")
     private void createLink(final WriteTransaction trans, final UriBuilder base,
             final LinkstateRoute value, final LinkCase linkCase, final Attributes attributes) {
         // defensive lookup
@@ -405,11 +593,18 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
 
         final IgpLinkAttributesBuilder ilab = new IgpLinkAttributesBuilder();
+        Long adjSid = null;
         if (la != null) {
             if (la.getMetric() != null) {
                 ilab.setMetric(la.getMetric().getValue());
             }
             ilab.setName(la.getLinkName());
+            if (la.getSrAdjIds() != null && !la.getSrAdjIds().isEmpty()) {
+                final SrAdjIds srAdjIds = la.getSrAdjIds().get(0);
+                if (srAdjIds != null) {
+                    adjSid = getSegmentIdValue(srAdjIds.getSidLabelIndex());
+                }
+            }
         }
         ProtocolUtil.augmentProtocolId(value, ilab, la, linkCase.getLinkDescriptors());
 
@@ -437,11 +632,23 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         if (snh == null) {
             snh = getNode(srcNode);
             snh.addTp(srcTp, lb.getLinkId(), false);
+            if (adjSid != null) {
+                snh.addAdjacencySid(trans, false, lb.getLinkId(), adjSid);
+            }
             putNode(trans, snh);
         } else {
             snh.addTp(srcTp, lb.getLinkId(), false);
+            if (adjSid != null) {
+                snh.addAdjacencySid(trans, true, lb.getLinkId(), adjSid);
+            }
             final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(snh.getNodeId()));
             trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, srcTp.key()), srcTp);
+        }
+        if (adjSid != null) {
+            lb.addAugmentation(
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Link1.class,
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Link1Builder()
+                            .setSegment(new SegmentId(Uint32.valueOf(adjSid))).build());
         }
 
         LOG.debug("Created TP {} as link destination", dstTp);
@@ -473,9 +680,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             trans.delete(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class,
                     new TerminationPointKey(tp)));
             nh.removeTp(tp, link, isRemote);
+            if (!isRemote) {
+                nh.removeAdjacencySid(trans, link);
+            }
             checkNodeForRemoval(trans, nh);
         } else {
-            LOG.warn("Removed non-existent node {}", node);
+            LOG.warn("Removed non-existent node {}", node.getValue());
         }
     }
 
@@ -510,6 +720,8 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
         final IgpNodeAttributesBuilder inab = new IgpNodeAttributesBuilder();
         final List<IpAddress> ids = new ArrayList<>();
+        Long srgbFirstValue = null;
+        Integer srgbRangeSize = null;
         if (na != null) {
             if (na.getIpv4RouterId() != null) {
                 ids.add(new IpAddress(na.getIpv4RouterId()));
@@ -519,6 +731,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             }
             if (na.getDynamicHostname() != null) {
                 inab.setName(new DomainName(na.getDynamicHostname()));
+            }
+            if (na.getSrCapabilities() != null) {
+                srgbFirstValue = getSegmentIdValue(na.getSrCapabilities().getSidLabelIndex());
+                srgbRangeSize = na.getSrCapabilities().getRangeSize() != null
+                        ? na.getSrCapabilities().getRangeSize().getValue().intValue()
+                        : null;
             }
         }
         if (!ids.isEmpty()) {
@@ -538,6 +756,9 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         nb.withKey(new NodeKey(nb.getNodeId()));
 
         nh.advertized(nb, inab);
+        if (srgbFirstValue != null && srgbRangeSize != null) {
+            nh.addSrgb(trans, false, srgbFirstValue, srgbRangeSize);
+        }
         putNode(trans, nh);
     }
 
@@ -546,9 +767,10 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         final NodeHolder nh = this.nodes.get(id);
         if (nh != null) {
             nh.unadvertized();
+            nh.removeSrgb(trans);
             putNode(trans, nh);
         } else {
-            LOG.warn("Node {} does not have a holder", id);
+            LOG.warn("Node {} does not have a holder", id.getValue());
         }
     }
 
@@ -579,8 +801,14 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             LOG.debug("Missing attributes in IP {} prefix {} route {}, skipping it", ippfx, prefixCase, value);
             pa = null;
         }
-        if (pa != null && pa.getPrefixMetric() != null) {
-            pb.setMetric(pa.getPrefixMetric().getValue());
+        SrPrefix srPrefix = null;
+        if (pa != null) {
+            if (pa.getPrefixMetric() != null) {
+                pb.setMetric(pa.getPrefixMetric().getValue());
+            }
+            if (pa.getSrPrefix() != null) {
+                srPrefix = pa.getSrPrefix();
+            }
         }
         ProtocolUtil.augmentProtocolId(value, pa, pb);
 
@@ -595,9 +823,15 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         if (nh == null) {
             nh = getNode(node);
             nh.addPrefix(pfx);
+            if (srPrefix != null) {
+                nh.addSrPrefix(trans, false, ippfx, srPrefix);
+            }
             putNode(trans, nh);
         } else {
             nh.addPrefix(pfx);
+            if (srPrefix != null) {
+                nh.addSrPrefix(trans, true, ippfx, srPrefix);
+            }
             final InstanceIdentifier<Node> nid = getNodeInstanceIdentifier(new NodeKey(nh.getNodeId()));
             final InstanceIdentifier<IgpNodeAttributes> inaId = nid.builder().augmentation(Node1.class)
                     .child(IgpNodeAttributes.class).build();
@@ -621,9 +855,10 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             final PrefixKey pk = new PrefixKey(ippfx);
             trans.delete(LogicalDatastoreType.OPERATIONAL, inaId.child(Prefix.class, pk));
             nh.removePrefix(prefixCase);
+            nh.removeSrPrefix(trans, ippfx);
             checkNodeForRemoval(trans, nh);
         } else {
-            LOG.warn("Removing prefix from non-existing node {}", node);
+            LOG.warn("Removing prefix from non-existing node {}", node.getValue());
         }
     }
 
@@ -631,6 +866,46 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         return getInstanceIdentifier().child(
                 org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network
                         .topology.topology.Node.class, nodeKey);
+    }
+
+    private Long getSegmentIdValue(final SidLabelIndex sidLabelIndex) {
+        Uint32 sidValue = null;
+        if (sidLabelIndex instanceof LocalLabelCase) {
+            sidValue = ((LocalLabelCase) sidLabelIndex).getLocalLabel().getValue();
+        } else if (sidLabelIndex instanceof SidCase) {
+            sidValue = ((SidCase) sidLabelIndex).getSid();
+        }
+        if (sidValue != null) {
+            return sidValue.longValue();
+        }
+        return null;
+    }
+
+    protected void addSrAwareTopologyType(final WriteTransaction trans) {
+        if (this.srAwareTopologyTypeAdded) {
+            return;
+        }
+        LOG.debug("Adding SR-aware topology-type for topology {}",
+                getInstanceIdentifier().firstKeyOf(Topology.class).getTopologyId().getValue());
+        trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier().child(TopologyTypes.class),
+                SR_AWARE_LINKSTATE_TOPOLOGY_TYPE);
+        this.srAwareTopologyTypeAdded = true;
+    }
+
+    protected void removeSrAwareTopologyTypeIfRequired(final WriteTransaction trans) {
+        if (!this.srAwareTopologyTypeAdded) {
+            return;
+        }
+        final boolean isSidPresent =
+                this.nodes.values().stream().map(NodeHolder::getSegmentCount).anyMatch(cnt -> cnt != 0);
+        if (isSidPresent) {
+            return;
+        }
+        LOG.debug("Removing SR-aware topology-type from topology {}",
+                getInstanceIdentifier().firstKeyOf(Topology.class).getTopologyId().getValue());
+        trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier().child(TopologyTypes.class),
+                LINKSTATE_TOPOLOGY_TYPE);
+        this.srAwareTopologyTypeAdded = false;
     }
 
     @Override
@@ -682,5 +957,6 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     @Override
     protected void clearTopology() {
         this.nodes.clear();
+        this.srAwareTopologyTypeAdded = false;
     }
 }
