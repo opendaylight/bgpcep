@@ -15,6 +15,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
@@ -46,6 +47,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     private final BundleContext bundleContext;
     private final ClusterSingletonServiceProvider cssp;
     private final TopologySessionStatsRegistry stateRegistry;
+    private final PceServerProvider pceServerProvider;
     @GuardedBy("this")
     private PCEPTopologyProviderBeanCSS pcepTopoProviderCSS;
 
@@ -56,7 +58,8 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
             final PCEPDispatcher pcepDispatcher,
             final RpcProviderService rpcProviderRegistry,
             final TopologySessionListenerFactory sessionListenerFactory,
-            final TopologySessionStatsRegistry stateRegistry) {
+            final TopologySessionStatsRegistry stateRegistry,
+            final PceServerProvider pceServerProvider) {
         this.cssp = requireNonNull(cssp);
         this.bundleContext = requireNonNull(bundleContext);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
@@ -64,6 +67,7 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         this.sessionListenerFactory = requireNonNull(sessionListenerFactory);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.stateRegistry = requireNonNull(stateRegistry);
+        this.pceServerProvider = requireNonNull(pceServerProvider);
         final List<PCEPCapability> capabilities = this.pcepDispatcher.getPCEPSessionNegotiatorFactory()
                 .getPCEPSessionProposalFactory().getCapabilities();
         final boolean statefulCapability = capabilities.stream().anyMatch(PCEPCapability::isStateful);
@@ -123,6 +127,11 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
     @Override
     public TopologySessionStatsRegistry getStateRegistry() {
         return this.stateRegistry;
+    }
+
+    @Override
+    public PceServerProvider getPceServerProvider() {
+        return this.pceServerProvider;
     }
 
     private static class PCEPTopologyProviderBeanCSS implements ClusterSingletonService, AutoCloseable {

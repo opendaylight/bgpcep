@@ -76,6 +76,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     @GuardedBy("this")
     @VisibleForTesting
     protected int listenerScheduledRestartEnforceCounter = 0;
+    protected boolean networkTopologyTransaction = true;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final TopologyTypes types, final Class<? extends AddressFamily> afi,
@@ -164,56 +165,63 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized void onDataTreeChanged(final Collection<DataTreeModification<T>> changes) {
-        if (this.closed.get()) {
-            LOG.trace("Transaction chain was already closed, skipping update.");
-            return;
-        }
-        // check if the transaction chain needed to be restarted due to a previous error
-        if (restartTransactionChainOnDemand()) {
-            LOG.debug("The data change {} is disregarded due to restart of listener {}", changes, this);
-            return;
-        }
-        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
-        LOG.trace("Received data change {} event with transaction {}", changes, trans.getIdentifier());
-        final AtomicBoolean transactionInError = new AtomicBoolean(false);
-        for (final DataTreeModification<T> change : changes) {
-            try {
-                routeChanged(change, trans);
-            } catch (final RuntimeException exc) {
-                LOG.warn("Data change {} (transaction {}) was not completely propagated to listener {}", change,
-                        trans.getIdentifier(), this, exc);
-                // trans.cancel() is not supported by PingPongTransactionChain, so we just skip the problematic change
-                // trans.commit() must be called first to unlock the current transaction chain, to make the chain
-                // closable so we cannot exit the #onDataTreeChanged() yet
-                transactionInError.set(true);
-                break;
+        if (networkTopologyTransaction) {
+            if (this.closed.get()) {
+                LOG.trace("Transaction chain was already closed, skipping update.");
+                return;
             }
-        }
-        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                // as we are enforcing trans.commit(), in some cases the transaction execution actually could be
-                // successfully even when an exception is captured, thus #onTransactionChainFailed() never get invoked.
-                // Though the transaction chain remains usable,
-                // the data loss will not be able to be recovered. Thus we schedule a listener restart here
-                if (transactionInError.get()) {
-                    LOG.warn("Transaction {} committed successfully while exception captured. Rescheduling a restart"
-                            + " of listener {}", trans
-                        .getIdentifier(), AbstractTopologyBuilder.this);
-                    scheduleListenerRestart();
-                } else {
-                    LOG.trace("Transaction {} committed successfully", trans.getIdentifier());
+            // check if the transaction chain needed to be restarted due to a previous error
+            if (restartTransactionChainOnDemand()) {
+                LOG.debug("The data change {} is disregarded due to restart of listener {}", changes, this);
+                return;
+            }
+            final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
+            LOG.trace("Received data change {} event with transaction {}", changes, trans.getIdentifier());
+            final AtomicBoolean transactionInError = new AtomicBoolean(false);
+            for (final DataTreeModification<T> change : changes) {
+                try {
+                    routeChanged(change, trans);
+                } catch (final RuntimeException exc) {
+                    LOG.warn("Data change {} (transaction {}) was not completely propagated to listener {}", change,
+                            trans.getIdentifier(), this, exc);
+                    // trans.cancel() is not supported by PingPongTransactionChain, so we just skip the problematic
+                    // change.
+                    // trans.commit() must be called first to unlock the current transaction chain, to make the chain
+                    // closable so we cannot exit the #onDataTreeChanged() yet
+                    transactionInError.set(true);
+                    break;
                 }
             }
+            trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    // as we are enforcing trans.commit(), in some cases the transaction execution actually could be
+                    // successfully even when an exception is captured, thus #onTransactionChainFailed() never get
+                    // invoked. Though the transaction chain remains usable,
+                    // the data loss will not be able to be recovered. Thus we schedule a listener restart here
+                    if (transactionInError.get()) {
+                        LOG.warn("Transaction {} committed successfully while exception captured. Rescheduling a"
+                                + " restart of listener {}", trans
+                            .getIdentifier(), AbstractTopologyBuilder.this);
+                        scheduleListenerRestart();
+                    } else {
+                        LOG.trace("Transaction {} committed successfully", trans.getIdentifier());
+                    }
+                }
 
-            @Override
-            public void onFailure(final Throwable throwable) {
-                // we do nothing but print out the log. Transaction chain restart will be done in
-                // #onTransactionChainFailed()
-                LOG.error("Failed to propagate change (transaction {}) by listener {}", trans.getIdentifier(),
-                        AbstractTopologyBuilder.this, throwable);
+                @Override
+                public void onFailure(final Throwable throwable) {
+                    // we do nothing but print out the log. Transaction chain restart will be done in
+                    // #onTransactionChainFailed()
+                    LOG.error("Failed to propagate change (transaction {}) by listener {}", trans.getIdentifier(),
+                            AbstractTopologyBuilder.this, throwable);
+                }
+            }, MoreExecutors.directExecutor());
+        } else {
+            for (final DataTreeModification<T> change : changes) {
+                routeChanged(change, null);
             }
-        }, MoreExecutors.directExecutor());
+        }
     }
 
     @VisibleForTesting

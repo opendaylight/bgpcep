@@ -9,6 +9,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import com.google.common.annotations.Beta;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -55,4 +56,11 @@ public interface PCEPTopologyProviderDependencies {
      * @return TopologySessionStateRegistry
      */
     TopologySessionStatsRegistry getStateRegistry();
+
+    /**
+     * PCE Server Provider.
+     *
+     * @return PceServerProvider
+     */
+    PceServerProvider getPceServerProvider();
 }

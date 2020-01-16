@@ -21,10 +21,10 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>bgp</module>
-        <module>pcep</module>
         <module>graph</module>
+        <module>bgp</module>
         <module>algo</module>
+        <module>pcep</module>
         <module>bgpcep-extras</module>
         <module>bmp</module>
         <module>rsvp</module>
