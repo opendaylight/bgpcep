@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74946bba_55d7ce1f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T09:01:26Z",
+      "side": 1,
+      "message": "co-authored-by: Philippe Niger \u003c...   ?\n\nI can see his name in the java files comments.",
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc5a51e2_5ef90eb8",
+        "filename": "docs/graph/graph-user-guide-manage-graph.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T09:01:26Z",
+      "side": 1,
+      "message": "trailing blank",
+      "range": {
+        "startLine": 16,
+        "startChar": 65,
+        "endLine": 16,
+        "endChar": 66
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "393d40fc_378cf268",
+        "filename": "features/graph/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T09:01:26Z",
+      "side": 1,
+      "message": "6.0.3 now for Mg dev\naccording to https://docs.opendaylight.org/projects/integration-distribution/en/latest/platform-versions.html\n\npom.xml and artifacts/pom.xml and features/pom.xml are already using the version 6.0.3",
+      "range": {
+        "startLine": 14,
+        "startChar": 17,
+        "endLine": 14,
+        "endChar": 22
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95d8bdaa_a8f255d0",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T09:01:26Z",
+      "side": 1,
+      "message": "2019 or 2020 ?",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "735260fe_c746475e",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T09:01:26Z",
+      "side": 1,
+      "message": "trailing blank",
+      "range": {
+        "startLine": 95,
+        "startChar": 9,
+        "endLine": 95,
+        "endChar": 21
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aca625f_b9ef2566",
+        "filename": "graph/graph-artifacts/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T09:01:26Z",
+      "side": 1,
+      "message": "6.0.3",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 22
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f33471b0_6162f456",
+        "filename": "graph/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-16T09:01:26Z",
+      "side": 1,
+      "message": "6.0.3",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 22
+      },
+      "revId": "d4817322e39f32474841db5f770be39d744d9078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
