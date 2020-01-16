@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.opendaylight.bgpcep.pcep.server.PathComputation;
+import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
@@ -69,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.symbolic.path.name.tlv.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
@@ -109,11 +112,14 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
     private final AtomicBoolean initiationCapability = new AtomicBoolean(false);
 
+    private PceServerProvider pceServerProvider;
+
     /**
      * Creates a new stateful topology session listener for given server session manager.
      */
     Stateful07TopologySessionListener(final ServerSessionManager serverSessionManager) {
         super(serverSessionManager);
+        this.pceServerProvider = serverSessionManager.getPCEPTopologyProviderDependencies().getPceServerProvider();
     }
 
     private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
@@ -364,10 +370,36 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return pb.build();
     }
 
+    private boolean handlePcreqMessage(final PcreqMessage message) {
+
+        LOG.info("Start PcRequest Message handler");
+
+        /* Get a Path Computation to compute the Path from the Request */
+        PathComputation pathComputation = this.pceServerProvider.getPathComputation();
+        Message rep = null;
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq
+                .message.Requests req : message.getRequests()) {
+            LOG.debug("Process request {}", req);
+            rep = pathComputation.computePath(req);
+            SrpIdNumber repId = null;
+            if (req.getRp() != null) {
+                repId = new SrpIdNumber(req.getRp().getRequestId().getValue());
+            } else {
+                repId = new SrpIdNumber(Uint32.ZERO);
+            }
+            sendMessage(rep, repId, null);
+        }
+        return false;
+    }
+
     @Override
     protected synchronized boolean onMessage(final MessageContext ctx, final Message message) {
         if (message instanceof PcerrMessage) {
             return handleErrorMessage((PcerrMessage) message);
+        }
+        if (message instanceof Pcreq) {
+            LOG.info("PcReq detected. Start Request Message handler");
+            return handlePcreqMessage(((Pcreq) message).getPcreqMessage());
         }
         if (!(message instanceof PcrptMessage)) {
             return true;
@@ -714,13 +746,27 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
             // Build the request
             final RequestsBuilder rb = new RequestsBuilder();
-            final Arguments2 args = this.input.getArguments().augmentation(Arguments2.class);
-            final Lsp inputLsp = args != null ? args.getLsp() : null;
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109
+                    .add.lsp.args.Arguments args = this.input.getArguments();
+            final Arguments2 args2 = args.augmentation(Arguments2.class);
+            final Lsp inputLsp = args2 != null ? args2.getLsp() : null;
             if (inputLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.LSP_MISSING).future();
             }
 
             rb.fieldsFrom(this.input.getArguments());
+
+            /* Call Path Computation if an ERO was not provided */
+            boolean segmentRouting = !PSTUtil.isDefaultPST(args2.getPathSetupType());
+            if ((rb.getEro() == null)
+                    || (rb.getEro().getSubobject() == null)
+                    || (rb.getEro().getSubobject().size() == 0)) {
+
+                /* Get a Path Computation to compute the Path from the Arguments */
+                PathComputation pathComputation = pceServerProvider.getPathComputation();
+                rb.setEro(pathComputation.computeEro(args.getEndpointsObj(), args.getBandwidth(), args.getClassType(),
+                        args.getMetrics(), segmentRouting));
+            }
 
             final TlvsBuilder tlvsBuilder;
             if (inputLsp.getTlvs() != null) {
@@ -735,11 +781,11 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final SrpBuilder srpBuilder = new SrpBuilder()
                     .setOperationId(nextRequest())
                     .setProcessingRule(Boolean.TRUE);
-            if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
+            if (segmentRouting) {
                 srpBuilder.setTlvs(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
                                 .stateful.rev181109.srp.object.srp.TlvsBuilder()
-                                .setPathSetupType(args.getPathSetupType()).build());
+                                .setPathSetupType(args2.getPathSetupType()).build());
             }
             rb.setSrp(srpBuilder.build());
 

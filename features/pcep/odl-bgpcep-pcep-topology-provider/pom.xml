@@ -45,6 +45,12 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-pcep-server-provider</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>odl-mdsal-dom-broker</artifactId>
             <type>xml</type>
