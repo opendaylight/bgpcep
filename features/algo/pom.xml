@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ Copyright (c) 2019 Orange Labs and others.  All rights reserved.
 
  This program and the accompanying materials are made available under the
  terms of the Eclipse Public License v1.0 which accompanies this distribution,
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
@@ -15,22 +15,15 @@
         <relativePath/>
     </parent>
 
+    <artifactId>features-aggregator-algo</artifactId>
     <groupId>org.opendaylight.bgpcep</groupId>
-    <artifactId>features-bgpcep</artifactId>
     <version>0.14.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>bgp</module>
-        <module>pcep</module>
-        <module>graph</module>
-        <module>algo</module>
-        <module>bgpcep-extras</module>
-        <module>bmp</module>
-        <module>rsvp</module>
-        <module>topology</module>
-        <module>concepts</module>
-        <module>config-loader</module>
+        <module>features-algo</module>
+        <module>odl-bgpcep-algo-api</module>
+        <module>odl-bgpcep-algo</module>
     </modules>
 
     <properties>
