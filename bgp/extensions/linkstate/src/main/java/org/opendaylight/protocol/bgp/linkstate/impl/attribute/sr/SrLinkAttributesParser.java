@@ -83,7 +83,24 @@ public final class SrLinkAttributesParser {
             adjFlags = parseFlags(flags, protocolId);
             weight = new Weight(ByteBufUtils.readUint8(buffer));
             buffer.skipBytes(RESERVED);
-            sidValue = SidLabelIndexParser.parseSidLabelIndex(Size.forValue(buffer.readableBytes()), buffer);
+            final boolean isValue;
+            final boolean isLocal;
+            switch (protocolId) {
+                case IsisLevel1:
+                case IsisLevel2:
+                    isValue = flags.get(VALUE_ISIS);
+                    isLocal = flags.get(LOCAL_ISIS);
+                    break;
+                case Ospf:
+                case OspfV3:
+                    isValue = flags.get(VALUE_OSPF);
+                    isLocal = flags.get(LOCAL_OSPF);
+                    break;
+                default:
+                    return null;
+            }
+            sidValue = SidLabelIndexParser.parseSidLabelIndexByFlags(Size.forValue(buffer.readableBytes()), buffer,
+                    isValue, isLocal);
         } else {
             adjFlags = null;
             weight = null;
@@ -96,10 +113,11 @@ public final class SrLinkAttributesParser {
         final Weight weight;
         final SidLabelIndex sidValue;
         if (buffer.isReadable()) {
-            buffer.skipBytes(FLAGS_BYTE_SIZE);
+            final BitArray flags = BitArray.valueOf(buffer, FLAGS_BITS_SIZE);
             weight = new Weight(ByteBufUtils.readUint8(buffer));
             buffer.skipBytes(RESERVED);
-            sidValue = SidLabelIndexParser.parseSidLabelIndex(Size.forValue(buffer.readableBytes()), buffer);
+            sidValue = SidLabelIndexParser.parseSidLabelIndexByFlags(Size.forValue(buffer.readableBytes()), buffer,
+                    flags.get(VALUE_EPE), flags.get(LOCAL_EPE));
         } else {
             weight = null;
             sidValue = null;
@@ -131,22 +149,28 @@ public final class SrLinkAttributesParser {
         srLanAdjIdBuilder.setFlags(parseFlags(flags, protocolId));
         srLanAdjIdBuilder.setWeight(new Weight(ByteBufUtils.readUint8(buffer)));
         buffer.skipBytes(RESERVED);
+        final boolean isValue;
+        final boolean isLocal;
         switch (protocolId) {
             case IsisLevel1:
             case IsisLevel2:
+                isValue = flags.get(VALUE_ISIS);
+                isLocal = flags.get(LOCAL_ISIS);
                 srLanAdjIdBuilder.setIsoSystemId(new IsoSystemIdentifier(
                     ByteArray.readBytes(buffer, ISO_SYSTEM_ID_SIZE)));
                 break;
             case Ospf:
             case OspfV3:
+                isValue = flags.get(VALUE_OSPF);
+                isLocal = flags.get(LOCAL_OSPF);
                 srLanAdjIdBuilder.setNeighborId(Ipv4Util.addressForByteBuf(buffer));
                 break;
             default:
                 return null;
         }
         // length determines a type of next field, which is used for parsing
-        srLanAdjIdBuilder.setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndex(
-            Size.forValue(buffer.readableBytes()), buffer));
+        srLanAdjIdBuilder.setSidLabelIndex(SidLabelIndexParser
+                .parseSidLabelIndexByFlags(Size.forValue(buffer.readableBytes()), buffer, isValue, isLocal));
         return srLanAdjIdBuilder.build();
     }
 

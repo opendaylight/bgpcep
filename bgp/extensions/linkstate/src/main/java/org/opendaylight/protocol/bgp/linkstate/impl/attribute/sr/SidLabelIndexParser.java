@@ -83,14 +83,54 @@ public final class SidLabelIndexParser {
     public static SidLabelIndex parseSidLabelIndex(final Size length, final ByteBuf buffer) {
         switch (length) {
             case LABEL:
-                return new LocalLabelCaseBuilder()
-                        .setLocalLabel(new MplsLabel(Uint32.valueOf(buffer.readUnsignedMedium() & LABEL_MASK))).build();
+                return new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(readLabel(buffer))).build();
             case SID:
                 return new SidCaseBuilder().setSid(ByteBufUtils.readUint32(buffer)).build();
             case IPV6_ADD:
                 return new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(buffer)).build();
             default:
                 return null;
+        }
+    }
+
+    private static Uint32 readLabel(final ByteBuf buffer) {
+        return Uint32.valueOf(buffer.readUnsignedMedium() & LABEL_MASK);
+    }
+
+    /**
+     * Parses SID/Label/Index value into appropriate type based on V-Flag and L-Flag
+     * values. This method is required as some device-side implementations
+     * incorrectly encode SID/Label/Index value using wrong type e.g. Label type to
+     * encode an Index value (V-Flag=false, L-Flag=false).
+     *
+     * @param length length of SID/Label/Index value
+     * @param buffer buffer containing SID/Label/Index value
+     * @param isValue V-Flag value
+     * @param isLocal L-Flag value
+     * @return SID/Label/Index value parsed into the appropriate type
+     */
+    public static SidLabelIndex parseSidLabelIndexByFlags(final Size length, final ByteBuf buffer,
+            final boolean isValue, final boolean isLocal) {
+        switch (length) {
+            case LABEL:
+                return getSidLabelIndexByFlags(readLabel(buffer), isValue, isLocal);
+            case SID:
+                return getSidLabelIndexByFlags(ByteBufUtils.readUint32(buffer), isValue, isLocal);
+            case IPV6_ADD:
+                return new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(buffer)).build();
+            default:
+                return null;
+        }
+    }
+
+    private static SidLabelIndex getSidLabelIndexByFlags(final Uint32 sidLabelIndex, final boolean isValue,
+            final boolean isLocal) {
+        if (isValue && isLocal) {
+            return new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(sidLabelIndex)).build();
+        } else if (!isValue && !isLocal) {
+            return new SidCaseBuilder().setSid(sidLabelIndex).build();
+        } else {
+            return null;
         }
     }
 
