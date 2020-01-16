@@ -33,4 +33,10 @@
   <bean id="linkstateTopologyProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.config.LinkstateTopologyProvider" destroy-method="close">
     <argument ref="bgpTopologyDeployer"/>
   </bean>
+
+  <reference id="connectedGraphProvider" interface="org.opendaylight.graph.ConnectedGraphProvider"/>
+  <bean id="linkstateGraphProvider" class="org.opendaylight.bgpcep.bgp.topology.provider.config.LinkstateGraphProvider" destroy-method="close">
+    <argument ref="bgpTopologyDeployer"/>
+    <argument ref="connectedGraphProvider"/>
+  </bean>
 </blueprint>
