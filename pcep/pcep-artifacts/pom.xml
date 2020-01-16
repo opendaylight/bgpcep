@@ -84,6 +84,16 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-server-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-server-provider</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-topology-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -174,6 +184,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-server</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-topology</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
@@ -189,6 +206,13 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-p2mp-te-lsp</artifactId>
+                <classifier>features</classifier>
+                <type>xml</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-server-provider</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
