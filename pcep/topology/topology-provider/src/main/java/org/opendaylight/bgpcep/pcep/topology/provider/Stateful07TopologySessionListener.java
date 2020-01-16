@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.opendaylight.bgpcep.pcep.server.PathComputation;
+import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
@@ -69,11 +71,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.symbolic.path.name.tlv.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.PcreqMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.LspId;
@@ -109,11 +113,14 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
     private final AtomicBoolean initiationCapability = new AtomicBoolean(false);
 
+    private PceServerProvider pceServerProvider;
+
     /**
      * Creates a new stateful topology session listener for given server session manager.
      */
     Stateful07TopologySessionListener(final ServerSessionManager serverSessionManager) {
         super(serverSessionManager);
+        this.pceServerProvider = serverSessionManager.getPCEPTopologyProviderDependencies().getPceServerProvider();
     }
 
     private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
@@ -364,10 +371,36 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return pb.build();
     }
 
+    private boolean handlePcreqMessage(final PcreqMessage message) {
+
+        LOG.info("Start PCRequest Message handler");
+
+        /* Get a Path Computation to compute the Path from the Request */
+        PathComputation pathComputation = this.pceServerProvider.getPathComputation();
+        Message rep = null;
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq
+                .message.Requests req : message.getRequests()) {
+            LOG.debug("Process request {}", req);
+            rep = pathComputation.computePath(req);
+            SrpIdNumber repId = null;
+            if (req.getRp() != null) {
+                repId = new SrpIdNumber(req.getRp().getRequestId().getValue());
+            } else {
+                repId = new SrpIdNumber(Uint32.ZERO);
+            }
+            sendMessage(rep, repId, null);
+        }
+        return false;
+    }
+
     @Override
     protected synchronized boolean onMessage(final MessageContext ctx, final Message message) {
         if (message instanceof PcerrMessage) {
             return handleErrorMessage((PcerrMessage) message);
+        }
+        if (message instanceof Pcreq) {
+            LOG.info("PCReq detected. Start Request Message handler");
+            return handlePcreqMessage(((Pcreq) message).getPcreqMessage());
         }
         if (!(message instanceof PcrptMessage)) {
             return true;

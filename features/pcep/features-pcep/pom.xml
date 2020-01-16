@@ -53,6 +53,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-pcep-server</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+            <version>0.13.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-topology</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
@@ -62,6 +69,13 @@
             <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-pcep-server-provider</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+            <version>0.13.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
