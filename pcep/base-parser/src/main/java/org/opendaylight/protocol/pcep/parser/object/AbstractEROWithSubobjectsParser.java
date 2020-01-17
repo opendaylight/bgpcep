@@ -55,7 +55,7 @@ public abstract class AbstractEROWithSubobjectsParser extends CommonObjectParser
             LOG.debug("Attempt to parse subobject from bytes: {}", ByteBufUtil.hexDump(buffer));
             final Subobject sub = this.subobjReg.parseSubobject(type, buffer.readSlice(length), loose);
             if (sub == null) {
-                LOG.warn("Unknown subobject type: {}. Ignoring subobject.", type);
+                LOG.warn("Parsing failed for subobject type: {}. Ignoring subobject.", type);
             } else {
                 LOG.debug("Subobject was parsed. {}", sub);
                 subs.add(sub);
