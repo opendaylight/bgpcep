@@ -50,7 +50,7 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
         try {
             out.add(parse(in, errors));
         } catch (final PCEPDeserializerException e) {
-            LOG.debug("Failed to decode protocol message", e);
+            LOG.warn("Failed to decode protocol message", e);
         }
         in.discardReadBytes();
 

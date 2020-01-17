@@ -25,8 +25,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.label._case.Label;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.label._case.LabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
+    private static final Logger LOG = LoggerFactory.getLogger(EROLabelSubobjectParser.class);
 
     public static final int TYPE = 3;
 
@@ -58,7 +61,8 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 
         final LabelType labelType = this.registry.parseLabel(cType, buffer.slice());
         if (labelType == null) {
-            throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + cType);
+            LOG.warn("Ignoring ERO label subobject with unknown C-TYPE: {}", cType);
+            return null;
         }
         final LabelBuilder builder = new LabelBuilder();
         builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
