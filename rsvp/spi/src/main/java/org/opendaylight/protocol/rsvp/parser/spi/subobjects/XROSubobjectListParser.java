@@ -48,7 +48,7 @@ public abstract class XROSubobjectListParser extends AbstractRSVPObjectParser {
             final SubobjectContainer sub = this.subobjReg.parseSubobject(type, byteBuf.readSlice(length), mandatory);
 
             if (sub == null) {
-                LOG.warn("Unknown subobject type: {}. Ignoring subobject.", type);
+                LOG.warn("Parsing failed for subobject type: {}. Ignoring subobject.", type);
             } else {
                 LOG.debug("Subobject was parsed. {}", sub);
                 subs.add(sub);
