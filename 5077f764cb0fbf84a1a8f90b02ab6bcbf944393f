@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7b7b474_11760586",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "are there any assumptions as to what the value means? can in be any long?",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 8
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83cc399d_0c303cbe",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "Is this nullable or nonnull?",
+      "range": {
+        "startLine": 51,
+        "startChar": 4,
+        "endLine": 51,
+        "endChar": 19
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9af019d_c41a1e85",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "what is the point of this declaration? Is there some requirement beyond Object.toString()?",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 22
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f61029ff_642f7dda",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "Leak of mutable collection",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b51360b_c336955d",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "Same here",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 13
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30fdb07e_83ad5067",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "... and here. What would be the intended interplay between the returned collection and addPrefix()?",
+      "range": {
+        "startLine": 155,
+        "startChar": 4,
+        "endLine": 155,
+        "endChar": 13
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27b17195_d92e9467",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedGraphImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "same as edge below",
+      "range": {
+        "startLine": 108,
+        "startChar": 12,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f64fcaaf_93ecb87d",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedGraphImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "so key \u003d\u003d 0 is special? what does it signify?",
+      "range": {
+        "startLine": 126,
+        "startChar": 12,
+        "endLine": 126,
+        "endChar": 20
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04e3dd4a_0257fa3c",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedGraphImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "return null, move the declaration to where the variable is initialized",
+      "range": {
+        "startLine": 127,
+        "startChar": 19,
+        "endLine": 127,
+        "endChar": 23
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bfd52b0_5349b7d8",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/GraphListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "move this below -- it is mutable state (while others are not)",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 69
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7fbd17c_e8ba35d5",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/GraphListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-20T15:49:22Z",
+      "side": 1,
+      "message": "this synchronized does not have a counterpart",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 24
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
