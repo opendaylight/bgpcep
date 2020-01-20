@@ -51,11 +51,11 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>yang-ext</artifactId>
+            <artifactId>odl-uint24</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>yang-ext</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

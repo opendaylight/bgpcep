@@ -12,9 +12,9 @@ import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.mdsal.uint24.netty.Uint24ByteBufUtils;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.state.SrAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.node.state.SrAlgorithmBuilder;
@@ -40,7 +40,7 @@ public final class SrNodeAttributesParser {
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         setFlags(flags, protocol, builder);
         buffer.skipBytes(RESERVERED);
-        builder.setRangeSize(ByteBufUtils.readUint24(buffer));
+        builder.setRangeSize(Uint24ByteBufUtils.readUint24(buffer));
         builder.setSidLabelIndex(SidLabelIndexParser.parseSidSubTlv(buffer));
         return builder.build();
     }
@@ -64,7 +64,7 @@ public final class SrNodeAttributesParser {
         bs.set(SR_IPV6, caps.isSrIpv6());
         bs.toByteBuf(buffer);
         buffer.writeZero(RESERVERED);
-        buffer.writeMedium(caps.getRangeSize().getValue().intValue());
+        Uint24ByteBufUtils.writeUint24(buffer, caps.getRangeSize());
         TlvUtil.writeTLV(SID_TYPE, SidLabelIndexParser.serializeSidValue(caps.getSidLabelIndex()), buffer);
     }
 

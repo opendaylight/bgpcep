@@ -11,9 +11,9 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.mdsal.uint24.netty.Uint24ByteBufUtils;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvParser;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvSerializer;
-import org.opendaylight.protocol.util.ByteBufUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.Srgb;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.originator.srgb.tlv.SrgbValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.originator.srgb.tlv.SrgbValueBuilder;
@@ -39,8 +39,8 @@ final class OriginatorSrgbTlvParser implements BgpPrefixSidTlvParser, BgpPrefixS
                 "Number of SRGBs does not fit available bytes.");
         final List<SrgbValue> ret = new ArrayList<>();
         while (buffer.isReadable()) {
-            ret.add(new SrgbValueBuilder().setBase(new Srgb(ByteBufUtils.readUint24(buffer)))
-                .setRange(new Srgb(ByteBufUtils.readUint24(buffer))).build());
+            ret.add(new SrgbValueBuilder().setBase(new Srgb(Uint24ByteBufUtils.readUint24(buffer)))
+                .setRange(new Srgb(Uint24ByteBufUtils.readUint24(buffer))).build());
         }
         return ret;
     }
@@ -51,8 +51,8 @@ final class OriginatorSrgbTlvParser implements BgpPrefixSidTlvParser, BgpPrefixS
         final LuOriginatorSrgbTlv luTlv = (LuOriginatorSrgbTlv) tlv;
         valueBuf.writeZero(ORIGINATOR_FLAGS_BYTES);
         for (final SrgbValue val : luTlv.getSrgbValue()) {
-            valueBuf.writeMedium(val.getBase().getValue().intValue());
-            valueBuf.writeMedium(val.getRange().getValue().intValue());
+            Uint24ByteBufUtils.writeUint24(valueBuf, val.getBase());
+            Uint24ByteBufUtils.writeUint24(valueBuf, val.getRange());
         }
     }
 
