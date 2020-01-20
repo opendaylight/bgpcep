@@ -7,15 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.DatatypeConverter;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.Opaque;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
@@ -29,9 +26,6 @@ public final class OpaqueUtil {
     public static final short GENERIC_LSP_IDENTIFIER = 1;
     public static final short EXTENDED_TYPE = 255;
     private static final Logger LOG = LoggerFactory.getLogger(OpaqueUtil.class);
-    private static final String SEPARATOR = ":";
-    private static final Joiner SEPARATOR_JOINER = Joiner.on(SEPARATOR);
-    private static final Splitter TWO_CHAR_SPLITTER = Splitter.fixedLength(2);
 
     private OpaqueUtil() {
         // Hidden on purpose
@@ -56,20 +50,20 @@ public final class OpaqueUtil {
     }
 
     private static void writeExtended(final HexString opaque, final Uint16 opaqueExtendedType, final ByteBuf byteBuf) {
-        final byte[] output = writeOpaqueValue(opaque.getValue());
+        final byte[] output = writeOpaqueValue(opaque);
         ByteBufUtils.writeOrZero(byteBuf, opaqueExtendedType);
         byteBuf.writeShort(output.length);
         byteBuf.writeBytes(output);
     }
 
     private static void writeGeneric(final HexString opaque, final ByteBuf byteBuf) {
-        final byte[] output = writeOpaqueValue(opaque.getValue());
+        final byte[] output = writeOpaqueValue(opaque);
         byteBuf.writeShort(output.length);
         byteBuf.writeBytes(output);
     }
 
-    private static byte[] writeOpaqueValue(final String opaque) {
-        return DatatypeConverter.parseHexBinary(opaque.replace(SEPARATOR, ""));
+    private static byte[] writeOpaqueValue(final HexString opaque) {
+        return IetfYangUtil.INSTANCE.hexStringBytes(opaque);
     }
 
     public static Opaque parseOpaque(final ByteBuf buffer) {
@@ -99,8 +93,7 @@ public final class OpaqueUtil {
 
     private static HexString buildOpaqueValue(final ByteBuf buffer) {
         final int length = buffer.readUnsignedShort();
-        final byte[] value = ByteArray.readBytes(buffer, length);
-        return new HexString(SEPARATOR_JOINER.join(TWO_CHAR_SPLITTER.split(ByteBufUtil.hexDump(value))));
+        return IetfYangUtil.INSTANCE.hexStringFor(ByteArray.readBytes(buffer, length));
     }
 
     public static List<OpaqueValue> parseOpaqueList(final ByteBuf byteBuf) {
