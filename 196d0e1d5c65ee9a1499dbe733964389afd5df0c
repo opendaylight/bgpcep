@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1d7c4b8_176f22cb",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/NeighborUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-21T18:32:34Z",
+      "side": 1,
+      "message": "There is no risk if getIpv6AddressNoZone() return null? The case could occurs if someone just create an IpAddressNoZone() with no IPv4 nor IPv6 address. You explicitely do this test in similar function in OpenConfigMappingUtil.java.\n\nA safer way would to surround the IPv6 with a if() {} like for ipv4 and return explicitly null in the else:\n\nfinal Ipv6AddressNoZone ipv6 \u003d addr.getIpv6AddressNoZone();\nif(ipv6 !\u003d null) {\n   return new IpAddress(ipv6);\n}\nreturn null;",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 58
+      },
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
