@@ -76,7 +76,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
             final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safival);
             if (safi == null) {
                 LOG.debug("Ignoring GR capability for unknown subsequent address family {}", safival);
-                buffer.skipBytes(1);
+                buffer.skipBytes(PER_TABLE_SIZE - 3);
                 continue;
             }
 
