@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9ac632fc_7a3f0f4d",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Change to Long and add a note in the documentation to precise why the key must not be equal to 0.",
+      "parentUuid": "c7b7b474_11760586",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 8
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83cc399d_0c303cbe",
         "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40a9e848_4ad6d6f5",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83cc399d_0c303cbe",
+      "range": {
+        "startLine": 51,
+        "startChar": 4,
+        "endLine": 51,
+        "endChar": 19
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "01b32f2c_7b6f83f3",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Add Java Doc. The purpose is to get the Name of the associated Vertex or the router-id",
+      "parentUuid": "d9af019d_c41a1e85",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 22
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f61029ff_642f7dda",
         "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
         "patchSetId": 12
@@ -91,6 +163,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c963998_fedb483e",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f61029ff_642f7dda",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "0a8f835a_858866c8",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b51360b_c336955d",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 13
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30fdb07e_83ad5067",
         "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
         "patchSetId": 12
@@ -137,6 +257,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b209e653_a31cbcd7",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedGraph.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "addPrefix() will add the given Prefix to the Vertex / ConnectedVertex which announce this Prefix as well as in the global Prefixes HashMap of the ConnectedGraph class. getPrefixes() will return the contains of the HashMap i.e. al prefixes of all vertices",
+      "parentUuid": "30fdb07e_83ad5067",
+      "range": {
+        "startLine": 155,
+        "startChar": 4,
+        "endLine": 155,
+        "endChar": 13
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "cba6606c_1d2e9bbe",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedGraphImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27b17195_d92e9467",
+      "range": {
+        "startLine": 108,
+        "startChar": 12,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f64fcaaf_93ecb87d",
         "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedGraphImpl.java",
         "patchSetId": 12
@@ -183,6 +351,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0becc45e_7adf0cfd",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedGraphImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Force nonnull Lon key and add a note in the doc about the special significance of 0 for some algorithms.",
+      "parentUuid": "f64fcaaf_93ecb87d",
+      "range": {
+        "startLine": 126,
+        "startChar": 12,
+        "endLine": 126,
+        "endChar": 20
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "3f2ff59b_e60f269d",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedGraphImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04e3dd4a_0257fa3c",
+      "range": {
+        "startLine": 127,
+        "startChar": 19,
+        "endLine": 127,
+        "endChar": 23
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5bfd52b0_5349b7d8",
         "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/GraphListener.java",
         "patchSetId": 12
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "2e896359_322d761c",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/GraphListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bfd52b0_5349b7d8",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 69
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7fbd17c_e8ba35d5",
         "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/GraphListener.java",
         "patchSetId": 12
@@ -252,6 +492,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91df2ecf_30deb5b2",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/GraphListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7fbd17c_e8ba35d5",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 24
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
