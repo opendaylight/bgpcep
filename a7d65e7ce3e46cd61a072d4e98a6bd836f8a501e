@@ -22,6 +22,30 @@
       "revId": "a7d65e7ce3e46cd61a072d4e98a6bd836f8a501e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1079b6a_11a3f918",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-01-30T10:10:48Z",
+      "side": 1,
+      "message": "OK I understand that it is not necessary to add the method toString() in the interface as this method is herited from the Object mother class.\n\nI removed toString() method in the 3 ConnectedXXX interfaces and move the JavaDoc to the corresponding ConnectedXX Implementation class.",
+      "parentUuid": "17c61c11_30e8324a",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 0
+      },
+      "revId": "a7d65e7ce3e46cd61a072d4e98a6bd836f8a501e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
