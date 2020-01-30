@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12be1da1_a2970731",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-01-30T00:40:34Z",
+      "side": 1,
+      "message": "Graph Theory",
+      "revId": "8b3092c761ed3c3af6c6ffa5ee5499242c6aa859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63709f1c_2cc4279a",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-01-30T00:40:34Z",
+      "side": 1,
+      "message": "OpenDaylight",
+      "revId": "8b3092c761ed3c3af6c6ffa5ee5499242c6aa859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7400c83c_5502e0ca",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-01-30T00:40:34Z",
+      "side": 1,
+      "message": "in the Data Store",
+      "revId": "8b3092c761ed3c3af6c6ffa5ee5499242c6aa859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35be2b45_9a13a062",
+        "filename": "docs/graph/graph-user-guide-manage-graph.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-01-30T00:40:34Z",
+      "side": 1,
+      "message": "OpenDaylight",
+      "revId": "8b3092c761ed3c3af6c6ffa5ee5499242c6aa859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "536778f0_d7b37bee",
+        "filename": "docs/graph/graph-user-guide-manage-graph.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-01-30T00:40:34Z",
+      "side": 1,
+      "message": "restconf/config",
+      "revId": "8b3092c761ed3c3af6c6ffa5ee5499242c6aa859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63460568_11726ff0",
+        "filename": "docs/graph/graph-user-guide-manage-graph.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-01-30T00:40:34Z",
+      "side": 1,
+      "message": "PUT method?",
+      "revId": "8b3092c761ed3c3af6c6ffa5ee5499242c6aa859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
