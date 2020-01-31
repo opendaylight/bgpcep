@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "4d463185_623743e9",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-01-31T14:35:35Z",
+      "side": 1,
+      "message": "This change is starting to get older and older.\nIf this still makes sense to merge it, please go ahead. I\u0027ve talked with Olivier.\norg.opendaylight.yangtools.yang.common.UintXX and toJava() are anyway described in the Magnesium migration guide. So we can assume everybody knows what is their purpose.",
+      "parentUuid": "e331274e_1c289a63",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 9
+      },
+      "revId": "bfa14c67c02b14a127ea483a68444f840b24b791",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "99996356_098e40cc",
         "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/TerminationReason.java",
         "patchSetId": 2
