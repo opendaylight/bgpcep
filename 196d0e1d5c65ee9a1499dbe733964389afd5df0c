@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "3b522d0e_13e83a31",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-03T10:50:29Z",
+      "side": 1,
+      "message": "a new revision should be added and the file name changed",
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c377fcac_fe44dc0c",
+        "filename": "bgp/extensions/evpn/src/main/yang/odl-bgp-evpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-03T10:50:29Z",
+      "side": 1,
+      "message": "a new revision date should be added and the filename changed",
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d0ad81c_db5cbd20",
+        "filename": "bgp/extensions/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-03T10:50:29Z",
+      "side": 1,
+      "message": "etc",
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e1d7c4b8_176f22cb",
         "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/NeighborUtil.java",
         "patchSetId": 12
