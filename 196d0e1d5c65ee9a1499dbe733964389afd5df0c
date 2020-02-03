@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "31268759_ae11e302",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-03T18:34:55Z",
+      "side": 1,
+      "message": "right, and a new namespace, too",
+      "parentUuid": "3b522d0e_13e83a31",
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c377fcac_fe44dc0c",
         "filename": "bgp/extensions/evpn/src/main/yang/odl-bgp-evpn.yang",
         "patchSetId": 12
@@ -73,6 +91,30 @@
       "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0acac75d_aa73a7a8",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/NeighborUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-03T18:34:55Z",
+      "side": 1,
+      "message": "needlessly defensive -- an IpAddressNoZone is either an ipv4 or ipv6. It has to be one, otherswise what would it be its value (and string representation?)\n\nthe codebase is not consistent in this regard -- some places perform the check, throwing an ISE.\n\nwe certainly do not want to create a new source of nulls either -- if the input is bad (i.e. an impossible object), a runtime exception (as the NPE thrown by IpAddress constructor) is just as good as anything. It also stops badness dead cold, not leaving you with \u0027why doesn\u0027t FooBuilder.setAddress(convertIpAddress()) not fill this in ?!?!\u0027",
+      "parentUuid": "e1d7c4b8_176f22cb",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 58
+      },
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
