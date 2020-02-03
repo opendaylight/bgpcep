@@ -16,6 +16,24 @@
       "revId": "6c3aa85d7e0079fa40cd310afeb00c716dca4683",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14adca02_67f5c00f",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-03T09:08:57Z",
+      "side": 1,
+      "message": "I am not sure to understand what is unclear for you here. I found it clear enough but I agree it can be improved.\nFrom what I understand, YANG is a flat tree hierarchy, which is a particular form of connected Graph without cycles. So it is impossible to model \"all forms of\" Connected Graph \"with only one tree or one YANG model\". Olivier\u0027s point here is that if a tree decomposition is possible by using several trees, this decomposition is not unique and would imply conversions with a too big performance cost when implemented on a computer.\nhttps://en.wikipedia.org/wiki/Tree_decomposition",
+      "parentUuid": "3c95f7d6_3453f30d",
+      "revId": "6c3aa85d7e0079fa40cd310afeb00c716dca4683",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
