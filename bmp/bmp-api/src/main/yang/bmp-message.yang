@@ -3,11 +3,11 @@ module bmp-message {
     namespace "urn:opendaylight:params:xml:ns:yang:bmp-message";
     prefix "bmp-msg";
 
-    import bgp-message { prefix bgp-msg; revision-date 2018-03-29; }
+    import bgp-message { prefix bgp-msg; revision-date 2020-01-20; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2018-03-29; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
-    import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
+    import bgp-types { prefix bgp-t; revision-date 2020-01-20; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
@@ -25,6 +25,10 @@ module bmp-message {
 
    reference
         "https://tools.ietf.org/html/rfc7854";
+
+    revision 2020-01-20 {
+        description "Update to use -no-zone-adresses";
+    }
 
     revision "2018-03-29" {
         description "Add support for add-path for all afi/safi.";

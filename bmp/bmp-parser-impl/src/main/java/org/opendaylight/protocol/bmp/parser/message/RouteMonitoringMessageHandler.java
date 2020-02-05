@@ -17,10 +17,10 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.UpdateMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.RouteMonitoringMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.RouteMonitoringMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.RouteMonitoringMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.RouteMonitoringMessageBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class RouteMonitoringMessageHandler extends AbstractBmpPerPeerMessageParser<RouteMonitoringMessageBuilder> {
@@ -52,9 +52,9 @@ public class RouteMonitoringMessageHandler extends AbstractBmpPerPeerMessagePars
             Preconditions.checkArgument(message instanceof UpdateMessage,
                     "An instance of UpdateMessage is required");
             final UpdateMessage updateMessage = (UpdateMessage) message;
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.route
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.route
                     .monitoring.message.Update update = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-                    .ns.yang.bmp.message.rev180329.route.monitoring.message.UpdateBuilder(updateMessage).build();
+                    .ns.yang.bmp.message.rev200120.route.monitoring.message.UpdateBuilder(updateMessage).build();
             routeMonitor.setUpdate(update);
         } catch (final BGPDocumentedException | BGPParsingException e) {
             throw new BmpDeserializationException("Error while parsing Update Message.", e);

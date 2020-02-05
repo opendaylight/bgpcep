@@ -22,13 +22,13 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.NotifyMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.PeerDownNotification;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.PeerDownNotificationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.Data;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.data.FsmEventCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.data.FsmEventCodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.NotifyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.NotifyMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerDownNotification;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerDownNotificationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.Data;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data.FsmEventCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data.FsmEventCodeBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
@@ -52,14 +52,14 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
                 buffer.writeByte(REASON_TWO.getValue());
                 ByteBufUtils.writeOrZero(buffer, ((FsmEventCode) peerDown.getData()).getFsmEventCode());
             } else if (peerDown.getData()
-                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329
+                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120
                     .peer.down.data.Notification) {
                 buffer.writeByte(REASON_ONE.getValue());
                 serializePDU(peerDown.getData(), buffer);
             }
         } else {
             if (peerDown.getData()
-                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329
+                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120
                     .peer.down.data.Notification) {
                 buffer.writeByte(REASON_THREE.getValue());
                 serializePDU(peerDown.getData(), buffer);
@@ -70,9 +70,10 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
     }
 
     private void serializePDU(final Data data, final ByteBuf buffer) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.data
-                .Notification notification = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp
-                .message.rev180329.peer.down.data.Notification) data;
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data
+            .Notification notification =
+            (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data
+            .Notification) data;
         this.msgRegistry.serializeMessage(new NotifyBuilder(notification.getNotification()).build(), buffer);
     }
 
@@ -107,15 +108,15 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         return peerDown.build();
     }
 
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.data
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data
             .Notification parseBgpNotificationMessage(final ByteBuf bytes) throws BmpDeserializationException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.data
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data
                 .NotificationBuilder notificationCBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-                .xml.ns.yang.bmp.message.rev180329.peer.down.data.NotificationBuilder();
+                .xml.ns.yang.bmp.message.rev200120.peer.down.data.NotificationBuilder();
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.data
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data
                 .notification.NotificationBuilder notificationBuilder = new org.opendaylight.yang.gen.v1.urn
-                .opendaylight.params.xml.ns.yang.bmp.message.rev180329.peer.down.data.notification
+                .opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data.notification
                 .NotificationBuilder();
         try {
             final Notification not = this.msgRegistry.parseMessage(bytes, null);

@@ -3,7 +3,7 @@ module bgp-mvpn {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp:mvpn";
     prefix "bgp-mvpn";
 
-    import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
+    import bgp-types { prefix bgp-t; revision-date 2020-01-20; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import pmsi-tunnel { prefix pmsi; revision-date 2018-03-29; }
     import yang-ext { prefix ext; revision-date "2013-07-09"; }
@@ -23,6 +23,10 @@ module bgp-mvpn {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2020-01-20 {
+        description "Update to use -no-zone-adresses";
+    }
 
     revision 2018-04-17 {
         description "Initial version";
