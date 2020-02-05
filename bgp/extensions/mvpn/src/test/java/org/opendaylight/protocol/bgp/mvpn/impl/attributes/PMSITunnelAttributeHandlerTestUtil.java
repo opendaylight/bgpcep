@@ -16,26 +16,26 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.PAddressPMulticastGroup;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.bgp.rib.route.PmsiTunnelAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.bgp.rib.route.PmsiTunnelAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.PmsiTunnelBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.BidirPimTreeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.IngressReplicationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.MldpMp2mpLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.MldpP2mpLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.PimSmTreeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.PimSsmTreeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.RsvpTeP2mpLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValue;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.PAddressPMulticastGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.bgp.rib.route.PmsiTunnelAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.bgp.rib.route.PmsiTunnelAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.PmsiTunnelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.BidirPimTreeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.IngressReplicationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.MldpMp2mpLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.MldpP2mpLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.PimSmTreeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.PimSsmTreeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.RsvpTeP2mpLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValue;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.mldp.p2mp.lsp.OpaqueValueBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -268,7 +268,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     }
 
     private static PAddressPMulticastGroup buildPAddressPMulticastGroup() {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel
                 .pmsi.tunnel.tunnel.identifier.bidir.pim.tree.BidirPimTreeBuilder()
                 .setPAddress(IP_ADDRESS).setPMulticastGroup(P_MULTICAST).build();
     }
@@ -289,8 +289,8 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildBidirPimTreeAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(new BidirPimTreeBuilder()
-                .setBidirPimTree(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
-                        .rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.bidir.pim.tree
+                .setBidirPimTree(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                    .pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.bidir.pim.tree
                         .BidirPimTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
@@ -298,7 +298,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildPimSMTreeAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(new PimSmTreeBuilder().setPimSmTree(new org.opendaylight.yang.gen.v1
-                .urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel
+                .urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel
                 .identifier.pim.sm.tree.PimSmTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
@@ -306,7 +306,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildPimSSMTreeAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(new PimSsmTreeBuilder().setPimSsmTree(new org.opendaylight.yang.gen.v1
-                .urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel
+                .urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel
                 .identifier.pim.ssm.tree.PimSsmTreeBuilder(buildPAddressPMulticastGroup()).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
     }
@@ -351,8 +351,8 @@ final class PMSITunnelAttributeHandlerTestUtil {
     private static TunnelIdentifier buildMldpP2mpLsp(final IpAddressNoZone ipAddress,
             final Class<? extends AddressFamily> family, final List<OpaqueValue> opaqueList) {
         return new MldpP2mpLspBuilder()
-                .setMldpP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
-                        .rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder()
+                .setMldpP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                    .pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder()
                         .setRootNodeAddress(ipAddress).setAddressFamily(family).setOpaqueValue(opaqueList).build())
                 .build();
     }
@@ -360,8 +360,9 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildRsvpTep2MPLspAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(new RsvpTeP2mpLspBuilder()
-                .setRsvpTeP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel
-                        .rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp.RsvpTeP2mpLspBuilder()
+                .setRsvpTeP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                    .pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.rsvp.te.p2mp.lsp
+                        .RsvpTeP2mpLspBuilder()
                         .setP2mpId(Uint32.valueOf(3458)).setTunnelId(Uint16.valueOf(15))
                         .setExtendedTunnelId(IP_ADDRESS).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
@@ -370,7 +371,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildIngressReplicationAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(new IngressReplicationBuilder().setIngressReplication(new org
-                .opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi
+                .opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi
                 .tunnel.tunnel.identifier.ingress.replication.IngressReplicationBuilder()
                 .setReceivingEndpointAddress(IP_ADDRESS).build()).build());
         return buildAttribute(pmsiTunnelBuilder);
@@ -379,7 +380,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildMldpMP2mpLspWrongAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(new MldpMp2mpLspBuilder().setMldpMp2mpLsp(new org.opendaylight.yang.gen
-                .v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel.identifier
+                .v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier
                 .mldp.mp2mp.lsp.MldpMp2mpLspBuilder().setOpaque(OPAQUE_TEST).setOpaqueType(NO_SUPPORTED_OPAQUE)
                 .build()).build());
         return buildAttribute(pmsiTunnelBuilder);
@@ -388,7 +389,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildMLDpMp2mPLspAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(new MldpMp2mpLspBuilder().setMldpMp2mpLsp(new org.opendaylight.yang.gen
-                .v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.tunnel
+                .v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel
                 .identifier.mldp.mp2mp.lsp.MldpMp2mpLspBuilder().setOpaque(OPAQUE_TEST)
                 .setOpaqueType(Uint8.ONE).build()).build());
         return buildAttribute(pmsiTunnelBuilder);

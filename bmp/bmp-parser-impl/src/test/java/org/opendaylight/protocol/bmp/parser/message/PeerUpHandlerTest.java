@@ -16,7 +16,7 @@ import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev180329.PeerUpNotification;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerUpNotification;
 
 public class PeerUpHandlerTest extends AbstractBmpMessageTest {
 

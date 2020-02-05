@@ -11,7 +11,7 @@
     <reference id="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
 
     <odl:clustered-app-config id="bgpPeerAcceptorConfig"
-                              binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.peer.acceptor.config.rev161003.BgpPeerAcceptorConfig"
+                              binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.peer.acceptor.config.rev200120.BgpPeerAcceptorConfig"
                               list-key-value="default">
         <odl:default-config>
             <![CDATA[
