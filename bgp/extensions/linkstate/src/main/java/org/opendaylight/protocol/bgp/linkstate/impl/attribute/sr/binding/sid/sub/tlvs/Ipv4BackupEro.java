@@ -13,10 +13,10 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.BindingSubTlvsSerializer;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev180329.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.Ipv4EroBackupCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.ipv4.ero.backup._case.Ipv4EroBackup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.ProtocolId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.BindingSubTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.Ipv4EroBackupCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.ipv4.ero.backup._case.Ipv4EroBackup;
 
 public final class Ipv4BackupEro implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int BACKUP_ERO_IPV4 = 1166;

@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
 
 /**
  * Handles Next Hop, by default use {@link NextHopUtil} which is handles Ipv4 and Ipv6 Next hop.
