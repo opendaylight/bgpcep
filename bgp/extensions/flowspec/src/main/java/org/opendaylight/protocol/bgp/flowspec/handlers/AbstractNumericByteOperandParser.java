@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.NumericOperand;
 
 /**
  * Common parent class for numeric byte operands.
