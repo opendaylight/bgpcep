@@ -13,17 +13,17 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.protocol.bgp.mvpn.spi.pojo.nlri.SimpleMvpnNlriRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.NlriType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.leaf.a.d.grouping.LeafAD;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.leaf.a.d.grouping.LeafADBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.leaf.a.d.grouping.leaf.a.d.LeafADRouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.leaf.a.d.grouping.leaf.a.d.leaf.a.d.route.key.InterAsIPmsiADCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.leaf.a.d.grouping.leaf.a.d.leaf.a.d.route.key.InterAsIPmsiADCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.leaf.a.d.grouping.leaf.a.d.leaf.a.d.route.key.SPmsiADCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.leaf.a.d.grouping.leaf.a.d.leaf.a.d.route.key.SPmsiADCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.MvpnChoice;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.LeafADCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn.mvpn.choice.LeafADCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.NlriType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.leaf.a.d.grouping.LeafAD;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.leaf.a.d.grouping.LeafADBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.leaf.a.d.grouping.leaf.a.d.LeafADRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.leaf.a.d.grouping.leaf.a.d.leaf.a.d.route.key.InterAsIPmsiADCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.leaf.a.d.grouping.leaf.a.d.leaf.a.d.route.key.InterAsIPmsiADCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.leaf.a.d.grouping.leaf.a.d.leaf.a.d.route.key.SPmsiADCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.leaf.a.d.grouping.leaf.a.d.leaf.a.d.route.key.SPmsiADCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.mvpn.choice.LeafADCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.mvpn.choice.LeafADCaseBuilder;
 
 /**
  * https://tools.ietf.org/html/rfc6514#section-4.4.
@@ -44,10 +44,10 @@ public final class LeafADHandler extends AbstractMvpnNlri<LeafADCase> {
         final LeafADRouteKey routeKey;
         if (type == NlriType.InterAsIPmsiAD) {
             routeKey = new InterAsIPmsiADCaseBuilder((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                    .bgp.mvpn.rev180417.mvpn.mvpn.choice.InterAsIPmsiADCase) key).build();
+                    .bgp.mvpn.rev200120.mvpn.mvpn.choice.InterAsIPmsiADCase) key).build();
         } else {
-            routeKey = new SPmsiADCaseBuilder((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-                    .mvpn.rev180417.mvpn.mvpn.choice.SPmsiADCase) key).build();
+            routeKey = new SPmsiADCaseBuilder((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .bgp.mvpn.rev200120.mvpn.mvpn.choice.SPmsiADCase) key).build();
         }
         return new LeafADCaseBuilder().setLeafAD(new LeafADBuilder()
                 .setLeafADRouteKey(routeKey)
@@ -63,9 +63,9 @@ public final class LeafADHandler extends AbstractMvpnNlri<LeafADCase> {
         final MvpnChoice keyCase;
         if (key instanceof InterAsIPmsiADCase) {
             keyCase = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                    .bgp.mvpn.rev180417.mvpn.mvpn.choice.InterAsIPmsiADCaseBuilder((InterAsIPmsiADCase) key).build();
+                    .bgp.mvpn.rev200120.mvpn.mvpn.choice.InterAsIPmsiADCaseBuilder((InterAsIPmsiADCase) key).build();
         } else {
-            keyCase = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev180417.mvpn
+            keyCase = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn
                     .mvpn.choice.SPmsiADCaseBuilder((SPmsiADCase) key).build();
         }
         nlriByteBuf.writeBytes(SimpleMvpnNlriRegistry.getInstance().serializeMvpn(keyCase));

@@ -4,7 +4,7 @@ module bgp-message {
     prefix "bgp-msg";
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
+    import bgp-types { prefix bgp-t; revision-date 2020-01-20; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
@@ -20,6 +20,10 @@ module bgp-message {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2020-01-20 {
+        description "Update to use -no-zone-adresses";
+    }
 
     revision "2018-03-29" {
         description "Add RFC6514 Extended communities under bgp type.";

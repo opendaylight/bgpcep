@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;

@@ -12,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.AbstractList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.Communities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 
 /**
  * Utility class which prepends {@code LLGR_STALE} community in front of some other communities.
