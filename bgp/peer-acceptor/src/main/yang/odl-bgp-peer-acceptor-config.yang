@@ -15,6 +15,10 @@ module odl-bgp-peer-acceptor-config {
          accompanies this distribution, and is available at
          http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2020-01-20 {
+        description "Update to use -no-zone-adresses";
+    }
+
     revision "2016-10-03" {
         description
             "Initial revision.";

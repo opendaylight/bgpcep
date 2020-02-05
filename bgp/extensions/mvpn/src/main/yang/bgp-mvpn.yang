@@ -24,6 +24,10 @@ module bgp-mvpn {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2020-01-20 {
+        description "Update to use -no-zone-adresses";
+    }
+
     revision 2018-04-17 {
         description "Initial version";
     }

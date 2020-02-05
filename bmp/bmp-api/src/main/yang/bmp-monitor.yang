@@ -22,6 +22,10 @@ module bmp-monitor {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2020-01-20 {
+        description "Update to use -no-zone-adresses";
+    }
+
     revision "2018-03-29" {
         description "Add support for add-path for all afi/safi.";
     }

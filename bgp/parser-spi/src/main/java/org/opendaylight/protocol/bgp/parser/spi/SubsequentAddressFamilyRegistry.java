@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 
 public interface SubsequentAddressFamilyRegistry {
     Class<? extends SubsequentAddressFamily> classForFamily(int number);

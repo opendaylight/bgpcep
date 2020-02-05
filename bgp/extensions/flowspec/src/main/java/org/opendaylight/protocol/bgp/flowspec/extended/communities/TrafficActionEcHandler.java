@@ -13,10 +13,10 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.action.extended.community.TrafficActionExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.action.extended.community.TrafficActionExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.traffic.action.extended.community.TrafficActionExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.traffic.action.extended.community.TrafficActionExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.ExtendedCommunity;
 
 public class TrafficActionEcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
 
@@ -38,7 +38,7 @@ public class TrafficActionEcHandler implements ExtendedCommunityParser, Extended
             .flowspec.rev180329.TrafficActionExtendedCommunity,
                 "The extended community %s is not TrafficActionExtendedCommunityCase type.", extendedCommunity);
         final TrafficActionExtendedCommunity trafficAction = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-                .ns.yang.bgp.flowspec.rev180329.TrafficActionExtendedCommunity) extendedCommunity)
+                .ns.yang.bgp.flowspec.rev200120.TrafficActionExtendedCommunity) extendedCommunity)
                 .getTrafficActionExtendedCommunity();
         byteAggregator.writeZero(RESERVED);
         final BitArray flags = new BitArray(FLAGS_SIZE);
