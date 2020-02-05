@@ -13,7 +13,7 @@ import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
 
 public abstract class AbstractVpnNextHopParserSerializer implements NextHopParserSerializer {
     private final int ipAddrLength;

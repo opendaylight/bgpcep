@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.mode;
 
 import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.attributes.as.path.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
 
 public final class BesthPathStateUtil {
     private BesthPathStateUtil() {

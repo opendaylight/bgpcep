@@ -12,8 +12,8 @@ import static org.opendaylight.protocol.bgp.parser.spi.extended.community.Abstra
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.inet4.specific.extended.community.common.Inet4SpecificExtendedCommunityCommon;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.inet4.specific.extended.community.common.Inet4SpecificExtendedCommunityCommonBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.inet4.specific.extended.community.common.Inet4SpecificExtendedCommunityCommon;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.inet4.specific.extended.community.common.Inet4SpecificExtendedCommunityCommonBuilder;
 
 public final class Inet4SpecificExtendedCommunityCommonUtil {
     private Inet4SpecificExtendedCommunityCommonUtil() {

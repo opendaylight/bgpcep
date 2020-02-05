@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import java.util.Optional;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
 
 public interface ParameterRegistry {
     /**

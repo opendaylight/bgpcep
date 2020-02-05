@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.flowspec.destination.flowspec.FlowspecType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.FlowspecType;
 
 public interface FlowspecTypeParser {
     FlowspecType parseType(ByteBuf buffer);

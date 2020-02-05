@@ -3,8 +3,8 @@ module bgp-multiprotocol {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol";
     prefix "bgp-mp";
 
-    import bgp-message { prefix bgp-msg; revision-date 2018-03-29; }
-    import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
+    import bgp-message { prefix bgp-msg; revision-date 2020-01-20; }
+    import bgp-types { prefix bgp-t; revision-date 2020-01-20; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
     import odl-uint24 { prefix uint24; }
 

@@ -13,10 +13,10 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.ipv4.extended.community.RedirectIpv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.redirect.ipv4.extended.community.RedirectIpv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.extended.communities.extended.community.RedirectIpv4ExtendedCommunityCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.redirect.ipv4.extended.community.RedirectIpv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.redirect.ipv4.extended.community.RedirectIpv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update.attributes.extended.communities.extended.community.RedirectIpv4ExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.ExtendedCommunity;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class RedirectIpv4EcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
@@ -25,11 +25,11 @@ public class RedirectIpv4EcHandler implements ExtendedCommunityParser, ExtendedC
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-            .flowspec.rev180329.RedirectIpv4ExtendedCommunity,
+        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .bgp.flowspec.rev200120.RedirectIpv4ExtendedCommunity,
                 "The extended community %s is not RedirectIpv4ExtendedCommunityCase type.", extendedCommunity);
-        final RedirectIpv4 redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec
-                .rev180329.RedirectIpv4ExtendedCommunity) extendedCommunity).getRedirectIpv4();
+        final RedirectIpv4 redirect = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .bgp.flowspec.rev200120.RedirectIpv4ExtendedCommunity) extendedCommunity).getRedirectIpv4();
         Ipv4Util.writeIpv4Address(redirect.getGlobalAdministrator(), byteAggregator);
         ByteBufUtils.writeOrZero(byteAggregator, redirect.getLocalAdministrator());
     }

@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.bgp.linkstate.spi;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.BindingSubTlv;
 
 public interface BindingSubTlvsSerializer {
     void serializeSubTlv(BindingSubTlv bindingSubTlv, ByteBuf aggregator);
