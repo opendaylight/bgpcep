@@ -13,7 +13,7 @@ module openconfig-bgp-policy {
   import openconfig-policy-types { prefix pt; }
   import openconfig-bgp-types { prefix bgp-types; }
   import openconfig-extensions { prefix oc-ext; }
-  import bgp-types { prefix bgp-t; revision-date 2018-03-29; }
+  import bgp-types { prefix bgp-t; revision-date 2020-01-20; }
 
 
   // meta
