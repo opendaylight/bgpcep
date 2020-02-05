@@ -271,7 +271,7 @@ final class AdjRibInWriter {
     }
 
     void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params
-            .xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes attributes) {
+            .xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
         final TableContext ctx = this.tables.get(key);
         if (ctx == null) {

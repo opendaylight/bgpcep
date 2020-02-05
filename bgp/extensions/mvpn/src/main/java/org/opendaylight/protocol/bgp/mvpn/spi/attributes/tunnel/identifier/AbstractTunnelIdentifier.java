@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.mvpn.spi.attributes.tunnel.identifier;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev180329.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
 
 /**
  * Common Abstract Tunnel Identifier.

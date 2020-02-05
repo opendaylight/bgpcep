@@ -26,7 +26,7 @@ import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.NetworkTopologyPcepProgrammingService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev181109.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.NetworkTopologyPcepService;
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
 
 public final class PCEPTopologyProvider extends DefaultTopologyReference {

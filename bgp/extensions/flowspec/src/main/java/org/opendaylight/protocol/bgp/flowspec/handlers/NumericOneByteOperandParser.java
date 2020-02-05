@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.flowspec.handlers;
 import io.netty.buffer.ByteBuf;
 import java.util.Iterator;
 import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOneByteValue;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.NumericOperand;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.NumericOneByteValue;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.NumericOperand;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 

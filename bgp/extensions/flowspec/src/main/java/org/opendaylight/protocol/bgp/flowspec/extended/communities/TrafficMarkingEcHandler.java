@@ -12,11 +12,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.Dscp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.marking.extended.community.TrafficMarkingExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.traffic.marking.extended.community.TrafficMarkingExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev180329.update.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.extended.community.ExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.Dscp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.traffic.marking.extended.community.TrafficMarkingExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.traffic.marking.extended.community.TrafficMarkingExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.ExtendedCommunity;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class TrafficMarkingEcHandler implements ExtendedCommunityParser, ExtendedCommunitySerializer {
@@ -26,11 +26,11 @@ public class TrafficMarkingEcHandler implements ExtendedCommunityParser, Extende
 
     @Override
     public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity, final ByteBuf byteAggregator) {
-        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-            .flowspec.rev180329.TrafficMarkingExtendedCommunity,
+        checkArgument(extendedCommunity instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .bgp.flowspec.rev200120.TrafficMarkingExtendedCommunity,
                 "The extended community %s is not TrafficMarkingExtendedCommunity type.", extendedCommunity);
         final TrafficMarkingExtendedCommunity trafficMarking = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params
-                .xml.ns.yang.bgp.flowspec.rev180329.TrafficMarkingExtendedCommunity) extendedCommunity)
+                .xml.ns.yang.bgp.flowspec.rev200120.TrafficMarkingExtendedCommunity) extendedCommunity)
                 .getTrafficMarkingExtendedCommunity();
         byteAggregator.writeZero(RESERVED);
         ByteBufUtils.write(byteAggregator, trafficMarking.getGlobalAdministrator().getValue());

@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev180329.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 
 /**
  * Attribute Container Wrapper, provides information whether any import/export policy condition has been satisfied.
