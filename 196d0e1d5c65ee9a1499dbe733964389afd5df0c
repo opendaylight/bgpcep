@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "4565bec2_56497504",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-06T14:42:44Z",
+      "side": 1,
+      "message": "OK since this change has been merged, I\u0027ve started to work on this at\nhttps://git.opendaylight.org/gerrit/c/bgpcep/+/87454/\nI let you rework the namespace apart since I don\u0027t know what you expect.\n\nIt is near to work - I am currently working on fixing the few remaining Junit.\n\nThe number of files impacted is quite huge since there is a spaghetti plate of YANG model imports that forces explicitly the revision date. I am not sure this is the smartest thing to do here since it seems bgpcep does not need to support 2 models revision at the same time.\nMaybe this can be address later too.",
+      "parentUuid": "31268759_ae11e302",
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c377fcac_fe44dc0c",
         "filename": "bgp/extensions/evpn/src/main/yang/odl-bgp-evpn.yang",
         "patchSetId": 12
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "eb68278e_9eb084ed",
+        "filename": "bgp/extensions/evpn/src/main/yang/odl-bgp-evpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-06T14:42:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c377fcac_fe44dc0c",
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d0ad81c_db5cbd20",
         "filename": "bgp/extensions/flowspec/src/main/yang/bgp-flowspec.yang",
         "patchSetId": 12
@@ -68,6 +104,24 @@
       "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "681f7824_2d05d82b",
+        "filename": "bgp/extensions/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-06T14:42:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8d0ad81c_db5cbd20",
+      "revId": "196d0e1d5c65ee9a1499dbe733964389afd5df0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
