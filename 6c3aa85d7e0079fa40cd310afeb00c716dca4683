@@ -34,6 +34,24 @@
       "revId": "6c3aa85d7e0079fa40cd310afeb00c716dca4683",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30390e9e_d40d07f9",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T12:49:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "14adca02_67f5c00f",
+      "revId": "6c3aa85d7e0079fa40cd310afeb00c716dca4683",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
