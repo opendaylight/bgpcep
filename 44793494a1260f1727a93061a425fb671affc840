@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a0284354_ea8cd2a9",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T12:49:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44871c0b_9fbc9976",
+      "range": {
+        "startLine": 112,
+        "startChar": 37,
+        "endLine": 112,
+        "endChar": 42
+      },
+      "revId": "44793494a1260f1727a93061a425fb671affc840",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "972b59c5_7bbb1d93",
         "filename": "docs/graph/graph-user-guide-graph-model.rst",
         "patchSetId": 18
@@ -45,6 +69,30 @@
       "revId": "44793494a1260f1727a93061a425fb671affc840",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ce614c7_ed6f3063",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T12:49:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "972b59c5_7bbb1d93",
+      "range": {
+        "startLine": 113,
+        "startChar": 33,
+        "endLine": 113,
+        "endChar": 40
+      },
+      "revId": "44793494a1260f1727a93061a425fb671affc840",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -91,6 +139,54 @@
       "revId": "44793494a1260f1727a93061a425fb671affc840",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8879efd_5879c3c7",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T12:49:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8bf9cc8_701eed15",
+      "range": {
+        "startLine": 114,
+        "startChar": 37,
+        "endLine": 114,
+        "endChar": 41
+      },
+      "revId": "44793494a1260f1727a93061a425fb671affc840",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9e6b942_a10cdb85",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T12:49:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3d5c274_dd57680f",
+      "range": {
+        "startLine": 114,
+        "startChar": 12,
+        "endLine": 114,
+        "endChar": 21
+      },
+      "revId": "44793494a1260f1727a93061a425fb671affc840",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
