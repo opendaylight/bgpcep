@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44871c0b_9fbc9976",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T11:07:30Z",
+      "side": 1,
+      "message": "tree",
+      "range": {
+        "startLine": 112,
+        "startChar": 37,
+        "endLine": 112,
+        "endChar": 42
+      },
+      "revId": "44793494a1260f1727a93061a425fb671affc840",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "972b59c5_7bbb1d93",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T11:07:30Z",
+      "side": 1,
+      "message": "useful",
+      "range": {
+        "startLine": 113,
+        "startChar": 33,
+        "endLine": 113,
+        "endChar": 40
+      },
+      "revId": "44793494a1260f1727a93061a425fb671affc840",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8bf9cc8_701eed15",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T11:07:30Z",
+      "side": 1,
+      "message": "types",
+      "range": {
+        "startLine": 114,
+        "startChar": 37,
+        "endLine": 114,
+        "endChar": 41
+      },
+      "revId": "44793494a1260f1727a93061a425fb671affc840",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3d5c274_dd57680f",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-07T11:07:30Z",
+      "side": 1,
+      "message": "compared",
+      "range": {
+        "startLine": 114,
+        "startChar": 12,
+        "endLine": 114,
+        "endChar": 21
+      },
+      "revId": "44793494a1260f1727a93061a425fb671affc840",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
