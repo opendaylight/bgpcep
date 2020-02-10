@@ -117,6 +117,29 @@
     },
     {
       "key": {
+        "uuid": "462710b6_adb88f9a",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/path/computation/algo/PathComputationProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:50:46Z",
+      "side": 1,
+      "message": "should better stay sticked to ease readability",
+      "range": {
+        "startLine": 91,
+        "startChar": 71,
+        "endLine": 92,
+        "endChar": 41
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a8bc0118_a3d5a5c7",
         "filename": "algo/algo-impl/src/main/java/org/opendaylight/path/computation/algo/PathComputationProvider.java",
         "patchSetId": 1
@@ -133,6 +156,29 @@
         "startChar": 0,
         "endLine": 129,
         "endChar": 0
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07d7b868_e0bf3c31",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/path/computation/algo/Samcra.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:50:46Z",
+      "side": 1,
+      "message": "LOG.info(\"relaxSamcra: new path dominates existing path: {} teCost:  {} delayCost:  {} \",\n                                testedPath, float1, float2);",
+      "range": {
+        "startLine": 361,
+        "startChar": 0,
+        "endLine": 362,
+        "endChar": 85
       },
       "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
