@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56877c2d_fa0c041e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:40:42Z",
+      "side": 1,
+      "message": "Patch",
+      "range": {
+        "startLine": 11,
+        "startChar": 16,
+        "endLine": 11,
+        "endChar": 21
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "752aec86_c4debf84",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:40:42Z",
+      "side": 1,
+      "message": "ed",
+      "range": {
+        "startLine": 12,
+        "startChar": 47,
+        "endLine": 12,
+        "endChar": 49
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3ad834e_22d6b9b3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:40:42Z",
+      "side": 1,
+      "message": "paths",
+      "range": {
+        "startLine": 13,
+        "startChar": 40,
+        "endLine": 13,
+        "endChar": 44
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdc29c64_36e347b7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:40:42Z",
+      "side": 1,
+      "message": "in",
+      "range": {
+        "startLine": 14,
+        "startChar": 9,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb1b9b71_5308829d",
+        "filename": "algo/algo-api/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:40:42Z",
+      "side": 1,
+      "message": "trailing blanks",
+      "range": {
+        "startLine": 34,
+        "startChar": 2,
+        "endLine": 49,
+        "endChar": 1
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8bc0118_a3d5a5c7",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/path/computation/algo/PathComputationProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:40:42Z",
+      "side": 1,
+      "message": "Maybe this can be factorized.",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 0
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "326a697a_1f576523",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/path/computation/algo/Samcra.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-10T20:40:42Z",
+      "side": 1,
+      "message": "LOG.debug(\n                \"relaxSamcra: exit without processing because computed TE: {} and/or delay: {} exceed constraints\",\n                    teCost, delayCost);",
+      "range": {
+        "startLine": 468,
+        "startChar": 0,
+        "endLine": 469,
+        "endChar": 64
+      },
+      "revId": "ff6f57ed28cfc0b19030e91edc3d859b8518758b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
