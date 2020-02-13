@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "14c3c831_85d685e2",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-13T14:33:55Z",
+      "side": 1,
+      "message": "Move allocation at top",
+      "parentUuid": "550abfd5_b74eee47",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bfc931c_5b1c38c1",
         "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c3ece747_ed01ac62",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-13T14:33:55Z",
+      "side": 1,
+      "message": "Change also the prunEdge() method",
+      "parentUuid": "6bfc931c_5b1c38c1",
+      "range": {
+        "startLine": 229,
+        "startChar": 1,
+        "endLine": 244,
+        "endChar": 24
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2ff678e_11bc88c6",
         "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31efe00b_50d38c98",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-13T14:33:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2ff678e_11bc88c6",
+      "range": {
+        "startLine": 231,
+        "startChar": 22,
+        "endLine": 232,
+        "endChar": 26
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +189,54 @@
     },
     {
       "key": {
+        "uuid": "0863f84f_16b15174",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-13T14:33:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ffa9c86_ecde0798",
+      "range": {
+        "startLine": 432,
+        "startChar": 44,
+        "endLine": 432,
+        "endChar": 45
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0861ff0b_e1f13682",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-13T14:33:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52ce26b9_db656a7b",
+      "range": {
+        "startLine": 431,
+        "startChar": 67,
+        "endLine": 432,
+        "endChar": 43
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0b45984_feeda760",
         "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
         "patchSetId": 2
@@ -137,6 +257,30 @@
       "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ac10af7_5c4f02b1",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-13T14:33:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0b45984_feeda760",
+      "range": {
+        "startLine": 436,
+        "startChar": 28,
+        "endLine": 436,
+        "endChar": 95
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
