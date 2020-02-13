@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "6bfc931c_5b1c38c1",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-13T09:27:59Z",
+      "side": 1,
+      "message": "would be nice to have comments to describe what case corresponds to.\nI assume 2 and 3 are MPLS since they set a Label.",
+      "range": {
+        "startLine": 229,
+        "startChar": 1,
+        "endLine": 244,
+        "endChar": 24
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2ff678e_11bc88c6",
         "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
         "patchSetId": 2
@@ -41,6 +64,75 @@
         "startChar": 22,
         "endLine": 232,
         "endChar": 26
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ffa9c86_ecde0798",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-13T09:27:59Z",
+      "side": 1,
+      "message": "I guess a  line Feed would help readability here",
+      "range": {
+        "startLine": 432,
+        "startChar": 44,
+        "endLine": 432,
+        "endChar": 45
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52ce26b9_db656a7b",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-13T09:27:59Z",
+      "side": 1,
+      "message": "can be simplified if i am not mistaken\n\n((delay !\u003d null) \u0026\u0026 (pathDelayDominated)) || (delay \u003d\u003d null))\n\u003d\u003e ( (delay \u003d\u003d null) || ((delay !\u003d null) \u0026\u0026 (pathDelayDominated)) )\n\u003d\u003e ( (delay \u003d\u003d null) || (pathDelayDominated) )",
+      "range": {
+        "startLine": 431,
+        "startChar": 67,
+        "endLine": 432,
+        "endChar": 43
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0b45984_feeda760",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-13T09:27:59Z",
+      "side": 1,
+      "message": "idem",
+      "range": {
+        "startLine": 436,
+        "startChar": 28,
+        "endLine": 436,
+        "endChar": 95
       },
       "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
