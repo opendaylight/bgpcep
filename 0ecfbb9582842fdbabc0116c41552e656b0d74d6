@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "550abfd5_b74eee47",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-13T07:47:13Z",
+      "side": 1,
+      "message": "factorization possible",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2ff678e_11bc88c6",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-13T07:47:13Z",
+      "side": 1,
+      "message": "} else if {\n    [...]\n} else {\n    [...]\n}",
+      "range": {
+        "startLine": 231,
+        "startChar": 22,
+        "endLine": 232,
+        "endChar": 26
+      },
+      "revId": "0ecfbb9582842fdbabc0116c41552e656b0d74d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
