@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12087fa2_52d5e0be",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "fulfilled",
+      "range": {
+        "startLine": 13,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 26
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ddc59e7_9681d713",
+        "filename": "features/pcep/features-pcep/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "use something like ${project.version} preferably",
+      "range": {
+        "startLine": 59,
+        "startChar": 21,
+        "endLine": 59,
+        "endChar": 36
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "697be7d2_4d032c67",
+        "filename": "features/pcep/odl-bgpcep-pcep-server-provider/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "trailing blank",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 4
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed5dba19_5cda2de9",
+        "filename": "features/pcep/odl-bgpcep-pcep-server-provider/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "use something like ${project.version} preferably",
+      "range": {
+        "startLine": 35,
+        "startChar": 21,
+        "endLine": 35,
+        "endChar": 36
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90b5702e_4dbbb81c",
+        "filename": "features/pcep/odl-bgpcep-pcep-server/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "trailing blank",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 4
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce10bc1e_1909804a",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "factorization possible\netc...",
+      "range": {
+        "startLine": 154,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 87
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d71dc430_dd31b14e",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "factorization possible",
+      "range": {
+        "startLine": 207,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 118
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb9da158_5395f365",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "can be improved",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 34
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf9e3e13_fcfc1fb8",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "idem",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 34
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07a931a5_613c38d7",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "switch/case structure would probably be better.",
+      "range": {
+        "startLine": 149,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 13
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0524077_fd13b03d",
+        "filename": "pcep/server/server-provider/src/main/resources/OSGI-INF/blueprint/pce-server.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "trailing blank",
+      "range": {
+        "startLine": 15,
+        "startChar": 4,
+        "endLine": 15,
+        "endChar": 5
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ac2c0c2_3655b6f6",
+        "filename": "pcep/topology/topology-provider/src/main/resources/OSGI-INF/blueprint/pcep-topology.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T14:32:19Z",
+      "side": 1,
+      "message": "trailing blank",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 4
+      },
+      "revId": "fabf65459b9af2241b4f7facb3f45ab6e7f8c77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
