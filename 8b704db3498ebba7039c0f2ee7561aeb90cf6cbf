@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "7cc17f32_74fd0999",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T22:54:22Z",
+      "side": 1,
+      "message": "error states setBgpLinkstateTopology(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.bgp.linkstate.topology.type.BgpLinkstateTopology) is not found\n\nShould this be replaced by the following import ?\nimport org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;\nimport org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1Builder;",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 122
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1df83b2_064471b3",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-14T22:54:22Z",
+      "side": 1,
+      "message": "not initialized\n\nas InstanceIdentifier\u003cTopology\u003e topology;",
+      "range": {
+        "startLine": 130,
+        "startChar": 63,
+        "endLine": 130,
+        "endChar": 76
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e247ee1d_a1cc4b3b",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
         "patchSetId": 3
