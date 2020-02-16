@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a0bde2ed_a0483e25",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-16T15:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cc17f32_74fd0999",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 122
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c1df83b2_064471b3",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5428ce4f_7be15c2c",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-16T15:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1df83b2_064471b3",
+      "range": {
+        "startLine": 130,
+        "startChar": 63,
+        "endLine": 130,
+        "endChar": 76
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1e1d6c31_e45b6fb6",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-16T15:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e247ee1d_a1cc4b3b",
+      "range": {
+        "startLine": 275,
+        "startChar": 4,
+        "endLine": 282,
+        "endChar": 7
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c4a9fef3_3a016f12",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/config/LinkstateGraphProvider.java",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfbf68f6_c154b99a",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/config/LinkstateGraphProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-16T15:34:01Z",
+      "side": 1,
+      "message": "I changed to Orange, but this file is a copy / paste of LinkstateTopologyProvider.jave with very few modifications. So, letting the Copyright to Cisco is also a possible solution.",
+      "parentUuid": "c4a9fef3_3a016f12",
+      "range": {
+        "startLine": 2,
+        "startChar": 3,
+        "endLine": 2,
+        "endChar": 35
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "befdcf48_25f3e015",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-16T15:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c038e58d_f1c5f622",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bc8153cd_d8eb0e04",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
         "patchSetId": 3
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "1543e92c_98f58d14",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-16T15:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc8153cd_d8eb0e04",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fa030d0_3a7c3219",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
         "patchSetId": 3
@@ -151,6 +295,30 @@
       "writtenOn": "2020-02-14T18:42:56Z",
       "side": 1,
       "message": "some LOG.error protection is generally appreciated here but maybe it is pointless in that case.",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 216,
+        "endChar": 26
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f387dc5_298d2ec2",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-16T15:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fa030d0_3a7c3219",
       "range": {
         "startLine": 215,
         "startChar": 0,
@@ -183,6 +351,30 @@
       "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58591b2e_1932bb7a",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PceServerFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-16T15:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5010121d_94bd49ba",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "8b704db3498ebba7039c0f2ee7561aeb90cf6cbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
