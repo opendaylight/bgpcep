@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ecdcab4_24ba0447",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-17T22:14:43Z",
+      "side": 1,
+      "message": "links",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 35,
+        "endChar": 32
+      },
+      "revId": "dd7ca299e97557cbbbd019f42484b77d5dcbc35b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}

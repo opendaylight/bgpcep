@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ed71e06b_2d50a4ae",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-17T22:14:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "749a90ed_52c60b38",
+      "range": {
+        "startLine": 11,
+        "startChar": 6,
+        "endLine": 11,
+        "endChar": 13
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6adc71ac_a2cdfd58",
         "filename": "docs/graph/graph-user-guide-graph-model.rst",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49b9268b_137f8158",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-17T22:14:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6adc71ac_a2cdfd58",
+      "range": {
+        "startLine": 15,
+        "startChar": 17,
+        "endLine": 15,
+        "endChar": 21
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +205,24 @@
     },
     {
       "key": {
+        "uuid": "c48efca2_1953bf52",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-17T22:14:43Z",
+      "side": 1,
+      "message": "What about \"In most networks, devices are connected by using two-way or bidirectional logical links.\" ?\n\nThe \"bidirectional link\" terminology is largely used, so I guess Olivier meant here by \"real network\" \"logical links in general\" and not physical links. \nIn most modeling, they are rarely monodirectional, especially in upper layers since half-failures detection are often dealt in lower layers (e.g. UDLD protocol).\n\nI guess the confusion here is that \"real network\" can be understood as \"physical links\", what makes your point completely valid.\nPhysical links are mostly unidirectionnal especially optical fibers, apart a few exceptions such as FTTH.",
+      "parentUuid": "e8f31243_2828d52d",
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb4f53f7_16c34c59",
         "filename": "docs/graph/graph-user-guide-graph-model.rst",
         "patchSetId": 12
@@ -180,6 +246,30 @@
     },
     {
       "key": {
+        "uuid": "63ccd6be_2902f94b",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-17T22:14:43Z",
+      "side": 1,
+      "message": "Agreed. This was not well explained. Olivier already reworked this part.",
+      "parentUuid": "cb4f53f7_16c34c59",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 36
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48dedc13_4e8abcb7",
         "filename": "docs/graph/graph-user-guide-graph-model.rst",
         "patchSetId": 12
@@ -200,6 +290,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d09d247_fc5ec16b",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-02-17T22:14:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "48dedc13_4e8abcb7",
+      "range": {
+        "startLine": 114,
+        "startChar": 37,
+        "endLine": 115,
+        "endChar": 55
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
