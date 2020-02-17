@@ -2,6 +2,207 @@
   "comments": [
     {
       "key": {
+        "uuid": "749a90ed_52c60b38",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "Theory",
+      "range": {
+        "startLine": 11,
+        "startChar": 6,
+        "endLine": 11,
+        "endChar": 13
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6adc71ac_a2cdfd58",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "among",
+      "range": {
+        "startLine": 15,
+        "startChar": 17,
+        "endLine": 15,
+        "endChar": 21
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1c51389_84c676df",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "a PCRequest",
+      "range": {
+        "startLine": 18,
+        "startChar": 15,
+        "endLine": 18,
+        "endChar": 25
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c5f40a4_6c2f2be2",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "RESTCONF",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 8
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2af78f9_2cf1d3ae",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "Constrained\n- a link to https://en.wikipedia.org/wiki/Constrained_Shortest_Path_First would be nice\n- also we want to introduce CSPF as a term.",
+      "range": {
+        "startLine": 20,
+        "startChar": 43,
+        "endLine": 20,
+        "endChar": 54
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "613a1055_52a4bc41",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "Okay, so if I take RFC8345 as prior art, \"Graph\" here really is \"Network\" and \"Connected Graph\" actually is a \"Topology\".",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 6
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8f31243_2828d52d",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "This is certainly not correct, unless by \"real\" you mean some specific hardware.\n\nModeling, or even imagining, a network as composed of bidirectional links brings about problems as soon as half-failures are possible.\n\nThe intent of the paragraph seems to actually prime the reader to jump from average PC user (this cable is my link) to network engineering (links are directional and that cable happens to be full-duplex, so it\u0027s two links) -- can we perhaps rephrase this paragraph without the first sentence?",
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb4f53f7_16c34c59",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "This statement is certainly not true. It is not only possible, but also has been done before, see RFC8345 and programming-api in this project.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 36
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48dedc13_4e8abcb7",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "\"not suitable for efficient implementation\" (without specific storage engine capabilities)",
+      "range": {
+        "startLine": 114,
+        "startChar": 37,
+        "endLine": 115,
+        "endChar": 55
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c7b7b474_11760586",
         "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
         "patchSetId": 12
@@ -281,6 +482,132 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f767d986_b43ed5c3",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "I do not believe this model brings much new to the table -- it effectively forms the same baseline as ietf-topology.yang, except it is missing some concepts, uses different identifiers for vertices and is not extensible.\n\nCan we remodel this in terms of ietf-topology and keep things as standard as possible?",
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fab7375_33b8742a",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "I think all of these are actually already modeled in this project (rsvp.yang, etc.), why do we need separate definitions?",
+      "range": {
+        "startLine": 41,
+        "startChar": 13,
+        "endLine": 41,
+        "endChar": 28
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40547348_17c3d79f",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "If this is to represent bandwidth, this actually is wrong -- the underlying type is a float, so this type (which is a shortening of it) is a lossy conversion.\n\nAlso this type is repeated -- define a \u0027typedef\u0027 which properly explains the semantics and reuse it properly.",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c134e3b_56cd4498",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "not in description, YANG has \"units\" statement",
+      "range": {
+        "startLine": 82,
+        "startChar": 71,
+        "endLine": 82,
+        "endChar": 91
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9596cce8_0581d4e5",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "lose the quotes",
+      "range": {
+        "startLine": 83,
+        "startChar": 25,
+        "endLine": 83,
+        "endChar": 28
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52734dd5_a8ee463b",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-02-17T20:30:57Z",
+      "side": 1,
+      "message": "this deserves a description:\n- why do we need this type?\n- why can there only be two types?",
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     },
     {
       "key": {
