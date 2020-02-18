@@ -364,14 +364,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     }
 
     private NodeHolder getNode(final NodeId id) {
-        if (this.nodes.containsKey(id)) {
-            LOG.debug("Node {} is already present", id);
-            return this.nodes.get(id);
-        }
-
-        final NodeHolder ret = new NodeHolder(id);
-        this.nodes.put(id, ret);
-        return ret;
+        return this.nodes.computeIfAbsent(id, NodeHolder::new);
     }
 
     private void putNode(final WriteTransaction trans, final NodeHolder holder) {
