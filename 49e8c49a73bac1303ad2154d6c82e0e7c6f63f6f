@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11899274_fd8102d7",
+        "filename": "algo/algo-api/src/main/yang/path-computation.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-02-18T17:27:29Z",
+      "side": 1,
+      "message": "in-progress?",
+      "revId": "49e8c49a73bac1303ad2154d6c82e0e7c6f63f6f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40fd6a53_d53079ad",
+        "filename": "algo/algo-api/src/main/yang/path-computation.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-02-18T17:27:29Z",
+      "side": 1,
+      "message": "some description for what each of the states represents will help (e.g. it is not immediately clear what is the difference between completed and active from a path-computation perspective)",
+      "revId": "49e8c49a73bac1303ad2154d6c82e0e7c6f63f6f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
