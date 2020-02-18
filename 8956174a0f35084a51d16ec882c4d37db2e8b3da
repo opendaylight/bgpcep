@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96e703c1_9a08f727",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-02-18T17:48:23Z",
+      "side": 1,
+      "message": "Instead of processing the link-state routes directly here, would it make sense to update LinkstateTopologyBuilder for missing TE attributes and for this class to depend on link-state topology built by it",
+      "revId": "8956174a0f35084a51d16ec882c4d37db2e8b3da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d85e8c31_6c34fc98",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-02-18T17:48:23Z",
+      "side": 1,
+      "message": "MessageUtil?",
+      "revId": "8956174a0f35084a51d16ec882c4d37db2e8b3da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
