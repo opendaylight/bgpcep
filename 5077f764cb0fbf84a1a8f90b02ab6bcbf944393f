@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1bb4639e_1a75158e",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed71e06b_2d50a4ae",
+      "range": {
+        "startLine": 11,
+        "startChar": 6,
+        "endLine": 11,
+        "endChar": 13
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6adc71ac_a2cdfd58",
         "filename": "docs/graph/graph-user-guide-graph-model.rst",
         "patchSetId": 12
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "6adc71ac_a2cdfd58",
+      "range": {
+        "startLine": 15,
+        "startChar": 17,
+        "endLine": 15,
+        "endChar": 21
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1e049f2_b351f126",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49b9268b_137f8158",
       "range": {
         "startLine": 15,
         "startChar": 17,
@@ -142,6 +190,54 @@
     },
     {
       "key": {
+        "uuid": "3953c586_8b5b628a",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c5f40a4_6c2f2be2",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 8
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37878130_48d830f2",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1c51389_84c676df",
+      "range": {
+        "startLine": 18,
+        "startChar": 15,
+        "endLine": 18,
+        "endChar": 25
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2af78f9_2cf1d3ae",
         "filename": "docs/graph/graph-user-guide-graph-model.rst",
         "patchSetId": 12
@@ -165,6 +261,30 @@
     },
     {
       "key": {
+        "uuid": "c636e7f0_0ee85466",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Change this section and add reference at the end with Graph Theory and SPF.",
+      "parentUuid": "c2af78f9_2cf1d3ae",
+      "range": {
+        "startLine": 20,
+        "startChar": 43,
+        "endLine": 20,
+        "endChar": 54
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "613a1055_52a4bc41",
         "filename": "docs/graph/graph-user-guide-graph-model.rst",
         "patchSetId": 12
@@ -185,6 +305,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78dea73c_c224c0e8",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Change the section. Hope new formulation is better.",
+      "parentUuid": "613a1055_52a4bc41",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 6
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -223,6 +367,24 @@
     },
     {
       "key": {
+        "uuid": "be7b34f9_8649d4b6",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "I completely re-write this part. In fact, the meaning is to take the point of view of link resources which is independent from the direction as links are now full-duplex i.e. most of IP/MPLS use optical links",
+      "parentUuid": "c48efca2_1953bf52",
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb4f53f7_16c34c59",
         "filename": "docs/graph/graph-user-guide-graph-model.rst",
         "patchSetId": 12
@@ -258,6 +420,30 @@
       "side": 1,
       "message": "Agreed. This was not well explained. Olivier already reworked this part.",
       "parentUuid": "cb4f53f7_16c34c59",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 36
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c29d0ad_4f7c3a06",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63ccd6be_2902f94b",
       "range": {
         "startLine": 112,
         "startChar": 0,
@@ -317,6 +503,30 @@
     },
     {
       "key": {
+        "uuid": "50704f36_96d8e093",
+        "filename": "docs/graph/graph-user-guide-graph-model.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Rewrite also this section.",
+      "parentUuid": "6d09d247_fc5ec16b",
+      "range": {
+        "startLine": 114,
+        "startChar": 37,
+        "endLine": 115,
+        "endChar": 55
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7b7b474_11760586",
         "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
         "patchSetId": 12
@@ -361,6 +571,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ce4e387_65e0f4d5",
+        "filename": "graph/graph-api/src/main/java/org/opendaylight/graph/ConnectedEdge.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ac632fc_7a3f0f4d",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 8
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -616,6 +850,24 @@
     },
     {
       "key": {
+        "uuid": "faabe50f_a195a295",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "I added a section in the documentation to justify why we provide this new model.",
+      "parentUuid": "f767d986_b43ed5c3",
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fab7375_33b8742a",
         "filename": "graph/graph-api/src/main/yang/graph.yang",
         "patchSetId": 12
@@ -636,6 +888,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7535379a_38bc56f0",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "See justification in the documentation, but mostly because in IETF RSVP or TED model, there is missing parameters such as for Segment Routing and TE Metric Extension. Of course we could added them in the ODL yang model, but, in this case they will be not conform to IETF.",
+      "parentUuid": "2fab7375_33b8742a",
+      "range": {
+        "startLine": 41,
+        "startChar": 13,
+        "endLine": 41,
+        "endChar": 28
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -662,6 +938,30 @@
     },
     {
       "key": {
+        "uuid": "0e0cacc1_0b40e18c",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "I add a new decimal-bandwidth to reflect this. The main problem of Bandwidth is that it is define as byte[] or string in yang model which is not useful for comparison. You need to convert the value which is a waste of time and performance degradation in path computation algorithm.\n\nIn term of conversion, we are managing reservation at least in Mbit/s and mostly in Gbit/s, so I think we not loose precision on 10 Gbit/s and 100Gbit/s interface.",
+      "parentUuid": "40547348_17c3d79f",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c134e3b_56cd4498",
         "filename": "graph/graph-api/src/main/yang/graph.yang",
         "patchSetId": 12
@@ -682,6 +982,30 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79ab3487_426c6e35",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c134e3b_56cd4498",
+      "range": {
+        "startLine": 82,
+        "startChar": 71,
+        "endLine": 82,
+        "endChar": 91
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -708,6 +1032,30 @@
     },
     {
       "key": {
+        "uuid": "c28ed656_5f850476",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "strange because I look into other yang model that surround number with double quote.",
+      "parentUuid": "9596cce8_0581d4e5",
+      "range": {
+        "startLine": 83,
+        "startChar": 25,
+        "endLine": 83,
+        "endChar": 28
+      },
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52734dd5_a8ee463b",
         "filename": "graph/graph-api/src/main/yang/graph.yang",
         "patchSetId": 12
@@ -722,6 +1070,24 @@
       "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9be57758_4741019d",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T16:05:53Z",
+      "side": 1,
+      "message": "Change to domain-scope which more reflect the purpose of value: intra or inter domain. This will be needed for RFC 5441 Backward Recursive Path Computation and RFC 6841 Hierarchical Path Computation Element that deal with inter-domain path computation, and thus need a graph for the inter-domain.",
+      "parentUuid": "52734dd5_a8ee463b",
+      "revId": "5077f764cb0fbf84a1a8f90b02ab6bcbf944393f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
