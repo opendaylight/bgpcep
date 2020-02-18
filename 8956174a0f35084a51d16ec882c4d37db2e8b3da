@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "393df057_707bf28c",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-02-18T18:33:49Z",
+      "side": 1,
+      "message": "Ok what I meant was info can flow from link-state routes to link-state topology (updated for missing attributes), and LinkstateGraphBuilder can then use that (via DTCL etc.) to build the graph",
+      "parentUuid": "d9b4c40e_aa4514c0",
+      "revId": "8956174a0f35084a51d16ec882c4d37db2e8b3da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d85e8c31_6c34fc98",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
         "patchSetId": 7
