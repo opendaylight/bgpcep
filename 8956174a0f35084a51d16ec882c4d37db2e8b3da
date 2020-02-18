@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d9b4c40e_aa4514c0",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T18:24:20Z",
+      "side": 1,
+      "message": "Yes and no. Yes because we manage the same code, and no because fulfil Linkstate Topology is completely different from fulfil the Graph. In addition, Linkstate Topology store information in network-topology tree of the Data Store while Graph is store in graph tree. I\u0027m not sure if we got problem as transaction to the Data Store is done globally with Linkstate Topology (see AbstractTopologyBuilder) while for Graph is perform on a per element (Vertex / Edge / Prefix) basis due to the construction of Connected Vertex and Connected Edge.\n\nSo, I prefer keeping it separately and to avoid problem with Data Store transaction I add a flag to disable normal Data Store transaction done by AbstractTopologyBuilder.",
+      "parentUuid": "96e703c1_9a08f727",
+      "revId": "8956174a0f35084a51d16ec882c4d37db2e8b3da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d85e8c31_6c34fc98",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "8956174a0f35084a51d16ec882c4d37db2e8b3da",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c89c96f4_186226f6",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-18T18:24:20Z",
+      "side": 1,
+      "message": "Yes. It is utility function to build PcRep message with ERO, NoPath and Error Message. At the origin, this class contains much more PCEP message builders (for RFC5441 BRPC procedure). I keep the name as it will be more relevant when I\u0027ll add RFC5441 support.",
+      "parentUuid": "d85e8c31_6c34fc98",
+      "revId": "8956174a0f35084a51d16ec882c4d37db2e8b3da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
