@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "532839ea_d4c59edb",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-02-21T17:40:15Z",
+      "side": 1,
+      "message": "I start doing like that, but change to directly parse Linkstate route as there is missing parameters in Linkstate topology (agree that we could add them) and mostly because sometimes linkstate topology miss some update (don\u0027t know why) while they are present in linkstate route. In addition, it was easy to add TE Metric extension to linkstate route while it need modification in md-sal for the linkstate topology (see https://git.opendaylight.org/gerrit/c/mdsal/+/85929)",
+      "parentUuid": "393df057_707bf28c",
+      "revId": "8956174a0f35084a51d16ec882c4d37db2e8b3da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d85e8c31_6c34fc98",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/MessagesUtil.java",
         "patchSetId": 7
