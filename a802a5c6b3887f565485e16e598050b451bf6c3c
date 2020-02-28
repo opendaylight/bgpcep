@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1e862861_350122f1",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-02-28T07:42:19Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "feafd2eb_2ef7910f",
+      "revId": "a802a5c6b3887f565485e16e598050b451bf6c3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a8978bcd_3e9c7cb8",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilder.java",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2020-02-22T19:43:14Z",
       "side": 1,
       "message": "please keep the line length limits instead of suppressing them. references can always be reasonably split up.",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 188,
+        "endChar": 50
+      },
+      "revId": "a802a5c6b3887f565485e16e598050b451bf6c3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5077a3a4_6655962b",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-02-28T07:42:19Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "a8978bcd_3e9c7cb8",
       "range": {
         "startLine": 188,
         "startChar": 8,
