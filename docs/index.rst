@@ -28,3 +28,4 @@ User Guides
    bmp/index
    pcep/index
    graph/index
+   algo/index
