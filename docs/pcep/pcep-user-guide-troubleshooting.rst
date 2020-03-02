@@ -42,6 +42,12 @@ PCEP is not working...
 
      log:set DEBUG org.opendaylight.bgpcep.pcep
 
+and for Path Computation Algorithm
+
+  .. code-block:: console
+
+      log:set DEBUG org.opendaylight.algo
+
 Bug reporting
 ^^^^^^^^^^^^^
 Before you report a bug, check `BGPCEP Jira <https://jira.opendaylight.org/projects/BGPCEP/issues/BGPCEP-589?filter=allopenissues>`_ to ensure same/similar bug is not already filed there.

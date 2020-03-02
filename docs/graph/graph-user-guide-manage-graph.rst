@@ -17,10 +17,10 @@ Graph Overview). Thus, Graph feature provides a new service named
 ConnectedGraphProvider published in Karaf. This service maintains an
 up-to-date list of Connected Graph stored in memory and allows to:
 
-  * Get Connected Graph by name or GraphKey
-  * Create Connected Graph
-  * Add existing graph to create associated Connected Graph
-  * Delete existing Graph identify by its GraphKey
+* Get Connected Graph by name or GraphKey
+* Create Connected Graph
+* Add existing graph to create associated Connected Graph
+* Delete existing Graph identify by its GraphKey
 
 Then, Connected Graph provides method to manage Vertices, Edges and Prefix.
 The ConnectedGraphProvider is also in charge to maintain up to date the Graph
@@ -28,11 +28,11 @@ associated to the Connected Graph in the OpenDaylight operational Data Store.
 
 In fact, two graphs are stored in the Data Store:
 
- * Operational Graph in ``restconf/operational`` which is the graph
-   associated with the Connected Graph stored in memory
- * Configuration Graph in ``restconf/config`` which is the graph that
-   could be create / modify / delete in order to produce the Connected
-   Graph and thus, the associated Graph stored in operational Data Store
+* Operational Graph in ``restconf/operational`` which is the graph
+  associated with the Connected Graph stored in memory
+* Configuration Graph in ``restconf/config`` which is the graph that
+  could be create / modify / delete in order to produce the Connected
+  Graph and thus, the associated Graph stored in operational Data Store
 
 It is also possible to add / delete Vertices, Edges and Prefix on an existing
 Graph through the REST API.
