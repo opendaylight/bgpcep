@@ -36,7 +36,8 @@ public class CspfPath implements Comparable<CspfPath> {
     /* Path Length and associated cost and delay */
     private float pathLength = 0;
     private int cost = Integer.MAX_VALUE;
-    private int delay = Integer.MAX_VALUE;
+    /* Uint24 Max value */
+    private int delay = 16777215;
 
     /* Path as Connected Edge list from the source up to the Connected Vertex */
     private ArrayList<ConnectedEdge> currentPath = new ArrayList<ConnectedEdge>();
@@ -175,6 +176,17 @@ public class CspfPath implements Comparable<CspfPath> {
     @Override
     public int hashCode() {
         return this.cvertex.getKey().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        String output = "_path={";
+        for (ConnectedEdge edge : currentPath) {
+            if ((edge.getEdge() != null) && (edge.getEdge().getEdgeAttributes() != null)) {
+                output = output + edge.getEdge().getEdgeAttributes().getRemoteAddress().toString() + ", ";
+            }
+        }
+        return output + "}";
     }
 
 }
