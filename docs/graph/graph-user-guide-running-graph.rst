@@ -4,13 +4,13 @@ Running Graph
 =============
 This section explains how to install Graph plugin.
 
-1. Install Graph feature - ``feature-graph``.
-   Also, for sake of this sample, it is required to install RESTCONF.
+1. Install Graph feature - ``features-graph``.
+   Also, for the sake of this sample, it is required to install RESTCONF.
    In the Karaf console, type command:
 
    .. code-block:: console
 
-      feature:install feature-restconf feature-graph
+      feature:install features-restconf features-graph
 
 2. The Graph plugin contains a default empty configuration, which is applied
    after the feature starts up. One instance of Graph plugin is created
