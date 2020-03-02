@@ -17,10 +17,10 @@ Graph Overview). Thus, Graph feature provides a new service named
 ConnectedGraphProvider published in Karaf. This service maintains an
 up-to-date list of Connected Graph stored in memory and allows to:
 
-  * Get Connected Graph by name or GraphKey
-  * Create Connected Graph
-  * Add existing graph to create associated Connected Graph
-  * Delete existing Graph identify by its GraphKey
+* Get Connected Graph by name or GraphKey
+* Create Connected Graph
+* Add existing graph to create associated Connected Graph
+* Delete existing Graph identify by its GraphKey
 
 Then, Connected Graph provides method to manage Vertices, Edges and Prefix.
 The ConnectedGraphProvider is also in charge to maintain up to date the Graph
@@ -28,11 +28,11 @@ associated to the Connected Graph in the OpenDaylight operational Data Store.
 
 In fact, two graphs are stored in the Data Store:
 
- * Operational Graph in ``restconf/operational`` which is the graph
-   associated with the Connected Graph stored in memory
- * Configuration Graph in ``restconf/config`` which is the graph that
-   could be create / modify / delete in order to produce the Connected
-   Graph and thus, the associated Graph stored in operational Data Store
+* Operational Graph in ``restconf/operational`` which is the graph
+  associated with the Connected Graph stored in memory
+* Configuration Graph in ``restconf/config`` which is the graph that
+  could be create / modify / delete in order to produce the Connected
+  Graph and thus, the associated Graph stored in operational Data Store
 
 It is also possible to add / delete Vertices, Edges and Prefix on an existing
 Graph through the REST API.
@@ -96,29 +96,30 @@ through the ``graph:graph-topology`` namespace as follow:
 **Response Body:**
 
 .. code-block:: json
+   :linenos:
 
-  {
-      "graph-topology": {
-          "graph": [
-              {
-                  "name": "example",
-                  "vertex": [
-                      {
-                          "vertex-id": 2,
-                          "name": "r2",
-                          "vertex-type": "standard"
-                      },
-                      {
-                          "vertex-id": 1,
-                          "name": "r1",
-                          "vertex-type": "standard"
-                      }
-                  ],
-                  "graph-type": "intra-domain"
-              }
-          ]
-      }
-  }
+    {
+        "graph-topology": {
+            "graph": [
+                {
+                    "name": "example",
+                    "vertex": [
+                        {
+                            "vertex-id": 2,
+                            "name": "r2",
+                            "vertex-type": "standard"
+                        },
+                        {
+                            "vertex-id": 1,
+                            "name": "r1",
+                            "vertex-type": "standard"
+                        }
+                    ],
+                    "graph-type": "intra-domain"
+                }
+            ]
+        }
+    }
 
 Graphs publish in the configuration Data Store are also accessible through REST
 API with the same namespace as follow:
@@ -132,29 +133,30 @@ API with the same namespace as follow:
 **Response Body:**
 
 .. code-block:: json
+   :linenos:
 
-  {
-      "graph-topology": {
-          "graph": [
-              {
-                  "name": "example",
-                  "vertex": [
-                      {
-                          "vertex-id": 2,
-                          "name": "r2",
-                          "vertex-type": "standard"
-                      },
-                      {
-                          "vertex-id": 1,
-                          "name": "r1",
-                          "vertex-type": "standard"
-                      }
-                  ],
-                  "graph-type": "intra-domain"
-              }
-          ]
-      }
-  }
+    {
+        "graph-topology": {
+            "graph": [
+                {
+                    "name": "example",
+                    "vertex": [
+                        {
+                            "vertex-id": 2,
+                            "name": "r2",
+                            "vertex-type": "standard"
+                        },
+                        {
+                            "vertex-id": 1,
+                            "name": "r1",
+                            "vertex-type": "standard"
+                        }
+                    ],
+                    "graph-type": "intra-domain"
+                }
+            ]
+        }
+    }
 
 Create Graph
 ''''''''''''
@@ -174,41 +176,43 @@ Data Store. This includes all modification and associated Connected Graphs.
 **Request Body:**
 
 .. code-block:: json
+   :linenos:
+   :emphasize-lines: 5,6,7,17,21,22
 
-  {
-      "graph-topology": {
-          "graph": [
-              {
-                  "name": "example",
-                  "graph-type": "intra-domain",
-                  "vertex": [
-                      {
-                          "vertex-id": 1,
-                          "name": "r1"
-                      },
-                      {
-                          "vertex-id": 2,
-                          "name": "r2"
-                      }
-                  ],
-                  "edge": [
-                      {
-                          "edge-id": 1,
-                          "name": "r1 - r2",
-                          "local-vertex-id": 1,
-                          "remote-vertex-id": 2
-                      },
-                      {
-                          "edge-id": 2,
-                          "name": "r2 - r1",
-                          "local-vertex-id": 2,
-                          "remote-vertex-id": 1
-                      }
-                  ]
-              }
-          ]
-      }
-  }
+    {
+        "graph-topology": {
+            "graph": [
+                {
+                    "name": "example",
+                    "graph-type": "intra-domain",
+                    "vertex": [
+                        {
+                            "vertex-id": 1,
+                            "name": "r1"
+                        },
+                        {
+                            "vertex-id": 2,
+                            "name": "r2"
+                        }
+                    ],
+                    "edge": [
+                        {
+                            "edge-id": 1,
+                            "name": "r1 - r2",
+                            "local-vertex-id": 1,
+                            "remote-vertex-id": 2
+                        },
+                        {
+                            "edge-id": 2,
+                            "name": "r2 - r1",
+                            "local-vertex-id": 2,
+                            "remote-vertex-id": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    }
 
 @line 5: **name** The Graph identifier. Must be unique.
 
@@ -263,16 +267,17 @@ it will be automatically created. Only POST method must be used.
 **Request Body:**
 
 .. code-block:: json
+   :linenos:
 
-  {
-      "vertex": [
-          {
-              "vertex-id": 100,
-              "name": "r100",
-              "router-id": "192.168.1.100"
-          }
-      ]
-  }
+    {
+        "vertex": [
+            {
+                "vertex-id": 100,
+                "name": "r100",
+                "router-id": "192.168.1.100"
+            }
+        ]
+    }
 
 Delete Vertex
 '''''''''''''
@@ -305,23 +310,24 @@ it will be automatically created. Only POST method must be used.
 **Request Body:**
 
 .. code-block:: json
+   :linenos:
 
-  {
-      "edge": [
-          {
-              "edge-id": 10,
-              "name": "r1 - r2",
-              "local-vertex-id": 1,
-              "remote-vertex-id": 2
-          },
-          {
-              "edge-id": 20,
-              "name": "r2 - r1",
-              "local-vertex-id": 2,
-              "remote-vertex-id": 1
-          }
-      ]
-  }
+    {
+        "edge": [
+            {
+                "edge-id": 10,
+                "name": "r1 - r2",
+                "local-vertex-id": 1,
+                "remote-vertex-id": 2
+            },
+            {
+                "edge-id": 20,
+                "name": "r2 - r1",
+                "local-vertex-id": 2,
+                "remote-vertex-id": 1
+            }
+        ]
+    }
 
 Delete Edge
 '''''''''''
@@ -354,15 +360,16 @@ it will be automatically created. Only POST method must be used.
 **Request Body:**
 
 .. code-block:: json
+   :linenos:
 
-  {
-      "prefix": [
-          {
-              "prefix": "192.168.1.0/24",
-              "vertex-id": 1
-          }
-      ]
-  }
+    {
+        "prefix": [
+            {
+                "prefix": "192.168.1.0/24",
+                "vertex-id": 1
+            }
+        ]
+    }
 
 Delete Prefix
 '''''''''''''

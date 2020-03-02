@@ -66,17 +66,17 @@ Segment Routing TE setup.
 A new yang model is provided as an alternative to the IETF yang-te-topo model
 and IETF RFC8345 for several reasons:
 
- * Some link and node parameters (e.g. Segment Routing, TE Metric extensions)
-   which are available in IP/MPLS networks, through the IGP-TE or BGP-LS
-   protocols (see Linkstate Routes in BGP RIB) are not present in the IETF
-   ted model
- * Node and link identifier are represented as string in the IETF ted model
-   which it is not efficient when looking into a HashMap() to find node or
-   link by its identifier
- * Even if LinkstateTopologyBuilder() provided mechanism to fulfil IETF ted
-   model in the datastore, the NodeHolder an TpHolder classes have been
-   defined as private, and thus could not be used outside the
-   LinkstateTopologyBuilder() class
+* Some link and node parameters (e.g. Segment Routing, TE Metric extensions)
+  which are available in IP/MPLS networks, through the IGP-TE or BGP-LS
+  protocols (see Linkstate Routes in BGP RIB) are not present in the IETF
+  ted model
+* Node and link identifiers are represented as strings in the IETF ted model,
+  which it is not efficient when looking into a HashMap() to find a node or
+  a link by its identifier
+* Even if LinkstateTopologyBuilder() provided mechanism to fulfil IETF ted
+  model in the datastore, the NodeHolder an TpHolder classes have been
+  defined as private, and thus could not be used outside the
+  LinkstateTopologyBuilder() class
 
 Graph and Algorithm have been also designed to be used by other projects
 (e.g. openflow) which not control IP/MPLS network. Thus, even if the graph
@@ -160,8 +160,8 @@ it is need to access directly at the source and destination Vertex.
 So, to overcome this limitation, the implemented Graph is composed of two
 pieces:
 
- * A standard Graph modeled in yang and stored in the Data Store
- * A Connected Graph version based on the yang model but stored in memory only
+* A standard Graph modeled in yang and stored in the Data Store
+* A Connected Graph version based on the yang model but stored in memory only
 
 
 The connected version of Vertex is composed of:
