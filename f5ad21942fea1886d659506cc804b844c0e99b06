@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e4281f86_8d394ac2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f85eea10_5e246720",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 26
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54fccc01_8775d486",
         "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/CspfPath.java",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b10f89c_12b3dddc",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/CspfPath.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54fccc01_8775d486",
+      "range": {
+        "startLine": 39,
+        "startChar": 36,
+        "endLine": 39,
+        "endChar": 58
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f11c38a6_057eda95",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49add346_f8f8c9e7",
+      "range": {
+        "startLine": 104,
+        "startChar": 32,
+        "endLine": 104,
+        "endChar": 54
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "173e4ec7_62fc1fdd",
         "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95b8be81_90858bd7",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "To ease readability of the log under karaf console",
+      "parentUuid": "173e4ec7_62fc1fdd",
+      "range": {
+        "startLine": 276,
+        "startChar": 23,
+        "endLine": 276,
+        "endChar": 27
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fbc28c59_96d7ea4a",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4eea6a50_b4536c60",
+      "range": {
+        "startLine": 299,
+        "startChar": 69,
+        "endLine": 299,
+        "endChar": 72
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95644c5b_7e71948e",
         "filename": "docs/algo/algo-user-guide-algo-model.rst",
         "patchSetId": 1
@@ -137,6 +257,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbbd7f77_b40a8cd0",
+        "filename": "docs/algo/algo-user-guide-algo-model.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95644c5b_7e71948e",
+      "range": {
+        "startLine": 60,
+        "startChar": 57,
+        "endLine": 60,
+        "endChar": 58
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "2191157f_c0326811",
+        "filename": "docs/algo/algo-user-guide-algo-model.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4aadf417_b500d0bf",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 20
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "799a536d_f9576c32",
         "filename": "docs/algo/algo-user-guide-algo-model.rst",
         "patchSetId": 1
@@ -183,6 +351,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66503e5a_c45c8bec",
+        "filename": "docs/algo/algo-user-guide-algo-model.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "799a536d_f9576c32",
+      "range": {
+        "startLine": 124,
+        "startChar": 5,
+        "endLine": 124,
+        "endChar": 6
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "1b7eaff1_4941189e",
+        "filename": "docs/algo/algo-user-guide-running-algo.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6c41e1d_6ea2c582",
+      "range": {
+        "startLine": 11,
+        "startChar": 47,
+        "endLine": 11,
+        "endChar": 51
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d2471da_80a8e357",
         "filename": "docs/algo/algo-user-guide-running-algo.rst",
         "patchSetId": 1
@@ -229,6 +445,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8114f3b6_a6f5e5c0",
+        "filename": "docs/algo/algo-user-guide-running-algo.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d2471da_80a8e357",
+      "range": {
+        "startLine": 81,
+        "startChar": 13,
+        "endLine": 81,
+        "endChar": 21
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "066dbdec_01c0ff3c",
+        "filename": "docs/algo/algo-user-guide-running-algo.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58f1a559_34e396a7",
+      "range": {
+        "startLine": 159,
+        "startChar": 23,
+        "endLine": 159,
+        "endChar": 31
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3144e213_4cc068d5",
         "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
         "patchSetId": 1
@@ -275,6 +539,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "087279ef_b325f6d6",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3144e213_4cc068d5",
+      "range": {
+        "startLine": 9,
+        "startChar": 24,
+        "endLine": 9,
+        "endChar": 32
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "fb6e98b1_6ccd5b50",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35c5bafe_0fff51ff",
+      "range": {
+        "startLine": 14,
+        "startChar": 44,
+        "endLine": 14,
+        "endChar": 51
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "696de6bf_911dc4e0",
         "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
         "patchSetId": 1
@@ -321,6 +633,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52a302cc_a4fa7929",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "696de6bf_911dc4e0",
+      "range": {
+        "startLine": 26,
+        "startChar": 36,
+        "endLine": 26,
+        "endChar": 52
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -347,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "c663273e_0032d248",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "481653f2_b2c6c6d8",
+      "range": {
+        "startLine": 44,
+        "startChar": 69,
+        "endLine": 44,
+        "endChar": 78
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b92f577d_8ac81cea",
         "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
         "patchSetId": 1
@@ -367,6 +727,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a90f393_496f327a",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b92f577d_8ac81cea",
+      "range": {
+        "startLine": 52,
+        "startChar": 65,
+        "endLine": 52,
+        "endChar": 68
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -393,6 +777,30 @@
     },
     {
       "key": {
+        "uuid": "3b310621_34c0859d",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b57a5740_4878b5d5",
+      "range": {
+        "startLine": 53,
+        "startChar": 32,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a5447e5_78ae674b",
         "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
         "patchSetId": 1
@@ -416,6 +824,30 @@
     },
     {
       "key": {
+        "uuid": "53b3cd3f_eacfed6f",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a5447e5_78ae674b",
+      "range": {
+        "startLine": 78,
+        "startChar": 26,
+        "endLine": 78,
+        "endChar": 27
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28d2c978_030a21f9",
         "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
         "patchSetId": 1
@@ -436,6 +868,30 @@
       "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a85664d_a9effb7e",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-03-03T18:42:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28d2c978_030a21f9",
+      "range": {
+        "startLine": 136,
+        "startChar": 70,
+        "endLine": 137,
+        "endChar": 66
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
