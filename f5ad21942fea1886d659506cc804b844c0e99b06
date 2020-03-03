@@ -1,0 +1,418 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54fccc01_8775d486",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/CspfPath.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "sonar advises to use a separate line for comments",
+      "range": {
+        "startLine": 39,
+        "startChar": 36,
+        "endLine": 39,
+        "endChar": 58
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49add346_f8f8c9e7",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "idem",
+      "range": {
+        "startLine": 104,
+        "startChar": 32,
+        "endLine": 104,
+        "endChar": 54
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "173e4ec7_62fc1fdd",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "do we need so many whitespaces ?",
+      "range": {
+        "startLine": 276,
+        "startChar": 23,
+        "endLine": 276,
+        "endChar": 27
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4eea6a50_b4536c60",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "do not",
+      "range": {
+        "startLine": 299,
+        "startChar": 69,
+        "endLine": 299,
+        "endChar": 72
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95644c5b_7e71948e",
+        "filename": "docs/algo/algo-user-guide-algo-model.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "d",
+      "range": {
+        "startLine": 60,
+        "startChar": 57,
+        "endLine": 60,
+        "endChar": 58
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4aadf417_b500d0bf",
+        "filename": "docs/algo/algo-user-guide-algo-model.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "pseudocode algorithm ? heuristic ?",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 20
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "799a536d_f9576c32",
+        "filename": "docs/algo/algo-user-guide-algo-model.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "trailing blank",
+      "range": {
+        "startLine": 124,
+        "startChar": 5,
+        "endLine": 124,
+        "endChar": 6
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6c41e1d_6ea2c582",
+        "filename": "docs/algo/algo-user-guide-running-algo.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "the sake",
+      "range": {
+        "startLine": 11,
+        "startChar": 47,
+        "endLine": 11,
+        "endChar": 51
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d2471da_80a8e357",
+        "filename": "docs/algo/algo-user-guide-running-algo.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "details",
+      "range": {
+        "startLine": 81,
+        "startChar": 13,
+        "endLine": 81,
+        "endChar": 21
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58f1a559_34e396a7",
+        "filename": "docs/algo/algo-user-guide-running-algo.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "activated",
+      "range": {
+        "startLine": 159,
+        "startChar": 23,
+        "endLine": 159,
+        "endChar": 31
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3144e213_4cc068d5",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "plural ?",
+      "range": {
+        "startLine": 9,
+        "startChar": 24,
+        "endLine": 9,
+        "endChar": 32
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35c5bafe_0fff51ff",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "installed",
+      "range": {
+        "startLine": 14,
+        "startChar": 44,
+        "endLine": 14,
+        "endChar": 51
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "696de6bf_911dc4e0",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "a constrained path?\nconstrained paths ?",
+      "range": {
+        "startLine": 26,
+        "startChar": 36,
+        "endLine": 26,
+        "endChar": 52
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "481653f2_b2c6c6d8",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "needs a colon.\n\nbandwith,\nare",
+      "range": {
+        "startLine": 44,
+        "startChar": 69,
+        "endLine": 44,
+        "endChar": 78
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b92f577d_8ac81cea",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "to removed, information is uncountable",
+      "range": {
+        "startLine": 52,
+        "startChar": 65,
+        "endLine": 52,
+        "endChar": 68
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b57a5740_4878b5d5",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "conveyed",
+      "range": {
+        "startLine": 53,
+        "startChar": 32,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a5447e5_78ae674b",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "ed",
+      "range": {
+        "startLine": 78,
+        "startChar": 26,
+        "endLine": 78,
+        "endChar": 27
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28d2c978_030a21f9",
+        "filename": "docs/pcep/pcep-user-guide-path-computation.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-03-03T09:28:11Z",
+      "side": 1,
+      "message": "not clear\nnot able redundant with unable",
+      "range": {
+        "startLine": 136,
+        "startChar": 70,
+        "endLine": 137,
+        "endChar": 66
+      },
+      "revId": "f5ad21942fea1886d659506cc804b844c0e99b06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
