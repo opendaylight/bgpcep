@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Code-Review+1: Guillaume Lambert <guillaume.lambert@orange.com>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Fri, 06 Mar 2020 13:03:26 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/88212
+Project: bgpcep
+Branch: refs/heads/stable/magnesium
