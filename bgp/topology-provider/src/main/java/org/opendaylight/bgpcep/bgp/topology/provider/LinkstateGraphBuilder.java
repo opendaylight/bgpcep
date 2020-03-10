@@ -7,8 +7,6 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.math.BigDecimal;
@@ -114,15 +112,19 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateGraphBuilder.class);
 
     private ConnectedGraphProvider graphProvider;
-    private ConnectedGraph cgraph;
+    private ConnectedGraph cgraph = null;
 
     public LinkstateGraphBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, ConnectedGraphProvider provider) {
         super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class);
-        this.graphProvider = requireNonNull(provider);
-        this.cgraph = provider.createConnectedGraph("ted://" + topologyId.getValue(),
-                DomainScope.IntraDomain);
+        this.graphProvider = provider;
+        if (provider != null) {
+            this.cgraph = provider.createConnectedGraph("ted://" + topologyId.getValue(), DomainScope.IntraDomain);
+            LOG.info("Graph {} has been successfully created", this.cgraph.toString());
+        } else {
+            LOG.error("Karaf failed to provide Graph Provider. Please, restart the bgp-topology-provider bundle");
+        }
         /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.
          * This is performed by ConnectedGraphProvider which write element in Graph tree of the Data Store */
         this.networkTopologyTransaction = false;
@@ -135,9 +137,13 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             final int listenerResetEnforceCounter) {
         super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class, listenerResetLimitInMillsec, listenerResetEnforceCounter);
-        this.graphProvider = requireNonNull(provider);
-        this.cgraph = provider.createConnectedGraph("ted://" + topologyId.getValue(),
-                DomainScope.IntraDomain);
+        this.graphProvider = provider;
+        if (provider != null) {
+            this.cgraph = provider.createConnectedGraph("ted://" + topologyId.getValue(), DomainScope.IntraDomain);
+            LOG.info("Graph {} has been successfully created", this.cgraph.toString());
+        } else {
+            LOG.error("Karaf failed to provide Graph Provider. Please, restart the bgp-topology-provider bundle");
+        }
         /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.
          * This is performed by ConnectedGraphProvider which write element in Graph tree of the Data Store */
         this.networkTopologyTransaction = false;
@@ -149,6 +155,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             final LinkstateRoute value) {
         final ObjectType t = value.getObjectType();
         Preconditions.checkArgument(t != null, "Route %s value %s has null object type", id, value);
+
+        if (this.cgraph == null) {
+            LOG.error("Karaf failed to provide Graph Provider. Please, restart the bgp-topology-provider bundle");
+            return;
+        }
 
         if (t instanceof LinkCase) {
             createEdge(value, (LinkCase) t, value.getAttributes());
@@ -570,6 +581,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             final LinkstateRoute value) {
         if (value == null) {
             LOG.error("Empty before-data received in delete data change notification for instance id {}", id);
+            return;
+        }
+
+        if (this.cgraph == null) {
+            LOG.error("Karaf failed to provide Graph Provider. Please, restart the bgp-topology-provider bundle");
             return;
         }
 
