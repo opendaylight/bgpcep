@@ -138,12 +138,11 @@ Known Bug
 When using BGP-LS for automatic Graph topology acquisition, for an undetermined
 reason, karaf is unable to start properly the *bgp-topology-provider* bundle.
 This is due to karaf that doesn't properly manage blueprint dependencies. Thus,
-BGP Topology Provider class is initialized with a wrong reference to the Graph
-Topology Service: a null pointer is provided instead. However, it is easy to
-overcome this issue by simply restarting the *bgp-topology-provider* bundle.
+the LinkstateGraphBuilder() class is initialized with a wrong reference to ther
+Graph Topology Service: a null pointer is provided instead. However, it is easy
+to overcome this issue by simply restarting the *bgp-topology-provider* bundle.
 
-First identify the bundle number of *bgp-topology-provider* and check the
-status.
+First identify the bundle number of *bgp-topology-provider*:
 
 .. code-block:: console
 
@@ -151,7 +150,10 @@ status.
     232 │ Failure  │  80 │ 0.14.0          │ bgp-topology-provider
 
 
-Then restart the bundle if status is *Failure*
+Then restart the bundle if status is *Failure* or if log mention that the
+LinkstateGrpahBuilder() is unable to start due to karaf problem i.e. this
+error message *Karaf failed to provide Graph Provider. Please, restart
+the bgp-topology-provider bundle*
 
 .. code-block:: console
 
