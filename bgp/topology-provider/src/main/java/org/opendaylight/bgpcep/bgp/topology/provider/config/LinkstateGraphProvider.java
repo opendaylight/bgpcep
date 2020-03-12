@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.LinkstateGraphBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
@@ -16,14 +18,18 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+ 
 public final class LinkstateGraphProvider extends AbstractBgpTopologyProvider {
 
-    ConnectedGraphProvider graphProvider;
+    private static final Logger LOG = LoggerFactory.getLogger(LinkstateGraphProvider.class);
+    private final ConnectedGraphProvider graphProvider;
 
     public LinkstateGraphProvider(final BgpTopologyDeployer deployer, final ConnectedGraphProvider graphProvider) {
         super(deployer);
-        this.graphProvider = graphProvider;
+        LOG.info("Initialize Link State Graph Provider with {} Graph Provider", graphProvider);
+        this.graphProvider = requireNonNull(graphProvider);
     }
 
     @Override
