@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
@@ -34,13 +36,22 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBgpTopologyProvider.class);
 
     private final Map<TopologyId, TopologyReferenceSingletonService> topologyBuilders = new HashMap<>();
-    private final AbstractRegistration registration;
     private final DataBroker dataBroker;
     private final BgpTopologyDeployer deployer;
 
+    private AbstractRegistration registration;
+
+    AbstractBgpTopologyProvider(final BgpTopologyDeployer deployer, final DataBroker dataBroker) {
+        this.deployer = requireNonNull(deployer);
+        this.dataBroker = requireNonNull(dataBroker);
+    }
+
     AbstractBgpTopologyProvider(final BgpTopologyDeployer deployer) {
-        this.deployer = deployer;
-        this.dataBroker = deployer.getDataBroker();
+        this(deployer, deployer.getDataBroker());
+        register();
+    }
+
+    void register() {
         this.registration = deployer.registerTopologyProvider(this);
     }
 
