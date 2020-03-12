@@ -20,12 +20,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 
 public final class LinkstateGraphProvider extends AbstractBgpTopologyProvider {
-
     private final ConnectedGraphProvider graphProvider;
 
     public LinkstateGraphProvider(final BgpTopologyDeployer deployer, final ConnectedGraphProvider graphProvider) {
-        super(deployer);
+        super(deployer, deployer.getDataBroker());
         this.graphProvider = requireNonNull(graphProvider);
+        register();
     }
 
     @Override
