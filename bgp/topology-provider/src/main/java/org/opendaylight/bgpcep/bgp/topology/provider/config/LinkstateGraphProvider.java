@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
+import static java.util.Objects.requireNonNull;
+
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.LinkstateGraphBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
@@ -19,11 +21,11 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 
 public final class LinkstateGraphProvider extends AbstractBgpTopologyProvider {
 
-    ConnectedGraphProvider graphProvider;
+    private final ConnectedGraphProvider graphProvider;
 
     public LinkstateGraphProvider(final BgpTopologyDeployer deployer, final ConnectedGraphProvider graphProvider) {
         super(deployer);
-        this.graphProvider = graphProvider;
+        this.graphProvider = requireNonNull(graphProvider);
     }
 
     @Override
