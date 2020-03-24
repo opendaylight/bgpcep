@@ -169,8 +169,9 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
             this.scheduleTask.cancel(true);
             if (!this.instanceIdentifiersCache.keySet().isEmpty()) {
                 final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-                this.instanceIdentifiersCache.keySet().iterator()
-                .forEachRemaining(ribId -> removeStoredOperationalState(ribId, wTx));
+                this.instanceIdentifiersCache.values()
+                        .forEach(bgpIID -> wTx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID));
+                this.instanceIdentifiersCache.clear();
                 wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
                     @Override
                     public void onSuccess(final CommitInfo result) {
