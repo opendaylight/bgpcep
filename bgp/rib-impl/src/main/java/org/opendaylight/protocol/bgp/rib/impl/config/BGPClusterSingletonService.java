@@ -71,6 +71,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     private final ServiceGroupIdentifier serviceGroupIdentifier;
     private final AtomicBoolean instantiated = new AtomicBoolean(false);
     private final PeerGroupConfigLoader peerGroupLoader;
+    @GuardedBy("this")
     private RibImpl ribImpl;
 
 
@@ -116,8 +117,15 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         Futures.addCallback(futureResult, new FutureCallback<List<? extends CommitInfo>>() {
             @Override
             public void onSuccess(final List<? extends CommitInfo> result) {
-                done.setFuture(Futures.transform(BGPClusterSingletonService.this.ribImpl.closeServiceInstance(),
-                    input -> null, MoreExecutors.directExecutor()));
+                synchronized (BGPClusterSingletonService.this) {
+                    if (BGPClusterSingletonService.this.ribImpl != null) {
+                        done.setFuture(Futures.transform(BGPClusterSingletonService.this.ribImpl.closeServiceInstance(),
+                            input -> null, MoreExecutors.directExecutor()));
+                    } else {
+                        done.setFuture(Futures.transform(CommitInfo.emptyFluentFuture(),
+                            input -> null, MoreExecutors.directExecutor()));
+                    }
+                }
             }
 
             @Override
@@ -179,6 +187,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("RIB instance created: {}", this.ribImpl);
     }
 
+    @Holding("this")
     @SuppressWarnings("checkstyle:illegalCatch")
     private void closeRibService() {
         try {
@@ -221,7 +230,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         LOG.info("BGPClusterSingletonService {} close", this.serviceGroupIdentifier.getName());
         this.peers.values().iterator().forEachRemaining(PeerBean::close);
         this.ribImpl.close();
