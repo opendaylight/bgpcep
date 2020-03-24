@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.state;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -172,8 +173,8 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
             this.scheduleTask.cancel(true);
             if (!this.instanceIdentifiersCache.keySet().isEmpty()) {
                 final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-                this.instanceIdentifiersCache.keySet().iterator()
-                .forEachRemaining(ribId -> removeStoredOperationalState(ribId, wTx));
+                ImmutableSet.copyOf(this.instanceIdentifiersCache.keySet()).iterator()
+                        .forEachRemaining(ribId -> removeStoredOperationalState(ribId, wTx));
                 wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
                     @Override
                     public void onSuccess(final CommitInfo result) {
