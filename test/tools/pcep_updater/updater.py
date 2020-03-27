@@ -121,7 +121,6 @@ def iterable_msg(pccs, lsps, workers, hop):
             list_data[1] = pcc_ip
             list_data[4] = pcc_ip
             whole_data = ''.join(list_data)
-            # print 'DEBUG:', whole_data + '\n'
             worker = (lsp * pccs + pcc) % workers
             post_kwargs = {"data": whole_data, "headers": headers}
             yield worker, post_kwargs
@@ -147,15 +146,11 @@ def queued_send(session, queue_messages, queue_responses):
 
 def classify(resp_tuple):
     """Return 'pass' or a reason what is wrong with response."""
-    # print 'DEBUG: received', response
     prepend = ''
     status = resp_tuple[0]
-    # print 'DEBUG: verifying status', status
     if (status != 200) and (status != 204):  # is it int?
-        # print 'DEBUG:', response.content
         prepend = 'status: ' + str(status) + ' '
     content = resp_tuple[1]
-    # print 'DEBUG: verifying content', content
     if prepend or (content != expected and content != ''):
         return prepend + 'content: ' + str(content)
     return 'pass'
@@ -164,7 +159,6 @@ def classify(resp_tuple):
 # Main.
 list_q_msg = [collections.deque() for _ in range(args.workers)]
 for worker, post_kwargs in iterable_msg(args.pccs, args.lsps, args.workers, args.hop):
-    # print 'DEBUG: worker', repr(worker), 'message', repr(message)
     list_q_msg[worker].append(post_kwargs)
 queue_responses = collections.deque()  # thread safe
 threads = []
@@ -177,7 +171,7 @@ for worker in range(args.workers):
     threads.append(thread)
 tasks = sum(map(len, list_q_msg))  # fancy way of counting, should equal to pccs*lsps.
 counter = CounterDown(tasks)
-print 'work is going to start with', tasks, 'tasks'
+print('work is going to start with %s tasks' % tasks)
 time_start = time.time()
 for thread in threads:
     thread.start()
@@ -206,12 +200,10 @@ while 1:
             continue
         left = len(queue_responses)
         if left:
-            print 'error: more responses left inqueue', left
+            print('error: more responses left inqueue', left)
     else:
-        print 'Time is up!'
+        print('Time is up!')
         left = len(queue_responses)  # can be still increasing
-        # if left:
-        #     print 'WARNING: left', left
         for _ in range(left):
             resp_tuple = queue_responses.popleft()  # thread safe
             result = classify(resp_tuple)
@@ -219,7 +211,7 @@ while 1:
     break  # may leave late items in queue_reponses
 time_stop = time.time()
 timedelta_duration = time_stop - time_start
-print 'took', timedelta_duration
-print repr(counter.counter)
+print('took', timedelta_duration)
+print(repr(counter.counter))
 # for message in debug_list:
 #     print message
