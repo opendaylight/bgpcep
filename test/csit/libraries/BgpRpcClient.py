@@ -27,19 +27,19 @@ class BgpRpcClient(object):
 
     def exa_get_received_open_count(self):
         """Gets open messages counter."""
-        return self._exa_get_counter('open')
+        return self._exa_get_counter("open")
 
     def exa_get_received_keepalive_count(self):
         """Gets keepalive messages counter."""
-        return self._exa_get_counter('keepalive')
+        return self._exa_get_counter("keepalive")
 
     def exa_get_received_update_count(self):
         """Gets update messges counter."""
-        return self._exa_get_counter('update')
+        return self._exa_get_counter("update")
 
     def exa_get_received_route_refresh_count(self):
         """Gets route refresh message counter."""
-        return self._exa_get_counter('route_refresh')
+        return self._exa_get_counter("route_refresh")
 
     def _exa_clean_counter(self, msg_type):
         """Cleans counter on the server of given message type."""
@@ -47,19 +47,19 @@ class BgpRpcClient(object):
 
     def exa_clean_received_open_count(self):
         """Cleans open message counter."""
-        return self._exa_clean_counter('open')
+        return self._exa_clean_counter("open")
 
     def exa_clean_received_keepalive_count(self):
         """Cleans keepalive message counter."""
-        return self._exa_clean_counter('keepalive')
+        return self._exa_clean_counter("keepalive")
 
     def exa_clean_received_update_count(self):
         """Cleans update message counter."""
-        return self._exa_clean_counter('update')
+        return self._exa_clean_counter("update")
 
     def exa_clean_received_route_refresh_count(self):
         """Cleans route refresh message counter."""
-        return self._exa_clean_counter('route_refresh')
+        return self._exa_clean_counter("route_refresh")
 
     def _exa_clean_message(self, msg_type):
         """Cleans stored message on the server of given message type."""
@@ -67,7 +67,7 @@ class BgpRpcClient(object):
 
     def exa_clean_update_message(self):
         """Cleans update message."""
-        return self._exa_clean_message('update')
+        return self._exa_clean_message("update")
 
     def _exa_get_message(self, msg_type):
         """Gets stored message on the server of given message type."""
@@ -80,24 +80,26 @@ class BgpRpcClient(object):
         timestamp, ...). msg_only is a flag that we want just message content
         and no details.
         """
-        msg = self._exa_get_message('update')
+        msg = self._exa_get_message("update")
         if not msg_only:
             return msg
-        return msg if 'neighbor' not in msg else msg['neighbor']['message']
+        return msg if "neighbor" not in msg else msg["neighbor"]["message"]
 
     def play_send(self, hexstring):
         """Sends given hex data, already encoded bgp update message is expected."""
         return self.proxy.send(hexstring.rstrip())
 
-    def play_get(self, what='update'):
+    def play_get(self, what="update"):
         """Gets the last received (update) mesage as hex string."""
         return self.proxy.get(what)
 
-    def play_clean(self, what='update'):
+    def play_clean(self, what="update"):
         """Cleans the message (update) on the server."""
         return self.proxy.clean(what)
 
     def sum_hex_message(self, hex_string):
         """Verifies two hex messages are equal even in case, their arguments are misplaced.
         Converts hex message arguments to integers and sums them up and returns the sum."""
-        return sum([int(x, 16) for x in re.compile('[a-f\d]{2}').findall(hex_string[32:])])
+        return sum(
+            [int(x, 16) for x in re.compile("[a-f\d]{2}").findall(hex_string[32:])]
+        )

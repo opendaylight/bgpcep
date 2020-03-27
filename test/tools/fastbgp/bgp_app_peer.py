@@ -39,7 +39,9 @@ def _build_url(odl_ip, port, uri):
     return url
 
 
-def _stream_data(xml_template, prefix_base, prefix_len, count, route_key=False, element="ipv4-routes"):
+def _stream_data(
+    xml_template, prefix_base, prefix_len, count, route_key=False, element="ipv4-routes"
+):
     """Stream list of routes based on xml template. Memory non-consumable
     data generation (on the fly).
 
@@ -108,7 +110,9 @@ def _stream_data(xml_template, prefix_base, prefix_len, count, route_key=False, 
         yield xml_data
 
 
-def send_request(operation, odl_ip, port, uri, auth, xml_data=None, expect_status_code=200):
+def send_request(
+    operation, odl_ip, port, uri, auth, xml_data=None, expect_status_code=200
+):
     """Send a http request.
 
     Args:
@@ -157,8 +161,16 @@ def send_request(operation, odl_ip, port, uri, auth, xml_data=None, expect_statu
         return rsp
 
 
-def get_prefixes(odl_ip, port, uri, auth, prefix_base=None, prefix_len=None,
-                 count=None, xml_template=None):
+def get_prefixes(
+    odl_ip,
+    port,
+    uri,
+    auth,
+    prefix_base=None,
+    prefix_len=None,
+    count=None,
+    xml_template=None,
+):
     """Send a http GET request for getting all prefixes.
 
     Args:
@@ -190,19 +202,28 @@ def get_prefixes(odl_ip, port, uri, auth, prefix_base=None, prefix_len=None,
         s = s.replace("}", "")
         s = s.replace("[", "")
         s = s.replace("]", "")
-        prefixes = ''
+        prefixes = ""
         prefix_count = 0
         for item in s.split(","):
             if "prefix" in item:
                 prefixes += item + ","
                 prefix_count += 1
-        prefixes = prefixes[:len(prefixes) - 1]
+        prefixes = prefixes[: len(prefixes) - 1]
         logger.debug("prefix_list=%s", prefixes)
         logger.info("prefix_count=%s", prefix_count)
 
 
-def post_prefixes(odl_ip, port, uri, auth, prefix_base=None, prefix_len=None,
-                  count=0, route_key=False, xml_template=None):
+def post_prefixes(
+    odl_ip,
+    port,
+    uri,
+    auth,
+    prefix_base=None,
+    prefix_len=None,
+    count=0,
+    route_key=False,
+    xml_template=None,
+):
     """Send a http POST request for creating a prefix list.
 
     Args:
@@ -227,14 +248,32 @@ def post_prefixes(odl_ip, port, uri, auth, prefix_base=None, prefix_len=None,
     Returns:
         :returns None
     """
-    logger.info("Post %s prefix(es) in a single request (starting from %s/%s) into %s:%s/restconf/%s",
-                count, prefix_base, prefix_len, odl_ip, port, uri)
+    logger.info(
+        "Post %s prefix(es) in a single request (starting from %s/%s) into %s:%s/restconf/%s",
+        count,
+        prefix_base,
+        prefix_len,
+        odl_ip,
+        port,
+        uri,
+    )
     xml_stream = _stream_data(xml_template, prefix_base, prefix_len, count, route_key)
-    send_request("POST", odl_ip, port, uri, auth, xml_data=xml_stream, expect_status_code=204)
+    send_request(
+        "POST", odl_ip, port, uri, auth, xml_data=xml_stream, expect_status_code=204
+    )
 
 
-def put_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
-                 route_key, xml_template=None):
+def put_prefixes(
+    odl_ip,
+    port,
+    uri,
+    auth,
+    prefix_base,
+    prefix_len,
+    count,
+    route_key,
+    xml_template=None,
+):
     """Send a http PUT request for updating the prefix list.
 
     Args:
@@ -258,14 +297,30 @@ def put_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
         :returns None
     """
     uri_add_prefix = uri + _uri_suffix_ipv4_routes
-    logger.info("Put %s prefix(es) in a single request (starting from %s/%s) into %s:%s/restconf/%s",
-                count, prefix_base, prefix_len, odl_ip, port, uri_add_prefix)
+    logger.info(
+        "Put %s prefix(es) in a single request (starting from %s/%s) into %s:%s/restconf/%s",
+        count,
+        prefix_base,
+        prefix_len,
+        odl_ip,
+        port,
+        uri_add_prefix,
+    )
     xml_stream = _stream_data(xml_template, prefix_base, prefix_len, count, route_key)
     send_request("PUT", odl_ip, port, uri_add_prefix, auth, xml_data=xml_stream)
 
 
-def add_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
-                 route_key, xml_template=None):
+def add_prefixes(
+    odl_ip,
+    port,
+    uri,
+    auth,
+    prefix_base,
+    prefix_len,
+    count,
+    route_key,
+    xml_template=None,
+):
     """Send a consequent http POST request for adding prefixes.
 
     Args:
@@ -288,22 +343,44 @@ def add_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
     Returns:
         :returns None
     """
-    logger.info("Add %s prefixes (starting from %s/%s) into %s:%s/restconf/%s",
-                count, prefix_base, prefix_len, odl_ip, port, uri)
+    logger.info(
+        "Add %s prefixes (starting from %s/%s) into %s:%s/restconf/%s",
+        count,
+        prefix_base,
+        prefix_len,
+        odl_ip,
+        port,
+        uri,
+    )
     uri_add_prefix = uri + _uri_suffix_ipv4_routes
     prefix_gap = 2 ** (32 - prefix_len)
     for prefix_index in range(count):
         prefix = prefix_base + prefix_index * prefix_gap
-        logger.info("Adding prefix %s/%s to %s:%s/restconf/%s",
-                    prefix, prefix_len, odl_ip, port, uri)
-        xml_stream = _stream_data(xml_template, prefix, prefix_len, 1, route_key,
-                                  element="ipv4-route")
-        send_request("POST", odl_ip, port, uri_add_prefix, auth,
-                     xml_data=xml_stream, expect_status_code=204)
+        logger.info(
+            "Adding prefix %s/%s to %s:%s/restconf/%s",
+            prefix,
+            prefix_len,
+            odl_ip,
+            port,
+            uri,
+        )
+        xml_stream = _stream_data(
+            xml_template, prefix, prefix_len, 1, route_key, element="ipv4-route"
+        )
+        send_request(
+            "POST",
+            odl_ip,
+            port,
+            uri_add_prefix,
+            auth,
+            xml_data=xml_stream,
+            expect_status_code=204,
+        )
 
 
-def delete_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
-                    xml_template=None):
+def delete_prefixes(
+    odl_ip, port, uri, auth, prefix_base, prefix_len, count, xml_template=None
+):
     """Send a http DELETE requests for deleting prefixes.
 
     Args:
@@ -326,21 +403,48 @@ def delete_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
     Returns:
         :returns None
     """
-    logger.info("Delete %s prefix(es) (starting from %s/%s) from %s:%s/restconf/%s",
-                count, prefix_base, prefix_len, odl_ip, port, uri)
+    logger.info(
+        "Delete %s prefix(es) (starting from %s/%s) from %s:%s/restconf/%s",
+        count,
+        prefix_base,
+        prefix_len,
+        odl_ip,
+        port,
+        uri,
+    )
     partkey = "/0"
     uri_del_prefix = uri + _uri_suffix_ipv4_routes + _uri_suffix_ipv4_route
     prefix_gap = 2 ** (32 - prefix_len)
     for prefix_index in range(count):
         prefix = prefix_base + prefix_index * prefix_gap
-        logger.info("Deleting prefix %s/%s/%s from %s:%s/restconf/%s",
-                    prefix, prefix_len, partkey, odl_ip, port, uri)
-        send_request("DELETE", odl_ip, port,
-                     uri_del_prefix + str(prefix) + "%2F" + str(prefix_len) + partkey, auth)
+        logger.info(
+            "Deleting prefix %s/%s/%s from %s:%s/restconf/%s",
+            prefix,
+            prefix_len,
+            partkey,
+            odl_ip,
+            port,
+            uri,
+        )
+        send_request(
+            "DELETE",
+            odl_ip,
+            port,
+            uri_del_prefix + str(prefix) + "%2F" + str(prefix_len) + partkey,
+            auth,
+        )
 
 
-def delete_all_prefixes(odl_ip, port, uri, auth, prefix_base=None,
-                        prefix_len=None, count=None, xml_template=None):
+def delete_all_prefixes(
+    odl_ip,
+    port,
+    uri,
+    auth,
+    prefix_base=None,
+    prefix_len=None,
+    count=None,
+    xml_template=None,
+):
     """Send a http DELETE request for deleting all prefixes.
 
     Args:
@@ -370,45 +474,85 @@ def delete_all_prefixes(odl_ip, port, uri, auth, prefix_base=None,
 
 _commands = ["post", "put", "add", "delete", "delete-all", "get"]
 _uri_suffix_ipv4_routes = "bgp-inet:ipv4-routes/"
-_uri_suffix_ipv4_route = "bgp-inet:ipv4-route/"   # followed by IP address like 1.1.1.1%2F32
+_uri_suffix_ipv4_route = (
+    "bgp-inet:ipv4-route/"  # followed by IP address like 1.1.1.1%2F32
+)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="BGP application peer script")
-    parser.add_argument("--host", type=ipaddr.IPv4Address, default="127.0.0.1",
-                        help="ODL controller IP address")
-    parser.add_argument("--port", default="8181",
-                        help="ODL RESTCONF port")
-    parser.add_argument("--command", choices=_commands, metavar="command",
-                        help="Command to be performed."
-                        "post, put, add, delete, delete-all, get")
-    parser.add_argument("--prefix", type=ipaddr.IPv4Address, default="8.0.1.0",
-                        help="First prefix IP address")
-    parser.add_argument("--prefixlen", type=int, help="Prefix length in bites",
-                        default=28)
-    parser.add_argument("--count", type=int, help="Number of prefixes",
-                        default=1)
+    parser.add_argument(
+        "--host",
+        type=ipaddr.IPv4Address,
+        default="127.0.0.1",
+        help="ODL controller IP address",
+    )
+    parser.add_argument("--port", default="8181", help="ODL RESTCONF port")
+    parser.add_argument(
+        "--command",
+        choices=_commands,
+        metavar="command",
+        help="Command to be performed." "post, put, add, delete, delete-all, get",
+    )
+    parser.add_argument(
+        "--prefix",
+        type=ipaddr.IPv4Address,
+        default="8.0.1.0",
+        help="First prefix IP address",
+    )
+    parser.add_argument(
+        "--prefixlen", type=int, help="Prefix length in bites", default=28
+    )
+    parser.add_argument("--count", type=int, help="Number of prefixes", default=1)
     parser.add_argument("--user", help="Restconf user name", default="admin")
     parser.add_argument("--password", help="Restconf password", default="admin")
-    parser.add_argument("--uri", help="The uri part of requests",
-                        default="config/bgp-rib:application-rib/example-app-rib/"
-                                "tables/bgp-types:ipv4-address-family/"
-                                "bgp-types:unicast-subsequent-address-family/")
-    parser.add_argument("--xml", help="File name of the xml data template",
-                        default="ipv4-routes-template.xml")
-    parser.add_argument("--error", dest="loglevel", action="store_const",
-                        const=logging.ERROR, default=logging.INFO,
-                        help="Set log level to error (default is info)")
-    parser.add_argument("--warning", dest="loglevel", action="store_const",
-                        const=logging.WARNING, default=logging.INFO,
-                        help="Set log level to warning (default is info)")
-    parser.add_argument("--info", dest="loglevel", action="store_const",
-                        const=logging.INFO, default=logging.INFO,
-                        help="Set log level to info (default is info)")
-    parser.add_argument("--debug", dest="loglevel", action="store_const",
-                        const=logging.DEBUG, default=logging.INFO,
-                        help="Set log level to debug (default is info)")
+    parser.add_argument(
+        "--uri",
+        help="The uri part of requests",
+        default="config/bgp-rib:application-rib/example-app-rib/"
+        "tables/bgp-types:ipv4-address-family/"
+        "bgp-types:unicast-subsequent-address-family/",
+    )
+    parser.add_argument(
+        "--xml",
+        help="File name of the xml data template",
+        default="ipv4-routes-template.xml",
+    )
+    parser.add_argument(
+        "--error",
+        dest="loglevel",
+        action="store_const",
+        const=logging.ERROR,
+        default=logging.INFO,
+        help="Set log level to error (default is info)",
+    )
+    parser.add_argument(
+        "--warning",
+        dest="loglevel",
+        action="store_const",
+        const=logging.WARNING,
+        default=logging.INFO,
+        help="Set log level to warning (default is info)",
+    )
+    parser.add_argument(
+        "--info",
+        dest="loglevel",
+        action="store_const",
+        const=logging.INFO,
+        default=logging.INFO,
+        help="Set log level to info (default is info)",
+    )
+    parser.add_argument(
+        "--debug",
+        dest="loglevel",
+        action="store_const",
+        const=logging.DEBUG,
+        default=logging.INFO,
+        help="Set log level to debug (default is info)",
+    )
     parser.add_argument("--logfile", default="bgp_app_peer.log", help="Log file name")
-    parser.add_argument("--stream", default="", help="ODL Stream - oxygen, fluorine ...")
+    parser.add_argument(
+        "--stream", default="", help="ODL Stream - oxygen, fluorine ..."
+    )
 
     args = parser.parse_args()
 
@@ -444,14 +588,41 @@ if __name__ == "__main__":
     total_number_of_responses_counter = 0
 
     if command == "post":
-        post_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
-                      route_key, xml_template)
+        post_prefixes(
+            odl_ip,
+            port,
+            uri,
+            auth,
+            prefix_base,
+            prefix_len,
+            count,
+            route_key,
+            xml_template,
+        )
     if command == "put":
-        put_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
-                     route_key, xml_template)
+        put_prefixes(
+            odl_ip,
+            port,
+            uri,
+            auth,
+            prefix_base,
+            prefix_len,
+            count,
+            route_key,
+            xml_template,
+        )
     if command == "add":
-        add_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
-                     route_key, xml_template)
+        add_prefixes(
+            odl_ip,
+            port,
+            uri,
+            auth,
+            prefix_base,
+            prefix_len,
+            count,
+            route_key,
+            xml_template,
+        )
     elif command == "delete":
         delete_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count)
     elif command == "delete-all":

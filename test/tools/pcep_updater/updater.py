@@ -36,6 +36,7 @@ import collections  # For deque and Counter.
 import ipaddr
 import threading
 import time
+
 try:
     from collections import Counter
 except ImportError:  # Python 2.6 does not have Counter in collections.
@@ -56,71 +57,98 @@ def str2bool(text):
 
 # Note: JSON data contains '"', so using "'" to quote Pythons strings.
 parser = argparse.ArgumentParser()
-parser.add_argument('--pccs', default='1', type=int,
-                    help='number of PCCs to simulate')
-parser.add_argument('--lsps', default='1', type=int,
-                    help='number of LSPs pre PCC to update')
-parser.add_argument('--workers', default='1', type=int,
-                    help='number of blocking https threads to use')
-parser.add_argument('--hop', default='2.2.2.2/32',
-                    help='ipv4 prefix (including /32) of hop to use')
-parser.add_argument('--timeout', default='300', type=float,
-                    help='seconds to bail out after')  # FIXME: grammar
-parser.add_argument('--refresh', default='0.1', type=float,
-                    help='seconds to sleep in main thread if nothing to do')
-parser.add_argument('--pccaddress', default='127.0.0.1',
-                    help='IP address of the first simulated PCC')
-parser.add_argument('--odladdress', default='127.0.0.1',
-                    help='IP address of ODL acting as PCE')
-parser.add_argument('--user', default='admin',
-                    help='Username for restconf authentication')
-parser.add_argument('--password', default='admin',
-                    help='Password for restconf authentication')
-parser.add_argument('--scope', default='sdn',
-                    help='Scope for restconf authentication')
-parser.add_argument('--reuse', default='True', type=str2bool,
-                    help='Should single requests session be re-used')
-parser.add_argument('--delegate', default='true',
-                    help='should delegate the lsp or set "false" if lsp not be delegated')
-parser.add_argument('--pccip', default=None,
-                    help='IP address of the simulated PCC')
-parser.add_argument('--tunnelnumber', default=None,
-                    help='Tunnel Number for the simulated PCC')
+parser.add_argument("--pccs", default="1", type=int, help="number of PCCs to simulate")
+parser.add_argument(
+    "--lsps", default="1", type=int, help="number of LSPs pre PCC to update"
+)
+parser.add_argument(
+    "--workers", default="1", type=int, help="number of blocking https threads to use"
+)
+parser.add_argument(
+    "--hop", default="2.2.2.2/32", help="ipv4 prefix (including /32) of hop to use"
+)
+parser.add_argument(
+    "--timeout", default="300", type=float, help="seconds to bail out after"
+)  # FIXME: grammar
+parser.add_argument(
+    "--refresh",
+    default="0.1",
+    type=float,
+    help="seconds to sleep in main thread if nothing to do",
+)
+parser.add_argument(
+    "--pccaddress", default="127.0.0.1", help="IP address of the first simulated PCC"
+)
+parser.add_argument(
+    "--odladdress", default="127.0.0.1", help="IP address of ODL acting as PCE"
+)
+parser.add_argument(
+    "--user", default="admin", help="Username for restconf authentication"
+)
+parser.add_argument(
+    "--password", default="admin", help="Password for restconf authentication"
+)
+parser.add_argument("--scope", default="sdn", help="Scope for restconf authentication")
+parser.add_argument(
+    "--reuse",
+    default="True",
+    type=str2bool,
+    help="Should single requests session be re-used",
+)
+parser.add_argument(
+    "--delegate",
+    default="true",
+    help='should delegate the lsp or set "false" if lsp not be delegated',
+)
+parser.add_argument("--pccip", default=None, help="IP address of the simulated PCC")
+parser.add_argument(
+    "--tunnelnumber", default=None, help="Tunnel Number for the simulated PCC"
+)
 args = parser.parse_args()  # arguments are read
 
-expected = '''{"output":{}}'''
+expected = """{"output":{}}"""
 
 payload_list_data = [
-    '{',
+    "{",
     '   "input":{',
-    '       "node":"pcc://', '', '",',
-    '       "name":"pcc_', '', '_tunnel_', '', '",',
+    '       "node":"pcc://',
+    "",
+    '",',
+    '       "name":"pcc_',
+    "",
+    "_tunnel_",
+    "",
+    '",',
     '       "network-topology-ref":"/network-topology:network-topology/network-topology:topology',
-    '[network-topology:topology-id=\\\"pcep-topology\\\"]",',
+    '[network-topology:topology-id=\\"pcep-topology\\"]",',
     '       "arguments":{',
     '           "lsp":{',
-    '           "delegate":', '',
+    '           "delegate":',
+    "",
     '           ,"administrative":true',
-    '},',
+    "},",
     '"ero":{',
     '   "subobject":[',
-    '       {',
+    "       {",
     '           "loose":false,',
     '           "ip-prefix":{',
-    '                "ip-prefix":', '"', '', '"',
-    '           }',
-    '       },',
-    '       {',
+    '                "ip-prefix":',
+    '"',
+    "",
+    '"',
+    "           }",
+    "       },",
+    "       {",
     '           "loose":false,',
     '           "ip-prefix":{',
     '                "ip-prefix":"1.1.1.1/32"',
-    '            }',
-    '        }',
-    '        ]',
-    '       }',
-    '   }',
-    ' }',
-    '}'
+    "            }",
+    "        }",
+    "        ]",
+    "       }",
+    "   }",
+    " }",
+    "}",
 ]
 
 
@@ -140,7 +168,7 @@ def iterable_msg(pccs, lsps, workers, hop, delegate):
     """Generator yielding tuple of worker number and kwargs to post."""
     first_pcc_int = int(ipaddr.IPv4Address(args.pccaddress))
     # Headers are constant, but it is easier to add them to kwargs in this generator.
-    headers = {'Content-Type': 'application/json'}
+    headers = {"Content-Type": "application/json"}
     # TODO: Perhaps external text file with Template? May affect performance.
     list_data = payload_list_data
     for lsp in range(1, lsps + 1):
@@ -152,7 +180,7 @@ def iterable_msg(pccs, lsps, workers, hop, delegate):
             list_data[6] = pcc_ip
             list_data[15] = delegate
             list_data[25] = hop
-            whole_data = ''.join(list_data)
+            whole_data = "".join(list_data)
             worker = (lsp * pccs + pcc) % workers
             post_kwargs = {"data": whole_data, "headers": headers}
             yield worker, post_kwargs
@@ -162,7 +190,7 @@ def generate_payload_for_single_pcc(hop, delegate, pccip, tunnel_no):
     """Generator yielding single kwargs to post."""
     first_pcc_int = int(ipaddr.IPv4Address(args.pccaddress))
     # Headers are constant, but it is easier to add them to kwargs in this generator.
-    headers = {'Content-Type': 'application/json'}
+    headers = {"Content-Type": "application/json"}
     # TODO: Perhaps external text file with Template? May affect performance.
     list_data = payload_list_data
     if tunnel_no == "None":
@@ -178,7 +206,7 @@ def generate_payload_for_single_pcc(hop, delegate, pccip, tunnel_no):
     list_data[6] = pcc_ip
     list_data[15] = delegate
     list_data[25] = hop
-    whole_data = ''.join(list_data)
+    whole_data = "".join(list_data)
     worker = 0
     post_kwargs = {"data": whole_data, "headers": headers}
     print(post_kwargs)
@@ -187,7 +215,7 @@ def generate_payload_for_single_pcc(hop, delegate, pccip, tunnel_no):
 
 def queued_send(session, queue_messages, queue_responses):
     """Pop from queue, Post and append result; repeat until empty."""
-    uri = 'operations/network-topology-pcep:update-lsp'
+    uri = "operations/network-topology-pcep:update-lsp"
     while 1:
         try:
             post_kwargs = queue_messages.popleft()
@@ -205,28 +233,34 @@ def queued_send(session, queue_messages, queue_responses):
 
 def classify(resp_tuple):
     """Return 'pass' or a reason what is wrong with response."""
-    prepend = ''
+    prepend = ""
     status = resp_tuple[0]
     if (status != 200) and (status != 204):  # is it int?
-        prepend = 'status: ' + str(status) + ' '
+        prepend = "status: " + str(status) + " "
     content = resp_tuple[1]
-    if prepend or (content != expected and content != ''):
-        return prepend + 'content: ' + str(content)
-    return 'pass'
+    if prepend or (content != expected and content != ""):
+        return prepend + "content: " + str(content)
+    return "pass"
 
 
 # Main.
 list_q_msg = [collections.deque() for _ in range(args.workers)]
 if args.pccip == "None":
-    for worker, post_kwargs in iterable_msg(args.pccs, args.lsps, args.workers, args.hop, args.delegate):
+    for worker, post_kwargs in iterable_msg(
+        args.pccs, args.lsps, args.workers, args.hop, args.delegate
+    ):
         list_q_msg[worker].append(post_kwargs)
 else:
-    for worker, post_kwargs in generate_payload_for_single_pcc(args.hop, args.delegate, args.pccip, args.tunnelnumber):
+    for worker, post_kwargs in generate_payload_for_single_pcc(
+        args.hop, args.delegate, args.pccip, args.tunnelnumber
+    ):
         list_q_msg[worker].append(post_kwargs)
 queue_responses = collections.deque()  # thread safe
 threads = []
 for worker in range(args.workers):
-    session = AuthStandalone.Init_Session(args.odladdress, args.user, args.password, args.scope, args.reuse)
+    session = AuthStandalone.Init_Session(
+        args.odladdress, args.user, args.password, args.scope, args.reuse
+    )
     queue_messages = list_q_msg[worker]
     thread_args = (session, queue_messages, queue_responses)
     thread = threading.Thread(target=queued_send, args=thread_args)
@@ -234,7 +268,7 @@ for worker in range(args.workers):
     threads.append(thread)
 tasks = sum(map(len, list_q_msg))  # fancy way of counting, should equal to pccs*lsps.
 counter = CounterDown(tasks)
-print('work is going to start with %s tasks' % tasks)
+print("work is going to start with %s tasks" % tasks)
 time_start = time.time()
 for thread in threads:
     thread.start()
@@ -263,9 +297,9 @@ while 1:
             continue
         left = len(queue_responses)
         if left:
-            print('error: more responses left inqueue', left)
+            print("error: more responses left inqueue", left)
     else:
-        print('Time is up!')
+        print("Time is up!")
         left = len(queue_responses)  # can be still increasing
         for _ in range(left):
             resp_tuple = queue_responses.popleft()  # thread safe
@@ -274,7 +308,7 @@ while 1:
     break  # may leave late items in queue_reponses
 time_stop = time.time()
 timedelta_duration = time_stop - time_start
-print('took', timedelta_duration)
+print("took", timedelta_duration)
 print(repr(counter.counter))
 # for message in debug_list:
 #     print message
