@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -29,9 +28,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
@@ -103,8 +102,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     final SessionStateImpl listenerState;
     @GuardedBy("this")
     private final Map<S, PCEPRequest> requests = new HashMap<>();
-    @GuardedBy("this")
-    private final Map<String, ReportedLsp> lspData = new HashMap<>();
+    private final Map<String, ReportedLsp> lspData = new ConcurrentHashMap<>();
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     @GuardedBy("this")
@@ -123,60 +121,67 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public final synchronized void onSessionUp(final PCEPSession psession) {
-        /*
-         * The session went up. Look up the router in Inventory model,
-         * create it if it is not there (marking that fact for later
-         * deletion), and mark it as synchronizing. Also create it in
-         * the topology model, with empty LSP list.
-         */
-        final InetAddress peerAddress = psession.getRemoteAddress();
+    public final void onSessionUp(final PCEPSession psession) {
+        synchronized (this.serverSessionManager) {
+            synchronized (this) {
+                /*
+                 * The session went up. Look up the router in Inventory model,
+                 * create it if it is not there (marking that fact for later
+                 * deletion), and mark it as synchronizing. Also create it in
+                 * the topology model, with empty LSP list.
+                 */
+                final InetAddress peerAddress = psession.getRemoteAddress();
 
-        this.syncOptimization = new SyncOptimization(psession);
+                this.syncOptimization = new SyncOptimization(psession);
 
-        final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress,
-                this, isLspDbRetreived());
+                final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress,
+                        this, isLspDbRetreived());
 
-        // takeNodeState(..) may fail when the server session manager is being restarted due to configuration change
-        if (state == null) {
-            LOG.error("Unable to fetch topology node state for PCEP session. Closing session {}", psession);
-            psession.close(TerminationReason.UNKNOWN);
-            this.onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
-            return;
+                // takeNodeState(..) may fail when the server session manager is being restarted
+                // due to configuration change
+                if (state == null) {
+                    LOG.error("Unable to fetch topology node state for PCEP session. Closing session {}", psession);
+                    psession.close(TerminationReason.UNKNOWN);
+                    this.onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+                    return;
+                }
+
+                if (this.session != null || this.nodeState != null) {
+                    LOG.error("PCEP session is already up with {}. Closing session {}", psession.getRemoteAddress(),
+                            psession);
+                    psession.close(TerminationReason.UNKNOWN);
+                    this.onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+                    return;
+                }
+                this.session = psession;
+                this.nodeState = state;
+
+                LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
+
+                // Our augmentation in the topology node
+                final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder();
+
+                onSessionUp(psession, pccBuilder);
+                this.synced.set(isSynchronized());
+
+                pccBuilder.setIpAddress(IpAddressNoZoneBuilder.getDefaultInstance(peerAddress.getHostAddress()));
+                final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
+                this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
+                final Node initialNodeState = state.getInitialNodeState();
+                final boolean isNodePresent = isLspDbRetreived() && initialNodeState != null;
+                if (isNodePresent) {
+                    loadLspData(initialNodeState, this.lspData, this.lsps, isIncrementalSynchro());
+                    pccBuilder.setReportedLsp(
+                            initialNodeState.augmentation(Node1.class).getPathComputationClient().getReportedLsp());
+                }
+                state.storeNode(topologyAugment,
+                        new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), this.session);
+                this.listenerState.init(psession);
+                this.serverSessionManager.bind(this.nodeState.getNodeId(), this.listenerState);
+                LOG.info("Session with {} attached to topology node {}", psession.getRemoteAddress(),
+                        state.getNodeId());
+            }
         }
-
-        if (this.session != null || this.nodeState != null) {
-            LOG.error("PCEP session is already up with {}. Closing session {}", psession.getRemoteAddress(), psession);
-            psession.close(TerminationReason.UNKNOWN);
-            this.onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
-            return;
-        }
-        this.session = psession;
-        this.nodeState = state;
-
-        LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
-
-        // Our augmentation in the topology node
-        final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder();
-
-        onSessionUp(psession, pccBuilder);
-        this.synced.set(isSynchronized());
-
-        pccBuilder.setIpAddress(IpAddressNoZoneBuilder.getDefaultInstance(peerAddress.getHostAddress()));
-        final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
-        this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
-        final Node initialNodeState = state.getInitialNodeState();
-        final boolean isNodePresent = isLspDbRetreived() && initialNodeState != null;
-        if (isNodePresent) {
-            loadLspData(initialNodeState, this.lspData, this.lsps, isIncrementalSynchro());
-            pccBuilder.setReportedLsp(initialNodeState.augmentation(Node1.class)
-                    .getPathComputationClient().getReportedLsp());
-        }
-        state.storeNode(topologyAugment,
-                new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), this.session);
-        this.listenerState.init(psession);
-        this.serverSessionManager.bind(this.nodeState.getNodeId(), this.listenerState);
-        LOG.info("Session with {} attached to topology node {}", psession.getRemoteAddress(), state.getNodeId());
     }
 
     synchronized void updatePccState(final PccSyncState pccSyncState) {
@@ -216,58 +221,62 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * Tear down the given PCEP session. It's OK to call this method even after the session
      * is already down. It always clear up the current session status.
      */
-    @Holding("this")
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private synchronized void tearDown(final PCEPSession psession) {
-
+    private void tearDown(final PCEPSession psession) {
         requireNonNull(psession);
-        this.serverSessionManager.releaseNodeState(this.nodeState, psession, isLspDbPersisted());
-        clearNodeState();
+        synchronized (this.serverSessionManager) {
+            synchronized (this) {
+                this.serverSessionManager.releaseNodeState(this.nodeState, psession, isLspDbPersisted());
+                clearNodeState();
 
-        try {
-            if (this.session != null) {
-                this.session.close();
-            }
-            psession.close();
-        } catch (final Exception e) {
-            LOG.error("Session {} cannot be closed.", psession, e);
-        }
-        this.session = null;
-        this.syncOptimization = null;
+                try {
+                    if (this.session != null) {
+                        this.session.close();
+                    }
+                    psession.close();
+                } catch (final Exception e) {
+                    LOG.error("Session {} cannot be closed.", psession, e);
+                }
+                this.session = null;
+                this.syncOptimization = null;
 
-        // Clear all requests we know about
-        for (final Entry<S, PCEPRequest> e : this.requests.entrySet()) {
-            final PCEPRequest r = e.getValue();
-            switch (r.getState()) {
-                case DONE:
-                    // Done is done, nothing to do
-                    LOG.trace("Request {} was done when session went down.", e.getKey());
-                    break;
-                case UNACKED:
-                    // Peer has not acked: results in failure
-                    LOG.info("Request {} was incomplete when session went down, failing the instruction", e.getKey());
-                    r.done(OperationResults.NOACK);
-                    break;
-                case UNSENT:
-                    // Peer has not been sent to the peer: results in cancellation
-                    LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
-                    r.done(OperationResults.UNSENT);
-                    break;
-                default:
-                    break;
+                // Clear all requests we know about
+                for (final Entry<S, PCEPRequest> e : this.requests.entrySet()) {
+                    final PCEPRequest r = e.getValue();
+                    switch (r.getState()) {
+                        case DONE:
+                            // Done is done, nothing to do
+                            LOG.trace("Request {} was done when session went down.", e.getKey());
+                            break;
+                        case UNACKED:
+                            // Peer has not acked: results in failure
+                            LOG.info("Request {} was incomplete when session went down, failing the instruction",
+                                    e.getKey());
+                            r.done(OperationResults.NOACK);
+                            break;
+                        case UNSENT:
+                            // Peer has not been sent to the peer: results in cancellation
+                            LOG.debug("Request {} was not sent when session went down, cancelling the instruction",
+                                    e.getKey());
+                            r.done(OperationResults.UNSENT);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                this.requests.clear();
             }
         }
-        this.requests.clear();
     }
 
     @Override
-    public final synchronized void onSessionDown(final PCEPSession psession, final Exception exception) {
+    public final void onSessionDown(final PCEPSession psession, final Exception exception) {
         LOG.warn("Session {} went down unexpectedly", psession, exception);
         tearDown(psession);
     }
 
     @Override
-    public final synchronized void onSessionTerminated(final PCEPSession psession, final PCEPTerminationReason reason) {
+    public final void onSessionTerminated(final PCEPSession psession, final PCEPTerminationReason reason) {
         LOG.info("Session {} terminated by peer with reason {}", psession, reason);
         tearDown(psession);
     }
@@ -316,15 +325,20 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Override
-    public synchronized void close() {
-        clearNodeState();
-        if (this.session != null) {
-            LOG.info("Closing session {}", session);
-            this.session.close(TerminationReason.UNKNOWN);
+    public void close() {
+        synchronized (this.serverSessionManager) {
+            synchronized (this) {
+                clearNodeState();
+                if (this.session != null) {
+                    LOG.info("Closing session {}", session);
+                    this.session.close(TerminationReason.UNKNOWN);
+                }
+            }
         }
     }
 
-    private synchronized void clearNodeState() {
+    @Holding({"this.serverSessionManager", "this"})
+    private void clearNodeState() {
         if (this.nodeState != null) {
             this.serverSessionManager.unbind(this.nodeState.getNodeId());
             this.nodeState = null;
@@ -340,32 +354,36 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         return ret;
     }
 
-    final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
+    final ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
             final Metadata metadata) {
-        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
-        this.listenerState.updateStatefulSentMsg(message);
-        final PCEPRequest req = new PCEPRequest(metadata);
-        this.requests.put(requestId, req);
-        final short rpcTimeout = this.serverSessionManager.getRpcTimeout();
-        LOG.trace("RPC response timeout value is {} seconds", rpcTimeout);
-        if (rpcTimeout > 0) {
-            setupTimeoutHandler(requestId, req, rpcTimeout);
-        }
-
-        f.addListener((FutureListener<Void>) future -> {
-            if (!future.isSuccess()) {
-                synchronized (AbstractTopologySessionListener.this) {
-                    AbstractTopologySessionListener.this.requests.remove(requestId);
+        synchronized (this.serverSessionManager) {
+            synchronized (this) {
+                final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
+                this.listenerState.updateStatefulSentMsg(message);
+                final PCEPRequest req = new PCEPRequest(metadata);
+                this.requests.put(requestId, req);
+                final short rpcTimeout = this.serverSessionManager.getRpcTimeout();
+                LOG.trace("RPC response timeout value is {} seconds", rpcTimeout);
+                if (rpcTimeout > 0) {
+                    setupTimeoutHandler(requestId, req, rpcTimeout);
                 }
-                req.done(OperationResults.UNSENT);
-                LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
-            } else {
-                req.sent();
-                LOG.trace("Request {} sent to peer (object {})", requestId, req);
-            }
-        });
 
-        return req.getFuture();
+                f.addListener((FutureListener<Void>) future -> {
+                    if (!future.isSuccess()) {
+                        synchronized (AbstractTopologySessionListener.this) {
+                            AbstractTopologySessionListener.this.requests.remove(requestId);
+                        }
+                        req.done(OperationResults.UNSENT);
+                        LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
+                    } else {
+                        req.sent();
+                        LOG.trace("Request {} sent to peer (object {})", requestId, req);
+                    }
+                });
+
+                return req.getFuture();
+            }
+        }
     }
 
     private void setupTimeoutHandler(final S requestId, final PCEPRequest req, final short timeout) {
@@ -597,12 +615,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Override
     public int getDelegatedLspsCount() {
-        final Stream<ReportedLsp> stream;
-        synchronized (this) {
-            stream = ImmutableList.copyOf(this.lspData.values()).stream();
-        }
-
-        return Math.toIntExact(stream
+        return Math.toIntExact(this.lspData.values().stream()
             .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
             // pick the first path, as delegate status should be same in each path
             .map(pathList -> pathList.get(0))

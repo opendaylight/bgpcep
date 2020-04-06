@@ -27,7 +27,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -90,7 +89,6 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     private int maxUnknownMessages;
 
     // True if the listener should not be notified about events
-    @GuardedBy("this")
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final Channel channel;
@@ -221,7 +219,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @VisibleForTesting
-    public synchronized boolean isClosed() {
+    public boolean isClosed() {
         return this.closed.get();
     }
 
@@ -229,7 +227,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * Closes PCEP session without sending a Close message, as the channel is no longer active.
      */
     @Override
-    public synchronized void close() {
+    public void close() {
         close(null);
     }
 
