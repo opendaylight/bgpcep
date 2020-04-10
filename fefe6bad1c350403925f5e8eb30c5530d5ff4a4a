@@ -22,6 +22,30 @@
       "revId": "fefe6bad1c350403925f5e8eb30c5530d5ff4a4a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "908e82a3_6580492f",
+        "filename": "bgp/openconfig-state/src/main/java/org/opendaylight/protocol/bgp/state/StateProviderImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-04-10T05:29:28Z",
+      "side": 1,
+      "message": "Yeah that will work, better approach. updated path",
+      "parentUuid": "0780249b_89c447ab",
+      "range": {
+        "startLine": 176,
+        "startChar": 16,
+        "endLine": 176,
+        "endChar": 35
+      },
+      "revId": "fefe6bad1c350403925f5e8eb30c5530d5ff4a4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
