@@ -22,6 +22,30 @@
       "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0782fa9_50875c6a",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-04-10T03:22:55Z",
+      "side": 1,
+      "message": "Because of change in method getDelegatedLspsCount() [line 618]. With synchronization, it results in deadlock, and without it in ConcurrentModificationException. So using thread-safe data-struct.",
+      "parentUuid": "a11587cc_21be3f02",
+      "range": {
+        "startLine": 105,
+        "startChar": 57,
+        "endLine": 105,
+        "endChar": 79
+      },
+      "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
