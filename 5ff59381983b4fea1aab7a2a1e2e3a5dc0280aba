@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f64434c_53549796",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-12T19:41:25Z",
+      "side": 1,
+      "message": "this should be application/json",
+      "revId": "5ff59381983b4fea1aab7a2a1e2e3a5dc0280aba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e835909_5ea95e35",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-12T19:41:25Z",
+      "side": 1,
+      "message": "This looks weird to me. FYI you can verify this payload by installing ODL controller and pushing this JSON payload. Also, for URLs starting with /restconf/config, you can use ODL controller to make the XML-\u003eJSON conversion: 1) POST the XML body with Content-Type\u003dapplication/xml, 2) GET on the same URL with Accept\u003dapplication/json.\n\nTo install ODL with BGP:\nhttps://docs.opendaylight.org/en/stable-magnesium/getting-started-guide/installing_opendaylight.html\nhttps://docs.opendaylight.org/projects/bgpcep/en/stable-magnesium/bgp/bgp-user-guide-running-bgp.html",
+      "revId": "5ff59381983b4fea1aab7a2a1e2e3a5dc0280aba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
