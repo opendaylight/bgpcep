@@ -33,6 +33,23 @@
       "revId": "5ff59381983b4fea1aab7a2a1e2e3a5dc0280aba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afc75f9a_d02e7a2d",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-13T04:35:11Z",
+      "side": 1,
+      "message": "The xml attributes need not be translated as fields in JSON. Here and elsewhere. In stead afi is set to \"bgp-types:ipv4-address-family\" as a single field.\n\"afi\" : \"bgp-types:ipv4-address-family\"",
+      "revId": "5ff59381983b4fea1aab7a2a1e2e3a5dc0280aba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
