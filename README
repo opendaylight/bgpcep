@@ -40,8 +40,11 @@ HOW TO BUILD
 In order to build it's required to have JDK 1.7+ and Maven 3+, to get
 a build going it's needed to:
 
-1) Go in the root directory and run
+1) Install Apache Maven on Ubuntu
+   "sudo apt install maven"
+
+2) Go in the root directory and run
    "mvn clean install"
 
-2) After successful completion, look for org.opendaylight.bgpcep artifacts
+3) After successful completion, look for org.opendaylight.bgpcep artifacts
    in your local maven repository.
