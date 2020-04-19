@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4dc8d62_5ab60045",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-19T21:03:43Z",
+      "side": 1,
+      "message": "Use spaces vs tabs.",
+      "revId": "0519e870d227934431510a0116bef2e5b5780e09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca4eff37_dc6a826c",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-19T21:03:43Z",
+      "side": 1,
+      "message": "The xml attributes need not be translated as fields in JSON. Here and elsewhere. In this example \"identifier\" is set to \"openconfig-policy-types:BGP\" as a single field:\n\"identifier\": \"openconfig-policy-types:BGP\"",
+      "revId": "0519e870d227934431510a0116bef2e5b5780e09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
