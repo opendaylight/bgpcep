@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "283d5ddf_44b53e7d",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-04-21T20:20:47Z",
+      "side": 1,
+      "message": "trailing whitespace",
+      "range": {
+        "startLine": 74,
+        "startChar": 18,
+        "endLine": 74,
+        "endChar": 19
+      },
+      "revId": "f5339f80da362b1732ce96d018dd5b8a5f797747",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
