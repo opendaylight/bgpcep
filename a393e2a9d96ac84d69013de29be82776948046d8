@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac4d76cf_01b3debd",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-04-22T17:33:42Z",
+      "side": 0,
+      "message": "this and (close()) is losing synchronization with handleDeadTimer(), which I think opens a regression.\n\nSo this really looks like we have three separate things -- which in my book means three separate bugs and three separate patches. And yes, given we are talking concurrency, each of them needs to be explained.",
+      "range": {
+        "startLine": 224,
+        "startChar": 11,
+        "endLine": 224,
+        "endChar": 23
+      },
+      "revId": "a393e2a9d96ac84d69013de29be82776948046d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
