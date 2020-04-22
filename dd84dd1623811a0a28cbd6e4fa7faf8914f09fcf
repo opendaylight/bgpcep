@@ -46,6 +46,30 @@
       "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f3f45ee_d0a368e3",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-04-22T17:19:29Z",
+      "side": 1,
+      "message": "Okay, but there is no CME in the bug report, nor a deadlock involving getDelegatedLspsCount() so I am confused... is this patch performing two different things?\n\nI cannot see how getDelegatedLspsCount() can itself deadlock...",
+      "parentUuid": "e0782fa9_50875c6a",
+      "range": {
+        "startLine": 105,
+        "startChar": 57,
+        "endLine": 105,
+        "endChar": 79
+      },
+      "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
