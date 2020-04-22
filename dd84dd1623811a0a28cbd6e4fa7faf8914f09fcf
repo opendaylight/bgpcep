@@ -70,6 +70,92 @@
       "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "209168c3_1b3cad65",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/provider/TopologyStatsProviderImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-04-22T17:27:16Z",
+      "side": 1,
+      "message": "So this absolutely definitely looks unrelated to what the bug is about -- this looks all about unsynchronized access to the datastore and I simply do not see how...",
+      "range": {
+        "startLine": 52,
+        "startChar": 62,
+        "endLine": 52,
+        "endChar": 80
+      },
+      "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64bac204_3b287de5",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/provider/TopologyStatsProviderImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-04-22T17:27:16Z",
+      "side": 1,
+      "message": "given a lock here",
+      "range": {
+        "startLine": 81,
+        "startChar": 12,
+        "endLine": 81,
+        "endChar": 24
+      },
+      "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8769af56_84439167",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/provider/TopologyStatsProviderImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-04-22T17:27:16Z",
+      "side": 1,
+      "message": "... statsMap contains the entry, as well as statsPendingDelete does ...",
+      "range": {
+        "startLine": 86,
+        "startChar": 27,
+        "endLine": 86,
+        "endChar": 35
+      },
+      "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7990566_dc5095b6",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/provider/TopologyStatsProviderImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-04-22T17:27:16Z",
+      "side": 1,
+      "message": "... although we did remove it first from statsMap before putting it into statsPendingDelete under the same lock.",
+      "revId": "dd84dd1623811a0a28cbd6e4fa7faf8914f09fcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
