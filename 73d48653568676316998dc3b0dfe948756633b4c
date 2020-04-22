@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c11d1604_fc803bbe",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-22T21:01:25Z",
+      "side": 1,
+      "message": "remove extra spaces. Here and after.",
+      "revId": "73d48653568676316998dc3b0dfe948756633b4c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f422b256_dde94de4",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-22T21:01:25Z",
+      "side": 1,
+      "message": "same comment with indents (use 2 or 4 spaces). Here and after.",
+      "revId": "73d48653568676316998dc3b0dfe948756633b4c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07466c97_b1f2e16c",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-22T21:01:25Z",
+      "side": 1,
+      "message": "I think the name of the yang module is openconfig-bgp-types. Here and after.",
+      "revId": "73d48653568676316998dc3b0dfe948756633b4c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
