@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b56706ad_7a93802c",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-22T21:19:37Z",
+      "side": 1,
+      "message": "x is the yang module name which in this case is openconfig-policy-types.",
+      "revId": "6d773927ab765e8a7139afa1ddaab628c7decbc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9df7428c_f00a4097",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-22T21:19:37Z",
+      "side": 1,
+      "message": "x should be yang module name \u003d bgp-types",
+      "revId": "6d773927ab765e8a7139afa1ddaab628c7decbc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3135fa1_f7fccbc1",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-22T21:19:37Z",
+      "side": 1,
+      "message": "If this parameter is null, I guess it could be skipped all the way.",
+      "revId": "6d773927ab765e8a7139afa1ddaab628c7decbc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
