@@ -11,34 +11,34 @@ It is a very basic configuration conforming with RFC4271.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+**Content-Type:** ``application/json``
 
 **Request Body:**
 
-.. code-block:: xml
+.. code-block:: json
    :linenos:
    :emphasize-lines: 2,7,8
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-                <apply-policy>
-                    <config>
-                        <default-export-policy>REJECT-ROUTE</default-export-policy>
-                        <default-import-policy>REJECT-ROUTE</default-import-policy>
-                        <import-policy>default-odl-import-policy</import-policy>
-                        <export-policy>default-odl-export-policy</export-policy>
-                    </config>
-                </apply-policy>
-           </global>
-       </bgp>
-   </protocol>
+    {
+        "name": "bgp-example",
+        "identifier": "x:BGP",
+        "bgp": {
+            "global": {
+                "config": {
+                    "router-id": "192.0.2.2",
+                    "as": "65000"
+                },
+                "apply-policy": {
+                    "config": {
+                        "default-export-policy": "REJECT-ROUTE",
+                        "default-import-policy": "REJECT-ROUTE",
+                        "import-policy": "default-odl-import-policy",
+                        "export-policy": "default-odl-export-policy"
+                    }
+                }
+            }
+        }
+    }
 
 @line 2: The unique protocol instance identifier.
 
@@ -60,23 +60,23 @@ The new instance presence can be verified via REST:
 
 **Response Body:**
 
-.. code-block:: xml
+.. code-block:: json
    :linenos:
    :emphasize-lines: 3,4
 
-   <rib xmlns="urn:opendaylight:params:xml:ns:yang:bgp-rib">
-       <id>bgp-example</id>
-       <loc-rib>
-           <tables>
-               <afi xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp-types">x:ipv4-address-family</afi>
-               <safi xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp-types">x:unicast-subsequent-address-family</safi>
-               <ipv4-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet"></ipv4-routes>
-               <attributes>
-                   <uptodate>true</uptodate>
-               </attributes>
-           </tables>
-       </loc-rib>
-   </rib>
+    {
+        "id": "bgp-example",
+        "loc-rib": {
+            "tables": {
+                "afi": "x:ipv4-address-family",
+                "safi": "x:unicast-subsequent-address-family",
+                "ipv4-routes": null,
+                "attributes": {
+                    "uptodate": "true"
+                }
+            }
+        }
+    }
 
 @line 3: Loc-RIB - Per-protocol instance RIB, which contains the routes that have been selected by local BGP speaker's decision process.
 
