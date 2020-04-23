@@ -10,7 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
@@ -85,7 +85,7 @@ public class PCETriggeredInitialSyncProcedureTest
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is empty, LSP state from previous session was purged
-            assertTrue(pcc.getReportedLsp().isEmpty());
+            assertNull(pcc.getReportedLsp());
             return pcc;
         });
 
@@ -94,7 +94,7 @@ public class PCETriggeredInitialSyncProcedureTest
         this.listener.onMessage(session, pcRpt);
 
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            assertFalse(pcc.getReportedLsp().isEmpty());
+            assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 

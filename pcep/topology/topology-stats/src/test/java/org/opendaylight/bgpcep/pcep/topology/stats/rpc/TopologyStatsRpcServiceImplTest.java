@@ -20,13 +20,9 @@ import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdRpcAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdRpcAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesRpcAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesRpcAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesRpcAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesRpcAugBuilder;
@@ -49,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.top
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopologyBuilder;
@@ -107,9 +102,11 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     }
 
     private static Node createPcepNode(final String nodeId) {
-        return new NodeBuilder().setNodeId(new NodeId(nodeId))
-                .addAugmentation(PcepTopologyNodeStatsAug.class,
-                        new PcepTopologyNodeStatsAugBuilder().setPcepSessionState(createTopologySessionState()).build())
+        return new NodeBuilder()
+                .setNodeId(new NodeId(nodeId))
+                .addAugmentation(new PcepTopologyNodeStatsAugBuilder()
+                    .setPcepSessionState(createTopologySessionState())
+                    .build())
                 .build();
     }
 
@@ -139,11 +136,14 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                 .setReceivedMsgCount(Uint32.valueOf(4))
                 .setReplyTime(replyTime)
                 .setErrorMessages(errorMsg)
-                .addAugmentation(StatefulMessagesStatsAug.class, statefulMsg).build();
+                .addAugmentation(statefulMsg).build();
 
         final PeerCapabilities capabilities = new PeerCapabilitiesBuilder()
-                .addAugmentation(StatefulCapabilitiesStatsAug.class, new StatefulCapabilitiesStatsAugBuilder()
-                        .setStateful(true).setInstantiation(true).setActive(true).build())
+                .addAugmentation(new StatefulCapabilitiesStatsAugBuilder()
+                    .setStateful(true)
+                    .setInstantiation(true)
+                    .setActive(true)
+                    .build())
                 .build();
 
         final LocalPref localPref = new LocalPrefBuilder()
@@ -151,7 +151,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                 .setDeadtimer(Uint8.valueOf(120))
                 .setIpAddress("127.0.0.1")
                 .setSessionId(Uint16.ZERO)
-                .addAugmentation(PcepEntityIdStatsAug.class, new PcepEntityIdStatsAugBuilder()
+                .addAugmentation(new PcepEntityIdStatsAugBuilder()
                     .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04})
                     .build())
                 .build();
@@ -186,10 +186,10 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                 .setReceivedMsgCount(Uint32.valueOf(4))
                 .setReplyTime(replyTime)
                 .setErrorMessages(errorMsg)
-                .addAugmentation(StatefulMessagesRpcAug.class, statefulMsg).build();
+                .addAugmentation(statefulMsg).build();
 
         final PeerCapabilities capabilities = new PeerCapabilitiesBuilder()
-                .addAugmentation(StatefulCapabilitiesRpcAug.class, new StatefulCapabilitiesRpcAugBuilder()
+                .addAugmentation(new StatefulCapabilitiesRpcAugBuilder()
                         .setStateful(true).setInstantiation(true).setActive(true).build())
                 .build();
 
@@ -198,7 +198,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                 .setDeadtimer(Uint8.valueOf(120))
                 .setIpAddress("127.0.0.1")
                 .setSessionId(Uint16.ZERO)
-                .addAugmentation(PcepEntityIdRpcAug.class, new PcepEntityIdRpcAugBuilder()
+                .addAugmentation(new PcepEntityIdRpcAugBuilder()
                     .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04})
                     .build())
                 .build();
@@ -253,16 +253,13 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     }
 
     @Test
-    @SuppressWarnings("checkstyle:LineLength")
     public void testGetStatsAllMatch() throws Exception {
         GetStatsInput in;
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.Topology ot1 =
-                createGetStatsOutput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1), createRpcSessionState())
-                        .getTopology().get(0);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.Topology ot2 =
-                createGetStatsOutput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3), createRpcSessionState())
-                        .getTopology().get(0);
+        final var ot1 = createGetStatsOutput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1), createRpcSessionState())
+                .getTopology().values() .iterator().next();
+        final var ot2 = createGetStatsOutput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3), createRpcSessionState())
+                .getTopology().values().iterator().next();
         final GetStatsOutput out = new GetStatsOutputBuilder().setTopology(Arrays.asList(ot1, ot2)).build();
 
         // Implicitly match all PCEP topologies and nodes
@@ -270,17 +267,17 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         performCountTest(in, out);
 
         // Explicitly match all PCEP topologies and nodes
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.Topology it1 =
-                createGetStatsInput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1)).getTopology().get(0);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.Topology it2 =
-                createGetStatsInput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3)).getTopology().get(0);
+        final var it1 = createGetStatsInput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1)).getTopology().values()
+                .iterator().next();
+        final var it2 = createGetStatsInput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3)).getTopology().values()
+                .iterator().next();
         in = new GetStatsInputBuilder().setTopology(Arrays.asList(it1, it2)).build();
         performCountTest(in, out);
     }
 
     private void performTest(final GetStatsInput in, final GetStatsOutput out) throws Exception {
         final RpcResult<GetStatsOutput> result = rpcService.getStats(in).get();
-        assertEquals(result.getResult(), out);
+        assertEquals(out, result.getResult());
         assertTrue(result.isSuccessful());
         assertTrue(result.getErrors().isEmpty());
     }
@@ -294,28 +291,34 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         final RpcResult<GetStatsOutput> result = rpcService.getStats(in).get();
         assertEquals(result.getResult().getTopology().size(), out.getTopology().size());
         assertTrue(result.isSuccessful());
-        assertEquals(result.getResult().getTopology().stream().flatMap(t -> t.getNode().stream()).count(),
-                out.getTopology().stream().flatMap(t -> t.getNode().stream()).count());
+        assertEquals(result.getResult().nonnullTopology().values().stream()
+            .flatMap(t -> t.nonnullNode().values().stream()).count(),
+            out.nonnullTopology().values().stream().flatMap(t -> t.nonnullNode().values().stream()).count());
         assertTrue(result.isSuccessful());
         assertTrue(result.getErrors().isEmpty());
     }
 
-    @SuppressWarnings("checkstyle:LineLength")
     private static GetStatsInput createGetStatsInput(final String topologyId, final List<String> nodeIds) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.topology.Node> nodes;
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
+                    .get.stats.input.topology.Node> nodes;
         if (nodeIds != null) {
-            nodes = nodeIds.stream().map(
-                nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.topology.NodeBuilder()
-                        .setNodeId(new NodeId(nodeId)).build())
+            nodes = nodeIds.stream()
+                    .map(nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology
+                        .stats.rpc.rev190321.get.stats.input.topology.NodeBuilder()
+                            .setNodeId(new NodeId(nodeId))
+                            .build())
                 .collect(Collectors.toList());
         } else {
             nodes = null;
         }
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.Topology topology;
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get
+            .stats.input.Topology topology;
         if (topologyId != null) {
-            topology =
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.TopologyBuilder()
-                            .setTopologyId(new TopologyId(topologyId)).setNode(nodes).build();
+            topology = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
+                    .rev190321.get.stats.input.TopologyBuilder()
+                        .setTopologyId(new TopologyId(topologyId))
+                        .setNode(nodes)
+                        .build();
         } else {
             topology = null;
         }
@@ -323,23 +326,29 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                 .build();
     }
 
-    @SuppressWarnings("checkstyle:LineLength")
     private static GetStatsOutput createGetStatsOutput(final String topologyId, final List<String> nodeIds,
             final PcepSessionState state) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.topology.Node> nodes;
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
+                    .get.stats.output.topology.Node> nodes;
         if (nodeIds != null) {
-            nodes = nodeIds.stream().map(
-                nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.topology.NodeBuilder()
-                        .setNodeId(new NodeId(nodeId)).setPcepSessionState(state).build())
+            nodes = nodeIds.stream()
+                    .map(nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology
+                        .stats.rpc.rev190321.get.stats.output.topology.NodeBuilder()
+                            .setNodeId(new NodeId(nodeId))
+                            .setPcepSessionState(state)
+                            .build())
                 .collect(Collectors.toList());
         } else {
             nodes = null;
         }
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.Topology topology;
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get
+            .stats.output.Topology topology;
         if (topologyId != null) {
-            topology =
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.TopologyBuilder()
-                            .setTopologyId(new TopologyId(topologyId)).setNode(nodes).build();
+            topology = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
+                    .rev190321.get.stats.output.TopologyBuilder()
+                            .setTopologyId(new TopologyId(topologyId))
+                            .setNode(nodes)
+                            .build();
         } else {
             topology = null;
         }

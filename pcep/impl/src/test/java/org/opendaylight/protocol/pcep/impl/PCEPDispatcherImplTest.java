@@ -154,7 +154,7 @@ public class PCEPDispatcherImplTest {
     }
 
     @Test(timeout = 20000)
-    public void testReconectClient() throws InterruptedException, ExecutionException {
+    public void testReconnectClient() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 

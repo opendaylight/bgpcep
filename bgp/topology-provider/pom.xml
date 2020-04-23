@@ -164,6 +164,11 @@
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-test-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- junit/mockito default -->
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>

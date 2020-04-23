@@ -15,10 +15,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPSegmentRoutingCapabilityTest {
-
     private static final Tlvs EXPECTED_TLVS =
-        new TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment
-            .routing.rev181109.Tlvs1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
+        new TlvsBuilder().addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
                 .segment.routing.rev181109.Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder()
                     .setMsd(Uint8.ZERO).build()).build()).build();
 

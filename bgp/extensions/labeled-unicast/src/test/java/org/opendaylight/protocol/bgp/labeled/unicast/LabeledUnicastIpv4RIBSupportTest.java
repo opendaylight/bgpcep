@@ -102,7 +102,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = LabeledUnicastIpv4RIBSupport.getInstance(this.mappingService);
+        this.ribSupport = LabeledUnicastIpv4RIBSupport.getInstance(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

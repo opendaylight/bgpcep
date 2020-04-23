@@ -96,7 +96,7 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest<EvpnRoutesC
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = EvpnRibSupport.getInstance(this.mappingService);
+        this.ribSupport = EvpnRibSupport.getInstance(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

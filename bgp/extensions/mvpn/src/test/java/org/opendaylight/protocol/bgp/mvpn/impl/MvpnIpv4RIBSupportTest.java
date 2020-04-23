@@ -89,7 +89,7 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = MvpnIpv4RIBSupport.getInstance(this.mappingService);
+        this.ribSupport = MvpnIpv4RIBSupport.getInstance(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
         NlriActivator.registerNlriParsers(new ArrayList<>());
     }

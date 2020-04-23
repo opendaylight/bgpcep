@@ -21,13 +21,14 @@ import static org.mockito.Mockito.verify;
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AddPaths;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AddPathsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafis;
@@ -64,7 +65,7 @@ public class BgpPeerTest extends AbstractConfig {
     static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(NeighborAddPathsConfig.class, new NeighborAddPathsConfigBuilder()
                        .setReceive(true).setSendMax(Uint8.ZERO).build()).build();
-    static final List<AfiSafi> AFI_SAFI = Collections.singletonList(AFI_SAFI_IPV4);
+    static final Map<AfiSafiKey, AfiSafi> AFI_SAFI = Collections.singletonMap(AFI_SAFI_IPV4.key(), AFI_SAFI_IPV4);
     private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     private BgpPeer bgpPeer;
 

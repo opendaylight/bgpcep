@@ -16,7 +16,7 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createP
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TriggerSyncInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -76,7 +75,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
 
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
-            assertFalse(pcc.getReportedLsp().isEmpty());
+            assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
@@ -98,7 +97,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
 
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            final List<?> lsp = pcc.getReportedLsp();
+            final Map<?, ?> lsp = pcc.getReportedLsp();
             assertNotNull(lsp);
             assertEquals(1, lsp.size());
             return pcc;
@@ -130,8 +129,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
-            final List<ReportedLsp> reportedLspPcc = pcc.getReportedLsp();
-            assertFalse(reportedLspPcc.isEmpty());
+            assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
@@ -139,13 +137,13 @@ public class PCEPTriggeredReSynchronizationProcedureTest
         this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(this.nodeId).setName("test").build());
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.PcepTriggeredResync, pcc.getStateSync());
-            assertFalse(pcc.getReportedLsp().isEmpty());
+            assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            assertFalse(pcc.getReportedLsp().isEmpty());
+            assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
@@ -156,7 +154,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP
-            assertEquals(1, pcc.getReportedLsp().size());
+            assertEquals(1, pcc.nonnullReportedLsp().size());
             return pcc;
         });
 
