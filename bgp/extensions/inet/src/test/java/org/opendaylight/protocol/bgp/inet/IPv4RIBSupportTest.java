@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -71,12 +72,13 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesC
             .setPathId(PATH_ID)
             .setPrefix(PREFIX).build();
     private static final Ipv4Routes ROUTES = new Ipv4RoutesBuilder()
-            .setIpv4Route(Collections.singletonList(ROUTE)).build();
+            .setIpv4Route(Map.of(ROUTE.key(), ROUTE))
+            .build();
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = IPv4RIBSupport.getInstance(this.mappingService);
+        this.ribSupport = IPv4RIBSupport.getInstance(this.adapter);
         setUpTestCustomizer(this.ribSupport);
     }
 
