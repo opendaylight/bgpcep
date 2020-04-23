@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3409e27b_4e1d79ff",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T18:58:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8205ec51_e03871fa",
+      "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0da5443b_2ebd98a8",
         "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
         "patchSetId": 6
@@ -33,6 +51,24 @@
       "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "583e7516_79f1cb7f",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T18:58:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0da5443b_2ebd98a8",
+      "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "f7be0b58_efd69c5f",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T18:58:05Z",
+      "side": 1,
+      "message": "Are you suggesting line 47 i.e. additional lines between each reference line be removed ?\nPlease clarify as it is present in the original file.\nI\u0027ll implement the same for other comments",
+      "parentUuid": "399aab51_26040a00",
+      "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74c956b7_824cedfd",
         "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
         "patchSetId": 6
@@ -67,6 +121,24 @@
       "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21088fb4_4abd7cfa",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T18:58:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74c956b7_824cedfd",
+      "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "25cfcb3c_37b0d059",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T18:58:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ebc8a55_afe79601",
+      "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c28fe1c8_681ffc8e",
         "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
         "patchSetId": 6
@@ -101,6 +191,24 @@
       "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af8245da_769b5713",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T18:58:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c28fe1c8_681ffc8e",
+      "revId": "6ebe1b318c8fc998865133e3b7cdf49f4ea13f09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
