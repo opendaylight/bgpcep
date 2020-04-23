@@ -253,16 +253,13 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     }
 
     @Test
-    @SuppressWarnings("checkstyle:LineLength")
     public void testGetStatsAllMatch() throws Exception {
         GetStatsInput in;
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.Topology ot1 =
-                createGetStatsOutput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1), createRpcSessionState())
-                        .getTopology().get(0);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.Topology ot2 =
-                createGetStatsOutput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3), createRpcSessionState())
-                        .getTopology().get(0);
+        final var ot1 = createGetStatsOutput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1), createRpcSessionState())
+                .getTopology().values() .iterator().next();
+        final var ot2 = createGetStatsOutput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3), createRpcSessionState())
+                .getTopology().values().iterator().next();
         final GetStatsOutput out = new GetStatsOutputBuilder().setTopology(Arrays.asList(ot1, ot2)).build();
 
         // Implicitly match all PCEP topologies and nodes
@@ -270,10 +267,10 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         performCountTest(in, out);
 
         // Explicitly match all PCEP topologies and nodes
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.Topology it1 =
-                createGetStatsInput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1)).getTopology().get(0);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.Topology it2 =
-                createGetStatsInput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3)).getTopology().get(0);
+        final var it1 = createGetStatsInput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1)).getTopology().values()
+                .iterator().next();
+        final var it2 = createGetStatsInput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3)).getTopology().values()
+                .iterator().next();
         in = new GetStatsInputBuilder().setTopology(Arrays.asList(it1, it2)).build();
         performCountTest(in, out);
     }
@@ -294,28 +291,34 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         final RpcResult<GetStatsOutput> result = rpcService.getStats(in).get();
         assertEquals(result.getResult().getTopology().size(), out.getTopology().size());
         assertTrue(result.isSuccessful());
-        assertEquals(result.getResult().getTopology().stream().flatMap(t -> t.getNode().stream()).count(),
-                out.getTopology().stream().flatMap(t -> t.getNode().stream()).count());
+        assertEquals(result.getResult().nonnullTopology().values().stream()
+            .flatMap(t -> t.nonnullNode().values().stream()).count(),
+            out.nonnullTopology().values().stream().flatMap(t -> t.nonnullNode().values().stream()).count());
         assertTrue(result.isSuccessful());
         assertTrue(result.getErrors().isEmpty());
     }
 
-    @SuppressWarnings("checkstyle:LineLength")
     private static GetStatsInput createGetStatsInput(final String topologyId, final List<String> nodeIds) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.topology.Node> nodes;
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
+                    .get.stats.input.topology.Node> nodes;
         if (nodeIds != null) {
-            nodes = nodeIds.stream().map(
-                nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.topology.NodeBuilder()
-                        .setNodeId(new NodeId(nodeId)).build())
+            nodes = nodeIds.stream()
+                    .map(nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology
+                        .stats.rpc.rev190321.get.stats.input.topology.NodeBuilder()
+                            .setNodeId(new NodeId(nodeId))
+                            .build())
                 .collect(Collectors.toList());
         } else {
             nodes = null;
         }
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.Topology topology;
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get
+            .stats.input.Topology topology;
         if (topologyId != null) {
-            topology =
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.input.TopologyBuilder()
-                            .setTopologyId(new TopologyId(topologyId)).setNode(nodes).build();
+            topology = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
+                    .rev190321.get.stats.input.TopologyBuilder()
+                        .setTopologyId(new TopologyId(topologyId))
+                        .setNode(nodes)
+                        .build();
         } else {
             topology = null;
         }
@@ -323,23 +326,29 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                 .build();
     }
 
-    @SuppressWarnings("checkstyle:LineLength")
     private static GetStatsOutput createGetStatsOutput(final String topologyId, final List<String> nodeIds,
             final PcepSessionState state) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.topology.Node> nodes;
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
+                    .get.stats.output.topology.Node> nodes;
         if (nodeIds != null) {
-            nodes = nodeIds.stream().map(
-                nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.topology.NodeBuilder()
-                        .setNodeId(new NodeId(nodeId)).setPcepSessionState(state).build())
+            nodes = nodeIds.stream()
+                    .map(nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology
+                        .stats.rpc.rev190321.get.stats.output.topology.NodeBuilder()
+                            .setNodeId(new NodeId(nodeId))
+                            .setPcepSessionState(state)
+                            .build())
                 .collect(Collectors.toList());
         } else {
             nodes = null;
         }
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.Topology topology;
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get
+            .stats.output.Topology topology;
         if (topologyId != null) {
-            topology =
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.get.stats.output.TopologyBuilder()
-                            .setTopologyId(new TopologyId(topologyId)).setNode(nodes).build();
+            topology = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
+                    .rev190321.get.stats.output.TopologyBuilder()
+                            .setTopologyId(new TopologyId(topologyId))
+                            .setNode(nodes)
+                            .build();
         } else {
             topology = null;
         }

@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
@@ -70,7 +71,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.linkstate.route.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.linkstate.route.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
@@ -171,14 +171,13 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     }
 
     @Test
-    @SuppressWarnings("checkstyle:LineLength")
     public void testIsisLinkstateTopologyBuilder() throws InterruptedException, ExecutionException {
         // create node
         updateLinkstateRoute(this.linkstateNodeRouteIID,
                 createLinkstateNodeRoute(ProtocolId.IsisLevel2, "node1", NODE_1_AS, ROUTER_1_ID));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
-            assertEquals(1, topology.getNode().size());
-            final Node node1 = topology.getNode().get(0);
+            assertEquals(1, topology.nonnullNode().size());
+            final Node node1 = topology.nonnullNode().values().iterator().next();
             assertEquals(NODE_1_ISIS_ID, node1.getNodeId().getValue());
             final IgpNodeAttributes igpNode1 = node1.augmentation(Node1.class).getIgpNodeAttributes();
             assertEquals(ROUTER_1_ID, igpNode1.getRouterId().get(0).getIpv4Address().getValue());
@@ -194,7 +193,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                     .topology.rev131021.IgpNodeAttributes1.class));
             assertEquals(LinkstateTopologyBuilder.LINKSTATE_TOPOLOGY_TYPE, topology.getTopologyTypes());
             assertNull(node1.augmentation(
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class));
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class));
             return topology;
         });
 
@@ -202,11 +201,11 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         updateLinkstateRoute(this.linkstateLinkRouteIID,
                 createLinkstateLinkRoute(ProtocolId.IsisLevel2, NODE_1_AS, NODE_2_AS, "link1"));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
-            assertEquals(1, topology.getLink().size());
-            final Link link1 = topology.getLink().get(0);
-            assertEquals(2, topology.getNode().size());
-            assertEquals(1, topology.getNode().get(0).getTerminationPoint().size());
-            assertEquals(1, topology.getNode().get(1).getTerminationPoint().size());
+            assertEquals(1, topology.nonnullLink().size());
+            final Link link1 = topology.nonnullLink().values().iterator().next();
+            assertEquals(2, topology.nonnullNode().size());
+            assertEquals(1, Iterables.get(topology.getNode().values(), 0).getTerminationPoint().size());
+            assertEquals(1, Iterables.get(topology.getNode().values(), 1).getTerminationPoint().size());
             assertEquals("bgpls://IsisLevel2:1/type=link&local-as=1&local-router=0000.0102.0304&remote-as"
                     + "=2&mt=1", link1.getLinkId().getValue());
             assertEquals(NODE_1_ISIS_ID, link1.getSource().getSourceNode().getValue());
@@ -220,10 +219,10 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
             assertEquals(LinkstateTopologyBuilder.SR_AWARE_LINKSTATE_TOPOLOGY_TYPE, topology.getTopologyTypes());
             assertEquals(2, topology.getNode().size());
             final Node srcNode;
-            if (topology.getNode().get(0).getNodeId().getValue().contains("0000.0102.0304")) {
-                srcNode = topology.getNode().get(0);
+            if (topology.getNode().values().iterator().next().getNodeId().getValue().contains("0000.0102.0304")) {
+                srcNode = topology.getNode().values().iterator().next();
             } else {
-                srcNode = topology.getNode().get(1);
+                srcNode = Iterables.get(topology.getNode().values(), 1);
             }
             assertEquals(1, srcNode.augmentation(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class)
@@ -240,7 +239,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 createLinkstateNodeRoute(ProtocolId.IsisLevel2, "updated-node", NODE_1_AS, ROUTER_2_ID));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getNode().size());
-            final IgpNodeAttributes igpNode2 = topology.getNode().get(0).augmentation(Node1.class)
+            final IgpNodeAttributes igpNode2 = topology.getNode().values().iterator().next().augmentation(Node1.class)
                     .getIgpNodeAttributes();
             assertEquals(ROUTER_2_ID, igpNode2.getRouterId().get(0).getIpv4Address().getValue());
             assertEquals("updated-node", igpNode2.getName().getValue());
@@ -258,14 +257,13 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     }
 
     @Test
-    @SuppressWarnings("checkstyle:LineLength")
     public void testOspfLinkstateTopologyBuilder() throws InterruptedException, ExecutionException {
         // create node
         updateLinkstateRoute(this.linkstateNodeRouteIID,
                 createLinkstateNodeRoute(ProtocolId.Ospf, "node1", NODE_1_AS, ROUTER_1_ID));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
-            assertEquals(1, topology.getNode().size());
-            final Node node1 = topology.getNode().get(0);
+            assertEquals(1, topology.nonnullNode().size());
+            final Node node1 = topology.nonnullNode().values().iterator().next();
             assertEquals(NODE_1_OSPF_ID, node1.getNodeId().getValue());
             final IgpNodeAttributes igpNode1 = node1.augmentation(Node1.class).getIgpNodeAttributes();
             assertEquals(ROUTER_1_ID, igpNode1.getRouterId().get(0).getIpv4Address().getValue());
@@ -276,7 +274,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                     .getTeRouterIdIpv4().getValue());
             assertEquals(LinkstateTopologyBuilder.LINKSTATE_TOPOLOGY_TYPE, topology.getTopologyTypes());
             assertNull(node1.augmentation(
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class));
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class));
             return topology;
         });
 
@@ -284,19 +282,19 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         updateLinkstateRoute(this.linkstatePrefixRouteIID,
                 createLinkstatePrefixRoute(ProtocolId.Ospf, NODE_1_AS, NODE_1_PREFIX, 500L, ROUTER_1_ID));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
-            final Node node1 = topology.getNode().get(0);
+            final Node node1 = topology.nonnullNode().values().iterator().next();
             final IgpNodeAttributes igpNode1 = node1.augmentation(Node1.class).getIgpNodeAttributes();
-            assertEquals(1, igpNode1.getPrefix().size());
-            final Prefix prefix = igpNode1.getPrefix().get(0);
+            assertEquals(1, igpNode1.nonnullPrefix().size());
+            final Prefix prefix = igpNode1.nonnullPrefix().values().iterator().next();
             assertEquals(NODE_1_PREFIX, prefix.getPrefix().getIpv4Prefix().getValue());
             assertEquals(500L, prefix.getMetric().longValue());
             assertEquals(LinkstateTopologyBuilder.SR_AWARE_LINKSTATE_TOPOLOGY_TYPE, topology.getTopologyTypes());
             assertEquals(1, node1.augmentation(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class)
-                    .getSegments().size());
+                    .nonnullSegments().size());
             assertEquals(SRGB_START + NODE_SID_INDEX, node1.augmentation(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class)
-                    .getSegments().get(0).getSegmentId().getValue().intValue());
+                    .nonnullSegments().values().iterator().next().getSegmentId().getValue().intValue());
             return topology;
         });
 
@@ -304,11 +302,11 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         updateLinkstateRoute(this.linkstateLinkRouteIID,
                 createLinkstateLinkRoute(ProtocolId.Ospf, NODE_1_AS, NODE_2_AS, "link1"));
         readDataOperational(getDataBroker(), this.linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
-            assertEquals(1, topology.getLink().size());
-            final Link link1 = topology.getLink().get(0);
+            assertEquals(1, topology.nonnullLink().size());
+            final Link link1 = topology.nonnullLink().values().iterator().next();
             assertEquals(2, topology.getNode().size());
-            assertEquals(1, topology.getNode().get(0).getTerminationPoint().size());
-            assertEquals(1, topology.getNode().get(1).getTerminationPoint().size());
+            assertEquals(1, Iterables.get(topology.getNode().values(), 0).getTerminationPoint().size());
+            assertEquals(1, Iterables.get(topology.getNode().values(), 1).getTerminationPoint().size());
             assertEquals("bgpls://Ospf:1/type=link&local-as=1&local-router=0000.0102.0304&remote-as=2&mt=1",
                     link1.getLinkId().getValue());
             assertEquals(NODE_1_OSPF_ID, link1.getSource().getSourceNode().getValue());
@@ -325,10 +323,10 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
             assertEquals(LinkstateTopologyBuilder.SR_AWARE_LINKSTATE_TOPOLOGY_TYPE, topology.getTopologyTypes());
             assertEquals(2, topology.getNode().size());
             final Node srcNode;
-            if (topology.getNode().get(0).getNodeId().getValue().contains("0000.0102.0304")) {
-                srcNode = topology.getNode().get(0);
+            if (topology.getNode().values().iterator().next().getNodeId().getValue().contains("0000.0102.0304")) {
+                srcNode = topology.getNode().values().iterator().next();
             } else {
-                srcNode = topology.getNode().get(1);
+                srcNode = Iterables.get(topology.getNode().values(), 1);
             }
             assertEquals(2, srcNode.augmentation(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class)
@@ -449,7 +447,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                                 .setAsNumber(asNumber).build()).build())
                 .setAttributes(new AttributesBuilder()
                         .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
-                        .addAugmentation(Attributes1.class, new Attributes1Builder()
+                        .addAugmentation(new Attributes1Builder()
                                 .setLinkStateAttribute(new NodeAttributesCaseBuilder()
                                         .setNodeAttributes(new NodeAttributesBuilder()
                                                 .setDynamicHostname(nodeName)
@@ -479,7 +477,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                         .setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build()).build())
             .setAttributes(new AttributesBuilder()
                 .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
-                .addAugmentation(Attributes1.class, new Attributes1Builder()
+                .addAugmentation(new Attributes1Builder()
                         .setLinkStateAttribute(new PrefixAttributesCaseBuilder()
                             .setPrefixAttributes(new PrefixAttributesBuilder()
                                 .setOspfForwardingAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ospfFwdAddress)))
@@ -510,7 +508,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                                 .setMultiTopologyId(new TopologyIdentifier(Uint16.ONE)).build()).build())
                 .setAttributes(new AttributesBuilder()
                         .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
-                        .addAugmentation(Attributes1.class, new Attributes1Builder()
+                        .addAugmentation(new Attributes1Builder()
                                 .setLinkStateAttribute(new LinkAttributesCaseBuilder()
                                     .setLinkAttributes(new LinkAttributesBuilder()
                                         .setSharedRiskLinkGroups(Lists.newArrayList(

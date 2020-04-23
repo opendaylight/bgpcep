@@ -23,14 +23,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-impl</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>odl-controller-exp-netty-config</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-base-parser</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-impl</artifactId>
         </dependency>
     </dependencies>
 </project>

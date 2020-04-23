@@ -36,7 +36,7 @@ final class PCEPTopologyProviderUtil {
         if (topology.getNode() == null) {
             return ret;
         }
-        topology.getNode().stream()
+        topology.nonnullNode().values().stream()
                 .filter(Objects::nonNull)
                 .filter(node -> node.augmentation(PcepNodeConfig.class) != null)
                 .filter(node -> node.augmentation(PcepNodeConfig.class).getSessionConfig() != null)
@@ -74,7 +74,7 @@ final class PCEPTopologyProviderUtil {
         if (topology.getNode() == null) {
             return ret;
         }
-        topology.getNode().stream()
+        topology.nonnullNode().values().stream()
                 .filter(Objects::nonNull)
                 .filter(node -> node.augmentation(PcepNodeConfig.class) != null)
                 .filter(node -> node.augmentation(PcepNodeConfig.class).getSessionConfig() != null)

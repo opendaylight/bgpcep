@@ -90,7 +90,7 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = MvpnIpv6RIBSupport.getInstance(this.mappingService);
+        this.ribSupport = MvpnIpv6RIBSupport.getInstance(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
         NlriActivator.registerNlriParsers(new ArrayList<>());
     }

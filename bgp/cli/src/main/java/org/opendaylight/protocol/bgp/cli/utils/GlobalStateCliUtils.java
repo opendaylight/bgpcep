@@ -36,7 +36,7 @@ final class GlobalStateCliUtils {
         table.addRow().addContent("As", globalState.getAs());
         table.addRow().addContent("Total Paths", globalState.getTotalPaths());
         table.addRow().addContent("Total Prefixes", globalState.getTotalPrefixes());
-        global.getAfiSafis().getAfiSafi().forEach(afiSafi -> displayAfiSafi(afiSafi, table));
+        global.getAfiSafis().nonnullAfiSafi().values().forEach(afiSafi -> displayAfiSafi(afiSafi, table));
         table.print(stream);
     }
 

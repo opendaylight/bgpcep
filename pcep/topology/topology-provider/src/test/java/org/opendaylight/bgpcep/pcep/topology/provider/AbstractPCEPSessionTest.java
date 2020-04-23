@@ -5,12 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -152,7 +152,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(new PortNumber(Uint16.valueOf(4189))).when(this.sessionConfig).getListenPort();
         doReturn(RPC_TIMEOUT).when(this.sessionConfig).getRpcTimeout();
         doReturn(TEST_TOPOLOGY_ID).when(this.topology).getTopologyId();
-        doReturn(Collections.emptyList()).when(this.topology).getNode();
+        doCallRealMethod().when(this.topology).nonnullNode();
+        doReturn(Collections.emptyMap()).when(this.topology).getNode();
         doReturn(null).when(this.topologyDependencies).getPceServerProvider();
 
         final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(this.sessionConfig, this.topology);

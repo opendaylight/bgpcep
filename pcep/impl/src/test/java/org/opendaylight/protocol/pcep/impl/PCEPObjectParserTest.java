@@ -1308,7 +1308,7 @@ public class PCEPObjectParserTest {
         assertNotNull(object);
         assertTrue(object instanceof Ero);
         final Ero eroObject = (Ero) object;
-        assertTrue(eroObject.getSubobject().isEmpty());
+        assertNull(eroObject.getSubobject());
 
         final ByteBuf buffer = Unpooled.buffer();
         this.ctx.getObjectHandlerRegistry().serializeObject(eroObject, buffer);

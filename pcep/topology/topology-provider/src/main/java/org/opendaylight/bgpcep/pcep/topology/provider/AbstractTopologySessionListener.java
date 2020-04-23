@@ -9,8 +9,8 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -443,9 +443,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private static List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
             final String name, final boolean remove) {
         // just one path should be reported
-        Preconditions.checkState(rlb.getPath().size() == 1);
+        final Path path = Iterables.getOnlyElement(rlb.getPath().values());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId reportedLspId =
-                rlb.getPath().get(0).getLspId();
+                path.getLspId();
         final List<Path> updatedPaths;
         //lspId = 0 and remove = false -> tunnel is down, still exists but no path is signaled
         //remove existing tunnel's paths now, as explicit path remove will not come
@@ -454,14 +454,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             LOG.debug("Remove previous paths {} to this lsp name {}", previous.getPath(), name);
         } else {
             // check previous report for existing paths
-            updatedPaths = new ArrayList<>(previous.getPath());
+            final Collection<Path> prev = previous.nonnullPath().values();
+            updatedPaths = new ArrayList<>(prev);
             LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
-            for (final Path path : previous.getPath()) {
+            for (final Path prevPath : prev) {
                 //we found reported path in previous reports
-                if (path.getLspId().getValue().toJava() == 0 || path.getLspId().equals(reportedLspId)) {
-                    LOG.debug("Match on lsp-id {}", path.getLspId().getValue());
+                if (prevPath.getLspId().getValue().toJava() == 0 || prevPath.getLspId().equals(reportedLspId)) {
+                    LOG.debug("Match on lsp-id {}", prevPath.getLspId().getValue());
                     // path that was reported previously and does have the same lsp-id, path will be updated
-                    final boolean r = updatedPaths.remove(path);
+                    final boolean r = updatedPaths.remove(prevPath);
                     LOG.trace("Request removed? {}", r);
                 }
             }
@@ -469,8 +470,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         // if the path does not exist in previous report, add it to path list, it's a new ERO
         // only one path will be added
         //lspId is 0 means confirmation message that shouldn't be added (because we have no means of deleting it later)
-        LOG.trace("Adding new path {} to {}", rlb.getPath(), updatedPaths);
-        updatedPaths.addAll(rlb.getPath());
+        LOG.trace("Adding new path {} to {}", path, updatedPaths);
+        updatedPaths.add(path);
         if (remove) {
             if (reportedLspId.getValue().toJava() == 0) {
                 // if lsp-id also 0, remove all paths
@@ -478,8 +479,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                 updatedPaths.clear();
             } else {
                 // path is marked to be removed
-                LOG.debug("Removing path {} from {}", rlb.getPath(), updatedPaths);
-                final boolean r = updatedPaths.removeAll(rlb.getPath());
+                LOG.debug("Removing path {} from {}", path, updatedPaths);
+                final boolean r = updatedPaths.remove(path);
                 LOG.trace("Request removed? {}", r);
             }
         }
@@ -605,7 +606,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         return Math.toIntExact(stream
             .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
             // pick the first path, as delegate status should be same in each path
-            .map(pathList -> pathList.get(0))
+            .map(pathList -> pathList.values().iterator().next())
             .map(path -> path.augmentation(Path1.class)).filter(Objects::nonNull)
             .map(LspObject::getLsp).filter(Objects::nonNull)
             .filter(Lsp::isDelegate)

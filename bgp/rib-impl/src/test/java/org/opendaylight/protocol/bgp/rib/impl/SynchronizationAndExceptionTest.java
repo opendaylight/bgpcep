@@ -220,7 +220,6 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
                 this.serverDispatcher, this.codecsRegistry, this.domBroker, getDataBroker(), this.policies,
                 ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
-        ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4AddressNoZone(),
             ribImpl, null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
@@ -269,7 +268,6 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
                 this.serverDispatcher, this.codecsRegistry, this.domBroker, getDataBroker(), this.policies,
                 ImmutableList.of(this.ipv4tt), pathTables);
         ribImpl.instantiateServiceInstance();
-        ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
 
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(this.tableRegistry, neighbor.getIpv4AddressNoZone(),
             ribImpl, null, PeerRole.Ibgp, this.serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());

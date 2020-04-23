@@ -124,7 +124,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                 .build(), Optional.empty(), createPath(Collections.emptyList()));
         this.listener.onMessage(session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            assertFalse(pcc.getReportedLsp().isEmpty());
+            assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
@@ -141,7 +141,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
             //check node - not synchronized
             assertEquals(PccSyncState.InitialResync, pcc.getStateSync());
             //check reported LSP - persisted from previous session
-            assertFalse(pcc.getReportedLsp().isEmpty());
+            assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 

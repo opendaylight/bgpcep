@@ -25,7 +25,7 @@ public class SimpleRIBExtensionProviderContextActivatorTest extends AbstractRIBA
         final List<RIBExtensionProviderActivator> extensionActivators = Collections.singletonList(new RibActivator());
         final SimpleRIBExtensionProviderContextActivator activator =
                 new SimpleRIBExtensionProviderContextActivator(new SimpleRIBExtensionProviderContext(),
-                        extensionActivators, this.mappingService);
+                        extensionActivators, context.currentSerializer());
         activator.start();
         assertTrue(RIBACTIVATED);
         activator.close();

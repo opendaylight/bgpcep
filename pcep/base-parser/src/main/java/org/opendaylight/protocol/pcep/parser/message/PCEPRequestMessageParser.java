@@ -571,7 +571,10 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     if (obj.isProcessingRule()) {
                         final int lastIndex = epRros.size() - 1;
                         final EndpointRroPair endpointRroPair = epRros.get(lastIndex);
-                        final List<Rros> rros = endpointRroPair.getRros();
+                        List<Rros> rros = endpointRroPair.getRros();
+                        if (rros == null) {
+                            rros = new ArrayList<>();
+                        }
                         if (obj instanceof Rro) {
                             rros.add(new RrosBuilder()
                                     .setRouteObject(new ReportedRouteObjectCaseBuilder().setRro((Rro) obj)
