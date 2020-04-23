@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.segment.routing;
 
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
@@ -26,9 +25,9 @@ public class PCEPSegmentRoutingCapability implements PCEPCapability {
     @Override
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
         if (this.isSegmentRoutingCapable) {
-            builder.addAugmentation(Tlvs1.class,
-                    new Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder().setMsd(Uint8.ZERO).build())
-                            .build());
+            builder.addAugmentation(new Tlvs1Builder()
+                .setSrPceCapability(new SrPceCapabilityBuilder().setMsd(Uint8.ZERO).build())
+                .build());
         }
     }
 

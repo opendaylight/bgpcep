@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4;
 import static com.google.common.base.Verify.verify;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupport;
@@ -94,7 +94,7 @@ public final class FlowspecL3vpnIpv4RIBSupport
     }
 
     @Override
-    public List<FlowspecL3vpnRoute> extractAdjRibInRoutes(final Routes routes) {
+    public Map<FlowspecL3vpnRouteKey, FlowspecL3vpnRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120
             .bgp.rib.rib.peer.adj.rib.in.tables.routes.FlowspecL3vpnIpv4RoutesCase, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120

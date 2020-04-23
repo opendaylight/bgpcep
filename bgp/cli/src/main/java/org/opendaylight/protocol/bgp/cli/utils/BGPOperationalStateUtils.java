@@ -66,12 +66,12 @@ public final class BGPOperationalStateUtils {
             displayRibOperationalState(ribId, globalBgp.getGlobal(), stream);
         } else {
             if (neighbor != null) {
-                globalBgp.getNeighbors().getNeighbor().stream()
+                globalBgp.getNeighbors().nonnullNeighbor().values().stream()
                         .filter(neig -> toString(neig.key().getNeighborAddress()).matches(neighbor))
                         .findFirst()
                         .ifPresent(neighbor1 -> displayNeighborOperationalState(neighbor, neighbor1, stream));
             } else {
-                displayPeerOperationalState(globalBgp.getPeerGroups().getPeerGroup(), stream);
+                displayPeerOperationalState(globalBgp.getPeerGroups().nonnullPeerGroup().values(), stream);
             }
         }
     }

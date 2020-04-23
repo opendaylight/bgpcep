@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
@@ -90,9 +89,9 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         LOG.info("Create Graph Model at top level in Operational DataStore: {}", this.graphTopologyIdentifier);
         trans.put(LogicalDatastoreType.OPERATIONAL, this.graphTopologyIdentifier,
-                new GraphTopologyBuilder().setGraph(Collections.emptyList()).build());
+                new GraphTopologyBuilder().build());
         trans.put(LogicalDatastoreType.CONFIGURATION, this.graphTopologyIdentifier,
-                new GraphTopologyBuilder().setGraph(Collections.emptyList()).build());
+                new GraphTopologyBuilder().build());
         LOG.info("Create Graph Model at top level in Configuration DataStore: {}", this.graphTopologyIdentifier);
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -170,20 +169,20 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
     /**
      *  DataStore Instance Identifier creation for the various Graph components.
      */
-    private InstanceIdentifier<Graph> getGraphInstanceIdentifier(String name) {
+    private InstanceIdentifier<Graph> getGraphInstanceIdentifier(final String name) {
         GraphKey graphKey = new GraphKey(name);
         return this.graphTopologyIdentifier.child(Graph.class, graphKey);
     }
 
-    private InstanceIdentifier<Vertex> getVertexInstanceIdentifier(Graph graph, final Vertex vertex) {
+    private InstanceIdentifier<Vertex> getVertexInstanceIdentifier(final Graph graph, final Vertex vertex) {
         return this.graphTopologyIdentifier.child(Graph.class, graph.key()).child(Vertex.class, vertex.key());
     }
 
-    private InstanceIdentifier<Edge> getEdgeInstanceIdentifier(Graph graph, final Edge edge) {
+    private InstanceIdentifier<Edge> getEdgeInstanceIdentifier(final Graph graph, final Edge edge) {
         return this.graphTopologyIdentifier.child(Graph.class, graph.key()).child(Edge.class, edge.key());
     }
 
-    private InstanceIdentifier<Prefix> getPrefixInstanceIdentifier(Graph graph, final Prefix prefix) {
+    private InstanceIdentifier<Prefix> getPrefixInstanceIdentifier(final Graph graph, final Prefix prefix) {
         return this.graphTopologyIdentifier.child(Graph.class, graph.key()).child(Prefix.class, prefix.key());
     }
 
@@ -274,7 +273,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
      *
      * @param graph Graph associated to the Connected Graph
      */
-    public void clearGraph(Graph graph) {
+    public void clearGraph(final Graph graph) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         removeFromDataStore(getGraphInstanceIdentifier(graph.getName()), "Graph(" + graph.getName() + ")");
     }
@@ -287,7 +286,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
      * @param vertex  Vertex to be inserted in the graph
      * @param old     Old vertex when performing an update. Must be null for a simple addition
      */
-    public void addVertex(Graph graph, Vertex vertex, Vertex old) {
+    public void addVertex(final Graph graph, final Vertex vertex, final Vertex old) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         Preconditions.checkArgument(vertex != null, "Provided Vertex is a null object");
         InstanceIdentifier<Vertex> oldId = null;
@@ -306,7 +305,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
      * @param graph   Graph where the vertex is stored
      * @param vertex  Vertex to be removed
      */
-    public void deleteVertex(Graph graph, Vertex vertex) {
+    public void deleteVertex(final Graph graph, final Vertex vertex) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         Preconditions.checkArgument(vertex != null, "Provided Vertex is a null object");
         removeFromDataStore(getVertexInstanceIdentifier(graph, vertex), "Vertex(" + vertex.getName() + ")");
@@ -320,7 +319,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
      * @param edge   Edge to be inserted in the graph
      * @param old    Old edge when performing an update. Must be null for a simple addition
      */
-    public void addEdge(Graph graph, Edge edge, Edge old) {
+    public void addEdge(final Graph graph, final Edge edge, final Edge old) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         Preconditions.checkArgument(edge != null, "Provided Edge is a null object");
         InstanceIdentifier<Edge> oldId = null;
@@ -338,7 +337,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
      * @param graph  Graph where the edge is stored
      * @param edge   Edge to be removed
      */
-    public void deleteEdge(Graph graph, Edge edge) {
+    public void deleteEdge(final Graph graph, final Edge edge) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         Preconditions.checkArgument(edge != null, "Provided Edge is a null object");
         removeFromDataStore(getEdgeInstanceIdentifier(graph, edge), "Edge(" + edge.getName() + ")");
@@ -351,7 +350,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
      * @param graph  Graph where the prefix will be stored
      * @param prefix Prefix to be interted in the graph
      */
-    public void addPrefix(Graph graph, Prefix prefix) {
+    public void addPrefix(final Graph graph, final Prefix prefix) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         Preconditions.checkArgument(prefix != null, "Provided Prefix is a null object");
         addToDataStore(getPrefixInstanceIdentifier(graph, prefix), prefix, "Prefix(" + prefix.getPrefix() + ")");
@@ -364,7 +363,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
      * @param graph  Graph where the prefix is stored
      * @param prefix Prefix to be removed
      */
-    public void deletePrefix(Graph graph, Prefix prefix) {
+    public void deletePrefix(final Graph graph, final Prefix prefix) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         Preconditions.checkArgument(prefix != null, "Provided Prefix is a null object");
         removeFromDataStore(getPrefixInstanceIdentifier(graph, prefix), "Prefix(" + prefix.getPrefix() + ")");
@@ -384,21 +383,21 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
 
     @Override
     public ArrayList<ConnectedGraph> getConnectedGraphs() {
-        return new ArrayList<ConnectedGraph>(this.graphs.values());
+        return new ArrayList<>(this.graphs.values());
     }
 
     @Override
-    public ConnectedGraph getConnectedGraph(GraphKey key) {
+    public ConnectedGraph getConnectedGraph(final GraphKey key) {
         return graphs.get(key);
     }
 
     @Override
-    public ConnectedGraph getConnectedGraph(String name) {
+    public ConnectedGraph getConnectedGraph(final String name) {
         return graphs.get(new GraphKey(name));
     }
 
     @Override
-    public Graph getGraph(GraphKey key) {
+    public Graph getGraph(final GraphKey key) {
         if (graphs.containsKey(key)) {
             return graphs.get(key).getGraph();
         } else {
@@ -407,18 +406,15 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
     }
 
     @Override
-    public Graph getGraph(String name) {
+    public Graph getGraph(final String name) {
         return getGraph(new GraphKey(name));
     }
 
     @Override
-    public ConnectedGraph createConnectedGraph(String name, DomainScope scope) {
+    public ConnectedGraph createConnectedGraph(final String name, final DomainScope scope) {
         Graph graph = new GraphBuilder()
                 .setName(name)
                 .setDomainScope(scope)
-                .setEdge(Collections.emptyList())
-                .setVertex(Collections.emptyList())
-                .setPrefix(Collections.emptyList())
                 .build();
         addToDataStore(getGraphInstanceIdentifier(name), graph, "Graph(" + name + ")");
         ConnectedGraphImpl cgraph = new ConnectedGraphImpl(graph, this);
@@ -427,7 +423,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
     }
 
     @Override
-    public ConnectedGraph addGraph(Graph graph) {
+    public ConnectedGraph addGraph(final Graph graph) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         addToDataStore(getGraphInstanceIdentifier(graph.getName()), graph, "Graph(" + graph.getName() + ")");
         ConnectedGraphImpl cgraph = new ConnectedGraphImpl(graph, this);
@@ -436,7 +432,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
     }
 
     @Override
-    public void deleteGraph(GraphKey key) {
+    public void deleteGraph(final GraphKey key) {
         Preconditions.checkArgument(key != null, "Provided Graph Key is a null object");
         ConnectedGraphImpl cgraph = graphs.remove(key);
         /*

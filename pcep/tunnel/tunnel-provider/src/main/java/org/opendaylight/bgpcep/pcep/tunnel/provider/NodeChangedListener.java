@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -42,9 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.Path;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.Link1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.Link1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.SupportingNode1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.SupportingNode1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.tunnel.pcep.supporting.node.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
@@ -119,7 +116,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             return;
         }
 
-        for (final ReportedLsp l : pccnode.getPathComputationClient().getReportedLsp()) {
+        for (final ReportedLsp l : pccnode.getPathComputationClient().nonnullReportedLsp().values()) {
             lsps.add(id.builder().augmentation(Node1.class).child(PathComputationClient.class)
                     .child(ReportedLsp.class, l.key()).build());
         }
@@ -139,14 +136,12 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     }
 
     private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
-        final SupportingNodeKey sk = new SupportingNodeKey(sni, this.source);
-        final SupportingNodeBuilder snb = new SupportingNodeBuilder();
-        snb.setNodeRef(sni);
-        snb.withKey(sk);
-        snb.addAugmentation(SupportingNode1.class, new SupportingNode1Builder().setPathComputationClient(
-                new PathComputationClientBuilder().setControlling(inControl).build()).build());
-
-        return snb.build();
+        return new SupportingNodeBuilder()
+                .setNodeRef(sni)
+                .withKey(new SupportingNodeKey(sni, this.source))
+                .addAugmentation(new SupportingNode1Builder().setPathComputationClient(
+                    new PathComputationClientBuilder().setControlling(inControl).build()).build())
+                .build();
     }
 
     private void handleSni(final InstanceIdentifier<Node> sni, final Node node, final Boolean inControl,
@@ -159,12 +154,10 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
              * so it does not have a supporting node pointer. Since we now know what it is,
              * fill it in.
              */
-            if (node.getSupportingNode() != null) {
-                for (final SupportingNode sn : node.getSupportingNode()) {
-                    if (sn.getNodeRef().equals(k.getNodeId())) {
-                        have = true;
-                        break;
-                    }
+            for (final SupportingNode sn : node.nonnullSupportingNode().values()) {
+                if (sn.getNodeRef().equals(k.getNodeId())) {
+                    have = true;
+                    break;
                 }
             }
             if (!have) {
@@ -179,26 +172,22 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             final IpAddress addr, final InstanceIdentifier<Node> sni, final Boolean inControl)
             throws ExecutionException, InterruptedException {
         final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get().get();
-        if (topo.getNode() != null) {
-            for (final Node n : topo.getNode()) {
-                if (n.getTerminationPoint() != null) {
-                    for (final TerminationPoint tp : n.getTerminationPoint()) {
-                        final TerminationPoint1 tpa = tp.augmentation(TerminationPoint1.class);
-                        if (tpa != null) {
-                            final TerminationPointType tpt = tpa.getIgpTerminationPointAttributes()
-                                    .getTerminationPointType();
-                            if (tpt instanceof Ip) {
-                                for (final IpAddress address : ((Ip) tpt).getIpAddress()) {
-                                    if (addr.equals(address)) {
-                                        handleSni(sni, n, inControl, trans);
-                                        return this.target.builder().child(Node.class, n.key())
-                                                .child(TerminationPoint.class, tp.key()).build();
-                                    }
-                                }
-                            } else {
-                                LOG.debug("Ignoring termination point type {}", tpt);
+        for (final Node n : topo.nonnullNode().values()) {
+            for (final TerminationPoint tp : n.nonnullTerminationPoint().values()) {
+                final TerminationPoint1 tpa = tp.augmentation(TerminationPoint1.class);
+                if (tpa != null) {
+                    final TerminationPointType tpt = tpa.getIgpTerminationPointAttributes()
+                            .getTerminationPointType();
+                    if (tpt instanceof Ip) {
+                        for (final IpAddress address : ((Ip) tpt).getIpAddress()) {
+                            if (addr.equals(address)) {
+                                handleSni(sni, n, inControl, trans);
+                                return this.target.builder().child(Node.class, n.key())
+                                        .child(TerminationPoint.class, tp.key()).build();
                             }
                         }
+                    } else {
+                        LOG.debug("Ignoring termination point type {}", tpt);
                     }
                 }
             }
@@ -213,9 +202,11 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         final TerminationPointKey tpk = new TerminationPointKey(new TpId(url));
         final TerminationPointBuilder tpb = new TerminationPointBuilder();
         tpb.withKey(tpk).setTpId(tpk.getTpId());
-        tpb.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder().setIgpTerminationPointAttributes(
-                new IgpTerminationPointAttributesBuilder().setTerminationPointType(
-                        new IpBuilder().setIpAddress(Lists.newArrayList(addr)).build()).build()).build());
+        tpb.addAugmentation(new TerminationPoint1Builder()
+            .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
+                .setTerminationPointType(new IpBuilder().setIpAddress(Lists.newArrayList(addr)).build())
+                .build())
+            .build());
 
         final NodeKey nk = new NodeKey(new NodeId(url));
         final NodeBuilder nb = new NodeBuilder();
@@ -234,7 +225,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             final ReportedLsp value) throws ExecutionException, InterruptedException {
         final InstanceIdentifier<Node> ni = identifier.firstIdentifierOf(Node.class);
 
-        final Path1 rl = value.getPath().get(0).augmentation(Path1.class);
+        final Path1 rl = value.nonnullPath().values().iterator().next().augmentation(Path1.class);
 
         final AddressFamily af = rl.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
 
@@ -255,7 +246,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             throw new IllegalArgumentException("Unsupported address family: " + af.implementedInterface());
         }
 
-        final Path path0 = value.getPath().get(0);
+        final Path path0 = value.nonnullPath().values().iterator().next();
         final Link1Builder lab = new Link1Builder();
         if (path0.getBandwidth() != null) {
             lab.setBandwidth(path0.getBandwidth().getBandwidth());
@@ -284,9 +275,8 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
                 .setSourceTp(src.firstKeyOf(TerminationPoint.class).getTpId()).build());
         lb.setDestination(new DestinationBuilder().setDestNode(dst.firstKeyOf(Node.class).getNodeId())
                 .setDestTp(dst.firstKeyOf(TerminationPoint.class).getTpId()).build());
-        lb.addAugmentation(Link1.class, lab.build());
-        lb.addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-                .rev181109.Link1.class, slab.build());
+        lb.addAugmentation(lab.build());
+        lb.addAugmentation(slab.build());
 
         trans.put(LogicalDatastoreType.OPERATIONAL, linkForLsp(id), lb.build());
     }
@@ -327,7 +317,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         boolean orphDstNode = true;
         boolean orphDstTp = true;
         boolean orphSrcTp = true;
-        for (final Link lw : nonNullList(topology.getLink())) {
+        for (final Link lw : topology.nonnullLink().values()) {
             LOG.trace("Checking link {}", lw);
 
             final NodeId sn = lw.getSource().getSourceNode();
@@ -513,9 +503,5 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
 
     DataBroker getDataProvider() {
         return dataProvider;
-    }
-
-    private static <T> List<T> nonNullList(final List<T> nullable) {
-        return nullable != null ? nullable : ImmutableList.of();
     }
 }

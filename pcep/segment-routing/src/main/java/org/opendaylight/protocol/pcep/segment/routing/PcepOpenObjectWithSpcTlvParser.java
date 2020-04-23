@@ -37,7 +37,7 @@ public class PcepOpenObjectWithSpcTlvParser extends SyncOptimizationsOpenObjectP
         if (tlv instanceof SrPceCapability) {
             tlvBuilder.setSrPceCapability((SrPceCapability) tlv);
         }
-        tbuilder.addAugmentation(Tlvs1.class, tlvBuilder.build());
+        tbuilder.addAugmentation(tlvBuilder.build());
     }
 
     @Override

@@ -76,22 +76,22 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
             final TopologyTypes1 topologyTypes = topology.getTopologyTypes().augmentation(TopologyTypes1.class);
             assertNotNull(topologyTypes);
             assertNotNull(topologyTypes.getBgpIpv4ReachabilityTopology());
-            assertEquals(1, topology.getNode().size());
-            final Node node = topology.getNode().get(0);
+            assertEquals(1, topology.nonnullNode().size());
+            final Node node = topology.nonnullNode().values().iterator().next();
             assertEquals(NEXT_HOP, node.getNodeId().getValue());
-            assertEquals(ROUTE_IP4PREFIX, node.augmentation(Node1.class).getIgpNodeAttributes().getPrefix().get(0)
-                .getPrefix().getIpv4Prefix().getValue());
+            assertEquals(ROUTE_IP4PREFIX, node.augmentation(Node1.class).getIgpNodeAttributes().nonnullPrefix().values()
+                .iterator().next().getPrefix().getIpv4Prefix().getValue());
             return topology;
         });
 
         // update route
         updateIpv4Route(createIpv4Route(NEW_NEXT_HOP));
         readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
-            assertEquals(1, topology.getNode().size());
-            final Node nodeUpdated = topology.getNode().get(0);
+            assertEquals(1, topology.nonnullNode().size());
+            final Node nodeUpdated = topology.nonnullNode().values().iterator().next();
             assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
             assertEquals(ROUTE_IP4PREFIX, nodeUpdated.augmentation(Node1.class).getIgpNodeAttributes()
-                .getPrefix().get(0).getPrefix().getIpv4Prefix().getValue());
+                .nonnullPrefix().values().iterator().next().getPrefix().getIpv4Prefix().getValue());
             return topology;
         });
 

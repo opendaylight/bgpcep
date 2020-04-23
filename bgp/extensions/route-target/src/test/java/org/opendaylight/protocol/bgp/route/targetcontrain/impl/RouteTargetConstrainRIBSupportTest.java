@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -78,9 +79,9 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
             .setRouteTargetConstrainChoice(RT)
             .setOriginAs(ORIGIN_AS)
             .build();
-    private static final RouteTargetConstrainRoutes RT_ROUTES
-            = new RouteTargetConstrainRoutesBuilder()
-            .setRouteTargetConstrainRoute(Collections.singletonList(ROUTE)).build();
+    private static final RouteTargetConstrainRoutes RT_ROUTES = new RouteTargetConstrainRoutesBuilder()
+            .setRouteTargetConstrainRoute(Map.of(ROUTE.key(), ROUTE))
+            .build();
 
     private static final RouteTargetConstrainDestination RT_DESTINATION = new RouteTargetConstrainDestinationBuilder()
             .setRouteTargetConstrainChoice(RT)
@@ -104,7 +105,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
     public void setUp() throws Exception {
         super.setUp();
         NlriActivator.registerNlriParsers(new ArrayList<>());
-        this.ribSupport = RouteTargetConstrainRIBSupport.getInstance(this.mappingService);
+        this.ribSupport = RouteTargetConstrainRIBSupport.getInstance(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 
@@ -172,7 +173,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
 
     @Test
     public void testRouteAttributesIdentifier() {
-        assertEquals(new NodeIdentifier(Attributes.QNAME.withModule(BindingReflections
+        assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(BindingReflections
                         .getQNameModule(RouteTargetConstrainRoutesCase.class))),
                 this.ribSupport.routeAttributesIdentifier());
     }

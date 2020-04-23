@@ -73,11 +73,11 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
             final TopologyTypes1 topologyType = topology.getTopologyTypes().augmentation(TopologyTypes1.class);
             assertNotNull(topologyType);
             assertNotNull(topologyType.getBgpIpv6ReachabilityTopology());
-            assertEquals(1, topology.getNode().size());
-            final Node node = topology.getNode().get(0);
+            assertEquals(1, topology.nonnullNode().size());
+            final Node node = topology.nonnullNode().values().iterator().next();
             assertEquals(NEXT_HOP, node.getNodeId().getValue());
-            assertEquals(ROUTE_IP6PREFIX, node.augmentation(Node1.class).getIgpNodeAttributes().getPrefix()
-                .get(0).getPrefix().getIpv6Prefix().getValue());
+            assertEquals(ROUTE_IP6PREFIX, node.augmentation(Node1.class).getIgpNodeAttributes().nonnullPrefix()
+                .values().iterator().next().getPrefix().getIpv6Prefix().getValue());
             return topology;
         });
 
@@ -85,11 +85,11 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         updateIpv6Route(createIpv6Route(NEW_NEXT_HOP));
 
         readDataOperational(getDataBroker(), this.ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
-            assertEquals(1, topology.getNode().size());
-            final Node nodeUpdated = topology.getNode().get(0);
+            assertEquals(1, topology.nonnullNode().size());
+            final Node nodeUpdated = topology.nonnullNode().values().iterator().next();
             assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
-            assertEquals(ROUTE_IP6PREFIX, nodeUpdated.augmentation(Node1.class).getIgpNodeAttributes().getPrefix()
-                .get(0).getPrefix().getIpv6Prefix().getValue());
+            assertEquals(ROUTE_IP6PREFIX, nodeUpdated.augmentation(Node1.class).getIgpNodeAttributes().nonnullPrefix()
+                .values().iterator().next().getPrefix().getIpv6Prefix().getValue());
             return topology;
         });
 

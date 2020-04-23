@@ -48,7 +48,7 @@ public class ActivatorTest extends AbstractRIBActivatorTest {
 
         assertNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 
-        ribAct.startRIBExtensionProvider(context, this.mappingService);
+        ribAct.startRIBExtensionProvider(context, this.context.currentSerializer());
 
         assertNotNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 

@@ -361,8 +361,8 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
             final Neighbors neighbors = bgpRib.getNeighbors();
             Assert.assertNotNull(neighbors);
-            assertEquals(peerGroupExpected, bgpRib.getPeerGroups().getPeerGroup().get(0));
-            final Neighbor neighborResult = neighbors.getNeighbor().get(0);
+            assertEquals(peerGroupExpected, bgpRib.getPeerGroups().nonnullPeerGroup().values().iterator().next());
+            final Neighbor neighborResult = neighbors.nonnullNeighbor().values().iterator().next();
             assertEquals(new IpAddress(neighborAddress.getIpv4AddressNoZone()), neighborResult.getNeighborAddress());
             assertEquals(expectedAfiSafis, neighborResult.getAfiSafis());
             assertEquals(expectedErrorHandling, neighborResult.getErrorHandling());

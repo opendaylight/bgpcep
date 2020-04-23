@@ -28,18 +28,14 @@
   <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker" odl:type="default"/>
   <reference id="domDataBroker" interface="org.opendaylight.mdsal.dom.api.DOMDataBroker" odl:type="default"/>
   <reference id="globalBgpExtensions" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext"/>
-  <reference id="codecTreeFactory" interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory"/>
-  <odl:static-reference id="domSchemaService" interface="org.opendaylight.mdsal.dom.api.DOMSchemaService"/>
+  <reference id="codecTree" interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree"/>
   <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
 
   <bean id="bmpDeployerDependecies" class="org.opendaylight.protocol.bmp.impl.config.BmpDeployerDependencies">
     <argument ref="dataBroker"/>
     <argument ref="domDataBroker"/>
     <argument ref="globalBgpExtensions"/>
-    <argument ref="codecTreeFactory"/>
-    <argument>
-      <bean factory-ref="domSchemaService" factory-method="getGlobalContext"/>
-    </argument>
+    <argument ref="codecTree"/>
     <argument ref="clusterSingletonServiceProvider"/>
   </bean>
 

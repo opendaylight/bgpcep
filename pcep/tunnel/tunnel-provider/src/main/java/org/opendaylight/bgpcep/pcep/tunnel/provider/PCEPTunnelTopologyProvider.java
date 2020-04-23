@@ -16,7 +16,6 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.topology.tunnel.pcep.type.TopologyTunnelPcepBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -60,7 +59,7 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
         tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, getTopologyReference().getInstanceIdentifier(),
                 new TopologyBuilder().setTopologyId(this.tunneltopologyId)
                         .setTopologyTypes(new TopologyTypesBuilder()
-                                .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder()
+                                .addAugmentation(new TopologyTypes1Builder()
                                         .setTopologyTunnelPcep(
                                                 new TopologyTunnelPcepBuilder().build()).build()).build())
                         .setNode(new ArrayList<>()).build());

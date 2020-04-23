@@ -12,8 +12,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -28,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Path1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.identifiers.tlv.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4CaseBuilder;
@@ -38,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.PathComputationClientBuilder;
@@ -117,12 +117,14 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         final Node dst;
         final Node src;
 
-        if (tunnelTopo.getNode().get(0).getNodeId().equals(srcId)) {
-            src = tunnelTopo.getNode().get(0);
-            dst = tunnelTopo.getNode().get(1);
+        final Iterator<Node> it = tunnelTopo.nonnullNode().values().iterator();
+        final Node tmp = it.next();
+        if (tmp.getNodeId().equals(srcId)) {
+            src = tmp;
+            dst = it.next();
         } else {
-            src = tunnelTopo.getNode().get(1);
-            dst = tunnelTopo.getNode().get(0);
+            src = it.next();
+            dst = tmp;
         }
 
         Assert.assertEquals(srcId, src.getNodeId());
@@ -130,8 +132,8 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
 
         Assert.assertEquals(1, dst.getTerminationPoint().size());
         Assert.assertEquals(1, src.getTerminationPoint().size());
-        final TerminationPoint dstTp = dst.getTerminationPoint().get(0);
-        final TerminationPoint srcTp = src.getTerminationPoint().get(0);
+        final TerminationPoint dstTp = dst.nonnullTerminationPoint().values().iterator().next();
+        final TerminationPoint srcTp = src.nonnullTerminationPoint().values().iterator().next();
         final TpId dstNodeTpId = new TpId(dstId.getValue());
         final TpId srcNodeTpId = new TpId(srcId.getValue());
         Assert.assertEquals(dstNodeTpId, dstTp.getTpId());
@@ -139,11 +141,11 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
 
         Assert.assertEquals(1, src.getSupportingNode().size());
         Assert.assertNull(dst.getSupportingNode());
-        final SupportingNode sNode = src.getSupportingNode().get(0);
+        final SupportingNode sNode = src.nonnullSupportingNode().values().iterator().next();
         Assert.assertEquals(NODE1_ID, sNode.key().getNodeRef());
 
-        Assert.assertEquals(1, tunnelTopo.getLink().size());
-        final Link link = tunnelTopo.getLink().get(0);
+        Assert.assertEquals(1, tunnelTopo.nonnullLink().size());
+        final Link link = tunnelTopo.nonnullLink().values().iterator().next();
         Assert.assertEquals(srcId, link.getSource().getSourceNode());
         Assert.assertEquals(srcNodeTpId, link.getSource().getSourceTp());
         Assert.assertEquals(dstId, link.getDestination().getDestNode());
@@ -155,15 +157,15 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
             assertNotNull(updatedNodeTopo.getNode());
             Assert.assertEquals(2, updatedNodeTopo.getNode().size());
             final Node updatedNode;
-            if (updatedNodeTopo.getNode().get(0).getNodeId().equals(srcId)) {
-                updatedNode = updatedNodeTopo.getNode().get(1);
+            if (updatedNodeTopo.nonnullNode().values().iterator().next().getNodeId().equals(srcId)) {
+                updatedNode = Iterables.get(updatedNodeTopo.nonnullNode().values(), 1);
             } else {
-                updatedNode = updatedNodeTopo.getNode().get(0);
+                updatedNode = updatedNodeTopo.nonnullNode().values().iterator().next();
             }
 
             assertNotNull(updatedNode.getSupportingNode());
-            Assert.assertEquals(1, updatedNode.getSupportingNode().size());
-            final SupportingNode sNode2 = updatedNode.getSupportingNode().get(0);
+            Assert.assertEquals(1, updatedNode.nonnullSupportingNode().size());
+            final SupportingNode sNode2 = updatedNode.nonnullSupportingNode().values().iterator().next();
             Assert.assertEquals(NODE2_ID, sNode2.getNodeRef());
             Assert.assertEquals(2, updatedNodeTopo.getLink().size());
             return updatedNodeTopo;
@@ -171,12 +173,13 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         });
 
         readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, updatedNodeTopo -> {
-            final Link link2;
-            if (updatedNodeTopo.getLink().get(0).getSource().getSourceNode().equals(srcId)) {
-                link2 = updatedNodeTopo.getLink().get(1);
-            } else {
-                link2 = updatedNodeTopo.getLink().get(0);
+            Link link2;
+            Iterator<Link> it2 = updatedNodeTopo.nonnullLink().values().iterator();
+            link2 = it2.next();
+            if (srcId.equals(link2.getSource().getSourceNode())) {
+                link2 = it2.next();
             }
+
             assertEquals(dstId, link2.getSource().getSourceNode());
             assertEquals(dstNodeTpId, link2.getSource().getSourceTp());
             assertEquals(srcId, link2.getDestination().getDestNode());
@@ -208,7 +211,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         pathBuilder.withKey(new PathKey(new LspId(lspId)));
         pathBuilder.setBandwidth(new BandwidthBuilder().setBandwidth(
                 new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff})).build());
-        pathBuilder.addAugmentation(Path1.class, new Path1Builder().setLsp(new LspBuilder().setTlvs(new TlvsBuilder()
+        pathBuilder.addAugmentation(new Path1Builder().setLsp(new LspBuilder().setTlvs(new TlvsBuilder()
                 .setLspIdentifiers(new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(
                         new Ipv4Builder().setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(ipv4Address))
                                 .setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(ipv4Address))
@@ -223,7 +226,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
                 .setReportedLsp(Lists.newArrayList(reportedLps))
                 .setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ipv4Address)))
                 .build());
-        nodeBuilder.addAugmentation(Node1.class, node1Builder.build());
+        nodeBuilder.addAugmentation(node1Builder.build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.builder().child(Node.class,
                 new NodeKey(nodeId)).build(), nodeBuilder.build());
