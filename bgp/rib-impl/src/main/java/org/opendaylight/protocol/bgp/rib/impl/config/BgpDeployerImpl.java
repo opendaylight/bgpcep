@@ -209,7 +209,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         if (extPeerGroups == null) {
             return;
         }
-        for (final PeerGroup peerGroup : extPeerGroups.getPeerGroup()) {
+        for (final PeerGroup peerGroup : extPeerGroups.nonnullPeerGroup().values()) {
             this.bgpCss.values().forEach(css -> css.restartNeighbors(peerGroup.getPeerGroupName()));
         }
     }

@@ -10,11 +10,12 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.List;
+import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributesKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +24,12 @@ public class UnrecognizedAttributesSerializer implements AttributeSerializer {
 
     @Override
     public void serializeAttribute(final Attributes attributes, final ByteBuf byteAggregator) {
-        final List<UnrecognizedAttributes> unrecognizedAttrs = attributes.getUnrecognizedAttributes();
+        final Map<UnrecognizedAttributesKey, UnrecognizedAttributes> unrecognizedAttrs =
+                attributes.getUnrecognizedAttributes();
         if (unrecognizedAttrs == null) {
             return;
         }
-        for (final UnrecognizedAttributes unrecognizedAttr : unrecognizedAttrs) {
+        for (final UnrecognizedAttributes unrecognizedAttr : unrecognizedAttrs.values()) {
             LOG.trace("Serializing unrecognized attribute of type {}", unrecognizedAttr.getType());
             int flags = AttributeUtil.OPTIONAL;
             if (unrecognizedAttr.isPartial()) {

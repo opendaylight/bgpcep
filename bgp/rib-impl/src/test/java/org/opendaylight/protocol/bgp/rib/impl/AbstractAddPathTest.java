@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
@@ -176,7 +177,6 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
             this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         }
-        this.mappingService.close();
         this.ribActivator.close();
         this.inetActivator.close();
         this.bgpActivator.close();
@@ -219,7 +219,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             if (routes != null) {
                 final Ipv4Routes routesCase = routes.getIpv4Routes();
                 if (routesCase != null) {
-                    final List<Ipv4Route> routeList = routesCase.getIpv4Route();
+                    final Map<Ipv4RouteKey, Ipv4Route> routeList = routesCase.getIpv4Route();
                     size = routeList == null ? 0 : routeList.size();
                 } else {
                     size = 0;
