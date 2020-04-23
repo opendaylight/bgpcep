@@ -16,6 +16,24 @@
       "revId": "15efbc3f596fd985aaa8f0f65798d0e46770ee97",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff11507e_36038268",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 8697
+      },
+      "writtenOn": "2020-04-23T11:25:46Z",
+      "side": 1,
+      "message": "I\u0027ll make the changes.",
+      "parentUuid": "a739cbbf_1c4ee9a5",
+      "revId": "15efbc3f596fd985aaa8f0f65798d0e46770ee97",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
