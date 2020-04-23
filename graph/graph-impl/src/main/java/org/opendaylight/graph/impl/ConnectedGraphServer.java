@@ -88,11 +88,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
         requireNonNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         LOG.info("Create Graph Model at top level in Operational DataStore: {}", this.graphTopologyIdentifier);
-        trans.put(LogicalDatastoreType.OPERATIONAL, this.graphTopologyIdentifier,
-                new GraphTopologyBuilder().build());
-        trans.put(LogicalDatastoreType.CONFIGURATION, this.graphTopologyIdentifier,
-                new GraphTopologyBuilder().build());
-        LOG.info("Create Graph Model at top level in Configuration DataStore: {}", this.graphTopologyIdentifier);
+        trans.put(LogicalDatastoreType.OPERATIONAL, this.graphTopologyIdentifier, new GraphTopologyBuilder().build());
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
