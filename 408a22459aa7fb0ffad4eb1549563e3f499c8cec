@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aecfa744_c037c4be",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:23:40Z",
+      "side": 1,
+      "message": "Change bgp to \"bgp-openconfig-extensions:bgp\"",
+      "revId": "408a22459aa7fb0ffad4eb1549563e3f499c8cec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90977df0_bd909681",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:23:40Z",
+      "side": 1,
+      "message": "Remove empty line",
+      "revId": "408a22459aa7fb0ffad4eb1549563e3f499c8cec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc7da38d_90b86515",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:23:40Z",
+      "side": 1,
+      "message": "afi-safe -\u003e afi-safi",
+      "revId": "408a22459aa7fb0ffad4eb1549563e3f499c8cec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "093bcdff_5971edb6",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:23:40Z",
+      "side": 1,
+      "message": "Remove empty line",
+      "revId": "408a22459aa7fb0ffad4eb1549563e3f499c8cec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2c45e95_c1215770",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:23:40Z",
+      "side": 1,
+      "message": "Remove empty line",
+      "revId": "408a22459aa7fb0ffad4eb1549563e3f499c8cec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e5caeee_660428b9",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:23:40Z",
+      "side": 1,
+      "message": "Remove the _xmlns",
+      "revId": "408a22459aa7fb0ffad4eb1549563e3f499c8cec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
