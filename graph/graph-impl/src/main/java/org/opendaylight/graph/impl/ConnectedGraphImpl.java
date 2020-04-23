@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.graph.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -36,10 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author Olivier Dugeon
  * @author Philippe Niger
  */
-
-
 public class ConnectedGraphImpl implements ConnectedGraph {
-
     private static final Logger LOG = LoggerFactory.getLogger(ConnectedGraphImpl.class);
 
     /* List of Connected Vertics that composed this Connected Graph */
@@ -57,7 +53,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     /* Reference to Graph Model Server to store corresponding graph in DataStore */
     private final ConnectedGraphServer connectedGraphServer;
 
-    public ConnectedGraphImpl(Graph newGraph, ConnectedGraphServer server) {
+    public ConnectedGraphImpl(final Graph newGraph, final ConnectedGraphServer server) {
         this.graph = newGraph;
         createConnectedGraph();
         this.connectedGraphServer = server;
@@ -73,28 +69,22 @@ public class ConnectedGraphImpl implements ConnectedGraph {
             return;
         }
         /* Add all vertices */
-        if (this.graph.getVertex() != null) {
-            for (Vertex vertex : this.graph.getVertex()) {
-                ConnectedVertexImpl cvertex = new ConnectedVertexImpl(vertex);
-                vertices.put(cvertex.getKey(), cvertex);
-            }
+        for (Vertex vertex : this.graph.nonnullVertex().values()) {
+            ConnectedVertexImpl cvertex = new ConnectedVertexImpl(vertex);
+            vertices.put(cvertex.getKey(), cvertex);
         }
         /* Add all edges */
-        if (this.graph.getEdge() != null) {
-            for (Edge edge : this.graph.getEdge()) {
-                ConnectedEdgeImpl cedge = new ConnectedEdgeImpl(edge);
-                edges.put(cedge.getKey(), cedge);
-            }
+        for (Edge edge : this.graph.nonnullEdge().values()) {
+            ConnectedEdgeImpl cedge = new ConnectedEdgeImpl(edge);
+            edges.put(cedge.getKey(), cedge);
         }
         /* Add all prefixes */
-        if (this.graph.getPrefix() != null) {
-            for (Prefix prefix : this.graph.getPrefix()) {
-                ConnectedVertexImpl cvertex = vertices.get(prefix.getVertexId().longValue());
-                if (cvertex != null) {
-                    cvertex.addPrefix(prefix);
-                }
-                prefixes.putIfAbsent(prefix.getPrefix(), prefix);
+        for (Prefix prefix : this.graph.nonnullPrefix().values()) {
+            ConnectedVertexImpl cvertex = vertices.get(prefix.getVertexId().longValue());
+            if (cvertex != null) {
+                cvertex.addPrefix(prefix);
             }
+            prefixes.putIfAbsent(prefix.getPrefix(), prefix);
         }
     }
 
@@ -104,7 +94,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
      * @param  key   Unique Vertex Key identifier
      * @return new or existing Connected Vertex
      */
-    private ConnectedVertexImpl updateConnectedVertex(@NonNull Long key) {
+    private ConnectedVertexImpl updateConnectedVertex(final @NonNull Long key) {
         checkArgument(key != 0, "Provided Vertex Key must not be equal to 0");
         ConnectedVertexImpl vertex = vertices.get(key);
         if (vertex == null) {
@@ -120,7 +110,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
      * @param key   Unique Edge Key identifier
      * @return new or existing Connected Edge
      */
-    private ConnectedEdgeImpl updateConnectedEdge(@NonNull Long key) {
+    private ConnectedEdgeImpl updateConnectedEdge(final @NonNull Long key) {
         checkArgument(key != 0, "Provided Edge Key must not be equal to 0");
         ConnectedEdgeImpl edge = edges.get(key);
         if (edge == null) {
@@ -137,7 +127,8 @@ public class ConnectedGraphImpl implements ConnectedGraph {
      * @param dstVertex Destination Connected Vertex
      * @param edge      Connected Edge
      */
-    private void connectVertices(ConnectedVertexImpl srcVertex, ConnectedVertexImpl dstVertex, ConnectedEdgeImpl edge) {
+    private static void connectVertices(final ConnectedVertexImpl srcVertex, final ConnectedVertexImpl dstVertex,
+            final ConnectedEdgeImpl edge) {
         if (edge != null) {
             edge.setSource(srcVertex);
             edge.setDestination(dstVertex);
@@ -157,16 +148,16 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     @Override
     public List<ConnectedVertex> getVertices() {
-        return new ArrayList<ConnectedVertex>(this.vertices.values());
+        return new ArrayList<>(this.vertices.values());
     }
 
     @Override
-    public ConnectedVertex getConnectedVertex(@NonNull Long key) {
+    public ConnectedVertex getConnectedVertex(final Long key) {
         return vertices.get(key);
     }
 
     @Override
-    public ConnectedVertex getConnectedVertex(IpAddress address) {
+    public ConnectedVertex getConnectedVertex(final IpAddress address) {
         IpPrefix prefix = null;
         if (address.getIpv4Address() != null) {
             prefix = new IpPrefix(new Ipv4Prefix(address.getIpv4Address().getValue() + "/32"));
@@ -189,16 +180,16 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     @Override
     public List<ConnectedEdge> getEdges() {
-        return new ArrayList<ConnectedEdge>(this.edges.values());
+        return new ArrayList<>(this.edges.values());
     }
 
     @Override
-    public ConnectedEdge getConnectedEdge(@NonNull Long key) {
+    public ConnectedEdge getConnectedEdge(final Long key) {
         return edges.get(key);
     }
 
     @Override
-    public ConnectedEdge getConnectedEdge(IpAddress address) {
+    public ConnectedEdge getConnectedEdge(final IpAddress address) {
         for (ConnectedEdge cedge : edges.values()) {
             if (cedge.getEdge() == null) {
                 continue;
@@ -217,16 +208,16 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     @Override
     public List<Prefix> getPrefixes() {
-        return new ArrayList<Prefix>(this.prefixes.values());
+        return new ArrayList<>(this.prefixes.values());
     }
 
     @Override
-    public Prefix getPrefix(IpPrefix prefix) {
+    public Prefix getPrefix(final IpPrefix prefix) {
         return this.prefixes.get(prefix);
     }
 
     @Override
-    public ConnectedVertex addVertex(Vertex vertex) {
+    public ConnectedVertex addVertex(final Vertex vertex) {
         checkArgument(vertex != null, "Provided Vertex is a null object");
         ConnectedVertexImpl cvertex = updateConnectedVertex(vertex.getVertexId().longValue());
         Vertex old = cvertex.getVertex();
@@ -236,7 +227,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     }
 
     @Override
-    public void deleteVertex(VertexKey key) {
+    public void deleteVertex(final VertexKey key) {
         checkArgument(key != null, "Provided Vertex Key is a null object");
         ConnectedVertexImpl cvertex = vertices.get(key.getVertexId().longValue());
         if (cvertex != null) {
@@ -248,7 +239,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     }
 
     @Override
-    public ConnectedEdge addEdge(Edge edge) {
+    public ConnectedEdge addEdge(final Edge edge) {
         checkArgument(edge != null, "Provided Edge is a null object");
         ConnectedEdgeImpl cedge = updateConnectedEdge(edge.getEdgeId().longValue());
         Edge old = cedge.getEdge();
@@ -269,7 +260,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     }
 
     @Override
-    public void deleteEdge(EdgeKey key) {
+    public void deleteEdge(final EdgeKey key) {
         checkArgument(key != null, "Provided Edge Key is a null object");
         ConnectedEdgeImpl cedge = edges.get(key.getEdgeId().longValue());
         if (cedge != null) {
@@ -281,7 +272,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     }
 
     @Override
-    public void addPrefix(Prefix prefix) {
+    public void addPrefix(final Prefix prefix) {
         checkArgument(prefix != null, "Provided Prefix is a null object");
         ConnectedVertexImpl cvertex = updateConnectedVertex(prefix.getVertexId().longValue());
         cvertex.addPrefix(prefix);
@@ -290,7 +281,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     }
 
     @Override
-    public void deletePrefix(IpPrefix ippfx) {
+    public void deletePrefix(final IpPrefix ippfx) {
         checkArgument(ippfx != null, "Provided Prefix is a null object");
         Prefix prefix = prefixes.get(ippfx);
         if (prefix != null) {

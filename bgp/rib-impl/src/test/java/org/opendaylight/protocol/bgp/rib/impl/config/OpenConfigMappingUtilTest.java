@@ -26,6 +26,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -348,7 +349,7 @@ public class OpenConfigMappingUtilTest {
         assertTrue(OpenConfigMappingUtil.getAfiSafiWithDefault(null, false).isEmpty());
         assertTrue(OpenConfigMappingUtil.getAfiSafiWithDefault(afiSafi, false).isEmpty());
         assertEquals(afiSafiIpv6, OpenConfigMappingUtil.getAfiSafiWithDefault(new AfiSafisBuilder()
-                .setAfiSafi(afiSafiIpv6List).build(), false).get(0));
+                .setAfiSafi(afiSafiIpv6List).build(), false).values().iterator().next());
         assertEquals(AFI_SAFI, OpenConfigMappingUtil.getAfiSafiWithDefault(createAfiSafi(), false));
     }
 
@@ -414,8 +415,7 @@ public class OpenConfigMappingUtilTest {
                 ADD_PATH_BEST_N_PATH_SELECTION);
         expected.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class),
                 ADD_PATH_BEST_ALL_PATH_SELECTION);
-        assertEquals(expected.get(0), result.get(0));
-        assertEquals(expected.get(1), result.get(1));
+        assertTrue(Iterables.elementsEqual(expected.values(), result.values()));
     }
 
     @Test

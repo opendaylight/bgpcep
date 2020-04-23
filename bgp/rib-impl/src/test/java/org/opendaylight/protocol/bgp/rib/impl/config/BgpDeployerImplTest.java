@@ -31,8 +31,6 @@ import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
@@ -41,6 +39,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.DefaultRibPoliciesMockTest;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -112,7 +111,6 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         doNothing().when(this.dataTreeRegistration).close();
         doReturn("bgpPeer").when(this.modification).toString();
         final RIBExtensionConsumerContext extension = mock(RIBExtensionConsumerContext.class);
-        doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(extension).getClassLoadingStrategy();
 
         final ClusterSingletonServiceRegistration serviceRegistration = mock(ClusterSingletonServiceRegistration.class);
         doReturn(serviceRegistration).when(this.singletonServiceProvider).registerClusterSingletonService(any());
@@ -124,7 +122,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         doReturn(this.dataTreeRegistration).when(schemaService).registerSchemaContextListener(any());
 
         final RibImpl ribImpl = new RibImpl(extension, mock(BGPDispatcher.class), this.policyProvider,
-            mock(BindingCodecTreeFactory.class), getDomBroker(), getDataBroker(), schemaService);
+            mock(CodecsRegistry.class), getDomBroker(), getDataBroker(), schemaService);
         doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
 
         doReturn(new BgpPeer(mock(RpcProviderService.class))).when(this.blueprintContainer)
@@ -205,7 +203,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
 
     private void createRib(final Global global) throws ExecutionException, InterruptedException {
         final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
-        wr.put(LogicalDatastoreType.CONFIGURATION, GLOBAL_II, global, true);
+        wr.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, GLOBAL_II, global);
         wr.commit().get();
     }
 
@@ -217,7 +215,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
 
     private void createNeighbor(final Neighbors neighbors) throws ExecutionException, InterruptedException {
         final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
-        wr.put(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II, neighbors, true);
+        wr.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II, neighbors);
         wr.commit().get();
     }
 

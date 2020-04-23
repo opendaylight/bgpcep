@@ -13,8 +13,8 @@
        META-INF/services/org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator resources.
   -->
   <odl:specific-reference-list id="extensionActivators" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"/>
-  <odl:static-reference id="mappingCodec"
-                        interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer"/>
+  <odl:static-reference id="mappingCodec" interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer"/>
+
   <bean id="extensionProviderContext" class="org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext"/>
 
   <bean id="extensionProviderContextActivator" class="org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContextActivator"

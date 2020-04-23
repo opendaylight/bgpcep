@@ -23,13 +23,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -70,7 +68,7 @@ public class RibImplTest extends AbstractConfig {
     @Mock
     private RIBExtensionConsumerContext extension;
     @Mock
-    private BindingCodecTreeFactory bindingCodecTreeFactory;
+    private CodecsRegistry codecsRegistry;
     @Mock
     private DOMDataBroker domDataBroker;
     @Mock
@@ -87,7 +85,6 @@ public class RibImplTest extends AbstractConfig {
     public void setUp() throws Exception {
         super.setUp();
 
-        doReturn(mock(GeneratedClassLoadingStrategy.class)).when(this.extension).getClassLoadingStrategy();
         doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
         final NodeIdentifier nii = new NodeIdentifier(QName.create("", "test").intern());
         doReturn(nii).when(this.ribSupport).routeAttributesIdentifier();
@@ -115,15 +112,13 @@ public class RibImplTest extends AbstractConfig {
                 this.extension,
                 this.dispatcher,
                 this.policyProvider,
-                this.bindingCodecTreeFactory,
+                this.codecsRegistry,
                 this.domDataBroker,
                 getDataBroker(),
                 this.domSchemaService);
         ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
-        verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getExtensions();
-        verify(this.domSchemaService).registerSchemaContextListener(any(RIBImpl.class));
         assertEquals("RIBImpl{bgpId=Ipv4Address{_value=127.0.0.1}, localTables=[BgpTableTypeImpl ["
                 + "getAfi()=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types."
                 + "rev200120.Ipv4AddressFamily, "

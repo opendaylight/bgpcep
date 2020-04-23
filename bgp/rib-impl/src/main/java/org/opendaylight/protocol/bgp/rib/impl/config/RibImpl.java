@@ -13,14 +13,13 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
@@ -30,7 +29,6 @@ import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.rib.impl.CodecsRegistryImpl;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -56,10 +54,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,14 +66,12 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
 
     private final RIBExtensionConsumerContext extensions;
     private final BGPDispatcher dispatcher;
-    private final BindingCodecTreeFactory codecTreeFactory;
+    private final CodecsRegistry codecsRegistry;
     private final DOMDataBroker domBroker;
-    private final DOMSchemaService domSchemaService;
     private final BGPRibRoutingPolicyFactory policyProvider;
     private RIBImpl ribImpl;
     private ServiceRegistration<?> serviceRegistration;
-    private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
-    private List<AfiSafi> afiSafi;
+    private Collection<AfiSafi> afiSafi;
     private AsNumber asNumber;
     private Ipv4AddressNoZone routerId;
 
@@ -88,17 +82,16 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
             final RIBExtensionConsumerContext contextProvider,
             final BGPDispatcher dispatcher,
             final BGPRibRoutingPolicyFactory policyProvider,
-            final BindingCodecTreeFactory codecTreeFactory,
+            final CodecsRegistry codecsRegistry,
             final DOMDataBroker domBroker,
             final DataBroker dataBroker,
             final DOMSchemaService domSchemaService
     ) {
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
-        this.codecTreeFactory = codecTreeFactory;
+        this.codecsRegistry = codecsRegistry;
         this.domBroker = domBroker;
         this.dataBroker = dataBroker;
-        this.domSchemaService = domSchemaService;
         this.policyProvider = policyProvider;
     }
 
@@ -106,11 +99,10 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
         Preconditions.checkState(this.ribImpl == null,
                 "Previous instance %s was not closed.", this);
         this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
-        this.schemaContextRegistration = this.domSchemaService.registerSchemaContextListener(this.ribImpl);
     }
 
     Boolean isGlobalEqual(final Global global) {
-        final List<AfiSafi> globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
+        final Collection<AfiSafi> globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
         final Config globalConfig = global.getConfig();
         final AsNumber globalAs = globalConfig.getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
@@ -199,10 +191,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
             this.ribImpl.close();
             this.ribImpl = null;
         }
-        if (this.schemaContextRegistration != null) {
-            this.schemaContextRegistration.close();
-            this.schemaContextRegistration = null;
-        }
         if (this.serviceRegistration != null) {
             try {
                 this.serviceRegistration.unregister();
@@ -246,7 +234,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
             final Global global,
             final String bgpInstanceName,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
+        this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
         this.routerId = IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(globalConfig.getRouterId());
@@ -259,8 +247,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
 
         final BGPRibRoutingPolicy ribPolicy = this.policyProvider.buildBGPRibPolicy(this.asNumber.getValue().toJava(),
                 this.routerId, this.clusterId, RoutingPolicyUtil.getApplyPolicy(global.getApplyPolicy()));
-        final CodecsRegistryImpl codecsRegistry = CodecsRegistryImpl.create(codecTreeFactory,
-                this.extensions.getClassLoadingStrategy());
 
         return new RIBImpl(
                 tableTypeRegistry,
