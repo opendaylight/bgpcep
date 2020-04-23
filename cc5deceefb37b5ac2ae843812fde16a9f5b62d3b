@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a7cb109_990e0fff",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedGraphServer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-04-23T14:58:39Z",
+      "side": 1,
+      "message": "why not just pass type here, do we care about capitalization that much? :)",
+      "range": {
+        "startLine": 93,
+        "startChar": 16,
+        "endLine": 93,
+        "endChar": 90
+      },
+      "revId": "cc5deceefb37b5ac2ae843812fde16a9f5b62d3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
