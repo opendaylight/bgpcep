@@ -30,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.opendaylight.mdsal.binding.dom.codec.impl.DefaultBindingCodecTreeFactory;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -56,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
@@ -146,7 +148,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
 
-        this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService);
+        this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService.currentSerializer());
 
         this.bgpActivator = new BGPActivator();
         this.inetActivator = new org.opendaylight.protocol.bgp.inet.BGPActivator();
@@ -163,8 +165,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
 
-        this.codecsRegistry = CodecsRegistryImpl.create(this.mappingService.getCodecFactory(),
-                this.ribExtension.getClassLoadingStrategy());
+        this.codecsRegistry = CodecsRegistryImpl.create(new DefaultBindingCodecTreeFactory());
         this.clientDispatchers = new ArrayList<>();
     }
 
@@ -176,7 +177,6 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
             this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         }
-        this.mappingService.close();
         this.ribActivator.close();
         this.inetActivator.close();
         this.bgpActivator.close();
@@ -213,13 +213,13 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         // FIXME: remove this sleep
         Thread.sleep(100);
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
-            final Ipv4RoutesCase routes = (Ipv4RoutesCase) bgpRib.getRib().get(0).getLocRib().getTables().get(0)
-                .getRoutes();
+            final Ipv4RoutesCase routes = (Ipv4RoutesCase) bgpRib.getRib().values().iterator().next().getLocRib()
+                    .getTables().values().iterator().next().getRoutes();
             final int size;
             if (routes != null) {
                 final Ipv4Routes routesCase = routes.getIpv4Routes();
                 if (routesCase != null) {
-                    final List<Ipv4Route> routeList = routesCase.getIpv4Route();
+                    final Map<Ipv4RouteKey, Ipv4Route> routeList = routesCase.getIpv4Route();
                     size = routeList == null ? 0 : routeList.size();
                 } else {
                     size = 0;
@@ -235,7 +235,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
     void checkPeersPresentOnDataStore(final int numberOfPeers) throws Exception {
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
-            Assert.assertEquals(numberOfPeers, bgpRib.getRib().get(0).getPeer().size());
+            Assert.assertEquals(numberOfPeers, bgpRib.getRib().values().iterator().next().getPeer().size());
             return bgpRib;
         });
     }

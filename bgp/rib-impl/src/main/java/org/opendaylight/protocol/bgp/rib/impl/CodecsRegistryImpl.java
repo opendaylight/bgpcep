@@ -13,10 +13,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.opendaylight.binding.runtime.api.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class CodecsRegistryImpl implements CodecsRegistry {
-
     private static final Logger LOG = LoggerFactory.getLogger(CodecsRegistryImpl.class);
 
     private final LoadingCache<RIBSupport<?, ?, ?, ?>, Codecs> contexts = CacheBuilder.newBuilder()
@@ -36,18 +34,15 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
             }
         });
     private final BindingCodecTreeFactory codecFactory;
-    private final GeneratedClassLoadingStrategy classContext;
+
     private volatile BindingCodecTree latestCodecTree;
 
-    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory,
-            final GeneratedClassLoadingStrategy strategy) {
+    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory) {
         this.codecFactory = requireNonNull(codecFactory);
-        this.classContext = requireNonNull(strategy);
     }
 
-    public static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory,
-            final GeneratedClassLoadingStrategy classStrategy) {
-        return new CodecsRegistryImpl(codecFactory, classStrategy);
+    public static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory) {
+        return new CodecsRegistryImpl(codecFactory);
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
@@ -64,7 +59,7 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
 
     @SuppressWarnings("checkstyle:illegalCatch")
     void onSchemaContextUpdated(final SchemaContext context) {
-        final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(this.classContext, context);
+        final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(context);
         this.latestCodecTree  = this.codecFactory.create(runtimeContext);
         for (final Codecs codecs : this.contexts.asMap().values()) {
             try {

@@ -14,6 +14,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -31,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.Tables.AfiFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.Uint16;
@@ -69,11 +71,11 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         this.safiReg = requireNonNull(safiReg);
     }
 
-    private void serializeTables(final List<Tables> tables, final ByteBuf bytes) {
+    private void serializeTables(final Map<TablesKey, Tables> tables, final ByteBuf bytes) {
         if (tables == null) {
             return;
         }
-        for (final Tables t : tables) {
+        for (final Tables t : tables.values()) {
             final Class<? extends AddressFamily> afi = t.getAfi();
             final Integer afival = this.afiReg.numberForClass(afi);
             Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
@@ -91,7 +93,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
     }
 
     private ByteBuf serializeCapability(final GracefulRestartCapability grace) {
-        final List<Tables> tables = grace.getTables();
+        final Map<TablesKey, Tables> tables = grace.getTables();
         final int tablesSize = tables != null ? tables.size() : 0;
         final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + PER_AFI_SAFI_SIZE * tablesSize);
         Uint16 time = grace.getRestartTime();
@@ -131,7 +133,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         cb.setRestartFlags(new RestartFlags((flagBits & Byte.SIZE) != 0));
 
         final int timer = ((buffer.readUnsignedByte() & TIMER_TOPBITS_MASK) << Byte.SIZE) + buffer.readUnsignedByte();
-        cb.setRestartTime(timer);
+        cb.setRestartTime(Uint16.valueOf(timer));
 
         final List<Tables> tables = new ArrayList<>();
         while (buffer.readableBytes() != 0) {
