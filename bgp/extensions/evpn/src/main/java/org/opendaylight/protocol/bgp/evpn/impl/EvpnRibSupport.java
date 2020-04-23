@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -166,7 +167,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
-    public List<EvpnRoute> extractAdjRibInRoutes(final Routes routes) {
+    public Map<EvpnRouteKey, EvpnRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120
             .bgp.rib.rib.peer.adj.rib.in.tables.routes.EvpnRoutesCase, "Unrecognized routes %s", routes);
         return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120

@@ -12,7 +12,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -23,22 +23,23 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
-    private BindingToNormalizedNodeCodec codec;
+    private AdapterContext adapter;
 
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.codec = customizer.getBindingToNormalized();
+        this.adapter = customizer.getAdapterContext();
         return customizer;
     }
 
     @Test
     public void testExtensionProvider() {
+        final BindingNormalizedNodeSerializer codec = adapter.currentSerializer();
         final ServiceLoaderRIBExtensionConsumerContext ctx =
-                ServiceLoaderRIBExtensionConsumerContext.createConsumerContext(this.codec);
+                ServiceLoaderRIBExtensionConsumerContext.createConsumerContext(codec);
         Assert.assertNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         final TestActivator act = new TestActivator();
-        act.startRIBExtensionProvider(ctx, this.codec);
+        act.startRIBExtensionProvider(ctx, codec);
         Assert.assertNotNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         act.close();
         Assert.assertNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));

@@ -113,7 +113,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
     private final AtomicBoolean initiationCapability = new AtomicBoolean(false);
 
-    private PceServerProvider pceServerProvider;
+    private final PceServerProvider pceServerProvider;
 
     /**
      * Creates a new stateful topology session listener for given server session manager.
@@ -554,7 +554,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 return OperationResults.UNSENT;
             }
             // check if at least one of the paths has the same status as requested
-            for (final Path p : rep.get().getPath()) {
+            for (final Path p : rep.get().nonnullPath().values()) {
                 final Path1 p1 = p.augmentation(Path1.class);
                 if (p1 == null) {
                     LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
@@ -575,7 +575,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             return null;
         }
         // it doesn't matter how many lsps there are in the path list, we only need data that is the same in each path
-        final Path1 ra = rep.get().getPath().get(0).augmentation(Path1.class);
+        final Path1 ra = rep.get().getPath().values().iterator().next().augmentation(Path1.class);
         checkState(ra != null, "Reported LSP reported null from data-store.");
         final Lsp reportedLsp = ra.getLsp();
         checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
@@ -584,7 +584,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
     private static Optional<PathSetupType> getPST(final Optional<ReportedLsp> rep) {
         if (rep.isPresent()) {
-            final Path1 path1 = rep.get().getPath().get(0).augmentation(Path1.class);
+            final Path1 path1 = rep.get().getPath().values().iterator().next().augmentation(Path1.class);
             if (path1 != null) {
                 final PathSetupType pst = path1.getPathSetupType();
                 if (!PSTUtil.isDefaultPST(pst)) {
@@ -603,8 +603,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final Map<PlspId, String> lsps, final boolean incrementalSynchro) {
         //load node's lsps from DS
         final PathComputationClient pcc = node.augmentation(Node1.class).getPathComputationClient();
-        final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
-        for (final ReportedLsp reportedLsp : reportedLsps) {
+        for (final ReportedLsp reportedLsp : pcc.nonnullReportedLsp().values()) {
             final String lspName = reportedLsp.getName();
             lspData.put(lspName, reportedLsp);
             if (!reportedLsp.getPath().isEmpty()) {
@@ -686,7 +685,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             // mark lsp as stale
             final ReportedLsp staleLsp = rep.get();
             if (!staleLsp.getPath().isEmpty()) {
-                final Path1 path1 = staleLsp.getPath().get(0).augmentation(Path1.class);
+                final Path1 path1 = staleLsp.getPath().values().iterator().next().augmentation(Path1.class);
                 if (path1 != null) {
                     Stateful07TopologySessionListener.this.staleLsps.add(path1.getLsp().getPlspId());
                 }
@@ -759,9 +758,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
             /* Call Path Computation if an ERO was not provided */
             boolean segmentRouting = !PSTUtil.isDefaultPST(args2.getPathSetupType());
-            if ((rb.getEro() == null)
-                    || (rb.getEro().getSubobject() == null)
-                    || (rb.getEro().getSubobject().size() == 0)) {
+            if (rb.getEro() == null
+                    || rb.getEro().getSubobject() == null
+                    || rb.getEro().getSubobject().size() == 0) {
 
                 /* Get a Path Computation to compute the Path from the Arguments */
                 PathComputation pathComputation = pceServerProvider.getPathComputation();

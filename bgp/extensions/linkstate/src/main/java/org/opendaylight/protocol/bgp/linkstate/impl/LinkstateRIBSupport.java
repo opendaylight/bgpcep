@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -180,7 +181,7 @@ public final class LinkstateRIBSupport
     }
 
     @Override
-    public List<LinkstateRoute> extractAdjRibInRoutes(final Routes routes) {
+    public Map<LinkstateRouteKey, LinkstateRoute> extractAdjRibInRoutes(final Routes routes) {
         verify(
             routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120
                 .bgp.rib.rib.peer.adj.rib.in.tables.routes.LinkstateRoutesCase, "Unrecognized routes %s", routes);

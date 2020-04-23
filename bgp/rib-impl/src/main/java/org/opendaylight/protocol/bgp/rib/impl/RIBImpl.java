@@ -79,14 +79,12 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
 public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionChainListener,
-        DOMTransactionChainListener, SchemaContextListener, AutoCloseable {
+        DOMTransactionChainListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
 
@@ -100,7 +98,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     private final RIBExtensionConsumerContext extensions;
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
-    private final CodecsRegistryImpl codecsRegistry;
+    private final CodecsRegistry codecsRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final DOMDataBrokerExtension domService;
     private final Map<TransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
@@ -123,7 +121,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
             final BgpId localBgpId,
             final RIBExtensionConsumerContext extensions,
             final BGPDispatcher dispatcher,
-            final CodecsRegistryImpl codecsRegistry,
+            final CodecsRegistry codecsRegistry,
             final DOMDataBroker domDataBroker,
             final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
@@ -333,11 +331,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     @Override
     public RIBSupportContextRegistry getRibSupportContext() {
         return this.ribContextRegistry;
-    }
-
-    @Override
-    public void onGlobalContextUpdated(final SchemaContext context) {
-        this.codecsRegistry.onSchemaContextUpdated(context);
     }
 
     @Override

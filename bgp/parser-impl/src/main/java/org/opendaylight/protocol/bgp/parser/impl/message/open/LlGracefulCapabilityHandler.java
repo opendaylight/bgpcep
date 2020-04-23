@@ -14,6 +14,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
@@ -27,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.uint24.rev200104.Uint24;
@@ -111,13 +113,13 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
     }
 
     private ByteBuf serializeCapability(final LlGracefulRestartCapability cap) {
-        final List<Tables> tables = cap.getTables();
+        final Map<TablesKey, Tables> tables = cap.getTables();
         if (tables == null || tables.isEmpty()) {
             return Unpooled.EMPTY_BUFFER;
         }
 
         final ByteBuf buffer = Unpooled.buffer(PER_TABLE_SIZE * tables.size());
-        for (Tables table : tables) {
+        for (Tables table : tables.values()) {
             final Class<? extends AddressFamily> afi = table.getAfi();
             final Class<? extends SubsequentAddressFamily> safi = table.getSafi();
             final Integer afival = this.afiReg.numberForClass(afi);

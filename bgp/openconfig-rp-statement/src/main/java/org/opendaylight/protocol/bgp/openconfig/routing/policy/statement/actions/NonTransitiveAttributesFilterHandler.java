@@ -8,7 +8,10 @@
 
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
@@ -18,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.NonTransitiveAttributesFilter;
 
@@ -51,11 +55,13 @@ public final class NonTransitiveAttributesFilterHandler implements BgpActionAugP
                 .setAsPath(attributes.getAsPath())
                 .setCommunities(attributes.getCommunities());
 
-        final List<UnrecognizedAttributes> oldAtt = attributes.getUnrecognizedAttributes();
+        final Map<UnrecognizedAttributesKey, UnrecognizedAttributes> oldAtt = attributes.getUnrecognizedAttributes();
         if (oldAtt != null) {
-            builder.setUnrecognizedAttributes(attributes.getUnrecognizedAttributes().stream()
+            // TODO: consider using Maps.filterValues(attributes.getUnrecognizedAttributes(),
+            //                                        UnrecognizedAttributes::isTransitive)) ?
+            builder.setUnrecognizedAttributes(attributes.getUnrecognizedAttributes().values().stream()
                     .filter(UnrecognizedAttributes::isTransitive)
-                    .collect(Collectors.toList()));
+                    .collect(ImmutableMap.toImmutableMap(UnrecognizedAttributes::key, Function.identity())));
         }
         final List<ExtendedCommunities> oldExt = attributes.getExtendedCommunities();
         if (oldExt != null) {
