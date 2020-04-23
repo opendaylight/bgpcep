@@ -23,13 +23,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -40,7 +37,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -63,20 +59,16 @@ public class RibImplTest extends AbstractConfig {
 
     static {
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(true)
-                        .setSendMax(Uint8.ZERO).build()).build());
+                .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
+                .build());
     }
 
     @Mock
     private RIBExtensionConsumerContext extension;
     @Mock
-    private BindingCodecTreeFactory bindingCodecTreeFactory;
+    private CodecsRegistry codecsRegistry;
     @Mock
     private DOMDataBroker domDataBroker;
-    @Mock
-    private DOMSchemaService domSchemaService;
-    @Mock
-    private ListenerRegistration<?> dataTreeRegistration;
     @Mock
     private RIBSupport<?, ?, ?, ?> ribSupport;
     @Mock
@@ -87,7 +79,6 @@ public class RibImplTest extends AbstractConfig {
     public void setUp() throws Exception {
         super.setUp();
 
-        doReturn(mock(GeneratedClassLoadingStrategy.class)).when(this.extension).getClassLoadingStrategy();
         doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
         final NodeIdentifier nii = new NodeIdentifier(QName.create("", "test").intern());
         doReturn(nii).when(this.ribSupport).routeAttributesIdentifier();
@@ -102,8 +93,6 @@ public class RibImplTest extends AbstractConfig {
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
         doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
                 .when(this.domDataBroker).getExtensions();
-        doReturn(this.dataTreeRegistration).when(this.domSchemaService).registerSchemaContextListener(any());
-        doNothing().when(this.dataTreeRegistration).close();
         doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
                 .registerDataTreeChangeListener(any(), any());
         doNothing().when(this.serviceRegistration).unregister();
@@ -115,15 +104,12 @@ public class RibImplTest extends AbstractConfig {
                 this.extension,
                 this.dispatcher,
                 this.policyProvider,
-                this.bindingCodecTreeFactory,
+                this.codecsRegistry,
                 this.domDataBroker,
-                getDataBroker(),
-                this.domSchemaService);
+                getDataBroker());
         ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
-        verify(this.extension).getClassLoadingStrategy();
         verify(this.domDataBroker).getExtensions();
-        verify(this.domSchemaService).registerSchemaContextListener(any(RIBImpl.class));
         assertEquals("RIBImpl{bgpId=Ipv4Address{_value=127.0.0.1}, localTables=[BgpTableTypeImpl ["
                 + "getAfi()=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types."
                 + "rev200120.Ipv4AddressFamily, "
@@ -142,8 +128,6 @@ public class RibImplTest extends AbstractConfig {
         assertNotNull(ribImpl.getCodecsRegistry());
 
         ribImpl.close();
-        verify(this.dataTreeRegistration).close();
-        verify(this.dataTreeRegistration).close();
         verify(this.serviceRegistration).unregister();
     }
 
