@@ -9,13 +9,14 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.binding.runtime.api.ClassLoadingStrategy;
+import org.opendaylight.binding.runtime.spi.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -30,18 +31,26 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.model.parser.api.YangParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderContext {
-
     private static final Logger LOG = LoggerFactory.getLogger(SimpleRIBExtensionProviderContext.class);
 
     private final ConcurrentMap<TablesKey, RIBSupport<?, ?, ?, ?>> supports = new ConcurrentHashMap<>();
     private final ConcurrentMap<NodeIdentifierWithPredicates, RIBSupport<?, ?, ?, ?>> domSupports =
             new ConcurrentHashMap<>();
+    private final ModuleInfoBackedContext classLoadingStrategy;
 
-    private final ModuleInfoBackedContext classLoadingStrategy = ModuleInfoBackedContext.create();
+    @VisibleForTesting
+    SimpleRIBExtensionProviderContext() {
+        classLoadingStrategy = ModuleInfoBackedContext.create("bgp-rib-extension-provider");
+    }
+
+    public SimpleRIBExtensionProviderContext(final YangParserFactory parserFactory) {
+        classLoadingStrategy = ModuleInfoBackedContext.create("bgp-rib-extension-provider", parserFactory);
+    }
 
     @Override
     public <T extends RIBSupport<?, ?, ?, ?>> RIBSupportRegistration<T> registerRIBSupport(
@@ -53,9 +62,10 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
                 afi, safi, prev);
         this.domSupports.put(RibSupportUtils.toYangTablesKey(afi, safi), support);
         addClassLoadingSupport(afi, safi, support);
-        return new AbstractRIBSupportRegistration<T>(support) {
+        return new AbstractRIBSupportRegistration<>(support) {
             @Override
             protected void removeRegistration() {
+                // FIXME: clean up registrations, too
                 SimpleRIBExtensionProviderContext.this.supports.remove(key);
             }
         };
@@ -65,7 +75,8 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
         final Set<YangModuleInfo> moduleInfos = getModuleInfos(afi, safi, support.routesListClass(),
                 support.routesContainerClass(), support.routesCaseClass());
         if (!moduleInfos.isEmpty()) {
-            this.classLoadingStrategy.addModuleInfos(moduleInfos);
+            // FIXME: return registrations
+            this.classLoadingStrategy.registerModuleInfos(moduleInfos);
         }
     }
 
@@ -106,7 +117,7 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
     }
 
     @Override
-    public GeneratedClassLoadingStrategy getClassLoadingStrategy() {
+    public ClassLoadingStrategy getClassLoadingStrategy() {
         return this.classLoadingStrategy;
     }
 }

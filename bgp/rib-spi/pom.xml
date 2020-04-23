@@ -54,6 +54,10 @@
             <artifactId>mdsal-binding-spec-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-runtime-spi</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>concepts</artifactId>
         </dependency>
@@ -71,6 +75,10 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-parser-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
@@ -83,7 +91,11 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-generator-impl</artifactId>
+            <artifactId>mdsal-binding-runtime-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-dom-adapter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -103,7 +115,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-codec</artifactId>
+            <artifactId>mdsal-binding-dom-codec-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.checkerframework</groupId>
@@ -116,7 +128,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-adapter</artifactId>
+            <artifactId>mdsal-binding-test-utils</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
