@@ -8,6 +8,7 @@
 package org.opendaylight.graph;
 
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.Graph;
@@ -62,7 +63,7 @@ public interface ConnectedGraph {
      * @param key Unique Vertex Identifier
      * @return Vertex or null if there is no Vertex associated to the given key in this graph
      */
-    ConnectedVertex getConnectedVertex(Long key);
+    ConnectedVertex getConnectedVertex(@NonNull Long key);
 
     /**
      * Returns the Vertex associated to the given IP address.
@@ -111,7 +112,7 @@ public interface ConnectedGraph {
      * @param key Unique Edge Identifier
      * @return Edge or null if there is no Edge associated to the given key in this graph
      */
-    ConnectedEdge getConnectedEdge(Long key);
+    ConnectedEdge getConnectedEdge(@NonNull Long key);
 
     /**
      * Returns the Edge associated to the given IP address.

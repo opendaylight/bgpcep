@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import io.netty.buffer.Unpooled;
-import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,7 +45,7 @@ public class UnrecognizedAttributesTest {
     @Test
     public void testUnrecognizedAttributes() throws BGPDocumentedException, BGPParsingException {
         final byte[] attributeBytes = { (byte)0xe0, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 };
-        final List<UnrecognizedAttributes> unrecogAttribs = SIMPLE_ATTR_REG.parseAttributes(
+        final Map<UnrecognizedAttributesKey, UnrecognizedAttributes> unrecogAttribs = SIMPLE_ATTR_REG.parseAttributes(
             Unpooled.wrappedBuffer(attributeBytes), null).getAttributes().getUnrecognizedAttributes();
         assertEquals(UNRECOGNIZED_ATTRIBUTE_COUNT, unrecogAttribs.size());
         final UnrecognizedAttributes unrecogAttrib = unrecogAttribs.get(FIRST_ATTRIBUTE);

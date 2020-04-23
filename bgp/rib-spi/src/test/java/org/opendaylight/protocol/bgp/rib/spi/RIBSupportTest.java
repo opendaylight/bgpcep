@@ -25,9 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -94,7 +94,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap = new HashMap<>();
     private ContainerNode attributes;
     private MapEntryNode mapEntryNode;
-    private BindingToNormalizedNodeCodec mappingService;
+    private BindingNormalizedNodeSerializer mappingService;
 
     @Before
     public void setUp() throws Exception {
@@ -153,7 +153,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getBindingToNormalized();
+        this.mappingService = customizer.getAdapterContext().currentSerializer();
         return customizer;
     }
 
