@@ -22,10 +22,9 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
 public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerTest {
@@ -42,8 +41,7 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
     private WatchEvent<?> watchEvent;
     @Mock
     private FileWatcher fileWatcher;
-    protected BindingToNormalizedNodeCodec mappingService;
-    protected BindingCodecTreeFactory bindingCodecTreeFactory;
+    protected AdapterContext mappingService;
     protected DOMSchemaService schemaService;
 
     public AbstractConfigLoader() {
@@ -65,15 +63,15 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
             clearEvent();
             return null;
         }).when(this.processor).loadConfiguration(any());
-        this.configLoader = new ConfigLoaderImpl(getSchemaContext(), this.mappingService, this.fileWatcher);
+        this.configLoader = new ConfigLoaderImpl(getSchemaContext(), this.mappingService.currentSerializer(),
+            this.fileWatcher);
         this.configLoader.init();
     }
 
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getBindingToNormalized();
-        this.bindingCodecTreeFactory = customizer.getBindingToNormalized();
+        this.mappingService = customizer.getAdapterContext();
         this.schemaService = customizer.getSchemaService();
         return customizer;
     }
