@@ -13,7 +13,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,7 +77,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     private RIBImpl ribImpl;
     private ServiceRegistration<?> serviceRegistration;
     private ListenerRegistration<SchemaContextListener> schemaContextRegistration;
-    private List<AfiSafi> afiSafi;
+    private Collection<AfiSafi> afiSafi;
     private AsNumber asNumber;
     private Ipv4AddressNoZone routerId;
 
@@ -110,7 +110,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     }
 
     Boolean isGlobalEqual(final Global global) {
-        final List<AfiSafi> globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
+        final Collection<AfiSafi> globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
         final Config globalConfig = global.getConfig();
         final AsNumber globalAs = globalConfig.getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
@@ -246,7 +246,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
             final Global global,
             final String bgpInstanceName,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true);
+        this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
         final Config globalConfig = global.getConfig();
         this.asNumber = globalConfig.getAs();
         this.routerId = IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(globalConfig.getRouterId());

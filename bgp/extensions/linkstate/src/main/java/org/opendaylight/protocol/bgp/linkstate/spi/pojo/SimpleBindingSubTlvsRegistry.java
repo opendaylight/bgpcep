@@ -31,7 +31,6 @@ public final class SimpleBindingSubTlvsRegistry {
     private SimpleBindingSubTlvsRegistry() {
     }
 
-
     public static SimpleBindingSubTlvsRegistry getInstance() {
         return SINGLETON;
     }
@@ -46,15 +45,17 @@ public final class SimpleBindingSubTlvsRegistry {
     }
 
     public void serializeBindingSubTlvs(final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
-        for (final BindingSubTlvs subTlv : bindingSubTlvs) {
-            final BindingSubTlv bindingSubTlv = subTlv.getBindingSubTlv();
-            final BindingSubTlvsSerializer serializer = this.handlers.getSerializer(
-                bindingSubTlv.implementedInterface());
-            if (serializer == null) {
-                LOG.info("Unknown binding sub Tlv type {}", subTlv);
-                return;
+        if (bindingSubTlvs != null) {
+            for (final BindingSubTlvs subTlv : bindingSubTlvs) {
+                final BindingSubTlv bindingSubTlv = subTlv.getBindingSubTlv();
+                final BindingSubTlvsSerializer serializer = this.handlers.getSerializer(
+                    bindingSubTlv.implementedInterface());
+                if (serializer == null) {
+                    LOG.info("Unknown binding sub Tlv type {}", subTlv);
+                    return;
+                }
+                serializer.serializeSubTlv(bindingSubTlv, aggregator);
             }
-            serializer.serializeSubTlv(bindingSubTlv, aggregator);
         }
     }
 

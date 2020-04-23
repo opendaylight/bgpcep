@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static com.google.common.base.Preconditions.checkState;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,7 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
@@ -79,7 +82,7 @@ final class OpenConfigMappingUtil {
     static final Optional<String> APPLICATION_PEER_GROUP_NAME_OPT = Optional.of(APPLICATION_PEER_GROUP_NAME);
     static final int HOLDTIMER = 90;
     private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
-    private static final List<AfiSafi> DEFAULT_AFISAFI = ImmutableList.of(IPV4_AFISAFI);
+    private static final Map<AfiSafiKey, AfiSafi> DEFAULT_AFISAFI = ImmutableMap.of(IPV4_AFISAFI.key(), IPV4_AFISAFI);
     private static final int CONNECT_RETRY = 30;
     private static final PortNumber PORT = new PortNumber(Uint16.valueOf(179).intern());
 
@@ -125,21 +128,17 @@ final class OpenConfigMappingUtil {
     }
 
     //make sure IPv4 Unicast (RFC 4271) when required
-    static List<AfiSafi> getAfiSafiWithDefault(
+    static Map<AfiSafiKey, AfiSafi> getAfiSafiWithDefault(
             final BgpCommonAfiSafiList afiSAfis, final boolean setDeafultIPv4) {
         if (afiSAfis == null || afiSAfis.getAfiSafi() == null) {
-            return setDeafultIPv4 ? DEFAULT_AFISAFI : Collections.emptyList();
+            return setDeafultIPv4 ? DEFAULT_AFISAFI : Collections.emptyMap();
         }
-        final List<AfiSafi> afiSafi = afiSAfis.getAfiSafi();
-        if (setDeafultIPv4) {
-            final boolean anyMatch = afiSafi.stream()
-                    .anyMatch(input -> input.getAfiSafiName().equals(IPV4UNICAST.class));
-            if (!anyMatch) {
-                final List<AfiSafi> newAfiSafi = new ArrayList<>(afiSafi.size() + 1);
-                newAfiSafi.addAll(afiSafi);
-                newAfiSafi.add(IPV4_AFISAFI);
-                return newAfiSafi;
-            }
+        final Map<AfiSafiKey, AfiSafi> afiSafi = afiSAfis.nonnullAfiSafi();
+        if (setDeafultIPv4 && !afiSafi.containsKey(IPV4UNICAST.class)) {
+            final Map<AfiSafiKey, AfiSafi> newAfiSafi = Maps.newHashMapWithExpectedSize(afiSafi.size() + 1);
+            newAfiSafi.putAll(afiSafi);
+            newAfiSafi.put(IPV4_AFISAFI.key(), IPV4_AFISAFI);
+            return newAfiSafi;
         }
         return afiSafi;
     }
@@ -181,7 +180,7 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final List<AfiSafi> afiSafis,
+    static Map<BgpTableType, PathSelectionMode> toPathSelectionMode(final Collection<AfiSafi> afiSafis,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final Map<BgpTableType, PathSelectionMode> pathSelectionModes = new HashMap<>();
         for (final AfiSafi afiSafi : afiSafis) {
@@ -216,7 +215,7 @@ final class OpenConfigMappingUtil {
         return false;
     }
 
-    static List<AddressFamilies> toAddPathCapability(final List<AfiSafi> afiSafis,
+    static List<AddressFamilies> toAddPathCapability(final Collection<AfiSafi> afiSafis,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<AddressFamilies> addPathCapability = new ArrayList<>();
         for (final AfiSafi afiSafi : afiSafis) {
@@ -249,7 +248,7 @@ final class OpenConfigMappingUtil {
         return false;
     }
 
-    static List<BgpTableType> toTableTypes(final List<AfiSafi> afiSafis,
+    static List<BgpTableType> toTableTypes(final Collection<AfiSafi> afiSafis,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         return afiSafis.stream()
                 .map(afiSafi -> tableTypeRegistry.getTableType(afiSafi.getAfiSafiName()))
@@ -258,9 +257,9 @@ final class OpenConfigMappingUtil {
                 .collect(Collectors.toList());
     }
 
-    static Set<TablesKey> toTableKey(final List<AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer
+    static Set<TablesKey> toTableKey(final Map<AfiSafiKey, AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer
             tableTypeRegistry) {
-        return afiSafis.stream()
+        return afiSafis.values().stream()
                 .map(afiSafi -> tableTypeRegistry.getTableKey(afiSafi.getAfiSafiName()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)

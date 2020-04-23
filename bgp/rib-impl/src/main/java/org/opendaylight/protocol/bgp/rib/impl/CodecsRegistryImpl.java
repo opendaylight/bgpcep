@@ -13,10 +13,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.opendaylight.binding.runtime.api.BindingRuntimeContext;
+import org.opendaylight.binding.runtime.api.ClassLoadingStrategy;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -36,17 +36,16 @@ public final class CodecsRegistryImpl implements CodecsRegistry {
             }
         });
     private final BindingCodecTreeFactory codecFactory;
-    private final GeneratedClassLoadingStrategy classContext;
+    private final ClassLoadingStrategy classContext;
     private volatile BindingCodecTree latestCodecTree;
 
-    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory,
-            final GeneratedClassLoadingStrategy strategy) {
+    private CodecsRegistryImpl(final BindingCodecTreeFactory codecFactory, final ClassLoadingStrategy strategy) {
         this.codecFactory = requireNonNull(codecFactory);
         this.classContext = requireNonNull(strategy);
     }
 
     public static CodecsRegistryImpl create(final BindingCodecTreeFactory codecFactory,
-            final GeneratedClassLoadingStrategy classStrategy) {
+            final ClassLoadingStrategy classStrategy) {
         return new CodecsRegistryImpl(codecFactory, classStrategy);
     }
 

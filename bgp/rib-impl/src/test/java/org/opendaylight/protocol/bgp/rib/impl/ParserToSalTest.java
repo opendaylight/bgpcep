@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -32,7 +32,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.binding.runtime.spi.GeneratedClassLoadingStrategy;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -158,12 +158,12 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     private void assertTablesExists(final List<BgpTableType> expectedTables) throws InterruptedException,
             ExecutionException {
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
-            final List<Tables> tables = bgpRib.getRib().get(0).getLocRib().getTables();
-            assertFalse(tables.isEmpty());
+            final var tables = bgpRib.getRib().values().iterator().next().getLocRib().getTables();
+            assertNotNull(tables);
 
             for (final BgpTableType tableType : expectedTables) {
                 boolean found = false;
-                for (final Tables table : tables) {
+                for (final Tables table : tables.values()) {
                     if (table.getAfi().equals(tableType.getAfi()) && table.getSafi().equals(tableType.getSafi())) {
                         found = true;
                         assertEquals(Boolean.TRUE, table.getAttributes().isUptodate());

@@ -125,7 +125,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = LinkstateRIBSupport.getInstance(this.mappingService);
+        this.ribSupport = LinkstateRIBSupport.getInstance(this.adapter.currentSerializer());
         setUpTestCustomizer(ribSupport);
     }
 

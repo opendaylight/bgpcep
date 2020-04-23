@@ -46,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
@@ -108,10 +107,10 @@ public class GracefulRestartUtilTest {
         assertNotNull(gracefulCapability);
         assertTrue(gracefulCapability.getRestartFlags().isRestartState());
         assertEquals(RESTART_TIME, gracefulCapability.getRestartTime().intValue());
-        final List<Tables> tables = gracefulCapability.getTables();
+        final var tables = gracefulCapability.getTables();
         assertNotNull(tables);
         assertEquals(2, tables.size());
-        tables.forEach(table -> {
+        tables.values().forEach(table -> {
             assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()
                 || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState());
         });
@@ -172,12 +171,11 @@ public class GracefulRestartUtilTest {
         assertNotNull(params);
         final LlGracefulRestartCapability llGracefulCapability = params.getLlGracefulRestartCapability();
         assertNotNull(llGracefulCapability);
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
-                .capabilities.ll.graceful.restart.capability.Tables> tables = llGracefulCapability.getTables();
+        final var tables = llGracefulCapability.getTables();
         assertNotNull(tables);
         assertEquals(2, tables.size());
         assertEquals(STALE_TIME, tables.get(0).getLongLivedStaleTime().getValue().intValue());
-        tables.forEach(table -> {
+        tables.values().forEach(table -> {
             assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()
                 || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState());
         });
