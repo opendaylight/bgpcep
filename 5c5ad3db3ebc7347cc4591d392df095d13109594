@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "34563c0a_585783fb",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8681
+      },
+      "writtenOn": "2020-04-23T10:45:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "098734df_1cf6d746",
+      "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "088b7d09_e4c317e3",
         "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2020-04-23T10:35:55Z",
       "side": 1,
       "message": "Remove an Empty lines here. Keep only one line between the bullets.",
+      "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "911bd061_4e70a135",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8681
+      },
+      "writtenOn": "2020-04-23T10:45:35Z",
+      "side": 1,
+      "message": "There is only one line in between here",
+      "parentUuid": "088b7d09_e4c317e3",
       "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "eb6bee7f_b3294fea",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 8681
+      },
+      "writtenOn": "2020-04-23T10:45:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "833a3b02_04ca7be3",
+      "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f9923a4_fbe76b7d",
         "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2020-04-23T10:35:55Z",
       "side": 1,
       "message": "Remove 2 Empty lines here. Keep only one line between the bullets",
+      "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ee5d3a3_be81d5c2",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8681
+      },
+      "writtenOn": "2020-04-23T10:45:35Z",
+      "side": 1,
+      "message": "There is only one line in between here",
+      "parentUuid": "8f9923a4_fbe76b7d",
       "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
