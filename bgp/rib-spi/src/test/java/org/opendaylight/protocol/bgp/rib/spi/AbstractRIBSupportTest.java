@@ -124,7 +124,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getBindingToNormalized();
+        this.mappingService = customizer.getAdapterContext().currentSerializer();
         return customizer;
     }
 

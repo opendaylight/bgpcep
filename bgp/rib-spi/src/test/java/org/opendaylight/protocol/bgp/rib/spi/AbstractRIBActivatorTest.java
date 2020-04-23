@@ -17,7 +17,7 @@ public abstract class AbstractRIBActivatorTest extends AbstractConcurrentDataBro
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getBindingToNormalized();
+        this.mappingService = customizer.getAdapterContext().currentSerializer();
         return customizer;
     }
 }
