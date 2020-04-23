@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf947401_3879d74c",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-23T18:11:13Z",
+      "side": 1,
+      "message": "I think this parameter should be under global, not bgp.",
+      "revId": "5b8e3de29fb36f3f080d0182c7194c8561d8b25f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2ca50f8_07a8d276",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-23T18:11:13Z",
+      "side": 1,
+      "message": "I think you miss some indent here",
+      "revId": "5b8e3de29fb36f3f080d0182c7194c8561d8b25f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
