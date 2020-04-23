@@ -16,7 +16,7 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createP
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TriggerSyncInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -98,7 +99,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
 
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            final List<?> lsp = pcc.getReportedLsp();
+            final Map<?, ?> lsp = pcc.getReportedLsp();
             assertNotNull(lsp);
             assertEquals(1, lsp.size());
             return pcc;
@@ -130,7 +131,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
-            final List<ReportedLsp> reportedLspPcc = pcc.getReportedLsp();
+            final Map<ReportedLspKey, ReportedLsp> reportedLspPcc = pcc.getReportedLsp();
             assertFalse(reportedLspPcc.isEmpty());
             return pcc;
         });

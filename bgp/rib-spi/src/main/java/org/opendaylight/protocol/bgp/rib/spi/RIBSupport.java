@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -320,5 +321,5 @@ public interface RIBSupport<
      * @param routes Table route choice
      * @return A potentially empty list of routes
      */
-    @NonNull List<R> extractAdjRibInRoutes(Routes routes);
+    @NonNull Map<I, R> extractAdjRibInRoutes(Routes routes);
 }

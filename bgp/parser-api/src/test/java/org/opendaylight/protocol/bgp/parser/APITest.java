@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
@@ -61,9 +60,13 @@ public class APITest {
     public void testAsNumberUtil() {
         final List<BgpParameters> params = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
-                        new MultiprotocolCapabilityBuilder().build()).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder()
+            .setCParameters(new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().build())
+                    .build())
+                .build())
+            .build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(
                 new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
                         new AsNumber(Uint32.valueOf(35))).build()).build()).build());
@@ -79,10 +82,13 @@ public class APITest {
     public void testBgpExtendedMessageUtil() {
         final List<BgpParameters> params = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-                CParameters1.class, new CParameters1Builder()
-                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                                .build()).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder()
+            .setCParameters(new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().build())
+                    .build())
+                .build())
+            .build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(
                 BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         params.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());

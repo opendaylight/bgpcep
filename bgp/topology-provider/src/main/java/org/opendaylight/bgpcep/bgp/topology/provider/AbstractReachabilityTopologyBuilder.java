@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -172,8 +171,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         if (present.useCount == 0) {
             final IgpNodeAttributes attrs = read(trans, present.attrId);
             if (attrs != null) {
-                final List<Prefix> prefix = attrs.getPrefix();
-                present.useCount = prefix == null ? 0 : prefix.size();
+                present.useCount = attrs.nonnullPrefix().size();
             } else {
                 present.useCount = 0;
             }

@@ -11,6 +11,7 @@ import com.google.common.io.BaseEncoding;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.IsisAreaIdentifier;
@@ -238,7 +239,7 @@ public final class ProtocolUtil {
                 tb.setTeDefaultMetric(la.getTeMetric().getValue());
             }
             if (la.getUnreservedBandwidth() != null) {
-                tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
+                tb.setUnreservedBandwidth(unreservedBandwidthList(la.nonnullUnreservedBandwidth().values()));
             }
             if (la.getMaxLinkBandwidth() != null) {
                 tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
@@ -281,7 +282,7 @@ public final class ProtocolUtil {
                 tb.setTeDefaultMetric(la.getTeMetric().getValue());
             }
             if (la.getUnreservedBandwidth() != null) {
-                tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
+                tb.setUnreservedBandwidth(unreservedBandwidthList(la.nonnullUnreservedBandwidth().values()));
             }
             if (la.getMaxLinkBandwidth() != null) {
                 tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
@@ -317,7 +318,7 @@ public final class ProtocolUtil {
     }
 
     private static List<UnreservedBandwidth> unreservedBandwidthList(
-            final List<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            final Collection<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .bgp.linkstate.rev200120.UnreservedBandwidth> input) {
         final List<UnreservedBandwidth> ret = new ArrayList<>(input.size());
 

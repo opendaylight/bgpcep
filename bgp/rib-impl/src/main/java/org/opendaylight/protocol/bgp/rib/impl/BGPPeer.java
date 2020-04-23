@@ -361,12 +361,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         final GracefulRestartCapability advertisedGracefulRestartCapability =
                 session.getAdvertisedGracefulRestartCapability();
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
-                .capabilities.graceful.restart.capability.Tables> advertisedTables =
-                    advertisedGracefulRestartCapability.getTables();
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
-                .capabilities.ll.graceful.restart.capability.Tables> advertisedLLTables =
-                    session.getAdvertisedLlGracefulRestartCapability().getTables();
+        final var advertisedTables = advertisedGracefulRestartCapability.getTables();
+        final var advertisedLLTables = session.getAdvertisedLlGracefulRestartCapability().getTables();
 
         final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
         final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
@@ -405,7 +401,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             if (advertisedTables == null) {
                 forwardingTables = Collections.emptySet();
             } else {
-                forwardingTables = advertisedTables.stream()
+                forwardingTables = advertisedTables.values().stream()
                         .filter(table -> table.getAfiFlags() != null)
                         .filter(table -> table.getAfiFlags().isForwardingState())
                         .map(table -> new TablesKey(table.getAfi(), table.getSafi()))
@@ -422,7 +418,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (advertisedTables == null || advertisedTables.isEmpty()) {
             setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
         } else {
-            setAdvertizedGracefulRestartTableTypes(advertisedTables.stream()
+            setAdvertizedGracefulRestartTableTypes(advertisedTables.values().stream()
                     .map(t -> new TablesKey(t.getAfi(), t.getSafi())).collect(Collectors.toList()));
         }
         setAfiSafiGracefulRestartState(advertisedGracefulRestartCapability.getRestartTime().toJava(), false,
@@ -431,8 +427,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final Map<TablesKey, Integer> llTablesReceived;
         if (advertisedLLTables != null) {
             llTablesReceived = new HashMap<>();
-            for (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp
-                    .capabilities.ll.graceful.restart.capability.Tables table : advertisedLLTables) {
+            for (var table : advertisedLLTables.values()) {
                 llTablesReceived.put(new TablesKey(table.getAfi(), table.getSafi()),
                     table.getLongLivedStaleTime().getValue().intValue());
             }

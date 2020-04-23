@@ -31,12 +31,7 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
+import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
@@ -53,7 +48,6 @@ import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -86,7 +80,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
@@ -97,9 +90,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
     private RIBImpl rib;
-    private BindingCodecTreeFactory codecFactory;
     private RIBActivator a1;
-    private RIBSupport<?, ?, ?, ?> ribSupport;
     @Mock
     private BGPDispatcher dispatcher;
 
@@ -127,12 +118,6 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
 
-    private static ModuleInfoBackedContext createClassLoadingStrategy() throws Exception {
-        final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
-        ctx.registerModuleInfo(BindingReflections.getModuleInfo(Ipv4Route.class));
-        return ctx;
-    }
-
     @Override
     @Before
     public void setUp() throws Exception {
@@ -142,29 +127,21 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
     public void mockRib() throws Exception {
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
-        final ModuleInfoBackedContext strategy = createClassLoadingStrategy();
-        final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
-        this.codecFactory = new BindingNormalizedNodeCodecRegistry(
-            BindingRuntimeContext.create(strategy, schemaContext));
         final List<BgpTableType> localTables = new ArrayList<>();
         localTables.add(new BgpTableTypeImpl(IPV4_AFI, SAFI));
         localTables.add(new BgpTableTypeImpl(IPV6_AFI, SAFI));
 
+        final CurrentAdapterSerializer serializer = mappingService.currentSerializer();
         this.a1 = new RIBActivator();
-        this.a1.startRIBExtensionProvider(context, this.mappingService);
-
-        final CodecsRegistryImpl codecsRegistry = CodecsRegistryImpl.create(this.codecFactory,
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        this.a1.startRIBExtensionProvider(context, serializer);
 
         mockedMethods();
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         this.rib = new RIBImpl(this.tableRegistry, new RibId("test"), new AsNumber(Uint32.valueOf(5)), RIB_ID, context,
-                this.dispatcher, codecsRegistry, this.dom, getDataBroker(), this.policies,
+                this.dispatcher, new ConstantCodecsRegistry(serializer), this.dom, getDataBroker(), this.policies,
                 localTables, Collections.singletonMap(KEY,
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
-        this.rib.onGlobalContextUpdated(schemaContext);
-        this.ribSupport = getRib().getRibSupportContext().getRIBSupport(KEY);
     }
 
     @SuppressWarnings("unchecked")
@@ -194,8 +171,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(Optional.empty()).when(this.future).get();
         doReturn(this.future).when(this.domTransWrite).commit();
         doNothing().when(this.future).addListener(any(Runnable.class), any(Executor.class));
-        doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
-                any(InstanceIdentifier.class), any(DataObject.class), eq(true));
+        doNothing().when(this.transWrite).mergeParentStructurePut(eq(LogicalDatastoreType.OPERATIONAL),
+                any(InstanceIdentifier.class), any(DataObject.class));
         doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(InstanceIdentifier.class), any(DataObject.class));
         doReturn(this.future).when(this.transWrite).commit();

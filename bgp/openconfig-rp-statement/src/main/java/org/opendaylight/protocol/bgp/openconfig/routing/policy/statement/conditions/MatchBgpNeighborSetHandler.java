@@ -72,7 +72,7 @@ public final class MatchBgpNeighborSetHandler
         if (!result.isPresent()) {
             return Collections.emptyList();
         }
-        return result.get().getNeighbor().stream()
+        return result.get().getNeighbor().values().stream()
                 .map(nei -> RouterIds.createPeerId(nei.getAddress()))
                 .collect(Collectors.toList());
     }

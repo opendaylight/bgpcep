@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -62,13 +61,4 @@ public interface RIBExtensionConsumerContext {
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
         R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>> @Nullable RIBSupport<C, S, R, I>
             getRIBSupport(@NonNull NodeIdentifierWithPredicates key);
-
-
-    /**
-     * Returns class loading strategy for loading YANG modeled classes
-     * associated with registered RIB supports.
-     *
-     * @return Class loading strategy for loading YANG modeled classes.
-     */
-    @NonNull GeneratedClassLoadingStrategy getClassLoadingStrategy();
 }
