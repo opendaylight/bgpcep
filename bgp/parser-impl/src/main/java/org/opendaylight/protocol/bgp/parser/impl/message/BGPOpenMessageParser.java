@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -189,8 +190,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
                     BGPError.VERSION_NOT_SUPPORTED);
         }
         final AsNumber as = new AsNumber(Uint32.valueOf(body.readUnsignedShort()));
-        final int holdTime = body.readUnsignedShort();
-        if (holdTime == 1 || holdTime == 2) {
+        final Uint16 holdTime = ByteBufUtils.readUint16(body);
+        if (Uint16.ONE.equals(holdTime) || Uint16.TWO.equals(holdTime)) {
             throw new BGPDocumentedException("Hold time value not acceptable.", BGPError.HOLD_TIME_NOT_ACC);
         }
         final Ipv4AddressNoZone bgpId;

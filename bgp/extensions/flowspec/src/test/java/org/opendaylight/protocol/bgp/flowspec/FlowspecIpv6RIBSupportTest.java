@@ -88,7 +88,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
         this.route = new FlowspecRouteBuilder().withKey(this.routeKey).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
                 .setAttributes(new AttributesBuilder().build()).build();
         this.routes = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Collections.singletonList(this.route)).build();
-        this.ribSupport = FlowspecIpv6RIBSupport.getInstance(fsContext, this.mappingService);
+        this.ribSupport = FlowspecIpv6RIBSupport.getInstance(fsContext, this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

@@ -11,11 +11,9 @@ import static java.util.Objects.requireNonNull;
 
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public final class BmpDeployerDependencies {
     private final DataBroker dataBroker;
@@ -25,12 +23,12 @@ public final class BmpDeployerDependencies {
     private final ClusterSingletonServiceProvider singletonProvider;
 
     public BmpDeployerDependencies(final DataBroker dataBroker, final DOMDataBroker domDataBroker,
-            final RIBExtensionConsumerContext extensions, final BindingCodecTreeFactory codecTreeFactory,
-            final SchemaContext schemaContext, final ClusterSingletonServiceProvider singletonProvider) {
+            final RIBExtensionConsumerContext extensions, final BindingCodecTree codecTree,
+            final ClusterSingletonServiceProvider singletonProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.domDataBroker = requireNonNull(domDataBroker);
         this.extensions = requireNonNull(extensions);
-        this.tree = requireNonNull(codecTreeFactory).create(schemaContext);
+        this.tree = requireNonNull(codecTree);
         this.singletonProvider = requireNonNull(singletonProvider);
     }
 

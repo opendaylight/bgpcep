@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -94,13 +94,13 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap = new HashMap<>();
     private ContainerNode attributes;
     private MapEntryNode mapEntryNode;
-    private BindingToNormalizedNodeCodec mappingService;
+    private AdapterContext context;
 
     @Before
     public void setUp() throws Exception {
         super.setup();
         MockitoAnnotations.initMocks(this);
-        this.ribSupportTestImp = new RIBSupportTestImp(this.mappingService);
+        this.ribSupportTestImp = new RIBSupportTestImp(context.currentSerializer());
         this.emptyTree = Mockito.mock(DataTreeCandidateNode.class);
         this.emptySubTree = Mockito.mock(DataTreeCandidateNode.class);
         this.subTree = Mockito.mock(DataTreeCandidateNode.class);
@@ -153,7 +153,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getBindingToNormalized();
+        this.context = customizer.getAdapterContext();
         return customizer;
     }
 

@@ -14,6 +14,7 @@ import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 import com.google.common.collect.Lists;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +50,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLspKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -74,14 +78,18 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         this.listener.onMessage(this.session, pcRptMsg);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check sr-path
-            final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
+            final Map<ReportedLspKey, ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
             assertEquals(1, reportedLsps.size());
-            final ReportedLsp lsp = reportedLsps.get(0);
+            final ReportedLsp lsp = reportedLsps.values().iterator().next();
             assertEquals("sr-path1", lsp.getName());
-            assertEquals(1, lsp.getPath().get(0).augmentation(Path1.class).getPathSetupType()
-                .getPst().intValue());
-            final List<Subobject> subobjects = lsp.getPath().get(0).getEro().getSubobject();
+
+            final Map<PathKey, Path> paths = lsp.getPath();
+            assertNotNull(paths);
+            final Path path = paths.values().iterator().next();
+
+            assertEquals(1, path.augmentation(Path1.class).getPathSetupType().getPst().intValue());
+            final List<Subobject> subobjects = path.getEro().nonnullSubobject();
             assertEquals(1, subobjects.size());
             assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType())
                 .getNai()).getIpAddress().getIpv4AddressNoZone().getValue());
@@ -92,7 +100,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         this.listener.onMessage(this.session, pcRptMsg);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check second lsp sr-path
-            final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
+            final Map<ReportedLspKey, ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
             assertEquals(2, reportedLsps.size());
             return pcc;
@@ -103,12 +111,13 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         this.listener.onMessage(this.session, pcRptMsg);
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             //check updated sr-path
-            final List<ReportedLsp> reportedLsps = pcc.getReportedLsp();
+            final Map<ReportedLspKey, ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
             assertEquals(2, reportedLsps.size());
-            for (final ReportedLsp rlsp : reportedLsps) {
+            for (final ReportedLsp rlsp : reportedLsps.values()) {
                 if (rlsp.getName().equals("sr-path1")) {
-                    final List<Subobject> subobjects = rlsp.getPath().get(0).getEro().getSubobject();
+                    final List<Subobject> subobjects = rlsp.nonnullPath().values().iterator().next()
+                            .getEro().nonnullSubobject();
                     assertEquals(1, subobjects.size());
                     assertEquals("1.1.1.2", ((IpNodeId)((SrEroType)subobjects.get(0)
                         .getSubobjectType()).getNai()).getIpAddress().getIpv4AddressNoZone().getValue());

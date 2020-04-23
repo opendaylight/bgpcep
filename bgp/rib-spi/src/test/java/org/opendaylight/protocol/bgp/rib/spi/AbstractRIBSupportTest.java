@@ -14,15 +14,16 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.mockito.Mock;
+import org.opendaylight.binding.runtime.spi.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -85,18 +86,16 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     protected List<InstanceIdentifier<R>> deletedRoutes;
     protected List<Map.Entry<InstanceIdentifier<?>, DataObject>> insertedRoutes;
 
-    protected BindingNormalizedNodeSerializer mappingService;
+    protected AdapterContext adapter;
     private AbstractRIBSupport<C, S, R, I> abstractRIBSupport;
     private ModuleInfoBackedContext moduleInfoBackedContext;
 
     protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R, I> ribSupport) throws Exception {
         this.abstractRIBSupport = ribSupport;
-        this.moduleInfoBackedContext
-                .registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesContainerClass()));
-        this.moduleInfoBackedContext
-                .registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesCaseClass()));
-        this.moduleInfoBackedContext
-                .registerModuleInfo(BindingReflections.getModuleInfo(this.abstractRIBSupport.routesListClass()));
+        this.moduleInfoBackedContext.registerModuleInfos(Arrays.asList(
+            BindingReflections.getModuleInfo(this.abstractRIBSupport.routesContainerClass()),
+            BindingReflections.getModuleInfo(this.abstractRIBSupport.routesCaseClass()),
+            BindingReflections.getModuleInfo(this.abstractRIBSupport.routesListClass())));
     }
 
     @Before
@@ -104,7 +103,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         initMocks(this);
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            AbstractRIBSupportTest.this.insertedRoutes.add(AbstractRIBSupportTest.this.mappingService
+            AbstractRIBSupportTest.this.insertedRoutes.add(adapter.currentSerializer()
                     .fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
             return args[1];
         }).when(this.tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
@@ -113,7 +112,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             AbstractRIBSupportTest.this.deletedRoutes.add((InstanceIdentifier)
-                    this.mappingService.fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
+                adapter.currentSerializer().fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
             return args[1];
         }).when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         this.deletedRoutes = new ArrayList<>();
@@ -124,14 +123,14 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getBindingToNormalized();
+        this.adapter = customizer.getAdapterContext();
         return customizer;
     }
 
     protected final ContainerNode createNlriWithDrawnRoute(final DestinationType destUnreach) {
         final MpUnreachNlri mpReach = new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder()
                 .setDestinationType(destUnreach).build()).build();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.mappingService
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.adapter.currentSerializer()
                 .toNormalizedNode(MP_UNREACH_IID, mpReach);
         return (ContainerNode) result.getValue();
     }
@@ -139,33 +138,33 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     protected final ContainerNode createNlriAdvertiseRoute(final DestinationType destReach) {
         final MpReachNlri mpReach = new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder()
                 .setDestinationType(destReach).build()).build();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.mappingService
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.adapter.currentSerializer()
                 .toNormalizedNode(MP_REACH_IID, mpReach);
         return (ContainerNode) result.getValue();
     }
 
     protected final ContainerNode createAttributes() {
-        return (ContainerNode) this.mappingService.toNormalizedNode(ATTRIBUTES_IID, ATTRIBUTES).getValue();
+        return (ContainerNode) this.adapter.currentSerializer().toNormalizedNode(ATTRIBUTES_IID, ATTRIBUTES).getValue();
     }
 
     protected final MapEntryNode createEmptyTable() {
         final Tables tables = new TablesBuilder().withKey(getTablesKey())
             .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
                 .rib.tables.AttributesBuilder().build()).build();
-        return (MapEntryNode) this.mappingService.toNormalizedNode(tablesIId(), tables).getValue();
+        return (MapEntryNode) this.adapter.currentSerializer().toNormalizedNode(tablesIId(), tables).getValue();
     }
 
     protected final ChoiceNode createRoutes(final Routes routes) {
         final Tables tables = new TablesBuilder().withKey(getTablesKey()).setRoutes(routes).build();
-        return (ChoiceNode) ((MapEntryNode) this.mappingService.toNormalizedNode(tablesIId(), tables).getValue())
-            .getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
+        return (ChoiceNode) ((MapEntryNode) this.adapter.currentSerializer().toNormalizedNode(tablesIId(), tables)
+                .getValue()).getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
     }
 
     protected final Collection<MapEntryNode> createRoutes(final S routes) {
         Preconditions.checkArgument(routes.implementedInterface()
                 .equals(this.abstractRIBSupport.routesContainerClass()));
         final InstanceIdentifier<S> routesIId = routesIId();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.mappingService
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.adapter.currentSerializer()
                 .toNormalizedNode(routesIId, routes);
         final ContainerNode container = (ContainerNode) normalizedNode.getValue();
         final NodeIdentifier routeNid = new NodeIdentifier(getRouteListQname());
@@ -187,12 +186,12 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     protected final YangInstanceIdentifier getTablePath() {
         final InstanceIdentifier<Tables> tables = tablesIId();
-        return this.mappingService.toYangInstanceIdentifier(tables);
+        return this.adapter.currentSerializer().toYangInstanceIdentifier(tables);
     }
 
     protected final YangInstanceIdentifier getRoutePath() {
         final InstanceIdentifier<S> routesIId = routesIId();
-        return this.mappingService.toYangInstanceIdentifier(routesIId).node(getRouteListQname());
+        return this.adapter.currentSerializer().toYangInstanceIdentifier(routesIId).node(getRouteListQname());
     }
 
     private QName getRouteListQname() {

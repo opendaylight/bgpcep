@@ -33,19 +33,18 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
-import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -115,7 +114,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         .create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
     private static final PeerId PEER_ID = new PeerId(PEER1.getValue());
     private static final InstanceIdentifier<BmpMonitor> BMP_II = InstanceIdentifier.create(BmpMonitor.class);
-    private BindingToNormalizedNodeCodec mappingService;
+    private AdapterContext mappingService;
     private RIBActivator ribActivator;
     private BGPActivator bgpActivator;
     private BmpActivator bmpActivator;
@@ -133,7 +132,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private ClusterSingletonServiceProvider clusterSSProv;
     @Mock
     private ClusterSingletonServiceProvider clusterSSProv2;
-    private DOMSchemaService schemaService;
 
     @Before
     public void setUp() throws Exception {
@@ -159,10 +157,9 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         doAnswer(invocationOnMock -> BmpMonitorImplTest.this.singletonService2.closeServiceInstance())
             .when(this.singletonServiceRegistration2).close();
 
-        this.mappingService.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         this.ribActivator = new RIBActivator();
         this.ribExtension = new SimpleRIBExtensionProviderContext();
-        this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService);
+        this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService.currentSerializer());
 
         this.bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
@@ -186,16 +183,15 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         wTx.commit().get();
 
         final BmpDeployerDependencies bmpDependecies = new BmpDeployerDependencies(getDataBroker(), getDomBroker(),
-            this.ribExtension, this.mappingService.getCodecFactory(), this.schemaService.getGlobalContext(),
-            this.clusterSSProv);
+            this.ribExtension, this.mappingService.currentSerializer(), this.clusterSSProv);
         this.bmpApp = new BmpMonitoringStationImpl(bmpDependecies, this.dispatcher, MONITOR_ID, inetAddress, null);
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
-            assertEquals(1, monitor.getMonitor().size());
-            final Monitor bmpMonitor = monitor.getMonitor().get(0);
+            assertEquals(1, monitor.nonnullMonitor().size());
+            final Monitor bmpMonitor = monitor.getMonitor().values().iterator().next();
             assertEquals(MONITOR_ID, bmpMonitor.getMonitorId());
-            assertEquals(0, bmpMonitor.getRouter().size());
+            assertEquals(0, bmpMonitor.nonnullRouter().size());
             assertEquals(MONITOR_ID, bmpMonitor.getMonitorId());
-            assertEquals(0, bmpMonitor.getRouter().size());
+            assertEquals(0, bmpMonitor.nonnullRouter().size());
             return monitor;
         });
     }
@@ -203,8 +199,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getBindingToNormalized();
-        this.schemaService = customizer.getSchemaService();
+        this.mappingService = customizer.getAdapterContext();
         return customizer;
     }
 
@@ -215,7 +210,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         this.bmpActivator.close();
         this.dispatcher.close();
         this.bmpApp.close();
-        this.mappingService.close();
 
         checkNotPresentOperational(getDataBroker(), BMP_II);
     }
@@ -285,7 +279,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             assertNotNull(monitor.getRouter());
             // now find the current router instance
             Router router = null;
-            for (final Router r : monitor.getRouter()) {
+            for (final Router r : monitor.getRouter().values()) {
                 if (routerId.equals(r.getRouterId())) {
                     router = r;
                     break;
@@ -293,7 +287,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             }
             assertNotNull(router);
             assertEquals(Status.Down, router.getStatus());
-            assertTrue(router.getPeer().isEmpty());
+            assertNull(router.getPeer());
             return router;
         });
 
@@ -303,7 +297,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
             assertNotNull(monitor.getRouter());
             Router retRouter = null;
-            for (final Router r : monitor.getRouter()) {
+            for (final Router r : monitor.getRouter().values()) {
                 if (routerId.equals(r.getRouterId())) {
                     retRouter = r;
                     break;
@@ -314,7 +308,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             assertEquals("name", retRouter.getName());
             assertEquals("description", retRouter.getDescription());
             assertEquals(routerId, retRouter.getRouterId());
-            assertTrue(retRouter.getPeer().isEmpty());
+            assertNull(retRouter.getPeer());
             assertEquals(Status.Up, retRouter.getStatus());
             return retRouter;
         });
@@ -324,10 +318,10 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 MONITOR_IID.child(Router.class, new RouterKey(routerId));
 
         readDataOperational(getDataBroker(), routerIId, router -> {
-            final List<Peer> peers = router.getPeer();
-            assertNotNull(peers.size());
+            final Map<PeerKey, Peer> peers = router.getPeer();
+            assertNotNull(peers);
             assertEquals(1, peers.size());
-            final Peer peer = peers.get(0);
+            final Peer peer = peers.values().iterator().next();
             assertEquals(PeerType.Global, peer.getType());
             assertEquals(PEER_ID, peer.getPeerId());
             assertEquals(PEER1, peer.getBgpId());
@@ -337,15 +331,15 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             assertNull(peer.getStats());
 
             assertNotNull(peer.getPrePolicyRib());
-            assertEquals(1, peer.getPrePolicyRib().getTables().size());
-            final Tables prePolicyTable = peer.getPrePolicyRib().getTables().get(0);
+            assertEquals(1, peer.getPrePolicyRib().nonnullTables().size());
+            final Tables prePolicyTable = peer.getPrePolicyRib().nonnullTables().values().iterator().next();
             assertEquals(Ipv4AddressFamily.class, prePolicyTable.getAfi());
             assertEquals(UnicastSubsequentAddressFamily.class, prePolicyTable.getSafi());
             assertFalse(prePolicyTable.getAttributes().isUptodate());
 
             assertNotNull(peer.getPostPolicyRib());
-            assertEquals(1, peer.getPostPolicyRib().getTables().size());
-            final Tables postPolicyTable = peer.getPrePolicyRib().getTables().get(0);
+            assertEquals(1, peer.getPostPolicyRib().nonnullTables().size());
+            final Tables postPolicyTable = peer.getPrePolicyRib().nonnullTables().values().iterator().next();
             assertEquals(Ipv4AddressFamily.class, postPolicyTable.getAfi());
             assertEquals(UnicastSubsequentAddressFamily.class, postPolicyTable.getSafi());
             assertFalse(postPolicyTable.getAttributes().isUptodate());
@@ -381,9 +375,11 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             assertEquals(tlvs.getLocRibRoutesTlv().getCount(), peerStats.getLocRibRoutes());
             assertEquals(tlvs.getRejectedPrefixesTlv().getCount(), peerStats.getRejectedPrefixes());
             assertEquals(tlvs.getPerAfiSafiAdjRibInTlv().getCount().toString(),
-                    peerStats.getPerAfiSafiAdjRibInRoutes().getAfiSafi().get(0).getCount().toString());
+                    peerStats.getPerAfiSafiAdjRibInRoutes().getAfiSafi().values().iterator().next().getCount()
+                    .toString());
             assertEquals(tlvs.getPerAfiSafiLocRibTlv().getCount().toString(),
-                    peerStats.getPerAfiSafiLocRibRoutes().getAfiSafi().get(0).getCount().toString());
+                    peerStats.getPerAfiSafiLocRibRoutes().getAfiSafi().values().iterator().next().getCount()
+                    .toString());
             return peerStats;
         });
 
@@ -402,8 +398,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 AdjRibInType.PrePolicy)));
 
         readDataOperational(getDataBroker(), peerIId.child(PrePolicyRib.class), prePolicyRib -> {
-            assertTrue(!prePolicyRib.getTables().isEmpty());
-            final Tables tables = prePolicyRib.getTables().get(0);
+            assertFalse(prePolicyRib.getTables().isEmpty());
+            final Tables tables = prePolicyRib.getTables().values().iterator().next();
             assertTrue(tables.getAttributes().isUptodate());
             assertEquals(3, ((Ipv4RoutesCase) tables.getRoutes()).getIpv4Routes().getIpv4Route().size());
             return tables;
@@ -415,8 +411,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
                 AdjRibInType.PostPolicy)));
 
         readDataOperational(getDataBroker(), peerIId.child(PostPolicyRib.class), postPolicyRib -> {
-            assertTrue(!postPolicyRib.getTables().isEmpty());
-            final Tables tables = postPolicyRib.getTables().get(0);
+            assertFalse(postPolicyRib.getTables().isEmpty());
+            final Tables tables = postPolicyRib.getTables().values().iterator().next();
             assertTrue(tables.getAttributes().isUptodate());
             assertEquals(3, ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
                     .rev180329.bmp.monitor.monitor.router.peer.post.policy.rib.tables.routes.Ipv4RoutesCase)
@@ -437,8 +433,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     @Test
     public void deploySecondInstance() throws Exception {
         final BmpDeployerDependencies bmpDependecies = new BmpDeployerDependencies(getDataBroker(), getDomBroker(),
-            this.ribExtension, this.mappingService.getCodecFactory(), this.schemaService.getGlobalContext(),
-            this.clusterSSProv2);
+            this.ribExtension, this.mappingService.currentSerializer(), this.clusterSSProv2);
 
         final BmpMonitoringStation monitoringStation2 = new BmpMonitoringStationImpl(bmpDependecies,
             this.dispatcher, new MonitorId("monitor2"),

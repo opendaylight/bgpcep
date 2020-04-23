@@ -157,18 +157,18 @@ public class Stateful07TopologySessionListenerTest
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(this.testAddress, pcc.getIpAddress().getIpv4AddressNoZone().getValue());
             // reported lsp so far empty, has not received response (PcRpt) yet
-            assertTrue(pcc.getReportedLsp().isEmpty());
+            assertNull(pcc.getReportedLsp());
             return pcc;
         });
 
         this.listener.onMessage(this.session, pcRpt);
         // check created lsp
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            assertEquals(1, pcc.getReportedLsp().size());
-            final ReportedLsp reportedLsp = pcc.getReportedLsp().get(0);
+            assertEquals(1, pcc.nonnullReportedLsp().size());
+            final ReportedLsp reportedLsp = pcc.getReportedLsp().values().iterator().next();
             assertEquals(this.tunnelName, reportedLsp.getName());
-            assertEquals(1, reportedLsp.getPath().size());
-            final Path path = reportedLsp.getPath().get(0);
+            assertEquals(1, reportedLsp.nonnullPath().size());
+            final Path path = reportedLsp.nonnullPath().values().iterator().next();
             assertEquals(1, path.getEro().getSubobject().size());
             assertEquals(this.eroIpPrefix, getLastEroIpPrefix(path.getEro()));
             return pcc;
@@ -191,7 +191,7 @@ public class Stateful07TopologySessionListenerTest
                 .ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .topology.pcep.rev200120.update.lsp.args.ArgumentsBuilder();
         updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(this.eroIpPrefix, this.dstIpPrefix)));
-        updArgsBuilder.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder()
+        updArgsBuilder.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(FALSE).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
                 .setName(this.tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
@@ -213,10 +213,10 @@ public class Stateful07TopologySessionListenerTest
         //check updated lsp
         readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
             assertEquals(1, pcc.getReportedLsp().size());
-            final ReportedLsp reportedLsp = pcc.getReportedLsp().get(0);
+            final ReportedLsp reportedLsp = pcc.getReportedLsp().values().iterator().next();
             assertEquals(this.tunnelName, reportedLsp.getName());
             assertEquals(1, reportedLsp.getPath().size());
-            final Path path = reportedLsp.getPath().get(0);
+            final Path path = reportedLsp.getPath().values().iterator().next();
             assertEquals(2, path.getEro().getSubobject().size());
             assertEquals(this.dstIpPrefix, getLastEroIpPrefix(path.getEro()));
             assertEquals(1, listenerState.getDelegatedLspsCount().intValue());

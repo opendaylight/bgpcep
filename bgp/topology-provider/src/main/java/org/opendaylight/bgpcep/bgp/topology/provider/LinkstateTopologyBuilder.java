@@ -57,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.LocalLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.SidCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.bgp.linkstate.topology.type.BgpLinkstateTopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.SegmentId;
@@ -86,11 +85,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Link1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Link1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1Builder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.link.attributes.IgpLinkAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes;
@@ -110,13 +107,11 @@ import org.slf4j.LoggerFactory;
 public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
     @VisibleForTesting
     static final TopologyTypes LINKSTATE_TOPOLOGY_TYPE = new TopologyTypesBuilder()
-            .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder()
+            .addAugmentation(new TopologyTypes1Builder()
                     .setBgpLinkstateTopology(new BgpLinkstateTopologyBuilder().build()).build()).build();
     @VisibleForTesting
     static final TopologyTypes SR_AWARE_LINKSTATE_TOPOLOGY_TYPE = new TopologyTypesBuilder(LINKSTATE_TOPOLOGY_TYPE)
-            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819
-                .TopologyTypes1.class,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819
+            .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819
                 .TopologyTypes1Builder().setTopologySr(new TopologySrBuilder().build()).build())
             .build();
 
@@ -206,13 +201,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
             // Write the node out
             if (this.sr != null && this.sr.getSegmentCount() > 0) {
-                this.nb.addAugmentation(
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.Node1.class,
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819
-                        .Node1Builder().setSegments(this.sr.getSegments()).build());
+                this.nb.addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr
+                    .rev130819.Node1Builder().setSegments(this.sr.getSegments()).build());
             }
             final Node n = this.nb
-                    .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(this.inab.build()).build())
+                    .addAugmentation(new Node1Builder().setIgpNodeAttributes(this.inab.build()).build())
                     .build();
             trans.put(LogicalDatastoreType.OPERATIONAL, nid, n);
             LOG.trace("Created node {} at {}", n, nid);
@@ -291,13 +284,13 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     }
 
     private final class NodeSrHolder {
-        private NodeId nodeId;
+        private final NodeId nodeId;
         private Long srgbFirstValue = null;
         private Integer srgbRangeSize = null;
-        private List<Segments> segments = new ArrayList<>();
-        private Map<IpPrefix, SrPrefix> srPrefixes = new HashMap<>();
-        private Map<IpPrefix, Segments> prefixSegments = new HashMap<>();
-        private Map<LinkId, Segments> adjSegments = new HashMap<>();
+        private final List<Segments> segments = new ArrayList<>();
+        private final Map<IpPrefix, SrPrefix> srPrefixes = new HashMap<>();
+        private final Map<IpPrefix, Segments> prefixSegments = new HashMap<>();
+        private final Map<LinkId, Segments> adjSegments = new HashMap<>();
 
         NodeSrHolder(final NodeId nodeId) {
             this.nodeId = nodeId;
@@ -528,9 +521,11 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         stpb.setTpId(id);
 
         if (type != null) {
-            stpb.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder()
-                    .setIgpTerminationPointAttributes(
-                    new IgpTerminationPointAttributesBuilder().setTerminationPointType(type).build()).build());
+            stpb.addAugmentation(new TerminationPoint1Builder()
+                    .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
+                        .setTerminationPointType(type)
+                        .build())
+                    .build());
         }
 
         return stpb.build();
@@ -643,9 +638,9 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
         ProtocolUtil.augmentProtocolId(value, ilab, la, linkCase.getLinkDescriptors());
 
-        final LinkBuilder lb = new LinkBuilder();
-        lb.setLinkId(buildLinkId(base, linkCase));
-        lb.addAugmentation(Link1.class, new Link1Builder().setIgpLinkAttributes(ilab.build()).build());
+        final LinkBuilder lb = new LinkBuilder()
+                .setLinkId(buildLinkId(base, linkCase))
+                .addAugmentation(new Link1Builder().setIgpLinkAttributes(ilab.build()).build());
 
         final NodeId srcNode = buildNodeId(base, linkCase.getLocalNodeDescriptors());
         LOG.trace("Link {} implies source node {}", linkCase, srcNode);
@@ -680,10 +675,8 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             trans.put(LogicalDatastoreType.OPERATIONAL, nid.child(TerminationPoint.class, srcTp.key()), srcTp);
         }
         if (adjSid != null) {
-            lb.addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819
-                    .Link1.class,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819
-                    .Link1Builder().setSegment(new SegmentId(Uint32.valueOf(adjSid))).build());
+            lb.addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr
+                .rev130819.Link1Builder().setSegment(new SegmentId(Uint32.valueOf(adjSid))).build());
         }
 
         LOG.debug("Created TP {} as link destination", dstTp);

@@ -15,10 +15,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -69,27 +71,23 @@ public class BgpPeerUtilTest {
                 .build();
         final Update ipv6EOT = new UpdateBuilder()
                 .setAttributes(new AttributesBuilder()
-                        .addAugmentation(Attributes2.class, new Attributes2Builder()
-                                .setMpUnreachNlri(ipv6EOTnlri)
-                                .build())
-                        .build())
+                    .addAugmentation(new Attributes2Builder().setMpUnreachNlri(ipv6EOTnlri).build())
+                    .build())
                 .build();
 
         assertTrue(BgpPeerUtil.isEndOfRib(ipv4EOT));
         assertTrue(BgpPeerUtil.isEndOfRib(ipv6EOT));
 
         final Update ipv4NonEOT = new UpdateBuilder()
-                .setNlri(Collections.emptyList())
+                .setNlri(Collections.singletonList(new NlriBuilder().setPrefix(new Ipv4Prefix("0.0.0.0/32")).build()))
                 .build();
         final MpUnreachNlri ipv6NonEOTnlri = new MpUnreachNlriBuilder(ipv6EOTnlri)
                 .setWithdrawnRoutes(new WithdrawnRoutesBuilder().build())
                 .build();
         final Update ipv6NonEOT = new UpdateBuilder()
                 .setAttributes(new AttributesBuilder()
-                        .addAugmentation(Attributes2.class, new Attributes2Builder()
-                                .setMpUnreachNlri(ipv6NonEOTnlri)
-                                .build())
-                        .build())
+                    .addAugmentation(new Attributes2Builder().setMpUnreachNlri(ipv6NonEOTnlri).build())
+                    .build())
                 .build();
 
         assertFalse(BgpPeerUtil.isEndOfRib(ipv4NonEOT));

@@ -25,7 +25,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createNe
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.HOLDTIMER;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -45,6 +45,7 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupport
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestartBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafis;
@@ -85,7 +86,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalConfigAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalConfigAugmentationBuilder;
@@ -152,10 +152,10 @@ public class OpenConfigMappingUtilTest {
         TABLE_TYPES.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         TABLE_TYPES.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(Boolean.TRUE)
+                .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(Boolean.TRUE)
                         .setSendMax(N_PATHS).build()).build());
         AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-                .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder().setReceive(Boolean.TRUE)
+                .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(Boolean.TRUE)
                         .setSendMax(ALL_PATHS).build()).build());
     }
 
@@ -324,8 +324,8 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void testGetAfiSafiWithDefault() {
-        final ImmutableList<AfiSafi> defaultValue
-                = ImmutableList.of(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build());
+        final AfiSafi v4afi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
+        final ImmutableMap<AfiSafiKey, AfiSafi> defaultValue = ImmutableMap.of(v4afi.key(), v4afi);
         assertEquals(defaultValue, OpenConfigMappingUtil.getAfiSafiWithDefault(null, true));
         final AfiSafis afiSafi = new AfiSafisBuilder().build();
         assertEquals(defaultValue, OpenConfigMappingUtil.getAfiSafiWithDefault(afiSafi, true));
@@ -338,17 +338,18 @@ public class OpenConfigMappingUtilTest {
 
         final List<AfiSafi> expected = new ArrayList<>(afiSafiIpv6List);
         expected.add(AFI_SAFI_IPV4);
-        assertEquals(afiSafiIpv6, OpenConfigMappingUtil.getAfiSafiWithDefault(new AfiSafisBuilder()
-                .setAfiSafi(afiSafiIpv6List).build(), true).get(0));
-        assertEquals(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build(),
-                OpenConfigMappingUtil.getAfiSafiWithDefault(new AfiSafisBuilder().setAfiSafi(afiSafiIpv6List).build(),
-                        true).get(1));
+
+        final Map<AfiSafiKey, AfiSafi> v6 = OpenConfigMappingUtil.getAfiSafiWithDefault(new AfiSafisBuilder()
+            .setAfiSafi(afiSafiIpv6List).build(), true);
+        assertEquals(2, v6.size());
+        assertTrue(v6.containsValue(afiSafiIpv6));
+        assertTrue(v6.containsValue(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build()));
         assertEquals(AFI_SAFI, OpenConfigMappingUtil.getAfiSafiWithDefault(createAfiSafi(), true));
 
         assertTrue(OpenConfigMappingUtil.getAfiSafiWithDefault(null, false).isEmpty());
         assertTrue(OpenConfigMappingUtil.getAfiSafiWithDefault(afiSafi, false).isEmpty());
         assertEquals(afiSafiIpv6, OpenConfigMappingUtil.getAfiSafiWithDefault(new AfiSafisBuilder()
-                .setAfiSafi(afiSafiIpv6List).build(), false).get(0));
+                .setAfiSafi(afiSafiIpv6List).build(), false).values().iterator().next());
         assertEquals(AFI_SAFI, OpenConfigMappingUtil.getAfiSafiWithDefault(createAfiSafi(), false));
     }
 
@@ -402,11 +403,9 @@ public class OpenConfigMappingUtilTest {
     public void toPathSelectionMode() {
         final List<AfiSafi> families = new ArrayList<>();
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-            .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder()
-                    .setSendMax(N_PATHS).build()).build());
+            .addAugmentation(new GlobalAddPathsConfigBuilder().setSendMax(N_PATHS).build()).build());
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-            .addAugmentation(GlobalAddPathsConfig.class, new GlobalAddPathsConfigBuilder()
-                    .setSendMax(ALL_PATHS).build()).build());
+            .addAugmentation(new GlobalAddPathsConfigBuilder().setSendMax(ALL_PATHS).build()).build());
         final Map<BgpTableType, PathSelectionMode> result = OpenConfigMappingUtil
                 .toPathSelectionMode(families, this.tableTypeRegistry);
         final Map<BgpTableType, PathSelectionMode> expected = new HashMap<>();
@@ -414,6 +413,7 @@ public class OpenConfigMappingUtilTest {
                 ADD_PATH_BEST_N_PATH_SELECTION);
         expected.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class),
                 ADD_PATH_BEST_ALL_PATH_SELECTION);
+        // FIXME: these assertions are wrong, as they perform lookup on non-existing keys
         assertEquals(expected.get(0), result.get(0));
         assertEquals(expected.get(1), result.get(1));
     }

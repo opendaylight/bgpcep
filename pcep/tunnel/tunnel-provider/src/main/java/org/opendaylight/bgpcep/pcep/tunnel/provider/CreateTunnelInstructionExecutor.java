@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcepCreateP2pTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.LspBuilder;
@@ -195,7 +194,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         final AdministrativeStatus adminStatus = this.p2pTunnelInput.augmentation(PcepCreateP2pTunnelInput1.class)
                 .getAdministrativeStatus();
         if (adminStatus != null) {
-            args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder()
+            args.addAugmentation(new Arguments2Builder().setLsp(new LspBuilder()
                     .setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
         }
         return args.build();

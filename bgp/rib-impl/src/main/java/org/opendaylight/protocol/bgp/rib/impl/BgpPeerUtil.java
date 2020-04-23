@@ -34,14 +34,16 @@ public final class BgpPeerUtil {
      */
     public static Update createEndOfRib(final TablesKey key) {
         return key.getAfi() == Ipv4AddressFamily.class && key.getSafi() == UnicastSubsequentAddressFamily.class
-                ? new UpdateBuilder().build() :
-                new UpdateBuilder()
+                ? new UpdateBuilder().build() : new UpdateBuilder()
                         .setAttributes(new AttributesBuilder()
-                                .addAugmentation(Attributes2.class, new Attributes2Builder()
-                                        .setMpUnreachNlri(new MpUnreachNlriBuilder()
-                                                .setAfi(key.getAfi())
-                                                .setSafi(key.getSafi())
-                                                .build()).build()).build()).build();
+                            .addAugmentation(new Attributes2Builder()
+                                .setMpUnreachNlri(new MpUnreachNlriBuilder()
+                                    .setAfi(key.getAfi())
+                                    .setSafi(key.getSafi())
+                                    .build())
+                                .build())
+                            .build())
+                        .build();
     }
 
     /**

@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -23,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.FailureType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.p2p.rev130819.tunnel.p2p.path.cfg.attributes.ExplicitHops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.p2p.rev130819.tunnel.p2p.path.cfg.attributes.ExplicitHopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.ExplicitHops1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.SupportingNode1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -59,12 +61,12 @@ final class TunelProgrammingUtil {
         // Hidden on purpose
     }
 
-    public static Ero buildEro(final List<ExplicitHops> explicitHops) {
+    public static Ero buildEro(final Map<ExplicitHopsKey, ExplicitHops> explicitHops) {
         final EroBuilder b = new EroBuilder();
 
-        if (!explicitHops.isEmpty()) {
+        if (explicitHops != null && !explicitHops.isEmpty()) {
             final List<Subobject> subobjs = new ArrayList<>(explicitHops.size());
-            for (final ExplicitHops h : explicitHops) {
+            for (final ExplicitHops h : explicitHops.values()) {
 
                 final ExplicitHops1 h1 = h.augmentation(ExplicitHops1.class);
                 if (h1 != null) {
@@ -82,7 +84,7 @@ final class TunelProgrammingUtil {
     }
 
     public static NodeId supportingNode(final Node node) {
-        for (final SupportingNode n : node.getSupportingNode()) {
+        for (final SupportingNode n : node.nonnullSupportingNode().values()) {
             final SupportingNode1 n1 = n.augmentation(SupportingNode1.class);
             if (n1 != null && n1.getPathComputationClient().isControlling()) {
                 return n.key().getNodeRef();
