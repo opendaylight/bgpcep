@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "098734df_1cf6d746",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:35:55Z",
+      "side": 1,
+      "message": "Remove an Empty lines here. Keep only one line between the json and the text.",
+      "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "088b7d09_e4c317e3",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:35:55Z",
+      "side": 1,
+      "message": "Remove an Empty lines here. Keep only one line between the bullets.",
+      "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "833a3b02_04ca7be3",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:35:55Z",
+      "side": 1,
+      "message": "Remove 2 Empty lines here. Keep only one line between the json and the text.",
+      "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f9923a4_fbe76b7d",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-04-23T10:35:55Z",
+      "side": 1,
+      "message": "Remove 2 Empty lines here. Keep only one line between the bullets",
+      "revId": "5c5ad3db3ebc7347cc4591d392df095d13109594",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
