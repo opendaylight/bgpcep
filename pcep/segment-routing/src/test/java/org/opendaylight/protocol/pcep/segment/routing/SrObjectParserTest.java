@@ -26,10 +26,8 @@ import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContex
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.SidType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapabilityBuilder;
@@ -88,13 +86,13 @@ public class SrObjectParserTest {
                 .setDeadTimer(Uint8.valueOf(120))
                 .setSessionId(Uint8.ONE);
 
-        final Tlvs1 tlv = new Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder().setMsd(Uint8.ONE).build())
-                .build();
         builder.setTlvs(new TlvsBuilder()
-                .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-                    .rev181109.Tlvs1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
-                    .ietf.stateful.rev181109.Tlvs1Builder().build()).addAugmentation(Tlvs1.class, tlv)
-                .addAugmentation(Tlvs3.class, new Tlvs3Builder().build()).build());
+                .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                    .rev181109.Tlvs1Builder().build())
+                .addAugmentation(new Tlvs1Builder()
+                    .setSrPceCapability(new SrPceCapabilityBuilder().setMsd(Uint8.ONE).build())
+                    .build())
+                .addAugmentation(new Tlvs3Builder().build()).build());
 
         final ByteBuf result = Unpooled.wrappedBuffer(OPEN_OBJECT_BYTES);
         assertEquals(builder.build(),

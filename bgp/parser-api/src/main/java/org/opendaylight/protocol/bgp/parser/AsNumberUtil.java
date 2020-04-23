@@ -13,6 +13,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
@@ -35,9 +37,13 @@ public final class AsNumberUtil {
         final List<BgpParameters> params = open.getBgpParameters();
         if (params != null) {
             for (final BgpParameters p : params) {
-                for (final OptionalCapabilities oc : p.getOptionalCapabilities()) {
-                    if (oc.getCParameters() != null && oc.getCParameters().getAs4BytesCapability() != null) {
-                        return oc.getCParameters().getAs4BytesCapability().getAsNumber();
+                for (final OptionalCapabilities oc : p.nonnullOptionalCapabilities()) {
+                    final CParameters cparams = oc.getCParameters();
+                    if (cparams != null) {
+                        final As4BytesCapability as4 = cparams.getAs4BytesCapability();
+                        if (as4 != null) {
+                            return as4.getAsNumber();
+                        }
                     }
                 }
             }

@@ -18,7 +18,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -55,7 +55,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     private final DOMDataBroker domDataBroker;
     private final InetSocketAddress address;
     private final MonitorId monitorId;
-    private final List<MonitoredRouter> monitoredRouters;
+    private final Collection<MonitoredRouter> monitoredRouters;
     private final BmpDispatcher dispatcher;
     private final RouterSessionManager sessionManager;
     private final YangInstanceIdentifier yangMonitorId;
@@ -64,7 +64,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
 
     public BmpMonitoringStationImpl(final BmpDeployerDependencies bmpDeployerDependencies,
             final BmpDispatcher dispatcher, final MonitorId monitorId, final InetSocketAddress address,
-            final List<MonitoredRouter> mrs) {
+            final Collection<MonitoredRouter> mrs) {
         this.domDataBroker = requireNonNull(bmpDeployerDependencies.getDomDataBroker());
         this.dispatcher = requireNonNull(dispatcher);
         this.monitorId = monitorId;

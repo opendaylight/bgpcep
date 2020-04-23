@@ -16,6 +16,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -99,9 +100,9 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         caps.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(MultiprotocolCapabilitiesUtil.RR_CAPABILITY).build());
 
-        final List<AfiSafi> afiSafi = OpenConfigMappingUtil.getAfiSafiWithDefault(afiSafis, false);
-        final List<AddressFamilies> addPathCapability = OpenConfigMappingUtil
-                .toAddPathCapability(afiSafi, tableTypeRegistry);
+        final Collection<AfiSafi> afiSafi = OpenConfigMappingUtil.getAfiSafiWithDefault(afiSafis, false).values();
+        final List<AddressFamilies> addPathCapability = OpenConfigMappingUtil.toAddPathCapability(afiSafi,
+            tableTypeRegistry);
         if (!addPathCapability.isEmpty()) {
             caps.add(new OptionalCapabilitiesBuilder()
                     .setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
@@ -189,8 +190,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         }
         final AfiSafis actAfiSafi = this.currentConfiguration.getAfiSafis();
         final AfiSafis extAfiSafi = neighbor.getAfiSafis();
-        final List<AfiSafi> actualSafi = actAfiSafi != null ? actAfiSafi.getAfiSafi() : Collections.emptyList();
-        final List<AfiSafi> extSafi = extAfiSafi != null ? extAfiSafi.getAfiSafi() : Collections.emptyList();
+        final Collection<AfiSafi> actualSafi = actAfiSafi != null ? actAfiSafi.nonnullAfiSafi().values()
+                : Collections.emptyList();
+        final Collection<AfiSafi> extSafi = extAfiSafi != null ? extAfiSafi.nonnullAfiSafi().values()
+                : Collections.emptyList();
         return actualSafi.containsAll(extSafi) && extSafi.containsAll(actualSafi)
                 && Objects.equals(this.currentConfiguration.getConfig(), neighbor.getConfig())
                 && Objects.equals(this.currentConfiguration.getNeighborAddress(), neighbor.getNeighborAddress())
@@ -264,8 +267,8 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                 afisSafis = requireNonNull(neighbor.getAfiSafis(), "Missing mandatory AFIs/SAFIs");
             }
 
-            final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil
-                    .toTableKey(afisSafis.getAfiSafi(), tableTypeRegistry);
+            final Set<TablesKey> afiSafisAdvertized = OpenConfigMappingUtil.toTableKey(afisSafis.getAfiSafi(),
+                tableTypeRegistry);
             final PeerRole role = OpenConfigMappingUtil.toPeerRole(neighbor, peerGroup);
 
             final ClusterIdentifier clusterId = OpenConfigMappingUtil
@@ -273,10 +276,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             final int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
             this.gracefulRestartTimer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor,
                     peerGroup, hold);
-            final Set<TablesKey> gracefulTables = GracefulRestartUtil.getGracefulTables(afisSafis.getAfiSafi(),
-                    tableTypeRegistry);
-            final Map<TablesKey, Integer> llGracefulTimers = GracefulRestartUtil
-                    .getLlGracefulTimers(afisSafis.getAfiSafi(), tableTypeRegistry);
+            final Set<TablesKey> gracefulTables = GracefulRestartUtil.getGracefulTables(
+                afisSafis.nonnullAfiSafi().values(), tableTypeRegistry);
+            final Map<TablesKey, Integer> llGracefulTimers = GracefulRestartUtil.getLlGracefulTimers(
+                afisSafis.nonnullAfiSafi().values(), tableTypeRegistry);
             this.finalCapabilities = getBgpCapabilities(afisSafis, rib, tableTypeRegistry);
             final List<BgpParameters> bgpParameters = getInitialBgpParameters(gracefulTables, llGracefulTimers);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);

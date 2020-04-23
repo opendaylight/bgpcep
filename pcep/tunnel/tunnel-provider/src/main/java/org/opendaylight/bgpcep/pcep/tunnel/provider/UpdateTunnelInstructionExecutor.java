@@ -21,7 +21,6 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcepUpdateTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.LspBuilder;
@@ -95,7 +94,7 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         final AdministrativeStatus adminStatus = this.updateTunnelInput.augmentation(PcepUpdateTunnelInput1.class)
                 .getAdministrativeStatus();
         if (adminStatus != null) {
-            args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder()
+            args.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                     .setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
         }
         ab.setArguments(args.build());

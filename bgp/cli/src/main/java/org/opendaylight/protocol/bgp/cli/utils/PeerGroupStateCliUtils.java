@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.cli.utils;
 import static org.opendaylight.protocol.bgp.cli.utils.NeighborStateCliUtils.addHeader;
 
 import java.io.PrintStream;
-import java.util.List;
+import java.util.Collection;
 import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.State;
@@ -23,7 +23,7 @@ final class PeerGroupStateCliUtils {
         // Hidden on purpose
     }
 
-    static void displayPeerOperationalState(@NonNull final List<PeerGroup> peerGroupList,
+    static void displayPeerOperationalState(@NonNull final Collection<PeerGroup> peerGroupList,
             @NonNull final PrintStream stream) {
         final ShellTable table = new ShellTable();
         table.column("Attribute").alignLeft();

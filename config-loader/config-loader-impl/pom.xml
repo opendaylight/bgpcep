@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-codec</artifactId>
+            <artifactId>mdsal-binding-dom-codec-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -97,6 +97,11 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-test-util</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-test-utils</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

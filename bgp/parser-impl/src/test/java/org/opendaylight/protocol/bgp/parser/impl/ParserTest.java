@@ -215,7 +215,7 @@ public class ParserTest {
         assertEquals(100, mo.getMyAsNumber().intValue());
         assertEquals(180, mo.getHoldTimer().intValue());
         assertEquals(new Ipv4Address("20.20.20.20"), mo.getBgpIdentifier());
-        assertTrue(mo.getBgpParameters().isEmpty());
+        assertNull(mo.getBgpParameters());
     }
 
     @Test

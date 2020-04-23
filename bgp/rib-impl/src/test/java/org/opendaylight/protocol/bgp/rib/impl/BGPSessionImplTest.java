@@ -28,7 +28,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
-import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -57,14 +56,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
@@ -104,27 +101,25 @@ public class BGPSessionImplTest {
 
     @Before
     public void setUp() throws UnknownHostException {
-        new EmbeddedChannel();
         MockitoAnnotations.initMocks(this);
-        final List<BgpParameters> tlvs = new ArrayList<>();
-        this.classicOpen = new OpenBuilder()
-                .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
-                .setHoldTimer(HOLD_TIMER)
-                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
-                .setBgpParameters(tlvs)
-                .setBgpIdentifier(BGP_ID)
-                .build();
 
         final List<OptionalCapabilities> capa = new ArrayList<>();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
-            .addAugmentation(CParameters1.class, new CParameters1Builder()
+            .addAugmentation(new CParameters1Builder()
                 .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                     .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
                 .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
             .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY)
             .build());
-        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
+
+        this.classicOpen = new OpenBuilder()
+                .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
+                .setHoldTimer(HOLD_TIMER)
+                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+                .setBgpParameters(List.of(new BgpParametersBuilder().setOptionalCapabilities(capa).build()))
+                .setBgpIdentifier(BGP_ID)
+                .build();
 
         final ChannelFuture f = mock(ChannelFuture.class);
         doReturn(null).when(f).addListener(any());

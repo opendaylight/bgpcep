@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -32,7 +32,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -74,7 +74,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     private RIBExtensionProviderContext ext2;
     @Mock
     private BGPDispatcher dispatcher;
-    private CodecsRegistryImpl codecsRegistry;
+    private ConstantCodecsRegistry codecsRegistry;
 
     @Override
     @Before
@@ -95,10 +95,10 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         this.baseact = new RIBActivator();
         this.lsact = new org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator();
 
-        this.baseact.startRIBExtensionProvider(this.ext1, this.mappingService);
-        this.lsact.startRIBExtensionProvider(this.ext2, this.mappingService);
-        this.codecsRegistry = CodecsRegistryImpl.create(this.bindingCodecTreeFactory,
-                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        final CurrentAdapterSerializer serializer = mappingService.currentSerializer();
+        this.baseact.startRIBExtensionProvider(this.ext1, serializer);
+        this.lsact.startRIBExtensionProvider(this.ext2, serializer);
+        this.codecsRegistry = new ConstantCodecsRegistry(serializer);
     }
 
     @Override
@@ -119,7 +119,6 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
                 .createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
-        rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry,
             this.localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
@@ -136,7 +135,6 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
                 tables, Collections.singletonMap(TABLE_KEY,
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
-        rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         assertTablesExists(tables);
         final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry,
             this.localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
@@ -158,12 +156,12 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     private void assertTablesExists(final List<BgpTableType> expectedTables) throws InterruptedException,
             ExecutionException {
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
-            final List<Tables> tables = bgpRib.getRib().get(0).getLocRib().getTables();
-            assertFalse(tables.isEmpty());
+            final var tables = bgpRib.getRib().values().iterator().next().getLocRib().getTables();
+            assertNotNull(tables);
 
             for (final BgpTableType tableType : expectedTables) {
                 boolean found = false;
-                for (final Tables table : tables) {
+                for (final Tables table : tables.values()) {
                     if (table.getAfi().equals(tableType.getAfi()) && table.getSafi().equals(tableType.getSafi())) {
                         found = true;
                         assertEquals(Boolean.TRUE, table.getAttributes().isUptodate());

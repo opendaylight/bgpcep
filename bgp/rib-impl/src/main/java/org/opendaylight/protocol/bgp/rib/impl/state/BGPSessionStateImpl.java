@@ -78,9 +78,9 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     @Override
     public synchronized void advertizeCapabilities(final int newHoldTimerValue, final SocketAddress newRemoteAddress,
         final SocketAddress localAddress, final Set<BgpTableType> tableTypes, final List<BgpParameters> bgpParameters) {
-        if (bgpParameters != null && !bgpParameters.isEmpty()) {
+        if (bgpParameters != null) {
             for (final BgpParameters parameters : bgpParameters) {
-                for (final OptionalCapabilities optionalCapabilities : parameters.getOptionalCapabilities()) {
+                for (final OptionalCapabilities optionalCapabilities : parameters.nonnullOptionalCapabilities()) {
                     final CParameters cParam = optionalCapabilities.getCParameters();
                     final CParameters1 capabilities = cParam.augmentation(CParameters1.class);
                     if (capabilities != null) {

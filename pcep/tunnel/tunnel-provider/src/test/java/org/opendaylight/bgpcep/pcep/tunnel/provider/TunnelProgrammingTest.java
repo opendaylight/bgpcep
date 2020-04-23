@@ -35,9 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcepCreateP2pTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcepCreateP2pTunnelInput1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcepUpdateTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcepUpdateTunnelInput1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4Case;
@@ -61,11 +59,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepCreateP2pTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepDestroyTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepUpdateTunnelInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.ExplicitHops1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.ExplicitHops1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.Link1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.Link1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.SupportingNode1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.SupportingNode1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.tunnel.pcep.supporting.node.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.programming.rev130930.create.p2p.tunnel.input.DestinationBuilder;
@@ -89,12 +84,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNode;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNodeKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.IgpTerminationPointAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.osgi.framework.BundleContext;
 
@@ -151,7 +146,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
         tpBuilder.setTpId(tpId);
         tpBuilder.withKey(new TerminationPointKey(tpId));
-        tpBuilder.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder()
+        tpBuilder.addAugmentation(new TerminationPoint1Builder()
                 .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
                         .setTerminationPointType(new IpBuilder()
                                 .setIpAddress(Collections.singletonList(new IpAddress(new Ipv4Address(ipv4Address))))
@@ -162,19 +157,21 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         nodeBuilder.setTerminationPoint(Lists.newArrayList(tpBuilder.build()));
         final SupportingNode supportingNode = new SupportingNodeBuilder()
                 .withKey(new SupportingNodeKey(nodeId, new TopologyId("dummy")))
-                .addAugmentation(SupportingNode1.class, new SupportingNode1Builder()
+                .addAugmentation(new SupportingNode1Builder()
                         .setPathComputationClient(new PathComputationClientBuilder()
                                 .setControlling(true).build()).build()).build();
         nodeBuilder.setSupportingNode(Lists.newArrayList(supportingNode));
         return nodeBuilder.build();
     }
 
-    private static ExplicitHops createExplicitHop(final String ipv4Prefix) {
-        final ExplicitHopsBuilder explcitHopsBuilder = new ExplicitHopsBuilder();
-        explcitHopsBuilder.addAugmentation(ExplicitHops1.class, new ExplicitHops1Builder()
-                .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
-                        .setIpPrefix(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build()).build()).build());
-        return explcitHopsBuilder.build();
+    private static ExplicitHops createExplicitHop(final String ipv4Prefix, Uint32 order) {
+        return new ExplicitHopsBuilder()
+                .setOrder(order)
+                .addAugmentation(new ExplicitHops1Builder()
+                    .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
+                        .setIpPrefix(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build()).build())
+                    .build())
+                .build();
     }
 
     @Before
@@ -246,7 +243,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         createInputBuilder.setClassType(classType);
         createInputBuilder.setSymbolicPathName(tunnelName);
         createInputBuilder.setExplicitHops(Collections.emptyList());
-        createInputBuilder.addAugmentation(PcepCreateP2pTunnelInput1.class, new PcepCreateP2pTunnelInput1Builder()
+        createInputBuilder.addAugmentation(new PcepCreateP2pTunnelInput1Builder()
                 .setAdministrativeStatus(AdministrativeStatus.Active).build());
         this.tunnelProgramming.pcepCreateP2pTunnel(createInputBuilder.build());
         //check add-lsp input
@@ -267,10 +264,10 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         updateInputBuilder.setNetworkTopologyRef(topologyRef);
         updateInputBuilder.setBandwidth(bwd);
         updateInputBuilder.setClassType(classType);
-        updateInputBuilder.setExplicitHops(Lists.newArrayList(createExplicitHop(IPV4_PREFIX1),
-                createExplicitHop(IPV4_PREFIX2)));
+        updateInputBuilder.setExplicitHops(Lists.newArrayList(createExplicitHop(IPV4_PREFIX1, Uint32.ONE),
+                createExplicitHop(IPV4_PREFIX2, Uint32.TWO)));
         updateInputBuilder.setLinkId(LINK1_ID);
-        updateInputBuilder.addAugmentation(PcepUpdateTunnelInput1.class, new PcepUpdateTunnelInput1Builder()
+        updateInputBuilder.addAugmentation(new PcepUpdateTunnelInput1Builder()
                 .setAdministrativeStatus(AdministrativeStatus.Active).build());
         this.tunnelProgramming.pcepUpdateTunnel(updateInputBuilder.build());
         //check update-lsp input
@@ -315,7 +312,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
                 .rev131021.link.attributes.DestinationBuilder().setDestNode(NODE2_ID).setDestTp(TP2_ID).build());
         linkBuilder.setLinkId(LINK1_ID);
         linkBuilder.withKey(new LinkKey(LINK1_ID));
-        linkBuilder.addAugmentation(Link1.class, new Link1Builder().setSymbolicPathName(LINK1_ID.getValue()).build());
+        linkBuilder.addAugmentation(new Link1Builder().setSymbolicPathName(LINK1_ID.getValue()).build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL,
             TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(), linkBuilder.build());

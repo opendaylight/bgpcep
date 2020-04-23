@@ -41,7 +41,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStre
 import org.opendaylight.yangtools.yang.data.codec.xml.XmlParserStream;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.impl.schema.NormalizedNodeResult;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.opendaylight.yangtools.yang.model.util.SchemaContextUtil;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private static final long TIMEOUT_SECONDS = 5;
     @GuardedBy("this")
     private final Map<String, ConfigFileProcessor> configServices = new HashMap<>();
-    private final SchemaContext schemaContext;
+    private final EffectiveModelContext schemaContext;
     private final BindingNormalizedNodeSerializer bindingSerializer;
     private final String path;
     private final Thread watcherThread;
@@ -65,8 +65,8 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     @GuardedBy("this")
     private boolean closed = false;
 
-    public ConfigLoaderImpl(final SchemaContext schemaContext, final BindingNormalizedNodeSerializer bindingSerializer,
-            final FileWatcher fileWatcher) {
+    public ConfigLoaderImpl(final EffectiveModelContext schemaContext,
+            final BindingNormalizedNodeSerializer bindingSerializer, final FileWatcher fileWatcher) {
         this.schemaContext = requireNonNull(schemaContext);
         this.bindingSerializer = requireNonNull(bindingSerializer);
         this.path = requireNonNull(fileWatcher.getPathFile());

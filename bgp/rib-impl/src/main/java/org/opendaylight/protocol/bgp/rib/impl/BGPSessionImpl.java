@@ -155,7 +155,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         final List<BgpParameters> bgpParameters = remoteOpen.getBgpParameters();
         if (bgpParameters != null) {
             for (final BgpParameters param : bgpParameters) {
-                for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
+                for (final OptionalCapabilities optCapa : param.nonnullOptionalCapabilities()) {
                     final CParameters cParam = optCapa.getCParameters();
                     final CParameters1 cParam1 = cParam.augmentation(CParameters1.class);
                     if (cParam1 != null) {

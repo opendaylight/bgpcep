@@ -15,6 +15,7 @@ import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
@@ -44,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.SrLanAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.UnreservedBandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.UnreservedBandwidthKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.LinkAttributesCaseBuilder;
@@ -343,11 +345,12 @@ public final class LinkAttributesParser {
         LOG.trace("Finished serializing Link Attributes");
     }
 
-    private static void serializeUnreservedBw(final List<UnreservedBandwidth> ubList, final ByteBuf byteAggregator) {
+    private static void serializeUnreservedBw(final Map<UnreservedBandwidthKey, UnreservedBandwidth> ubList,
+            final ByteBuf byteAggregator) {
         // this sub-TLV contains eight 32-bit IEEE floating point numbers
         if (ubList != null) {
             final ByteBuf unreservedBandwithBuf = Unpooled.buffer();
-            for (final UnreservedBandwidth unreservedBandwidth : ubList) {
+            for (final UnreservedBandwidth unreservedBandwidth : ubList.values()) {
                 unreservedBandwithBuf.writeBytes(unreservedBandwidth.getBandwidth().getValue());
             }
             TlvUtil.writeTLV(UNRESERVED_BANDWIDTH, unreservedBandwithBuf, byteAggregator);

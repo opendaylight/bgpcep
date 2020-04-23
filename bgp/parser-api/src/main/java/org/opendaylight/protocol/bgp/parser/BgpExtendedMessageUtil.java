@@ -35,8 +35,9 @@ public final class BgpExtendedMessageUtil {
         final List<BgpParameters> params = open.getBgpParameters();
         if (params != null) {
             for (final BgpParameters p : params) {
-                for (final OptionalCapabilities oc : p.getOptionalCapabilities()) {
-                    if (oc.getCParameters() != null && oc.getCParameters().getBgpExtendedMessageCapability() != null) {
+                for (final OptionalCapabilities oc : p.nonnullOptionalCapabilities()) {
+                    final CParameters cparams = oc.getCParameters();
+                    if (cparams != null && cparams.getBgpExtendedMessageCapability() != null) {
                         return true;
                     }
                 }

@@ -11,6 +11,7 @@ import com.google.common.io.BaseEncoding;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.IsisAreaIdentifier;
@@ -47,7 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev13
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.link.attributes.IgpLinkAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.Prefix1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.Prefix1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.OspfLinkAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.OspfNodeAttributesBuilder;
@@ -72,7 +72,7 @@ public final class ProtocolUtil {
             case Static:
             case Ospf:
                 if (pa != null && pa.getOspfForwardingAddress() != null) {
-                    pb.addAugmentation(Prefix1.class, new Prefix1Builder().setOspfPrefixAttributes(
+                    pb.addAugmentation(new Prefix1Builder().setOspfPrefixAttributes(
                             new OspfPrefixAttributesBuilder().setForwardingAddress(pa.getOspfForwardingAddress()
                                     .getIpv4AddressNoZone()).build()).build());
                 }
@@ -89,13 +89,10 @@ public final class ProtocolUtil {
             case Static:
             case IsisLevel1:
             case IsisLevel2:
-                inab.addAugmentation(
-                        org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021
-                                .IgpNodeAttributes1.class, isisNodeAttributes(nd, na));
+                inab.addAugmentation(isisNodeAttributes(nd, na));
                 break;
             case Ospf:
-                inab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021
-                        .IgpNodeAttributes1.class, ospfNodeAttributes(nd, na));
+                inab.addAugmentation(ospfNodeAttributes(nd, na));
                 break;
             default:
                 break;
@@ -109,14 +106,11 @@ public final class ProtocolUtil {
             case Static:
             case IsisLevel1:
             case IsisLevel2:
-                ilab.addAugmentation(
-                        org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021
-                                .IgpLinkAttributes1.class, isisLinkAttributes(ld.getMultiTopologyId(), la));
+                ilab.addAugmentation(isisLinkAttributes(ld.getMultiTopologyId(), la));
                 break;
             case OspfV3:
             case Ospf:
-                ilab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021
-                        .IgpLinkAttributes1.class, ospfLinkAttributes(ld.getMultiTopologyId(), la));
+                ilab.addAugmentation(ospfLinkAttributes(ld.getMultiTopologyId(), la));
                 break;
             default:
                 break;
@@ -238,7 +232,7 @@ public final class ProtocolUtil {
                 tb.setTeDefaultMetric(la.getTeMetric().getValue());
             }
             if (la.getUnreservedBandwidth() != null) {
-                tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
+                tb.setUnreservedBandwidth(unreservedBandwidthList(la.nonnullUnreservedBandwidth().values()));
             }
             if (la.getMaxLinkBandwidth() != null) {
                 tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
@@ -281,7 +275,7 @@ public final class ProtocolUtil {
                 tb.setTeDefaultMetric(la.getTeMetric().getValue());
             }
             if (la.getUnreservedBandwidth() != null) {
-                tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
+                tb.setUnreservedBandwidth(unreservedBandwidthList(la.nonnullUnreservedBandwidth().values()));
             }
             if (la.getMaxLinkBandwidth() != null) {
                 tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
@@ -317,7 +311,7 @@ public final class ProtocolUtil {
     }
 
     private static List<UnreservedBandwidth> unreservedBandwidthList(
-            final List<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            final Collection<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .bgp.linkstate.rev200120.UnreservedBandwidth> input) {
         final List<UnreservedBandwidth> ret = new ArrayList<>(input.size());
 

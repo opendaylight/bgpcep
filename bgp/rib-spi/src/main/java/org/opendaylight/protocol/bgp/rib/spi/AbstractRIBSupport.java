@@ -32,9 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
@@ -153,13 +151,13 @@ public abstract class AbstractRIBSupport<
             final QName destContainerQname) {
         final QNameModule module = BindingReflections.getQNameModule(cazeClass);
         this.routesContainerIdentifier = NodeIdentifier.create(
-            BindingReflections.findQName(containerClass).withModule(module));
-        this.routeAttributesIdentifier = NodeIdentifier.create(Attributes.QNAME.withModule(module));
+            BindingReflections.findQName(containerClass).bindTo(module));
+        this.routeAttributesIdentifier = NodeIdentifier.create(Attributes.QNAME.bindTo(module));
         this.cazeClass = requireNonNull(cazeClass);
         this.mappingService = requireNonNull(mappingService);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
-        this.routeQname = BindingReflections.findQName(listClass).withModule(module);
+        this.routeQname = BindingReflections.findQName(listClass).bindTo(module);
         this.routesListIdentifier = NodeIdentifier.create(this.routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
         this.emptyTable = (MapEntryNode) this.mappingService
@@ -425,12 +423,12 @@ public abstract class AbstractRIBSupport<
 
         if (!advertised.isEmpty()) {
             final MpReachNlri mb = buildReach(advertised, hop);
-            ab.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mb).build());
+            ab.addAugmentation(new Attributes1Builder().setMpReachNlri(mb).build());
             LOG.debug("mpreach nexthop={}", mb);
         }
         if (!withdrawn.isEmpty()) {
             final MpUnreachNlri mb = buildUnreach(withdrawn);
-            ab.addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(mb).build());
+            ab.addAugmentation(new Attributes2Builder().setMpUnreachNlri(mb).build());
             LOG.debug("mpunrach mb={}", mb);
         }
 

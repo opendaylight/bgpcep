@@ -12,6 +12,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -73,7 +74,7 @@ public class ComplementaryTest {
 
         assertNotSame(tlv2.toString(), tlv3.toString());
 
-        assertEquals(tlv3.getTables(), tt);
+        assertEquals(Maps.uniqueIndex(tt, Tables::key), tlv3.getTables());
 
         assertEquals(cap.getSafi(), cap1.getSafi());
 

@@ -63,7 +63,7 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
             }
             final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
             ab.setName(link.augmentation(Link1.class).getSymbolicPathName());
-            ab.setNode(node.getSupportingNode().get(0).key().getNodeRef());
+            ab.setNode(node.nonnullSupportingNode().values().iterator().next().key().getNodeRef());
             return Futures.transform(
                     this.topologyService.removeLsp(ab.build()),
                     RpcResult::getResult, MoreExecutors.directExecutor());

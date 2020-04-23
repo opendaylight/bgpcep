@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bmp.impl.app;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -20,7 +20,7 @@ public final class KeyConstructorUtil {
         // Hidden on purpose
     }
 
-    public static KeyMapping constructKeys(final List<MonitoredRouter> mrs) {
+    public static KeyMapping constructKeys(final Collection<MonitoredRouter> mrs) {
         final KeyMapping ret = KeyMapping.getKeyMapping();
         if (mrs != null) {
             mrs.stream().filter(Objects::nonNull).filter(KeyConstructorUtil::isNotNullorEmpty)

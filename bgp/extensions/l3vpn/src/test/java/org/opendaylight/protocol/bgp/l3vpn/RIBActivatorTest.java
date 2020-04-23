@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.l3vpn;
 
 import static org.junit.Assert.assertNotNull;
@@ -26,7 +25,7 @@ public class RIBActivatorTest extends AbstractRIBActivatorTest {
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
         assertNull(context.getRIBSupport(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
         assertNull(context.getRIBSupport(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
-        ribAct.startRIBExtensionProvider(context, this.mappingService);
+        ribAct.startRIBExtensionProvider(context, this.context.currentSerializer());
         assertNotNull(context.getRIBSupport(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
         assertNotNull(context.getRIBSupport(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
         ribAct.close();
