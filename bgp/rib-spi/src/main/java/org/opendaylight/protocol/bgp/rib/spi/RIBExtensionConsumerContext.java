@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.binding.runtime.api.ClassLoadingStrategy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -70,5 +70,5 @@ public interface RIBExtensionConsumerContext {
      *
      * @return Class loading strategy for loading YANG modeled classes.
      */
-    @NonNull GeneratedClassLoadingStrategy getClassLoadingStrategy();
+    @NonNull ClassLoadingStrategy getClassLoadingStrategy();
 }

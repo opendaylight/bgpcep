@@ -28,11 +28,11 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.binding.runtime.spi.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
@@ -205,7 +205,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
 
     private void createRib(final Global global) throws ExecutionException, InterruptedException {
         final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
-        wr.put(LogicalDatastoreType.CONFIGURATION, GLOBAL_II, global, true);
+        wr.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, GLOBAL_II, global);
         wr.commit().get();
     }
 
@@ -217,7 +217,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
 
     private void createNeighbor(final Neighbors neighbors) throws ExecutionException, InterruptedException {
         final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
-        wr.put(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II, neighbors, true);
+        wr.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II, neighbors);
         wr.commit().get();
     }
 

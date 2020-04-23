@@ -28,14 +28,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.binding.runtime.api.BindingRuntimeContext;
+import org.opendaylight.binding.runtime.spi.GeneratedClassLoadingStrategy;
+import org.opendaylight.binding.runtime.spi.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory;
-import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.mdsal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -143,7 +142,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     public void mockRib() throws Exception {
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
         final ModuleInfoBackedContext strategy = createClassLoadingStrategy();
-        final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
+        final SchemaContext schemaContext = strategy.getEffectiveModelContext();
         this.codecFactory = new BindingNormalizedNodeCodecRegistry(
             BindingRuntimeContext.create(strategy, schemaContext));
         final List<BgpTableType> localTables = new ArrayList<>();
@@ -194,8 +193,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(Optional.empty()).when(this.future).get();
         doReturn(this.future).when(this.domTransWrite).commit();
         doNothing().when(this.future).addListener(any(Runnable.class), any(Executor.class));
-        doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
-                any(InstanceIdentifier.class), any(DataObject.class), eq(true));
+        doNothing().when(this.transWrite).mergeParentStructurePut(eq(LogicalDatastoreType.OPERATIONAL),
+                any(InstanceIdentifier.class), any(DataObject.class));
         doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(InstanceIdentifier.class), any(DataObject.class));
         doReturn(this.future).when(this.transWrite).commit();

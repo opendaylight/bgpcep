@@ -16,6 +16,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -189,8 +190,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         }
         final AfiSafis actAfiSafi = this.currentConfiguration.getAfiSafis();
         final AfiSafis extAfiSafi = neighbor.getAfiSafis();
-        final List<AfiSafi> actualSafi = actAfiSafi != null ? actAfiSafi.getAfiSafi() : Collections.emptyList();
-        final List<AfiSafi> extSafi = extAfiSafi != null ? extAfiSafi.getAfiSafi() : Collections.emptyList();
+        final Collection<AfiSafi> actualSafi = actAfiSafi != null ? actAfiSafi.nonnullAfiSafi().values()
+                : Collections.emptyList();
+        final Collection<AfiSafi> extSafi = extAfiSafi != null ? extAfiSafi.nonnullAfiSafi().values()
+                : Collections.emptyList();
         return actualSafi.containsAll(extSafi) && extSafi.containsAll(actualSafi)
                 && Objects.equals(this.currentConfiguration.getConfig(), neighbor.getConfig())
                 && Objects.equals(this.currentConfiguration.getNeighborAddress(), neighbor.getNeighborAddress())
