@@ -81,7 +81,7 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
         final BGPActivator act = new BGPActivator(activator);
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
-        this.ribSupport = FlowspecIpv4RIBSupport.getInstance(fsContext, this.mappingService);
+        this.ribSupport = FlowspecIpv4RIBSupport.getInstance(fsContext, this.adapter.currentSerializer());
 
         final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
                 fsContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,

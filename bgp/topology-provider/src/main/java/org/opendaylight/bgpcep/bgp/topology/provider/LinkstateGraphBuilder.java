@@ -113,11 +113,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateGraphBuilder.class);
 
-    private ConnectedGraphProvider graphProvider;
-    private ConnectedGraph cgraph;
+    private final ConnectedGraphProvider graphProvider;
+    private final ConnectedGraph cgraph;
 
     public LinkstateGraphBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, ConnectedGraphProvider provider) {
+            final TopologyId topologyId, final ConnectedGraphProvider provider) {
         super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class);
         this.graphProvider = requireNonNull(provider);
@@ -131,7 +131,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
     @VisibleForTesting
     LinkstateGraphBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, ConnectedGraphProvider provider, final long listenerResetLimitInMillsec,
+            final TopologyId topologyId, final ConnectedGraphProvider provider, final long listenerResetLimitInMillsec,
             final int listenerResetEnforceCounter) {
         super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class, listenerResetLimitInMillsec, listenerResetEnforceCounter);
@@ -212,7 +212,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      *
      * @return Unique key
      */
-    private Uint64 getEdgeId(LinkCase linkCase) {
+    private Uint64 getEdgeId(final LinkCase linkCase) {
         long key = 0;
         if (linkCase.getLinkDescriptors().getIpv4InterfaceAddress() != null) {
             key = ipv4ToKey(linkCase.getLinkDescriptors().getIpv4InterfaceAddress().getValue());
@@ -292,7 +292,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      */
     private static final int MAX_PRIORITY = 8;
 
-    private EdgeAttributes createEdgeAttributes(LinkAttributes la, final LinkDescriptors linkDesc) {
+    private EdgeAttributes createEdgeAttributes(final LinkAttributes la, final LinkDescriptors linkDesc) {
         EdgeAttributesBuilder builder = new EdgeAttributesBuilder();
 
         if (linkDesc.getIpv4InterfaceAddress() != null) {
@@ -330,7 +330,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             final List<UnreservedBandwidth> unRsvBw = new ArrayList<>(upperBound);
 
             for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120
-                    .UnreservedBandwidth bandwidth : la.getUnreservedBandwidth()) {
+                    .UnreservedBandwidth bandwidth : la.nonnullUnreservedBandwidth().values()) {
                 unRsvBw.add(new UnreservedBandwidthBuilder()
                         .setBandwidth(bandwithToDecimalBandwidth(bandwidth.getBandwidth()))
                         .withKey(new UnreservedBandwidthKey(bandwidth.getPriority())).build());
@@ -365,7 +365,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             builder.setUtilizedBandwidth(bandwithToDecimalBandwidth(la.getUtilizedBandwidth()));
         }
         if (la.getSharedRiskLinkGroups() != null) {
-            List<Uint32> srlgs = new ArrayList<Uint32>();
+            List<Uint32> srlgs = new ArrayList<>();
             for (SrlgId srlg : la.getSharedRiskLinkGroups()) {
                 srlgs.add(srlg.getValue());
             }
@@ -424,7 +424,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      *
      * @return New Vertex
      */
-    private Vertex getVertex(NodeAttributes na, Uint64 id, int as) {
+    private Vertex getVertex(final NodeAttributes na, final Uint64 id, final int as) {
         VertexBuilder builder = new VertexBuilder().setVertexId(id).setAsn(Uint32.valueOf(as));
         if (na.getIpv4RouterId() != null) {
             builder.setRouterId(new IpAddress(new Ipv4Address(na.getIpv4RouterId().getValue())));
@@ -440,7 +440,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         } else {
             int key = id.intValue();
             builder.setName(
-                    ((key << 24) & 0xFF) + "." + ((key << 16) & 0xFF) + "." + ((key << 8) & 0xFF) + "." + (key & 0xFF));
+                    (key << 24 & 0xFF) + "." + (key << 16 & 0xFF) + "." + (key << 8 & 0xFF) + "." + (key & 0xFF));
         }
         if (na.getSrCapabilities() != null) {
             builder.setSrgb(new SrgbBuilder()
@@ -585,14 +585,14 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         }
     }
 
-    private void removeEdge(LinkCase linkCase) {
+    private void removeEdge(final LinkCase linkCase) {
         /* Get Source and Destination Connected Vertex */
         if (linkCase.getLinkDescriptors() == null) {
             LOG.warn("Missing Link descriptor in link {}, skipping it", linkCase);
             return;
         }
         EdgeKey edgeKey = new EdgeKey(getEdgeId(linkCase));
-        if ((edgeKey == null) || (edgeKey.getEdgeId() == Uint64.ZERO)) {
+        if (edgeKey == null || edgeKey.getEdgeId() == Uint64.ZERO) {
             LOG.warn("Unable to get the Edge Key from link {}, skipping it", linkCase);
             return;
         }
@@ -601,9 +601,9 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         cgraph.deleteEdge(edgeKey);
     }
 
-    private void removeVertex(NodeCase nodeCase) {
+    private void removeVertex(final NodeCase nodeCase) {
         VertexKey vertexKey = new VertexKey(getVertexId(nodeCase.getNodeDescriptors().getCRouterIdentifier()));
-        if ((vertexKey == null) || (vertexKey.getVertexId() == Uint64.ZERO)) {
+        if (vertexKey == null || vertexKey.getVertexId() == Uint64.ZERO) {
             LOG.warn("Unable to get Vertex Key from descriptor {}, skipping it", nodeCase.getNodeDescriptors());
             return;
         }
@@ -612,7 +612,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         cgraph.deleteVertex(vertexKey);
     }
 
-    private void removePrefix(PrefixCase prefixCase) {
+    private void removePrefix(final PrefixCase prefixCase) {
         final IpPrefix ippfx = prefixCase.getPrefixDescriptors().getIpReachabilityInformation();
         if (ippfx == null) {
             LOG.warn("IP reachability not present in prefix {}, skipping it", prefixCase);
@@ -630,7 +630,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      *
      * @return Vertex in the Connected Graph that corresponds to this Router ID. Vertex is created if not found.
      */
-    private Uint64 getVertexId(CRouterIdentifier routerID) {
+    private Uint64 getVertexId(final CRouterIdentifier routerID) {
         Long rid = 0L;
 
         if (routerID instanceof IsisNodeCase) {
@@ -646,21 +646,21 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         return Uint64.valueOf(rid);
     }
 
-    private DecimalBandwidth bandwithToDecimalBandwidth(Bandwidth bw) {
+    private DecimalBandwidth bandwithToDecimalBandwidth(final Bandwidth bw) {
         return new DecimalBandwidth(BigDecimal.valueOf(ByteBuffer.wrap(bw.getValue()).getFloat()));
     }
 
-    private long ipv4ToKey(String str) {
+    private long ipv4ToKey(final String str) {
         byte[] ip;
         try {
             ip = ((Inet4Address) Inet4Address.getByName(str)).getAddress();
         } catch (UnknownHostException e) {
             return 0;
         }
-        return (((0xFF & ip[0]) << 24) | ((0xFF & ip[1]) << 16) | ((0xFF & ip[2]) << 8) | (0xFF & ip[3]));
+        return (0xFF & ip[0]) << 24 | (0xFF & ip[1]) << 16 | (0xFF & ip[2]) << 8 | 0xFF & ip[3];
     }
 
-    private Long ipv6ToKey(String str) {
+    private Long ipv6ToKey(final String str) {
         byte[] ip;
         try {
             ip = ((Inet6Address) Inet6Address.getByName(str)).getAddress();

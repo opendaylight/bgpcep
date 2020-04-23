@@ -8,12 +8,10 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability.RestartFlags;
@@ -26,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
  * Utility class for dealing with Graceful Restart.
@@ -35,16 +34,15 @@ public final class GracefulRestartUtil {
      * GR capability advertizing inactive GR.
      */
     public static final @NonNull GracefulRestartCapability EMPTY_GR_CAPABILITY = new GracefulRestartCapabilityBuilder()
-            .setTables(ImmutableList.of())
             .setRestartFlags(new RestartFlags(Boolean.FALSE))
-            .setRestartTime(0)
+            .setRestartTime(Uint16.ZERO)
             .build();
 
     /**
      * LLGR capability advertizing no tables.
      */
     public static final @NonNull LlGracefulRestartCapability EMPTY_LLGR_CAPABILITY =
-            new LlGracefulRestartCapabilityBuilder().setTables(ImmutableList.of()).build();
+            new LlGracefulRestartCapabilityBuilder().build();
 
     private GracefulRestartUtil() {
 
@@ -62,12 +60,12 @@ public final class GracefulRestartUtil {
     }
 
     @Beta
-    public static @NonNull CParameters gracefulRestartCapability(final List<Tables> tables, final int restartTime,
-            final boolean localRestarting) {
-        return new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
+    public static @NonNull CParameters gracefulRestartCapability(final Map<TablesKey, Tables> tables,
+            final int restartTime, final boolean localRestarting) {
+        return new CParametersBuilder().addAugmentation(new CParameters1Builder()
             .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
                 .setRestartFlags(new RestartFlags(localRestarting))
-                .setRestartTime(restartTime)
+                .setRestartTime(Uint16.valueOf(restartTime))
                 .setTables(tables)
                 .build())
             .build()).build();

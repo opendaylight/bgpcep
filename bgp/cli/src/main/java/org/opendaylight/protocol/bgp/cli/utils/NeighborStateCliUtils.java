@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.cli.utils;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.List;
 import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
@@ -56,7 +57,7 @@ final class NeighborStateCliUtils {
         printTimerState(neighbor.getTimers(), table);
         printTransportState(neighbor.getTransport(), table);
         printMessagesState(neighborState, table);
-        printAfiSafisState(neighbor.getAfiSafis().getAfiSafi(), table);
+        printAfiSafisState(neighbor.getAfiSafis().nonnullAfiSafi().values(), table);
 
         table.print(stream);
     }
@@ -76,7 +77,7 @@ final class NeighborStateCliUtils {
         table.addRow().addContent("======================", "");
     }
 
-    private static void printAfiSafisState(final List<AfiSafi> afiSafis, final ShellTable table) {
+    private static void printAfiSafisState(final Collection<AfiSafi> afiSafis, final ShellTable table) {
         afiSafis.forEach(afiSafi -> printAfiSafiState(afiSafi, table));
 
     }

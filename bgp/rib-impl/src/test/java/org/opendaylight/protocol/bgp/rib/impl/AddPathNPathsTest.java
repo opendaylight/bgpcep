@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -47,7 +46,6 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
                 TABLES_TYPE,  pathTables);
 
         this.ribImpl.instantiateServiceInstance();
-        this.ribImpl.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         final ChannelFuture channelFuture = this.serverDispatcher.createServer(
             new InetSocketAddress(RIB_ID, PORT.toJava()));
         waitFutureSuccess(channelFuture);
