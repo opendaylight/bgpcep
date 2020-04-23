@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "897f9ff7_d1d4aae9",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T09:26:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c11d1604_fc803bbe",
+      "revId": "73d48653568676316998dc3b0dfe948756633b4c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f422b256_dde94de4",
         "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
         "patchSetId": 10
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ee89ef55_a71c9cba",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T09:26:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f422b256_dde94de4",
+      "revId": "73d48653568676316998dc3b0dfe948756633b4c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07466c97_b1f2e16c",
         "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
         "patchSetId": 10
@@ -47,6 +83,24 @@
       "writtenOn": "2020-04-22T21:01:25Z",
       "side": 1,
       "message": "I think the name of the yang module is openconfig-bgp-types. Here and after.",
+      "revId": "73d48653568676316998dc3b0dfe948756633b4c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a45266fc_c7ba0eb6",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-04-23T09:26:24Z",
+      "side": 1,
+      "message": "Done\nI tried to resolve the errors as you directed. It went well considering 3 out of 4 were SUCCESS.\nThe one which was a FAILURE showed two errors and warnings build logs:\ni) Warning, treated as error:\n /w/workspace/bgpcep-rtd-verify-aluminium/docs/bgp/bgp-user-guide-protocol-configuration.rst:55:Title underline too short.\n\nii) ERROR: InvocationError for command /w/workspace/bgpcep-rtd-verify-aluminium/.tox/docs/bin/sphinx-build -W -b html -n -d /w/workspace/bgpcep-rtd-verify-aluminium/.tox/docs/tmp/doctrees ./docs/ /w/workspace/bgpcep-rtd-verify-aluminium/docs/_build/html (exited with code 2)\n\nERROR:   docs: commands failed\n\nError (i) was resolved but, I can\u0027t seem to understand error (ii)\n\nKindly provide some guidance on how to resolve this error (ii)",
+      "parentUuid": "07466c97_b1f2e16c",
       "revId": "73d48653568676316998dc3b0dfe948756633b4c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
