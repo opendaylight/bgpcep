@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOutboundHandler;
-
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 
 /**

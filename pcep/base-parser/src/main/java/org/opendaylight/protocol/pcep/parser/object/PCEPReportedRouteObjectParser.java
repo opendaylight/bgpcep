@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
@@ -24,9 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link Rro}.
  */
 public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsParser {
-
     public static final int CLASS = 8;
-
     public static final int TYPE = 1;
 
     public PCEPReportedRouteObjectParser(final RROSubobjectRegistry subobjReg) {

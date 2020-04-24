@@ -9,7 +9,6 @@ package org.opendaylight.algo.impl;
 
 import java.util.HashMap;
 import java.util.List;
-
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
@@ -21,14 +20,12 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This Class implements a simple Shortest Path First path computation algorithm based on standard IGP Metric.
  *
  * @author Olivier Dugeon
  * @author Philippe Niger
  * @author Philippe Cadro
- *
  */
 public class ShortestPathFirst extends AbstractPathComputation {
 

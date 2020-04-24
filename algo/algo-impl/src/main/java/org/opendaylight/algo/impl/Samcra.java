@@ -10,7 +10,6 @@ package org.opendaylight.algo.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
@@ -33,11 +32,8 @@ import org.slf4j.LoggerFactory;
  * @author Philippe Niger
  * @author Olivier Dugeon
  * @author Philippe Cadro
- *
  */
-
 public class Samcra extends AbstractPathComputation {
-
     /*
      * This class stores the set of paths which has been computed for a given Connected Vertex:
      *     - pathCount        number of active paths
@@ -47,7 +43,6 @@ public class Samcra extends AbstractPathComputation {
      * Each path is represented by a "CspfPath" class to encompass path predecessor, path status
      * and path length information
      */
-
     private static class SamcraPath {
 
         private ConnectedVertex cvertex;
