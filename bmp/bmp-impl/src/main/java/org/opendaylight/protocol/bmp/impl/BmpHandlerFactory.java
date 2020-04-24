@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOutboundHandler;
-
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 
 public final class BmpHandlerFactory {
@@ -30,5 +29,4 @@ public final class BmpHandlerFactory {
     public ChannelHandler[] getDecoders() {
         return new ChannelHandler[]{new BmpMessageHeaderDecoder(), new BmpByteToMessageDecoder(this.registry),};
     }
-
 }

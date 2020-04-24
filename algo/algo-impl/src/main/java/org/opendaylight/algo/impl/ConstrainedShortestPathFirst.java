@@ -9,7 +9,6 @@ package org.opendaylight.algo.impl;
 
 import java.util.HashMap;
 import java.util.List;
-
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
@@ -21,7 +20,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This Class implements a simple Constrained Shortest Path First path computation algorithm that take into account
  * Bandwidth and TE Metric as constraints.
@@ -29,7 +27,6 @@ import org.slf4j.LoggerFactory;
  * @author Olivier Dugeon
  * @author Philippe Niger
  * @author Philippe Cadro
- *
  */
 public class ConstrainedShortestPathFirst extends AbstractPathComputation {
 

@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.pcep.parser.object;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -24,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link Ero}.
  */
 public final class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsParser {
-
     private static final int CLASS = 7;
     private static final int TYPE = 1;
 
