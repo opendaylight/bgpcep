@@ -50,6 +50,24 @@
       "revId": "74d71ba2fe0a885039a2ed2904c8ca30fe7ffd33",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "807a7251_cebacf80",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8458
+      },
+      "writtenOn": "2020-04-24T07:49:03Z",
+      "side": 1,
+      "message": "Updated changes in new patch, yes it is not showing up in GET ouput. I installed ODL in my virtual machine now.",
+      "parentUuid": "2f2aa182_4ac8bed9",
+      "revId": "74d71ba2fe0a885039a2ed2904c8ca30fe7ffd33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
