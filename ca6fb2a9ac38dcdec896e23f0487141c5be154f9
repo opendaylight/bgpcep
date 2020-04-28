@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb431960_d7118df9",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T20:34:20Z",
+      "side": 1,
+      "message": "Anything that shows EMPTY in XML, you can skip in JSON. You can remove this line and other lines like this.",
+      "revId": "ca6fb2a9ac38dcdec896e23f0487141c5be154f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
