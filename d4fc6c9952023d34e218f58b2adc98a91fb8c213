@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18597fdb_68ee8939",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T23:39:01Z",
+      "side": 1,
+      "message": "it looks like you missed 21 and 22",
+      "revId": "d4fc6c9952023d34e218f58b2adc98a91fb8c213",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
