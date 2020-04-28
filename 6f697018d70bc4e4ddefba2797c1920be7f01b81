@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dd4403d_fb604574",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T20:23:36Z",
+      "side": 1,
+      "message": "remove extra space",
+      "revId": "6f697018d70bc4e4ddefba2797c1920be7f01b81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "865aa487_cc469991",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T20:23:36Z",
+      "side": 1,
+      "message": "Check indent, it should the same every line, typically 2 or 4 spaces.",
+      "revId": "6f697018d70bc4e4ddefba2797c1920be7f01b81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
