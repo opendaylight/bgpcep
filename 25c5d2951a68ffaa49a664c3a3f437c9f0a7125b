@@ -16,6 +16,23 @@
       "revId": "25c5d2951a68ffaa49a664c3a3f437c9f0a7125b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03eaf095_4f3ab889",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T21:02:12Z",
+      "side": 1,
+      "message": "the \u0027rib\u0027 statement is also missing here.",
+      "revId": "25c5d2951a68ffaa49a664c3a3f437c9f0a7125b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
