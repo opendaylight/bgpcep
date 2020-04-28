@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdcfe3e0_b4efafb2",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T20:39:52Z",
+      "side": 1,
+      "message": "I think you are missing the \u0027protocol\u0027 statement",
+      "revId": "25c5d2951a68ffaa49a664c3a3f437c9f0a7125b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
