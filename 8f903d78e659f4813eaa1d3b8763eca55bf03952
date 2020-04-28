@@ -34,6 +34,24 @@
       "revId": "8f903d78e659f4813eaa1d3b8763eca55bf03952",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93023c88_1e68c552",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T20:06:00Z",
+      "side": 1,
+      "message": "Hi Aruna, the yang module name is only required when there is a conflict in the node name, but it does not hurt to add it so we know where the parameter comes from.",
+      "parentUuid": "a7458d3a_f2e35abc",
+      "revId": "8f903d78e659f4813eaa1d3b8763eca55bf03952",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
