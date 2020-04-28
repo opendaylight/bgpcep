@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c8a8353_74464264",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T20:47:12Z",
+      "side": 1,
+      "message": "I think you are missing \u0027protocol\u0027 field",
+      "revId": "f38bbf5a7358855d39cd070b74396f7d318bfb79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "538fb84b_f1929db4",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-04-28T20:47:12Z",
+      "side": 1,
+      "message": "I think you are missing \u0027rib\u0027 field",
+      "revId": "f38bbf5a7358855d39cd070b74396f7d318bfb79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
