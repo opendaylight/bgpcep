@@ -16,6 +16,24 @@
       "revId": "8f903d78e659f4813eaa1d3b8763eca55bf03952",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7458d3a_f2e35abc",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 8697
+      },
+      "writtenOn": "2020-04-28T08:11:42Z",
+      "side": 1,
+      "message": "Is it required to include \"bgp-config-extension\". I tested without it and it works.\nShould I include \"network-instance:protocol\"",
+      "parentUuid": "e4e666b3_7e97680d",
+      "revId": "8f903d78e659f4813eaa1d3b8763eca55bf03952",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
