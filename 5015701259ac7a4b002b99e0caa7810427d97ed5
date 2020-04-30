@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7b44088a_8e9a78bd",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8458
+      },
+      "writtenOn": "2020-04-30T03:53:14Z",
+      "side": 1,
+      "message": "It was the format I got from ODL but putting it here needs some formatting.Submitted new patch hope it works",
+      "parentUuid": "4011453c_73f505f2",
+      "revId": "5015701259ac7a4b002b99e0caa7810427d97ed5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "24cc60ec_0ce3ee2f",
         "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
         "patchSetId": 5
