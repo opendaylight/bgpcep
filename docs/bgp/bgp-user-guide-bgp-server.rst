@@ -13,20 +13,22 @@ Here is a sample of bgp port listening re-configuration:
 
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+**Content-Type:** ``application/json``
 
 **Request Body:**
 
-.. code-block:: xml
+.. code-block:: json
    :linenos:
-   :emphasize-lines: 3,4
+   :emphasize-lines: 4,5
 
-   <bgp-peer-acceptor-config xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-peer-acceptor-config">
-       <config-name>default</config-name>
-       <binding-address>0.0.0.0</binding-address>
-       <binding-port>1791</binding-port>
-   </bgp-peer-acceptor-config>
+    {
+        "openconfig-odl-bgp-peer-acceptor-config:bgp-peer-acceptor-config": {
+            "config-name": "default",
+            "binding-address": "0.0.0.0",
+            "binding-port": "1791"
+        }
+    }
 
-@line 3: Binding address: By default is 0.0.0.0, so it is not a mandatory field.
+@line 4: Binding address: By default is 0.0.0.0, so it is not a mandatory field.
 
-@line 4: Binding Port: Port were BGP Server will listen.
+@line 5: Binding Port: Port were BGP Server will listen.
