@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1e3b4a5_259bd2e9",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-05-03T18:57:10Z",
+      "side": 1,
+      "message": "I think this { has to be aligned wit code-block above.",
+      "revId": "2d58128792324c3562deda0a6107dea69a922a3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
