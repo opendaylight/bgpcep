@@ -34,6 +34,24 @@
       "revId": "1891906afceb60a8f3e21a3a6fab7a341330ca22",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7a276f3_4d76abcb",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-05-03T22:06:54Z",
+      "side": 1,
+      "message": "Yes,You are right @Luis. The payload isn\u0027t working with the \"protocols\" node because this node doesn\u0027t exist within the schema. I have made the required changes. If there is any issue, Please let me know.",
+      "parentUuid": "4a60f9be_2d3fad48",
+      "revId": "1891906afceb60a8f3e21a3a6fab7a341330ca22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
