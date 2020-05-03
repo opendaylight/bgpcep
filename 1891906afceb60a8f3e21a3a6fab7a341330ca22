@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13db1685_80c5a607",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-05-03T19:05:14Z",
+      "side": 1,
+      "message": "I am curious, did this payload work with this \"protocols\" here? if you see original XML payload, it only has \"protocol\".",
+      "revId": "1891906afceb60a8f3e21a3a6fab7a341330ca22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
