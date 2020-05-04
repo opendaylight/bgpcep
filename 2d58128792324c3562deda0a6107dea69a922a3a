@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "44e72df4_61167395",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8458
+      },
+      "writtenOn": "2020-05-04T07:03:26Z",
+      "side": 1,
+      "message": "Aligned in new patch.",
+      "parentUuid": "e1e3b4a5_259bd2e9",
+      "revId": "2d58128792324c3562deda0a6107dea69a922a3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "61a5833b_db098b63",
         "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2020-05-03T19:26:11Z",
       "side": 1,
       "message": "I think you added this because it was in the output when you did a GET but in reality it works with just \"protocol\" like in the original XML example. You can try this json payload with the controller to confirm.",
+      "revId": "2d58128792324c3562deda0a6107dea69a922a3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fa3fbca_f5e63c7c",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8458
+      },
+      "writtenOn": "2020-05-04T07:03:26Z",
+      "side": 1,
+      "message": "Yes it worked, removed it in new patch.",
+      "parentUuid": "61a5833b_db098b63",
       "revId": "2d58128792324c3562deda0a6107dea69a922a3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
