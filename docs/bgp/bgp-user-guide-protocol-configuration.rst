@@ -2,7 +2,7 @@
 
 Protocol Configuration
 ======================
-As a first step, a new protocol instance needs to be configured.
+As a first step, a new protocol instance needs to be configu
 It is a very basic configuration conforming with RFC4271.
 
 .. note:: RIB policy must already be configured and present before configuring the protocol.
@@ -50,6 +50,38 @@ It is a very basic configuration conforming with RFC4271.
 
 @line 15: Default ODL Export Policy.
 
+
+**Request Body: In JSON**
+
+.. code-block:: json
+  :linenos:
+  :emphasize-lines: 3,7,8
+
+  {
+    "protocol": {
+      "name": "bgp-example",
+      "identifier": "x:BGP",
+      "bgp": {
+        "global": {
+          "config": {
+            "router-id": "192.0.2.2",
+            "as": 65000
+          },
+          "apply-policy": {
+            "config": {
+              "default-export-policy": "REJECT-ROUTE",
+              "default-import-policy": "REJECT-ROUTE",
+              "import-policy": "default-odl-import-policy",
+              "export-policy": "default-odl-export-policy"
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+
 -----
 
 The new instance presence can be verified via REST:
@@ -81,3 +113,25 @@ The new instance presence can be verified via REST:
 @line 3: Loc-RIB - Per-protocol instance RIB, which contains the routes that have been selected by local BGP speaker's decision process.
 
 @line 4: The BGP-4 supports carrying IPv4 prefixes, such routes are stored in *ipv4-address-family*/*unicast-subsequent-address-family* table.
+
+**Responce Body: In JSON**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4,5
+
+   {
+    "rib": {
+      "id": "bgp-example",
+      "loc-rib": {
+        "tables": {
+          "afi": "x:ipv4-address-family",
+          "safi": "x:unicast-subsequent-address-family",
+          "ipv4-routes": null,
+          "attributes": {
+            "uptodate": true
+          }
+        }
+      }
+    }
+   }
