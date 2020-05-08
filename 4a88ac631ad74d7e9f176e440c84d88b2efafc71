@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71ca9be6_6cbf058c",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-05-08T14:42:06Z",
+      "side": 1,
+      "message": "On sending XML payload to ODL using Postman, the output gives an additional field as ahown below:\n\n```\n{\n    \"protocols\": {\n        \"protocol\": [\n            {\n                \"identifier\": \"openconfig-policy-types:BGP\",\n\nWhen I tried to verify existing JSON payload, it gave an error as 400 Bad Request:\n\n{\n    \"errors\": {\n        \"error\": [\n            {\n                \"error-type\": \"protocol\",\n                \"error-tag\": \"malformed-message\",\n                \"error-message\": \"Error parsing input: Schema node with name protocols was not found under (http://openconfig.net/yang/network-instance?revision\u003d2015-10-18)protocols.\",\n                \"error-info\": \"Schema node with name protocols was not found under (http://openconfig.net/yang/network-instance?revision\u003d2015-10-18)protocols.\"\n            }\n        ]\n    }\n}\n```\n\nOn going through the request link in the above error message, it gave the error as follows:\n\n```\n\u003chtml\u003e\n\n\u003chead\u003e\n\t\u003ctitle\u003e502 Bad Gateway\u003c/title\u003e\n\u003c/head\u003e\n\n\u003cbody bgcolor\u003d\"white\"\u003e\n\t\u003ccenter\u003e\n\t\t\u003ch1\u003e502 Bad Gateway\u003c/h1\u003e\n\t\u003c/center\u003e\n\t\u003chr\u003e\n\t\u003ccenter\u003enginx/1.10.2\u003c/center\u003e\n\u003c/body\u003e\n\n\u003c/html\u003e\n```\n\nHowever, when I made the above mentioned changes and resent the request on postman, it still gave the same error.\nKindly advise.",
+      "revId": "4a88ac631ad74d7e9f176e440c84d88b2efafc71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1591b0d_e4d9d9d4",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 8695
+      },
+      "writtenOn": "2020-05-08T14:42:06Z",
+      "side": 1,
+      "message": "On sending the XML payload to ODL controller, it gave the same output as in Patchset 7.\nHowever, there was an additional [ ] square parentheses.\nAlso, there was a comma(,) missing on line 75.\nI made the changes in patchset 8",
+      "revId": "4a88ac631ad74d7e9f176e440c84d88b2efafc71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
