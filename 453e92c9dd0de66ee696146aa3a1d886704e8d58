@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50745f7a_b8e50f62",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2020-05-08T18:01:38Z",
+      "side": 1,
+      "message": "just add the missing lines 16 \u0026 19 here",
+      "revId": "453e92c9dd0de66ee696146aa3a1d886704e8d58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
