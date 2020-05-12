@@ -23,6 +23,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>odl-mdsal-broker</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-ietf-p2mp-te-lsp</artifactId>
         </dependency>
