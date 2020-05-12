@@ -25,15 +25,11 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-parser-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-path-selection-mode</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
+            <artifactId>odl-bgpcep-bgp-parser</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
