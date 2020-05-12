@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-bgp-parser</artifactId>
+            <artifactId>odl-bgpcep-bgp-parser-api</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>

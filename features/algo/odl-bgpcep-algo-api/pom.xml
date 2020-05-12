@@ -27,14 +27,14 @@
             <artifactId>algo-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>odl-mdsal-model-rfc6991</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-graph-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>odl-mdsal-model-odl-uint24</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-concepts</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
