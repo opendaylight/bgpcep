@@ -28,6 +28,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -48,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+@Singleton
 public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigLoaderImpl.class);
     private static final String INTERRUPTED = "InterruptedException";
@@ -65,6 +70,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     @GuardedBy("this")
     private boolean closed = false;
 
+    @Inject
     public ConfigLoaderImpl(final EffectiveModelContext schemaContext,
             final BindingNormalizedNodeSerializer bindingSerializer, final FileWatcher fileWatcher) {
         this.schemaContext = requireNonNull(schemaContext);
@@ -74,6 +80,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         this.watcherThread = new Thread(new ConfigLoaderImplRunnable(requireNonNull(fileWatcher.getWatchService())));
     }
 
+    @PostConstruct
     public void init() {
         this.watcherThread.start();
         LOG.info("Config Loader service initiated");
@@ -170,7 +177,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         return this.bindingSerializer;
     }
 
-
+    @PreDestroy
     @Override
     public synchronized void close() {
         LOG.info("Config Loader service closed");
