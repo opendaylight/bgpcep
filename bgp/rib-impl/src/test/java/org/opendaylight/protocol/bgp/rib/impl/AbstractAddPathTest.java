@@ -167,7 +167,6 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         this.clientDispatchers = new ArrayList<>();
     }
 
-    @Override
     @After
     public void tearDown() throws Exception {
         this.serverDispatcher.close();
@@ -180,7 +179,6 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         this.bgpActivator.close();
         this.clientDispatchers.forEach(BGPDispatcherImpl::close);
         this.clientDispatchers = null;
-        super.tearDown();
     }
 
     void sendRouteAndCheckIsOnLocRib(final BGPSessionImpl session, final Ipv4Prefix prefix, final long localPreference,
