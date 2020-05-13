@@ -18,9 +18,11 @@ public class DefaultWatcherTest {
 
     @Test
     public void bgpFileWatcherTest() throws Exception {
-        final DefaultFileWatcher bgpFileWatcher = new DefaultFileWatcher();
-        assertEquals(PATH, bgpFileWatcher.getPathFile());
-        assertNotNull(bgpFileWatcher.getWatchService());
-        bgpFileWatcher.close();
+        try (DefaultFileWatcher bgpFileWatcher = new DefaultFileWatcher()) {
+            bgpFileWatcher.activate();
+
+            assertEquals(PATH, bgpFileWatcher.getPathFile());
+            assertNotNull(bgpFileWatcher.getWatchService());
+        }
     }
 }

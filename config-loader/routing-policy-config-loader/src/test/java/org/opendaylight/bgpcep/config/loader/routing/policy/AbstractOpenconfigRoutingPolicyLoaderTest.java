@@ -12,7 +12,6 @@ import static org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRou
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
 import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
 
-import org.junit.After;
 import org.junit.Before;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
 
@@ -29,11 +28,5 @@ public class AbstractOpenconfigRoutingPolicyLoaderTest extends AbstractConfigLoa
         this.policyLoader.init();
         checkPresentConfiguration(getDataBroker(), ROUTING_POLICY_IID);
         this.policyLoader.close();
-        this.configLoader.close();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 }
