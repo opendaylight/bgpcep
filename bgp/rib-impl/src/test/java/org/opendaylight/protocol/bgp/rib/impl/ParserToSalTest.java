@@ -101,7 +101,6 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         this.codecsRegistry = new ConstantCodecsRegistry(serializer);
     }
 
-    @Override
     @After
     public void tearDown() {
         this.lsact.close();

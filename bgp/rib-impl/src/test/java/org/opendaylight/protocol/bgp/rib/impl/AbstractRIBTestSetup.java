@@ -223,7 +223,6 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return this.domTransWrite;
     }
 
-    @Override
     @After
     public void tearDown() {
         this.a1.close();
