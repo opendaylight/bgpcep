@@ -30,7 +30,7 @@ import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerTest {
     @GuardedBy("this")
     private final List<WatchEvent<?>> eventList = new CopyOnWriteArrayList<>();
-    protected ConfigLoaderImpl configLoader;
+    protected AbstractConfigLoader configLoader;
     @Mock
     private WatchService watchService;
     @Mock
@@ -63,7 +63,7 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
             clearEvent();
             return null;
         }).when(this.processor).loadConfiguration(any());
-        this.configLoader = new ConfigLoaderImpl(getSchemaContext(), this.mappingService.currentSerializer(),
+        this.configLoader = new AbstractConfigLoader(getSchemaContext(), this.mappingService.currentSerializer(),
             this.fileWatcher);
         this.configLoader.init();
     }
