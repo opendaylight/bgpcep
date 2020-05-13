@@ -32,9 +32,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
@@ -48,36 +48,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigLoaderImpl.class);
+abstract class AbstractConfigLoader implements ConfigLoader {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractConfigLoader.class);
     private static final String INTERRUPTED = "InterruptedException";
     private static final String EXTENSION = "-.*\\.xml";
     private static final String INITIAL = "^";
     private static final String READ = "rw";
     private static final long TIMEOUT_SECONDS = 5;
+
     @GuardedBy("this")
     private final Map<String, ConfigFileProcessor> configServices = new HashMap<>();
-    private final EffectiveModelContext schemaContext;
-    private final BindingNormalizedNodeSerializer bindingSerializer;
     private final String path;
     private final Thread watcherThread;
     private final File file;
     @GuardedBy("this")
     private boolean closed = false;
 
-    public ConfigLoaderImpl(final EffectiveModelContext schemaContext,
-            final BindingNormalizedNodeSerializer bindingSerializer, final FileWatcher fileWatcher) {
-        this.schemaContext = requireNonNull(schemaContext);
-        this.bindingSerializer = requireNonNull(bindingSerializer);
+    AbstractConfigLoader(final FileWatcher fileWatcher) {
         this.path = requireNonNull(fileWatcher.getPathFile());
         this.file = new File(this.path);
         this.watcherThread = new Thread(new ConfigLoaderImplRunnable(requireNonNull(fileWatcher.getWatchService())));
     }
 
-    public void init() {
+    final void start() {
         this.watcherThread.start();
-        LOG.info("Config Loader service initiated");
+        LOG.info("Config Loader service started");
     }
+
+    final void stop() {
+        LOG.info("Config Loader service stopping");
+
+        synchronized (this) {
+            this.closed = true;
+            this.watcherThread.interrupt();
+        }
+
+        try {
+            this.watcherThread.join();
+        } catch (InterruptedException e) {
+            LOG.warn("Interrupted while waiting for watcher thread to terminate", e);
+        }
+        LOG.info("Config Loader service stopped");
+    }
+
+    abstract @NonNull EffectiveModelContext modelContext();
 
     private synchronized void handleConfigFile(final ConfigFileProcessor config, final String filename) {
         final NormalizedNode<?, ?> dto;
@@ -120,9 +134,9 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
             final XMLInputFactory factory = XMLInputFactory.newInstance();
             final XMLStreamReader reader = factory.createXMLStreamReader(resourceAsStream);
 
-            final SchemaNode schemaNode = SchemaContextUtil
-                    .findDataSchemaNode(this.schemaContext, config.getSchemaPath());
-            try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, this.schemaContext, schemaNode)) {
+            final EffectiveModelContext modelContext = modelContext();
+            final SchemaNode schemaNode = SchemaContextUtil.findDataSchemaNode(modelContext(), config.getSchemaPath());
+            try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, modelContext, schemaNode)) {
                 xmlParser.parse(reader);
             } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
                 LOG.warn("Failed to parse xml", e);
@@ -136,7 +150,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     }
 
     @Override
-    public synchronized AbstractRegistration registerConfigFile(final ConfigFileProcessor config) {
+    public final synchronized AbstractRegistration registerConfigFile(final ConfigFileProcessor config) {
         final String pattern = INITIAL + config.getSchemaPath().getLastComponent().getLocalName() + EXTENSION;
         this.configServices.put(pattern, config);
 
@@ -158,24 +172,11 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                synchronized (ConfigLoaderImpl.this) {
-                    ConfigLoaderImpl.this.configServices.remove(pattern);
+                synchronized (AbstractConfigLoader.this) {
+                    AbstractConfigLoader.this.configServices.remove(pattern);
                 }
             }
         };
-    }
-
-    @Override
-    public BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer() {
-        return this.bindingSerializer;
-    }
-
-
-    @Override
-    public synchronized void close() {
-        LOG.info("Config Loader service closed");
-        this.closed = true;
-        this.watcherThread.interrupt();
     }
 
     private class ConfigLoaderImplRunnable implements Runnable {
@@ -198,7 +199,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
             try {
                 key = this.watchService.take();
             } catch (final InterruptedException | ClosedWatchServiceException e) {
-                if (!ConfigLoaderImpl.this.closed) {
+                if (!AbstractConfigLoader.this.closed) {
                     LOG.warn(INTERRUPTED, e);
                     Thread.currentThread().interrupt();
                 }
@@ -219,7 +220,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         }
 
         private synchronized void handleEvent(final String filename) {
-            ConfigLoaderImpl.this.configServices.entrySet().stream()
+            AbstractConfigLoader.this.configServices.entrySet().stream()
                     .filter(entry -> Pattern.matches(entry.getKey(), filename))
                     .forEach(entry -> handleConfigFile(entry.getValue(), filename));
         }

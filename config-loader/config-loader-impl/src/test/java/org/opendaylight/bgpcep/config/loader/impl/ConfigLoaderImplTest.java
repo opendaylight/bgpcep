@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
-public class ConfigLoaderImplTest extends AbstractConfigLoader {
+public class ConfigLoaderImplTest extends SimpleConfigLoader {
     @Override
     @Before
     public void setUp() throws Exception {
