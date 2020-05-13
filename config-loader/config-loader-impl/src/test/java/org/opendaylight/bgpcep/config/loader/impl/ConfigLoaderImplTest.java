@@ -10,7 +10,7 @@ package org.opendaylight.bgpcep.config.loader.impl;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
-public class ConfigLoaderImplTest extends AbstractConfigLoader {
+public class ConfigLoaderImplTest extends AbstractConfigLoaderTest {
     @Override
     @Before
     public void setUp() throws Exception {
@@ -44,11 +44,11 @@ public class ConfigLoaderImplTest extends AbstractConfigLoader {
         final AbstractRegistration ticket = this.configLoader.registerConfigFile(this.processor);
         verify(this.processor).loadConfiguration(any());
 
-        triggerEvent("protocols-config.xml");
-        verify(this.processor, timeout(20000).times(2)).loadConfiguration(any());
+        configLoader.triggerEvent("protocols-config.xml");
+        verify(this.processor, times(2)).loadConfiguration(any());
 
         ticket.close();
-        triggerEvent("protocols-config.xml");
-        verify(this.processor, timeout(20000).times(2)).loadConfiguration(any());
+        configLoader.triggerEvent("protocols-config.xml");
+        verify(this.processor, times(2)).loadConfiguration(any());
     }
 }

@@ -20,7 +20,7 @@ public class FileWatcherTest {
 
     @Test
     public void bgpFileWatcherTest() throws Exception {
-        final FileWatcherImpl bgpFileWatcher = new FileWatcherImpl();
+        final DefaultFileWatcher bgpFileWatcher = new DefaultFileWatcher();
         assertEquals(PATH, bgpFileWatcher.getPathFile());
         assertNotNull(bgpFileWatcher.getWatchService());
         bgpFileWatcher.close();
