@@ -11,13 +11,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
+import java.io.File;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -25,12 +25,39 @@ import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
+import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 
-public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerTest {
+public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBrokerTest {
+    protected final class TestConfigLoader extends AbstractConfigLoader {
+        @Override
+        public BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer() {
+            return mappingService.currentSerializer();
+        }
+
+        @Override
+        File directory() {
+            return new File(getResourceFolder());
+        }
+
+        @Override
+        EffectiveModelContext modelContext() {
+            try {
+                return getSchemaContext();
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to acquire schema context", e);
+            }
+        }
+
+        public void triggerEvent(final String filename) {
+            handleEvent(filename);
+        }
+    }
+
     @GuardedBy("this")
     private final List<WatchEvent<?>> eventList = new CopyOnWriteArrayList<>();
-    protected ConfigLoaderImpl configLoader;
+    protected TestConfigLoader configLoader = new TestConfigLoader();
     @Mock
     private WatchService watchService;
     @Mock
@@ -44,7 +71,7 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
     protected AdapterContext mappingService;
     protected DOMSchemaService schemaService;
 
-    public AbstractConfigLoader() {
+    public AbstractConfigLoaderTest() {
         super(true);
     }
 
@@ -63,13 +90,10 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
             clearEvent();
             return null;
         }).when(this.processor).loadConfiguration(any());
-        this.configLoader = new ConfigLoaderImpl(getSchemaContext(), this.mappingService.currentSerializer(),
-            this.fileWatcher);
-        this.configLoader.init();
     }
 
     @Override
-    protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
         this.mappingService = customizer.getAdapterContext();
         this.schemaService = customizer.getSchemaService();
@@ -84,13 +108,4 @@ public abstract class AbstractConfigLoader extends AbstractConcurrentDataBrokerT
         return ClassLoader.getSystemClassLoader().getResource("initial").getPath();
     }
 
-    protected synchronized void triggerEvent(final String filename) {
-        doReturn(filename).when(this.watchEvent).context();
-        this.eventList.add(this.watchEvent);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        this.configLoader.close();
-    }
 }
