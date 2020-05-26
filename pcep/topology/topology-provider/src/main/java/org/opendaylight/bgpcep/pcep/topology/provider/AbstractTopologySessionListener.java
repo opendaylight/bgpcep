@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -29,9 +28,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
@@ -104,7 +103,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     @GuardedBy("this")
     private final Map<S, PCEPRequest> requests = new HashMap<>();
     @GuardedBy("this")
-    private final Map<String, ReportedLsp> lspData = new HashMap<>();
+    private final Map<String, ReportedLsp> lspData = new ConcurrentHashMap<>();
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     @GuardedBy("this")
@@ -598,12 +597,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Override
     public int getDelegatedLspsCount() {
-        final Stream<ReportedLsp> stream;
-        synchronized (this) {
-            stream = ImmutableList.copyOf(this.lspData.values()).stream();
-        }
-
-        return Math.toIntExact(stream
+        return Math.toIntExact(this.lspData.values().stream()
             .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
             // pick the first path, as delegate status should be same in each path
             .map(pathList -> pathList.values().iterator().next())
