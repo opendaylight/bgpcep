@@ -14,8 +14,9 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -47,6 +48,7 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsProviderImpl.class);
     @GuardedBy("this")
     private final Map<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> statsMap = new HashMap<>();
+    private final Set<KeyedInstanceIdentifier<Node, NodeKey>> statsPendingDelete = ConcurrentHashMap.newKeySet();
     private final DataBroker dataBroker;
     private final int timeout;
     private TransactionChain transactionChain;
@@ -79,6 +81,9 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
         try {
             for (final Map.Entry<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> entry
                     : this.statsMap.entrySet()) {
+                if (this.statsPendingDelete.contains(entry.getKey())) {
+                    continue;
+                }
                 final PcepTopologyNodeStatsAug nodeStatsAug = new PcepTopologyNodeStatsAugBuilder()
                         .setPcepSessionState(new PcepSessionStateBuilder(entry.getValue()).build()).build();
                 final InstanceIdentifier<PcepTopologyNodeStatsAug> statId =
@@ -144,12 +149,21 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     @Override
     public synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
         this.statsMap.remove(nodeId);
+        this.statsPendingDelete.add(nodeId);
         final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, nodeId);
-        try {
-            wTx.commit().get();
-        } catch (final InterruptedException | ExecutionException e) {
-            LOG.warn("Failed to remove Pcep Node stats {}.", nodeId.getKey().getNodeId(), e);
-        }
+        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.debug("Successfully removed Pcep Node stats {}.", nodeId.getKey().getNodeId());
+                TopologyStatsProviderImpl.this.statsPendingDelete.remove(nodeId);
+            }
+
+            @Override
+            public void onFailure(final Throwable ex) {
+                LOG.warn("Failed to remove Pcep Node stats {}.", nodeId.getKey().getNodeId(), ex);
+                TopologyStatsProviderImpl.this.statsPendingDelete.remove(nodeId);
+            }
+        }, MoreExecutors.directExecutor());
     }
 }
