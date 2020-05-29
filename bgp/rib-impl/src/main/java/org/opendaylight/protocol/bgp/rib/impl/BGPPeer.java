@@ -242,7 +242,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> close() {
-        final FluentFuture<? extends CommitInfo> future = releaseConnection();
+        final FluentFuture<? extends CommitInfo> future = releaseConnection(true);
         closeDomChain();
         setActive(false);
         return future;
@@ -518,7 +518,15 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @Override
-    public synchronized FluentFuture<? extends CommitInfo> releaseConnection() {
+    public FluentFuture<? extends CommitInfo> releaseConnection() {
+        return releaseConnection(true);
+    }
+
+    /**
+     * On transaction chain failure, we don't want to wait for future.
+     * @param isWaitForSubmitted if true, wait for submitted future before closing binding chain. if false, don't wait.
+     */
+    public synchronized FluentFuture<? extends CommitInfo> releaseConnection(final boolean isWaitForSubmitted) {
         LOG.info("Closing session with peer");
         this.sessionUp = false;
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
@@ -535,7 +543,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 handleRestartTimer();
             }
         }
-        releaseBindingChain();
+        releaseBindingChain(isWaitForSubmitted);
 
         closeSession();
         return future;
@@ -624,7 +632,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (getPeerRestartTime() > 0) {
             setRestartingState();
         }
-        releaseConnection();
+        releaseConnection(true);
     }
 
     @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
@@ -635,7 +643,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
-        return this.sessionUp && getAfiSafisAdvertized().contains(tableKey);
+        return this.sessionUp && getAfiSafisAdvertized().contains(tableKey) && this.tables.contains(tableKey);
     }
 
     @Override
@@ -654,7 +662,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     public synchronized void onTransactionChainFailed(final TransactionChain chain, final Transaction transaction,
             final Throwable cause) {
         LOG.error("Transaction domChain failed.", cause);
-        releaseConnection();
+        releaseConnection(false);
     }
 
     @Override
@@ -702,7 +710,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         setGracefulPreferences(true, tablesToPreserve);
         this.currentSelectionDeferralTimerSeconds = selectionDeferralTimerSeconds;
         setLocalRestartingState(true);
-        return releaseConnection();
+        return releaseConnection(true);
     }
 
     @Override
