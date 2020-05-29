@@ -341,8 +341,9 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             newRoutes.addAll(entry.newBestPaths(this.ribSupport, e.getKey().getRouteId()));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
-        this.peerTracker.getNonInternalPeers().parallelStream().forEach(
-            toPeer -> toPeer.refreshRibOut(this.entryDep, staleRoutes, newRoutes));
+        this.peerTracker.getNonInternalPeers().parallelStream()
+                .filter(toPeer -> toPeer.supportsTable(this.entryDep.getLocalTablesKey()))
+                .forEach(toPeer -> toPeer.refreshRibOut(this.entryDep, staleRoutes, newRoutes));
     }
 
     private void updateLocRib(final List<AdvertizedRoute<C, S, R, I>> newRoutes,

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
@@ -58,8 +59,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     private final LongAdder notificationReceivedCounter = new LongAdder();
     private final LongAdder erroneousUpdate = new LongAdder();
     private final String groupId;
-    @GuardedBy("this")
-    private boolean active;
+    private AtomicBoolean active = new AtomicBoolean(false);
 
     @GuardedBy("this")
     private final Map<TablesKey, PrefixesSentCounters> prefixesSent = new HashMap<>();
@@ -275,12 +275,12 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     @Override
-    public final synchronized boolean isActive() {
-        return this.active;
+    public final boolean isActive() {
+        return this.active.get();
     }
 
-    protected final synchronized void setActive(final boolean active) {
-        this.active = active;
+    protected final void setActive(final boolean active) {
+        this.active.set(active);
     }
 
     @Override

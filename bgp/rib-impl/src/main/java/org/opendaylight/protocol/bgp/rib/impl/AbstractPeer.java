@@ -484,12 +484,14 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
-    final synchronized void releaseBindingChain() {
-        if (this.submitted != null) {
-            try {
-                this.submitted.get();
-            } catch (final InterruptedException | ExecutionException throwable) {
-                LOG.error("Write routes failed", throwable);
+    final synchronized void releaseBindingChain(final boolean isWaitForSubmitted) {
+        if (isWaitForSubmitted) {
+            if (this.submitted != null) {
+                try {
+                    this.submitted.get();
+                } catch (final InterruptedException | ExecutionException throwable) {
+                    LOG.error("Write routes failed", throwable);
+                }
             }
         }
         closeBindingChain();
