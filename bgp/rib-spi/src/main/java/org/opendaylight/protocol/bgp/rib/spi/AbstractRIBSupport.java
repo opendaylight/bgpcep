@@ -411,6 +411,24 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
+    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
+                                                                    final YangInstanceIdentifier tablePath,
+                                                                    final ContainerNode nlri,
+                                                                    final ContainerNode attributes,
+                                                                    final NodeIdentifier routesNodeId) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
+        if (maybeRoutes.isPresent()) {
+            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
+            if (destination != null) {
+                return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
+            }
+        } else {
+            LOG.debug("Advertized routes are not present in NLRI {}", nlri);
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
     public final Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn,
             final Attributes attr) {
         final UpdateBuilder ub = new UpdateBuilder();
@@ -450,24 +468,6 @@ public abstract class AbstractRIBSupport<
         } else {
             LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
         }
-    }
-
-    @Override
-    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
-                                                             final YangInstanceIdentifier tablePath,
-                                                             final ContainerNode nlri,
-                                                             final ContainerNode attributes,
-                                                             final NodeIdentifier routesNodeId) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
-        if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
-            if (destination != null) {
-                return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
-            }
-        } else {
-            LOG.debug("Advertized routes are not present in NLRI {}", nlri);
-        }
-        return Collections.emptyList();
     }
 
     private static final class DeleteRoute implements ApplyRoute {
