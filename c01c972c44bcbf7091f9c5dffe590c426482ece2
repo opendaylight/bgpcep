@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5bba086_1d274f7a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-06-01T05:46:05Z",
+      "side": 1,
+      "message": "missing documentation for public method.\nat least two callers are already holding lock, which seems to indicate the method should be split",
+      "range": {
+        "startLine": 525,
+        "startChar": 3,
+        "endLine": 525,
+        "endChar": 23
+      },
+      "revId": "c01c972c44bcbf7091f9c5dffe590c426482ece2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
