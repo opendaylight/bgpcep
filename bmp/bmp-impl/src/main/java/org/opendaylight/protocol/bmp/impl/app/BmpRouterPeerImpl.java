@@ -259,17 +259,19 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
     private static Set<TablesKey> setPeerTables(final ReceivedOpen open) {
         final Set<TablesKey> tables = Sets.newHashSet(DEFAULT_TABLE);
-        for (final BgpParameters param : open.getBgpParameters()) {
-            for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
+        for (final BgpParameters param : open.nonnullBgpParameters()) {
+            for (final OptionalCapabilities optCapa : param.nonnullOptionalCapabilities()) {
                 final CParameters cParam = optCapa.getCParameters();
-                if (cParam.augmentation(CParameters1.class) == null
-                        || cParam.augmentation(CParameters1.class).getMultiprotocolCapability() == null) {
-                    continue;
+                if (cParam != null) {
+                    final CParameters1 augment = cParam.augmentation(CParameters1.class);
+                    if (augment != null) {
+                        final MultiprotocolCapability multi = augment.getMultiprotocolCapability();
+                        if (multi != null) {
+                            final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
+                            tables.add(tt);
+                        }
+                    }
                 }
-                final MultiprotocolCapability multi = cParam.augmentation(CParameters1.class)
-                        .getMultiprotocolCapability();
-                final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
-                tables.add(tt);
             }
         }
         return tables;
