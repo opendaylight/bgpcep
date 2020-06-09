@@ -87,17 +87,14 @@ module path-computation {
         }
         leaf delay {
             description "Maximum end to end delay";
-            units "micro-seconds";
             type gr:delay;
         }
         leaf jitter {
             description "Maximum delay variation for selected edges";
-            units "micro-seconds";
             type gr:delay;
         }
         leaf loss {
             description "Maximum loss for selected edges";
-            units "0.000003%";
             type gr:loss;
         }
         leaf admin-group {
@@ -130,7 +127,6 @@ module path-computation {
         }
         leaf bandwidth {
             description "Requested bandwidth for the computed path";
-            units "bytes/second";
             type gr:decimal-bandwidth;
         }
     }
