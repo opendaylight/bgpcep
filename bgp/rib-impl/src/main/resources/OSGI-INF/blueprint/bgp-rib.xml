@@ -33,10 +33,8 @@
 
   <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker" odl:type="default"/>
   <reference id="globalBgpExtensions" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext"/>
-  <reference id="codecTreeFactory" interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTreeFactory"/>
   <reference id="domDataBroker" interface="org.opendaylight.mdsal.dom.api.DOMDataBroker" odl:type="default"/>
   <reference id="bgpTableTypeRegistry" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer"/>
-  <odl:static-reference id="domSchemaService" interface="org.opendaylight.mdsal.dom.api.DOMSchemaService"/>
   <reference id="rpcRegistry" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
 
   <bean id="bgpDeployer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpDeployerImpl"
@@ -51,14 +49,15 @@
   </bean>
 
   <reference id="policiesProvider" interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory"/>
+  <reference id="codecRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry"/>
+
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
     <argument ref="globalBgpExtensions"/>
     <argument ref="BGPDispatcher"/>
     <argument ref="policiesProvider"/>
-    <argument ref="codecTreeFactory"/>
+    <argument ref="codecRegistry"/>
     <argument ref="domDataBroker"/>
     <argument ref="dataBroker"/>
-    <argument ref="domSchemaService"/>
   </bean>
 
   <bean id="bgpPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer" scope="prototype">
