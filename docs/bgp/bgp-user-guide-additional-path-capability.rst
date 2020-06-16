@@ -19,7 +19,7 @@ BGP Speaker
 '''''''''''
 To enable ADD-PATH capability in BGP plugin, first configure BGP speaker instance:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -53,6 +53,46 @@ To enable ADD-PATH capability in BGP plugin, first configure BGP speaker instanc
 
 @line 14: Defines path selection strategy: *send-max* > 1 -> Advertise N Paths or *send-max* = 0 -> Advertise All Paths
 
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 17
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+                                   "receive": true,
+                                   "send-max": 2
+                               }
+                           ]
+                       }
+                   }
+               }
+           }
+       ]
+   }
+
+@line 17: Defines path selection strategy: *send-max* > 1 -> Advertise N Paths or *send-max* = 0 -> Advertise All Paths
+
 Here is an example for update a specific family with enable ADD-PATH capability
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/global/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST``
@@ -70,6 +110,26 @@ Here is an example for update a specific family with enable ADD-PATH capability
       <receive>true</receive>
       <send-max>0</send-max>
    </afi-safi>
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/global/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-openconfig-extensions:afi-safi": [
+           {
+               "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+               "receive": true,
+               "send-max": 0
+           }
+       ]
+   }
 
 BGP Peer
 ''''''''
@@ -99,6 +159,40 @@ Here is an example for BGP peer configuration with enabled ADD-PATH capability.
        </afi-safis>
    </neighbor>
 
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "10.25.1.9",
+               "config": {
+                   "peer-group": "application-peers"
+               }
+           },
+           {
+               "neighbor-address": "192.0.2.3",
+               "config": {
+                   "peer-as": 64999,
+                   "peer-type": "EXTERNAL"
+               }
+           },
+           {
+               "neighbor-address": "192.0.2.1",
+               "config": {
+                   "peer-group": "/bgp/neighbors/neighbor/bgp/peer-groups/peer-group[peer-group-name=\"internal-neighbor\"]"
+               }
+           }
+       ]
+   }
+
 .. note:: The path selection strategy is not configurable on per peer basis. The send-max presence indicates a willingness to send ADD-PATH NLRIs to the neighbor.
 
 Here is an example for update specific family BGP peer configuration with enabled ADD-PATH capability.
@@ -119,11 +213,31 @@ Here is an example for update specific family BGP peer configuration with enable
       <send-max>0</send-max>
    </afi-safi>
 
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-openconfig-extensions:afi-safi": [
+           {
+               "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+               "receive": true,
+               "send-max": 0
+           }
+       ]
+   }
+
 Usage
 ^^^^^
 The IPv4 Unicast table with enabled ADD-PATH capability in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
 
 **Method:** ``GET``
 
@@ -169,6 +283,55 @@ The IPv4 Unicast table with enabled ADD-PATH capability in an instance of the sp
    </ipv4-routes>
 
 @line 3: The routes with the same destination are distinguished by *path-id* attribute.
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 5
+
+   {
+       "bgp-inet:ipv4-routes":{
+           "ipv4-route": [
+               {
+                   "path-id": 1,
+                   "prefix": "193.0.2.1/32",
+                   "attributes": {
+                       "origin": {
+                           "value": "igp"
+                       },
+                       "local-pref": {
+                          "pref": 100
+                       },
+                       "ipv4-next-hop": {
+                          "global": "10.0.0.1"
+                       }
+                   }
+               },
+               {
+                   "path-id": 2,
+                   "prefix": "193.0.2.1/32",
+                   "attributes": {
+                       "origin": {
+                          "value": "igp"
+                       },
+                       "local-pref": {
+                          "pref": 100
+                       },
+                       "ipv4-next-hop": {
+                          "global": "10.0.0.2"
+                       }
+                   }
+               }
+           ]
+       }
+   }
+
+@line 5: The routes with the same destination are distinguished by *path-id* attribute.
 
 References
 ^^^^^^^^^^
