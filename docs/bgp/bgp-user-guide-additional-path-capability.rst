@@ -21,37 +21,81 @@ To enable ADD-PATH capability in BGP plugin, first configure BGP speaker instanc
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
 
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 14
+      **Content-Type:** ``application/xml``
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-               <afi-safis>
-                   <afi-safi>
-                       <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
-                       <receive>true</receive>
-                       <send-max>2</send-max>
-                   </afi-safi>
-               </afi-safis>
-           </global>
-       </bgp>
-   </protocol>
+      **Request Body:**
 
-@line 14: Defines path selection strategy: *send-max* > 1 -> Advertise N Paths or *send-max* = 0 -> Advertise All Paths
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 14
+
+         <protocol xmlns="http://openconfig.net/yang/network-instance">
+             <name>bgp-example</name>
+             <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+             <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+                 <global>
+                     <config>
+                         <router-id>192.0.2.2</router-id>
+                         <as>65000</as>
+                     </config>
+                     <afi-safis>
+                         <afi-safi>
+                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+                             <receive>true</receive>
+                             <send-max>2</send-max>
+                         </afi-safi>
+                     </afi-safis>
+                 </global>
+             </bgp>
+         </protocol>
+
+      @line 14: Defines path selection strategy: *send-max* > 1 -> Advertise N Paths or *send-max* = 0 -> Advertise All Paths
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 17
+
+         {
+             "protocol": [
+                 {
+                     "identifier": "openconfig-policy-types:BGP",
+                     "name": "bgp-example",
+                     "bgp-openconfig-extensions:bgp": {
+                         "global": {
+                             "config": {
+                                 "router-id": "192.0.2.2",
+                                 "as": 65000
+                             },
+                             "afi-safis": {
+                                 "afi-safi": [
+                                     {
+                                         "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+                                         "receive": true,
+                                         "send-max": 2
+                                     }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+             ]
+         }
+
+      @line 17: Defines path selection strategy: *send-max* > 1 -> Advertise N Paths or *send-max* = 0 -> Advertise All Paths
 
 Here is an example for update a specific family with enable ADD-PATH capability
 
@@ -59,17 +103,39 @@ Here is an example for update a specific family with enable ADD-PATH capability
 
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <afi-safi xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-      <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
-      <receive>true</receive>
-      <send-max>0</send-max>
-   </afi-safi>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <afi-safi xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+             <receive>true</receive>
+             <send-max>0</send-max>
+         </afi-safi>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-openconfig-extensions:afi-safi": [
+                 {
+                     "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+                     "receive": true,
+                     "send-max": 0
+                 }
+             ]
+         }
 
 BGP Peer
 ''''''''
@@ -79,25 +145,57 @@ Here is an example for BGP peer configuration with enabled ADD-PATH capability.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <neighbor-address>192.0.2.1</neighbor-address>
-       <afi-safis>
-           <afi-safi>
-               <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
-           </afi-safi>
-           <afi-safi>
-               <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
-               <receive>true</receive>
-               <send-max>0</send-max>
-           </afi-safi>
-       </afi-safis>
-   </neighbor>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <neighbor-address>192.0.2.1</neighbor-address>
+             <afi-safis>
+                 <afi-safi>
+                     <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
+                 </afi-safi>
+                 <afi-safi>
+                     <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+                     <receive>true</receive>
+                     <send-max>0</send-max>
+                 </afi-safi>
+             </afi-safis>
+         </neighbor>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "neighbor": [
+                 {
+                     "neighbor-address": "192.0.2.1",
+                     "afi-safis": {
+                         "afi-safi": [
+                             {
+                                 "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST"
+                             },
+                             {
+                                 "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+                                 "receive": true,
+                                 "send-max": 0
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
 
 .. note:: The path selection strategy is not configurable on per peer basis. The send-max presence indicates a willingness to send ADD-PATH NLRIs to the neighbor.
 
@@ -107,68 +205,141 @@ Here is an example for update specific family BGP peer configuration with enable
 
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <afi-safi xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-      <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
-      <receive>true</receive>
-      <send-max>0</send-max>
-   </afi-safi>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <afi-safi xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+            <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+            <receive>true</receive>
+            <send-max>0</send-max>
+         </afi-safi>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-openconfig-extensions:afi-safi": [
+                 {
+                     "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+                     "receive": true,
+                     "send-max": 0
+                 }
+             ]
+         }
 
 Usage
 ^^^^^
 The IPv4 Unicast table with enabled ADD-PATH capability in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 3
+   .. tab:: XML
 
-   <ipv4-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
-       <ipv4-route>
-           <path-id>1</path-id>
-           <prefix>193.0.2.1/32</prefix>
-           <attributes>
-               <as-path></as-path>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <ipv4-next-hop>
-                   <global>10.0.0.1</global>
-               </ipv4-next-hop>
-           </attributes>
-       </ipv4-route>
-       <ipv4-route>
-           <path-id>2</path-id>
-           <prefix>193.0.2.1/32</prefix>
-           <attributes>
-               <as-path></as-path>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <ipv4-next-hop>
-                   <global>10.0.0.2</global>
-               </ipv4-next-hop>
-           </attributes>
-       </ipv4-route>
-   </ipv4-routes>
+      **Response Body:**
 
-@line 3: The routes with the same destination are distinguished by *path-id* attribute.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 3
+
+         <ipv4-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
+             <ipv4-route>
+                 <path-id>1</path-id>
+                 <prefix>193.0.2.1/32</prefix>
+                 <attributes>
+                     <as-path></as-path>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <ipv4-next-hop>
+                         <global>10.0.0.1</global>
+                     </ipv4-next-hop>
+                 </attributes>
+             </ipv4-route>
+             <ipv4-route>
+                 <path-id>2</path-id>
+                 <prefix>193.0.2.1/32</prefix>
+                 <attributes>
+                     <as-path></as-path>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <ipv4-next-hop>
+                         <global>10.0.0.2</global>
+                     </ipv4-next-hop>
+                 </attributes>
+             </ipv4-route>
+         </ipv4-routes>
+
+      @line 3: The routes with the same destination are distinguished by *path-id* attribute.
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 5
+
+         {
+             "bgp-inet:ipv4-routes":{
+                 "ipv4-route": [
+                     {
+                         "path-id": 1,
+                         "prefix": "193.0.2.1/32",
+                         "attributes": {
+                             "origin": {
+                                 "value": "igp"
+                             },
+                             "local-pref": {
+                                 "pref": 100
+                             },
+                             "ipv4-next-hop": {
+                                "global": "10.0.0.1"
+                             }
+                         }
+                     },
+                     {
+                         "path-id": 2,
+                         "prefix": "193.0.2.1/32",
+                         "attributes": {
+                             "origin": {
+                                 "value": "igp"
+                             },
+                             "local-pref": {
+                                 "pref": 100
+                             },
+                             "ipv4-next-hop": {
+                                 "global": "10.0.0.2"
+                             }
+                         }
+                     }
+                 ]
+             }
+         }
+
+      @line 5: The routes with the same destination are distinguished by *path-id* attribute.
 
 References
 ^^^^^^^^^^
