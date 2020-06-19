@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9180a37e_8487e72e",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-06-19T11:57:17Z",
+      "side": 1,
+      "message": "Retain the old URL too. Add the RFC8040 URL as **RFC8040 URL**\n\nApply elsewhere",
+      "revId": "152c370bff981fb26b9218093c4771c253221d4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "730fce7a_15d943be",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-06-19T11:57:17Z",
+      "side": 1,
+      "message": "Have a **XML** and **JSON** to encluse the respective examples\n\nApply elsewhere",
+      "revId": "152c370bff981fb26b9218093c4771c253221d4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
