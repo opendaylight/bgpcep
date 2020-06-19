@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f72fc45d_b952bbe0",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-06-19T11:59:24Z",
+      "side": 1,
+      "message": "Have a **XML** and **JSON** to encluse the respective examples\n\nRetain the old URL too. Add the RFC8040 URL as **RFC8040 URL**\n\nApply elsewhere",
+      "revId": "6bb74187c7fd70ae9e3489e812474a7c0fa78387",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
