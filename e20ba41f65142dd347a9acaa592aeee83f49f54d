@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84ebb4a0_8d7facdb",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-06-19T11:58:12Z",
+      "side": 1,
+      "message": "Have a **XML** and **JSON** to encluse the respective examples\nApply elsewhere",
+      "revId": "e20ba41f65142dd347a9acaa592aeee83f49f54d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
