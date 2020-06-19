@@ -16,6 +16,24 @@
       "revId": "e20ba41f65142dd347a9acaa592aeee83f49f54d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40d4378e_41387d0d",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-06-19T11:59:46Z",
+      "side": 1,
+      "message": "Retain the old URL too. Add the RFC8040 URL as **RFC8040 URL**\n\nApply elsewhere",
+      "parentUuid": "84ebb4a0_8d7facdb",
+      "revId": "e20ba41f65142dd347a9acaa592aeee83f49f54d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
