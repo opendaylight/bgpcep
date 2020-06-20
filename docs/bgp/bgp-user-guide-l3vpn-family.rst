@@ -19,40 +19,87 @@ To enable IPv4 and IPv6 L3VPN support in BGP plugin, first configure BGP speaker
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
 
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-               <afi-safis>
-                   <afi-safi>
-                       <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-name>
-                   </afi-safi>
-                   <afi-safi>
-                       <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
-                   </afi-safi>
-                   <afi-safi>
-                       <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-MULTICAST</afi-safi-name>
-                   </afi-safi>
-                   <afi-safi>
-                       <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-MULTICAST</afi-safi-name>
-                   </afi-safi>
-               </afi-safis>
-           </global>
-       </bgp>
-   </protocol>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <protocol xmlns="http://openconfig.net/yang/network-instance">
+             <name>bgp-example</name>
+             <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+             <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+                 <global>
+                     <config>
+                         <router-id>192.0.2.2</router-id>
+                         <as>65000</as>
+                     </config>
+                     <afi-safis>
+                         <afi-safi>
+                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-name>
+                         </afi-safi>
+                         <afi-safi>
+                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
+                         </afi-safi>
+                         <afi-safi>
+                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-MULTICAST</afi-safi-name>
+                         </afi-safi>
+                         <afi-safi>
+                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-MULTICAST</afi-safi-name>
+                         </afi-safi>
+                     </afi-safis>
+                 </global>
+             </bgp>
+         </protocol>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "protocol": [
+                 {
+                     "identifier": "openconfig-policy-types:BGP",
+                     "name": "bgp-example",
+                     "bgp-openconfig-extensions:bgp": {
+                         "global": {
+                             "config": {
+                                 "router-id": "192.0.2.2",
+                                 "as": 65000
+                             },
+                             "afi-safis": {
+                                 "afi-safi": [
+                                     {
+                                         "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV4-UNICAST"
+                                     },
+                                     {
+                                         "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV6-UNICAST"
+                                     },
+                                     {
+                                         "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV4-MULTICAST"
+                                     },
+                                     {
+                                         "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV6-MULTICAST"
+                                     }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+             ]
+         }
 
 BGP Peer
 ''''''''
@@ -62,23 +109,53 @@ Here is an example for BGP peer configuration with enabled IPv4 and IPv6 L3VPN f
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <neighbor-address>192.0.2.1</neighbor-address>
-       <afi-safis>
-           <afi-safi>
-               <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-name>
-           </afi-safi>
-           <afi-safi>
-               <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
-           </afi-safi>
-       </afi-safis>
-   </neighbor>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <neighbor-address>192.0.2.1</neighbor-address>
+             <afi-safis>
+                 <afi-safi>
+                     <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-name>
+                 </afi-safi>
+                 <afi-safi>
+                     <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-name>
+                 </afi-safi>
+             </afi-safis>
+         </neighbor>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "neighbor": [
+                 {
+                     "neighbor-address": "192.0.2.1",
+                     "afi-safis": {
+                         "afi-safi": [
+                             {
+                                 "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV4-UNICAST"
+                             },
+                             {
+                                 "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV6-UNICAST"
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
 
 IP L3VPN API
 ^^^^^^^^^^^^
@@ -149,40 +226,82 @@ The IPv4 L3VPN Unicast table in an instance of the speaker's Loc-RIB can be veri
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <vpn-ipv4-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv4">
-       <vpn-route>
-           <path-id>0</path-id>
-           <route-key>cAXdYQABrBAALABlCgIi</route-key>
-           <label-stack>
-               <label-value>24022</label-value>
-           </label-stack>
-           <attributes>
-               <extended-communities>
-                   <transitive>true</transitive>
-                   <route-target-extended-community>
-                       <global-administrator>65000</global-administrator>
-                       <local-administrator>AAAAZQ==</local-administrator>
-                   </route-target-extended-community>
-               </extended-communities>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <as-path></as-path>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <ipv4-next-hop>
-                   <global>127.16.0.44</global>
-               </ipv4-next-hop>
-           </attributes>
-           <route-distinguisher>172.16.0.44:101</route-distinguisher>
-           <prefix>10.2.34.0/24</prefix>
-       </vpn-route>
-   </vpn-ipv4-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <vpn-ipv4-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv4">
+             <vpn-route>
+                 <path-id>0</path-id>
+                 <route-key>cAXdYQABrBAALABlCgIi</route-key>
+                 <label-stack>
+                     <label-value>24022</label-value>
+                 </label-stack>
+                 <attributes>
+                     <extended-communities>
+                         <transitive>true</transitive>
+                         <route-target-extended-community>
+                             <global-administrator>65000</global-administrator>
+                             <local-administrator>AAAAZQ==</local-administrator>
+                         </route-target-extended-community>
+                     </extended-communities>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <as-path></as-path>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <ipv4-next-hop>
+                         <global>127.16.0.44</global>
+                     </ipv4-next-hop>
+                 </attributes>
+                 <route-distinguisher>172.16.0.44:101</route-distinguisher>
+                 <prefix>10.2.34.0/24</prefix>
+             </vpn-route>
+         </vpn-ipv4-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-vpn-ipv4:vpn-ipv4-routes": {
+                 "vpn-route": {
+                     "route-key": "cAXdYQABrBAALABlCgIi",
+                     "path-id": 0,
+                     "label-stack": {
+                         "label-value":24022
+                     },
+                     "attributes": {
+                         "extended-communities": {
+                             "transitive": true,
+                             "route-target-extended-community": {
+                                 "global-administrator": "65000",
+                                 "local-administrator": "AAAAZQ=="
+                             }
+                         },
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "ipv4-next-hop": {
+                             "global": "127.16.0.44"
+                         }
+                     },
+                     "route-distinguisher": "172.16.0.44:101",
+                     "prefix":"10.2.34.0/24"
+                 }
+             }
+         }
 
 IPv6 L3VPN Unicast
 ''''''''''''''''''
@@ -192,40 +311,82 @@ The IPv6 L3VPN Unicast table in an instance of the speaker's Loc-RIB can be veri
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <vpn-ipv6-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv6">
-       <vpn-route>
-           <path-id>0</path-id>
-           <route-key>mAXdcQABrBAALABlKgILgAAAAAE=</route-key>
-           <label-stack>
-               <label-value>24023</label-value>
-           </label-stack>
-           <attributes>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <extended-communities>
-                   <route-target-extended-community>
-                       <global-administrator>65000</global-administrator>
-                       <local-administrator>AAAAZQ==</local-administrator>
-                   </route-target-extended-community>
-                   <transitive>true</transitive>
-               </extended-communities>
-               <ipv6-next-hop>
-                   <global>2a02:b80:0:2::1</global>
-               </ipv6-next-hop>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <as-path></as-path>
-           </attributes>
-           <route-distinguisher>172.16.0.44:101</route-distinguisher>
-           <prefix>2a02:b80:0:1::/64</prefix>
-       </vpn-route>
-   </vpn-ipv6-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <vpn-ipv6-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv6">
+             <vpn-route>
+                 <path-id>0</path-id>
+                 <route-key>mAXdcQABrBAALABlKgILgAAAAAE=</route-key>
+                 <label-stack>
+                     <label-value>24023</label-value>
+                 </label-stack>
+                 <attributes>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <extended-communities>
+                         <route-target-extended-community>
+                             <global-administrator>65000</global-administrator>
+                             <local-administrator>AAAAZQ==</local-administrator>
+                         </route-target-extended-community>
+                         <transitive>true</transitive>
+                     </extended-communities>
+                     <ipv6-next-hop>
+                         <global>2a02:b80:0:2::1</global>
+                     </ipv6-next-hop>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <as-path></as-path>
+                 </attributes>
+                 <route-distinguisher>172.16.0.44:101</route-distinguisher>
+                 <prefix>2a02:b80:0:1::/64</prefix>
+             </vpn-route>
+         </vpn-ipv6-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-vpn-ipv6:vpn-ipv6-routes": {
+                 "vpn-route": {
+                     "route-key": "mAXdcQABrBAALABlKgILgAAAAAE=",
+                     "path-id": 0,
+                     "label-stack": {
+                         "label-value":24023
+                     },
+                     "attributes": {
+                         "extended-communities": {
+                             "transitive": true,
+                             "route-target-extended-community": {
+                                 "global-administrator": "65000",
+                                 "local-administrator": "AAAAZQ=="
+                             }
+                         },
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "ipv6-next-hop": {
+                             "global": "2a02:b80:0:2::1"
+                         }
+                     },
+                     "route-distinguisher": "172.16.0.44:101",
+                     "prefix":"2a02:b80:0:1::/64"
+                 }
+             }
+         }
 
 IPv4 L3VPN Multicast
 ''''''''''''''''''''
@@ -235,39 +396,80 @@ The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be ve
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <l3vpn-mcast-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:l3vpn:mcast">
-       <l3vpn-mcast-route>
-           <path-id>0</path-id>
-           <route-key>mAXdcQABrBAALABlKgILgAAAAAE=</route-key>
-           <route-distinguisher>172.16.0.44:101</route-distinguisher>
-           <prefix>10.2.34.0/24</prefix>
-           <attributes>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <extended-communities>
-                   <transitive>true</transitive>
-                   <vrf-route-import-extended-community>
-                       <inet4-specific-extended-community-common>
-                           <global-administrator>10.0.0.1</global-administrator>
-                           <local-administrator>123=</local-administrator>
-                        </inet4-specific-extended-community-common>
-                    </vrf-route-import-extended-community>
-               </extended-communities>
-               <ipv4-next-hop>
-                   <global>127.16.0.44</global>
-               </ipv4-next-hop>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <as-path></as-path>
-           </attributes>
-       </l3vpn-mcast-route>
-   </l3vpn-mcast-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <l3vpn-mcast-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:l3vpn:mcast">
+             <l3vpn-mcast-route>
+                 <path-id>0</path-id>
+                 <route-key>mAXdcQABrBAALABlKgILgAAAAAE=</route-key>
+                 <route-distinguisher>172.16.0.44:101</route-distinguisher>
+                 <prefix>10.2.34.0/24</prefix>
+                 <attributes>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <extended-communities>
+                         <transitive>true</transitive>
+                         <vrf-route-import-extended-community>
+                             <inet4-specific-extended-community-common>
+                                 <global-administrator>10.0.0.1</global-administrator>
+                                 <local-administrator>123=</local-administrator>
+                             </inet4-specific-extended-community-common>
+                         </vrf-route-import-extended-community>
+                     </extended-communities>
+                     <ipv4-next-hop>
+                         <global>127.16.0.44</global>
+                     </ipv4-next-hop>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <as-path></as-path>
+                 </attributes>
+             </l3vpn-mcast-route>
+         </l3vpn-mcast-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp:l3vpn:mcast:l3vpn-mcast-routes": {
+                 "l3vpn-mcast-route": {
+                     "route-key": "mAXdcQABrBAALABlKgILgAAAAAE=",
+                     "path-id": 0,
+                     "attributes": {
+                         "extended-communities": {
+                             "transitive": true,
+                             "vrf-route-import-extended-community": {
+                                 "inet4-specific-extended-community-common": {
+                                     "global-administrator": "10.0.0.1",
+                                     "local-administrator": "123="
+                                 }
+                             }
+                         },
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "ipv4-next-hop": {
+                             "global": "127.16.0.44"
+                         }
+                     },
+                     "route-distinguisher": "172.16.0.44:101",
+                     "prefix":"10.2.34.0/24"
+                 }
+             }
+         }
 
 IPv6 L3VPN Multicast
 ''''''''''''''''''''
@@ -277,39 +479,80 @@ The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be ve
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <l3vpn-mcast-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:l3vpn:mcast">
-       <l3vpn-mcast-route>
-           <path-id>0</path-id>
-           <route-key>mAXdcQABrBAALABlKgILgAAAAAE=</route-key>
-           <route-distinguisher>172.16.0.44:101</route-distinguisher>
-           <prefix>2a02:b80:0:1::/64</prefix>
-           <attributes>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <extended-communities>
-                   <transitive>true</transitive>
-                   <vrf-route-import-extended-community>
-                       <inet4-specific-extended-community-common>
-                           <global-administrator>10.0.0.1</global-administrator>
-                           <local-administrator>123=</local-administrator>
-                        </inet4-specific-extended-community-common>
-                    </vrf-route-import-extended-community>
-               </extended-communities>
-               <ipv6-next-hop>
-                   <global>2a02:b80:0:2::1</global>
-               </ipv6-next-hop>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <as-path></as-path>
-           </attributes>
-       </l3vpn-mcast-route>
-   </l3vpn-mcast-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <l3vpn-mcast-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:l3vpn:mcast">
+             <l3vpn-mcast-route>
+                 <path-id>0</path-id>
+                 <route-key>mAXdcQABrBAALABlKgILgAAAAAE=</route-key>
+                 <route-distinguisher>172.16.0.44:101</route-distinguisher>
+                 <prefix>2a02:b80:0:1::/64</prefix>
+                 <attributes>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <extended-communities>
+                         <transitive>true</transitive>
+                         <vrf-route-import-extended-community>
+                             <inet4-specific-extended-community-common>
+                                 <global-administrator>10.0.0.1</global-administrator>
+                                 <local-administrator>123=</local-administrator>
+                             </inet4-specific-extended-community-common>
+                         </vrf-route-import-extended-community>
+                     </extended-communities>
+                     <ipv6-next-hop>
+                         <global>2a02:b80:0:2::1</global>
+                     </ipv6-next-hop>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <as-path></as-path>
+                 </attributes>
+             </l3vpn-mcast-route>
+         </l3vpn-mcast-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp:l3vpn:mcast:l3vpn-mcast-routes": {
+                 "l3vpn-mcast-route": {
+                     "route-key": "mAXdcQABrBAALABlKgILgAAAAAE=",
+                     "path-id": 0,
+                     "attributes": {
+            	         "extended-communities": {
+                             "transitive": true,
+                             "vrf-route-import-extended-community": {
+                                 "inet4-specific-extended-community-common": {
+                                     "global-administrator": "10.0.0.1",
+                                     "local-administrator": "123="
+                                 }
+                             }
+                         },
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "ipv6-next-hop": {
+                             "global": "2a02:b80:0:2::1"
+                         }
+                     },
+                     "route-distinguisher": "172.16.0.44:101",
+                     "prefix":"2a02:b80:0:1::/64"
+                 }
+             }
+         }
 
 Programming
 ^^^^^^^^^^^
@@ -320,37 +563,82 @@ Make sure the *Application Peer* is configured first.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <vpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv4">
-       <path-id>0</path-id>
-       <route-key>vpn1</route-key>
-       <label-stack>
-           <label-value>123</label-value>
-       </label-stack>
-       <route-distinguisher>429496729:1</route-distinguisher>
-       <prefix>2.2.2.2/32</prefix>
-       <attributes>
-           <ipv4-next-hop>
-               <global>199.20.166.41</global>
-           </ipv4-next-hop>
-           <as-path/>
-           <origin>
-               <value>igp</value>
-           </origin>
-           <extended-communities>
-               <route-target-extended-community>
-                   <global-administrator>65000</global-administrator>
-                   <local-administrator>AAAAZQ==</local-administrator>
-               </route-target-extended-community>
-               <transitive>true</transitive>
-           </extended-communities>
-       </attributes>
-   </vpn-route>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <vpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv4">
+             <path-id>0</path-id>
+             <route-key>vpn1</route-key>
+             <label-stack>
+                 <label-value>123</label-value>
+             </label-stack>
+             <route-distinguisher>429496729:1</route-distinguisher>
+             <prefix>2.2.2.2/32</prefix>
+             <attributes>
+                 <ipv4-next-hop>
+                     <global>199.20.166.41</global>
+                 </ipv4-next-hop>
+                 <as-path/>
+                 <origin>
+                     <value>igp</value>
+                 </origin>
+                 <extended-communities>
+                     <route-target-extended-community>
+                         <global-administrator>65000</global-administrator>
+                         <local-administrator>AAAAZQ==</local-administrator>
+                     </route-target-extended-community>
+                     <transitive>true</transitive>
+                 </extended-communities>
+             </attributes>
+         </vpn-route>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "vpn-route": [
+                 {
+                     "route-key": "vpn1",
+                     "path-id": 0,
+                     "label-stack": [
+                         {
+                             "label-value": 123
+                         }
+                     ],
+                     "route-distinguisher": "429496729:1",
+                     "attributes": {
+                         "extended-communities": [
+                             {
+                                 "transitive": true,
+                                 "route-target-extended-community": {
+                                     "global-administrator": 65000,
+                                     "local-administrator": "AAAAZQ=="
+                                 }
+                             }
+                         ],
+                         "ipv4-next-hop": {
+                             "global": "199.20.166.41"
+                         },
+                         "origin": {
+                             "value": "igp"
+                         }
+                     },
+                     "prefix": "2.2.2.2/32"
+                 }
+             ]
+         }
 
 -----
 
