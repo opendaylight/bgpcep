@@ -27,21 +27,45 @@ or
 
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 3
+      **Content-Type:** ``application/xml``
 
-   <graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <config>
-           <restart-time>60</restart-time>
-        </config>
-    </graceful-restart>
+      **Request Body:**
 
-@line 3: value of Graceful Restart timer in seconds
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 3
+
+         <graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <config>
+                 <restart-time>60</restart-time>
+             </config>
+         </graceful-restart>
+
+   @line 3: value of Graceful Restart timer in seconds
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4
+
+         {
+             "graceful-restart": {
+                 "config": {
+                     "restart-time": 60
+                 }
+             }
+         }
+
+   @line 4: value of Graceful Restart timer in seconds
 
 .. note:: If case that Graceful Restart timer is configured for both neighbor and peer-group, the one from peer-group is used.
    If no Graceful Restart timer is configured value of HOLD timer is used.
@@ -58,21 +82,45 @@ or
 
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 3
+      **Content-Type:** ``application/xml``
 
-   <graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-      <config>
-         <enable>true</enable>
-       </config>
-   </graceful-restart>
+      **Request Body:**
 
-@line 3: True if we want to preserve family routing information during Graceful Restart
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 3
+
+         <graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+            <config>
+               <enable>true</enable>
+            </config>
+         </graceful-restart>
+
+   @line 3: True if we want to preserve family routing information during Graceful Restart
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4
+
+         {
+             "graceful-restart": {
+                 "config": {
+                     "enable": true
+                 }
+             }
+         }
+
+   @line 4: True if we want to preserve family routing information during Graceful Restart
 
 Usage
 ^^^^^
@@ -83,20 +131,43 @@ To perform Graceful Restart with peer, invoke RPC:
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 3
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:bgp-peer-rpc">
-       <peer-ref xmlns:rib="urn:opendaylight:params:xml:ns:yang:bgp-rib">/rib:bgp-rib/rib:rib[rib:id="bgp-example"]/rib:peer[rib:peer-id="bgp://10.25.1.9"]</peer-ref>
-       <selection-deferral-time>60</slection-deferral-time>
-   </input>
+      **Request Body:**
 
-@line 3: Value of Selection Deferral timer in seconds
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 3
+
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:bgp-peer-rpc">
+             <peer-ref xmlns:rib="urn:opendaylight:params:xml:ns:yang:bgp-rib">/rib:bgp-rib/rib:rib[rib:id="bgp-example"]/rib:peer[rib:peer-id="bgp://10.25.1.9"]</peer-ref>
+             <selection-deferral-time>60</selection-deferral-time>
+         </input>
+
+   @line 3: Value of Selection Deferral timer in seconds
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4
+
+         {
+             "bgp-peer-rpc:input": {
+                 "peer-ref": "/rib:bgp-rib/rib:rib[rib:id=\"bgp-example\"]/rib:peer[rib:peer-id=\"bgp://10.25.1.9\"]",
+                 "selection-deferral-time": 60
+             }
+         }
+
+   @line 4: Value of Selection Deferral timer in seconds
 
 References
 ^^^^^^^^^^
