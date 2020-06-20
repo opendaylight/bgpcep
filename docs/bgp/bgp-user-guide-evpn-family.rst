@@ -19,7 +19,11 @@ BGP Speaker
 '''''''''''
 To enable EVPN support in BGP plugin, first configure BGP speaker instance:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -47,9 +51,49 @@ To enable EVPN support in BGP plugin, first configure BGP speaker instance:
        </bgp>
    </protocol>
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:L2VPN-EVPN"
+                               }
+                           ]
+                       }
+                   }
+               }
+           }
+       ]
+   }
+
 BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled EVPN family.
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -69,6 +113,33 @@ Here is an example for BGP peer configuration with enabled EVPN family.
            </afi-safi>
        </afi-safis>
    </neighbor>
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {        
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:L2VPN-EVPN"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
 
 EVPN Route API
 ^^^^^^^^^^^^^^
@@ -245,6 +316,8 @@ Usage
 ^^^^^
 The L2VPN EVPN table in an instance of the speaker's Loc-RIB can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/odl-bgp-evpn:l2vpn-address-family/odl-bgp-evpn:evpn-subsequent-address-family/evpn-routes``
 
 **Method:** ``GET``
@@ -292,12 +365,64 @@ The L2VPN EVPN table in an instance of the speaker's Loc-RIB can be verified via
       </evpn-route>
    </evpn-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/odl-bgp-evpn:l2vpn-address-family/odl-bgp-evpn:evpn-subsequent-address-family/evpn-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-evpn:evpn-routes": {
+           "evpn-route": {
+               "route-key": "AxEAAcCoZAED6AAAAQAgwKhkAQ==",
+               "path-id": 0,
+               "route-distinguisher": "192.168.100.1:1000",
+               "inc-multi-ethernet-tag-res": {
+                   "ethernet-tag-id": {
+                       "vlan-id": 256
+                   },
+               "orig-route-ip": "192.168.100.1"
+               },
+               "attributes": {
+                   "ipv4-next-hop": { 
+                      "global": "172.23.29.104" 
+                   },
+                   "origin": { 
+                       "value": "igp"
+                   },
+                   "extended-communities": {
+                       "extended-communities": {
+                           "transitive": true,
+                           "route-target-extended-community": {
+                               "global-administrator": 65504,
+                               "local-administrator": "AAAD6A=="
+                           }
+                       }
+                   },
+                   "pmsi-tunnel": {
+                       "leaf-information-required": true,
+                       "mpls-label": 20024,
+                       "ingress-replication": { 
+                           "receiving-endpoint-address": "192.168.100.1" 
+                       }
+                   }
+               }
+           }
+       }
+   }
+
 Programming
 ^^^^^^^^^^^
 This examples show how to originate and remove EVPN routes via programmable RIB.
 There are four different types of EVPN routes, and several extended communities.
 Routes can be used for variety of use-cases supported by BGP/MPLS EVPN, PBB EVPN and NVO EVPN.
 Make sure the *Application Peer* is configured first.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/odl-bgp-evpn:l2vpn-address-family/odl-bgp-evpn:evpn-subsequent-address-family/odl-bgp-evpn:evpn-routes``
 
@@ -335,6 +460,41 @@ Make sure the *Application Peer* is configured first.
 @line 5: One of the EVPN route must be set here.
 
 @line 15: In some cases, specific extended community presence is required. The route may carry one or more Route Target attributes.
+
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/odl-bgp-evpn:l2vpn-address-family/odl-bgp-evpn:evpn-subsequent-address-family/odl-bgp-evpn:evpn-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 5,15
+
+   {
+       "bgp-evpn:evpn-route": {
+           "route-key": "evpn",
+           "path-id": 0,
+           "route-distinguisher": "172.12.123.3:200",
+           "attributes": {
+               "ipv4-next-hop": {
+                   "global": "199.20.166.41"
+               },
+               "origin": {
+                   "value": "igp"
+               }
+           }
+       }    
+   }
+
+@line 4: Route Distinguisher (RD) - set to RD of the MAC-VRF advertising the NLRI, recommended format *<IP>:<VLAN_ID>*
+
+@line 15: In some cases, specific extended community presence is required. The route may carry one or more Route Target attributes.
+
 
 -----
 
