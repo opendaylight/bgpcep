@@ -16,6 +16,24 @@
       "revId": "6bb74187c7fd70ae9e3489e812474a7c0fa78387",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea5cf0ee_74947ffe",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-06-20T14:02:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f72fc45d_b952bbe0",
+      "revId": "6bb74187c7fd70ae9e3489e812474a7c0fa78387",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
