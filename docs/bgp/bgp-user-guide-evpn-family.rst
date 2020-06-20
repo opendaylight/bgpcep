@@ -21,31 +21,69 @@ To enable EVPN support in BGP plugin, first configure BGP speaker instance:
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
 
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-               <afi-safis>
-                   <afi-safi>
-                       <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
-                   </afi-safi>
-               </afi-safis>
-           </global>
-       </bgp>
-   </protocol>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <protocol xmlns="http://openconfig.net/yang/network-instance">
+             <name>bgp-example</name>
+             <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+             <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+                 <global>
+                     <config>
+                         <router-id>192.0.2.2</router-id>
+                         <as>65000</as>
+                     </config>
+                     <afi-safis>
+                         <afi-safi>
+                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
+                         </afi-safi>
+                     </afi-safis>
+                 </global>
+             </bgp>
+         </protocol>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "protocol": [
+                 {
+                     "identifier": "openconfig-policy-types:BGP",
+                     "name": "bgp-example",
+                     "bgp-openconfig-extensions:bgp": {
+                         "global": {
+                             "config": {
+                                 "router-id": "192.0.2.2",
+                                 "as": 65000
+                             },
+                             "afi-safis": {
+                                 "afi-safi": [
+                                     {
+                                         "afi-safi-name": "openconfig-bgp-types:L2VPN-EVPN"
+                                     }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+             ]
+         }
 
 BGP Peer
 ''''''''
@@ -55,20 +93,47 @@ Here is an example for BGP peer configuration with enabled EVPN family.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <neighbor-address>192.0.2.1</neighbor-address>
-       <afi-safis>
-           <afi-safi>
-               <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
-           </afi-safi>
-       </afi-safis>
-   </neighbor>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <neighbor-address>192.0.2.1</neighbor-address>
+             <afi-safis>
+                 <afi-safi>
+                     <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:L2VPN-EVPN</afi-safi-name>
+                 </afi-safi>
+             </afi-safis>
+         </neighbor>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "neighbor": [
+                 {
+                     "neighbor-address": "192.0.2.1",
+                     "afi-safis": {
+                         "afi-safi": [
+                             {
+                                 "afi-safi-name": "openconfig-bgp-types:L2VPN-EVPN"
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
 
 EVPN Route API
 ^^^^^^^^^^^^^^
@@ -249,48 +314,98 @@ The L2VPN EVPN table in an instance of the speaker's Loc-RIB can be verified via
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <evpn-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-evpn">
-      <evpn-route>
-         <route-key>AxEAAcCoZAED6AAAAQAgwKhkAQ==</route-key>
-         <path-id>0</path-id>
-         <route-distinguisher>192.168.100.1:1000</route-distinguisher>
-         <inc-multi-ethernet-tag-res>
-            <ethernet-tag-id>
-               <vlan-id>256</vlan-id>
-            </ethernet-tag-id>
-            <orig-route-ip>192.168.100.1</orig-route-ip>
-         </inc-multi-ethernet-tag-res>
-         <attributes>
-            <ipv4-next-hop>
-               <global>172.23.29.104</global>
-            </ipv4-next-hop>
-            <as-path/>
-            <origin>
-               <value>igp</value>
-            </origin>
-            <extended-communities>
-               <extended-communities>
-                   <transitive>true</transitive>
-                   <route-target-extended-community>
-                       <global-administrator>65504</global-administrator>
-                       <local-administrator>AAAD6A==</local-administrator>
-                   </route-target-extended-community>
-               </extended-communities>
-            </extended-communities>
-            <pmsi-tunnel>
-                <leaf-information-required>true</leaf-information-required>
-                <mpls-label>20024</mpls-label>
-                <ingress-replication>
-                    <receiving-endpoint-address>192.168.100.1</receiving-endpoint-address>
-                </ingress-replication>
-            </pmsi-tunnel>
-         </attributes>
-      </evpn-route>
-   </evpn-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <evpn-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-evpn">
+            <evpn-route>
+               <route-key>AxEAAcCoZAED6AAAAQAgwKhkAQ==</route-key>
+               <path-id>0</path-id>
+               <route-distinguisher>192.168.100.1:1000</route-distinguisher>
+               <inc-multi-ethernet-tag-res>
+                  <ethernet-tag-id>
+                     <vlan-id>256</vlan-id>
+                  </ethernet-tag-id>
+                  <orig-route-ip>192.168.100.1</orig-route-ip>
+               </inc-multi-ethernet-tag-res>
+               <attributes>
+                  <ipv4-next-hop>
+                     <global>172.23.29.104</global>
+                  </ipv4-next-hop>
+                  <as-path/>
+                  <origin>
+                     <value>igp</value>
+                  </origin>
+                  <extended-communities>
+                     <extended-communities>
+                        <transitive>true</transitive>
+                        <route-target-extended-community>
+                           <global-administrator>65504</global-administrator>
+                           <local-administrator>AAAD6A==</local-administrator>
+                        </route-target-extended-community>
+                     </extended-communities>
+                  </extended-communities>
+                  <pmsi-tunnel>
+                     <leaf-information-required>true</leaf-information-required>
+                     <mpls-label>20024</mpls-label>
+                     <ingress-replication>
+                        <receiving-endpoint-address>192.168.100.1</receiving-endpoint-address>
+                     </ingress-replication>
+                  </pmsi-tunnel>
+               </attributes>
+            </evpn-route>
+         </evpn-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-evpn:evpn-routes": {
+                 "evpn-route": {
+                     "route-key": "AxEAAcCoZAED6AAAAQAgwKhkAQ==",
+                     "path-id": 0,
+                     "route-distinguisher": "192.168.100.1:1000",
+                     "inc-multi-ethernet-tag-res": {
+                         "ethernet-tag-id": {
+                         "vlan-id": 256
+                         },
+                         "orig-route-ip": "192.168.100.1"
+                     },
+                     "attributes": {
+                         "ipv4-next-hop": {
+                             "global": "172.23.29.104"
+                         },
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "extended-communities": {
+                             "extended-communities": {
+                                 "transitive": true,
+                                 "route-target-extended-community": {
+                                     "global-administrator": 65504,
+                                     "local-administrator": "AAAD6A=="
+                                 }
+                             }
+                         },
+                         "pmsi-tunnel": {
+                             "leaf-information-required": true,
+                             "mpls-label": 20024,
+                             "ingress-replication": {
+                                 "receiving-endpoint-address": "192.168.100.1"
+                             }
+                         }
+                     }
+                 }
+             }
+         }
 
 Programming
 ^^^^^^^^^^^
@@ -303,38 +418,75 @@ Make sure the *Application Peer* is configured first.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 4,5,15
+      **Content-Type:** ``application/xml``
 
-   <evpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-evpn">
-       <route-key>evpn</route-key>
-       <path-id>0</path-id>
-       <route-distinguisher>172.12.123.3:200</route-distinguisher>
-       ....
-       <attributes>
-           <ipv4-next-hop>
-               <global>199.20.166.41</global>
-           </ipv4-next-hop>
-           <as-path/>
-           <origin>
-               <value>igp</value>
-           </origin>
-           <extended-communities>
-           ....
-           </extended-communities>
-       </attributes>
-   </evpn-route>
+      **Request Body:**
 
-@line 4: Route Distinguisher (RD) - set to RD of the MAC-VRF advertising the NLRI, recommended format *<IP>:<VLAN_ID>*
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 4,5,15
 
-@line 5: One of the EVPN route must be set here.
+         <evpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-evpn">
+             <route-key>evpn</route-key>
+             <path-id>0</path-id>
+             <route-distinguisher>172.12.123.3:200</route-distinguisher>
+             ....
+             <attributes>
+                 <ipv4-next-hop>
+                     <global>199.20.166.41</global>
+                 </ipv4-next-hop>
+                 <as-path/>
+                 <origin>
+                     <value>igp</value>
+                 </origin>
+                 <extended-communities>
+                 ....
+                 </extended-communities>
+             </attributes>
+         </evpn-route>
 
-@line 15: In some cases, specific extended community presence is required. The route may carry one or more Route Target attributes.
+      @line 4: Route Distinguisher (RD) - set to RD of the MAC-VRF advertising the NLRI, recommended format *<IP>:<VLAN_ID>*
+
+      @line 5: One of the EVPN route must be set here.
+
+      @line 15: In some cases, specific extended community presence is required. The route may carry one or more Route Target attributes.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 5,14
+
+         {
+             "bgp-evpn:evpn-route": {
+                 "route-key": "evpn",
+                 "path-id": 0,
+                 "route-distinguisher": "172.12.123.3:200",
+                 "attributes": {
+                     "ipv4-next-hop": {
+                         "global": "199.20.166.41"
+                     },
+                     "origin": {
+                         "value": "igp"
+                     },
+                     "extended-communities": [
+                         "..."
+                     ]
+                 }
+             }
+         }
+
+      @line 4: Route Distinguisher (RD) - set to RD of the MAC-VRF advertising the NLRI, recommended format *<IP>:<VLAN_ID>*
+
+      @line 14: In some cases, specific extended community presence is required. The route may carry one or more Route Target attributes.
 
 -----
 
@@ -342,127 +494,316 @@ EVPN Routes
 ^^^^^^^^^^^
 
 * **Ethernet AD per ESI**
-   .. code-block:: xml
 
-      <ethernet-a-d-route>
-          <mpls-label>0</mpls-label>
-          <ethernet-tag-id>
-              <vlan-id>4294967295</vlan-id>
-          </ethernet-tag-id>
-          <arbitrary>
-              <arbitrary>AAAAAAAAAAAA</arbitrary>
-          </arbitrary>
-      </ethernet-a-d-route>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <ethernet-a-d-route>
+             <mpls-label>0</mpls-label>
+             <ethernet-tag-id>
+                 <vlan-id>4294967295</vlan-id>
+             </ethernet-tag-id>
+             <arbitrary>
+                 <arbitrary>AAAAAAAAAAAA</arbitrary>
+             </arbitrary>
+         </ethernet-a-d-route>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "ethernet-a-d-route" : {
+                 "mpls-label": 0,
+                 "ethernet-tag-id": {
+                     "vlan-id": "4294967295"
+                 },
+                 "arbitrary": {
+                     "arbitrary": "AAAAAAAAAAAA"
+                 }
+             }
+         }
 
 * **Ethernet AD per EVI**
-   .. code-block:: xml
 
-      <ethernet-a-d-route>
-          <mpls-label>24001</mpls-label>
-          <ethernet-tag-id>
-              <vlan-id>2200</vlan-id>
-          </ethernet-tag-id>
-          <arbitrary>
-              <arbitrary>AAAAAAAAAAAA</arbitrary>
-          </arbitrary>
-      </ethernet-a-d-route>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <ethernet-a-d-route>
+             <mpls-label>24001</mpls-label>
+             <ethernet-tag-id>
+                 <vlan-id>2200</vlan-id>
+             </ethernet-tag-id>
+             <arbitrary>
+                 <arbitrary>AAAAAAAAAAAA</arbitrary>
+             </arbitrary>
+         </ethernet-a-d-route>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "ethernet-a-d-route" : {
+                 "mpls-label": 24001,
+                 "ethernet-tag-id": {
+                     "vlan-id": "2200"
+                 },
+                 "arbitrary": {
+                     "arbitrary": "AAAAAAAAAAAA"
+                 }
+             }
+         }
 
 * **MAC/IP Advertisement**
-   .. code-block:: xml
 
-      <mac-ip-adv-route>
-          <arbitrary>
-              <arbitrary>AAAAAAAAAAAA</arbitrary>
-          </arbitrary>
-          <ethernet-tag-id>
-              <vlan-id>2100</vlan-id>
-          </ethernet-tag-id>
-          <mac-address>f2:0c:dd:80:9f:f7</mac-address>
-          <ip-address>10.0.1.12</ip-address>
-          <mpls-label1>299776</mpls-label1>
-      </mac-ip-adv-route>
+.. tabs::
 
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <mac-ip-adv-route>
+             <arbitrary>
+                 <arbitrary>AAAAAAAAAAAA</arbitrary>
+             </arbitrary>
+             <ethernet-tag-id>
+                 <vlan-id>2100</vlan-id>
+             </ethernet-tag-id>
+             <mac-address>f2:0c:dd:80:9f:f7</mac-address>
+             <ip-address>10.0.1.12</ip-address>
+             <mpls-label1>299776</mpls-label1>
+         </mac-ip-adv-route>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "mac-ip-adv-route" : {
+                 "arbitrary": {
+                     "arbitrary": "AAAAAAAAAAAA"
+                 },
+                 "ethernet-tag-id": {
+                     "vlan-id": "2100"
+                 },
+                 "mac-address": "f2:0c:dd:80:9f:f7",
+                 "ip-address": "10.0.1.12",
+                 "mpls-label1": 299776
+             }
+         }
 
 * **Inclusive Multicast Ethernet Tag**
-   .. code-block:: xml
 
-      <inc-multi-ethernet-tag-res>
-          <ethernet-tag-id>
-              <vlan-id>2100</vlan-id>
-          </ethernet-tag-id>
-          <orig-route-ip>43.43.43.43</orig-route-ip>
-      </inc-multi-ethernet-tag-res>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <inc-multi-ethernet-tag-res>
+             <ethernet-tag-id>
+                 <vlan-id>2100</vlan-id>
+             </ethernet-tag-id>
+             <orig-route-ip>43.43.43.43</orig-route-ip>
+         </inc-multi-ethernet-tag-res>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "inc-multi-ethernet-tag-res" : {
+                 "ethernet-tag-id": {
+                     "vlan-id": "2100"
+                 },
+                 "orig-route-ip": "43.43.43.43"
+             }
+         }
 
 * **Ethernet Segment**
-   .. code-block:: xml
 
-      <es-route>
-          <orig-route-ip>43.43.43.43</orig-route-ip>
-          <arbitrary>
-              <arbitrary>AAAAAAAAAAAA</arbitrary>
-          </arbitrary>
-      </es-route>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <es-route>
+             <orig-route-ip>43.43.43.43</orig-route-ip>
+             <arbitrary>
+                 <arbitrary>AAAAAAAAAAAA</arbitrary>
+             </arbitrary>
+         </es-route>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "es-route" : {
+                 "orig-route-ip": "43.43.43.43",
+                 "arbitrary": {
+                     "arbitrary": "AAAAAAAAAAAA"
+                 }
+             }
+         }
 
 **EVPN Ethernet Segment Identifier (ESI):**
 
 * **Type 0**
    Indicates an arbitrary 9-octet ESI.
 
-   .. code-block:: xml
+.. tabs::
 
-      <arbitrary>
-          <arbitrary>AAAAAAAAAAAA</arbitrary>
-      </arbitrary>
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <arbitrary>
+             <arbitrary>AAAAAAAAAAAA</arbitrary>
+         </arbitrary>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "arbitrary" : {
+                 "arbitrary": "AAAAAAAAAAAA"
+             }
+         }
 
 * **Type 1**
    IEEE 802.1AX LACP is used.
 
-   .. code-block:: xml
+.. tabs::
 
-      <lacp-auto-generated>
-          <ce-lacp-mac-address>f2:0c:dd:80:9f:f7</ce-lacp-mac-address>
-          <ce-lacp-port-key>22</ce-lacp-port-key>
-      </lacp-auto-generated>
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <lacp-auto-generated>
+             <ce-lacp-mac-address>f2:0c:dd:80:9f:f7</ce-lacp-mac-address>
+             <ce-lacp-port-key>22</ce-lacp-port-key>
+         </lacp-auto-generated>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "lacp-auto-generated" : {
+                 "ce-lacp-mac-address": "f2:0c:dd:80:9f:f7",
+                 "ce-lacp-port-key": 22
+             }
+         }
 
 * **Type 2**
    Indirectly connected hosts via a bridged LAN.
 
-   .. code-block:: xml
+.. tabs::
 
-      <lan-auto-generated>
-          <root-bridge-mac-address>f2:0c:dd:80:9f:f7</root-bridge-mac-address>
-          <root-bridge-priority>20</root-bridge-priority>
-      </lan-auto-generated>
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <lan-auto-generated>
+             <root-bridge-mac-address>f2:0c:dd:80:9f:f7</root-bridge-mac-address>
+             <root-bridge-priority>20</root-bridge-priority>
+         </lan-auto-generated>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "lan-auto-generated" : {
+                 "root-bridge-mac-address": "f2:0c:dd:80:9f:f7",
+                 "root-bridge-priority": 20
+             }
+         }
 
 * **Type 3**
    MAC-based ESI.
 
-   .. code-block:: xml
+.. tabs::
 
-      <mac-auto-generated>
-          <system-mac-address>f2:0c:dd:80:9f:f7</system-mac-address>
-          <local-discriminator>2000</local-discriminator>
-      </mac-auto-generated>
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <mac-auto-generated>
+             <system-mac-address>f2:0c:dd:80:9f:f7</system-mac-address>
+             <local-discriminator>2000</local-discriminator>
+         </mac-auto-generated>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "mac-auto-generated" : {
+                 "system-mac-address": "f2:0c:dd:80:9f:f7",
+                 "local-discriminator": 2000
+             }
+         }
 
 * **Type 4**
    Router-ID ESI
 
-   .. code-block:: xml
+.. tabs::
 
-      <router-id-generated>
-          <router-id>43.43.43.43</router-id>
-          <local-discriminator>2000</local-discriminator>
-      </router-id-generated>
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <router-id-generated>
+             <router-id>43.43.43.43</router-id>
+             <local-discriminator>2000</local-discriminator>
+         </router-id-generated>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "router-id-generated" : {
+                 "router-id": "43.43.43.43",
+                 "local-discriminator": 2000
+             }
+         }
 
 * **Type 5**
    AS-based ESI
 
-   .. code-block:: xml
+.. tabs::
 
-      <as-generated>
-          <as>16843009</as>
-          <local-discriminator>2000</local-discriminator>
-      </as-generated>
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <as-generated>
+             <as>16843009</as>
+             <local-discriminator>2000</local-discriminator>
+         </as-generated>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "as-generated" : {
+                 "as": 16843009,
+                 "local-discriminator": 2000
+             }
+         }
 
 **Attributes:**
 
@@ -471,72 +812,187 @@ EVPN Routes
 **Extended Communities:**
 
 * **ESI Label Extended Community**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <esi-label-extended-community>
-              <single-active-mode>false</single-active-mode>
-              <esi-label>24001</esi-label>
-          </esi-label-extended-community>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <esi-label-extended-community>
+                 <single-active-mode>false</single-active-mode>
+                 <esi-label>24001</esi-label>
+             </esi-label-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "esi-label-extended-community": {
+                     "single-active-mode": false,
+                     "esi-label": 24001
+                 }
+             }
+         }
 
 * **ES-Import Route Target**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <es-import-route-extended-community>
-              <es-import>f2:0c:dd:80:9f:f7</es-import>
-          </es-import-route-extended-community>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <es-import-route-extended-community>
+                 <es-import>f2:0c:dd:80:9f:f7</es-import>
+             </es-import-route-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "extended-communities" : {
+                 "transitive": "true",
+                 "es-import-route-extended-community": {
+                     "es-import": "f2:0c:dd:80:9f:f7"
+                 }
+             }
+         }
 
 * **MAC Mobility Extended Community**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <mac-mobility-extended-community>
-              <static>true</static>
-              <seq-number>200</seq-number>
-          </mac-mobility-extended-community>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <mac-mobility-extended-community>
+                 <static>true</static>
+                 <seq-number>200</seq-number>
+             </mac-mobility-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "mac-mobility-extended-community": {
+                     "static": true,
+                     "seq-number": 200
+                 }
+             }
+         }
 
 * **Default Gateway Extended Community**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <default-gateway-extended-community>
-          </default-gateway-extended-community>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <default-gateway-extended-community>
+             </default-gateway-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "extended-communities" : {
+                 "transitive": "true",
+                 "default-gateway-extended-community": []
+             }
+         }
 
 * **EVPN Layer 2 attributes extended community**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>false</transitive>
-          <layer-2-attributes-extended-community>
-              <primary-pe>true</primary-pe>
-              <backup-pe>true</backup-pe>
-              <control-word >true</control-word>
-              <l2-mtu>200</l2-mtu>
-          </layer-2-attributes-extended-community>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>false</transitive>
+             <layer-2-attributes-extended-community>
+                 <primary-pe>true</primary-pe>
+                 <backup-pe>true</backup-pe>
+                 <control-word >true</control-word>
+                 <l2-mtu>200</l2-mtu>
+             </layer-2-attributes-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "extended-communities" : {
+                 "transitive": false,
+                 "layer-2-attributes-extended-community": {
+                     "primary-pe": true,
+                     "backup-pe": true,
+                     "control-word": true,
+                     "l2-mtu": 200
+                 }
+             }
+         }
 
 * **BGP Encapsulation extended community**
-   .. code-block:: xml
-      :linenos:
-      :emphasize-lines: 4
 
-      <extended-communities>
-          <transitive>false</transitive>
-          <encapsulation-extended-community>
-              <tunnel-type>vxlan</tunnel-type>
-          </encapsulation-extended-community>
-      </extended-communities>
+.. tabs::
 
-   @line 4: `full list of tunnel types <http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#tunnel-types>`_
+   .. tab:: XML
+
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 4
+
+         <extended-communities>
+             <transitive>false</transitive>
+             <encapsulation-extended-community>
+                 <tunnel-type>vxlan</tunnel-type>
+             </encapsulation-extended-community>
+         </extended-communities>
+
+      @line 4: `full list of tunnel types <http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#tunnel-types>`_
+
+   .. tab:: JSON
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 5
+
+         {
+             "extended-communities" : {
+                 "transitive": "false",
+                 "encapsulation-extended-community": {
+                     "tunnel-type": "vxlan"
+                 }
+             }
+         }
+
+      @line 5: `full list of tunnel types <http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#tunnel-types>`_
 
 -----
 
