@@ -19,40 +19,87 @@ To enable BGP-FS support in BGP plugin, first configure BGP speaker instance:
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
 
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-               <afi-safis>
-                   <afi-safi>
-                       <afi-safi-name>IPV4-FLOW</afi-safi-name>
-                   </afi-safi>
-                   <afi-safi>
-                       <afi-safi-name>IPV6-FLOW</afi-safi-name>
-                   </afi-safi>
-                   <afi-safi>
-                       <afi-safi-name>IPV4-L3VPN-FLOW</afi-safi-name>
-                   </afi-safi>
-                   <afi-safi>
-                       <afi-safi-name>IPV6-L3VPN-FLOW</afi-safi-name>
-                   </afi-safi>
-               </afi-safis>
-           </global>
-       </bgp>
-   </protocol>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <protocol xmlns="http://openconfig.net/yang/network-instance">
+             <name>bgp-example</name>
+             <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+             <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+                 <global>
+                     <config>
+                         <router-id>192.0.2.2</router-id>
+                         <as>65000</as>
+                     </config>
+                     <afi-safis>
+                         <afi-safi>
+                             <afi-safi-name>IPV4-FLOW</afi-safi-name>
+                         </afi-safi>
+                         <afi-safi>
+                             <afi-safi-name>IPV6-FLOW</afi-safi-name>
+                         </afi-safi>
+                         <afi-safi>
+                             <afi-safi-name>IPV4-L3VPN-FLOW</afi-safi-name>
+                         </afi-safi>
+                         <afi-safi>
+                             <afi-safi-name>IPV6-L3VPN-FLOW</afi-safi-name>
+                         </afi-safi>
+                     </afi-safis>
+                 </global>
+             </bgp>
+         </protocol>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "protocol": [
+                 {
+                     "identifier": "openconfig-policy-types:BGP",
+                     "name": "bgp-example",
+                     "bgp-openconfig-extensions:bgp": {
+                         "global": {
+                             "config": {
+                                 "router-id": "192.0.2.2",
+                                 "as": 65000
+                             },
+                             "afi-safis": {
+                                 "afi-safi": [
+                                     {
+                                         "afi-safi-name": "IPV4-FLOW"
+                                     },
+                                     {
+                                         "afi-safi-name": "IPV6-FLOW"
+                                     },
+                                     {
+                                         "afi-safi-name": "IPV4-L3VPN-FLOW"
+                                     },
+                                     {
+                                         "afi-safi-name": "IPV6-L3VPN-FLOW"
+                                     }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+             ]
+         }
 
 BGP Peer
 ''''''''
@@ -62,29 +109,65 @@ Here is an example for BGP peer configuration with enabled BGP-FS family.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <neighbor-address>192.0.2.1</neighbor-address>
-       <afi-safis>
-           <afi-safi>
-               <afi-safi-name>IPV4-FLOW</afi-safi-name>
-           </afi-safi>
-           <afi-safi>
-               <afi-safi-name>IPV6-FLOW</afi-safi-name>
-           </afi-safi>
-           <afi-safi>
-               <afi-safi-name>IPV4-L3VPN-FLOW</afi-safi-name>
-           </afi-safi>
-           <afi-safi>
-               <afi-safi-name>IPV6-L3VPN-FLOW</afi-safi-name>
-           </afi-safi>
-       </afi-safis>
-   </neighbor>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <neighbor-address>192.0.2.1</neighbor-address>
+             <afi-safis>
+                 <afi-safi>
+                     <afi-safi-name>IPV4-FLOW</afi-safi-name>
+                 </afi-safi>
+                 <afi-safi>
+                     <afi-safi-name>IPV6-FLOW</afi-safi-name>
+                 </afi-safi>
+                 <afi-safi>
+                     <afi-safi-name>IPV4-L3VPN-FLOW</afi-safi-name>
+                 </afi-safi>
+                 <afi-safi>
+                     <afi-safi-name>IPV6-L3VPN-FLOW</afi-safi-name>
+                 </afi-safi>
+             </afi-safis>
+         </neighbor>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "neighbor": [
+                 {
+                     "neighbor-address": "192.0.2.1",
+                     "afi-safis": {
+                         "afi-safi": [
+                             {
+                                 "afi-safi-name": "IPV4-FLOW"
+                             },
+                             {
+                                 "afi-safi-name": "IPV6-FLOW"
+                             },
+                             {
+                                 "afi-safi-name": "IPV4-L3VPN-FLOW"
+                             },
+                             {
+                                 "afi-safi-name": "IPV6-L3VPN-FLOW"
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
 
 Flow Specification API
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -280,78 +363,166 @@ The IPv4 Flowspec table in an instance of the speaker's Loc-RIB can be verified 
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <flowspec-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
-       <flowspec-route>
-           <path-id>0</path-id>
-           <route-key>all packets to 192.168.0.1/32 AND from 10.0.0.2/32 AND where IP protocol equals to 17 or equals to 6 AND where port equals to 80 or equals to 8080 AND where destination port is greater than 8080 and is less than 8088 or equals to 3128 AND where source port is greater than 1024 </route-key>
-           <attributes>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <as-path></as-path>
-               <extended-communities>
-                   <transitive>true</transitive>
-                   <redirect-extended-community>
-                       <local-administrator>AgMWLg==</local-administrator>
-                       <global-administrator>258</global-administrator>
-                   </redirect-extended-community>
-               </extended-communities>
-           </attributes>
-           <flowspec>
-               <destination-prefix>192.168.0.1/32</destination-prefix>
-           </flowspec>
-           <flowspec>
-               <source-prefix>10.0.0.2/32</source-prefix>
-           </flowspec>
-           <flowspec>
-               <protocol-ips>
-                   <op>equals</op>
-                   <value>17</value>
-               </protocol-ips>
-               <protocol-ips>
-                   <op>equals end-of-list</op>
-                   <value>6</value>
-               </protocol-ips>
-           </flowspec>
-           <flowspec>
-               <ports>
-                   <op>equals</op>
-                   <value>80</value>
-               </ports>
-               <ports>
-                   <op>equals end-of-list</op>
-                   <value>8080</value>
-               </ports>
-           </flowspec>
-           <flowspec>
-               <destination-ports>
-                   <op>greater-than</op>
-                   <value>8080</value>
-               </destination-ports>
-               <destination-ports>
-                   <op>less-than and-bit</op>
-                   <value>8088</value>
-               </destination-ports>
-               <destination-ports>
-                   <op>equals end-of-list</op>
-                   <value>3128</value>
-               </destination-ports>
-           </flowspec>
-           <flowspec>
-               <source-ports>
-                   <op>end-of-list greater-than</op>
-                   <value>1024</value>
-               </source-ports>
-           </flowspec>
-       </flowspec-route>
-   </flowspec-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <flowspec-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
+             <flowspec-route>
+                 <path-id>0</path-id>
+                 <route-key>all packets to 192.168.0.1/32 AND from 10.0.0.2/32 AND where IP protocol equals to 17 or equals to 6 AND where port equals to 80 or equals to 8080 AND where destination port is greater than 8080 and is less than 8088 or equals to 3128 AND where source port is greater than 1024 </route-key>
+                 <attributes>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <as-path></as-path>
+                     <extended-communities>
+                         <transitive>true</transitive>
+                         <redirect-extended-community>
+                             <local-administrator>AgMWLg==</local-administrator>
+                             <global-administrator>258</global-administrator>
+                         </redirect-extended-community>
+                     </extended-communities>
+                 </attributes>
+                 <flowspec>
+                     <destination-prefix>192.168.0.1/32</destination-prefix>
+                 </flowspec>
+                 <flowspec>
+                     <source-prefix>10.0.0.2/32</source-prefix>
+                 </flowspec>
+                 <flowspec>
+                     <protocol-ips>
+                         <op>equals</op>
+                         <value>17</value>
+                     </protocol-ips>
+                     <protocol-ips>
+                         <op>equals end-of-list</op>
+                         <value>6</value>
+                     </protocol-ips>
+                 </flowspec>
+                 <flowspec>
+                     <ports>
+                         <op>equals</op>
+                         <value>80</value>
+                     </ports>
+                     <ports>
+                         <op>equals end-of-list</op>
+                         <value>8080</value>
+                     </ports>
+                 </flowspec>
+                 <flowspec>
+                     <destination-ports>
+                         <op>greater-than</op>
+                         <value>8080</value>
+                     </destination-ports>
+                     <destination-ports>
+                         <op>less-than and-bit</op>
+                         <value>8088</value>
+                     </destination-ports>
+                     <destination-ports>
+                         <op>equals end-of-list</op>
+                         <value>3128</value>
+                     </destination-ports>
+                 </flowspec>
+                 <flowspec>
+                     <source-ports>
+                         <op>end-of-list greater-than</op>
+                         <value>1024</value>
+                     </source-ports>
+                 </flowspec>
+             </flowspec-route>
+         </flowspec-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "flowspec-routes": {
+                 "flowspec-route": {
+                     "path-id": 0,
+                     "route-key": "all packets to 192.168.0.1/32 AND from 10.0.0.2/32 AND where IP protocol equals to 17 or equals to 6 AND where port equals to 80 or equals to 8080 AND where destination port is greater than 8080 and is less than 8088 or equals to 3128 AND where source port is greater than 1024",
+                     "attributes": {
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "extended-communities": {
+                             "transitive": "true",
+                             "redirect-extended-community": {
+                                 "local-administrator": "AgMWLg==",
+                                 "global-administrator": 258
+                             }
+                         }
+                     },
+                     "flowspec": [
+                         {
+                             "destination-prefix": "192.168.0.1/32"
+                         },
+                         {
+                             "source-prefix": "10.0.0.2/32"
+                         },
+                         {
+                             "protocol-ips": [
+                                 {
+                                     "op": "equals",
+                                     "value": 17
+                                 },
+                                 {
+                                     "op": "equals end-of-list",
+                                     "value": 6
+                                 }
+                             ]
+                         },
+                         {
+                             "ports": [
+                                 {
+                                     "op": "equals",
+                                     "value": 80
+                                 },
+                                 {
+                                     "op": "equals end-of-list",
+                                     "value": 8080
+                                 }
+                             ]
+                         },
+                         {
+                             "destination-ports": [
+                                 {
+                                     "op": "greater-than",
+                                     "value": 8080
+                                 },
+                                 {
+                                     "op": "less-than and-bit",
+                                     "value": 8088
+                                 },
+                                 {
+                                     "op": "equals end-of-list",
+                                     "value": 3128
+                                 }
+                             ]
+                         },
+                         {
+                             "source-ports": {
+                                 "op": "end-of-list greater-than",
+                                 "value": 1024
+                             }
+                         }
+                     ]
+                 }
+             }
+         }
 
 IPv6 Flows Specification
 ''''''''''''''''''''''''
@@ -361,56 +532,117 @@ The IPv6 Flowspec table in an instance of the speaker's Loc-RIB can be verified 
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <flowspec-ipv6-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
-       <flowspec-route>
-           <path-id>0</path-id>
-           <route-key>all packets to 2001:db8:31::/64 AND from 2001:db8:30::/64 AND where next header equals to 17 AND where DSCP equals to 50 AND where flow label equals to 2013 </route-key>
-           <attributes>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <as-path></as-path>
-               <extended-communities>
-                   <transitive>true</transitive>
-                   <traffic-rate-extended-community>
-                       <informative-as>0</informative-as>
-                       <local-administrator>AAAAAA==</local-administrator>
-                   </traffic-rate-extended-community>
-               </extended-communities>
-           </attributes>
-           <flowspec>
-               <destination-prefix>2001:db8:31::/64</destination-prefix>
-           </flowspec>
-           <flowspec>
-               <source-prefix>2001:db8:30::/64</source-prefix>
-           </flowspec>
-           <flowspec>
-               <next-headers>
-                   <op>equals end-of-list</op>
-                   <value>17</value>
-               </next-headers>
-           </flowspec>
-           <flowspec>
-               <dscps>
-                   <op>equals end-of-list</op>
-                   <value>50</value>
-               </dscps>
-           </flowspec>
-           <flowspec>
-               <flow-label>
-                   <op>equals end-of-list</op>
-                   <value>2013</value>
-               </flow-label>
-           </flowspec>
-       </flowspec-route>
-   </flowspec-ipv6-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <flowspec-ipv6-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
+             <flowspec-route>
+                 <path-id>0</path-id>
+                 <route-key>all packets to 2001:db8:31::/64 AND from 2001:db8:30::/64 AND where next header equals to 17 AND where DSCP equals to 50 AND where flow label equals to 2013 </route-key>
+                 <attributes>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <as-path></as-path>
+                     <extended-communities>
+                         <transitive>true</transitive>
+                         <traffic-rate-extended-community>
+                             <informative-as>0</informative-as>
+                             <local-administrator>AAAAAA==</local-administrator>
+                         </traffic-rate-extended-community>
+                     </extended-communities>
+                 </attributes>
+                 <flowspec>
+                     <destination-prefix>2001:db8:31::/64</destination-prefix>
+                 </flowspec>
+                 <flowspec>
+                     <source-prefix>2001:db8:30::/64</source-prefix>
+                 </flowspec>
+                 <flowspec>
+                     <next-headers>
+                         <op>equals end-of-list</op>
+                         <value>17</value>
+                     </next-headers>
+                 </flowspec>
+                 <flowspec>
+                     <dscps>
+                         <op>equals end-of-list</op>
+                         <value>50</value>
+                     </dscps>
+                 </flowspec>
+                 <flowspec>
+                     <flow-label>
+                         <op>equals end-of-list</op>
+                         <value>2013</value>
+                     </flow-label>
+                 </flowspec>
+             </flowspec-route>
+         </flowspec-ipv6-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "flowspec-ipv6-routes": {
+                 "flowspec-route": {
+                     "path-id": 0,
+                     "route-key": "all packets to 2001:db8:31::/64 AND from 2001:db8:30::/64 AND where next header equals to 17 AND where DSCP equals to 50 AND where flow label equals to 2013",
+                     "attributes": {
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "extended-communities": {
+                             "transitive": true,
+                             "traffic-rate-extended-community": {
+                                 "informative-as": 0,
+                                 "local-administrator": "AAAAAA=="
+                             }
+                         }
+                     },
+                     "flowspec": [
+                         {
+                             "destination-prefix": "2001:db8:31::/64"
+                         },
+                         {
+                             "source-prefix": "2001:db8:30::/64"
+                         },
+                         {
+                             "next-headers": {
+                                 "op": "equals end-of-list",
+                                 "value": 17
+                             }
+                         },
+                         {
+                             "dscps": {
+                                 "op": "equals end-of-list",
+                                 "value": 50
+                             }
+                         },
+                         {
+                             "flow-label": {
+                                 "op": "equals end-of-list",
+                                 "value": 2013
+                             }
+                         }
+                     ]
+                 }
+             }
+         }
+
 
 IPv4 L3VPN Flows Specification
 ''''''''''''''''''''''''''''''
@@ -420,39 +652,80 @@ The IPv4 L3VPN Flowspec table in an instance of the speaker's Loc-RIB can be ver
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <flowspec-l3vpn-ipv4-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
-       <flowspec-l3vpn-route>
-           <path-id>0</path-id>
-           <route-key>[l3vpn with route-distinguisher 172.16.0.44:101] all packets from 10.0.0.3/32</route-key>
-           <attributes>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <ipv4-next-hop>
-                   <global>5.6.7.8</global>
-               </ipv4-next-hop>
-               <origin>
-                   <value>igp</value>
-               </origin>
-               <as-path></as-path>
-               <extended-communities>
-                   <transitive>true</transitive>
-                   <redirect-ip-nh-extended-community>
-                       <copy>false</copy>
-                       <next-hop-address>0.0.0.0</next-hop-address>
-                   </redirect-ip-nh-extended-community>
-               </extended-communities>
-           </attributes>
-           <route-distinguisher>172.16.0.44:101</route-distinguisher>
-           <flowspec>
-               <source-prefix>10.0.0.3/32</source-prefix>
-           </flowspec>
-       </flowspec-l3vpn-route>
-   </flowspec-l3vpn-ipv4-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <flowspec-l3vpn-ipv4-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
+             <flowspec-l3vpn-route>
+                 <path-id>0</path-id>
+                 <route-key>[l3vpn with route-distinguisher 172.16.0.44:101] all packets from 10.0.0.3/32</route-key>
+                 <attributes>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <ipv4-next-hop>
+                         <global>5.6.7.8</global>
+                     </ipv4-next-hop>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <as-path></as-path>
+                     <extended-communities>
+                         <transitive>true</transitive>
+                         <redirect-ip-nh-extended-community>
+                             <copy>false</copy>
+                             <next-hop-address>0.0.0.0</next-hop-address>
+                         </redirect-ip-nh-extended-community>
+                     </extended-communities>
+                 </attributes>
+                 <route-distinguisher>172.16.0.44:101</route-distinguisher>
+                 <flowspec>
+                     <source-prefix>10.0.0.3/32</source-prefix>
+                 </flowspec>
+             </flowspec-l3vpn-route>
+         </flowspec-l3vpn-ipv4-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "flowspec-l3vpn-ipv4-routes": {
+                 "flowspec-l3vpn-route": {
+                     "path-id": 0,
+                     "route-key": "[l3vpn with route-distinguisher 172.16.0.44:101] all packets from 10.0.0.3/32",
+                     "attributes": {
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "ipv4-next-hop": {
+                             "global":"5.6.7.8"
+                         },
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "extended-communities": {
+                             "transitive": true,
+                             "redirect-ip-nh-extended-community": {
+                                 "copy": false,
+                                 "next-hop-address": "0.0.0.0"
+                             }
+                         }
+                     },
+                     "route-distinguisher": "172.16.0.44:101",
+                     "flowspec": {
+                         "source-prefix": "10.0.0.3/32"
+                     }
+                 }
+             }
+         }
 
 Programming
 ^^^^^^^^^^^
@@ -465,186 +738,446 @@ Make sure the *Application Peer* is configured first.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <flowspec-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
-       <route-key>flow1</route-key>
-       <path-id>0</path-id>
-       <flowspec>
-           <destination-prefix>192.168.0.1/32</destination-prefix>
-       </flowspec>
-       <flowspec>
-           <source-prefix>10.0.0.1/32</source-prefix>
-       </flowspec>
-       <flowspec>
-           <protocol-ips>
-               <op>equals end-of-list</op>
-               <value>6</value>
-           </protocol-ips>
-       </flowspec>
-       <flowspec>
-           <ports>
-               <op>equals end-of-list</op>
-               <value>80</value>
-           </ports>
-       </flowspec>
-       <flowspec>
-           <destination-ports>
-               <op>greater-than</op>
-               <value>8080</value>
-           </destination-ports>
-           <destination-ports>
-               <op>and-bit less-than end-of-list</op>
-               <value>8088</value>
-           </destination-ports>
-       </flowspec>
-       <flowspec>
-           <source-ports>
-               <op>greater-than end-of-list</op>
-               <value>1024</value>
-           </source-ports>
-       </flowspec>
-       <flowspec>
-           <types>
-               <op>equals end-of-list</op>
-               <value>0</value>
-           </types>
-       </flowspec>
-       <flowspec>
-           <codes>
-               <op>equals end-of-list</op>
-               <value>0</value>
-           </codes>
-       </flowspec>
-       <flowspec>
-           <tcp-flags>
-               <op>match end-of-list</op>
-               <value>32</value>
-           </tcp-flags>
-       </flowspec>
-       <flowspec>
-           <packet-lengths>
-               <op>greater-than</op>
-               <value>400</value>
-           </packet-lengths>
-           <packet-lengths>
-               <op>and-bit less-than end-of-list</op>
-               <value>500</value>
-           </packet-lengths>
-       </flowspec>
-       <flowspec>
-           <dscps>
-               <op>equals end-of-list</op>
-               <value>20</value>
-           </dscps>
-       </flowspec>
-       <flowspec>
-           <fragments>
-               <op>match end-of-list</op>
-               <value>first</value>
-           </fragments>
-       </flowspec>
-       <attributes>
-           <origin>
-               <value>igp</value>
-           </origin>
-           <as-path/>
-           <local-pref>
-               <pref>100</pref>
-           </local-pref>
-           <extended-communities>
-               ....
-           </extended-communities>
-       </attributes>
-   </flowspec-route>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <flowspec-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
+             <route-key>flow1</route-key>
+             <path-id>0</path-id>
+             <flowspec>
+                 <destination-prefix>192.168.0.1/32</destination-prefix>
+             </flowspec>
+             <flowspec>
+                 <source-prefix>10.0.0.1/32</source-prefix>
+             </flowspec>
+             <flowspec>
+                 <protocol-ips>
+                     <op>equals end-of-list</op>
+                     <value>6</value>
+                 </protocol-ips>
+             </flowspec>
+             <flowspec>
+                 <ports>
+                     <op>equals end-of-list</op>
+                     <value>80</value>
+                 </ports>
+             </flowspec>
+             <flowspec>
+                 <destination-ports>
+                     <op>greater-than</op>
+                     <value>8080</value>
+                 </destination-ports>
+                 <destination-ports>
+                     <op>and-bit less-than end-of-list</op>
+                     <value>8088</value>
+                 </destination-ports>
+             </flowspec>
+             <flowspec>
+                 <source-ports>
+                     <op>greater-than end-of-list</op>
+                     <value>1024</value>
+                 </source-ports>
+             </flowspec>
+             <flowspec>
+                 <types>
+                     <op>equals end-of-list</op>
+                     <value>0</value>
+                 </types>
+             </flowspec>
+             <flowspec>
+                 <codes>
+                     <op>equals end-of-list</op>
+                     <value>0</value>
+                 </codes>
+             </flowspec>
+             <flowspec>
+                 <tcp-flags>
+                     <op>match end-of-list</op>
+                     <value>32</value>
+                 </tcp-flags>
+             </flowspec>
+             <flowspec>
+                 <packet-lengths>
+                     <op>greater-than</op>
+                     <value>400</value>
+                 </packet-lengths>
+                 <packet-lengths>
+                     <op>and-bit less-than end-of-list</op>
+                     <value>500</value>
+                 </packet-lengths>
+             </flowspec>
+             <flowspec>
+                 <dscps>
+                     <op>equals end-of-list</op>
+                     <value>20</value>
+                 </dscps>
+             </flowspec>
+             <flowspec>
+                 <fragments>
+                     <op>match end-of-list</op>
+                     <value>first</value>
+                 </fragments>
+             </flowspec>
+             <attributes>
+                 <origin>
+                     <value>igp</value>
+                 </origin>
+                 <as-path/>
+                 <local-pref>
+                     <pref>100</pref>
+                 </local-pref>
+                 <extended-communities>
+                     ....
+                 </extended-communities>
+             </attributes>
+         </flowspec-route>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "flowspec-route": [
+                 {
+                     "route-key": "flow1",
+                     "path-id": 0,
+                     "flowspec": [
+                         {
+                             "destination-prefix": "192.168.0.1/32"
+                         },
+                         {
+                             "source-prefix": "10.0.0.1/32"
+                         },
+                         {
+                             "protocol-ips": [
+                                 {
+                                     "op": "end-of-list equals",
+                                     "value": 6
+                                 }
+                             ]
+                         },
+                         {
+                             "ports": [
+                                 {
+                                     "op": "end-of-list equals",
+                                     "value": 80
+                                 }
+                             ]
+                         },
+                         {
+                             "destination-ports": [
+                                 {
+                                     "op": "greater-than",
+                                     "value": 8080
+                                 },
+                                 {
+                                     "op": "end-of-list and-bit less-than",
+                                     "value": 8088
+                                 }
+                             ]
+                         },
+                         {
+                             "source-ports": [
+                                 {
+                                     "op": "end-of-list greater-than",
+                                     "value": 1024
+                                 }
+                             ]
+                         },
+                         {
+                             "types": [
+                                 {
+                                     "op": "end-of-list equals",
+                                     "value": 0
+                                 }
+                             ]
+                         },
+                         {
+                             "codes": [
+                                 {
+                                     "op": "end-of-list equals",
+                                     "value": 0
+                                 }
+                             ]
+                         },
+                         {
+                             "tcp-flags": [
+                                 {
+                                     "op": "end-of-list match",
+                                     "value": 32
+                                 }
+                             ]
+                         },
+                         {
+                             "packet-lengths": [
+                                 {
+                                     "op": "greater-than",
+                                     "value": 400
+                                 },
+                                 {
+                                     "op": "end-of-list and-bit less-than",
+                                     "value": 500
+                                 }
+                             ]
+                         },
+                         {
+                             "dscps": [
+                                 {
+                                     "op": "end-of-list equals",
+                                     "value": 20
+                                 }
+                             ]
+                         },
+                         {
+                             "fragments": [
+                                 {
+                                     "op": "end-of-list match",
+                                     "value": "first"
+                                 }
+                             ]
+                         }
+                     ],
+                     "attributes": {
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "local-pref": {
+                             "pref": 100
+                         }
+                     }
+                 }
+             ]
+         }
 
 -----
 
 **Extended Communities**
 
 * **Traffic Rate**
-   .. code-block:: xml
-      :linenos:
-      :emphasize-lines: 5
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <traffic-rate-extended-community>
-              <informative-as>123</informative-as>
-              <local-administrator>AAAAAA==</local-administrator>
-          </traffic-rate-extended-community>
-      </extended-communities>
+.. tabs::
 
-   @line 5: A rate in bytes per second, *AAAAAA==* (0) means traffic discard.
+   .. tab:: XML
+   
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 5
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <traffic-rate-extended-community>
+                 <informative-as>123</informative-as>
+                 <local-administrator>AAAAAA==</local-administrator>
+              </traffic-rate-extended-community>
+         </extended-communities>
+
+      @line 5: A rate in bytes per second, *AAAAAA==* (0) means traffic discard.
+      
+   .. tab:: JSON
+      
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 5
+
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "traffic-rate-extended-community": {
+                     "informative-as": 123,
+                     "local-administrator": "AAAAAA=="
+                 }
+             }
+         }
+
+      @line 5: A rate in bytes per second, *AAAAAA==* (0) means traffic discard.
+   
 
 * **Traffic Action**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <traffic-action-extended-community>
-              <sample>true</sample>
-              <terminal-action>false</terminal-action>
-          </traffic-action-extended-community>
-      </extended-communities>
+.. tabs::
 
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <traffic-action-extended-community>
+                 <sample>true</sample>
+                 <terminal-action>false</terminal-action>
+             </traffic-action-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+      
+      .. code-block:: json
+      
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "traffic-action-extended-community": {
+                     "sample": true,
+                     "terminal-action": false
+                 }
+             }
+         }    
 
 * **Redirect to VRF AS 2byte format**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <redirect-extended-community>
-              <global-administrator>123</global-administrator>
-              <local-administrator>AAAAew==</local-administrator>
-          </redirect-extended-community>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <redirect-extended-community>
+                 <global-administrator>123</global-administrator>
+                 <local-administrator>AAAAew==</local-administrator>
+             </redirect-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+      
+      .. code-block:: json
+      
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "redirect-extended-community": {
+                     "global-administrator": 123,
+                     "local-administrator": "AAAAew=="
+                 }
+             }
+         }
 
 * **Redirect to VRF IPv4 format**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <redirect-ipv4>
-              <global-administrator>192.168.0.1</global-administrator>
-              <local-administrator>12345</local-administrator>
-          </redirect-ipv4>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <redirect-ipv4>
+                 <global-administrator>192.168.0.1</global-administrator>
+                 <local-administrator>12345</local-administrator>
+             </redirect-ipv4>
+         </extended-communities>
+
+   .. tab:: JSON
+      
+      .. code-block:: json
+      
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "redirect-ipv4": {
+                     "global-administrator": "192.168.0.1",
+                     "local-administrator": 12345
+                 }
+             }
+         }
 
 * **Redirect to VRF AS 4byte format**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <redirect-as4>
-              <global-administrator>64495</global-administrator>
-              <local-administrator>12345</local-administrator>
-          </redirect-as4>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <redirect-as4>
+                 <global-administrator>64495</global-administrator>
+                 <local-administrator>12345</local-administrator>
+             </redirect-as4>
+         </extended-communities>
+         
+   .. tab:: JSON
+      
+      .. code-block:: json
+      
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "redirect-as4": {
+                     "global-administrator": 64495,
+                     "local-administrator": 12345
+                 }
+             }
+         }
 
 * **Redirect to IP**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <redirect-ip-nh-extended-community>
-              <copy>false</false>
-          </redirect-ip-nh-extended-community>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <redirect-ip-nh-extended-community>
+                 <copy>false</copy>
+             </redirect-ip-nh-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+      
+      .. code-block:: json
+      
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "redirect-ip-nh-extended-community": {
+                     "copy": false
+                 }
+             }
+         }
 
 * **Traffic Marking**
-   .. code-block:: xml
 
-      <extended-communities>
-          <transitive>true</transitive>
-          <traffic-marking-extended-community>
-              <global-administrator>20</global-administrator>
-          </traffic-marking-extended-community>
-      </extended-communities>
+.. tabs::
+
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <extended-communities>
+             <transitive>true</transitive>
+             <traffic-marking-extended-community>
+                 <global-administrator>20</global-administrator>
+             </traffic-marking-extended-community>
+         </extended-communities>
+
+   .. tab:: JSON
+      
+      .. code-block:: json
+      
+         {
+             "extended-communities" : {
+                 "transitive": true,
+                 "traffic-marking-extended-community": {
+                     "global-administrator": 20
+                 }
+             }
+         }
 
 -----
 
@@ -662,36 +1195,80 @@ This examples show how to originate and remove IPv4 L3VPN fowspec route via prog
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-    <flowspec-l3vpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
-        <path-id>0</path-id>
-        <route-key>flow-l3vpn</route-key>
-        <route-distinguisher>172.16.0.44:101</route-distinguisher>
-        <flowspec>
-            <source-prefix>10.0.0.3/32</source-prefix>
-        </flowspec>
-        <attributes>
-            <local-pref>
-                <pref>100</pref>
-            </local-pref>
-            <origin>
-                <value>igp</value>
-            </origin>
-            <as-path></as-path>
-               <extended-communities>
-                   <transitive>true</transitive>
-                   <redirect-ipv4>
-                       <global-administrator>172.16.0.44</global-administrator>
-                       <local-administrator>102</local-administrator>
-                   </redirect-ipv4>
-               </extended-communities>
-        </attributes>
-    </flowspec-l3vpn-route>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <flowspec-l3vpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
+             <path-id>0</path-id>
+             <route-key>flow-l3vpn</route-key>
+             <route-distinguisher>172.16.0.44:101</route-distinguisher>
+             <flowspec>
+                 <source-prefix>10.0.0.3/32</source-prefix>
+             </flowspec>
+             <attributes>
+                 <local-pref>
+                     <pref>100</pref>
+                 </local-pref>
+                 <origin>
+                    <value>igp</value>
+                 </origin>
+                 <as-path></as-path>
+                 <extended-communities>
+                     <transitive>true</transitive>
+                     <redirect-ipv4>
+                         <global-administrator>172.16.0.44</global-administrator>
+                         <local-administrator>102</local-administrator>
+                     </redirect-ipv4>
+                 </extended-communities>
+             </attributes>
+         </flowspec-l3vpn-route>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "flowspec-l3vpn-route": [
+                 {
+                     "route-key": "flow-l3vpn",
+                     "path-id": 0,
+                     "route-distinguisher": "172.16.0.44:101",
+                     "flowspec": [
+                         {
+                             "source-prefix": "10.0.0.3/32"
+                         }
+                     ],
+                     "attributes": {
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "extended-communities": [
+                             {
+                                 "redirect-ipv4": {
+                                     "global-administrator": "172.16.0.44",
+                                     "local-administrator": 102
+                                 },
+                                 "transitive": true
+                             }
+                         ],
+                         "local-pref": {
+                             "pref": 100
+                         }
+                     }
+                 }
+             ]
+         }
 
 -----
 
@@ -709,44 +1286,98 @@ This examples show how to originate and remove IPv6 fowspec route via programmab
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <flowspec-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
-       <route-key>flow-v6</route-key>
-       <path-id>0</path-id>
-       <flowspec>
-           <destination-prefix>2001:db8:30::3/128</destination-prefix>
-       </flowspec>
-       <flowspec>
-           <source-prefix>2001:db8:31::3/128</source-prefix>
-        </flowspec>
-       <flowspec>
-           <flow-label>
-               <op>equals end-of-list</op>
-               <value>1</value>
-           </flow-label>
-       </flowspec>
-       <attributes>
-           <extended-communities>
-               <transitive>true</transitive>
-               <redirect-ipv6>
-                   <global-administrator>2001:db8:1::6</global-administrator>
-                   <local-administrator>12345</local-administrator>
-               </redirect-ipv6>
-           </extended-communities>
-           <origin>
-               <value>igp</value>
-           </origin>
-           <as-path/>
-           <local-pref>
-               <pref>100</pref>
-           </local-pref>
-       </attributes>
-   </flowspec-route>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <flowspec-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">
+             <route-key>flow-v6</route-key>
+             <path-id>0</path-id>
+             <flowspec>
+                 <destination-prefix>2001:db8:30::3/128</destination-prefix>
+             </flowspec>
+             <flowspec>
+                 <source-prefix>2001:db8:31::3/128</source-prefix>
+             </flowspec>
+             <flowspec>
+                 <flow-label>
+                     <op>equals end-of-list</op>
+                     <value>1</value>
+                 </flow-label>
+             </flowspec>
+             <attributes>
+                 <extended-communities>
+                     <transitive>true</transitive>
+                     <redirect-ipv6>
+                         <global-administrator>2001:db8:1::6</global-administrator>
+                         <local-administrator>12345</local-administrator>
+                     </redirect-ipv6>
+                 </extended-communities>
+                 <origin>
+                     <value>igp</value>
+                 </origin>
+                 <as-path/>
+                 <local-pref>
+                     <pref>100</pref>
+                 </local-pref>
+             </attributes>
+         </flowspec-route>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "flowspec-route": [
+                 {
+                     "route-key": "flow-v6",
+                     "path-id": 0,
+                     "flowspec": [
+                         {
+                             "destination-prefix": "2001:db8:30::3/128"
+                         },
+                         {
+                             "source-prefix": "2001:db8:31::3/128"
+                         },
+                         {
+                             "flow-label": [
+                                 {
+                                     "op": "end-of-list equals",
+                                     "value": 1
+                                 }
+                             ]
+                         }
+                     ],
+                     "attributes": {
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "extended-communities": [
+                             {
+                                 "redirect-ipv6": {
+                                     "global-administrator": "2001:db8:1::6",
+                                     "local-administrator": 12345
+                                 },
+                                 "transitive": true
+                             }
+                         ],
+                         "local-pref": {
+                             "pref": 100
+                         }
+                     }
+                 }
+             ]
+         }
 
 -----
 
