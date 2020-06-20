@@ -19,7 +19,11 @@ BGP Speaker
 '''''''''''
 To enable IPv4 and IPv6 Unicast support in BGP plugin, first configure BGP speaker instance:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -50,9 +54,52 @@ To enable IPv4 and IPv6 Unicast support in BGP plugin, first configure BGP speak
        </bgp>
    </protocol>
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST"
+                               },
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:IPV6-UNICAST"
+                               }
+                           ]
+                       }
+                   }
+               }    
+           }
+       ]
+   }
+
 BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled IPv4 and IPv6 Unicast family.
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -75,6 +122,36 @@ Here is an example for BGP peer configuration with enabled IPv4 and IPv6 Unicast
            </afi-safi>
        </afi-safis>
    </neighbor>
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {        
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:IPV6-UNICAST"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
 
 IP Unicast API
 ^^^^^^^^^^^^^^
@@ -201,6 +278,8 @@ IPv4 Unicast
 ''''''''''''
 The IPv4 Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
 
 **Method:** ``GET``
@@ -229,9 +308,44 @@ The IPv4 Unicast table in an instance of the speaker's Loc-RIB can be verified v
        </ipv4-route>
    </ipv4-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-inet:ipv4-routes":{
+           "ipv4-route": [
+               {
+                   "route-key":"193.0.2.1/32",
+                   "path-id": 0,
+                   "prefix": "193.0.2.1/32",
+                   "attributes": {
+                       "origin": {
+                           "value": "igp"
+                       },
+                       "local-pref": {
+                           "pref": 100
+                       },
+                       "ipv4-next-hop": {
+                           "global": "10.0.0.1"
+                       }
+                   }
+               }
+           ]
+       }
+   }
+
 IPv6 Unicast
 ''''''''''''
 The IPv6 Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv6-routes``
 
@@ -261,6 +375,39 @@ The IPv6 Unicast table in an instance of the speaker's Loc-RIB can be verified v
        </ipv6-route>
    </ipv6-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv6-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-inet:ipv6-routes":{
+           "ipv6-route": [
+               {
+                   "route-key":"2a02:b80:0:1::/64",
+                   "path-id": 0,
+                   "prefix": "2a02:b80:0:1::/64",
+                   "attributes": {
+                       "origin": {
+                           "value": "igp"
+                       },
+                       "local-pref": {
+                           "pref": 200
+                       },
+                       "ipv6-next-hop": {
+                           "global": "2a02:b80:0:2::1"
+                       }
+                   }
+               }
+           ]
+       }
+   }
+
 .. note:: IPv4/6 routes mapping to topology nodes is supported by BGP Topology Provider.
 
 Programming
@@ -271,6 +418,8 @@ This examples show how to originate and remove IPv4 route via programmable RIB.
 Make sure the *Application Peer* is configured first.
 
 .. note:: IPv4 Route Key must be equal to prefix.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
 
@@ -300,6 +449,38 @@ Make sure the *Application Peer* is configured first.
        </attributes>
    </ipv4-route>
 
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {    
+       "ipv4-route": [
+           {
+               "route-key":"10.0.0.11/32",
+               "path-id": 0,
+               "prefix": "10.0.0.11/32",
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "ipv4-next-hop": {
+                       "global": "10.11.1.1"
+                   }
+               }
+           }
+       ]
+   }
 -----
 
 To remove the route added above, following request can be used:
@@ -313,6 +494,8 @@ IPv6 Unicast
 This examples show how to originate and remove IPv6 route via programmable RIB:
 
 .. note:: IPv6 Route Key must be equal to prefix.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv6-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv6-routes``
 
@@ -341,6 +524,39 @@ This examples show how to originate and remove IPv6 route via programmable RIB:
            </local-pref>
        </attributes>
    </ipv6-route>
+
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv6-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv6-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "ipv6-route": [
+           {
+               "route-key": "2001:db8:30::3/128",
+               "path-id": 0,
+               "prefix": "2001:db8:30::3/128",
+               "attributes": {
+                   "ipv6-next-hop": {
+                       "global": "2001:db8:1::6"
+                   },
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 100
+                   }
+               }
+           }
+       ]
+   }
 
 -----
 
