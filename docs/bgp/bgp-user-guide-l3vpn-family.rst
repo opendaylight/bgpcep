@@ -17,7 +17,11 @@ BGP Speaker
 '''''''''''
 To enable IPv4 and IPv6 L3VPN support in BGP plugin, first configure BGP speaker instance:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -54,9 +58,58 @@ To enable IPv4 and IPv6 L3VPN support in BGP plugin, first configure BGP speaker
        </bgp>
    </protocol>
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV4-UNICAST"
+                               },
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV6-UNICAST"
+                               },
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV4-MULTICAST"
+                               },
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV6-MULTICAST"
+                               }
+                           ]
+                       }
+                   }
+               }
+           }
+       ]
+   }
+
 BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled IPv4 and IPv6 L3VPN family.
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -79,6 +132,36 @@ Here is an example for BGP peer configuration with enabled IPv4 and IPv6 L3VPN f
            </afi-safi>
        </afi-safis>
    </neighbor>
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV4-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV6-UNICAST"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
 
 IP L3VPN API
 ^^^^^^^^^^^^
@@ -145,6 +228,8 @@ IPv4 L3VPN Unicast
 ''''''''''''''''''
 The IPv4 L3VPN Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes``
 
 **Method:** ``GET``
@@ -184,9 +269,53 @@ The IPv4 L3VPN Unicast table in an instance of the speaker's Loc-RIB can be veri
        </vpn-route>
    </vpn-ipv4-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-vpn-ipv4:vpn-ipv4-routes": {
+           "vpn-route": {
+               "route-key": "cAXdYQABrBAALABlCgIi",
+               "path-id": 0,
+               "label-stack": {
+                   "label-value":24022
+               },
+               "attributes": {
+                   "extended-communities": {
+                       "transitive": true,
+                       "route-target-extended-community": {
+                           "global-administrator": "65000",
+                           "local-administrator": "AAAAZQ=="
+                       }
+                   },
+                   "origin": { 
+                       "value": "igp"
+                   },
+                   "local-pref": { 
+                       "pref": 100
+                   },
+                   "ipv4-next-hop": { 
+                      "global": "127.16.0.44" 
+                   }
+               },
+               "route-distinguisher": "172.16.0.44:101",
+               "prefix":"10.2.34.0/24"
+           }
+       }    
+   }
+
 IPv6 L3VPN Unicast
 ''''''''''''''''''
 The IPv6 L3VPN Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv6-address-family/bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv6:vpn-ipv6-routes``
 
@@ -227,9 +356,53 @@ The IPv6 L3VPN Unicast table in an instance of the speaker's Loc-RIB can be veri
        </vpn-route>
    </vpn-ipv6-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv6-address-family/bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv6:vpn-ipv6-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-vpn-ipv6:vpn-ipv6-routes": {
+           "vpn-route": {
+               "route-key": "mAXdcQABrBAALABlKgILgAAAAAE=",
+               "path-id": 0,
+               "label-stack": {
+                   "label-value":24023
+               },
+               "attributes": {
+                   "extended-communities": {
+                       "transitive": true,
+                       "route-target-extended-community": {
+                           "global-administrator": "65000",
+                           "local-administrator": "AAAAZQ=="
+                       }
+                   },
+                   "origin": { 
+                       "value": "igp"
+                   },
+                   "local-pref": { 
+                       "pref": 100
+                   },
+                   "ipv6-next-hop": { 
+                       "global": "2a02:b80:0:2::1" 
+                   }
+               },
+            "route-distinguisher": "172.16.0.44:101",
+            "prefix":"2a02:b80:0:1::/64"
+           }
+       }    
+   }
+
 IPv4 L3VPN Multicast
 ''''''''''''''''''''
 The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be verified via REST:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes``
 
@@ -269,9 +442,52 @@ The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be ve
        </l3vpn-mcast-route>
    </l3vpn-mcast-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp:l3vpn:mcast:l3vpn-mcast-routes": {
+           "l3vpn-mcast-route": {
+               "route-key": "mAXdcQABrBAALABlKgILgAAAAAE=",
+               "path-id": 0,
+               "attributes": {
+                   "extended-communities": {
+                       "transitive": true,
+                       "vrf-route-import-extended-community": {
+                           "inet4-specific-extended-community-common": {
+                               "global-administrator": "10.0.0.1",
+                               "local-administrator": "123="    	
+                           }
+                       }
+                   },
+                   "origin": { 
+                       "value": "igp"
+                   },
+                   "local-pref": { 
+                       "pref": 100
+                   },
+                   "ipv4-next-hop": { 
+                       "global": "127.16.0.44" 
+                   }
+               },
+               "route-distinguisher": "172.16.0.44:101",
+               "prefix":"10.2.34.0/24"
+           }
+       }
+   }
+
 IPv6 L3VPN Multicast
 ''''''''''''''''''''
 The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be verified via REST:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv6-address-family/bgp-types:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes``
 
@@ -311,10 +527,53 @@ The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be ve
        </l3vpn-mcast-route>
    </l3vpn-mcast-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv6-address-family/bgp-types:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp:l3vpn:mcast:l3vpn-mcast-routes": {
+           "l3vpn-mcast-route": {
+               "route-key": "mAXdcQABrBAALABlKgILgAAAAAE=",
+               "path-id": 0,
+               "attributes": {
+            	   "extended-communities": {
+                       "transitive": true,
+                       "vrf-route-import-extended-community": {
+                           "inet4-specific-extended-community-common": {
+                               "global-administrator": "10.0.0.1",
+                               "local-administrator": "123="    	
+                           }
+                       }
+                   },
+                   "origin": { 
+                       "value": "igp"
+                   },
+                   "local-pref": { 
+                       "pref": 100
+                   },
+                   "ipv6-next-hop": { 
+                       "global": "2a02:b80:0:2::1" 
+                   }
+               },
+               "route-distinguisher": "172.16.0.44:101",
+               "prefix":"2a02:b80:0:1::/64"
+           }
+       }
+   }
+
 Programming
 ^^^^^^^^^^^
 This examples show how to originate and remove IPv4 L3VPN Unicast route via programmable RIB.
 Make sure the *Application Peer* is configured first.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes``
 
@@ -351,6 +610,51 @@ Make sure the *Application Peer* is configured first.
            </extended-communities>
        </attributes>
    </vpn-route>
+
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "vpn-route": [
+           {
+               "route-key": "vpn1",
+               "path-id": 0,
+               "label-stack": [
+                   {
+                       "label-value": 123
+                   }
+               ],
+               "route-distinguisher": "429496729:1",
+               "attributes": {
+                   "extended-communities": [
+                       {
+                           "transitive": true,
+                           "route-target-extended-community": {
+                               "global-administrator": 65000,
+                               "local-administrator": "AAAAZQ=="
+                           }
+                       }
+                   ],
+                   "ipv4-next-hop": {
+                       "global": "199.20.166.41"
+                   },
+                   "origin": {
+                       "value": "igp"
+                   }
+               },
+               "prefix": "2.2.2.2/32"
+           }
+       ]
+   }
 
 -----
 
