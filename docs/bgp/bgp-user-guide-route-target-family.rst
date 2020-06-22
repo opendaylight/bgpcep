@@ -21,29 +21,65 @@ To enable ROUTE-TARGET-CONSTRAIN support in BGP plugin, first configure BGP spea
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-               <afi-safis>
-                   <afi-safi>
-                       <afi-safi-name>ROUTE-TARGET-CONSTRAIN</afi-safi-name>
-                   </afi-safi>
-               </afi-safis>
-           </global>
-       </bgp>
-   </protocol>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <protocol xmlns="http://openconfig.net/yang/network-instance">
+             <name>bgp-example</name>
+             <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+             <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+                 <global>
+                     <config>
+                         <router-id>192.0.2.2</router-id>
+                         <as>65000</as>
+                     </config>
+                     <afi-safis>
+                         <afi-safi>
+                             <afi-safi-name>ROUTE-TARGET-CONSTRAIN</afi-safi-name>
+                         </afi-safi>
+                     </afi-safis>
+                 </global>
+             </bgp>
+         </protocol>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "protocol": [
+                 {
+                     "identifier": "openconfig-policy-types:BGP",
+                     "name": "bgp-example",
+                     "bgp-openconfig-extensions:bgp": {
+                         "global": {
+                             "config": {
+                                 "router-id": "192.0.2.2",
+                                 "as": 65000
+                             },
+                             "afi-safis": {
+                                 "afi-safi": [
+                                     {
+                                         "afi-safi-name": "ROUTE-TARGET-CONSTRAIN"
+                                     }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+             ]
+         }
 
 BGP Peer
 ''''''''
@@ -53,20 +89,47 @@ Here is an example for BGP peer configuration with enabled ROUTE-TARGET-CONSTRAI
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <neighbor-address>192.0.2.1</neighbor-address>
-       <afi-safis>
-           <afi-safi>
-               <afi-safi-name>ROUTE-TARGET-CONSTRAIN</afi-safi-name>
-           </afi-safi>
-       </afi-safis>
-   </neighbor>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <neighbor-address>192.0.2.1</neighbor-address>
+             <afi-safis>
+                 <afi-safi>
+                     <afi-safi-name>ROUTE-TARGET-CONSTRAIN</afi-safi-name>
+                 </afi-safi>
+             </afi-safis>
+         </neighbor>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "neighbor": [
+                 {
+                     "neighbor-address": "192.0.2.1",
+                     "afi-safis": {
+                         "afi-safi": [
+                             {
+                                 "afi-safi-name": "ROUTE-TARGET-CONSTRAIN"
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
 
 ROUTE-TARGET-CONSTRAIN Route API
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -103,128 +166,267 @@ The ROUTE TARGET CONSTRAIN table in an instance of the speaker's Loc-RIB can be 
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <route-target-constrain-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:route:target:constrain">
-      <route-target-constrain-route>
-         <route-key>flow1</route-key>
-         <path-id>0</path-id>
-         <origin-as>64511</origin-as>
-         <route-target-extended-community>
-             <global-administrator>64511</global-administrator>
-             <local-administrator>AAAAZQ==</local-administrator>
-         </route-target-extended-community>
-         <attributes>
-            <ipv4-next-hop>
-               <global>199.20.166.41</global>
-            </ipv4-next-hop>
-            <as-path/>
-            <origin>
-               <value>igp</value>
-            </origin>
-            <local-pref>
-               <pref>100</pref>
-            </local-pref>
-         </attributes>
-      </route-target-constrain-route>
-   </route-target-constrain-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <route-target-constrain-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:route:target:constrain">
+             <route-target-constrain-route>
+                 <route-key>flow1</route-key>
+                 <path-id>0</path-id>
+                 <origin-as>64511</origin-as>
+                 <route-target-extended-community>
+                     <global-administrator>64511</global-administrator>
+                     <local-administrator>AAAAZQ==</local-administrator>
+                 </route-target-extended-community>
+                 <attributes>
+                     <ipv4-next-hop>
+                         <global>199.20.166.41</global>
+                     </ipv4-next-hop>
+                     <as-path/>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                 </attributes>
+             </route-target-constrain-route>
+         </route-target-constrain-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "route-target-constrain-routes": {
+                 "route-target-constrain-route": [
+                     {
+                         "route-key":"flow1",
+                         "path-id": 0,
+                         "origin-as": 64511,
+                         "route-target-extended-community": {
+                             "global-administrator": 64511,
+                             "local-administrator": "AAAAZQ=="
+                         },
+                         "attributes": {
+                             "origin": {
+                                 "value": "igp"
+                             },
+                             "local-pref": {
+                                 "pref": 100
+                             },
+                             "ipv4-next-hop": {
+                                 "global": "199.20.166.41"
+                             }
+                         }
+                     }
+                 ]
+             }
+         }
 
 Routing Policies
 ^^^^^^^^^^^^^^^^
 
-.. code-block:: xml
+.. tabs::
 
-   <policy-definition>
-       <name>default-odl-export-policy</name>
-       <statement>
-       ...
-       <statement>
-           <name>from-external-to-external-RTC</name>
-           <conditions>
-               <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                   <afi-safi-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">x:ROUTE-TARGET-CONSTRAIN</afi-safi-in>
-                   <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                       <from-role>
-                           <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
-                       </from-role>
-                       <to-role>
-                           <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
-                       </to-role>
-                   </match-role-set>
-               </bgp-conditions>
-           </conditions>
-           <actions>
-               <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                   <client-attribute-prepend xmlns="urn:opendaylight:params:xml:ns:yang:bgp:route:target:constrain"/>
-               </bgp-actions>
-           </actions>
-       </statement>
-       ...
-       </statement>
-       <statement>
-           <name>from-internal-or-rr-client-to-route-reflector</name>
-           <conditions>
-               <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                   <afi-safi-not-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions"
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <policy-definition>
+             <name>default-odl-export-policy</name>
+             <statement>
+             ...
+             <statement>
+                 <name>from-external-to-external-RTC</name>
+                 <conditions>
+                     <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                         <afi-safi-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">x:ROUTE-TARGET-CONSTRAIN</afi-safi-in>
+                         <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                             <from-role>
+                                 <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                             </from-role>
+                             <to-role>
+                                 <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
+                             </to-role>
+                         </match-role-set>
+                     </bgp-conditions>
+                 </conditions>
+                 <actions>
+                     <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                         <client-attribute-prepend xmlns="urn:opendaylight:params:xml:ns:yang:bgp:route:target:constrain"/>
+                     </bgp-actions>
+                 </actions>
+             </statement>
+             ...
+             </statement>
+             <statement>
+                 <name>from-internal-or-rr-client-to-route-reflector</name>
+                 <conditions>
+                     <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                         <afi-safi-not-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions"
                                     xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">x:ROUTE-TARGET-CONSTRAIN
-                   </afi-safi-not-in>
-                   <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                       <from-role>
-                           <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
-                       </from-role>
-                       <to-role>
-                           <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
-                       </to-role>
-                   </match-role-set>
-               </bgp-conditions>
-           </conditions>
-           <actions>
-               <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                   <set-cluster-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-                   <set-originator-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-               </bgp-actions>
-           </actions>
-       </statement>
-       <statement>
-           <name>from-internal-or-rr-client-to-route-RTC</name>
-           <conditions>
-               <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                   <afi-safi-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">x:ROUTE-TARGET-CONSTRAIN</afi-safi-in>
-                   <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                       <from-role>
-                           <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
-                       </from-role>
-                       <to-role>
-                           <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
-                       </to-role>
-                   </match-role-set>
-               </bgp-conditions>
-           </conditions>
-           <actions>
-               <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                   <set-originator-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-                   <set-next-hop>SELF</set-next-hop>
-               </bgp-actions>
-           </actions>
-       </statement>
-       <statement>
-           <name>vpn-membership-RTC</name>
-           <conditions>
-               <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                   <afi-safi-in xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-in>
-                   <afi-safi-in xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-in>
-                   <vpn-non-member xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-               </bgp-conditions>
-           </conditions>
-           <actions>
-               <reject-route/>
-           </actions>
-       </statement>
-       ...
-       ...
-   </policy-definition>
+                         </afi-safi-not-in>
+                         <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                             <from-role>
+                                 <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
+                             </from-role>
+                             <to-role>
+                                 <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
+                             </to-role>
+                         </match-role-set>
+                     </bgp-conditions>
+                 </conditions>
+                 <actions>
+                     <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                         <set-cluster-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                         <set-originator-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                     </bgp-actions>
+                 </actions>
+             </statement>
+             <statement>
+                 <name>from-internal-or-rr-client-to-route-RTC</name>
+                 <conditions>
+                     <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                         <afi-safi-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">x:ROUTE-TARGET-CONSTRAIN</afi-safi-in>
+                         <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                             <from-role>
+                                 <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="ibgp-rr-client"]</role-set>
+                             </from-role>
+                             <to-role>
+                                 <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-rr-client"]</role-set>
+                             </to-role>
+                         </match-role-set>
+                     </bgp-conditions>
+                 </conditions>
+                 <actions>
+                     <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                         <set-originator-id-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                         <set-next-hop>SELF</set-next-hop>
+                     </bgp-actions>
+                 </actions>
+             </statement>
+             <statement>
+                 <name>vpn-membership-RTC</name>
+                 <conditions>
+                     <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                         <afi-safi-in xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV4-UNICAST</afi-safi-in>
+                         <afi-safi-in xmlns:x="http://openconfig.net/yang/bgp-types">x:L3VPN-IPV6-UNICAST</afi-safi-in>
+                         <vpn-non-member xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
+                     </bgp-conditions>
+                 </conditions>
+                 <actions>
+                     <reject-route/>
+                 </actions>
+             </statement>
+             ...
+             ...
+         </policy-definition>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "policy-definition": [
+                 {
+                     "name": "default-odl-export-policy",
+                     "statement": [
+                         "...",
+                         {
+                             "name": "from-external-to-external-RTC",
+                             "conditions": {
+                                 "bgp-conditions": {
+                                     "afi-safi-in": "x:ROUTE-TARGET-CONSTRAIN",
+                                     "match-role-set": {
+                                         "from-role": {
+                                             "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"only-ebgp\"]"
+                                         },
+                                         "to-role": {
+                                             "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"only-ebgp\"]"
+                                         }
+                                     }
+                                 }
+                             },
+                             "actions": {
+                                 "bgp-actions": {
+                                     "client-attribute-prepend": null
+                                 }
+                             }
+                         },
+                         "...",
+                         {
+                             "name": "from-internal-or-rr-client-to-route-reflector",
+                             "conditions": {
+                                 "bgp-conditions": {
+                                     "afi-safi-not-in": "x:ROUTE-TARGET-CONSTRAIN",
+                                     "match-role-set": {
+                                         "from-role": {
+                                             "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"ibgp-rr-client\"]"
+                                         },
+                                         "to-role": {
+                                             "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"only-rr-client\"]"
+                                         }
+                                     }
+                                 }
+                             },
+                             "actions": {
+                                 "bgp-actions": {
+                                     "set-cluster-id-prepend": null,
+                                     "set-originator-id-prepend": null
+                                 }
+                             }
+                         },
+                         {
+                             "name": "from-internal-or-rr-client-to-route-RTC",
+                             "conditions": {
+                                 "bgp-conditions": {
+                                     "afi-safi-in": "x:ROUTE-TARGET-CONSTRAIN",
+                                     "match-role-set": {
+                                         "from-role": {
+                                             "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"ibgp-rr-client\"]"
+                                         },
+                                         "to-role": {
+                                             "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"only-rr-client\"]"
+                                         }
+                                     }
+                                 }
+                             },
+                             "actions": {
+                                 "bgp-actions": {
+                                     "set-originator-id-prepend": null,
+                                     "set-next-hop": "SELF"
+                                 }
+                             }
+                         },
+                         {
+                             "name": "vpn-membership-RTC",
+                             "conditions": {
+                                 "bgp-conditions": {
+                                     "afi-safi-in": [
+                                         "x:L3VPN-IPV4-UNICAST",
+                                         "x:L3VPN-IPV6-UNICAST"
+                                     ],
+                                     "vpn-non-member": null
+                                 }
+                             },
+                             "actions": {
+                                 "reject-route": []
+                             }
+                         }
+                     ]
+                 },
+                 "...",
+                 "..."
+             ]
+         }
 
 References
 ^^^^^^^^^^
