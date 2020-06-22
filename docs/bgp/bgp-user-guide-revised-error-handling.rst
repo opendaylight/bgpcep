@@ -18,6 +18,8 @@ For *neighbor* configuration:
 
 For *peer-group* configuration:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups/peer-group/external-neighbor/error-handling``
 
 **Method:** ``PUT``
@@ -37,6 +39,30 @@ For *peer-group* configuration:
     </error-handling>
 
 @line 3: *True* to enable *treat-as-withdraw* procedures, *False* to disabled it
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups/peer-group/external-neighbor/error-handling``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4
+
+   {
+       "bgp-openconfig-extensions:error-handling": {
+           "config": {
+               "treat-as-withdraw": true
+           }
+       }
+   }
+
+@line 4: *True* to enable *treat-as-withdraw* procedures, *False* to disabled it
 
 .. note:: If neighbor Error handling configuration in *neighbor* ALWAYS supersed *peer-group* configuration. That means if *peer-group* have error handling enabled and *neighbor* disabled, result is disabled error handling.
 
