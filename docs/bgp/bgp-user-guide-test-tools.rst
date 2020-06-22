@@ -70,21 +70,45 @@ Install ``odl-bgpcep-bgp-benchmark`` feature and reconfigure BGP Application Pee
 
 **URL:** ``/restconf/config/odl-bgp-app-peer-benchmark-config:config``
 
+**RFC8040 URL:** ``/rests/data/odl-bgp-app-peer-benchmark-config:config``
+
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2
+      **Content-Type:** ``application/xml``
 
-   <odl-bgp-app-peer-benchmark-config xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark-config">
-      <app-peer-id xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark-config">10.25.1.9</app-peer-id>
-   </odl-bgp-app-peer-benchmark-config>
+      **Request Body:**
 
-@line 2: The *Application Peer* identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2
+
+         <odl-bgp-app-peer-benchmark-config xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark-config">
+            <app-peer-id xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark-config">10.25.1.9</app-peer-id>
+         </odl-bgp-app-peer-benchmark-config>
+
+      @line 2: The *Application Peer* identifier.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3
+
+         {
+             "odl-bgp-app-peer-benchmark-config": {
+                 "app-peer-id": "10.25.1.9"
+             }
+         }
+
+      @line 3: The *Application Peer* identifier.
 
 Inject routes
 '''''''''''''
@@ -92,50 +116,105 @@ Routes injection can be invoked via RPC:
 
 **URL:** ``/restconf/operations/odl-bgp-app-peer-benchmark:add-prefix``
 
+**RFC8040 URL:** ``/rests/operations/odl-bgp-app-peer-benchmark:add-prefix``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3,4,5
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark">
-       <prefix>1.1.1.1/32</prefix>
-       <count>100000</count>
-       <batchsize>2000</batchsize>
-       <nexthop>192.0.2.2</nexthop>
-   </input>
+      **Request Body:**
 
-@line 2: A initial IPv4 prefix carried in route. Value is incremented for following routes.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3,4,5
 
-@line 3: An amount of routes to be added to *Application Peer's* programmable RIB.
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark">
+             <prefix>1.1.1.1/32</prefix>
+             <count>100000</count>
+             <batchsize>2000</batchsize>
+             <nexthop>192.0.2.2</nexthop>
+         </input>
 
-@line 4: A size of the transaction batch.
+      @line 2: A initial IPv4 prefix carried in route. Value is incremented for following routes.
 
-@line 5: A NEXT_HOP attribute value used in all injected routes.
+      @line 3: An amount of routes to be added to *Application Peer's* programmable RIB.
 
-**Response Body:**
+      @line 4: A size of the transaction batch.
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 3,4,5
+      @line 5: A NEXT_HOP attribute value used in all injected routes.
 
-   <output xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark">
-       <result>
-           <duration>4301</duration>
-           <rate>25000</rate>
-           <count>100000</count>
-       </result>
-   </output>
+      **Response Body:**
 
-@line 3: Request duration in milliseconds.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 3,4,5
 
-@line 4: Writes per second rate.
+         <output xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark">
+             <result>
+                 <duration>4301</duration>
+                 <rate>25000</rate>
+                 <count>100000</count>
+             </result>
+         </output>
 
-@line 5: An amount of routes added to *Application Peer's* programmable RIB.
+      @line 3: Request duration in milliseconds.
+
+      @line 4: Writes per second rate.
+
+      @line 5: An amount of routes added to *Application Peer's* programmable RIB.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,4,5,6
+
+         {
+             "odl-bgp-app-peer-benchmark:input": {
+                 "prefix": "1.1.1.1/32",
+                 "count": 100000,
+                 "batchsize": 2000,
+                 "nexthop": "192.0.2.2"
+             }
+         }
+
+      @line 3: A initial IPv4 prefix carried in route. Value is incremented for following routes.
+
+      @line 4: An amount of routes to be added to *Application Peer's* programmable RIB.
+
+      @line 5: A size of the transaction batch.
+
+      @line 6: A NEXT_HOP attribute value used in all injected routes.
+
+      **Response Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4,5,6
+
+         {
+             "output": {
+                 "result": {
+                     "duration": 4757,
+                     "rate": 25000,
+                     "count": 100000
+                 }
+             }
+         }
+
+      @line 4: Request duration in milliseconds.
+
+      @line 5: Writes per second rate.
+
+      @line 6: An amount of routes added to *Application Peer's* programmable RIB.
 
 Remove routes
 '''''''''''''
@@ -143,36 +222,80 @@ Routes deletion can be invoked via RPC:
 
 **URL:** ``/restconf/operations/odl-bgp-app-peer-benchmark:delete-prefix``
 
+**RFC8040 URL:** ``/rests/operations/odl-bgp-app-peer-benchmark:delete-prefix``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3,4
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark">
-       <prefix>1.1.1.1/32</prefix>
-       <count>100000</count>
-       <batchsize>2000</batchsize>
-   </input>
+      **Request Body:**
 
-@line 2: A initial IPv4 prefix carried in route to be removed. Value is incremented for following routes.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3,4
 
-@line 3: An amount of routes to be removed from *Application Peer's* programmable RIB.
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark">
+             <prefix>1.1.1.1/32</prefix>
+             <count>100000</count>
+             <batchsize>2000</batchsize>
+         </input>
 
-@line 4: A size of the transaction batch.
+      @line 2: A initial IPv4 prefix carried in route to be removed. Value is incremented for following routes.
 
-**Response Body:**
+      @line 3: An amount of routes to be removed from *Application Peer's* programmable RIB.
 
-.. code-block:: xml
+      @line 4: A size of the transaction batch.
 
-   <output xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark">
-       <result>
-           <duration>1837</duration>
-           <rate>54500</rate>
-           <count>100000</count>
-       </result>
-   </output>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <output xmlns="urn:opendaylight:params:xml:ns:yang:odl-bgp-app-peer-benchmark">
+             <result>
+                 <duration>1837</duration>
+                 <rate>54500</rate>
+                 <count>100000</count>
+             </result>
+         </output>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,4,5
+
+         {
+             "odl-bgp-app-peer-benchmark:input": {
+                 "prefix": "1.1.1.1/32",
+                 "count": 100000,
+                 "batchsize": 2000
+             }
+         }
+
+      @line 3: A initial IPv4 prefix carried in route to be removed. Value is incremented for following routes.
+
+      @line 4: An amount of routes to be removed from *Application Peer's* programmable RIB.
+
+      @line 5: A size of the transaction batch.
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "odl-bgp-app-peer-benchmark:output": {
+                "result": {
+                   "duration": 1837,
+                   "rate": 54500,
+                   "count": 100000
+                }
+             }
+         }
