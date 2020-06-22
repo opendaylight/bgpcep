@@ -17,17 +17,38 @@ This section explains how to install BGP plugin.
 
    **URL:** ``/restconf/operational/bgp-rib:bgp-rib``
 
+   **RFC8040 URL:** ``/rests/data/bgp-rib:bgp-rib?content=non-config``
+
    **Method:** ``GET``
+   
+   .. tabs::
 
-   **Response Body:**
+      .. tab:: XML 
+ 
+      **Response Body:**
 
-   .. code-block:: xml
+      .. code-block:: xml
 
-      <bgp-rib xmlns="urn:opendaylight:params:xml:ns:yang:bgp-rib">
-         <rib>
-             <id>example-bgp-rib</id>
-             <loc-rib>
-             ....
-             </loc-rib>
-         </rib>
-      </bgp-rib>
+         <bgp-rib xmlns="urn:opendaylight:params:xml:ns:yang:bgp-rib">
+             <rib>
+                 <id>example-bgp-rib</id>
+                 <loc-rib>
+                 ....
+                 </loc-rib>
+             </rib>
+         </bgp-rib>
+
+      .. tab:: JSON
+
+         **Response Body:**
+
+         .. code-block:: json
+
+            {
+                "bgp-rib": {
+                    "rib": {
+                        "id": "example-bgp-rib",
+                        "loc-rib": "...."
+                    }
+                }
+            }
