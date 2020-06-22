@@ -19,7 +19,11 @@ BGP Speaker
 '''''''''''
 To enable MCAST-VPN support in BGP plugin, first configure BGP speaker instance:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -50,9 +54,52 @@ To enable MCAST-VPN support in BGP plugin, first configure BGP speaker instance:
        </bgp>
    </protocol>
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "IPV4-MCAST-VPN"
+                               },
+                               {
+                                   "afi-safi-name": "IPV6-MCAST-VPN"
+                               }
+                           ]
+                       }
+                   }
+               }
+           }
+       ]
+   }
+
 BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled IPV4 MCAST-VPN family.
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -72,6 +119,33 @@ Here is an example for BGP peer configuration with enabled IPV4 MCAST-VPN family
            </afi-safi>
        </afi-safis>
    </neighbor>
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "IPV4-MCAST-VPN"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
 
 Ipv4 MCAST-VPN Route API
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -228,6 +302,8 @@ Usage
 ^^^^^
 The Ipv4 Multicast VPN table in an instance of the speaker's Loc-RIB can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-mvpn:mcast-vpn-subsequent-address-family/bgp-mvpn-ipv4:mvpn-routes``
 
 **Method:** ``GET``
@@ -256,7 +332,40 @@ The Ipv4 Multicast VPN table in an instance of the speaker's Loc-RIB can be veri
       </mvpn-route>
    </mvpn-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-mvpn:mcast-vpn-subsequent-address-family/bgp-mvpn-ipv4:mvpn-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp:mvpn:ipv4:mvpn-routes": {
+           "mvpn-route": {
+               "route-key": "flow1",
+               "path-id": 0,
+               "intra-as-i-pmsi-a-d": {
+                   "route-distinguisher": "172.16.0.44:101",
+                   "orig-route-ip": "192.168.100.1"
+               },
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "ipv4-next-hop": {
+                       "global": "199.20.166.41"
+                   }
+               }
+           }
+       }
+   }
+
 The Ipv6 Multicast VPN table in an instance of the speaker's Loc-RIB can be verified via REST:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-mvpn:mcast-vpn-subsequent-address-family/bgp-mvpn-ipv6:mvpn-routes``
 
@@ -286,12 +395,45 @@ The Ipv6 Multicast VPN table in an instance of the speaker's Loc-RIB can be veri
       </mvpn-route>
    </mvpn-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-mvpn:mcast-vpn-subsequent-address-family/bgp-mvpn-ipv6:mvpn-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp:mvpn:ipv6:mvpn-routes": {
+           "mvpn-route": {
+               "route-key": "flow1",
+               "path-id": 0,
+               "intra-as-i-pmsi-a-d": {
+                   "route-distinguisher": "172.16.0.44:101",
+                   "orig-route-ip": "192.168.100.1"
+               },
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "ipv6-next-hop": {
+                      "global": "2001:db8:1::6"
+                   }
+               }
+           }
+       }
+   }
+
 Programming
 ^^^^^^^^^^^
 These examples show how to originate and remove MCAST-VPN routes via programmable RIB.
 There are seven different types of MCAST-VPN routes, and multiples extended communities.
 Routes can be used for variety of use-cases supported by BGP/MPLS MCAST-VPN.
 Make sure the *Application Peer* is configured first.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-mvpn:mcast-vpn-subsequent-address-family/bgp-mvpn-ipv4:mvpn-routes``
 
@@ -330,6 +472,44 @@ Make sure the *Application Peer* is configured first.
 @line 4: One of the MCAST-VPN route must be set here.
 
 @line 15: In some cases, specific extended community presence is required.
+
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-mvpn:mcast-vpn-subsequent-address-family/bgp-mvpn-ipv4:mvpn-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 5,16
+
+   {
+       "mvpn-route": {
+           "route-key": "mvpn",
+           "path-id": 0,
+           "intra-as-i-pmsi-a-d": {
+               "route-distinguisher": "172.16.0.44:101",
+               "orig-route-ip": "192.168.100.1"
+           },
+           "attributes": {
+               "origin": {
+                   "value": "igp"
+               },
+               "ipv4-next-hop": {
+                   "global": "199.20.166.41"
+               },
+               "extended-communities": "..."
+           }
+       }
+   }
+
+@line 5: One of the MCAST-VPN route must be set here.
+
+@line 16: In some cases, specific extended community presence is required.
 
 -----
 
@@ -529,4 +709,4 @@ References
 ^^^^^^^^^^
 * `Multicast in MPLS/BGP IP VPNs <https://tools.ietf.org/html/rfc6513>`_
 * `BGP Encodings and Procedures for Multicast in MPLS/BGP IP VPNs <https://tools.ietf.org/html/rfc6514>`_
-* `IPv4 and IPv6 Infrastructure Addresses in BGP Updates for Multicast VPN <https://tools.ietf.org/html/rfc6515>`_
+* `IPv4 and IPv6 Infrastructure Addresses in BGP Updates for Multicast VPN <https://tools.ietf.org/html/rfc6515>`
