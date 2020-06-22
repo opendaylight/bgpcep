@@ -19,19 +19,41 @@ To send a Route Refresh request from OpenDaylight BGP speaker instance to its ne
 
 **URL:** ``/restconf/operations/bgp-peer-rpc:route-refresh-request``
 
+**RFC8040 URL:** ``/rests/data/bgp-peer-rpc:route-refresh-request?content=non-config``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:bgp-peer-rpc">
-       <afi xmlns:types="urn:opendaylight:params:xml:ns:yang:bgp-types">types:ipv4-address-family</afi>
-       <safi xmlns:types="urn:opendaylight:params:xml:ns:yang:bgp-types">types:unicast-subsequent-address-family</safi>
-       <peer-ref xmlns:rib="urn:opendaylight:params:xml:ns:yang:bgp-rib">/rib:bgp-rib/rib:rib[rib:id="bgp-example"]/rib:peer[rib:peer-id="bgp://10.25.1.9"]</peer-ref>
-   </input>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:bgp-peer-rpc">
+             <afi xmlns:types="urn:opendaylight:params:xml:ns:yang:bgp-types">types:ipv4-address-family</afi>
+             <safi xmlns:types="urn:opendaylight:params:xml:ns:yang:bgp-types">types:unicast-subsequent-address-family</safi>
+             <peer-ref xmlns:rib="urn:opendaylight:params:xml:ns:yang:bgp-rib">/rib:bgp-rib/rib:rib[rib:id="bgp-example"]/rib:peer[rib:peer-id="bgp://10.25.1.9"]</peer-ref>
+         </input>
+
+   .. tab:: JSON
+      
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-peer-rpc:input": {
+                 "afi": "bgp-types:ipv4-address-family",
+                 "safi": "bgp-types:unicast-subsequent-address-family",
+                 "peer-ref": "/rib:bgp-rib/rib:rib[rib:id=\"bgp-example\"]/rib:peer[rib:peer-id=\"bgp://10.25.1.9\"]"
+             }
+         }
 
 References
 ^^^^^^^^^^
@@ -56,14 +78,34 @@ To release neighbor session, invoke RPC:
 
 **URL:** ``/restconf/operations/bgp-peer-rpc:reset-session``
 
+**RFC8040 URL:** ``/rests/data/bgp-peer-rpc:reset-session?content=non-config``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:bgp-peer-rpc">
-       <peer-ref xmlns:rib="urn:opendaylight:params:xml:ns:yang:bgp-rib">/rib:bgp-rib/rib:rib[rib:id="bgp-example"]/rib:peer[rib:peer-id="bgp://10.25.1.9"]</peer-ref>
-   </input>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:bgp-peer-rpc">
+             <peer-ref xmlns:rib="urn:opendaylight:params:xml:ns:yang:bgp-rib">/rib:bgp-rib/rib:rib[rib:id="bgp-example"]/rib:peer[rib:peer-id="bgp://10.25.1.9"]</peer-ref>
+         </input>
+
+   .. tab:: JSON`
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-peer-rpc:input": {
+                 "peer-ref": "/rib:bgp-rib/rib:rib[rib:id=\"bgp-example\"]/rib:peer[rib:peer-id=\"bgp://10.25.1.9\"]"
+             }
+         }
