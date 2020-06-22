@@ -83,7 +83,7 @@ To enable ROUTE-TARGET-CONSTRAIN support in BGP plugin, first configure BGP spea
                        }
                    }
                }
-           }
+           }   
        ]
    }
 
