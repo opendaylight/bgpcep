@@ -21,34 +21,75 @@ To enable MCAST-VPN support in BGP plugin, first configure BGP speaker instance:
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
 
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-               <afi-safis>
-                   <afi-safi>
-                       <afi-safi-name>IPV4-MCAST-VPN</afi-safi-name>
-                   </afi-safi>
-                   <afi-safi>
-                       <afi-safi-name>IPV6-MCAST-VPN</afi-safi-name>
-                   </afi-safi>
-               </afi-safis>
-           </global>
-       </bgp>
-   </protocol>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <protocol xmlns="http://openconfig.net/yang/network-instance">
+             <name>bgp-example</name>
+             <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+             <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+                 <global>
+                     <config>
+                         <router-id>192.0.2.2</router-id>
+                         <as>65000</as>
+                     </config>
+                     <afi-safis>
+                         <afi-safi>
+                             <afi-safi-name>IPV4-MCAST-VPN</afi-safi-name>
+                         </afi-safi>
+                         <afi-safi>
+                             <afi-safi-name>IPV6-MCAST-VPN</afi-safi-name>
+                         </afi-safi>
+                     </afi-safis>
+                 </global>
+             </bgp>
+         </protocol>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "protocol": [
+                 {
+                     "identifier": "openconfig-policy-types:BGP",
+                     "name": "bgp-example",
+                     "bgp-openconfig-extensions:bgp": {
+                         "global": {
+                             "config": {
+                                 "router-id": "192.0.2.2",
+                                 "as": 65000
+                             },
+                             "afi-safis": {
+                                 "afi-safi": [
+                                     {
+                                         "afi-safi-name": "IPV4-MCAST-VPN"
+                                     },
+                                     {
+                                         "afi-safi-name": "IPV6-MCAST-VPN"
+                                     }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+             ]
+         }
 
 BGP Peer
 ''''''''
@@ -58,20 +99,47 @@ Here is an example for BGP peer configuration with enabled IPV4 MCAST-VPN family
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <neighbor-address>192.0.2.1</neighbor-address>
-       <afi-safis>
-           <afi-safi>
-               <afi-safi-name>IPV4-MCAST-VPN</afi-safi-name>
-           </afi-safi>
-       </afi-safis>
-   </neighbor>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <neighbor-address>192.0.2.1</neighbor-address>
+             <afi-safis>
+                 <afi-safi>
+                     <afi-safi-name>IPV4-MCAST-VPN</afi-safi-name>
+                 </afi-safi>
+             </afi-safis>
+         </neighbor>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "neighbor": [
+                 {
+                     "neighbor-address": "192.0.2.1",
+                     "afi-safis": {
+                         "afi-safi": [
+                             {
+                                 "afi-safi-name": "IPV4-MCAST-VPN"
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
 
 Ipv4 MCAST-VPN Route API
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -232,29 +300,60 @@ The Ipv4 Multicast VPN table in an instance of the speaker's Loc-RIB can be veri
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <mvpn-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:mvpn:ipv4">
-      <mvpn-route>
-         <route-key>flow1</route-key>
-         <path-id>0</path-id>
-         <intra-as-i-pmsi-a-d>
-            <route-distinguisher>172.16.0.44:101</route-distinguisher>
-            <orig-route-ip>192.168.100.1</orig-route-ip>
-         </intra-as-i-pmsi-a-d>
-         <attributes>
-            <ipv4-next-hop>
-               <global>199.20.166.41</global>
-            </ipv4-next-hop>
-            <as-path/>
-            <origin>
-               <value>igp</value>
-            </origin>
-         </attributes>
-      </mvpn-route>
-   </mvpn-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <mvpn-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:mvpn:ipv4">
+            <mvpn-route>
+               <route-key>flow1</route-key>
+               <path-id>0</path-id>
+               <intra-as-i-pmsi-a-d>
+                  <route-distinguisher>172.16.0.44:101</route-distinguisher>
+                  <orig-route-ip>192.168.100.1</orig-route-ip>
+               </intra-as-i-pmsi-a-d>
+               <attributes>
+                  <ipv4-next-hop>
+                     <global>199.20.166.41</global>
+                  </ipv4-next-hop>
+                  <as-path/>
+                  <origin>
+                     <value>igp</value>
+                  </origin>
+               </attributes>
+            </mvpn-route>
+         </mvpn-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp:mvpn:ipv4:mvpn-routes": {
+                 "mvpn-route": {
+                     "route-key": "flow1",
+                     "path-id": 0,
+                     "intra-as-i-pmsi-a-d": {
+                         "route-distinguisher": "172.16.0.44:101",
+                         "orig-route-ip": "192.168.100.1"
+                     },
+                     "attributes": {
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "ipv4-next-hop": {
+                             "global": "199.20.166.41"
+                         }
+                     }
+                 }
+             }
+         }
 
 The Ipv6 Multicast VPN table in an instance of the speaker's Loc-RIB can be verified via REST:
 
@@ -262,29 +361,60 @@ The Ipv6 Multicast VPN table in an instance of the speaker's Loc-RIB can be veri
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <mvpn-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:mvpn:ipv6">
-      <mvpn-route>
-         <route-key>flow1</route-key>
-         <path-id>0</path-id>
-         <intra-as-i-pmsi-a-d>
-            <route-distinguisher>172.16.0.44:101</route-distinguisher>
-            <orig-route-ip>192.168.100.1</orig-route-ip>
-         </intra-as-i-pmsi-a-d>
-         <attributes>
-            <ipv6-next-hop>
-               <global>2001:db8:1::6</global>
-            </ipv6-next-hop>
-            <as-path/>
-            <origin>
-               <value>igp</value>
-            </origin>
-         </attributes>
-      </mvpn-route>
-   </mvpn-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <mvpn-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp:mvpn:ipv6">
+            <mvpn-route>
+               <route-key>flow1</route-key>
+               <path-id>0</path-id>
+               <intra-as-i-pmsi-a-d>
+                  <route-distinguisher>172.16.0.44:101</route-distinguisher>
+                  <orig-route-ip>192.168.100.1</orig-route-ip>
+               </intra-as-i-pmsi-a-d>
+               <attributes>
+                  <ipv6-next-hop>
+                     <global>2001:db8:1::6</global>
+                  </ipv6-next-hop>
+                  <as-path/>
+                  <origin>
+                     <value>igp</value>
+                  </origin>
+               </attributes>
+            </mvpn-route>
+         </mvpn-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp:mvpn:ipv6:mvpn-routes": {
+                 "mvpn-route": {
+                     "route-key": "flow1",
+                     "path-id": 0,
+                     "intra-as-i-pmsi-a-d": {
+                         "route-distinguisher": "172.16.0.44:101",
+                         "orig-route-ip": "192.168.100.1"
+                     },
+                     "attributes": {
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "ipv6-next-hop": {
+                            "global": "2001:db8:1::6"
+                         }
+                     }
+                 }
+             }
+         }
 
 Programming
 ^^^^^^^^^^^
@@ -297,39 +427,77 @@ Make sure the *Application Peer* is configured first.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 4,17
+      **Content-Type:** ``application/xml``
 
-   <mvpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp:mvpn:ipv4">
-      <route-key>mvpn</route-key>
-      <path-id>0</path-id>
-      <intra-as-i-pmsi-a-d>
-         <route-distinguisher>172.16.0.44:101</route-distinguisher>
-         <orig-route-ip>192.168.100.1</orig-route-ip>
-      </intra-as-i-pmsi-a-d>
-       ....
-       <attributes>
-           <ipv4-next-hop>
-               <global>199.20.166.41</global>
-           </ipv4-next-hop>
-           <as-path/>
-           <origin>
-               <value>igp</value>
-           </origin>
-           <extended-communities>
-           ....
-           </extended-communities>
-       </attributes>
-   </mvpn-route>
+      **Request Body:**
 
-@line 4: One of the MCAST-VPN route must be set here.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 4,17
 
-@line 15: In some cases, specific extended community presence is required.
+         <mvpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp:mvpn:ipv4">
+            <route-key>mvpn</route-key>
+            <path-id>0</path-id>
+            <intra-as-i-pmsi-a-d>
+               <route-distinguisher>172.16.0.44:101</route-distinguisher>
+               <orig-route-ip>192.168.100.1</orig-route-ip>
+            </intra-as-i-pmsi-a-d>
+            ....
+            <attributes>
+               <ipv4-next-hop>
+                  <global>199.20.166.41</global>
+               </ipv4-next-hop>
+               <as-path/>
+               <origin>
+                  <value>igp</value>
+               </origin>
+               <extended-communities>
+                  ....
+               </extended-communities>
+            </attributes>
+         </mvpn-route>
+
+   @line 4: One of the MCAST-VPN route must be set here.
+
+   @line 15: In some cases, specific extended community presence is required.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 5,16
+
+         {
+             "mvpn-route": {
+                 "route-key": "mvpn",
+                 "path-id": 0,
+                 "intra-as-i-pmsi-a-d": {
+                     "route-distinguisher": "172.16.0.44:101",
+                     "orig-route-ip": "192.168.100.1"
+                 },
+                 "attributes": {
+                     "origin": {
+                         "value": "igp"
+                     },
+                     "ipv4-next-hop": {
+                         "global": "199.20.166.41"
+                     },
+                     "extended-communities": "..."
+                 }
+             }
+         }
+
+   @line 5: One of the MCAST-VPN route must be set here.
+
+   @line 16: In some cases, specific extended community presence is required.
 
 -----
 
