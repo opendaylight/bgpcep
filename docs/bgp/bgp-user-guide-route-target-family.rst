@@ -79,7 +79,7 @@ To enable ROUTE-TARGET-CONSTRAIN support in BGP plugin, first configure BGP spea
                                {
                                    "afi-safi-name": "ROUTE-TARGET-CONSTRAIN"
                                }
-                           ]     
+                           ]
                        }
                    }
                }
@@ -136,7 +136,7 @@ Here is an example for BGP peer configuration with enabled ROUTE-TARGET-CONSTRAI
                    ]
                }
            }
-       ]   
+       ]
    }
 
 ROUTE-TARGET-CONSTRAIN Route API
