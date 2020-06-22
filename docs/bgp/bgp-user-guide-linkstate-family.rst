@@ -22,31 +22,69 @@ To enable BGP-LS support in BGP plugin, first configure BGP speaker instance:
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
 
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-               <afi-safis>
-                   <afi-safi>
-                       <afi-safi-name>LINKSTATE</afi-safi-name>
-                   </afi-safi>
-               </afi-safis>
-           </global>
-       </bgp>
-   </protocol>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <protocol xmlns="http://openconfig.net/yang/network-instance">
+             <name>bgp-example</name>
+             <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+             <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+                 <global>
+                     <config>
+                         <router-id>192.0.2.2</router-id>
+                         <as>65000</as>
+                     </config>
+                     <afi-safis>
+                         <afi-safi>
+                             <afi-safi-name>LINKSTATE</afi-safi-name>
+                         </afi-safi>
+                     </afi-safis>
+                 </global>
+             </bgp>
+         </protocol>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "protocol": [
+                 {
+                     "identifier": "openconfig-policy-types:BGP",
+                     "name": "bgp-example",
+                     "bgp-openconfig-extensions:bgp": {
+                         "global": {
+                             "config": {
+                                 "router-id": "192.0.2.2",
+                                 "as": 65000
+                             },
+                             "afi-safis": {
+                                 "afi-safi": [
+                                     {
+                                         "afi-safi-name": "LINKSTATE"
+                                     }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+             ]
+         }
 
 Linkstate path attribute
 ''''''''''''''''''''''''
@@ -58,15 +96,33 @@ To use TYPE = 99, you need to set value bellow to false.
 
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <bgp-linkstate-app-config xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate-app-config">
-       <iana-linkstate-attribute-type>false</iana-linkstate-attribute-type>
-   </bgp-linkstate-app-config>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <bgp-linkstate-app-config xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate-app-config">
+             <iana-linkstate-attribute-type>false</iana-linkstate-attribute-type>
+         </bgp-linkstate-app-config>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-linkstate-app-config": {
+                 "iana-linkstate-attribute-type": false
+             }
+         }
 
 BGP Peer
 ''''''''
@@ -76,20 +132,47 @@ Here is an example for BGP peer configuration with enabled BGP-LS family.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <neighbor-address>192.0.2.1</neighbor-address>
-       <afi-safis>
-           <afi-safi>
-               <afi-safi-name>LINKSTATE</afi-safi-name>
-           </afi-safi>
-       </afi-safis>
-   </neighbor>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <neighbor-address>192.0.2.1</neighbor-address>
+             <afi-safis>
+                 <afi-safi>
+                     <afi-safi-name>LINKSTATE</afi-safi-name>
+                 </afi-safi>
+             </afi-safis>
+         </neighbor>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "neighbor": [
+                 {
+                     "neighbor-address": "192.0.2.1",
+                     "afi-safis": {
+                         "afi-safi": [
+                             {
+                                 "afi-safi-name": "LINKSTATE"
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
 
 Link-State Route API
 ^^^^^^^^^^^^^^^^^^^^
@@ -526,13 +609,27 @@ The Link-State table in a instance of the speaker's Loc-RIB can be verified via 
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <linkstate-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-linkstate">
-      ...
-   </linkstate-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <linkstate-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-linkstate">
+            ...
+         </linkstate-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-linkstate-routes":"..."
+         } 
 
 .. note:: Link-State routes mapping to topology links/nodes/prefixes is supported by BGP Topology Provider.
 
