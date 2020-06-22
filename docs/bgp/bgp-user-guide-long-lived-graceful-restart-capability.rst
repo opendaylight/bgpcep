@@ -14,6 +14,8 @@ Configuration
 ^^^^^^^^^^^^^
 Long-Live Graceful Restart is enabled and configured per family in *ll-graceful-restart* section of *neighbor* or *peer-group* family configuration.
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST/graceful-restart``
 
 or
@@ -28,11 +30,10 @@ or
 
 .. code-block:: xml
    :linenos:
-   :emphasize-lines: 3,6
+   :emphasize-lines: 5
 
    <graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
       <config>
-         <enable>true</enable>
          <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
              <config>
                  <long-lived-stale-time>180</long-lived-stale-time>
@@ -41,7 +42,33 @@ or
        </config>
    </graceful-restart>
 
-@line 3: if Graceful Restart support is disabled for family only procedures for Long-Lived Graceful Restart applies
+@line 5: value of Long-Lived Stale timer in seconds
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups/peer-group/external-neighbors/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST/graceful-restart``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 6
+
+   {
+       "bgp-openconfig-extensions:graceful-restart": {
+           "config": {
+               "bgp-ll-graceful-restart:ll-graceful-restart": {
+                   "config": {
+                       "long-lived-stale-time": 180
+                   }
+               }
+           }
+       }
+   }
 
 @line 6: value of Long-Lived Stale timer in seconds
 
