@@ -21,34 +21,75 @@ To enable IPv4 and IPv6 Labeled Unicast support in BGP plugin, first configure B
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
 
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <protocol xmlns="http://openconfig.net/yang/network-instance">
-       <name>bgp-example</name>
-       <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
-       <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-           <global>
-               <config>
-                   <router-id>192.0.2.2</router-id>
-                   <as>65000</as>
-               </config>
-               <afi-safis>
-                   <afi-safi>
-                       <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
-                   </afi-safi>
-                   <afi-safi>
-                       <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-LABELLED-UNICAST</afi-safi-name>
-                   </afi-safi>
-               </afi-safis>
-           </global>
-       </bgp>
-   </protocol>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <protocol xmlns="http://openconfig.net/yang/network-instance">
+             <name>bgp-example</name>
+             <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+             <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+                 <global>
+                     <config>
+                         <router-id>192.0.2.2</router-id>
+                         <as>65000</as>
+                     </config>
+                     <afi-safis>
+                         <afi-safi>
+                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
+                         </afi-safi>
+                         <afi-safi>
+                             <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-LABELLED-UNICAST</afi-safi-name>
+                         </afi-safi>
+                     </afi-safis>
+                 </global>
+             </bgp>
+         </protocol>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "protocol": [
+                 {
+                     "identifier": "openconfig-policy-types:BGP",
+                     "name": "bgp-example",
+                     "bgp-openconfig-extensions:bgp": {
+                         "global": {
+                             "config": {
+                                 "router-id": "192.0.2.2",
+                                 "as": 65000
+                             },
+                             "afi-safis": {
+                                 "afi-safi": [
+                                     {
+                                         "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST"
+                                     },
+                                     {
+                                         "afi-safi-name": "openconfig-bgp-types:IPV6-LABELLED-UNICAST"
+                                     }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+             ]
+         }
 
 BGP Peer
 ''''''''
@@ -58,23 +99,53 @@ Here is an example for BGP peer configuration with enabled IPv4 and IPv6 Labeled
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-       <neighbor-address>192.0.2.1</neighbor-address>
-       <afi-safis>
-           <afi-safi>
-               <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
-           </afi-safi>
-           <afi-safi>
-               <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-LABELLED-UNICAST</afi-safi-name>
-           </afi-safi>
-       </afi-safis>
-   </neighbor>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+             <neighbor-address>192.0.2.1</neighbor-address>
+             <afi-safis>
+                 <afi-safi>
+                     <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-LABELLED-UNICAST</afi-safi-name>
+                 </afi-safi>
+                 <afi-safi>
+                     <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV6-LABELLED-UNICAST</afi-safi-name>
+                 </afi-safi>
+             </afi-safis>
+         </neighbor>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "neighbor": [
+                 {
+                     "neighbor-address": "192.0.2.1",
+                     "afi-safis": {
+                         "afi-safi": [
+                             {
+                                 "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST"
+                             },
+                             {
+                                 "afi-safi-name": "openconfig-bgp-types:IPV6-LABELLED-UNICAST"
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
 
 IP Labeled Unicast API
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -119,32 +190,66 @@ The IPv4 Labeled Unicast table in an instance of the speaker's Loc-RIB can be ve
 
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
+   .. tab:: XML
 
-   <labeled-unicast-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">
-       <labeled-unicast-route>
-           <path-id>0</path-id>
-           <route-key>MAA+gRQAAA==</route-key>
-           <attributes>
-               <local-pref>
-                   <pref>100</pref>
-               </local-pref>
-               <ipv4-next-hop>
-                   <global>200.10.0.101</global>
-               </ipv4-next-hop>
-               <as-path></as-path>
-               <origin>
-                   <value>igp</value>
-               </origin>
-           </attributes>
-           <label-stack>
-               <label-value>1000</label-value>
-           </label-stack>
-           <prefix>20.0.0.0/24</prefix>
-       </labeled-unicast-route>
-   </labeled-unicast-routes>
+      **Response Body:**
+
+      .. code-block:: xml
+
+         <labeled-unicast-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">
+             <labeled-unicast-route>
+                 <path-id>0</path-id>
+                 <route-key>MAA+gRQAAA==</route-key>
+                 <attributes>
+                     <local-pref>
+                         <pref>100</pref>
+                     </local-pref>
+                     <ipv4-next-hop>
+                         <global>200.10.0.101</global>
+                     </ipv4-next-hop>
+                     <as-path></as-path>
+                     <origin>
+                         <value>igp</value>
+                     </origin>
+                 </attributes>
+                 <label-stack>
+                     <label-value>1000</label-value>
+                 </label-stack>
+                 <prefix>20.0.0.0/24</prefix>
+             </labeled-unicast-route>
+         </labeled-unicast-routes>
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+
+         {
+             "bgp-labeled-unicast:labeled-unicast-routes": {
+                 "labeled-unicast-route": {
+                     "route-key": "MAA+gRQAAA==",
+                     "path-id": 0,
+                     "label-stack": {
+                         "label-value":1000
+                     },
+                     "attributes": {
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "ipv4-next-hop": {
+                             "global": "200.10.0.101"
+                         }
+                     },
+                     "prefix":"20.0.0.0/24"
+                 }
+             }
+         }
 
 Programming
 ^^^^^^^^^^^
@@ -157,50 +262,110 @@ Make sure the *Application Peer* is configured first.
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <labeled-unicast-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">
-       <route-key>label1</route-key>
-       <prefix>1.1.1.1/32</prefix>
-       <path-id>0</path-id>
-       <label-stack>
-           <label-value>800322</label-value>
-       </label-stack>
-       <attributes>
-           <ipv4-next-hop>
-               <global>199.20.160.41</global>
-           </ipv4-next-hop>
-           <origin>
-               <value>igp</value>
-           </origin>
-           <as-path/>
-           <local-pref>
-               <pref>100</pref>
-           </local-pref>
-       </attributes>
-   </labeled-unicast-route>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <labeled-unicast-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">
+             <route-key>label1</route-key>
+             <prefix>1.1.1.1/32</prefix>
+             <path-id>0</path-id>
+             <label-stack>
+                 <label-value>800322</label-value>
+             </label-stack>
+             <attributes>
+                 <ipv4-next-hop>
+                     <global>199.20.160.41</global>
+                 </ipv4-next-hop>
+                 <origin>
+                     <value>igp</value>
+                 </origin>
+                 <as-path/>
+                 <local-pref>
+                     <pref>100</pref>
+                 </local-pref>
+             </attributes>
+         </labeled-unicast-route>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "labeled-unicast-route": [
+                 {
+                     "route-key": "label1",
+                     "path-id": 0,
+                     "prefix": "1.1.1.1/32",
+                     "label-stack": [
+                         {
+                             "label-value": 800322
+                         }
+                     ],
+                     "attributes": {
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "ipv4-next-hop": {
+                             "global": "199.20.160.41"
+                         }
+                     }
+                 }
+             ]
+         }
 
 -----
 
 In addition, BGP-LU Spring extension allows to attach BGP Prefix SID attribute to the route, in order to signal the BGP-Prefix-SID, where the SR is applied to MPLS dataplane.
 
-.. code-block:: xml
+.. tabs::
 
-   <bgp-prefix-sid>
-       <bgp-prefix-sid-tlvs>
-           <label-index-tlv xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">322</label-index-tlv>
-       </bgp-prefix-sid-tlvs>
-       <bgp-prefix-sid-tlvs>
-           <srgb-value xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">
-               <base>800000</base>
-               <range>4095</range>
-           </srgb-value>
-       </bgp-prefix-sid-tlvs>
-   </bgp-prefix-sid>
+   .. tab:: XML
+
+      .. code-block:: xml
+
+         <bgp-prefix-sid>
+             <bgp-prefix-sid-tlvs>
+                 <label-index-tlv xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">322</label-index-tlv>
+                 </bgp-prefix-sid-tlvs>
+             <bgp-prefix-sid-tlvs>
+                 <srgb-value xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">
+                     <base>800000</base>
+                     <range>4095</range>
+                 </srgb-value>
+             </bgp-prefix-sid-tlvs>
+         </bgp-prefix-sid>
+
+   .. tab:: JSON
+
+      .. code-block:: json
+
+         {
+             "bgp-prefix-sid": [
+                 {
+                     "label-index-tlv": 322
+                 },
+                 {
+                     "srgb-value": {
+                         "base": 800000,
+                         "range": 4095
+                     }
+                 }
+             ]
+         }  
 
 -----
 
@@ -218,32 +383,70 @@ This examples show how to originate and remove IPv6 labeled route via programmab
 
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
+      **Content-Type:** ``application/xml``
 
-   <labeled-unicast-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">
-       <route-key>label1</route-key>
-       <prefix>2001:db8:30::3/128</prefix>
-       <path-id>0</path-id>
-       <label-stack>
-           <label-value>123</label-value>
-       </label-stack>
-       <attributes>
-           <ipv6-next-hop>
-               <global>2003:4:5:6::7</global>
-           </ipv6-next-hop>
-           <origin>
-               <value>igp</value>
-           </origin>
-           <as-path/>
-           <local-pref>
-               <pref>100</pref>
-           </local-pref>
-       </attributes>
-   </labeled-unicast-route>
+      **Request Body:**
+
+      .. code-block:: xml
+
+         <labeled-unicast-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">
+             <route-key>label1</route-key>
+             <prefix>2001:db8:30::3/128</prefix>
+             <path-id>0</path-id>
+             <label-stack>
+                 <label-value>123</label-value>
+             </label-stack>
+             <attributes>
+                 <ipv6-next-hop>
+                     <global>2003:4:5:6::7</global>
+                 </ipv6-next-hop>
+                 <origin>
+                     <value>igp</value>
+                 </origin>
+                 <as-path/>
+                 <local-pref>
+                     <pref>100</pref>
+                 </local-pref>
+             </attributes>
+         </labeled-unicast-route>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+         {
+             "labeled-unicast-route": [
+                 {
+                     "route-key": "label1",
+                     "path-id": 0,
+                     "prefix": "2001:db8:30::3/128",
+                     "label-stack": [
+                         {
+                             "label-value": 123
+                         }
+                     ],
+                     "attributes": {
+                         "origin": {
+                             "value": "igp"
+                         },
+                         "local-pref": {
+                             "pref": 100
+                         },
+                         "ipv6-next-hop": {
+                             "global": "2003:4:5:6::7"
+                         }
+                     }
+                 }
+             ]
+         }
 
 -----
 
