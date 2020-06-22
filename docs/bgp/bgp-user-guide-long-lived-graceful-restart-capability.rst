@@ -22,28 +22,53 @@ or
 
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 3,6
+      **Content-Type:** ``application/xml``
 
-   <graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-      <config>
-         <enable>true</enable>
-         <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+      **Request Body:**
+
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 5
+
+         <graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
              <config>
-                 <long-lived-stale-time>180</long-lived-stale-time>
+                 <ll-graceful-restart xmlns="urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart">
+                     <config>
+                         <long-lived-stale-time>180</long-lived-stale-time>
+                     </config>
+                 </ll-graceful-restart>
              </config>
-         </ll-graceful-restart>
-       </config>
-   </graceful-restart>
+         </graceful-restart>
 
-@line 3: if Graceful Restart support is disabled for family only procedures for Long-Lived Graceful Restart applies
+   @line 5: value of Long-Lived Stale timer in seconds
 
-@line 6: value of Long-Lived Stale timer in seconds
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 6
+
+         {
+             "bgp-openconfig-extensions:graceful-restart": {
+                 "config": {
+                     "bgp-ll-graceful-restart:ll-graceful-restart": {
+                         "config": {
+                             "long-lived-stale-time": 180
+                         }
+                     }
+                 }
+             }
+         }
+
+   @line 6: value of Long-Lived Stale timer in seconds
 
 References
 ^^^^^^^^^^
