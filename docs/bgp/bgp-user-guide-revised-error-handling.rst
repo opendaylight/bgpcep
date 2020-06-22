@@ -22,21 +22,45 @@ For *peer-group* configuration:
 
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 3
+      **Content-Type:** ``application/xml``
 
-   <error-handling xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
-        <config>
-            <treat-as-withdraw>true</treat-as-withdraw>
-        </config>
-    </error-handling>
+      **Request Body:**
 
-@line 3: *True* to enable *treat-as-withdraw* procedures, *False* to disabled it
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 3
+
+         <error-handling xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+            <config>
+                <treat-as-withdraw>true</treat-as-withdraw>
+            </config>
+         </error-handling>
+
+   @line 3: *True* to enable *treat-as-withdraw* procedures, *False* to disabled it
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4
+
+         {
+             "bgp-openconfig-extensions:error-handling": {
+                 "config": {
+                     "treat-as-withdraw": true
+                 }
+             }
+         }
+
+   @line 4: *True* to enable *treat-as-withdraw* procedures, *False* to disabled it
 
 .. note:: If neighbor Error handling configuration in *neighbor* ALWAYS supersed *peer-group* configuration. That means if *peer-group* have error handling enabled and *neighbor* disabled, result is disabled error handling.
 
