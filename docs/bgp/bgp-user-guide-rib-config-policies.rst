@@ -7,63 +7,117 @@ The OpenDaylight BGP implementation supports configurable RIB policies that allo
 
 .. note:: Default ODL BGP RIB Config Policy is provided. Any config policy to be used by Protocol must be configured and present before than Protocol configuration is added. If policy is reconfigured, protocol must be re configured again.
 
-
 **URL:** ``/restconf/config/openconfig-routing-policy:routing-policy``
+
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy?content=config``
 
 **Method:** ``GET``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,15
+      **Content-Type:** ``application/xml``
 
-    <routing-policy xmlns="http://openconfig.net/yang/routing-policy">
-        <defined-sets>
-            <bgp-defined-sets xmlns="http://openconfig.net/yang/bgp-policy">
-                <cluster-id-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                    ...
-                </cluster-id-sets>
-                <role-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                    ...
-                </role-sets>
-                <originator-id-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                    ...
-                </originator-id-sets>
-            </bgp-defined-sets>
-        </defined-sets>
-        <policy-definitions>
-            <policy-definition>
-                <name>default-odl-export-policy</name>
-                <statements>
-                    <statement>
-                        <name>to-odl-internal</name>
-                        <actions>
-                            <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                                ...
-                            </bgp-actions>
-                        </actions>
-                        <conditions>
-                            <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                                ...
-                            </bgp-conditions>
-                        </conditions>
-                    </statement>
-                    ...
-                </statements>
-            </policy-definition>
-            <policy-definition>
-                <name>default-odl-import-policy</name>
-                ...
-            </policy-definition>
-        </policy-definitions>
-    </routing-policy>
+      **Request Body:**
 
-@line 2: BGP defined sets.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,15
 
-@line 15: Policy definitions.
+         <routing-policy xmlns="http://openconfig.net/yang/routing-policy">
+             <defined-sets>
+                 <bgp-defined-sets xmlns="http://openconfig.net/yang/bgp-policy">
+                     <cluster-id-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                         ...
+                     </cluster-id-sets>
+                     <role-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                         ...
+                     </role-sets>
+                     <originator-id-sets xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                         ...
+                     </originator-id-sets>
+                 </bgp-defined-sets>
+             </defined-sets>
+             <policy-definitions>
+                 <policy-definition>
+                     <name>default-odl-export-policy</name>
+                     <statements>
+                         <statement>
+                             <name>to-odl-internal</name>
+                             <actions>
+                                 <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
+                                     ...
+                                 </bgp-actions>
+                             </actions>
+                             <conditions>
+                                 <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                                     ...
+                                 </bgp-conditions>
+                             </conditions>
+                         </statement>
+                         ...
+                     </statements>
+                 </policy-definition>
+                 <policy-definition>
+                     <name>default-odl-import-policy</name>
+                     ...
+                 </policy-definition>
+             </policy-definitions>
+         </routing-policy>
+
+   @line 2: BGP defined sets.
+
+   @line 15: Policy definitions.
+
+   .. tab:: JSON
+ 
+      **Content-Type:** ``application/json``
+ 
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,10
+
+         {
+             "routing-policy": {
+                 "defined-sets": {
+                     "bgp-defined-sets": {
+                         "cluster-id-sets": "...",
+                         "role-sets": "...",
+                         "originator-id-sets": "..."
+                     }
+                 },
+                 "policy-definitions": {
+                     "policy-definition": [
+                         {
+                             "name": "default-odl-export-policy",
+                             "statements": {
+                                 "statement": {
+                                     "name": "to-odl-internal",
+                                     "actions": {
+                                         "bgp-actions": "..."
+                                     },
+                                     "conditions": {
+                                         "bgp-conditions": "..."
+                                     }
+                                 },
+                                 "#text": "..."
+                             }
+                         },
+                         {
+                             "name": "default-odl-import-policy",
+                             "#text": "..."
+                         }
+                     ]
+                 }
+             }
+         }
+
+   @line 3: BGP defined sets.
+
+   @line 10: Policy definitions.
 
 
 Policy Configuration
@@ -73,44 +127,97 @@ Conditions may include multiple match or comparison operations; similarly, actio
 
 **URL:** ``/restconf/config/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/``
 
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,5,7,10
+      **Content-Type:** ``application/xml``
 
-    <policy-definition xmlns="http://openconfig.net/yang/routing-policy">
-        <name>odl-policy-example</name>
-        <statements>
-            <statement>
-                <name>reject-all-incoming-routes</name>
-                <actions>
-                    <reject-route/>
-                </actions>
-                <conditions>
-                    <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                        <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                            <from-role>
-                               <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"]</role-set>
-                            </from-role>
-                        </match-role-set>
-                    </bgp-conditions>
-                </conditions>
-            </statement>
-        </statements>
-    </policy-definition>
+      **Request Body:**
 
-@line 2: The unique policy instance identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,5,7,10
 
-@line 5: Policy Statement Identifier.
+         <policy-definition xmlns="http://openconfig.net/yang/routing-policy">
+             <name>odl-policy-example</name>
+             <statements>
+                 <statement>
+                     <name>reject-all-incoming-routes</name>
+                     <actions>
+                         <reject-route/>
+                     </actions>
+                     <conditions>
+                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                 <from-role>
+                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"]</role-set>
+                                 </from-role>
+                             </match-role-set>
+                         </bgp-conditions>
+                     </conditions>
+                 </statement>
+             </statements>
+         </policy-definition>
 
-@line 7: Actions.
+   @line 2: The unique policy instance identifier.
 
-@line 10: BGP Conditions.
+   @line 5: Policy Statement Identifier.
+
+   @line 7: Actions.
+
+   @line 10: BGP Conditions.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4,8,10,15
+
+         {
+             "policy-definition": [
+                 {
+                     "name": "odl-policy-example",
+                     "statements": {
+                         "statement": [
+                             {
+                                 "name": "reject-all-incoming-routes",
+                                 "actions": {
+                                     "reject-route": [
+                                         null
+                                     ]
+                                 },
+                                 "conditions": {
+                                     "openconfig-bgp-policy:bgp-conditions": {
+                                         "odl-bgp-policy:match-role-set": {
+                                             "from-role": {
+                                                 "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"all\"]"
+                                             }
+                                         }
+                                     }
+                                 }
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
+
+   @line 4: The unique policy instance identifier.
+
+   @line 8: Policy Statement Identifier.
+
+   @line 10: Actions.
+
+   @line 15: BGP Conditions.
 
 -----
 
@@ -118,39 +225,86 @@ The new instance presence can be verified via REST:
 
 **URL:** ``/restconf/config/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/policy-definition/odl-policy-example``
 
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/policy-definition=odl-policy-example``
+
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,5
+   .. tab:: XML
 
-    <policy-definition xmlns="http://openconfig.net/yang/routing-policy">
-        <name>odl-policy-example</name>
-        <statements>
-            <statement>
-                <name>reject-all-incoming-routes</name>
-                <actions>
-                    <reject-route></reject-route>
-                </actions>
-                <conditions>
-                    <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                        <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                            <from-role>
-                                <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"]</role-set>
-                                <match-set-options>ANY</match-set-options>
-                            </from-role>
-                        </match-role-set>
-                    </bgp-conditions>
-                </conditions>
-            </statement>
-        </statements>
-    </policy-definition>
+      **Response Body:**
 
-@line 2: Policy definition Identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,5
 
-@line 5: Policy Statement Identifier.
+         <policy-definition xmlns="http://openconfig.net/yang/routing-policy">
+             <name>odl-policy-example</name>
+             <statements>
+                 <statement>
+                     <name>reject-all-incoming-routes</name>
+                     <actions>
+                         <reject-route></reject-route>
+                     </actions>
+                     <conditions>
+                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
+                             <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
+                                 <from-role>
+                                     <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="all"]</role-set>
+                                     <match-set-options>ANY</match-set-options>
+                                 </from-role>
+                             </match-role-set>
+                         </bgp-conditions>
+                     </conditions>
+                 </statement>
+             </statements>
+         </policy-definition>
+
+   @line 2: Policy definition Identifier.
+
+   @line 5: Policy Statement Identifier.
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4,8
+
+         {
+             "policy-definition": [
+                 {
+                     "name": "odl-policy-example",
+                     "statements": {
+                         "statement": [
+                             {
+                                 "name": "reject-all-incoming-routes",
+                                 "actions": {
+                                     "reject-route": [
+                                         null
+                                     ]
+                                 },
+                                 "conditions": {
+                                     "openconfig-bgp-policy:bgp-conditions": {
+                                         "odl-bgp-policy:match-role-set": {
+                                             "from-role": {
+                                                 "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"all\"]"
+                                             }
+                                         }
+                                     }
+                                 }
+                             }
+                         ]
+                     }
+                 }
+             ]
+         }
+
+   @line 4: Policy definition Identifier.
+
+   @line 8: Policy Statement Identifier.
 
 Actions
 ```````
