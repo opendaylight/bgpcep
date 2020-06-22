@@ -19,7 +19,11 @@ BGP Speaker
 '''''''''''
 To enable IPv4 and IPv6 Labeled Unicast support in BGP plugin, first configure BGP speaker instance:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -50,9 +54,52 @@ To enable IPv4 and IPv6 Labeled Unicast support in BGP plugin, first configure B
        </bgp>
    </protocol>
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST"
+                               },
+                               {
+                                   "afi-safi-name": "openconfig-bgp-types:IPV6-LABELLED-UNICAST"
+                               }
+                           ]
+                       }
+                   }
+               }
+           }
+       ]
+   }
+
 BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled IPv4 and IPv6 Labeled Unicast family.
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -75,6 +122,36 @@ Here is an example for BGP peer configuration with enabled IPv4 and IPv6 Labeled
            </afi-safi>
        </afi-safis>
    </neighbor>
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:IPV6-LABELLED-UNICAST"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
 
 IP Labeled Unicast API
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -115,6 +192,8 @@ Usage
 ^^^^^
 The IPv4 Labeled Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes``
 
 **Method:** ``GET``
@@ -146,12 +225,48 @@ The IPv4 Labeled Unicast table in an instance of the speaker's Loc-RIB can be ve
        </labeled-unicast-route>
    </labeled-unicast-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-labeled-unicast:labeled-unicast-routes": {
+           "labeled-unicast-route": {
+               "route-key": "MAA+gRQAAA==",
+               "path-id": 0,
+               "label-stack": {
+                   "label-value":1000
+               },
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "ipv4-next-hop": {
+                       "global": "200.10.0.101"
+                   }
+               },
+               "prefix":"20.0.0.0/24"
+           }
+       }
+   }
+
 Programming
 ^^^^^^^^^^^
 IPv4 Labeled
 ''''''''''''
 This examples show how to originate and remove IPv4 labeled route via programmable RIB.
 Make sure the *Application Peer* is configured first.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes``
 
@@ -184,6 +299,44 @@ Make sure the *Application Peer* is configured first.
        </attributes>
    </labeled-unicast-route>
 
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "labeled-unicast-route": [
+           {
+               "route-key": "label1",
+               "path-id": 0,
+               "prefix": "1.1.1.1/32",
+               "label-stack": [
+                   {
+                       "label-value": 800322
+                   }
+               ],
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "ipv4-next-hop": {
+                       "global": "199.20.160.41"
+                   }
+               }
+           }
+       ]
+   }
+
 -----
 
 In addition, BGP-LU Spring extension allows to attach BGP Prefix SID attribute to the route, in order to signal the BGP-Prefix-SID, where the SR is applied to MPLS dataplane.
@@ -213,6 +366,8 @@ To remove the route added above, following request can be used:
 IPv6 Labeled
 ''''''''''''
 This examples show how to originate and remove IPv6 labeled route via programmable RIB.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-ipv6-routes``
 
@@ -244,6 +399,44 @@ This examples show how to originate and remove IPv6 labeled route via programmab
            </local-pref>
        </attributes>
    </labeled-unicast-route>
+
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-ipv6-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "labeled-unicast-route": [
+           {
+               "route-key": "label1",
+               "path-id": 0,
+               "prefix": "2001:db8:30::3/128",
+               "label-stack": [
+                   {
+                       "label-value": 123
+                   }
+               ],
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "ipv6-next-hop": {
+                       "global": "2003:4:5:6::7"
+                   }
+               }
+           }
+       ]
+   }
 
 -----
 
