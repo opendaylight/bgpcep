@@ -1,0 +1,243 @@
+{
+  "rib": [
+    {
+      "id": "bgp-rib",
+      "peer": [
+        {
+          "peer-id": "bgp://0.0.0.0",
+          "peer-role": "rr-client",
+          "effective-rib-in": {
+            "tables": [
+              {
+                "afi": "bgp-types:ipv6-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "attributes": {
+                  "uptodate": true
+                }
+              },
+              {
+                "afi": "bgp-types:ipv4-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "attributes": {
+                  "uptodate": true
+                }
+              }
+            ]
+          },
+          "adj-rib-in": {
+            "tables": [
+              {
+                "afi": "bgp-types:ipv6-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "attributes": {
+                  "uptodate": true
+                }
+              },
+              {
+                "afi": "bgp-types:ipv4-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "attributes": {
+                  "uptodate": true
+                }
+              }
+            ]
+          },
+          "supported-tables": [
+            {
+              "afi": "bgp-types:ipv6-address-family",
+              "safi": "bgp-types:unicast-subsequent-address-family"
+            },
+            {
+              "afi": "bgp-types:ipv4-address-family",
+              "safi": "bgp-types:unicast-subsequent-address-family"
+            }
+          ],
+          "adj-rib-out": {
+            "tables": [
+              {
+                "afi": "bgp-types:ipv6-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "bgp-inet:ipv6-routes": {
+                  "ipv6-route": [
+                    {
+                      "route-key": "1:1:1::1/128",
+                      "path-id": 0,
+                      "prefix": "1:1:1::1/128",
+                      "attributes": {
+                        "ipv6-next-hop": {
+                          "global": "2:1:1:1::1"
+                        },
+                        "multi-exit-disc": {
+                          "med": 0
+                        },
+                        "origin": {
+                          "value": "igp"
+                        },
+                        "local-pref": {
+                          "pref": 100
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "afi": "bgp-types:ipv4-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family"
+              }
+            ]
+          }
+        },
+        {
+          "peer-id": "bgp://127.0.0.6",
+          "peer-role": "internal",
+          "effective-rib-in": {
+            "tables": [
+              {
+                "afi": "bgp-types:ipv6-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "attributes": {
+                  "uptodate": false
+                },
+                "bgp-inet:ipv6-routes": {
+                  "ipv6-route": [
+                    {
+                      "route-key": "1:1:1::1/128",
+                      "path-id": 1,
+                      "prefix": "1:1:1::1/128",
+                      "attributes": {
+                        "ipv6-next-hop": {
+                          "global": "2:1:1:1::1"
+                        },
+                        "multi-exit-disc": {
+                          "med": 0
+                        },
+                        "origin": {
+                          "value": "igp"
+                        },
+                        "local-pref": {
+                          "pref": 100
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "afi": "bgp-types:ipv4-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "attributes": {
+                  "uptodate": false
+                }
+              }
+            ]
+          },
+          "adj-rib-in": {
+            "tables": [
+              {
+                "afi": "bgp-types:ipv6-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "attributes": {
+                  "uptodate": false
+                },
+                "bgp-inet:ipv6-routes": {
+                  "ipv6-route": [
+                    {
+                      "route-key": "1:1:1::1/128",
+                      "path-id": 1,
+                      "prefix": "1:1:1::1/128",
+                      "attributes": {
+                        "ipv6-next-hop": {
+                          "global": "2:1:1:1::1"
+                        },
+                        "multi-exit-disc": {
+                          "med": 0
+                        },
+                        "origin": {
+                          "value": "igp"
+                        },
+                        "local-pref": {
+                          "pref": 100
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "afi": "bgp-types:ipv4-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "attributes": {
+                  "uptodate": false
+                }
+              }
+            ]
+          },
+          "supported-tables": [
+            {
+              "afi": "bgp-types:ipv6-address-family",
+              "safi": "bgp-types:unicast-subsequent-address-family"
+            },
+            {
+              "afi": "bgp-types:ipv4-address-family",
+              "safi": "bgp-types:unicast-subsequent-address-family"
+            }
+          ],
+          "adj-rib-out": {
+            "tables": [
+              {
+                "afi": "bgp-types:ipv6-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family"
+              },
+              {
+                "afi": "bgp-types:ipv4-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family"
+              }
+            ]
+          }
+        }
+      ],
+      "loc-rib": {
+        "tables": [
+          {
+            "afi": "bgp-types:ipv6-address-family",
+            "safi": "bgp-types:unicast-subsequent-address-family",
+            "attributes": {
+              "uptodate": true
+            },
+            "bgp-inet:ipv6-routes": {
+              "ipv6-route": [
+                {
+                  "route-key": "1:1:1::1/128",
+                  "path-id": 0,
+                  "prefix": "1:1:1::1/128",
+                  "attributes": {
+                    "ipv6-next-hop": {
+                      "global": "2:1:1:1::1"
+                    },
+                    "multi-exit-disc": {
+                      "med": 0
+                    },
+                    "origin": {
+                      "value": "igp"
+                    },
+                    "local-pref": {
+                      "pref": 100
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "afi": "bgp-types:ipv4-address-family",
+            "safi": "bgp-types:unicast-subsequent-address-family",
+            "attributes": {
+              "uptodate": true
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

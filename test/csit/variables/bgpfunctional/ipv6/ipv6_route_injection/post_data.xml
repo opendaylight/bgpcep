@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ipv6-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
+  <!-- the prefix is a bogus value - just needs to be the same for n-path testing -->
+  <!-- 1:1:1::1/128 should look like the following example: 1.1.1.1/32 -->
+  <path-id>1</path-id>
+  <route-key>1:1:1::1/128</route-key>
+  <prefix>1:1:1::1/128</prefix>
+  <attributes>
+    <ipv6-next-hop>
+      <global>2:1:1:1::1</global>
+    </ipv6-next-hop>
+    <as-path/>
+    <multi-exit-disc>
+      <!--- This is a bogus value -->
+      <med>0</med>
+    </multi-exit-disc>
+    <local-pref>
+      <!--- This is a bogus value -->
+      <pref>100</pref>
+    </local-pref>
+    <origin>
+      <value>igp</value>
+    </origin>
+  </attributes>
+</ipv6-route>

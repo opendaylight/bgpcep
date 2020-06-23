@@ -1,0 +1,11 @@
+<neighbor xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+    <neighbor-address>$IP</neighbor-address>
+    <config>
+        <peer-group>application-peers</peer-group>
+    </config>
+    <afi-safis>
+        <afi-safi>
+        <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+        </afi-safi>
+    </afi-safis>
+</neighbor>
