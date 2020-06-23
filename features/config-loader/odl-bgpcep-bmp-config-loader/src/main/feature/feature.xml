@@ -7,11 +7,10 @@
   terms of the Eclipse Public License v1.0 which accompanies this distribution,
   and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<features name="odl-bgpcep-pcep-impl-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+<features name="bgpcep-bmp-config-loader-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
-    <feature name="odl-bgpcep-pcep-impl" version="${project.version}">
-        <feature version="[2,3)">odl-controller-exp-netty-config</feature>
+    <feature name="odl-bgpcep-bmp-config-loader" version="${project.version}">
         <feature version="[2,3)">odl-mdsal-broker</feature>
     </feature>
 </features>

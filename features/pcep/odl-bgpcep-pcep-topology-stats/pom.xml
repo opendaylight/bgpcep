@@ -27,12 +27,6 @@
             <artifactId>pcep-topology-stats</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>odl-mdsal-broker</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
             <type>xml</type>
