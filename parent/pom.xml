@@ -130,6 +130,8 @@
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                     <optimize>true</optimize>
+                    <!-- workaround for https://issues.apache.org/jira/browse/MCOMPILER-346 until it's resolved-->
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
                 </configuration>
             </plugin>
             <plugin>

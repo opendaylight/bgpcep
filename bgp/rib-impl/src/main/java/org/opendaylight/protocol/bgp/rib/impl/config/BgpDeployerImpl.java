@@ -31,11 +31,17 @@ import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -53,8 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.blueprint.container.BlueprintContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +66,6 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BgpDeployerImpl.class);
     private final InstanceIdentifier<NetworkInstance> networkInstanceIId;
-    private final BlueprintContainer container;
-    private final BundleContext bundleContext;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final ClusterSingletonServiceProvider provider;
     @GuardedBy("this")
@@ -82,19 +84,33 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     private ListenerRegistration<BgpDeployerImpl> registration;
     @GuardedBy("this")
     private boolean closed;
+    private final RIBExtensionConsumerContext ribExtensionContext;
+    private final BGPDispatcher dispatcher;
+    private final BGPRibRoutingPolicyFactory policyProvider;
+    private final CodecsRegistry codecsRegistry;
+    private final DOMDataBroker domBroker;
+    private final RpcProviderService rpcRegistry;
 
     public BgpDeployerImpl(final String networkInstanceName,
                            final ClusterSingletonServiceProvider provider,
-                           final BlueprintContainer container,
-                           final BundleContext bundleContext,
                            final DataBroker dataBroker,
-                           final BGPTableTypeRegistryConsumer mappingService) {
+                           final BGPTableTypeRegistryConsumer mappingService,
+                           final RIBExtensionConsumerContext ribExtensionContext,
+                           final BGPDispatcher dispatcher,
+                           final BGPRibRoutingPolicyFactory policyProvider,
+                           final CodecsRegistry codecsRegistry,
+                           final DOMDataBroker domBroker,
+                           final RpcProviderService rpcRegistry) {
         this.dataBroker = requireNonNull(dataBroker);
         this.provider = requireNonNull(provider);
         this.networkInstanceName = requireNonNull(networkInstanceName);
-        this.container = requireNonNull(container);
-        this.bundleContext = requireNonNull(bundleContext);
         this.tableTypeRegistry = requireNonNull(mappingService);
+        this.ribExtensionContext = requireNonNull(ribExtensionContext);
+        this.dispatcher = requireNonNull(dispatcher);
+        this.policyProvider = requireNonNull(policyProvider);
+        this.codecsRegistry = requireNonNull(codecsRegistry);
+        this.domBroker = requireNonNull(domBroker);
+        this.rpcRegistry = requireNonNull(rpcRegistry);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
                 .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         initializeNetworkInstance(dataBroker, this.networkInstanceIId).addCallback(new FutureCallback<CommitInfo>() {
@@ -248,7 +264,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         BGPClusterSingletonService old = this.bgpCss.get(bgpInstanceIdentifier);
         if (old == null) {
             old = new BGPClusterSingletonService(this, this.provider, this.tableTypeRegistry,
-                    this.container, this.bundleContext, bgpInstanceIdentifier);
+                    bgpInstanceIdentifier, ribExtensionContext, dispatcher, policyProvider, codecsRegistry, domBroker,
+                    dataBroker, rpcRegistry);
             this.bgpCss.put(bgpInstanceIdentifier, old);
         }
         old.onGlobalChanged(dataObjectModification);
@@ -260,7 +277,8 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         BGPClusterSingletonService old = this.bgpCss.get(bgpInstanceIdentifier);
         if (old == null) {
             old = new BGPClusterSingletonService(this, this.provider, this.tableTypeRegistry,
-                    this.container, this.bundleContext, bgpInstanceIdentifier);
+                    bgpInstanceIdentifier, ribExtensionContext, dispatcher, policyProvider, codecsRegistry, domBroker,
+                    dataBroker, rpcRegistry);
             this.bgpCss.put(bgpInstanceIdentifier, old);
         }
         old.onNeighborsChanged(dataObjectModification);

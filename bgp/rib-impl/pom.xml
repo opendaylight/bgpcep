@@ -178,12 +178,6 @@
             <artifactId>osgi.cmpn</artifactId>
         </dependency>
 
-        <!-- OSGi, FIXME: remove this -->
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
