@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "884c8f25_01ad6068",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/provider/TopologyStatsProviderImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 7569
+      },
+      "writtenOn": "2020-06-24T20:05:01Z",
+      "side": 1,
+      "message": "in unbind(), nodeId is removed from statsMap, added to statsPendingDelete and async delete operation is started. Now before updatePcepStats() gets called (periodic task), bind() can be called which will add nodeId back to statsMap. And now if updatePcepStats() is called, without check using statsPendingDelete, it will try to write entry and can race with async delete operation started from unbind().",
+      "parentUuid": "b0b386ee_d792758a",
+      "range": {
+        "startLine": 154,
+        "startChar": 8,
+        "endLine": 155,
+        "endChar": 44
+      },
+      "revId": "1f2eabf6bbe0d30eab338730f7350c4a7099875e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2757d202_19fa35fa",
         "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/provider/TopologyStatsProviderImpl.java",
         "patchSetId": 2
