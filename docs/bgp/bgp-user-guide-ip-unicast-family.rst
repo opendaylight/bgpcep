@@ -10,7 +10,7 @@ The IPv4 Unicast routes are interchangeable with BGP-4 routes, as they can carry
 .. contents:: Contents
    :depth: 2
    :local:
-
+ 
 Configuration
 ^^^^^^^^^^^^^
 This section shows a way to enable IPv4 and IPv6 Unicast family in BGP speaker and peer configuration.
