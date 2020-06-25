@@ -8,7 +8,7 @@ their respective Route Targets, effectively building a route distribution graph.
 .. contents:: Contents
    :depth: 2
    :local:
-
+ 
 Configuration
 ^^^^^^^^^^^^^
 This section shows a way to enable ROUTE-TARGET-CONSTRAIN family in BGP speaker and peer configuration.
