@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f05332f_3fae5136",
+        "filename": "docs/bgp/bgp-user-guide-long-lived-graceful-restart-capability.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-06-26T14:56:23Z",
+      "side": 1,
+      "message": "RFC 8040 URL is missing here and other places. pls add that.",
+      "revId": "49639ecb25c05dd1a15b9139b4819606da04faeb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
