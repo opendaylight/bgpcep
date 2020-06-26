@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24dcc066_26034720",
+        "filename": "docs/bgp/bgp-user-guide-labeled-family.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-06-26T14:54:41Z",
+      "side": 1,
+      "message": "RFC 8040 URL is missing here and other places. pls add that.",
+      "revId": "7625aa8a18851fd5959495e1cd4158a698da2cc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c30b6471_461f85b0",
+        "filename": "docs/bgp/bgp-user-guide-labeled-family.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-06-26T14:54:41Z",
+      "side": 1,
+      "message": "RFC8040 URL?",
+      "revId": "7625aa8a18851fd5959495e1cd4158a698da2cc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
