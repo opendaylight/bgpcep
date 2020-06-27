@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a468f2c_0b40e67f",
+        "filename": "bgp/extensions/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-06-27T15:34:53Z",
+      "side": 1,
+      "message": "should better stay sticked",
+      "range": {
+        "startLine": 180,
+        "startChar": 109,
+        "endLine": 181,
+        "endChar": 44
+      },
+      "revId": "1555ac0bd52eada1438d095f66fc5a67adccc5f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "406ca997_a14396fb",
+        "filename": "bgp/extensions/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-06-27T15:34:53Z",
+      "side": 1,
+      "message": "idem",
+      "range": {
+        "startLine": 231,
+        "startChar": 109,
+        "endLine": 232,
+        "endChar": 34
+      },
+      "revId": "1555ac0bd52eada1438d095f66fc5a67adccc5f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
