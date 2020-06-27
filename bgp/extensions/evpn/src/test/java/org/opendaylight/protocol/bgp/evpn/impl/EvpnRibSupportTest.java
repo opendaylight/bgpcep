@@ -19,6 +19,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
@@ -89,7 +90,7 @@ public final class EvpnRibSupportTest extends AbstractRIBSupportTest<EvpnRoutesC
         ROUTE = new EvpnRouteBuilder().setRouteKey(ROUTE_KEY.getRouteKey())
                 .setPathId(ROUTE_KEY.getPathId())
                 .setAttributes(ATTRIBUTES).setRouteDistinguisher(RD).setEvpnChoice(ETHERNET_AD_ROUTE_CASE).build();
-        EVPN_ROUTES = new EvpnRoutesBuilder().setEvpnRoute(Collections.singletonList(ROUTE)).build();
+        EVPN_ROUTES = new EvpnRoutesBuilder().setEvpnRoute(Map.of(ROUTE.key(), ROUTE)).build();
     }
 
 

@@ -24,9 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.evpn._case.DestinationEvpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
@@ -50,8 +48,9 @@ public class EvpnNlriAttributesParserTest {
     @Test
     public void testAttributes1() throws BGPParsingException {
         final ByteBuf buffer = Unpooled.buffer();
-        final Attributes att = new AttributesBuilder().addAugmentation(Attributes1.class,
-            new Attributes1Builder().setMpReachNlri(createReach()).build()).build();
+        final Attributes att = new AttributesBuilder()
+                .addAugmentation(new Attributes1Builder().setMpReachNlri(createReach()).build())
+                .build();
         this.parser.serializeAttribute(att, buffer);
         Assert.assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
     }
@@ -70,8 +69,9 @@ public class EvpnNlriAttributesParserTest {
     @Test
     public void testAttributes2() throws BGPParsingException {
         final ByteBuf buffer = Unpooled.buffer();
-        final Attributes att = new AttributesBuilder().addAugmentation(Attributes2.class,
-            new Attributes2Builder().setMpUnreachNlri(createUnreach()).build()).build();
+        final Attributes att = new AttributesBuilder()
+                .addAugmentation(new Attributes2Builder().setMpUnreachNlri(createUnreach()).build())
+                .build();
         this.parser.serializeAttribute(att, buffer);
         Assert.assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
     }

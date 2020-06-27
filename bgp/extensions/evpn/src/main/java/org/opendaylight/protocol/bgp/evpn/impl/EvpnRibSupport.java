@@ -56,8 +56,7 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
 
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
-    private static final EvpnRoutes EMPTY_CONTAINER
-            =  new EvpnRoutesBuilder().setEvpnRoute(Collections.emptyList()).build();
+    private static final EvpnRoutes EMPTY_CONTAINER = new EvpnRoutesBuilder().build();
     private static EvpnRibSupport SINGLETON;
 
     private EvpnRibSupport(final BindingNormalizedNodeSerializer mappingService) {
@@ -117,9 +116,8 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
                         keys.add(routeKey);
                     }
                     return keys;
-                } else {
-                    LOG.warn("Routes {} are not a map", routes);
                 }
+                LOG.warn("Routes {} are not a map", routes);
             }
         }
         return Collections.emptyList();
