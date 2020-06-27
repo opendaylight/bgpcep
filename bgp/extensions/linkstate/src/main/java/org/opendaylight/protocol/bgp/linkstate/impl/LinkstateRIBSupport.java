@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -55,12 +56,9 @@ import org.slf4j.LoggerFactory;
 public final class LinkstateRIBSupport
         extends AbstractRIBSupport<LinkstateRoutesCase, LinkstateRoutes, LinkstateRoute, LinkstateRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
-
-    private static final LinkstateRoutes EMPTY_CONTAINER
-            = new LinkstateRoutesBuilder().setLinkstateRoute(Collections.emptyList()).build();
+    private static final LinkstateRoutes EMPTY_CONTAINER = new LinkstateRoutesBuilder().build();
+    private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLinkstateDestination.QNAME);
     private static LinkstateRIBSupport SINGLETON;
-    private final YangInstanceIdentifier.NodeIdentifier nlriRoutesList
-            = new YangInstanceIdentifier.NodeIdentifier(CLinkstateDestination.QNAME);
 
     private LinkstateRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
@@ -102,7 +100,7 @@ public final class LinkstateRIBSupport
                                                                           final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
-                    = destination.getChild(this.nlriRoutesList);
+                    = destination.getChild(LinkstateRIBSupport.NLRI_ROUTES_LIST);
             return processRoute(maybeRoutes, routesPath, attributes, function, tx);
         }
         return Collections.emptyList();

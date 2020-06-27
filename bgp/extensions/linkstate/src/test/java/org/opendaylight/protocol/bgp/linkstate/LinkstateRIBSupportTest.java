@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
@@ -119,7 +120,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
         ROUTE = new LinkstateRouteBuilder().withKey(ROUTE_KEY).setRouteDistinguisher(RD)
                 .setIdentifier(ID).setObjectType(OBJECT_TYPE2)
                 .setProtocolId(ProtocolId.IsisLevel1).setAttributes(new AttributesBuilder().build()).build();
-        ROUTES = new LinkstateRoutesBuilder().setLinkstateRoute(Collections.singletonList(ROUTE)).build();
+        ROUTES = new LinkstateRoutesBuilder().setLinkstateRoute(Map.of(ROUTE.key(), ROUTE)).build();
     }
 
     @Override

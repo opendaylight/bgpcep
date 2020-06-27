@@ -63,9 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
@@ -603,10 +601,12 @@ public class LinkstateNlriParserTest {
         final DestinationLinkstateCase dlc = new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
             new DestinationLinkstateBuilder().setCLinkstateDestination(dests).build()).build();
         final AdvertizedRoutes aroutes = new AdvertizedRoutesBuilder().setDestinationType(dlc).build();
-        final Attributes1 reach = new Attributes1Builder().setMpReachNlri(new MpReachNlriBuilder()
-            .setAdvertizedRoutes(aroutes).build()).build();
 
-        Attributes pa = new AttributesBuilder().addAugmentation(Attributes1.class, reach).build();
+        Attributes pa = new AttributesBuilder()
+                .addAugmentation(new Attributes1Builder()
+                    .setMpReachNlri(new MpReachNlriBuilder().setAdvertizedRoutes(aroutes).build())
+                    .build())
+                .build();
 
         ByteBuf result = Unpooled.buffer();
         parser.serializeAttribute(pa, result);
@@ -623,10 +623,12 @@ public class LinkstateNlriParserTest {
                         .destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(destsU)
                         .build()).build();
         final WithdrawnRoutes wroutes = new WithdrawnRoutesBuilder().setDestinationType(dlcU).build();
-        final Attributes2 unreach = new Attributes2Builder().setMpUnreachNlri(new MpUnreachNlriBuilder()
-            .setWithdrawnRoutes(wroutes).build()).build();
 
-        pa = new AttributesBuilder().addAugmentation(Attributes2.class, unreach).build();
+        pa = new AttributesBuilder()
+                .addAugmentation(new Attributes2Builder()
+                    .setMpUnreachNlri(new MpUnreachNlriBuilder().setWithdrawnRoutes(wroutes).build())
+                    .build())
+                .build();
 
         result = Unpooled.buffer();
         parser.serializeAttribute(pa, result);

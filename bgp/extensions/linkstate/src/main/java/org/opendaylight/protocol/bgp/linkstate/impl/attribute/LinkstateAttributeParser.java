@@ -92,9 +92,9 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
         }
         final ObjectType nlriType = lsDestination.getObjectType();
         final ProtocolId protocolId = lsDestination.getProtocolId();
-        final Attributes1 a = new Attributes1Builder().setLinkStateAttribute(
-            parseLinkState(nlriType, protocolId, buffer)).build();
-        builder.addAugmentation(Attributes1.class, a);
+        builder.addAugmentation(new Attributes1Builder()
+            .setLinkStateAttribute(parseLinkState(nlriType, protocolId, buffer))
+            .build());
     }
 
     private static CLinkstateDestination getNlriType(final AttributesBuilder pab) {

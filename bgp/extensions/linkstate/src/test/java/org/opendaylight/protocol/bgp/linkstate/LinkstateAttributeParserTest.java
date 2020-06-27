@@ -56,7 +56,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
@@ -154,31 +153,44 @@ public class LinkstateAttributeParserTest {
     }
 
     private static AttributesBuilder createBuilder(final ObjectType type) {
-        return new AttributesBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .bgp.multiprotocol.rev180329.Attributes1.class, new Attributes1Builder().setMpReachNlri(
-                new MpReachNlriBuilder().setAfi(LinkstateAddressFamily.class)
+        return new AttributesBuilder().addAugmentation(new Attributes1Builder()
+            .setMpReachNlri(new MpReachNlriBuilder()
+                .setAfi(LinkstateAddressFamily.class)
                 .setSafi(LinkstateSubsequentAddressFamily.class)
-                .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                    new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                        new DestinationLinkstateBuilder().setCLinkstateDestination(
-                            Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type)
-                                .setProtocolId(ProtocolId.IsisLevel1).build())).build()).build()).build()).build())
+                .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                    .setDestinationType(new DestinationLinkstateCaseBuilder()
+                        .setDestinationLinkstate(new DestinationLinkstateBuilder()
+                            .setCLinkstateDestination(Lists.newArrayList(new CLinkstateDestinationBuilder()
+                                .setObjectType(type)
+                                .setProtocolId(ProtocolId.IsisLevel1)
+                                .build()))
+                            .build())
+                        .build())
+                    .build())
+                .build())
             .build());
     }
 
     private static AttributesBuilder createUnreachBuilder(final ObjectType type) {
-        return new AttributesBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .bgp.multiprotocol.rev180329.Attributes2.class, new Attributes2Builder().setMpUnreachNlri(
-                new MpUnreachNlriBuilder().setAfi(LinkstateAddressFamily.class)
+        return new AttributesBuilder().addAugmentation(new Attributes2Builder()
+            .setMpUnreachNlri(new MpUnreachNlriBuilder()
+                .setAfi(LinkstateAddressFamily.class)
                 .setSafi(LinkstateSubsequentAddressFamily.class)
-                .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update
-                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder()
-                        .setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                            .bgp.linkstate.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
-                            .destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
-                                Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type)
-                                    .setProtocolId(ProtocolId.IsisLevel1).build())).build()).build()).build()).build())
+                .setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+                    .setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                        .linkstate.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                        .DestinationLinkstateCaseBuilder()
+                            .setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                                .yang.bgp.linkstate.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes
+                                .destination.type.destination.linkstate._case.DestinationLinkstateBuilder()
+                                    .setCLinkstateDestination(Lists.newArrayList(new CLinkstateDestinationBuilder()
+                                        .setObjectType(type)
+                                        .setProtocolId(ProtocolId.IsisLevel1)
+                                        .build()))
+                                    .build())
+                            .build())
+                    .build())
+                .build())
             .build());
     }
 
@@ -191,29 +203,37 @@ public class LinkstateAttributeParserTest {
         builder = new AttributesBuilder();
 
         final Attributes1Builder builder1 = new Attributes1Builder();
-        builder.addAugmentation(Attributes1.class, builder1.build());
+        builder.addAugmentation(builder1.build());
         this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
-        builder.addAugmentation(Attributes1.class, builder1.setMpReachNlri(
-            new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder()
-                .setDestinationType(new DestinationIpv4CaseBuilder().build()).build()).build()).build());
+        builder.addAugmentation(builder1
+            .setMpReachNlri(new MpReachNlriBuilder()
+                .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                    .setDestinationType(new DestinationIpv4CaseBuilder().build())
+                    .build())
+                .build())
+            .build());
         this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
         final Attributes2Builder builder2 = new Attributes2Builder();
-        builder.addAugmentation(Attributes2.class, builder2.build());
+        builder.addAugmentation(builder2.build());
         this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
-        builder.addAugmentation(Attributes2.class, builder2.setMpUnreachNlri(
-            new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
-                .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder()
-                .build()).build()).build()).build());
+        builder.addAugmentation(builder2
+            .setMpUnreachNlri(new MpUnreachNlriBuilder()
+                .setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+                    .setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
+                        .rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                        .DestinationIpv6CaseBuilder().build())
+                    .build())
+                .build())
+            .build());
         this.parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
     }

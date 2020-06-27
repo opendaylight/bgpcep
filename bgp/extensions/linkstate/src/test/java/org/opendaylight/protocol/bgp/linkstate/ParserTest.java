@@ -413,7 +413,7 @@ public class ParserTest {
             new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
         lsBuilder.setMpReachNlri(mpBuilder.build());
 
-        paBuilder.addAugmentation(Attributes1.class, lsBuilder.build());
+        paBuilder.addAugmentation(lsBuilder.build());
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120
             .Attributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
@@ -422,10 +422,8 @@ public class ParserTest {
         lsAttrBuilder.setLinkStateAttribute(
             new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder()
                 .setMetric(new Metric(Uint32.ONE)).build()).build());
-        paBuilder.addAugmentation(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Attributes1.class,
-            lsAttrBuilder.build());
-        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        paBuilder.addAugmentation(lsAttrBuilder.build());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
 
         assertEquals(
             lsAttrBuilder.build(),
@@ -605,8 +603,8 @@ public class ParserTest {
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build());
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
-        paBuilder.addAugmentation(Attributes1.class, lsBuilder.build());
-        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        paBuilder.addAugmentation(lsBuilder.build());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
 
         final MpReachNlri mp = attrs.augmentation(Attributes1.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());
