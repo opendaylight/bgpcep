@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6;
 
 import static com.google.common.base.Verify.verify;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -29,8 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteKey;
 
 public final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport<VpnIpv6RoutesCase, VpnIpv6Routes> {
-    private static final VpnIpv6Routes EMPTY_CONTAINER
-            = new VpnIpv6RoutesBuilder().setVpnRoute(Collections.emptyList()).build();
+    private static final VpnIpv6Routes EMPTY_CONTAINER = new VpnIpv6RoutesBuilder().build();
     private static VpnIpv6RIBSupport SINGLETON;
 
     /**

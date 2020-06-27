@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -65,7 +66,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnIpv6RoutesC
             .setAttributes(ATTRIBUTES).setPrefix(IPV6PREFIX)
             .setLabelStack(LABEL_STACK).setRouteDistinguisher(DISTINGUISHER).withKey(ROUTE_KEY).build();
     private static final VpnIpv6Routes ROUTES = new VpnIpv6RoutesBuilder()
-            .setVpnRoute(Collections.singletonList(ROUTE)).build();
+            .setVpnRoute(Map.of(ROUTE.key(), ROUTE)).build();
 
     @Override
     public void setUp() throws Exception {

@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
-import org.junit.Assert;
+import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -46,6 +46,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -65,8 +67,9 @@ public class L3vpnMcastIpv4RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
             .setRouteDistinguisher(RD)
             .setPrefix(IPV4_PREFIX)
             .build();
-    private static final L3vpnMcastRoutesIpv4 MCAST_L3VPN_ROUTES
-            = new L3vpnMcastRoutesIpv4Builder().setL3vpnMcastRoute(Collections.singletonList(ROUTE)).build();
+    private static final L3vpnMcastRoutesIpv4 MCAST_L3VPN_ROUTES = new L3vpnMcastRoutesIpv4Builder()
+            .setL3vpnMcastRoute(Map.of(ROUTE.key(), ROUTE))
+            .build();
 
     private static final L3vpnMcastDestination MCAST_L3VPN_DESTINATION = new L3vpnMcastDestinationBuilder()
             .setRouteDistinguisher(RD)
@@ -108,10 +111,9 @@ public class L3vpnMcastIpv4RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
         assertEquals(ROUTE, route);
     }
 
-
     @Test
     public void testEmptyRoute() {
-        Assert.assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
     }
 
     @Test
@@ -134,23 +136,22 @@ public class L3vpnMcastIpv4RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
 
     @Test
     public void testCacheableNlriObjects() {
-        Assert.assertEquals(ImmutableSet.of(L3vpnMcastRoutesIpv4Case.class), this.ribSupport.cacheableNlriObjects());
+        assertEquals(ImmutableSet.of(L3vpnMcastRoutesIpv4Case.class), this.ribSupport.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        Assert.assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
+        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
     }
 
     @Test
     public void testRouteIdAddPath() {
-        Assert.assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(),
-            ROUTE_KEY.getRouteKey()));
+        assertEquals(ROUTE_KEY, this.ribSupport.createRouteListKey(ROUTE_KEY.getPathId(), ROUTE_KEY.getRouteKey()));
     }
 
     @Test
     public void testRoutePath() {
-        final YangInstanceIdentifier.NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MCAST_L3VPN_ROUTES);
+        final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MCAST_L3VPN_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);
         final YangInstanceIdentifier actual = this.ribSupport.routePath(getTablePath(), prefixNii);
         assertEquals(expected, actual);
@@ -158,24 +159,24 @@ public class L3vpnMcastIpv4RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
 
     @Test
     public void testRouteAttributesIdentifier() {
-        Assert.assertEquals(new YangInstanceIdentifier.NodeIdentifier(
-                        Attributes.QNAME.withModule(BindingReflections.getQNameModule(L3vpnMcastRoutesIpv4Case.class))),
-                this.ribSupport.routeAttributesIdentifier());
+        assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(
+            BindingReflections.getQNameModule(L3vpnMcastRoutesIpv4Case.class))),
+            this.ribSupport.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        Assert.assertEquals(L3vpnMcastRoutesIpv4Case.class, this.ribSupport.routesCaseClass());
+        assertEquals(L3vpnMcastRoutesIpv4Case.class, this.ribSupport.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        Assert.assertEquals(L3vpnMcastRoutesIpv4.class, this.ribSupport.routesContainerClass());
+        assertEquals(L3vpnMcastRoutesIpv4.class, this.ribSupport.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        Assert.assertEquals(L3vpnMcastRoute.class, this.ribSupport.routesListClass());
+        assertEquals(L3vpnMcastRoute.class, this.ribSupport.routesListClass());
     }
 
     @Test

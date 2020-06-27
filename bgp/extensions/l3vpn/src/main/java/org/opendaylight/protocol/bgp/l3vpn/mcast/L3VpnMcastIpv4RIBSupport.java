@@ -48,8 +48,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
  */
 public final class L3VpnMcastIpv4RIBSupport
         extends AbstractL3vpnMcastIpRIBSupport<L3vpnMcastRoutesIpv4Case, L3vpnMcastRoutesIpv4> {
-    private static final L3vpnMcastRoutesIpv4 EMPTY_CONTAINER
-            = new L3vpnMcastRoutesIpv4Builder().setL3vpnMcastRoute(Collections.emptyList()).build();
+    private static final L3vpnMcastRoutesIpv4 EMPTY_CONTAINER = new L3vpnMcastRoutesIpv4Builder().build();
     private static L3VpnMcastIpv4RIBSupport SINGLETON;
 
 
