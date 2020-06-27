@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.inet;
 
 import static org.junit.Assert.assertEquals;
@@ -15,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -69,9 +69,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
             .setAttributes(ATTRIBUTES)
             .setPathId(PATH_ID)
             .setPrefix(PREFIX).build();
-    private static final Ipv6Routes ROUTES = new Ipv6RoutesBuilder()
-            .setIpv6Route(Collections.singletonList(ROUTE)).build();
-    private static final Ipv6Routes EMPTY_ROUTES = new Ipv6RoutesBuilder().build();
+    private static final Ipv6Routes ROUTES = new Ipv6RoutesBuilder().setIpv6Route(Map.of(ROUTE.key(), ROUTE)).build();
 
     @Override
     public void setUp() throws Exception {

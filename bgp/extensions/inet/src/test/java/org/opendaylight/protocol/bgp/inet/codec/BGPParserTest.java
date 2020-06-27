@@ -204,19 +204,20 @@ public class BGPParserTest {
         paBuilder.setClusterId(new ClusterIdBuilder().setCluster(clusters).build());
         assertEquals(paBuilder.getClusterId(), attrs.getClusterId());
 
-        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(Ipv6AddressFamily.class);
-        mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
-        mpBuilder.setCNextHop(nextHop);
-        mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder()
-                        .setIpv6Prefixes(prefs).build()).build()).build());
+        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
+                .setAfi(Ipv6AddressFamily.class)
+                .setSafi(UnicastSubsequentAddressFamily.class)
+                .setCNextHop(nextHop)
+                .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                    .setDestinationType(new DestinationIpv6CaseBuilder()
+                        .setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(prefs).build())
+                        .build())
+                    .build());
 
-        paBuilder.addAugmentation(Attributes1.class, new Attributes1Builder()
-                .setMpReachNlri(mpBuilder.build()).build());
+        paBuilder.addAugmentation(new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
         assertEquals(paBuilder.augmentation(Attributes1.class).getMpReachNlri(),
                 attrs.augmentation(Attributes1.class).getMpReachNlri());
-        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
         // check API message
 
         builder.setAttributes(paBuilder.build());

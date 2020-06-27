@@ -36,9 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
@@ -168,8 +166,9 @@ public class Ipv4NlriParserTest {
 
         final Ipv4NlriParser serializer = new Ipv4NlriParser();
         final ByteBuf output = Unpooled.buffer(MP_NLRI_BYTES.length);
-        final Attributes attributes = new AttributesBuilder().addAugmentation(Attributes1.class,
-                new Attributes1Builder().setMpReachNlri(mpReachNlri).build()).build();
+        final Attributes attributes = new AttributesBuilder()
+                .addAugmentation(new Attributes1Builder().setMpReachNlri(mpReachNlri).build())
+                .build();
         serializer.serializeAttribute(attributes, output);
         Assert.assertArrayEquals(MP_NLRI_BYTES, output.array());
     }
@@ -190,8 +189,9 @@ public class Ipv4NlriParserTest {
 
         final Ipv4NlriParser serializer = new Ipv4NlriParser();
         final ByteBuf output = Unpooled.buffer(MP_NLRI_BYTES.length);
-        final Attributes attributes = new AttributesBuilder().addAugmentation(Attributes2.class,
-                new Attributes2Builder().setMpUnreachNlri(mpUnreachNlri).build()).build();
+        final Attributes attributes = new AttributesBuilder()
+                .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachNlri).build())
+                .build();
         serializer.serializeAttribute(attributes, output);
         Assert.assertArrayEquals(MP_NLRI_BYTES, output.array());
     }

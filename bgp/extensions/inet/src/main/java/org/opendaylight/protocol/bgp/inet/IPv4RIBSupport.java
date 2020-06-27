@@ -11,7 +11,6 @@ import static com.google.common.base.Verify.verify;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -42,8 +41,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
  */
 final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Routes, Ipv4Route, Ipv4RouteKey> {
 
-    private static final Ipv4Routes EMPTY_CONTAINER
-            = new Ipv4RoutesBuilder().setIpv4Route(Collections.emptyList()).build();
+    private static final Ipv4Routes EMPTY_CONTAINER = new Ipv4RoutesBuilder().build();
     private static IPv4RIBSupport SINGLETON = null;
 
     private IPv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
