@@ -16,6 +16,7 @@ import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
@@ -35,15 +36,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timeticks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.BgpNeighborStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.BgpNeighborStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTimersStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTimersStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.MessagesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.Received;
@@ -67,15 +63,14 @@ public class NeighborStateCliUtilsTest {
                 .list.afi.safi.StateBuilder builder = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                 .multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder();
 
-        builder.addAugmentation(NeighborAfiSafiStateAugmentation.class, new NeighborAfiSafiStateAugmentationBuilder()
-                .setActive(false).build());
+        builder.addAugmentation(new NeighborAfiSafiStateAugmentationBuilder().setActive(false).build());
         final AfiSafi afiSafi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
                 .setState(builder.build()).build();
 
         return new NeighborBuilder()
                 .setNeighborAddress(NEIGHBOR_IP_ADDRESS)
                 .setState(new StateBuilder().build())
-                .setAfiSafis(new AfiSafisBuilder().setAfiSafi(Collections.singletonList(afiSafi)).build())
+                .setAfiSafis(new AfiSafisBuilder().setAfiSafi(Map.of(afiSafi.key(), afiSafi)).build())
                 .build();
     }
 
@@ -89,8 +84,7 @@ public class NeighborStateCliUtilsTest {
     @Test
     public void testEmptyNeighborStateCli() throws IOException {
         final Neighbor neighbor = createBasicNeighbor();
-        NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS,
-                neighbor, this.stream);
+        NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS, neighbor, this.stream);
 
         final String expected = Resources.toString(getClass().getClassLoader().getResource("empty-neighbor.txt"),
             StandardCharsets.UTF_8);
@@ -99,26 +93,26 @@ public class NeighborStateCliUtilsTest {
 
     @Test
     public void testFullNeighborStateCli() throws IOException {
-        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi
-                .list.afi.safi.StateBuilder builder = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
-                .multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder();
+        final AfiSafi afiSafi = new AfiSafiBuilder()
+                .setAfiSafiName(IPV4UNICAST.class)
+                .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp
+                    .common.afi.safi.list.afi.safi.StateBuilder()
+                        .addAugmentation(new NeighborAfiSafiStateAugmentationBuilder()
+                            .setActive(Boolean.TRUE)
+                            .setPrefixes(new PrefixesBuilder()
+                                .setInstalled(Uint32.ONE)
+                                .setReceived(Uint32.ONE)
+                                .setSent(Uint32.TWO).build())
+                            .build())
+                    .build())
+                .build();
 
-        builder.addAugmentation(NeighborAfiSafiStateAugmentation.class, new NeighborAfiSafiStateAugmentationBuilder()
-                .setActive(Boolean.TRUE)
-                .setPrefixes(new PrefixesBuilder()
-                    .setInstalled(Uint32.ONE)
-                    .setReceived(Uint32.ONE)
-                    .setSent(Uint32.TWO).build())
-                .build());
-        final AfiSafi afiSafi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-                .setState(builder.build()).build();
 
-
-        final StateBuilder stateBuilder = new StateBuilder();
-        stateBuilder.addAugmentation(NeighborStateAugmentation.class,
-                new NeighborStateAugmentationBuilder()
-                        .setSupportedCapabilities(Collections.singletonList(ADDPATHS.class))
-                        .setSessionState(BgpNeighborState.SessionState.ACTIVE).build());
+        final StateBuilder stateBuilder = new StateBuilder()
+                .addAugmentation(new NeighborStateAugmentationBuilder()
+                    .setSupportedCapabilities(Collections.singletonList(ADDPATHS.class))
+                    .setSessionState(BgpNeighborState.SessionState.ACTIVE)
+                    .build());
 
         final Received received = new ReceivedBuilder()
                 .setNOTIFICATION(Uint64.ONE)
@@ -130,34 +124,35 @@ public class NeighborStateCliUtilsTest {
                 .setUPDATE(Uint64.ONE)
                 .build();
 
-        stateBuilder.addAugmentation(BgpNeighborStateAugmentation.class,
-                new BgpNeighborStateAugmentationBuilder()
-                        .setMessages(new MessagesBuilder()
-                                .setReceived(received)
-                                .setSent(sent)
-                                .build())
-                        .build());
+        stateBuilder.addAugmentation(new BgpNeighborStateAugmentationBuilder()
+            .setMessages(new MessagesBuilder()
+                .setReceived(received)
+                .setSent(sent)
+                .build())
+            .build());
 
-        final Transport transport = new TransportBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net
-                .yang.bgp.rev151009.bgp.neighbor.group.transport.StateBuilder()
-                .addAugmentation(NeighborTransportStateAugmentation.class,
-                        new NeighborTransportStateAugmentationBuilder()
-                                .setRemoteAddress(NEIGHBOR_IP_ADDRESS)
-                                .setLocalPort(new PortNumber(Uint16.valueOf(1234)))
-                                .setRemotePort(new PortNumber(Uint16.valueOf(4321)))
-                                .build())
-                .build()).build();
-        final Timers timers = new TimersBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang
-                .bgp.rev151009.bgp.neighbor.group.timers.StateBuilder()
-                .addAugmentation(NeighborTimersStateAugmentation.class,
-                        new NeighborTimersStateAugmentationBuilder()
-                                .setNegotiatedHoldTime(BigDecimal.TEN)
-                                .setUptime(new Timeticks(Uint32.valueOf(600)))
-                                .build())
-                .build()).build();
+        final Transport transport = new TransportBuilder()
+                .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
+                    .transport.StateBuilder()
+                        .addAugmentation(new NeighborTransportStateAugmentationBuilder()
+                            .setRemoteAddress(NEIGHBOR_IP_ADDRESS)
+                            .setLocalPort(new PortNumber(Uint16.valueOf(1234)))
+                            .setRemotePort(new PortNumber(Uint16.valueOf(4321)))
+                            .build())
+                        .build())
+                .build();
+        final Timers timers = new TimersBuilder()
+                .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
+                    .timers.StateBuilder()
+                        .addAugmentation(new NeighborTimersStateAugmentationBuilder()
+                            .setNegotiatedHoldTime(BigDecimal.TEN)
+                            .setUptime(new Timeticks(Uint32.valueOf(600)))
+                            .build())
+                        .build())
+                .build();
         final Neighbor neighbor = new NeighborBuilder()
                 .setState(stateBuilder.build())
-                .setAfiSafis(new AfiSafisBuilder().setAfiSafi(Collections.singletonList(afiSafi)).build())
+                .setAfiSafis(new AfiSafisBuilder().setAfiSafi(Map.of(afiSafi.key(), afiSafi)).build())
                 .setTransport(transport)
                 .setTimers(timers)
                 .build();

@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.g
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAfiSafiStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAfiSafiStateAugmentationBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -63,17 +62,18 @@ public class GlobalStateCliUtilsTest {
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp
                         .common.afi.safi.list.afi.safi.StateBuilder();
         if (withStateAug) {
-            stateBuilder.addAugmentation(GlobalAfiSafiStateAugmentation.class,
-                    new GlobalAfiSafiStateAugmentationBuilder()
-                        .setTotalPaths(Uint32.valueOf(3))
-                        .setTotalPrefixes(Uint32.valueOf(4))
-                        .build());
+            stateBuilder.addAugmentation(new GlobalAfiSafiStateAugmentationBuilder()
+                .setTotalPaths(Uint32.valueOf(3))
+                .setTotalPrefixes(Uint32.valueOf(4))
+                .build());
         }
 
-
-        builder.setAfiSafis(new AfiSafisBuilder()
-                .setAfiSafi(Collections.singletonList(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-                        .setState(stateBuilder.build()).build())).build());
-        return builder;
+        return builder
+                .setAfiSafis(new AfiSafisBuilder()
+                    .setAfiSafi(Collections.singletonList(new AfiSafiBuilder()
+                        .setAfiSafiName(IPV4UNICAST.class)
+                        .setState(stateBuilder.build())
+                        .build()))
+                    .build());
     }
 }

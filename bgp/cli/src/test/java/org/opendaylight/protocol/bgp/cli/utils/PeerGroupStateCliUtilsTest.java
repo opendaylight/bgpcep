@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupStateAugmentationBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -39,16 +38,16 @@ public final class PeerGroupStateCliUtilsTest {
 
     @Test
     public void testPeerGroupStateCli() throws IOException {
-        final PeerGroupBuilder peerGroup = new PeerGroupBuilder().setPeerGroupName(TEST_GROUP);
-
-        final PeerGroupStateAugmentation groupState = new PeerGroupStateAugmentationBuilder()
-                .setTotalPrefixes(Uint32.ONE)
-                .setTotalPaths(Uint32.TWO)
-                .build();
-
-        peerGroup.setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
-                .StateBuilder().addAugmentation(PeerGroupStateAugmentation.class, groupState).build());
-        PeerGroupStateCliUtils.displayPeerOperationalState(Collections.singletonList(peerGroup.build()), this.stream);
+        PeerGroupStateCliUtils.displayPeerOperationalState(Collections.singletonList(new PeerGroupBuilder()
+            .setPeerGroupName(TEST_GROUP)
+            .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
+                .StateBuilder()
+                    .addAugmentation(new PeerGroupStateAugmentationBuilder()
+                        .setTotalPrefixes(Uint32.ONE)
+                        .setTotalPaths(Uint32.TWO)
+                        .build())
+                    .build())
+            .build()), this.stream);
 
         final String expected = Resources.toString(getClass().getClassLoader().getResource("peer-group.txt"),
             StandardCharsets.UTF_8);
