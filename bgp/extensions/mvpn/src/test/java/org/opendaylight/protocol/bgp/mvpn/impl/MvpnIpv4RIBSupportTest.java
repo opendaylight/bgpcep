@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -48,6 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -68,8 +71,9 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv
             .setAttributes(ATTRIBUTES)
             .setMvpnChoice(MVPN)
             .build();
-    private static final MvpnRoutesIpv4 MVPN_ROUTES
-            = new MvpnRoutesIpv4Builder().setMvpnRoute(Collections.singletonList(ROUTE)).build();
+    private static final MvpnRoutesIpv4 MVPN_ROUTES = new MvpnRoutesIpv4Builder()
+            .setMvpnRoute(Map.of(ROUTE.key(), ROUTE))
+            .build();
 
     private static final MvpnDestination MVPN_DESTINATION = new MvpnDestinationBuilder()
             .setMvpnChoice(MVPN)
@@ -150,7 +154,7 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv
 
     @Test
     public void testRoutePath() {
-        final YangInstanceIdentifier.NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MVPN_ROUTES);
+        final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MVPN_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);
         final YangInstanceIdentifier actual = this.ribSupport.routePath(getTablePath(), prefixNii);
         assertEquals(expected, actual);
@@ -158,9 +162,8 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv
 
     @Test
     public void testRouteAttributesIdentifier() {
-        assertEquals(new YangInstanceIdentifier.NodeIdentifier(
-                        Attributes.QNAME.withModule(BindingReflections.getQNameModule(MvpnRoutesIpv4Case.class))),
-                this.ribSupport.routeAttributesIdentifier());
+        assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(
+            BindingReflections.getQNameModule(MvpnRoutesIpv4Case.class))), this.ribSupport.routeAttributesIdentifier());
     }
 
     @Test

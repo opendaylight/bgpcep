@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 import static java.util.Collections.singletonList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -23,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.PAddressPMulticastGroup;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.bgp.rib.route.PmsiTunnelAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.bgp.rib.route.PmsiTunnelAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.PmsiTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
@@ -281,9 +279,9 @@ final class PMSITunnelAttributeHandlerTestUtil {
     }
 
     private static Attributes buildAttribute(final PmsiTunnelBuilder pmsiTunnelBuilder) {
-        return new AttributesBuilder().setUnrecognizedAttributes(Collections.emptyList())
-                .addAugmentation(PmsiTunnelAugmentation.class,
-                        new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build()).build();
+        return new AttributesBuilder()
+                .addAugmentation(new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build())
+                .build();
     }
 
     static Attributes buildBidirPimTreeAttribute() {

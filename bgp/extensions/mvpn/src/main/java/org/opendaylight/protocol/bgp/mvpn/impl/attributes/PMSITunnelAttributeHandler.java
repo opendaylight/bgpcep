@@ -72,8 +72,7 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         if (tunnelIdentifier != null) {
             pmsiTunnelBuilder.setTunnelIdentifier(tunnelIdentifier);
         }
-        builder.addAugmentation(PmsiTunnelAugmentation.class, new PmsiTunnelAugmentationBuilder()
-                .setPmsiTunnel(pmsiTunnelBuilder.build()).build());
+        builder.addAugmentation(new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build());
     }
 
     public int getType() {

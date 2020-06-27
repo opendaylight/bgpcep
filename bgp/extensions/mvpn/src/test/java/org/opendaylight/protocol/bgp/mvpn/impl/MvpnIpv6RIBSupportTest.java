@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -71,7 +72,7 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
                 .setMvpnChoice(MVPN)
                 .build();
     private static final MvpnRoutesIpv6 MVPN_ROUTES
-            = new MvpnRoutesIpv6Builder().setMvpnRoute(Collections.singletonList(ROUTE)).build();
+            = new MvpnRoutesIpv6Builder().setMvpnRoute(Map.of(ROUTE.key(), ROUTE)).build();
     private static final MvpnDestination MVPN_DESTINATION = new MvpnDestinationBuilder()
             .setMvpnChoice(MVPN)
             .setPathId(PATH_ID)
@@ -159,9 +160,8 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
 
     @Test
     public void testRouteAttributesIdentifier() {
-        assertEquals(new NodeIdentifier(
-                        Attributes.QNAME.withModule(BindingReflections.getQNameModule(MvpnRoutesIpv6Case.class))),
-                this.ribSupport.routeAttributesIdentifier());
+        assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(
+            BindingReflections.getQNameModule(MvpnRoutesIpv6Case.class))), this.ribSupport.routeAttributesIdentifier());
     }
 
     @Test

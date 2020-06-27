@@ -13,7 +13,6 @@ import static org.junit.Assert.assertEquals;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.bgp.rib.route.PeDistinguisherLabelsAttributeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.bgp.rib.route.PeDistinguisherLabelsAttributeAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.pe.distinguisher.labels.attribute.PeDistinguisherLabelsAttributeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.pe.distinguisher.labels.attribute.pe.distinguisher.labels.attribute.PeDistinguisherLabelAttribute;
@@ -84,10 +82,8 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
                 .setMplsLabel(new MplsLabel(Uint32.TWO))
                 .build());
         return new AttributesBuilder()
-                .setUnrecognizedAttributes(Collections.emptyList())
-                .addAugmentation(PeDistinguisherLabelsAttributeAugmentation.class,
-                        new PeDistinguisherLabelsAttributeAugmentationBuilder()
-                                .setPeDistinguisherLabelsAttribute(new PeDistinguisherLabelsAttributeBuilder()
-                                        .setPeDistinguisherLabelAttribute(peAtt).build()).build()).build();
+                .addAugmentation(new PeDistinguisherLabelsAttributeAugmentationBuilder()
+                    .setPeDistinguisherLabelsAttribute(new PeDistinguisherLabelsAttributeBuilder()
+                        .setPeDistinguisherLabelAttribute(peAtt).build()).build()).build();
     }
 }

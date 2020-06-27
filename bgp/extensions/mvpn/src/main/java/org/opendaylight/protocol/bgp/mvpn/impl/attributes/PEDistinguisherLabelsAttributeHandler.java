@@ -87,10 +87,11 @@ public final class PEDistinguisherLabelsAttributeHandler extends AbstractAttribu
             list.add(attribute.build());
         }
 
-        builder.addAugmentation(PeDistinguisherLabelsAttributeAugmentation.class,
-                new PeDistinguisherLabelsAttributeAugmentationBuilder()
-                        .setPeDistinguisherLabelsAttribute(new PeDistinguisherLabelsAttributeBuilder()
-                                .setPeDistinguisherLabelAttribute(list).build()).build());
+        builder.addAugmentation(new PeDistinguisherLabelsAttributeAugmentationBuilder()
+            .setPeDistinguisherLabelsAttribute(new PeDistinguisherLabelsAttributeBuilder()
+                .setPeDistinguisherLabelAttribute(list)
+                .build())
+            .build());
     }
 
     @Override
