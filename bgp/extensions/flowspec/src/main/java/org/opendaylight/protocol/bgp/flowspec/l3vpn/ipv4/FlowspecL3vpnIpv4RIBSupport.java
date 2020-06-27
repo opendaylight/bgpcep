@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4;
 
 import static com.google.common.base.Verify.verify;
 
-import java.util.Collections;
 import java.util.Map;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
@@ -32,8 +31,7 @@ public final class FlowspecL3vpnIpv4RIBSupport
         FlowspecL3vpnIpv4Routes,
         FlowspecL3vpnRoute,
         FlowspecL3vpnRouteKey> {
-    private static final FlowspecL3vpnIpv4Routes EMPTY_CONTAINER
-            = new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.emptyList()).build();
+    private static final FlowspecL3vpnIpv4Routes EMPTY_CONTAINER = new FlowspecL3vpnIpv4RoutesBuilder().build();
     private static FlowspecL3vpnIpv4RIBSupport SINGLETON;
 
     private FlowspecL3vpnIpv4RIBSupport(

@@ -57,9 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.ipv6.DestinationFlowspecIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
@@ -171,9 +169,11 @@ public class SimpleFlowspecIpv6NlriParserTest {
         assertEquals(headersCase, flows.get(2).getFlowspecType());
 
         final ByteBuf buffer = Unpooled.buffer();
-        this.fsParser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class,
-            new Attributes1Builder().setMpReachNlri(mp.setAfi(Ipv6AddressFamily.class).build()).build()).build(),
-            buffer);
+        this.fsParser.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new Attributes1Builder()
+                .setMpReachNlri(mp.setAfi(Ipv6AddressFamily.class).build())
+                .build())
+            .build(), buffer);
         assertArrayEquals(REACHED_NLRI, ByteArray.readAllBytes(buffer));
 
         assertEquals("all packets to 102:304:500::/40 AND from 102:304:600::/40 AND where next header equals to 6 ",
@@ -230,9 +230,11 @@ public class SimpleFlowspecIpv6NlriParserTest {
         assertEquals(headersCase, flows.get(2).getFlowspecType());
 
         final ByteBuf buffer = Unpooled.buffer();
-        this.fsParser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class,
-            new Attributes1Builder().setMpReachNlri(mp.setAfi(Ipv6AddressFamily.class).build()).build()).build(),
-            buffer);
+        this.fsParser.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new Attributes1Builder()
+                .setMpReachNlri(mp.setAfi(Ipv6AddressFamily.class).build())
+                .build())
+            .build(), buffer);
         assertArrayEquals(REACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
         assertEquals("all packets to 102:304:500::/40 AND from 102:304:600::/40 AND where next header equals to 6 ",
@@ -279,8 +281,9 @@ public class SimpleFlowspecIpv6NlriParserTest {
         assertEquals(label, flows.get(1).getFlowspecType());
 
         final ByteBuf buffer = Unpooled.buffer();
-        this.fsParser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class,
-            new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
+        this.fsParser.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mp.build()).build())
+            .build(), buffer);
 
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
@@ -344,8 +347,9 @@ public class SimpleFlowspecIpv6NlriParserTest {
         assertEquals(label, flows.get(1).getFlowspecType());
 
         final ByteBuf buffer = Unpooled.buffer();
-        this.fsParser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class,
-            new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
+        this.fsParser.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mp.build()).build())
+            .build(), buffer);
 
         assertArrayEquals(UNREACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 

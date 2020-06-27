@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -87,7 +88,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
         this.routeKey = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
         this.route = new FlowspecRouteBuilder().withKey(this.routeKey).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
                 .setAttributes(new AttributesBuilder().build()).build();
-        this.routes = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Collections.singletonList(this.route)).build();
+        this.routes = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Map.of(this.route.key(), this.route)).build();
         this.ribSupport = FlowspecIpv6RIBSupport.getInstance(fsContext, this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
@@ -187,7 +188,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
 
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(new FlowspecIpv6RoutesCaseBuilder()
             .setFlowspecIpv6Routes(new FlowspecIpv6RoutesBuilder()
-                .setFlowspecRoute(Collections.singletonList(this.route)).build()).build())).getRootNode();
+                .setFlowspecRoute(Map.of(this.route.key(), this.route)).build()).build())).getRootNode();
         final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }

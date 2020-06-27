@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4.FlowspecL3vpnIpv4RIBSupport;
@@ -111,7 +112,7 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(
-            new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()),
+            new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Map.of(ROUTE.key(), ROUTE)).build()),
             ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
@@ -121,7 +122,7 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Update update = this.ribSupport.buildUpdate(createRoutes(
-            new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()),
+            new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Map.of(ROUTE.key(), ROUTE)).build()),
             Collections.emptyList(), ATTRIBUTES);
         final AdvertizedRoutes advertised = update.getAttributes().augmentation(Attributes1.class).getMpReachNlri()
                 .getAdvertizedRoutes();
@@ -148,7 +149,7 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii
                 = createRouteNIWP(new FlowspecL3vpnIpv4RoutesBuilder()
-                .setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build());
+                .setFlowspecL3vpnRoute(Map.of(ROUTE.key(), ROUTE)).build());
         assertEquals(getRoutePath().node(prefixNii),
                 this.ribSupport.routePath(getTablePath(), prefixNii));
     }
@@ -190,7 +191,7 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
 
         final Routes routes = new FlowspecL3vpnIpv4RoutesCaseBuilder()
                 .setFlowspecL3vpnIpv4Routes(new FlowspecL3vpnIpv4RoutesBuilder()
-            .setFlowspecL3vpnRoute(Collections.singletonList(ROUTE)).build()).build();
+            .setFlowspecL3vpnRoute(Map.of(ROUTE.key(), ROUTE)).build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
         final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());

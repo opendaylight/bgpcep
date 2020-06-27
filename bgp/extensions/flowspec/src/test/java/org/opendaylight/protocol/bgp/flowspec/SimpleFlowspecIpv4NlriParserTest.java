@@ -82,9 +82,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
@@ -225,8 +223,11 @@ public class SimpleFlowspecIpv4NlriParserTest {
         testFlows(flows, destinationPrefix, sourcePrefix, prots, ps, dps, sps);
 
         final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder()
-            .setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build()).build()).build(), buffer);
+        parser.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new Attributes1Builder()
+                .setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build())
+                .build())
+            .build(), buffer);
         assertArrayEquals(REACHED_NLRI, ByteArray.readAllBytes(buffer));
 
         assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port "
@@ -326,9 +327,11 @@ public class SimpleFlowspecIpv4NlriParserTest {
         testFlows(flows, destinationPrefix, sourcePrefix, prots, ps, dps, sps);
 
         final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class,
-            new Attributes1Builder().setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build()).build()).build(),
-            buffer);
+        parser.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new Attributes1Builder()
+                .setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build())
+                .build())
+            .build(), buffer);
         assertArrayEquals(REACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
         assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port "
@@ -410,8 +413,9 @@ public class SimpleFlowspecIpv4NlriParserTest {
         parser.serializeNlri(new Object[] {flows}, null, buffer);
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
-        parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class,
-            new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
+        parser.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mp.build()).build())
+            .build(), buffer);
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
         assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 "
@@ -545,8 +549,9 @@ public class SimpleFlowspecIpv4NlriParserTest {
         parser.serializeNlri(new Object[] {flows}, PATH_ID, buffer);
         assertArrayEquals(UNREACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
-        parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class,
-            new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
+        parser.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mp.build()).build())
+            .build(), buffer);
         assertArrayEquals(UNREACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
         assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 "
