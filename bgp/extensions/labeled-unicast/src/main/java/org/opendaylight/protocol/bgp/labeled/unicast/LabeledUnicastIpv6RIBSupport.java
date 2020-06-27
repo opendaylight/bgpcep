@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 import static com.google.common.base.Verify.verify;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -32,9 +31,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 final class LabeledUnicastIpv6RIBSupport
         extends AbstractLabeledUnicastRIBSupport<LabeledUnicastIpv6RoutesCase, LabeledUnicastIpv6Routes> {
-
-    private static final LabeledUnicastIpv6Routes EMPTY_CONTAINER
-            = new LabeledUnicastIpv6RoutesBuilder().setLabeledUnicastRoute(Collections.emptyList()).build();
+    private static final LabeledUnicastIpv6Routes EMPTY_CONTAINER = new LabeledUnicastIpv6RoutesBuilder().build();
     private static LabeledUnicastIpv6RIBSupport SINGLETON;
 
     private LabeledUnicastIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {

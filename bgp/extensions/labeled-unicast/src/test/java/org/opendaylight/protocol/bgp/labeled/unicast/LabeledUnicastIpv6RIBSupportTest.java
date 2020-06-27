@@ -17,6 +17,7 @@ import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -94,7 +95,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest<Lab
         ROUTE = new LabeledUnicastRouteBuilder().withKey(ROUTE_KEY)
                 .setPrefix(IPV6_PREFIX).setPathId(PATH_ID).setLabelStack(LABEL_STACK)
             .setAttributes(new AttributesBuilder().build()).build();
-        ROUTES = new LabeledUnicastIpv6RoutesBuilder().setLabeledUnicastRoute(Collections.singletonList(ROUTE)).build();
+        ROUTES = new LabeledUnicastIpv6RoutesBuilder().setLabeledUnicastRoute(Map.of(ROUTE.key(), ROUTE)).build();
     }
 
     @Override
