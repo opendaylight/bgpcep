@@ -38,9 +38,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timeticks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiGracefulRestartStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiGracefulRestartStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTimersStateAugmentation;
@@ -107,7 +105,7 @@ public class NeighborUtilTest {
                 .setNegotiatedHoldTime(BigDecimal.valueOf(90L)).setUptime(new Timeticks(Uint32.valueOf(500))).build();
         final Timers expectedTimers = new TimersBuilder().setState(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
-                .StateBuilder().addAugmentation(NeighborTimersStateAugmentation.class, timerStateAug).build())
+                .StateBuilder().addAugmentation(timerStateAug).build())
                 .build();
         assertEquals(expectedTimers, NeighborUtil.buildTimer(timerState));
     }
@@ -122,8 +120,7 @@ public class NeighborUtilTest {
                 .setNegotiatedHoldTime(BigDecimal.valueOf(90L)).setUptime(new Timeticks(Uint32.valueOf(5))).build();
         final Timers expectedTimers = new TimersBuilder().setState(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
-                .StateBuilder().addAugmentation(NeighborTimersStateAugmentation.class, timerStateAug).build())
-                .build();
+                .StateBuilder().addAugmentation(timerStateAug).build()).build();
         assertEquals(expectedTimers, NeighborUtil.buildTimer(timerState));
     }
 
@@ -143,7 +140,7 @@ public class NeighborUtilTest {
                 NeighborUtil.buildAfisSafisState(this.bgpAfiSafiState, this.tableRegistry));
 
         final GracefulRestart graceful = new GracefulRestartBuilder()
-                .setState(new StateBuilder().addAugmentation(NeighborAfiSafiGracefulRestartStateAugmentation.class,
+                .setState(new StateBuilder().addAugmentation(
                         new NeighborAfiSafiGracefulRestartStateAugmentationBuilder()
                                 .setAdvertised(false)
                                 .setReceived(false)
@@ -155,8 +152,7 @@ public class NeighborUtilTest {
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi
                 .list.afi.safi.State afiSafiState = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                 .multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder()
-                .addAugmentation(NeighborAfiSafiStateAugmentation.class, new NeighborAfiSafiStateAugmentationBuilder()
-                        .setActive(false).build()).build();
+                .addAugmentation(new NeighborAfiSafiStateAugmentationBuilder().setActive(false).build()).build();
 
         this.afiSafi = Optional.of(IPV4UNICAST.class);
         final AfiSafi expected = new AfiSafiBuilder().setAfiSafiName(this.afiSafi.get())

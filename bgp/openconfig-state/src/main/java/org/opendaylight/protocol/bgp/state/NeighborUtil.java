@@ -66,7 +66,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.BgpNeighborStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiGracefulRestartStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiGracefulRestartStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAfiSafiStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborErrorHandlingStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborErrorHandlingStateAugmentationBuilder;
@@ -74,9 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborGracefulRestartStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTimersStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTimersStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.MessagesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.Received;
@@ -159,10 +156,10 @@ public final class NeighborUtil {
         }
         final StateBuilder builder = new StateBuilder();
         if (sessionState != null) {
-            builder.addAugmentation(NeighborStateAugmentation.class, buildCapabilityState(sessionState));
+            builder.addAugmentation(buildCapabilityState(sessionState));
         }
         if (bgpPeerMessagesState != null) {
-            builder.addAugmentation(BgpNeighborStateAugmentation.class, buildMessageState(bgpPeerMessagesState));
+            builder.addAugmentation(buildMessageState(bgpPeerMessagesState));
         }
         return builder.build();
     }
@@ -180,13 +177,15 @@ public final class NeighborUtil {
         // convert neighbor uptime which is in milliseconds to time-ticks which is
         // hundredth of a second, and handle roll-over scenario
         final long uptimeTicks = neighbor.getUpTime() / 10 % TIMETICK_ROLLOVER_VALUE;
-        final NeighborTimersStateAugmentation timerState = new NeighborTimersStateAugmentationBuilder()
-                .setNegotiatedHoldTime(BigDecimal.valueOf(neighbor.getNegotiatedHoldTime()))
-                .setUptime(new Timeticks(Uint32.valueOf(uptimeTicks))).build();
 
-        return new TimersBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp
-                .neighbor.group.timers.StateBuilder()
-                .addAugmentation(NeighborTimersStateAugmentation.class, timerState).build()).build();
+        return new TimersBuilder()
+                .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
+                    .timers.StateBuilder()
+                        .addAugmentation(new NeighborTimersStateAugmentationBuilder()
+                            .setNegotiatedHoldTime(BigDecimal.valueOf(neighbor.getNegotiatedHoldTime()))
+                            .setUptime(new Timeticks(Uint32.valueOf(uptimeTicks))).build())
+                        .build())
+                .build();
     }
 
     /**
@@ -199,13 +198,16 @@ public final class NeighborUtil {
         if (neighbor == null) {
             return null;
         }
-        final NeighborTransportStateAugmentation transportState = new NeighborTransportStateAugmentationBuilder()
-                .setLocalPort(neighbor.getLocalPort()).setRemoteAddress(convertIpAddress(neighbor.getRemoteAddress()))
-                .setRemotePort(neighbor.getRemotePort()).build();
 
         return new TransportBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
                 .bgp.neighbor.group.transport.StateBuilder()
-                .addAugmentation(NeighborTransportStateAugmentation.class, transportState).build()).build();
+                    .addAugmentation(new NeighborTransportStateAugmentationBuilder()
+                        .setLocalPort(neighbor.getLocalPort())
+                        .setRemoteAddress(convertIpAddress(neighbor.getRemoteAddress()))
+                        .setRemotePort(neighbor.getRemotePort())
+                        .build())
+                    .build())
+                .build();
     }
 
     /**
@@ -218,10 +220,12 @@ public final class NeighborUtil {
         if (errorHandlingState == null) {
             return null;
         }
-        return new ErrorHandlingBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
-                .rev151009.bgp.neighbor.group.error.handling.StateBuilder()
-                .addAugmentation(NeighborErrorHandlingStateAugmentation.class,
-                        buildErrorHandlingState(errorHandlingState.getErroneousUpdateReceivedCount())).build()).build();
+        return new ErrorHandlingBuilder()
+                .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
+                    .error.handling.StateBuilder()
+                        .addAugmentation(buildErrorHandlingState(errorHandlingState.getErroneousUpdateReceivedCount()))
+                        .build())
+                .build();
     }
 
     /**
@@ -240,7 +244,7 @@ public final class NeighborUtil {
 
         return new GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                 .rev151009.bgp.graceful.restart.graceful.restart.StateBuilder()
-                .addAugmentation(NeighborGracefulRestartStateAugmentation.class, gracefulRestartState).build()).build();
+                .addAugmentation(gracefulRestartState).build()).build();
     }
 
     /**
@@ -358,8 +362,7 @@ public final class NeighborUtil {
                     .setSent(neighbor.getPrefixesSentCount(tablesKey)).build());
         }
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
-                .safi.list.afi.safi.StateBuilder().addAugmentation(NeighborAfiSafiStateAugmentation.class,
-                builder.build()).build();
+                .safi.list.afi.safi.StateBuilder().addAugmentation(builder.build()).build();
     }
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
@@ -375,7 +378,7 @@ public final class NeighborUtil {
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
                 .safi.list.afi.safi.GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http.openconfig
                 .net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.graceful.restart.StateBuilder()
-                .addAugmentation(NeighborAfiSafiGracefulRestartStateAugmentation.class, builder).build()).build();
+                .addAugmentation(builder).build()).build();
     }
 
     /**

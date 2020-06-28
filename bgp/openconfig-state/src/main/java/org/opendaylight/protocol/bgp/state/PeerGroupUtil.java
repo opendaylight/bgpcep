@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.state;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -43,10 +45,11 @@ public final class PeerGroupUtil {
             return null;
         }
 
-        final List<PeerGroup> peerGroupsList = peerGroups.entrySet().stream()
-                .map(entry -> buildPeerGroupState(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
-        return new PeerGroupsBuilder().setPeerGroup(peerGroupsList).build();
+        return new PeerGroupsBuilder()
+                .setPeerGroup(peerGroups.entrySet().stream()
+                    .map(entry -> buildPeerGroupState(entry.getKey(), entry.getValue()))
+                    .collect(ImmutableMap.toImmutableMap(PeerGroup::key, Function.identity())))
+                .build();
     }
 
     /**
@@ -66,6 +69,6 @@ public final class PeerGroupUtil {
         return new PeerGroupBuilder()
                 .setPeerGroupName(groupId)
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
-                        .StateBuilder().addAugmentation(PeerGroupStateAugmentation.class, groupState).build()).build();
+                        .StateBuilder().addAugmentation(groupState).build()).build();
     }
 }
