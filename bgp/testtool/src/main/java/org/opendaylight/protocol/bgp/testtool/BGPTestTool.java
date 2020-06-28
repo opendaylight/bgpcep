@@ -40,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapabilityBuilder;
@@ -127,10 +126,16 @@ final class BGPTestTool {
 
     private static OptionalCapabilities createMPCapability(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
-        return new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
-                .addAugmentation(CParameters1.class, new CParameters1Builder()
-            .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(afi)
-                    .setSafi(safi).build()).build()).build()).build();
+        return new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                            .setAfi(afi)
+                            .setSafi(safi)
+                            .build())
+                        .build())
+                    .build())
+                .build();
     }
 
     private static OptionalCapabilities createAs4BytesMPCapability(final AsNumber as) {
@@ -143,13 +148,19 @@ final class BGPTestTool {
     }
 
     private static OptionalCapabilities createAddPathCapability() {
-        return new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
-                .addAugmentation(CParameters1.class, new CParameters1Builder()
+        return new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
                         .setAddPathCapability(new AddPathCapabilityBuilder()
-                                .setAddressFamilies(Lists.newArrayList(new AddressFamiliesBuilder()
-                                        .setAfi(Ipv4AddressFamily.class)
-                                        .setSafi(UnicastSubsequentAddressFamily.class)
-                                        .setSendReceive(SendReceive.Both).build())).build()).build()).build()).build();
+                            .setAddressFamilies(Lists.newArrayList(new AddressFamiliesBuilder()
+                                .setAfi(Ipv4AddressFamily.class)
+                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setSendReceive(SendReceive.Both)
+                                .build()))
+                            .build())
+                        .build())
+                    .build())
+                .build();
     }
 
     void printCount(final String localAddress) {

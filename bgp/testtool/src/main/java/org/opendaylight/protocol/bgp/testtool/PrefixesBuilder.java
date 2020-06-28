@@ -27,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -67,27 +66,32 @@ final class PrefixesBuilder {
 
     private static Attributes createAttributes(final List<String> extCom, final boolean multiPathSupport,
             final Ipv4Prefix addressPrefix) {
-        final AttributesBuilder attBuilder = new AttributesBuilder();
-        attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
-        attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
-        attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
-        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100L)).build());
-        attBuilder.setExtendedCommunities(createExtComm(extCom));
-        attBuilder.setUnrecognizedAttributes(Collections.emptyList());
-
         final Ipv4PrefixesBuilder prefixes = new Ipv4PrefixesBuilder().setPrefix(addressPrefix);
         if (multiPathSupport) {
             prefixes.setPathId(new PathId(Uint32.valueOf(5)));
         }
-        attBuilder.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(
-                new MpReachNlriBuilder().setCNextHop(NEXT_HOP).setAfi(Ipv4AddressFamily.class)
-                        .setSafi(UnicastSubsequentAddressFamily.class)
-                        .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                                new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
-                                        .setIpv4Prefixes(Collections.singletonList(prefixes.build())).build())
-                                        .build()).build()).build()).build());
 
-        return attBuilder.build();
+        return new AttributesBuilder()
+                .setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build())
+                .setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build())
+                .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build())
+                .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100L)).build())
+                .setExtendedCommunities(createExtComm(extCom))
+                .addAugmentation(new Attributes1Builder()
+                    .setMpReachNlri(new MpReachNlriBuilder()
+                        .setCNextHop(NEXT_HOP)
+                        .setAfi(Ipv4AddressFamily.class)
+                        .setSafi(UnicastSubsequentAddressFamily.class)
+                        .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                            .setDestinationType(new DestinationIpv4CaseBuilder()
+                                .setDestinationIpv4(new DestinationIpv4Builder()
+                                    .setIpv4Prefixes(Collections.singletonList(prefixes.build()))
+                                    .build())
+                                .build())
+                            .build())
+                        .build())
+                    .build())
+                .build();
     }
 
 }
