@@ -48,7 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
@@ -169,8 +168,7 @@ public class BGPMessageParserMockTest {
                                 new Ipv6PrefixesBuilder().setPrefix(pref2).build(),
                                 new Ipv6PrefixesBuilder().setPrefix(pref3).build())).build()).build()).build());
 
-        paBuilder.addAugmentation(Attributes1.class,
-                new Attributes1Builder().setMpReachNlri(mpReachBuilder.build()).build());
+        paBuilder.addAugmentation(new Attributes1Builder().setMpReachNlri(mpReachBuilder.build()).build());
 
         builder.setAttributes(paBuilder.build());
 
@@ -186,7 +184,7 @@ public class BGPMessageParserMockTest {
 
         final List<BgpParameters> params = new ArrayList<>();
 
-        final CParameters par = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
+        final CParameters par = new CParametersBuilder().addAugmentation(new CParameters1Builder()
                 .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
                         .setSafi(MplsLabeledVpnSubsequentAddressFamily.class).build()).build()).build();
         params.add(new BgpParametersBuilder().setOptionalCapabilities(Lists.newArrayList(
