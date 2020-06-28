@@ -60,10 +60,14 @@ public class MultiProtocolCapabilityHandlerTest {
 
     @Test
     public void testCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
-        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setMultiprotocolCapability(
-            new MultiprotocolCapabilityBuilder().setAfi(MultiProtocolCapabilityHandlerTest.AFI)
-            .setSafi(MultiProtocolCapabilityHandlerTest.SAFI).build()).build()).build();
+        final CParameters capabilityToSerialize = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(MultiProtocolCapabilityHandlerTest.AFI)
+                        .setSafi(MultiProtocolCapabilityHandlerTest.SAFI)
+                        .build())
+                    .build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer();
         final MultiProtocolCapabilityHandler handler = new MultiProtocolCapabilityHandler(this.afir, this.safir);
@@ -75,10 +79,13 @@ public class MultiProtocolCapabilityHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnhandledAfi() {
-        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setMultiprotocolCapability(
-            new MultiprotocolCapabilityBuilder().setAfi(MultiProtocolCapabilityHandlerTest.AFI)
-            .setSafi(MultiProtocolCapabilityHandlerTest.SAFI).build()).build()).build();
+        final CParameters capabilityToSerialize = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(MultiProtocolCapabilityHandlerTest.AFI)
+                        .setSafi(MultiProtocolCapabilityHandlerTest.SAFI).build())
+                    .build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer();
         final MultiProtocolCapabilityHandler handler = new MultiProtocolCapabilityHandler(this.afirExpection,
@@ -88,10 +95,14 @@ public class MultiProtocolCapabilityHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnhandledSafi() {
-        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setMultiprotocolCapability(
-            new MultiprotocolCapabilityBuilder().setAfi(MultiProtocolCapabilityHandlerTest.AFI)
-            .setSafi(MultiProtocolCapabilityHandlerTest.SAFI).build()).build()).build();
+        final CParameters capabilityToSerialize = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(MultiProtocolCapabilityHandlerTest.AFI)
+                        .setSafi(MultiProtocolCapabilityHandlerTest.SAFI)
+                        .build())
+                    .build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer();
         final MultiProtocolCapabilityHandler handler = new MultiProtocolCapabilityHandler(this.afir,
@@ -101,10 +112,10 @@ public class MultiProtocolCapabilityHandlerTest {
 
     @Test
     public void noSerializationTest() {
-        final CParameters capabilityNoAugmentation = new CParametersBuilder().addAugmentation(CParameters1.class, null)
+        final CParameters capabilityNoAugmentation = new CParametersBuilder().removeAugmentation(CParameters1.class)
                 .build();
-        final CParameters capabilityNoMP = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().build()).build();
+        final CParameters capabilityNoMP = new CParametersBuilder().addAugmentation(new CParameters1Builder().build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer();
         final MultiProtocolCapabilityHandler handler = new MultiProtocolCapabilityHandler(this.afir,

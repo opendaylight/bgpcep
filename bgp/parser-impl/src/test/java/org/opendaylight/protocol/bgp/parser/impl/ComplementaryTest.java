@@ -22,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AggregatorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability.RestartFlags;
@@ -45,11 +44,11 @@ public class ComplementaryTest {
 
         final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(Ipv6AddressFamily.class)
                 .setSafi(UnicastSubsequentAddressFamily.class).build();
-        final CParameters tlv1 = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
+        final CParameters tlv1 = new CParametersBuilder().addAugmentation(new CParameters1Builder()
             .setMultiprotocolCapability(cap).build()).build();
         final MultiprotocolCapability cap1 = new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
                 .setSafi(UnicastSubsequentAddressFamily.class).build();
-        final CParameters tlv2 = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
+        final CParameters tlv2 = new CParametersBuilder().addAugmentation(new CParameters1Builder()
             .setMultiprotocolCapability(cap1).build()).build();
 
         final List<Tables> tt = new ArrayList<>();

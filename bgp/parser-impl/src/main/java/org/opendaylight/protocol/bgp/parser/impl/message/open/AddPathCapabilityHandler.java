@@ -97,7 +97,7 @@ public class AddPathCapabilityHandler implements CapabilityParser, CapabilitySer
                     .build());
             }
         }
-        return new CParametersBuilder().addAugmentation(CParameters1.class,new CParameters1Builder()
+        return new CParametersBuilder().addAugmentation(new CParameters1Builder()
             .setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(families).build()).build()).build();
     }
 

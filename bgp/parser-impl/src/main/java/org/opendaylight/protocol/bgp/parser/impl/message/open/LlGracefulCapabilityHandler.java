@@ -93,11 +93,9 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
             tables.add(table);
         }
         return new CParametersBuilder()
-                .addAugmentation(CParameters1.class, new CParameters1Builder()
-                        .setLlGracefulRestartCapability(new LlGracefulRestartCapabilityBuilder()
-                                .setTables(tables)
-                                .build())
-                        .build())
+                .addAugmentation(new CParameters1Builder()
+                    .setLlGracefulRestartCapability(new LlGracefulRestartCapabilityBuilder().setTables(tables).build())
+                    .build())
                 .build();
     }
 

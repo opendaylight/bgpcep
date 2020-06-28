@@ -38,7 +38,7 @@ public final class MPReachAttributeParser extends ReachAttributeParser {
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException {
         try {
-            builder.addAugmentation(Attributes1.class, new Attributes1Builder()
+            builder.addAugmentation(new Attributes1Builder()
                 .setMpReachNlri(reg.parseMpReach(buffer, constraint))
                 .build());
         } catch (final BGPParsingException e) {

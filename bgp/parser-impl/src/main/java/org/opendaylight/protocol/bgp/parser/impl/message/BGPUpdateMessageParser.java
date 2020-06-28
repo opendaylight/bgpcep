@@ -292,7 +292,10 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         final MpReachNlri mpReachNlri = getMpReach(parsed);
         if (mpReachNlri == null) {
             // No MP_REACH attribute, just reuse MP_UNREACH if it is present.
-            builder.addAugmentation(Attributes2.class, parsed.augmentation(Attributes2.class));
+            final Attributes2 attrs2 = parsed.augmentation(Attributes2.class);
+            if (attrs2 != null) {
+                builder.addAugmentation(attrs2);
+            }
             return builder.build();
         }
 
@@ -313,7 +316,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                     return new BGPDocumentedException(withdrawCause);
                 });
 
-        builder.addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(converted).build());
+        builder.addAugmentation(new Attributes2Builder().setMpUnreachNlri(converted).build());
         return builder.build();
     }
 

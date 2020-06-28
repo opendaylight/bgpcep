@@ -240,7 +240,7 @@ public class BGPParserTest {
         paBuilder.setCommunities(comms);
         assertEquals(paBuilder.getCommunities(), attrs.getCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
 
         builder.setAttributes(paBuilder.build());
 
@@ -341,7 +341,7 @@ public class BGPParserTest {
 
         paBuilder.setAggregator(aggregator);
         assertEquals(paBuilder.getAggregator(), attrs.getAggregator());
-        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
         builder.setAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
@@ -451,7 +451,7 @@ public class BGPParserTest {
         paBuilder.setExtendedCommunities(comms);
         assertEquals(paBuilder.getExtendedCommunities(), attrs.getExtendedCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
         // check API message
         builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
@@ -699,7 +699,7 @@ public class BGPParserTest {
         paBuilder.setCommunities(comms);
         assertEquals(paBuilder.getCommunities(), attrs.getCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
 
         builder.setAttributes(paBuilder.build());
 

@@ -46,8 +46,10 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
         final Optional<BgpTableType> parsedAfiSafiOptional = MultiprotocolCapabilitiesUtil
                 .parseMPAfiSafi(buffer, this.afiReg, this.safiReg);
         return parsedAfiSafiOptional.map(bgpTableType -> new CParametersBuilder()
-                .addAugmentation(CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
-                new MultiprotocolCapabilityBuilder(bgpTableType).build()).build()).build()).orElse(null);
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(bgpTableType).build())
+                    .build())
+                .build()).orElse(null);
     }
 
     @Override

@@ -25,7 +25,6 @@ import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapabilityBuilder;
@@ -93,8 +92,9 @@ public class LlGracefulCapabilityHandlerTest {
                                 .build())
                 ).build();
 
-        final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setLlGracefulRestartCapability(capability).build()).build();
+        final CParameters cParameters = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
+                .build();
         final ByteBuf buffer = Unpooled.buffer(capaBytes.length);
         this.handler.serializeCapability(cParameters, buffer);
 
@@ -113,8 +113,9 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setLongLivedStaleTime(TEN)
                                 .build())).build();
 
-        final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setLlGracefulRestartCapability(capability).build()).build();
+        final CParameters cParameters = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
+                .build();
         final ByteBuf buffer = Unpooled.buffer();
         this.handler.serializeCapability(cParameters, buffer);
     }
@@ -148,8 +149,9 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())).build();
 
-        final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setLlGracefulRestartCapability(capability).build()).build();
+        final CParameters cParameters = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
+                .build();
         LlGracefulCapabilityHandler handler1 = new LlGracefulCapabilityHandler(
                 afir, safir);
         Assert.assertEquals(cParameters, handler1.parseCapability(Unpooled.wrappedBuffer(capaBytes)
@@ -166,8 +168,9 @@ public class LlGracefulCapabilityHandlerTest {
                         .setLongLivedStaleTime(TEN)
                         .build())).build();
 
-        final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setLlGracefulRestartCapability(capability).build()).build();
+        final CParameters cParameters = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
+                .build();
         final ByteBuf buffer = Unpooled.buffer();
         this.handler.serializeCapability(cParameters, buffer);
     }
@@ -202,8 +205,9 @@ public class LlGracefulCapabilityHandlerTest {
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())).build();
 
-        final CParameters cParameters = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setLlGracefulRestartCapability(capability).build()).build();
+        final CParameters cParameters = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
+                .build();
         LlGracefulCapabilityHandler handler1 = new LlGracefulCapabilityHandler(
                 afir, safir);
         Assert.assertEquals(cParameters, handler1.parseCapability(Unpooled.wrappedBuffer(capaBytes)

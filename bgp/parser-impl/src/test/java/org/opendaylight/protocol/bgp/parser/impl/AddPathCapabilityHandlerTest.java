@@ -73,9 +73,11 @@ public class AddPathCapabilityHandlerTest {
         family.add(new AddressFamiliesBuilder().setAfi(AddPathCapabilityHandlerTest.AFI)
             .setSafi(AddPathCapabilityHandlerTest.SAFI).setSendReceive(SendReceive.forValue(1)).build());
 
-        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setAddPathCapability(
-                new AddPathCapabilityBuilder().setAddressFamilies(family).build()).build()).build();
+        final CParameters capabilityToSerialize = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(family).build())
+                    .build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer(6);
         final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safiRegistry);
@@ -102,9 +104,11 @@ public class AddPathCapabilityHandlerTest {
 
     @Test
     public void testSendReceiveIgnored() throws BGPDocumentedException, BGPParsingException {
-        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setAddPathCapability(
-                new AddPathCapabilityBuilder().setAddressFamilies(new ArrayList<>()).build()).build()).build();
+        final CParameters capabilityToSerialize = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(new ArrayList<>()).build())
+                    .build())
+                .build();
 
         final ByteBuf bytes = this.parseWrongBytes.copy();
         final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safiRegistry);
@@ -118,9 +122,11 @@ public class AddPathCapabilityHandlerTest {
         family.add(new AddressFamiliesBuilder().setAfi(AddPathCapabilityHandlerTest.AFI)
             .setSafi(AddPathCapabilityHandlerTest.SAFI).setSendReceive(SendReceive.forValue(2)).build());
 
-        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setAddPathCapability(
-                new AddPathCapabilityBuilder().setAddressFamilies(family).build()).build()).build();
+        final CParameters capabilityToSerialize = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(family).build())
+                    .build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer();
         final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afirExpection, this.safiRegistry);
@@ -133,9 +139,11 @@ public class AddPathCapabilityHandlerTest {
         family.add(new AddressFamiliesBuilder().setAfi(AddPathCapabilityHandlerTest.AFI)
             .setSafi(AddPathCapabilityHandlerTest.SAFI).setSendReceive(SendReceive.forValue(3)).build());
 
-        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setAddPathCapability(
-                new AddPathCapabilityBuilder().setAddressFamilies(family).build()).build()).build();
+        final CParameters capabilityToSerialize = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(family).build())
+                    .build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer();
         final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safirException);
@@ -148,9 +156,11 @@ public class AddPathCapabilityHandlerTest {
         family.add(new AddressFamiliesBuilder().setAfi(AddPathCapabilityHandlerTest.AFI)
             .setSafi(AddPathCapabilityHandlerTest.SAFI).setSendReceive(SendReceive.forValue(4)).build());
 
-        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setAddPathCapability(
-                new AddPathCapabilityBuilder().setAddressFamilies(family).build()).build()).build();
+        final CParameters capabilityToSerialize = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(family).build())
+                    .build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer();
         final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safiRegistry);
@@ -159,10 +169,10 @@ public class AddPathCapabilityHandlerTest {
 
     @Test
     public void noSerializationTest() {
-        final CParameters capabilityNoAugmentation = new CParametersBuilder().addAugmentation(CParameters1.class, null)
+        final CParameters capabilityNoAugmentation = new CParametersBuilder().removeAugmentation(CParameters1.class)
                 .build();
-        final CParameters capabilityNoMP = new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().build()).build();
+        final CParameters capabilityNoMP = new CParametersBuilder().addAugmentation(new CParameters1Builder().build())
+                .build();
 
         final ByteBuf bytes = Unpooled.buffer();
         final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safirException);

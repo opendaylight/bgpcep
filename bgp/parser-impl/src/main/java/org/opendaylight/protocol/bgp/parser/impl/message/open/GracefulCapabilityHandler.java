@@ -156,7 +156,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
                 .setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
         }
         cb.setTables(tables);
-        return new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
-            .setGracefulRestartCapability(cb.build()).build()).build();
+        return new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(cb.build()).build())
+                .build();
     }
 }

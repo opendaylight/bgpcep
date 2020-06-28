@@ -17,7 +17,6 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.RouteRefreshCapabilityHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.RouteRefreshCapabilityBuilder;
 
@@ -31,9 +30,11 @@ public class RouteRefreshCapabilityHandlerTest {
 
     @Test
     public void testRRCapHandler() throws BGPDocumentedException, BGPParsingException {
-        final CParameters expectedParams = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setRouteRefreshCapability(
-            new RouteRefreshCapabilityBuilder().build()).build()).build();
+        final CParameters expectedParams = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build())
+                    .build())
+                .build();
         assertEquals(expectedParams, HANDLER.parseCapability(Unpooled.copiedBuffer(OK_BYTES)));
         assertEquals(expectedParams, HANDLER.parseCapability(Unpooled.copiedBuffer(WRONG_BYTES)));
 
@@ -41,9 +42,9 @@ public class RouteRefreshCapabilityHandlerTest {
         HANDLER.serializeCapability(expectedParams, byteAggregator);
         assertEquals(Unpooled.copiedBuffer(CAP_BYTES), byteAggregator);
 
-        final CParameters missingCap = new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setRouteRefreshCapability(
-            null).build()).build();
+        final CParameters missingCap = new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setRouteRefreshCapability(null).build())
+                .build();
         final ByteBuf byteAggregator2 = Unpooled.buffer(0);
         HANDLER.serializeCapability(missingCap, byteAggregator2);
         assertEquals(Unpooled.copiedBuffer(new byte[]{}), byteAggregator2);
