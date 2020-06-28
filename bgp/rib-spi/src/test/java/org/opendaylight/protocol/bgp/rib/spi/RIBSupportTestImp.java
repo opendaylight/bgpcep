@@ -69,7 +69,7 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
 
     @Override
     public Ipv4Routes emptyRoutesContainer() {
-        return new Ipv4RoutesBuilder().setIpv4Route(Collections.emptyList()).build();
+        return new Ipv4RoutesBuilder().build();
     }
 
     @Override

@@ -34,9 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
@@ -246,8 +244,8 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
                 .setSafi(UnicastSubsequentAddressFamily.class)
                 .setCNextHop(nextHop).setAdvertizedRoutes(new AdvertizedRoutesBuilder().build()).build();
 
-        final Attributes attMpR = new AttributesBuilder().addAugmentation(Attributes1.class,
-                new Attributes1Builder().setMpReachNlri(mpReach).build()).build();
+        final Attributes attMpR = new AttributesBuilder().addAugmentation(
+            new Attributes1Builder().setMpReachNlri(mpReach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpR).build(),
                this.ribSupportTestImp.buildUpdate(routes, Collections.emptySet(), attr));
 
@@ -255,7 +253,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
                 .setSafi(UnicastSubsequentAddressFamily.class)
                 .setWithdrawnRoutes(new WithdrawnRoutesBuilder().build()).build();
 
-        final Attributes attMpU = new AttributesBuilder().addAugmentation(Attributes2.class,
+        final Attributes attMpU = new AttributesBuilder().addAugmentation(
                 new Attributes2Builder().setMpUnreachNlri(mpUnreach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpU).build(),
                this.ribSupportTestImp.buildUpdate(Collections.emptySet(), routes, attr));

@@ -196,7 +196,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     private QName getRouteListQname() {
         return BindingReflections.findQName(this.abstractRIBSupport.routesListClass())
-                .withModule(BindingReflections.getQNameModule(this.abstractRIBSupport.routesCaseClass()));
+                .bindTo(BindingReflections.getQNameModule(this.abstractRIBSupport.routesCaseClass()));
     }
 
     protected final NodeIdentifierWithPredicates createRouteNIWP(final S routes) {
