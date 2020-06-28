@@ -60,9 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefreshBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
@@ -199,14 +197,13 @@ public class PeerTest extends AbstractRIBTestSetup {
         this.classic.onMessage(this.session, ub.build());
         assertEquals(2, this.routes.size());
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());
-        this.classic.onMessage(this.session, new UpdateBuilder().setAttributes(
-                new AttributesBuilder().addAugmentation(
-                        Attributes2.class,
-                        new Attributes2Builder().setMpUnreachNlri(
-                                new MpUnreachNlriBuilder()
-                                        .setAfi(IPV4_AFI)
-                                        .setSafi(SAFI)
-                                        .build()).build()).build()).build());
+        this.classic.onMessage(this.session, new UpdateBuilder()
+            .setAttributes(new AttributesBuilder()
+                .addAugmentation(new Attributes2Builder()
+                    .setMpUnreachNlri(new MpUnreachNlriBuilder().setAfi(IPV4_AFI).setSafi(SAFI).build())
+                    .build())
+                .build())
+            .build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(IPV4_AFI).setSafi(SAFI).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder()
                 .setAfi(Ipv6AddressFamily.class)
@@ -229,14 +226,18 @@ public class PeerTest extends AbstractRIBTestSetup {
         doReturn(new DefaultChannelPromise(channel)).when(channel).writeAndFlush(any(Notification.class));
         doReturn(new InetSocketAddress("localhost", 12345)).when(channel).remoteAddress();
         doReturn(new InetSocketAddress("localhost", 12345)).when(channel).localAddress();
-        final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder().setOptionalCapabilities(
-                Lists.newArrayList(new OptionalCapabilitiesBuilder().setCParameters(
-                        new CParametersBuilder().addAugmentation(
-                                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
-                                        new MultiprotocolCapabilityBuilder()
-                                                .setAfi(Ipv4AddressFamily.class)
-                                                .setSafi(UnicastSubsequentAddressFamily.class)
-                                                .build()).build()).build()).build())).build());
+        final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder()
+            .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                            .setAfi(Ipv4AddressFamily.class)
+                            .setSafi(UnicastSubsequentAddressFamily.class)
+                            .build())
+                        .build())
+                    .build())
+                .build()))
+            .build());
         final Open openObj = new OpenBuilder()
                 .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.1"))
                 .setHoldTimer(Uint16.valueOf(50))

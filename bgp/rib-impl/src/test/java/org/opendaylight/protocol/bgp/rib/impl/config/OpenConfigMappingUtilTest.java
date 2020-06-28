@@ -87,16 +87,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamiliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalConfigAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalConfigAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupTransportConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupTransportConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
@@ -293,8 +288,8 @@ public class OpenConfigMappingUtilTest {
                         .group.transport.ConfigBuilder().build()).build()).build(), null));
         final PortNumber newPort = new PortNumber(Uint16.valueOf(111));
         final Config portConfig = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor
-                .group.transport.ConfigBuilder().addAugmentation(NeighborTransportConfig.class,
-                new NeighborTransportConfigBuilder().setRemotePort(newPort).build()).build();
+                .group.transport.ConfigBuilder()
+                    .addAugmentation(new NeighborTransportConfigBuilder().setRemotePort(newPort).build()).build();
         assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder().setTransport(
                 transport.setConfig(portConfig).build()).build(), null));
 
@@ -302,8 +297,8 @@ public class OpenConfigMappingUtilTest {
                 .setTransport(transport.setConfig(portConfig).build()).build(), new PeerGroupBuilder().build()));
 
         final Config portConfigGroup = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp
-                .neighbor.group.transport.ConfigBuilder().addAugmentation(PeerGroupTransportConfig.class,
-                new PeerGroupTransportConfigBuilder().setRemotePort(newPort).build()).build();
+                .neighbor.group.transport.ConfigBuilder()
+                    .addAugmentation(new PeerGroupTransportConfigBuilder().setRemotePort(newPort).build()).build();
         assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder().build(), new PeerGroupBuilder()
                 .setTransport(transport.setConfig(portConfigGroup).build()).build()));
     }
@@ -331,8 +326,8 @@ public class OpenConfigMappingUtilTest {
         assertEquals(defaultValue, OpenConfigMappingUtil.getAfiSafiWithDefault(afiSafi, true));
 
         final AfiSafi afiSafiIpv6 = new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-                .addAugmentation(NeighborAddPathsConfig.class,
-            new NeighborAddPathsConfigBuilder().setReceive(true).setSendMax(SHORT).build()).build();
+                .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(true).setSendMax(SHORT).build())
+                .build();
         final List<AfiSafi> afiSafiIpv6List = new ArrayList<>();
         afiSafiIpv6List.add(afiSafiIpv6);
 
@@ -362,7 +357,7 @@ public class OpenConfigMappingUtilTest {
         assertEquals(ROUTER_ID.getValue(),
                 OpenConfigMappingUtil.getGlobalClusterIdentifier(configBuilder.build()).getValue());
 
-        configBuilder.addAugmentation(GlobalConfigAugmentation.class, new GlobalConfigAugmentationBuilder()
+        configBuilder.addAugmentation(new GlobalConfigAugmentationBuilder()
                 .setRouteReflectorClusterId(new RrClusterIdType(CLUSTER_ID)).build()).build();
         assertEquals(CLUSTER_ID.getValue(),
                 OpenConfigMappingUtil.getGlobalClusterIdentifier(configBuilder.build()).getValue());
@@ -394,7 +389,7 @@ public class OpenConfigMappingUtilTest {
         assertFalse(OpenConfigMappingUtil.isApplicationPeer(new NeighborBuilder()
                 .setConfig(new ConfigBuilder().build()).build()));
         final Neighbor neighbor = new NeighborBuilder().setConfig(new ConfigBuilder()
-                .addAugmentation(NeighborPeerGroupConfig.class, new NeighborPeerGroupConfigBuilder()
+                .addAugmentation(new NeighborPeerGroupConfigBuilder()
                         .setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME).build()).build()).build();
         assertTrue(OpenConfigMappingUtil.isApplicationPeer(neighbor));
     }
@@ -441,16 +436,13 @@ public class OpenConfigMappingUtilTest {
     public void toAddPathCapability() {
         final List<AfiSafi> families = new ArrayList<>();
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-            .addAugmentation(NeighborAddPathsConfig.class,
-                new NeighborAddPathsConfigBuilder()
-                    .setReceive(Boolean.TRUE).setSendMax(ALL_PATHS).build()).build());
+            .addAugmentation(new NeighborAddPathsConfigBuilder()
+                .setReceive(Boolean.TRUE).setSendMax(ALL_PATHS).build()).build());
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-            .addAugmentation(NeighborAddPathsConfig.class,
-                new NeighborAddPathsConfigBuilder()
-                    .setReceive(Boolean.FALSE).setSendMax(N_PATHS).build()).build());
+            .addAugmentation(new NeighborAddPathsConfigBuilder()
+                .setReceive(Boolean.FALSE).setSendMax(N_PATHS).build()).build());
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.class)
-            .addAugmentation(NeighborAddPathsConfig.class,
-                new NeighborAddPathsConfigBuilder().setReceive(Boolean.FALSE).build()).build());
+            .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(Boolean.FALSE).build()).build());
         final List<AddressFamilies> result = OpenConfigMappingUtil
                 .toAddPathCapability(families, this.tableTypeRegistry);
         assertEquals(FAMILIES, result);

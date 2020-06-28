@@ -10,6 +10,13 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
@@ -18,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -68,15 +74,15 @@ public class StrictBGPPeerRegistryTest {
     }
 
     private static BGPSessionListener getMockSession() {
-        final BGPSessionListener mock = Mockito.mock(BGPSessionListener.class);
-        Mockito.doReturn(Futures.immediateFuture(null)).when(mock).releaseConnection();
+        final BGPSessionListener mock = mock(BGPSessionListener.class);
+        doReturn(Futures.immediateFuture(null)).when(mock).releaseConnection();
         return mock;
     }
 
     private static PeerRegistrySessionListener getMockSessionListener() {
-        final PeerRegistrySessionListener mock = Mockito.mock(PeerRegistrySessionListener.class);
-        Mockito.doNothing().when(mock).onSessionCreated(Mockito.any(IpAddressNoZone.class));
-        Mockito.doNothing().when(mock).onSessionRemoved(Mockito.any(IpAddressNoZone.class));
+        final PeerRegistrySessionListener mock = mock(PeerRegistrySessionListener.class);
+        doNothing().when(mock).onSessionCreated(any(IpAddressNoZone.class));
+        doNothing().when(mock).onSessionRemoved(any(IpAddressNoZone.class));
         return mock;
     }
 
@@ -124,8 +130,8 @@ public class StrictBGPPeerRegistryTest {
         final BGPSessionListener returnedSession2 = this.peerRegistry.getPeer(remoteIp2, FROM, to2, this.classicOpen);
         assertSame(session2, returnedSession2);
 
-        Mockito.verifyZeroInteractions(this.peer1);
-        Mockito.verifyZeroInteractions(session2);
+        verifyNoMoreInteractions(this.peer1);
+        verifyNoMoreInteractions(session2);
     }
 
     @Test
@@ -156,7 +162,7 @@ public class StrictBGPPeerRegistryTest {
 
         this.peerRegistry.getPeer(remoteIp, lower, higher, createOpen(higher, LOCAL_AS));
         this.peerRegistry.getPeer(remoteIp, higher, lower, createOpen(lower, LOCAL_AS));
-        Mockito.verify(this.peer1).releaseConnection();
+        verify(this.peer1).releaseConnection();
     }
 
     @Test
@@ -179,7 +185,7 @@ public class StrictBGPPeerRegistryTest {
 
         this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
         this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, createOpen(TO, REMOTE_AS));
-        Mockito.verify(this.peer1).releaseConnection();
+        verify(this.peer1).releaseConnection();
     }
 
     @Test
@@ -222,12 +228,12 @@ public class StrictBGPPeerRegistryTest {
 
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
         this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
-        Mockito.verify(sessionListener1, Mockito.times(1)).onSessionCreated(REMOTE_IP);
-        Mockito.verify(sessionListener2, Mockito.times(1)).onSessionCreated(REMOTE_IP);
+        verify(sessionListener1, times(1)).onSessionCreated(REMOTE_IP);
+        verify(sessionListener2, times(1)).onSessionCreated(REMOTE_IP);
 
         this.peerRegistry.removePeerSession(REMOTE_IP);
-        Mockito.verify(sessionListener1, Mockito.times(1)).onSessionRemoved(REMOTE_IP);
-        Mockito.verify(sessionListener2, Mockito.times(1)).onSessionRemoved(REMOTE_IP);
+        verify(sessionListener1, times(1)).onSessionRemoved(REMOTE_IP);
+        verify(sessionListener2, times(1)).onSessionRemoved(REMOTE_IP);
     }
 
     @Test
@@ -246,9 +252,9 @@ public class StrictBGPPeerRegistryTest {
         this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
         this.peerRegistry.removePeerSession(REMOTE_IP);
 
-        Mockito.verify(sessionListener1, Mockito.times(1)).onSessionCreated(REMOTE_IP);
-        Mockito.verify(sessionListener2, Mockito.times(2)).onSessionCreated(REMOTE_IP);
-        Mockito.verify(sessionListener1, Mockito.times(1)).onSessionRemoved(REMOTE_IP);
-        Mockito.verify(sessionListener2, Mockito.times(2)).onSessionRemoved(REMOTE_IP);
+        verify(sessionListener1, times(1)).onSessionCreated(REMOTE_IP);
+        verify(sessionListener2, times(2)).onSessionCreated(REMOTE_IP);
+        verify(sessionListener1, times(1)).onSessionRemoved(REMOTE_IP);
+        verify(sessionListener2, times(2)).onSessionRemoved(REMOTE_IP);
     }
 }

@@ -37,11 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
@@ -125,15 +122,11 @@ final class PeerUtil {
                 .setOrigin(origin).setAsPath(asPath).setLocalPref(localPref);
 
         if (mpReach != null) {
-            attributeBuilder.addAugmentation(Attributes1.class, new Attributes1Builder()
-                    .setMpReachNlri(mpReach)
-                    .build());
+            attributeBuilder.addAugmentation(new Attributes1Builder().setMpReachNlri(mpReach).build());
         }
 
         if (mpUnreach != null) {
-            attributeBuilder.addAugmentation(Attributes2.class, new Attributes2Builder()
-                    .setMpUnreachNlri(mpUnreach)
-                    .build());
+            attributeBuilder.addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreach).build());
         }
 
         return new UpdateBuilder()
@@ -141,9 +134,7 @@ final class PeerUtil {
                         .setOrigin(origin)
                         .setAsPath(asPath)
                         .setLocalPref(localPref)
-                        .addAugmentation(Attributes1.class, new Attributes1Builder()
-                                .setMpReachNlri(mpReach)
-                                .build())
+                        .addAugmentation(new Attributes1Builder().setMpReachNlri(mpReach).build())
                         .build()).build();
     }
 
@@ -163,44 +154,54 @@ final class PeerUtil {
     }
 
     private static OptionalCapabilities createMultiprotocolCapability(final TablesKey key) {
-        return new OptionalCapabilitiesBuilder().setCParameters(
-            new CParametersBuilder().addAugmentation(
-                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(
-                    new MultiprotocolCapabilityBuilder()
-                    .setAfi(key.getAfi())
-                    .setSafi(key.getSafi())
-                    .build()).build()).build()).build();
+        return new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                            .setAfi(key.getAfi())
+                            .setSafi(key.getSafi())
+                            .build())
+                        .build())
+                    .build())
+                .build();
     }
 
     private static OptionalCapabilities createGracefulRestartCapability(final Map<TablesKey, Boolean> gracefulTables,
                                                                         final int restartTime) {
-        return new OptionalCapabilitiesBuilder().setCParameters(
-            new CParametersBuilder().addAugmentation(
-                CParameters1.class, new CParameters1Builder()
-                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
-                    .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
-                    .setRestartTime(restartTime)
-                    .setTables(gracefulTables.keySet().stream()
-                        .map(key -> new TablesBuilder()
-                            .setAfi(key.getAfi())
-                            .setSafi(key.getSafi())
-                            .setAfiFlags(new Tables.AfiFlags(gracefulTables.get(key)))
+        return new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
+                            .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
+                            .setRestartTime(restartTime)
+                            .setTables(gracefulTables.keySet().stream()
+                                .map(key -> new TablesBuilder()
+                                    .setAfi(key.getAfi())
+                                    .setSafi(key.getSafi())
+                                    .setAfiFlags(new Tables.AfiFlags(gracefulTables.get(key)))
+                                    .build())
+                                .collect(Collectors.toList()))
                             .build())
-                        .collect(Collectors.toList()))
-                    .build()).build()).build()).build();
+                        .build())
+                    .build())
+                .build();
     }
 
     private static OptionalCapabilities createAddPathCapability(final List<TablesKey> keys) {
-        return new OptionalCapabilitiesBuilder().setCParameters(
-                new CParametersBuilder().addAugmentation(CParameters1.class,
-                        new CParameters1Builder().setAddPathCapability(
-                                new AddPathCapabilityBuilder().setAddressFamilies(keys.stream()
-                                        .map(key -> new AddressFamiliesBuilder()
-                                                .setAfi(key.getAfi())
-                                                .setSafi(key.getSafi())
-                                                .setSendReceive(SendReceive.Both)
-                                                .build())
-                                        .collect(Collectors.toList()))
-                                        .build()).build()).build()).build();
+        return new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setAddPathCapability(new AddPathCapabilityBuilder()
+                            .setAddressFamilies(keys.stream()
+                                .map(key -> new AddressFamiliesBuilder()
+                                    .setAfi(key.getAfi())
+                                    .setSafi(key.getSafi())
+                                    .setSendReceive(SendReceive.Both)
+                                    .build())
+                                .collect(Collectors.toList()))
+                            .build())
+                        .build())
+                    .build())
+                .build();
     }
 }

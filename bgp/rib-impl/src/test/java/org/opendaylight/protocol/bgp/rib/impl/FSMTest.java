@@ -57,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
@@ -98,15 +97,25 @@ public class FSMTest {
         final List<OptionalCapabilities> capas = new ArrayList<>();
 
         capas.add(new OptionalCapabilitiesBuilder()
-                .setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                        new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build())
-                        .build()).build());
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
-                .addAugmentation(CParameters1.class,
-                        new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                                .setAfi(this.linkstatett.getAfi()).setSafi(this.linkstatett.getSafi())
-                                .build()).build()).build()).build());
+            .setCParameters(new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(this.ipv4tt.getAfi())
+                        .setSafi(this.ipv4tt.getSafi())
+                        .build())
+                    .build())
+                .build())
+            .build());
+        capas.add(new OptionalCapabilitiesBuilder()
+            .setCParameters(new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(this.linkstatett.getAfi())
+                        .setSafi(this.linkstatett.getSafi())
+                        .build())
+                    .build())
+                .build())
+            .build());
         capas.add(new OptionalCapabilitiesBuilder()
             .setCParameters(new CParametersBuilder()
                 .setAs4BytesCapability(new As4BytesCapabilityBuilder()
@@ -117,9 +126,12 @@ public class FSMTest {
         capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         capas.add(new OptionalCapabilitiesBuilder()
-                .setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                        new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
-                                .build()).build()).build()).build());
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build())
+                        .build())
+                    .build())
+                .build());
 
 
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
@@ -212,11 +224,16 @@ public class FSMTest {
 
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
-                .addAugmentation(CParameters1.class,
-                        new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi())
-                                .build()).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder()
+            .setCParameters(new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(this.ipv4tt.getAfi())
+                        .setSafi(this.ipv4tt.getSafi())
+                        .build())
+                    .build())
+                .build())
+            .build());
         capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
@@ -246,7 +263,7 @@ public class FSMTest {
         final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder()
             .setCParameters(new CParametersBuilder()
-                .addAugmentation(CParameters1.class, new CParameters1Builder()
+                .addAugmentation(new CParameters1Builder()
                     .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                         .setAfi(this.ipv4tt.getAfi())
                         .setSafi(this.ipv4tt.getSafi())

@@ -142,8 +142,8 @@ public final class CodecsImpl implements Codecs {
     public ContainerNode serializeAttributes(final Attributes pathAttr) {
         Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
         final AttributesBuilder a = new AttributesBuilder(pathAttr);
-        a.addAugmentation(Attributes1.class, null);
-        a.addAugmentation(Attributes2.class, null);
+        a.removeAugmentation(Attributes1.class);
+        a.removeAugmentation(Attributes2.class);
         return (ContainerNode) this.attributesCodec.serialize(a.build());
     }
 }

@@ -50,9 +50,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTransportConfigBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -63,8 +61,8 @@ public class BgpPeerTest extends AbstractConfig {
     static final String MD5_PASSWORD = "123";
     static final PortNumber PORT = new PortNumber(Uint16.valueOf(179));
     static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-            .addAugmentation(NeighborAddPathsConfig.class, new NeighborAddPathsConfigBuilder()
-                       .setReceive(true).setSendMax(Uint8.ZERO).build()).build();
+            .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
+            .build();
     static final Map<AfiSafiKey, AfiSafi> AFI_SAFI = Collections.singletonMap(AFI_SAFI_IPV4.key(), AFI_SAFI_IPV4);
     private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     private BgpPeer bgpPeer;
@@ -83,9 +81,12 @@ public class BgpPeerTest extends AbstractConfig {
 
     static Transport createTransport() {
         return new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
-                .rev151009.bgp.neighbor.group.transport.ConfigBuilder().setMtuDiscovery(false)
-                .setPassiveMode(false).addAugmentation(NeighborTransportConfig.class,
-                        new NeighborTransportConfigBuilder().setRemotePort(PORT).build()).build()).build();
+                .rev151009.bgp.neighbor.group.transport.ConfigBuilder()
+                    .setMtuDiscovery(false)
+                    .setPassiveMode(false)
+                    .addAugmentation(new NeighborTransportConfigBuilder().setRemotePort(PORT).build())
+                    .build())
+                .build();
     }
 
     static Timers createTimers() {

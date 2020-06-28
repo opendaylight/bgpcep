@@ -57,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
@@ -105,10 +104,14 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
             tableTypeRegistry);
         if (!addPathCapability.isEmpty()) {
             caps.add(new OptionalCapabilitiesBuilder()
-                    .setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                            new CParameters1Builder().setAddPathCapability(
-                                    new AddPathCapabilityBuilder()
-                                            .setAddressFamilies(addPathCapability).build()).build()).build()).build());
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setAddPathCapability(new AddPathCapabilityBuilder()
+                            .setAddressFamilies(addPathCapability)
+                            .build())
+                        .build())
+                    .build())
+                .build());
         }
 
         final List<BgpTableType> tableTypes = OpenConfigMappingUtil.toTableTypes(afiSafi, tableTypeRegistry);
@@ -118,10 +121,13 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
                     tableType);
             }
 
-            caps.add(new OptionalCapabilitiesBuilder().setCParameters(
-                    new CParametersBuilder().addAugmentation(CParameters1.class,
-                            new CParameters1Builder().setMultiprotocolCapability(
-                                    new MultiprotocolCapabilityBuilder(tableType).build()).build()).build()).build());
+            caps.add(new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(tableType).build())
+                        .build())
+                    .build())
+                .build());
         }
         return caps;
     }

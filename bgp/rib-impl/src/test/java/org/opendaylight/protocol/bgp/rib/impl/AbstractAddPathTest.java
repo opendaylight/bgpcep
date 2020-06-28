@@ -74,7 +74,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginatorIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
@@ -352,21 +351,26 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
     private static void addAttributeAugmentation(final AttributesBuilder attBuilder, final Ipv4Prefix prefix,
         final PathId pathId) {
-        attBuilder.setUnrecognizedAttributes(Collections.emptyList());
-        attBuilder.addAugmentation(Attributes1.class,
-            new Attributes1Builder().setMpReachNlri(
-                new MpReachNlriBuilder()
-                    .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NH1)
-                        .build()).build())
-                    .setAfi(Ipv4AddressFamily.class)
-                    .setSafi(UnicastSubsequentAddressFamily.class)
-                    .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                        new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                            new DestinationIpv4Builder().setIpv4Prefixes(Collections.singletonList(
-                                new Ipv4PrefixesBuilder().setPathId(pathId).setPrefix(new Ipv4Prefix(prefix)).build()))
-                                .build())
-                            .build()).build())
-                    .build()).build());
+        attBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+        attBuilder.addAugmentation(new Attributes1Builder()
+            .setMpReachNlri(new MpReachNlriBuilder()
+                .setCNextHop(new Ipv4NextHopCaseBuilder()
+                    .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NH1).build())
+                    .build())
+                .setAfi(Ipv4AddressFamily.class)
+                .setSafi(UnicastSubsequentAddressFamily.class)
+                .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                    .setDestinationType(new DestinationIpv4CaseBuilder()
+                        .setDestinationIpv4(new DestinationIpv4Builder()
+                            .setIpv4Prefixes(Collections.singletonList(new Ipv4PrefixesBuilder()
+                                .setPathId(pathId)
+                                .setPrefix(new Ipv4Prefix(prefix))
+                                .build()))
+                            .build())
+                        .build())
+                    .build())
+                .build())
+            .build());
     }
 
     private static Update createSimpleWithdrawalUpdate(final Ipv4Prefix prefix, final long localPreference) {

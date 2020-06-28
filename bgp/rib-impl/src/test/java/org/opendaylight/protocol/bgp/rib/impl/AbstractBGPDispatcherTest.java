@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
@@ -97,7 +96,7 @@ public class AbstractBGPDispatcherTest {
         final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder()
             .setCParameters(new CParametersBuilder()
-                .addAugmentation(CParameters1.class, new CParameters1Builder()
+                .addAugmentation(new CParameters1Builder()
                         .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                                 .setAfi(IPV_4_TT.getAfi())
                                 .setSafi(IPV_4_TT.getSafi())
@@ -111,7 +110,7 @@ public class AbstractBGPDispatcherTest {
         capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BgpId bgpId = new BgpId(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(socketAddress.getAddress()));
+        final BgpId bgpId = new BgpId(IetfInetUtil.INSTANCE.ipv4AddressFor(socketAddress.getAddress()));
         return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs);
     }
 

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.junit.Assert.assertFalse;
@@ -22,15 +21,16 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfigBuilder;
 
 public class AppPeerTest extends AbstractConfig {
     private static final AppPeer APP_PEER = new AppPeer();
     private final Neighbor neighbor = new NeighborBuilder()
-            .setConfig(new ConfigBuilder().addAugmentation(NeighborPeerGroupConfig.class,
-                    new NeighborPeerGroupConfigBuilder().setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME)
-                            .build()).build())
+            .setConfig(new ConfigBuilder()
+                .addAugmentation(new NeighborPeerGroupConfigBuilder()
+                    .setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME)
+                    .build())
+                .build())
             .setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
 
     @Override

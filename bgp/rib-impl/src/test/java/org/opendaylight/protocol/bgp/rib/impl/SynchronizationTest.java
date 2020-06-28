@@ -22,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -61,8 +60,8 @@ public class SynchronizationTest {
         mpBuilder.setAfi(Ipv6AddressFamily.class);
         mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
 
-        AttributesBuilder paBuilder = new AttributesBuilder().addAugmentation(Attributes1.class,
-                new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
+        AttributesBuilder paBuilder = new AttributesBuilder()
+                .addAugmentation(new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
 
         this.ipv6m = new UpdateBuilder().setAttributes(paBuilder.build()).build();
 
@@ -70,8 +69,8 @@ public class SynchronizationTest {
         mpBuilder.setAfi(LinkstateAddressFamily.class);
         mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
 
-        paBuilder = new AttributesBuilder().addAugmentation(Attributes1.class,
-                new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
+        paBuilder = new AttributesBuilder()
+                .addAugmentation(new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
 
         this.lsm = new UpdateBuilder().setAttributes(paBuilder.build()).build();
 
