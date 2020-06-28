@@ -9,13 +9,12 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import io.netty.buffer.Unpooled;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -31,15 +30,14 @@ public class UnrecognizedAttributesTest {
 
     private static final SimpleAttributeRegistry SIMPLE_ATTR_REG = new SimpleAttributeRegistry();
 
-    @Rule
-    public ExpectedException expException = ExpectedException.none();
-
     @Test
     public void testUnrecognizedAttributesWithoutOptionalFlag() throws BGPDocumentedException, BGPParsingException {
-        this.expException.expect(BGPDocumentedException.class);
-        this.expException.expectMessage("Well known attribute not recognized.");
-        SIMPLE_ATTR_REG.parseAttributes(
-            Unpooled.wrappedBuffer(new byte[] { 0x03, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 }), null);
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class, () -> {
+            SIMPLE_ATTR_REG.parseAttributes(
+                Unpooled.wrappedBuffer(new byte[] { 0x03, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 }), null);
+        });
+
+        assertEquals("Well known attribute not recognized.", ex.getMessage());
     }
 
     @Test

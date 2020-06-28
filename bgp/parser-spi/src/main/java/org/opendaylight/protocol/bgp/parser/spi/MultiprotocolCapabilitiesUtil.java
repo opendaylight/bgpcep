@@ -14,7 +14,6 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.RouteRefreshCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
@@ -23,8 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class MultiprotocolCapabilitiesUtil {
-    public static final CParameters RR_CAPABILITY = new CParametersBuilder().addAugmentation(CParameters1.class,
-        new CParameters1Builder().setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build()).build())
+    public static final CParameters RR_CAPABILITY = new CParametersBuilder()
+            .addAugmentation(new CParameters1Builder()
+                .setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build())
+                .build())
             .build();
 
     private static final Logger LOG = LoggerFactory.getLogger(MultiprotocolCapabilitiesUtil.class);
