@@ -70,6 +70,30 @@
       "revId": "c01c972c44bcbf7091f9c5dffe590c426482ece2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b8d6cb3_07244bf7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 8615
+      },
+      "writtenOn": "2020-06-29T11:35:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47f9d893_b7813d69",
+      "range": {
+        "startLine": 525,
+        "startChar": 3,
+        "endLine": 525,
+        "endChar": 23
+      },
+      "revId": "c01c972c44bcbf7091f9c5dffe590c426482ece2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
