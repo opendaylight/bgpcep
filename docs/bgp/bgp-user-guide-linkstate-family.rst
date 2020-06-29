@@ -20,7 +20,11 @@ BGP Speaker
 '''''''''''
 To enable BGP-LS support in BGP plugin, first configure BGP speaker instance:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -48,11 +52,51 @@ To enable BGP-LS support in BGP plugin, first configure BGP speaker instance:
        </bgp>
    </protocol>
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "LINKSTATE"
+                               }
+                           ]
+                       }
+                   }
+               }
+           }
+       ]
+   }
+
 Linkstate path attribute
 ''''''''''''''''''''''''
 IANA allocation for BGP-LS path attribute is TYPE 29.
 Some older BGP-LS implementations might still require earliest asigned allocation TYPE 99.
 To use TYPE = 99, you need to set value bellow to false.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-linkstate-app-config:bgp-linkstate-app-config``
 
@@ -68,9 +112,29 @@ To use TYPE = 99, you need to set value bellow to false.
        <iana-linkstate-attribute-type>false</iana-linkstate-attribute-type>
    </bgp-linkstate-app-config>
 
+**JSON**
+
+**URL:** ``/restconf/config/bgp-linkstate-app-config:bgp-linkstate-app-config``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-linkstate-app-config": {
+           "iana-linkstate-attribute-type": false
+       }
+   }
+
 BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled BGP-LS family.
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -90,6 +154,33 @@ Here is an example for BGP peer configuration with enabled BGP-LS family.
            </afi-safi>
        </afi-safis>
    </neighbor>
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "LINKSTATE"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
 
 Link-State Route API
 ^^^^^^^^^^^^^^^^^^^^
@@ -522,6 +613,8 @@ Usage
 ^^^^^
 The Link-State table in a instance of the speaker's Loc-RIB can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-linkstate:linkstate-address-family/bgp-linkstate:linkstate-subsequent-address-family/linkstate-routes``
 
 **Method:** ``GET``
@@ -533,6 +626,20 @@ The Link-State table in a instance of the speaker's Loc-RIB can be verified via 
    <linkstate-routes xmlns="urn:opendaylight:params:xml:ns:yang:bgp-linkstate">
       ...
    </linkstate-routes>
+
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-linkstate:linkstate-address-family/bgp-linkstate:linkstate-subsequent-address-family/linkstate-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-linkstate-routes":"..."
+   }
 
 .. note:: Link-State routes mapping to topology links/nodes/prefixes is supported by BGP Topology Provider.
 

@@ -17,7 +17,11 @@ BGP Speaker
 '''''''''''
 To enable ROUTE-TARGET-CONSTRAIN support in BGP plugin, first configure BGP speaker instance:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -45,9 +49,49 @@ To enable ROUTE-TARGET-CONSTRAIN support in BGP plugin, first configure BGP spea
        </bgp>
    </protocol>
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "ROUTE-TARGET-CONSTRAIN"
+                               }
+                           ]
+                       }
+                   }
+               }
+           }
+       ]
+   }
+
 BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled ROUTE-TARGET-CONSTRAIN family.
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -67,6 +111,33 @@ Here is an example for BGP peer configuration with enabled ROUTE-TARGET-CONSTRAI
            </afi-safi>
        </afi-safis>
    </neighbor>
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "ROUTE-TARGET-CONSTRAIN"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
 
 ROUTE-TARGET-CONSTRAIN Route API
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -99,6 +170,8 @@ Usage
 ^^^^^
 The ROUTE TARGET CONSTRAIN table in an instance of the speaker's Loc-RIB can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-route-target-constrain:route-target-constrain-subsequent-address-family/bgp-route-target-constrain:route-target-constrain-routes``
 
 **Method:** ``GET``
@@ -130,6 +203,43 @@ The ROUTE TARGET CONSTRAIN table in an instance of the speaker's Loc-RIB can be 
          </attributes>
       </route-target-constrain-route>
    </route-target-constrain-routes>
+
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-route-target-constrain:route-target-constrain-subsequent-address-family/bgp-route-target-constrain:route-target-constrain-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "route-target-constrain-routes":{
+           "route-target-constrain-route": [
+               {
+                   "route-key":"flow1",
+                   "path-id": 0,
+                   "origin-as": 64511,
+                   "route-target-extended-community": {
+                       "global-administrator": 64511,
+                       "local-administrator": "AAAAZQ=="
+                   },
+                   "attributes": {
+                       "origin": {
+                           "value": "igp"
+                       },
+                       "local-pref": {
+                          "pref": 100
+                       },
+                       "ipv4-next-hop": {
+                          "global": "199.20.166.41"
+                       }
+                   }
+               }
+           ]
+       }
+   }
 
 Routing Policies
 ^^^^^^^^^^^^^^^^
