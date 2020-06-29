@@ -16,6 +16,24 @@
       "revId": "49639ecb25c05dd1a15b9139b4819606da04faeb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7ed0443_e8049c76",
+        "filename": "docs/bgp/bgp-user-guide-long-lived-graceful-restart-capability.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-06-29T20:20:23Z",
+      "side": 1,
+      "message": "Not working with RFC",
+      "parentUuid": "6f05332f_3fae5136",
+      "revId": "49639ecb25c05dd1a15b9139b4819606da04faeb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
