@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f22c3816_d27e0054",
+        "filename": "docs/bgp/bgp-user-guide-labeled-family.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-06-29T20:19:18Z",
+      "side": 1,
+      "message": "These are the urls(Other Places also) containing multiple parameters which are not working with RFC",
+      "parentUuid": "24dcc066_26034720",
+      "revId": "7625aa8a18851fd5959495e1cd4158a698da2cc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c30b6471_461f85b0",
         "filename": "docs/bgp/bgp-user-guide-labeled-family.rst",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-26T14:54:41Z",
       "side": 1,
       "message": "RFC8040 URL?",
+      "revId": "7625aa8a18851fd5959495e1cd4158a698da2cc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0afa458d_d4ccebf4",
+        "filename": "docs/bgp/bgp-user-guide-labeled-family.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-06-29T20:19:18Z",
+      "side": 1,
+      "message": "Same as above comment.",
+      "parentUuid": "c30b6471_461f85b0",
       "revId": "7625aa8a18851fd5959495e1cd4158a698da2cc8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
