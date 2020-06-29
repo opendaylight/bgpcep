@@ -9,9 +9,9 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.junit.Assert.assertArrayEquals;
 
+import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -41,7 +41,7 @@ public class UnrecognizedAttributesSerializerTest {
         final UnrecognizedAttributes unrecognizedAttribute2 = new UnrecognizedAttributesBuilder().setPartial(true)
                 .setTransitive(true).setType(Uint8.valueOf(102)).setValue(unrecognizedValue2).build();
         final Attributes attrs = new AttributesBuilder()
-                .setUnrecognizedAttributes(Map.of(unrecognizedAttribute1.key(), unrecognizedAttribute1,
+                .setUnrecognizedAttributes(ImmutableMap.of(unrecognizedAttribute1.key(), unrecognizedAttribute1,
                     unrecognizedAttribute2.key(), unrecognizedAttribute2)).build();
 
         final ByteBuf buffer = Unpooled.buffer();
