@@ -62,7 +62,7 @@ public final class FSIpv6FlowLabelHandler implements FlowspecTypeParser, Flowspe
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToLong(ByteArray.readBytes(nlri, length)));
+            builder.setValue(ByteArray.readUint32(nlri, length));
             end = op.isEndOfList();
             labels.add(builder.build());
         }
