@@ -118,12 +118,11 @@ public final class ByteArray {
      * @return int
      */
     public static int bytesToInt(final byte[] bytes) {
-        checkArgument(bytes.length <= Integer.SIZE / Byte.SIZE,
-                "Cannot convert bytes to integer. Byte array too big.");
+        checkArgument(bytes.length <= Integer.BYTES, "Cannot convert bytes to integer. Byte array too big.");
         final byte[] res;
-        if (bytes.length != Integer.SIZE / Byte.SIZE) {
-            res = new byte[Integer.SIZE / Byte.SIZE];
-            System.arraycopy(bytes, 0, res, Integer.SIZE / Byte.SIZE - bytes.length, bytes.length);
+        if (bytes.length != Integer.BYTES) {
+            res = new byte[Integer.BYTES];
+            System.arraycopy(bytes, 0, res, Integer.BYTES - bytes.length, bytes.length);
         } else {
             res = bytes;
         }
@@ -138,12 +137,11 @@ public final class ByteArray {
      * @return long
      */
     public static long bytesToLong(final byte[] bytes) {
-        checkArgument(bytes.length <= Long.SIZE / Byte.SIZE,
-                "Cannot convert bytes to long.Byte array too big.");
+        checkArgument(bytes.length <= Long.BYTES, "Cannot convert bytes to long.Byte array too big.");
         final byte[] res;
-        if (bytes.length != Long.SIZE / Byte.SIZE) {
-            res = new byte[Long.SIZE / Byte.SIZE];
-            System.arraycopy(bytes, 0, res, Long.SIZE / Byte.SIZE - bytes.length, bytes.length);
+        if (bytes.length != Long.BYTES) {
+            res = new byte[Long.BYTES];
+            System.arraycopy(bytes, 0, res, Long.BYTES - bytes.length, bytes.length);
         } else {
             res = bytes;
         }

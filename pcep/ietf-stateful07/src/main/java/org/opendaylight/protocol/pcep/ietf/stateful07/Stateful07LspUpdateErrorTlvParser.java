@@ -26,8 +26,6 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSerializer {
     public static final int TYPE = 20;
 
-    private static final int CONTENT_LENGTH = Integer.SIZE / Byte.SIZE;
-
     @Override
     public LspErrorCode parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
@@ -39,7 +37,7 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         checkArgument(tlv instanceof LspErrorCode, "LspErrorCodeTlv is mandatory.");
-        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        final ByteBuf body = Unpooled.buffer(Integer.BYTES);
         ByteBufUtils.writeOrZero(body, ((LspErrorCode) tlv).getErrorCode());
         TlvUtil.formatTlv(TYPE, body, buffer);
     }

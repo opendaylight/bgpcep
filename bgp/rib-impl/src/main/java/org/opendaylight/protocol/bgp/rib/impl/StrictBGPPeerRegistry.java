@@ -234,8 +234,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     private static byte[] serializeAs4BytesCapability(final As4BytesCapability as4Capability) {
-        final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/
-                + Integer.SIZE / Byte.SIZE /*4 byte value*/);
+        final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.BYTES /*4 byte value*/);
         final As4CapabilityHandler serializer = new As4CapabilityHandler();
         serializer.serializeCapability(new CParametersBuilder().setAs4BytesCapability(as4Capability).build(), buffer);
         return buffer.array();
