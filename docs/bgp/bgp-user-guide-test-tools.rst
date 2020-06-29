@@ -68,7 +68,11 @@ Configuration
 As a first step install BGP and RESTCONF, then configure *Application Peer*.
 Install ``odl-bgpcep-bgp-benchmark`` feature and reconfigure BGP Application Peer Benchmark application as per following:
 
+**XML**
+
 **URL:** ``/restconf/config/odl-bgp-app-peer-benchmark-config:config``
+
+**RFC8040 URL:** ``/rests/data/odl-bgp-app-peer-benchmark-config:config``
 
 **Method:** ``PUT``
 
@@ -86,11 +90,39 @@ Install ``odl-bgpcep-bgp-benchmark`` feature and reconfigure BGP Application Pee
 
 @line 2: The *Application Peer* identifier.
 
+**JSON**
+
+**URL:** ``/restconf/config/odl-bgp-app-peer-benchmark-config:config``
+
+**RFC8040 URL:** ``/rests/data/odl-bgp-app-peer-benchmark-config:config``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3
+
+   {
+       "odl-bgp-app-peer-benchmark-config": {
+           "app-peer-id": "10.25.1.9"
+       }
+   }
+
+@line 3: The *Application Peer* identifier.
+
 Inject routes
 '''''''''''''
 Routes injection can be invoked via RPC:
 
+**XML**
+
 **URL:** ``/restconf/operations/odl-bgp-app-peer-benchmark:add-prefix``
+
+**RFC8040 URL:** ``/rests/operations/odl-bgp-app-peer-benchmark:add-prefix``
 
 **Method:** ``POST``
 
@@ -137,11 +169,70 @@ Routes injection can be invoked via RPC:
 
 @line 5: An amount of routes added to *Application Peer's* programmable RIB.
 
+**JSON**
+
+**URL:** ``/restconf/operations/odl-bgp-app-peer-benchmark:add-prefix``
+
+**RFC8040 URL:** ``/rests/operations/odl-bgp-app-peer-benchmark:add-prefix``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,4,5,6
+
+   {
+       "odl-bgp-app-peer-benchmark:input": {
+           "prefix": "1.1.1.1/32",
+           "count": 100000,
+           "batchsize": 2000,
+           "nexthop": "192.0.2.2"
+       }
+   }
+
+@line 3: A initial IPv4 prefix carried in route. Value is incremented for following routes.
+
+@line 4: An amount of routes to be added to *Application Peer's* programmable RIB.
+
+@line 5: A size of the transaction batch.
+
+@line 6: A NEXT_HOP attribute value used in all injected routes.
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4,5,6
+
+   {
+       "output": {
+           "result": {
+               "duration": 4757,
+               "rate": 25000,
+               "count": 100000
+           }
+       }
+   }
+
+@line 4: Request duration in milliseconds.
+
+@line 5: Writes per second rate.
+
+@line 6: An amount of routes added to *Application Peer's* programmable RIB.
+
 Remove routes
 '''''''''''''
 Routes deletion can be invoked via RPC:
 
+**XML**
+
 **URL:** ``/restconf/operations/odl-bgp-app-peer-benchmark:delete-prefix``
+
+**RFC8040 URL:** ``/rests/operations/odl-bgp-app-peer-benchmark:delete-prefix``
 
 **Method:** ``POST``
 
@@ -176,3 +267,47 @@ Routes deletion can be invoked via RPC:
            <count>100000</count>
        </result>
    </output>
+
+**JSON**
+
+**URL:** ``/restconf/operations/odl-bgp-app-peer-benchmark:delete-prefix``
+
+**RFC8040 URL:** ``/rests/operations/odl-bgp-app-peer-benchmark:delete-prefix``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,4,5
+
+   {
+       "odl-bgp-app-peer-benchmark:input": {
+           "prefix": "1.1.1.1/32",
+           "count": 100000,
+           "batchsize": 2000
+       }
+   }
+
+@line 3: A initial IPv4 prefix carried in route to be removed. Value is incremented for following routes.
+
+@line 4: An amount of routes to be removed from *Application Peer's* programmable RIB.
+
+@line 5: A size of the transaction batch.
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "odl-bgp-app-peer-benchmark:output": {
+          "result": {
+             "duration": 1837,
+             "rate": 54500,
+             "count": 100000
+          }
+       }
+   }

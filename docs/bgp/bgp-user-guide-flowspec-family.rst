@@ -17,7 +17,11 @@ BGP Speaker
 '''''''''''
 To enable BGP-FS support in BGP plugin, first configure BGP speaker instance:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -54,9 +58,58 @@ To enable BGP-FS support in BGP plugin, first configure BGP speaker instance:
        </bgp>
    </protocol>
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
+
+**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "protocol": [
+           {
+               "identifier": "openconfig-policy-types:BGP",
+               "name": "bgp-example",
+               "bgp-openconfig-extensions:bgp": {
+                   "global": {
+                       "config": {
+                           "router-id": "192.0.2.2",
+                           "as": 65000
+                       },
+                       "afi-safis": {
+                           "afi-safi": [
+                               {
+                                   "afi-safi-name": "IPV4-FLOW"
+                               },
+                               {
+                                   "afi-safi-name": "IPV6-FLOW"
+                               },
+                               {
+                                   "afi-safi-name": "IPV4-L3VPN-FLOW"
+                               },
+                               {
+                                   "afi-safi-name": "IPV6-L3VPN-FLOW"
+                               }
+                           ]
+                       }
+                   }
+               }
+           }
+       ]
+   }
+
 BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled BGP-FS family.
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -85,6 +138,42 @@ Here is an example for BGP peer configuration with enabled BGP-FS family.
            </afi-safi>
        </afi-safis>
    </neighbor>
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "IPV4-FLOW"
+                       },
+                       {
+                           "afi-safi-name": "IPV6-FLOW"
+                       },
+                       {
+                           "afi-safi-name": "IPV4-L3VPN-FLOW"
+                       },
+                       {
+                           "afi-safi-name": "IPV6-L3VPN-FLOW"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
 
 Flow Specification API
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -276,6 +365,8 @@ IPv4 Flow Specification
 '''''''''''''''''''''''
 The IPv4 Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes``
 
 **Method:** ``GET``
@@ -353,9 +444,99 @@ The IPv4 Flowspec table in an instance of the speaker's Loc-RIB can be verified 
        </flowspec-route>
    </flowspec-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "flowspec-routes": {
+           "flowspec-route": {
+               "path-id": 0,
+               "route-key": "all packets to 192.168.0.1/32 AND from 10.0.0.2/32 AND where IP protocol equals to 17 or equals to 6 AND where port equals to 80 or equals to 8080 AND where destination port is greater than 8080 and is less than 8088 or equals to 3128 AND where source port is greater than 1024",
+               "attributes": {
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "extended-communities": {
+                       "transitive": "true",
+                       "redirect-extended-community": {
+                           "local-administrator": "AgMWLg==",
+                           "global-administrator": 258
+                       }
+                   }
+               },
+               "flowspec": [
+                   {
+                       "destination-prefix": "192.168.0.1/32"
+                   },
+                   {
+                       "source-prefix": "10.0.0.2/32"
+                   },
+                   {
+                       "protocol-ips": [
+                           {
+                               "op": "equals",
+                               "value": 17
+                           },
+                           {
+                               "op": "equals end-of-list",
+                               "value": 6
+                           }
+                       ]
+                   },
+                   {
+                       "ports": [
+                           {
+                               "op": "equals",
+                               "value": 80
+                           },
+                           {
+                               "op": "equals end-of-list",
+                               "value": 8080
+                           }
+                       ]
+                   },
+                   {
+                       "destination-ports": [
+                           {
+                               "op": "greater-than",
+                               "value": 8080
+                           },
+                           {
+                               "op": "less-than and-bit",
+                               "value": 8088
+                           },
+                           {
+                               "op": "equals end-of-list",
+                               "value": 3128
+                           }
+                       ]
+                   },
+                   {
+                       "source-ports": {
+                           "op": "end-of-list greater-than",
+                           "value": 1024
+                       }
+                   }
+               ]
+           }
+       }
+   }
+
 IPv6 Flows Specification
 ''''''''''''''''''''''''
 The IPv6 Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv6-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes``
 
@@ -412,9 +593,72 @@ The IPv6 Flowspec table in an instance of the speaker's Loc-RIB can be verified 
        </flowspec-route>
    </flowspec-ipv6-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv6-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "flowspec-ipv6-routes": {
+           "flowspec-route": {
+               "path-id": 0,
+               "route-key": "all packets to 2001:db8:31::/64 AND from 2001:db8:30::/64 AND where next header equals to 17 AND where DSCP equals to 50 AND where flow label equals to 2013",
+               "attributes": {
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "extended-communities": {
+                       "transitive": true,
+                       "traffic-rate-extended-community": {
+                           "informative-as": 0,
+                           "local-administrator": "AAAAAA=="
+                       }
+                   }
+               },
+               "flowspec": [
+                   {
+                       "destination-prefix": "2001:db8:31::/64"
+                   },
+                   {
+                       "source-prefix": "2001:db8:30::/64"
+                   },
+                   {
+                       "next-headers": {
+                           "op": "equals end-of-list",
+                           "value": 17
+                       }
+                   },
+                   {
+                       "dscps": {
+                           "op": "equals end-of-list",
+                           "value": 50
+                       }
+                   },
+                   {
+                       "flow-label": {
+                           "op": "equals end-of-list",
+                           "value": 2013
+                       }
+                   }
+               ]
+           }
+       }
+   }
+
+
 IPv4 L3VPN Flows Specification
 ''''''''''''''''''''''''''''''
 The IPv4 L3VPN Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes``
 
@@ -454,12 +698,55 @@ The IPv4 L3VPN Flowspec table in an instance of the speaker's Loc-RIB can be ver
        </flowspec-l3vpn-route>
    </flowspec-l3vpn-ipv4-routes>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "flowspec-l3vpn-ipv4-routes": {
+           "flowspec-l3vpn-route": {
+               "path-id": 0,
+               "route-key": "[l3vpn with route-distinguisher 172.16.0.44:101] all packets from 10.0.0.3/32",
+               "attributes": {
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "ipv4-next-hop": {
+                       "global":"5.6.7.8"
+                   },
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "extended-communities": {
+                       "transitive": true,
+                       "redirect-ip-nh-extended-community": {
+                           "copy": false,
+                           "next-hop-address": "0.0.0.0"
+                       }
+                   }
+               },
+               "route-distinguisher": "172.16.0.44:101",
+               "flowspec": {
+                   "source-prefix": "10.0.0.3/32"
+               }
+           }
+       }
+   }
+
 Programming
 ^^^^^^^^^^^
 IPv4 Flow Specification
 '''''''''''''''''''''''
 This examples show how to originate and remove IPv4 fowspec route via programmable RIB.
 Make sure the *Application Peer* is configured first.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes``
 
@@ -562,6 +849,131 @@ Make sure the *Application Peer* is configured first.
        </attributes>
    </flowspec-route>
 
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "flowspec-route": [
+           {
+               "route-key": "flow1",
+               "path-id": 0,
+               "flowspec": [
+                   {
+                       "destination-prefix": "192.168.0.1/32"
+                   },
+                   {
+                       "source-prefix": "10.0.0.1/32"
+                   },
+                   {
+                       "protocol-ips": [
+                           {
+                               "op": "end-of-list equals",
+                               "value": 6
+                           }
+                       ]
+                   },
+                   {
+                       "ports": [
+                           {
+                               "op": "end-of-list equals",
+                               "value": 80
+                           }
+                       ]
+                   },
+                   {
+                       "destination-ports": [
+                           {
+                               "op": "greater-than",
+                               "value": 8080
+                           },
+                           {
+                               "op": "end-of-list and-bit less-than",
+                               "value": 8088
+                           }
+                       ]
+                   },
+                   {
+                       "source-ports": [
+                           {
+                               "op": "end-of-list greater-than",
+                               "value": 1024
+                           }
+                       ]
+                   },
+                   {
+                       "types": [
+                           {
+                               "op": "end-of-list equals",
+                               "value": 0
+                           }
+                       ]
+                   },
+                   {
+                       "codes": [
+                           {
+                               "op": "end-of-list equals",
+                               "value": 0
+                           }
+                       ]
+                   },
+                   {
+                       "tcp-flags": [
+                           {
+                               "op": "end-of-list match",
+                               "value": 32
+                           }
+                       ]
+                   },
+                   {
+                       "packet-lengths": [
+                           {
+                               "op": "greater-than",
+                               "value": 400
+                           },
+                           {
+                               "op": "end-of-list and-bit less-than",
+                               "value": 500
+                           }
+                       ]
+                   },
+                   {
+                       "dscps": [
+                           {
+                               "op": "end-of-list equals",
+                               "value": 20
+                           }
+                       ]
+                   },
+                   {
+                       "fragments": [
+                           {
+                               "op": "end-of-list match",
+                               "value": "first"
+                           }
+                       ]
+                   }
+               ],
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 100
+                   }
+               }
+           }
+       ]
+   }
+
 -----
 
 **Extended Communities**
@@ -658,6 +1070,8 @@ IPv4 L3VPN Flow Specification
 '''''''''''''''''''''''''''''
 This examples show how to originate and remove IPv4 L3VPN fowspec route via programmable RIB.
 
+**XML**
+
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes``
 
 **Method:** ``POST``
@@ -693,6 +1107,50 @@ This examples show how to originate and remove IPv4 L3VPN fowspec route via prog
         </attributes>
     </flowspec-l3vpn-route>
 
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "flowspec-l3vpn-route": [
+           {
+               "route-key": "flow-l3vpn",
+               "path-id": 0,
+               "route-distinguisher": "172.16.0.44:101",
+               "flowspec": [
+                   {
+                       "source-prefix": "10.0.0.3/32"
+                   }
+               ],
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "extended-communities": [
+                       {
+                           "redirect-ipv4": {
+                               "global-administrator": "172.16.0.44",
+                               "local-administrator": 102
+                           },
+                           "transitive": true
+                       }
+                   ],
+                   "local-pref": {
+                       "pref": 100
+                   }
+               }
+           }
+       ]
+   }
+
 -----
 
 To remove the route added above, following request can be used:
@@ -704,6 +1162,8 @@ To remove the route added above, following request can be used:
 IPv6 Flow Specification
 '''''''''''''''''''''''
 This examples show how to originate and remove IPv6 fowspec route via programmable RIB.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv6-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes``
 
@@ -747,6 +1207,60 @@ This examples show how to originate and remove IPv6 fowspec route via programmab
            </local-pref>
        </attributes>
    </flowspec-route>
+
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv6-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "flowspec-route": [
+           {
+               "route-key": "flow-v6",
+               "path-id": 0,
+               "flowspec": [
+                   {
+                       "destination-prefix": "2001:db8:30::3/128"
+                   },
+                   {
+                       "source-prefix": "2001:db8:31::3/128"
+                   },
+                   {
+                       "flow-label": [
+                           {
+                               "op": "end-of-list equals",
+                               "value": 1
+                           }
+                       ]
+                   }
+               ],
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "extended-communities": [
+                       {
+                           "redirect-ipv6": {
+                               "global-administrator": "2001:db8:1::6",
+                               "local-administrator": 12345
+                           },
+                           "transitive": true
+                       }
+                   ],
+                   "local-pref": {
+                       "pref": 100
+                   }
+               }
+           }
+       ]
+   }
 
 -----
 

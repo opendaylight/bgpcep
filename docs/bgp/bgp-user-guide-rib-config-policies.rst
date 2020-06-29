@@ -7,8 +7,11 @@ The OpenDaylight BGP implementation supports configurable RIB policies that allo
 
 .. note:: Default ODL BGP RIB Config Policy is provided. Any config policy to be used by Protocol must be configured and present before than Protocol configuration is added. If policy is reconfigured, protocol must be re configured again.
 
+**XML**
 
 **URL:** ``/restconf/config/openconfig-routing-policy:routing-policy``
+
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy?content=config``
 
 **Method:** ``GET``
 
@@ -65,13 +68,72 @@ The OpenDaylight BGP implementation supports configurable RIB policies that allo
 
 @line 15: Policy definitions.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-routing-policy:routing-policy``
+
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy?content=config``
+
+**Method:** ``GET``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,10
+
+   {
+       "routing-policy": {
+           "defined-sets": {
+               "bgp-defined-sets": {
+                   "cluster-id-sets": "...",
+                   "role-sets": "...",
+                   "originator-id-sets": "..."
+               }
+           },
+           "policy-definitions": {
+               "policy-definition": [
+                   {
+                       "name": "default-odl-export-policy",
+                       "statements": {
+                           "statement": {
+                               "name": "to-odl-internal",
+                               "actions": {
+                               "bgp-actions": "..."
+                               },
+                               "conditions": {
+                                   "bgp-conditions": "..."
+                               }
+                           },
+                           "#text": "..."
+                       }
+                   },
+                   {
+                       "name": "default-odl-import-policy",
+                       "#text": "..."
+                   }
+               ]
+           }
+       }
+   }
+
+@line 3: BGP defined sets.
+
+@line 10: Policy definitions.
+
 
 Policy Configuration
 --------------------
 
 Conditions may include multiple match or comparison operations; similarly, actions may consist of a multitude of changes to route attributes or a final disposition regarding the acceptance or rejection of the route.
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/``
+
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions``
 
 **Method:** ``POST``
 
@@ -112,11 +174,68 @@ Conditions may include multiple match or comparison operations; similarly, actio
 
 @line 10: BGP Conditions.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/``
+
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4,8,10,15
+
+   {
+       "policy-definition": [
+           {
+               "name": "odl-policy-example",
+               "statements": {
+                   "statement": [
+                       {
+                           "name": "reject-all-incoming-routes",
+                           "actions": {
+                               "reject-route": [
+                                   null
+                               ]
+                           },
+                           "conditions": {
+                               "openconfig-bgp-policy:bgp-conditions": {
+                                   "odl-bgp-policy:match-role-set": {
+                                       "from-role": {
+                                           "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"all\"]"
+                                       }
+                                   }
+                               }
+                           }
+                       }
+                   ]
+               }
+           }
+       ]
+   }
+
+@line 4: The unique policy instance identifier.
+
+@line 8: Policy Statement Identifier.
+
+@line 10: Actions.
+
+@line 15: BGP Conditions.
+
 -----
 
 The new instance presence can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/policy-definition/odl-policy-example``
+
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/policy-definition=odl-policy-example``
 
 **Method:** ``GET``
 
@@ -151,6 +270,53 @@ The new instance presence can be verified via REST:
 @line 2: Policy definition Identifier.
 
 @line 5: Policy Statement Identifier.
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/policy-definition/odl-policy-example``
+
+**RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/policy-definition=odl-policy-example``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4,8
+
+   {
+       "policy-definition": [
+           {
+               "name": "odl-policy-example",
+               "statements": {
+                   "statement": [
+                       {
+                           "name": "reject-all-incoming-routes",
+                           "actions": {
+                               "reject-route": [
+                                   null
+                               ]
+                           },
+                           "conditions": {
+                               "openconfig-bgp-policy:bgp-conditions": {
+                                   "odl-bgp-policy:match-role-set": {
+                                       "from-role": {
+                                           "role-set": "/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name=\"all\"]"
+                                       }
+                                   }
+                               }
+                           }
+                       }
+                   ]
+               }
+           }
+       ]
+   }
+
+@line 4: Policy definition Identifier.
+
+@line 8: Policy Statement Identifier.
 
 Actions
 ```````
