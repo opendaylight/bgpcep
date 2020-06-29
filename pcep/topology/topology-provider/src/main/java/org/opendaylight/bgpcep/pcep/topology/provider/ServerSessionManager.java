@@ -41,7 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.RemoveLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TearDownSessionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TriggerSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.UpdateLspArgs;
@@ -106,8 +105,8 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         final WriteTransaction tx = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
         tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().withKey(key)
                 .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
-                        .addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().setTopologyPcep(
-                                new TopologyPcepBuilder().build()).build()).build())
+                        .addAugmentation(new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build())
+                            .build()).build())
                 .setNode(new ArrayList<>()).build());
         try {
             tx.commit().get();

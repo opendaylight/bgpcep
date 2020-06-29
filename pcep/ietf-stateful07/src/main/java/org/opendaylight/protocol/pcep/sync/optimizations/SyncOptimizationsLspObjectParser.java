@@ -51,6 +51,6 @@ public class SyncOptimizationsLspObjectParser extends CInitiated00LspObjectParse
         if (tlv instanceof LspDbVersion) {
             syncOptTlvsBuilder.setLspDbVersion((LspDbVersion) tlv);
         }
-        tbuilder.addAugmentation(Tlvs1.class, syncOptTlvsBuilder.build());
+        tbuilder.addAugmentation(syncOptTlvsBuilder.build());
     }
 }

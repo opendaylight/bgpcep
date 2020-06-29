@@ -23,7 +23,6 @@ import org.opendaylight.bgpcep.pcep.topology.provider.TopologyProgrammingTest.Mo
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
@@ -215,7 +214,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     @Override
     protected Open getLocalPref() {
         return new OpenBuilder(super.getLocalPref()).setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-                .xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder().addAugmentation(Tlvs1.class,
+                .xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder().addAugmentation(
                 new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
     }
 }

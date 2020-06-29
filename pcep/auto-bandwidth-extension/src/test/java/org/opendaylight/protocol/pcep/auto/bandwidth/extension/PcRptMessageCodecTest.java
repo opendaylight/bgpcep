@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
@@ -120,11 +119,11 @@ public class PcRptMessageCodecTest {
     @Test
     public void testserializeObject() {
         final PcRptMessageCodec codec = new PcRptMessageCodec(this.ctx.getObjectHandlerRegistry());
-        final BandwidthBuilder bwBuilder = new BandwidthBuilder();
-        bwBuilder.addAugmentation(Bandwidth1.class, new Bandwidth1Builder().setBwSample(BW).build());
         final ByteBuf buffer = Unpooled.buffer();
-        codec.serializeObject(bwBuilder.build(), buffer);
-        Assert.assertTrue(buffer.readableBytes() > 0);
+        codec.serializeObject(new BandwidthBuilder()
+            .addAugmentation(new Bandwidth1Builder().setBwSample(BW).build())
+            .build(), buffer);
+        assertTrue(buffer.readableBytes() > 0);
     }
 
     @Test
@@ -136,7 +135,7 @@ public class PcRptMessageCodecTest {
                         + "0d42020030801010000000001080a00070620000308010100000000");
         final Pcrpt msg = (Pcrpt) this.ctx.getMessageHandlerRegistry().parseMessage(10,
                 Unpooled.wrappedBuffer(parseHexBinary), Collections.emptyList());
-        Assert.assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath()
+        assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath()
                 .getBandwidth().augmentation(Bandwidth1.class));
     }
 

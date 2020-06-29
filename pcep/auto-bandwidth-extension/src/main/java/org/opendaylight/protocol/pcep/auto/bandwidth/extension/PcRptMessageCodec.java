@@ -74,9 +74,9 @@ public class PcRptMessageCodec extends Stateful07PCReportMessageParser {
         } else {
             bandwidthBuilder = new BandwidthBuilder();
         }
-        bandwidthBuilder.addAugmentation(Bandwidth1.class, new Bandwidth1Builder()
-                .setBwSample(bwUsage.getBwSample()).build()).build();
-        return bandwidthBuilder.build();
+        return bandwidthBuilder
+                .addAugmentation(new Bandwidth1Builder().setBwSample(bwUsage.getBwSample()).build())
+                .build();
     }
 
 }

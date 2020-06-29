@@ -10,9 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.ietf.stateful07.app.config.rev160707.PcepIetfStateful07Config;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
@@ -39,7 +37,7 @@ public class PCEPStatefulCapability implements PCEPCapability {
         this.includeDbVersion = includeDbVersion || triggeredSync || deltaLspSync;
     }
 
-    public PCEPStatefulCapability(PcepIetfStateful07Config config) {
+    public PCEPStatefulCapability(final PcepIetfStateful07Config config) {
         this(config.isStateful(), config.isActive(), config.isInitiated(), config.isTriggeredInitialSync(),
                 config.isTriggeredResync(), config.isDeltaLspSyncCapability(), config.isIncludeDbVersion());
     }
@@ -47,18 +45,16 @@ public class PCEPStatefulCapability implements PCEPCapability {
     @Override
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
         if (this.stateful) {
-            builder.addAugmentation(Tlvs1.class, new Tlvs1Builder()
+            builder.addAugmentation(new Tlvs1Builder()
                     .setStateful(new StatefulBuilder().setLspUpdateCapability(this.active)
-                        .addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(this.instant).build())
-                        .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
-                                .pcep.sync.optimizations.rev181109.Stateful1.class, new org.opendaylight.yang.gen.v1.urn
-                                    .opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109
-                                    .Stateful1Builder()
-                                    .setTriggeredInitialSync(this.triggeredSync)
-                                    .setTriggeredResync(this.triggeredResync)
-                                    .setDeltaLspSyncCapability(this.deltaLspSync)
-                                    .setIncludeDbVersion(this.includeDbVersion)
-                                    .build())
+                        .addAugmentation(new Stateful1Builder().setInitiation(this.instant).build())
+                        .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
+                            .pcep.sync.optimizations.rev181109.Stateful1Builder()
+                                .setTriggeredInitialSync(this.triggeredSync)
+                                .setTriggeredResync(this.triggeredResync)
+                                .setDeltaLspSyncCapability(this.deltaLspSync)
+                                .setIncludeDbVersion(this.includeDbVersion)
+                                .build())
                         .build())
                     .build());
         }

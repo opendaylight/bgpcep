@@ -31,7 +31,7 @@ public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
     @Override
     protected void parseFlags(final SrpBuilder builder, final ByteBuf bytes) {
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
-        builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(flags.get(REMOVE_FLAG)).build());
+        builder.addAugmentation(new Srp1Builder().setRemove(flags.get(REMOVE_FLAG)).build());
     }
 
     @Override

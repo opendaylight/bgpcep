@@ -106,9 +106,8 @@ public class PCEPTlvParserTest {
     public void testStatefulTlvSyncOptimizationExtension() throws PCEPDeserializerException {
         final SyncOptimizationsCapabilityTlvParser parser = new SyncOptimizationsCapabilityTlvParser();
         final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE)
-            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
-                .optimizations.rev181109.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-                    .ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1Builder()
+            .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
+                .optimizations.rev181109.Stateful1Builder()
                     .setTriggeredInitialSync(Boolean.TRUE)
                     .setDeltaLspSyncCapability(Boolean.TRUE)
                     .setIncludeDbVersion(Boolean.TRUE)

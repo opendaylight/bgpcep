@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.provider.session.stats;
 
 import static java.util.Objects.requireNonNull;
@@ -19,7 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.speaker.entity.id.tlv.SpeakerEntityId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Pcupd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAugBuilder;
@@ -70,8 +68,7 @@ public final class SessionStateImpl implements PcepSessionState {
             final SpeakerEntityId entityId = localOpen.getTlvs().augmentation(Tlvs3.class).getSpeakerEntityId();
             if (entityId != null) {
                 this.localPref = new LocalPrefBuilder(session.getLocalPref())
-                        .addAugmentation(PcepEntityIdStatsAug.class,
-                                new PcepEntityIdStatsAugBuilder(entityId).build()).build();
+                        .addAugmentation(new PcepEntityIdStatsAugBuilder(entityId).build()).build();
             }
         } else {
             this.localPref = session.getLocalPref();
@@ -124,7 +121,7 @@ public final class SessionStateImpl implements PcepSessionState {
     @Override
     public synchronized PeerCapabilities getPeerCapabilities() {
         return new PeerCapabilitiesBuilder()
-                .addAugmentation(StatefulCapabilitiesStatsAug.class, createStatefulCapabilities())
+                .addAugmentation(createStatefulCapabilities())
                 .build();
     }
 
@@ -140,7 +137,7 @@ public final class SessionStateImpl implements PcepSessionState {
     public Messages getMessages() {
         return new MessagesBuilder(this.pcepSessionState.getMessages())
                 .setReplyTime(setReplyTime())
-                .addAugmentation(StatefulMessagesStatsAug.class, createStatefulMessages())
+                .addAugmentation(createStatefulMessages())
                 .build();
     }
 

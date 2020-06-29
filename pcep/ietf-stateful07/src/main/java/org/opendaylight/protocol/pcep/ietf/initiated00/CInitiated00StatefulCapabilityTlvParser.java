@@ -27,7 +27,7 @@ public class CInitiated00StatefulCapabilityTlvParser extends Stateful07StatefulC
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_F_LENGTH);
         sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
         if (flags.get(I_FLAG_OFFSET)) {
-            sb.addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build());
+            sb.addAugmentation(new Stateful1Builder().setInitiation(Boolean.TRUE).build());
         }
     }
 

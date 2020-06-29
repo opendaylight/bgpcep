@@ -27,12 +27,10 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
@@ -65,11 +63,9 @@ public class PCEPStatefulPeerProposalTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.tlvsBuilder = new TlvsBuilder().addAugmentation(
-                Tlvs1.class,
-                new Tlvs1Builder().setStateful(
-                        new StatefulBuilder().addAugmentation(Stateful1.class, new Stateful1Builder().build()).build())
-                        .build());
+        this.tlvsBuilder = new TlvsBuilder().addAugmentation(new Tlvs1Builder()
+            .setStateful(new StatefulBuilder().addAugmentation(new Stateful1Builder().build()).build())
+            .build());
         doReturn(this.rt).when(this.dataBroker).newReadOnlyTransaction();
         doNothing().when(this.rt).close();
         doReturn(this.listenableFutureMock).when(this.rt)

@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class Stateful07OpenObjectParser extends PCEPOpenObjectParser {
 
-    public Stateful07OpenObjectParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+    public Stateful07OpenObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 
@@ -40,7 +40,7 @@ public class Stateful07OpenObjectParser extends PCEPOpenObjectParser {
         if (tlv instanceof Stateful) {
             statefulBuilder.setStateful((Stateful) tlv);
         }
-        tbuilder.addAugmentation(Tlvs1.class, statefulBuilder.build());
+        tbuilder.addAugmentation(statefulBuilder.build());
     }
 
     @Override

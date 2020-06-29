@@ -30,7 +30,6 @@ import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -328,10 +327,11 @@ public class PCCTunnelManagerImplTest {
         reqBuilder.setLsp(lsp.build());
         final SrpBuilder srpBuilder = new SrpBuilder();
         if (remove.isPresent()) {
-            srpBuilder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build());
+            srpBuilder.addAugmentation(new Srp1Builder().setRemove(Boolean.TRUE).build());
         }
-        reqBuilder.setSrp(srpBuilder.setOperationId(new SrpIdNumber(Uint32.ZERO)).build());
-        return reqBuilder.build();
+        return reqBuilder
+                .setSrp(srpBuilder.setOperationId(new SrpIdNumber(Uint32.ZERO)).build())
+                .build();
     }
 
     private static Requests createRequestsRemove(final long plspId) {

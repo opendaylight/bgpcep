@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertFalse;
@@ -17,12 +16,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
@@ -118,10 +114,10 @@ public class SyncOptimizationTest {
     private static Tlvs createTlvs(final Long lspDbVersion, final boolean includeDbVresion,
             final boolean includeDeltaSync) {
         return new TlvsBuilder()
-            .addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder()
-                    .addAugmentation(Stateful1.class, new Stateful1Builder().setIncludeDbVersion(includeDbVresion)
+            .addAugmentation(new Tlvs1Builder().setStateful(new StatefulBuilder()
+                    .addAugmentation(new Stateful1Builder().setIncludeDbVersion(includeDbVresion)
                             .setDeltaLspSyncCapability(includeDeltaSync).build()).build()).build())
-            .addAugmentation(Tlvs3.class, new Tlvs3Builder().setLspDbVersion(
+            .addAugmentation(new Tlvs3Builder().setLspDbVersion(
                 new LspDbVersionBuilder().setLspDbVersionValue(lspDbVersion != null
                         ? Uint64.valueOf(lspDbVersion) : null).build()).build()).build();
     }

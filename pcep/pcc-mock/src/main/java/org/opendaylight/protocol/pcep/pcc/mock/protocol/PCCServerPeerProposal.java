@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
@@ -35,7 +34,6 @@ public class PCCServerPeerProposal implements PCEPPeerProposal {
         } else {
             this.isAfterReconnection = true;
         }
-        openBuilder.addAugmentation(Tlvs3.class, new Tlvs3Builder()
-                .setLspDbVersion(lspDbVersionBuilder.build()).build());
+        openBuilder.addAugmentation(new Tlvs3Builder().setLspDbVersion(lspDbVersionBuilder.build()).build());
     }
 }

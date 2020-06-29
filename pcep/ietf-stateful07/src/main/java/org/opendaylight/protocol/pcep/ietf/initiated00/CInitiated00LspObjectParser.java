@@ -36,7 +36,7 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
         builder.setSync(flags.get(SYNC));
         builder.setRemove(flags.get(REMOVE));
         builder.setAdministrative(flags.get(ADMINISTRATIVE));
-        builder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(flags.get(CREATE_FLAG_OFFSET)).build());
+        builder.addAugmentation(new Lsp1Builder().setCreate(flags.get(CREATE_FLAG_OFFSET)).build());
         short oper = 0;
         oper |= flags.get(OPERATIONAL + 2) ? 1 : 0;
         oper |= (flags.get(OPERATIONAL + 1) ? 1 : 0) << 1;

@@ -35,10 +35,8 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Lsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Lsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.PcinitiateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.pcinitiate.message.Requests;
@@ -48,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.identifiers.tlv.LspIdentifiersBuilder;
@@ -266,7 +263,7 @@ public class PCEPValidatorTest {
                 .setIgnore(false)
                 .setProcessingRule(false)
                 .setOperationId(new SrpIdNumber(Uint32.ONE))
-                .addAugmentation(Srp1.class, new Srp1Builder().setRemove(false).build())
+                .addAugmentation(new Srp1Builder().setRemove(false).build())
                 .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
                     .rev181109.srp.object.srp.TlvsBuilder().build())
                 .build();
@@ -281,7 +278,7 @@ public class PCEPValidatorTest {
                 .setSync(false)
                 .setRemove(false)
                 .setTlvs(new TlvsBuilder().build())
-                .addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(false).build());
+                .addAugmentation(new Lsp1Builder().setCreate(false).build());
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp
             .identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder builder =
@@ -340,9 +337,11 @@ public class PCEPValidatorTest {
                     .setDeadTimer(Uint8.valueOf(120))
                     .setSessionId(Uint8.ONE)
                     .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-                        .open.object.open.TlvsBuilder().addAugmentation(Tlvs1.class,
-                            new Tlvs1Builder().setStateful(new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE)
-                                .build()).build()).build());
+                        .open.object.open.TlvsBuilder()
+                            .addAugmentation(new Tlvs1Builder()
+                                .setStateful(new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build())
+                                .build())
+                            .build());
             builder.setOpen(b.build());
 
             assertEquals(new OpenBuilder().setOpenMessage(builder.build()).build(), parser.parseMessage(result.slice(4,

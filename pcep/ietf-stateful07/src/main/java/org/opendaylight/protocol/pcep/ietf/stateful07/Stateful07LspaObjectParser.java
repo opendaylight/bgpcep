@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
 
-    public Stateful07LspaObjectParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+    public Stateful07LspaObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 
@@ -40,7 +40,7 @@ public class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
         if (tlv instanceof SymbolicPathName) {
             nameBuilder.setSymbolicPathName((SymbolicPathName) tlv);
         }
-        tbuilder.addAugmentation(Tlvs2.class, nameBuilder.build());
+        tbuilder.addAugmentation(nameBuilder.build());
     }
 
     @Override

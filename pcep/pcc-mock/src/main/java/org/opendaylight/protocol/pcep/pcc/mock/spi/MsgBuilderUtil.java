@@ -15,7 +15,6 @@ import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.pcinitiate.message.Requests;
@@ -62,30 +61,29 @@ public final class MsgBuilderUtil {
     }
 
     public static Pcrpt createPcRtpMessage(final Lsp lsp, final Optional<Srp> srp, final Path path) {
-        final PcrptBuilder rptBuilder = new PcrptBuilder();
-        final PcrptMessageBuilder msgBuilder = new PcrptMessageBuilder();
-        final ReportsBuilder reportBuilder = new ReportsBuilder();
-        reportBuilder.setLsp(lsp);
-        reportBuilder.setSrp(srp.orElse(null));
-        reportBuilder.setPath(path);
-        msgBuilder.setReports(Lists.newArrayList(reportBuilder.build()));
-        rptBuilder.setPcrptMessage(msgBuilder.build());
-        return rptBuilder.build();
+        return new PcrptBuilder()
+                .setPcrptMessage(new PcrptMessageBuilder()
+                    .setReports(Lists.newArrayList(new ReportsBuilder()
+                        .setLsp(lsp)
+                        .setSrp(srp.orElse(null))
+                        .setPath(path).build()))
+                    .build())
+                .build();
     }
 
     public static Lsp createLsp(final Uint32 plspId, final boolean sync, final Optional<Tlvs> tlvs,
             final boolean isDelegatedLsp, final boolean remove) {
-        final LspBuilder lspBuilder = new LspBuilder();
-        lspBuilder.setAdministrative(true);
-        lspBuilder.setDelegate(isDelegatedLsp);
-        lspBuilder.setIgnore(false);
-        lspBuilder.setOperational(OperationalStatus.Up);
-        lspBuilder.setPlspId(new PlspId(plspId));
-        lspBuilder.setProcessingRule(false);
-        lspBuilder.setRemove(remove);
-        lspBuilder.setSync(sync);
-        lspBuilder.setTlvs(tlvs.orElse(null));
-        return lspBuilder.build();
+        return new LspBuilder()
+                .setAdministrative(true)
+                .setDelegate(isDelegatedLsp)
+                .setIgnore(false)
+                .setOperational(OperationalStatus.Up)
+                .setPlspId(new PlspId(plspId))
+                .setProcessingRule(false)
+                .setRemove(remove)
+                .setSync(sync)
+                .setTlvs(tlvs.orElse(null))
+                .build();
     }
 
     public static Lsp createLsp(final Uint32 plspId, final boolean sync, final Optional<Tlvs> tlvs,
@@ -94,17 +92,17 @@ public final class MsgBuilderUtil {
     }
 
     public static Path createPath(final List<Subobject> subobjects) {
-        final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.setEro(new EroBuilder().setSubobject(subobjects).build());
-        return pathBuilder.build();
+        return new PathBuilder()
+                .setEro(new EroBuilder().setSubobject(subobjects).build())
+                .build();
     }
 
     public static Srp createSrp(final Uint32 srpId) {
-        final SrpBuilder srpBuilder = new SrpBuilder();
-        srpBuilder.setProcessingRule(false);
-        srpBuilder.setIgnore(false);
-        srpBuilder.setOperationId(new SrpIdNumber(srpId));
-        return srpBuilder.build();
+        return new SrpBuilder()
+                .setProcessingRule(false)
+                .setIgnore(false)
+                .setOperationId(new SrpIdNumber(srpId))
+                .build();
     }
 
     public static Path updToRptPath(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
@@ -154,15 +152,15 @@ public final class MsgBuilderUtil {
         }
 
         if (lspDBVersion.isPresent()) {
-            tlvs.addAugmentation(Tlvs1.class, new Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
-                    .setLspDbVersionValue(lspDBVersion.get()).build()).build());
+            tlvs.addAugmentation(new Tlvs1Builder()
+                .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(lspDBVersion.get()).build()).build());
         }
         return tlvs.build();
     }
 
     public static Optional<Tlvs> createLspTlvsEndofSync(final @NonNull Uint64 dbVersion) {
-        final Tlvs tlvs = new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setLspDbVersion(
-            new LspDbVersionBuilder().setLspDbVersionValue(dbVersion).build()).build()).build();
+        final Tlvs tlvs = new TlvsBuilder().addAugmentation(new Tlvs1Builder()
+            .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(dbVersion).build()).build()).build();
         return Optional.of(tlvs);
     }
 

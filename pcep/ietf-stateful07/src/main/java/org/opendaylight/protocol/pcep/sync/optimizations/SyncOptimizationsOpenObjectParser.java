@@ -45,7 +45,7 @@ public class SyncOptimizationsOpenObjectParser extends Stateful07OpenObjectParse
         if (tlv instanceof SpeakerEntityId) {
             syncOptTlvsBuilder.setSpeakerEntityId((SpeakerEntityId) tlv);
         }
-        tbuilder.addAugmentation(Tlvs3.class, syncOptTlvsBuilder.build());
+        tbuilder.addAugmentation(syncOptTlvsBuilder.build());
     }
 
     @Override

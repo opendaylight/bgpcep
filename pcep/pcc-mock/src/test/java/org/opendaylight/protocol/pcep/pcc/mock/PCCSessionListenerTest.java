@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.PcinitiateMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.pcinitiate.message.Requests;
@@ -163,7 +162,7 @@ public class PCCSessionListenerTest {
         final List<Requests> requests = new ArrayList<>();
         final RequestsBuilder reqBuilder = new RequestsBuilder()
             .setLsp(lspBuilder.build())
-            .setSrp(new SrpBuilder(MsgBuilderUtil.createSrp(Uint32.valueOf(123))).addAugmentation(Srp1.class,
+            .setSrp(new SrpBuilder(MsgBuilderUtil.createSrp(Uint32.valueOf(123))).addAugmentation(
                 new Srp1Builder().setRemove(remove).build()).build());
         if (endpoint) {
             reqBuilder.setEndpointsObj(new EndpointsObjBuilder().build());

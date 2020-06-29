@@ -33,7 +33,6 @@ import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.PathComputationClient1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.PathComputationClient1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Lsp1;
@@ -54,7 +53,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.StatefulTlv1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.StatefulTlv1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1;
@@ -143,7 +141,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final Stateful stateful = tlvs.augmentation(Tlvs1.class).getStateful();
             if (stateful != null) {
                 setStatefulCapabilities(stateful);
-                pccBuilder.setReportedLsp(Collections.emptyList());
+                pccBuilder.setReportedLsp(Collections.emptyMap());
                 if (isSynchronized()) {
                     pccBuilder.setStateSync(PccSyncState.Synchronized);
                 } else if (isTriggeredInitialSynchro()) {
@@ -153,7 +151,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 } else {
                     pccBuilder.setStateSync(PccSyncState.InitialResync);
                 }
-                pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(StatefulTlv1.class,
+                pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(
                         new StatefulTlv1Builder(tlvs.augmentation(Tlvs1.class)).build()).build());
             } else {
                 LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
@@ -328,8 +326,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         //get LspDB from LSP and write it to pcc's node
         final LspDbVersion lspDbVersion = geLspDbVersionTlv(lsp);
         if (lspDbVersion != null) {
-            updatePccNode(ctx, new PathComputationClientBuilder().addAugmentation(PathComputationClient1.class,
-                    new PathComputationClient1Builder().setLspDbVersion(lspDbVersion).build()).build());
+            updatePccNode(ctx, new PathComputationClientBuilder()
+                .addAugmentation(new PathComputationClient1Builder().setLspDbVersion(lspDbVersion).build()).build());
         }
         updateLsp(ctx, plspid, name, rlb, solicited, lsp.isRemove());
         unmarkStaleLsp(plspid);
@@ -357,7 +355,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         } else {
             pst = null;
         }
-        pb.addAugmentation(Path1.class, p1Builder.build());
+        pb.addAugmentation(p1Builder.build());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp
                 .object.lsp.Tlvs tlvs = report.getLsp().getTlvs();
         if (tlvs != null) {
@@ -458,7 +456,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     private Requests buildRequest(final Optional<ReportedLsp> rep, final Lsp reportedLsp) {
         // Build the request and send it
         final RequestsBuilder rb = new RequestsBuilder();
-        final SrpBuilder srpBuilder = new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder()
+        final SrpBuilder srpBuilder = new SrpBuilder().addAugmentation(new Srp1Builder()
                 .setRemove(Boolean.TRUE).build()).setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE);
         final Optional<PathSetupType> maybePST = getPST(rep);
         if (maybePST.isPresent()) {

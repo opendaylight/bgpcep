@@ -36,7 +36,6 @@ import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Lsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Lsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Srp1Builder;
@@ -200,7 +199,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         sendToAll(tunnel, plspId, request.getEro().getSubobject(),
                 createSrp(request.getSrp().getOperationId().getValue()), tunnel.getLspState(),
                 new LspBuilder(request.getLsp())
-                        .addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(true).build()).build());
+                        .addAugmentation(new Lsp1Builder().setCreate(true).build()).build());
         this.tunnels.put(plspId, tunnel);
     }
 
@@ -214,7 +213,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                     this.tunnels.remove(plspId);
                     sendToAll(tunnel, plspId, tunnel.getLspState().getEro().getSubobject(),
                         new SrpBuilder(request.getSrp())
-                                .addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build()).build(),
+                                .addAugmentation(new Srp1Builder().setRemove(true).build()).build(),
                         reqToRptPath(request), request.getLsp());
                 } else {
                     session.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.UPDATE_REQ_FOR_NON_LSP, srpId));
@@ -407,8 +406,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                     .setOperational(OperationalStatus.Up)
                     .setDelegate(isDelegated)
                     .setSync(true)
-                    .addAugmentation(Lsp1.class, new Lsp1Builder()
-                            .setCreate(tunnel.getType() == LspType.PCE_LSP).build())
+                    .addAugmentation(new Lsp1Builder().setCreate(tunnel.getType() == LspType.PCE_LSP).build())
                     .setTlvs(tlvs).build(),
                 Optional.ofNullable(srp), path);
             session.sendReport(pcRpt);

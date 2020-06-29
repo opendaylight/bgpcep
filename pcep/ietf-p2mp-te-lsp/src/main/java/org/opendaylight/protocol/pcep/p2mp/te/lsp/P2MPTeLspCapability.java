@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2m
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 
 public final class P2MPTeLspCapability implements PCEPCapability {
-    private static TlvsP2mpCapabilityAug PATH_COMPUTATION_CAP_AUG = new TlvsP2mpCapabilityAugBuilder()
+    private static final TlvsP2mpCapabilityAug PATH_COMPUTATION_CAP_AUG = new TlvsP2mpCapabilityAugBuilder()
         .setP2mpPceCapability(new P2mpPceCapabilityBuilder().build()).build();
     private final boolean supportsPathComputation;
 
@@ -26,7 +26,7 @@ public final class P2MPTeLspCapability implements PCEPCapability {
     @Override
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
         if (this.supportsPathComputation) {
-            builder.addAugmentation(TlvsP2mpCapabilityAug.class, PATH_COMPUTATION_CAP_AUG);
+            builder.addAugmentation(PATH_COMPUTATION_CAP_AUG);
         }
     }
 

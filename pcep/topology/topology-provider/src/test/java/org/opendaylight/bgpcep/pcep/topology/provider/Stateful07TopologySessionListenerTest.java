@@ -40,14 +40,10 @@ import org.opendaylight.protocol.util.CheckTestUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Pcinitiate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.pcinitiate.message.pcinitiate.message.Requests;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Arguments3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Pcrpt;
@@ -55,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.identifiers.tlv.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.lsp.object.LspBuilder;
@@ -242,8 +237,7 @@ public class Stateful07TopologySessionListenerTest
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.ensure.lsp
                 .operational.args.ArgumentsBuilder ensureArgs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
                 .xml.ns.yang.topology.pcep.rev200120.ensure.lsp.operational.args.ArgumentsBuilder();
-        ensureArgs.addAugmentation(Arguments1.class, new Arguments1Builder().setOperational(OperationalStatus.Active)
-                .build());
+        ensureArgs.addAugmentation(new Arguments1Builder().setOperational(OperationalStatus.Active).build());
         final EnsureLspOperationalInput ensure = new EnsureLspOperationalInputBuilder().setArguments(ensureArgs.build())
                 .setName(this.tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
                 .setNode(this.nodeId).build();
@@ -512,7 +506,7 @@ public class Stateful07TopologySessionListenerTest
                 .ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .topology.pcep.rev200120.update.lsp.args.ArgumentsBuilder();
         updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(this.eroIpPrefix, this.dstIpPrefix)));
-        updArgsBuilder.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder()
+        updArgsBuilder.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(TRUE).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
                 .setName(this.tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(this.nodeId)
@@ -637,14 +631,12 @@ public class Stateful07TopologySessionListenerTest
 
     @Override
     protected Open getLocalPref() {
-        return new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class,
-                new Tlvs1Builder().setStateful(new StatefulBuilder()
-                        .addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(TRUE).build())
-                        .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
-                                .pcep.sync.optimizations.rev181109.Stateful1.class, new org.opendaylight.yang.gen.v1
-                                .urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109
-                                .Stateful1Builder().setTriggeredInitialSync(TRUE).build())
-                        .build()).build()).build()).build();
+        return new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(new Tlvs1Builder()
+            .setStateful(new StatefulBuilder()
+                .addAugmentation(new Stateful1Builder().setInitiation(TRUE).build())
+                .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep
+                    .sync.optimizations.rev181109.Stateful1Builder().setTriggeredInitialSync(TRUE).build())
+                .build()).build()).build()).build();
     }
 
     @Override
@@ -659,7 +651,7 @@ public class Stateful07TopologySessionListenerTest
                 .setDestinationIpv4Address(new Ipv4AddressNoZone(this.testAddress)).build());
         argsBuilder.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(ipv4Builder.build()).build());
         argsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(this.eroIpPrefix)));
-        argsBuilder.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder()
+        argsBuilder.addAugmentation(new Arguments2Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(TRUE).build()).build());
         return new AddLspInputBuilder().setName(this.tunnelName).setArguments(argsBuilder.build())
                 .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(this.nodeId).build();

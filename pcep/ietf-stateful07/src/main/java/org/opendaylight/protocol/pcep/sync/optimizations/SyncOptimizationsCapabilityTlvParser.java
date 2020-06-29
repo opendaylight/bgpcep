@@ -27,7 +27,7 @@ public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCa
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_F_LENGTH);
         sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
         if (flags.get(I_FLAG_OFFSET)) {
-            sb.addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build());
+            sb.addAugmentation(new Stateful1Builder().setInitiation(Boolean.TRUE).build());
         }
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations
             .rev181109.Stateful1Builder syncOptBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
@@ -44,8 +44,7 @@ public class SyncOptimizationsCapabilityTlvParser extends CInitiated00StatefulCa
         if (flags.get(F_FLAG_OFFSET)) {
             syncOptBuilder.setTriggeredInitialSync(Boolean.TRUE);
         }
-        sb.addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync
-            .optimizations.rev181109.Stateful1.class, syncOptBuilder.build());
+        sb.addAugmentation(syncOptBuilder.build());
     }
 
     @Override
