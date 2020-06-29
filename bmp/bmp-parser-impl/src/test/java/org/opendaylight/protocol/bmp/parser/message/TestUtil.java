@@ -46,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
@@ -232,11 +231,12 @@ public final class TestUtil {
                     .setAsNumber(new AsNumber(Uint32.valueOf(70))).build()).build());
         final CParametersBuilder paramsBuilder = new CParametersBuilder();
         if (multiprotocol) {
-            final CParameters1Builder params1Builder = new CParameters1Builder();
-            params1Builder.setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(Ipv4AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class).build());
-            paramsBuilder.addAugmentation(CParameters1.class, params1Builder.build());
+            paramsBuilder.addAugmentation(new CParameters1Builder()
+                .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                    .setAfi(Ipv4AddressFamily.class)
+                    .setSafi(UnicastSubsequentAddressFamily.class)
+                    .build())
+                .build());
         }
         final OptionalCapabilitiesBuilder optCapabilitiesBuilder2 = new OptionalCapabilitiesBuilder()
             .setCParameters(paramsBuilder
@@ -303,7 +303,7 @@ public final class TestUtil {
         final SegmentsBuilder segmentsBuild = new SegmentsBuilder();
         segmentsBuild.setAsSequence(asSequences).build();
 
-        final AttributesBuilder attribBuilder = new AttributesBuilder()
+        return new AttributesBuilder()
             .setAggregator(new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(72)))
                     .setNetworkAddress(IPV4_ADDRESS_20).build())
             .setAigp(new AigpBuilder().setAigpTlv(new AigpTlvBuilder()
@@ -319,8 +319,7 @@ public final class TestUtil {
             .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(123)).build())
             .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
             .setOriginatorId(new OriginatorIdBuilder().setOriginator(IPV4_ADDRESS_12).build())
-            .setUnrecognizedAttributes(new ArrayList<>());
-        return attribBuilder.build();
+            .build();
     }
 
     private static List<Communities> createCommunities() {
