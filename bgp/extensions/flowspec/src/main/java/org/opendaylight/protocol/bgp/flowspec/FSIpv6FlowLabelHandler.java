@@ -25,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.group.ipv6.flowspec.flowspec.type.FlowLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.group.ipv6.flowspec.flowspec.type.flow.label._case.FlowLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.group.ipv6.flowspec.flowspec.type.flow.label._case.FlowLabelBuilder;
-import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class FSIpv6FlowLabelHandler implements FlowspecTypeParser, FlowspecTypeSerializer {
     static final int FLOW_LABEL_VALUE = 13;
@@ -63,7 +62,7 @@ public final class FSIpv6FlowLabelHandler implements FlowspecTypeParser, Flowspe
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(Uint32.valueOf(ByteArray.bytesToLong(ByteArray.readBytes(nlri, length))));
+            builder.setValue(ByteArray.readUint32(nlri, length));
             end = op.getEndOfList();
             labels.add(builder.build());
         }

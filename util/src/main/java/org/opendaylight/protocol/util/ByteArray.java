@@ -9,7 +9,9 @@ package org.opendaylight.protocol.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.annotations.Beta;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,6 +20,9 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,5 +244,31 @@ public final class ByteArray {
      */
     public static String encodeBase64(final ByteBuf buffer) {
         return Base64.getEncoder().encodeToString(ByteArray.readAllBytes(buffer));
+    }
+
+    @Beta
+    public static Uint32 readUint32(final ByteBuf buffer, final int length) {
+        checkReadable(buffer, length);
+        return ByteBufUtils.readUint32(ensureAvailable(buffer, length, Integer.BYTES));
+    }
+
+    @Beta
+    public static Uint64 readUint64(final ByteBuf buffer, final int length) {
+        checkReadable(buffer, length);
+        return ByteBufUtils.readUint64(ensureAvailable(buffer, length, Long.BYTES));
+    }
+
+    private static ByteBuf ensureAvailable(final ByteBuf buffer, final int allowed, final int required) {
+        return allowed == required ? buffer : padLeading(buffer, allowed, required);
+    }
+
+    private static ByteBuf padLeading(final ByteBuf buffer, final int avail, final int required) {
+        final byte[] res = new byte[required];
+        buffer.readBytes(res, required - avail, avail);
+        return Unpooled.wrappedBuffer(res);
+    }
+
+    private static void checkReadable(final ByteBuf buffer, final int length) {
+        checkArgument(buffer.readableBytes() >= length, "Buffer cannot be read for %s bytes.", length);
     }
 }
