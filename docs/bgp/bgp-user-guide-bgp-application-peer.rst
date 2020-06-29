@@ -10,6 +10,8 @@ Application Peer configuration
 ''''''''''''''''''''''''''''''
 Following configuration sample show a way to configure the *Application Peer*:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
@@ -33,11 +35,44 @@ Following configuration sample show a way to configure the *Application Peer*:
 
 @line 4: Indicates that peer is associated with *application-peers* group. It serves to distinguish *Application Peer's* from regular neighbors.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4,6
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "10.25.1.9",
+               "config": {
+                   "peer-group": "application-peers"
+               }
+           }
+       ]
+   }
+
+@line 4: IP address is uniquely identifying *Application Peer* and its programmable RIB. Address is also used in local BGP speaker decision process.
+
+@line 6: Indicates that peer is associated with *application-peers* group. It serves to distinguish *Application Peer's* from regular neighbors.
+
 -----
 
 The *Application Peer* presence can be verified via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F10.25.1.9``
+
+**RFC8040 URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F10.25.1.9?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -74,11 +109,59 @@ The *Application Peer* presence can be verified via REST:
 
 @line 8: Adj-RIB-In is empty, as no routes were originated yet.
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F10.25.1.9``
+
+**RFC8040 URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F10.25.1.9?content=nonconfig``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 5,12
+
+   {
+       "peer": [
+           {
+               "peer-id": "bgp://10.25.1.9",
+               "peer-role": "internal",
+               "adj-rib-in": {
+                   "tables": [
+                       {
+                           "afi": "bgp-types:ipv4-address-family",
+                           "safi": "bgp-types:unicast-subsequent-address-family",
+                           "attributes": {
+                               "uptodate": false
+                           }
+                       }
+                   ]
+               },
+               "effective-rib-in": {
+                   "tables": [
+                       {
+                           "afi": "bgp-types:ipv4-address-family",
+                           "safi": "bgp-types:unicast-subsequent-address-family"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
+
+@line 5: Peer role for *Application Peer* is *internal*.
+
+@line 12: Adj-RIB-In is empty, as no routes were originated yet.
+
 .. note:: There is no Adj-RIB-Out for *Application Peer*.
 
 Programmable RIB
 ''''''''''''''''
 Next example shows how to inject a route into the programmable RIB.
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
 
@@ -107,11 +190,47 @@ Next example shows how to inject a route into the programmable RIB.
        </attributes>
    </ipv4-route>
 
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-inet:ipv4-route": [
+           {
+               "path-id": 0,
+               "prefix": "10.0.0.11/32",
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "ipv4-next-hop": {
+                       "global": "10.11.1.1"
+                   }
+               }
+           }
+       ]
+   }
+
 -----
 
 Now the injected route appears in *Application Peer's* RIBs and in local speaker's Loc-RIB:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F10.25.1.9``
+
+**RFC8040 URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F10.25.1.9?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -180,7 +299,91 @@ Now the injected route appears in *Application Peer's* RIBs and in local speaker
 
 @line 9: Injected route is present in *Application Peer's* Adj-RIB-In and Effective-RIB-In.
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F10.25.1.9``
+
+**RFC8040 URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F10.25.1.9?content=nonconfig``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 12
+
+   {
+       "peer": [
+           {
+               "peer-id": "bgp://10.25.1.9",
+               "peer-role": "internal",
+               "adj-rib-in": {
+                   "tables": [
+                       {
+                           "afi": "bgp-types:ipv4-address-family",
+                           "safi": "bgp-types:unicast-subsequent-address-family",
+                           "bgp-inet:ipv4-routes":{
+                               "ipv4-route": [
+                                   {
+                                       "path-id": 0,
+                                       "prefix": "10.0.0.11/32",
+                                       "attributes": {
+                                           "origin": {
+                                               "value": "igp"
+                                           },
+                                           "local-pref": {
+                                               "pref": 100
+                                           },
+                                           "ipv4-next-hop": {
+                                               "global": "10.11.1.1"
+                                           }
+                                       }
+                                   }
+                               ]
+                           },
+                           "attributes": {
+                               "uptodate": false
+                           }
+                       }
+                   ]
+               },
+               "effective-rib-in": {
+                   "tables": [
+                       {
+                           "afi": "bgp-types:ipv4-address-family",
+                           "safi": "bgp-types:unicast-subsequent-address-family",
+                           "bgp-inet:ipv4-routes":{
+                               "ipv4-route": [
+                                   {
+                                       "path-id": 0,
+                                       "prefix": "10.0.0.11/32",
+                                       "attributes": {
+                                           "origin": {
+                                               "value": "igp"
+                                           },
+                                           "local-pref": {
+                                               "pref": 100
+                                           },
+                                           "ipv4-next-hop": {
+                                               "global": "10.11.1.1"
+                                           }
+                                       }
+                                   }
+                               ]
+                           }
+                       }
+                   ]
+               }
+           }
+       ]
+   }
+
+@line 12: Injected route is present in *Application Peer's* Adj-RIB-In and Effective-RIB-In.
+
 -----
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
 
@@ -229,9 +432,62 @@ Now the injected route appears in *Application Peer's* RIBs and in local speaker
 
 @line 2: The injected route is now present in Loc-RIB along with a route (destination *10.0.0.10/32*) advertised by remote peer.
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3
+
+   {
+       "bgp-inet:ipv4-routes":{
+           "ipv4-route": [
+               {
+                   "path-id": 0,
+                   "prefix": "10.0.0.10/32",
+                   "attributes": {
+                       "origin": {
+                           "value": "igp"
+                       },
+                       "local-pref": {
+                          "pref": 100
+                       },
+                       "ipv4-next-hop": {
+                          "global": "10.11.1.1"
+                       }
+                   }
+               },
+               {
+                   "path-id": 0,
+                   "prefix": "10.0.0.10/32",
+                   "attributes": {
+                       "origin": {
+                          "value": "igp"
+                       },
+                       "local-pref": {
+                          "pref": 100
+                       },
+                       "ipv4-next-hop": {
+                          "global": "10.11.1.1"
+                       }
+                   }
+               }
+           ]
+       }
+   }
+
+@line 3: The injected route is now present in Loc-RIB along with a route (destination *10.0.0.10/32*) advertised by remote peer.
+
 -----
 
 This route is also advertised to the remote peer (*192.0.2.1*), hence route appears in its Adj-RIB-Out:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F192.0.2.1/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
 
@@ -258,9 +514,41 @@ This route is also advertised to the remote peer (*192.0.2.1*), hence route appe
        </attributes>
    </ipv4-route>
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F192.0.2.1/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-inet:ipv4-route": [
+           {
+               "path-id": 0,
+               "prefix": "10.0.0.11/32",
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 100
+                   },
+                   "ipv4-next-hop": {
+                       "global": "10.11.1.1"
+                   }
+               }
+           }
+       ]
+   }
+
 -----
 
 The injected route can be modified (i.e. different path attribute):
+
+**XML**
 
 **URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0``
 
@@ -288,6 +576,38 @@ The injected route can be modified (i.e. different path attribute):
            </ipv4-next-hop>
        </attributes>
    </ipv4-route>
+
+**JSON**
+
+**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+
+   {
+       "bgp-inet:ipv4-route": [
+           {
+               "path-id": 0,
+               "prefix": "10.0.0.11/32",
+               "attributes": {
+                   "origin": {
+                       "value": "igp"
+                   },
+                   "local-pref": {
+                       "pref": 50
+                   },
+                   "ipv4-next-hop": {
+                       "global": "10.11.1.1"
+                   }
+               }
+           }
+       ]
+   }
 
 -----
 

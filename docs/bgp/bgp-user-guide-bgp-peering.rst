@@ -8,6 +8,8 @@ The TCP connection is established between two peers and they exchange messages t
 
 Here is a sample basic neighbor configuration:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
@@ -59,12 +61,65 @@ Here is a sample basic neighbor configuration:
 
 @line 19: Enable families.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4,7,8,13,14,18
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "timers": {
+                   "config": {
+                       "hold-time": 90,
+                       "connect-retry": 10
+                   }
+               },
+               "transport": {
+                   "config": {
+                       "remote-port": 179,
+                       "passive-mode": "false"
+                   }
+               },
+               "config": {
+                  "peer-type": "INTERNAL"
+               }
+           }
+       ]
+   }
+
+@line 4: IP address of the remote BGP peer. Also serves as an unique identifier of a neighbor in a list of neighbors.
+
+@line 7: Proposed number of seconds for value of the Hold Timer. Default value is **90**.
+
+@line 8: Time interval in seconds between attempts to establish session with the peer. Effective in active mode only. Default value is **30**.
+
+@line 13: Remote port number to which the local BGP is connecting. Effective in active mode only. Default value **179**.
+
+@line 14: Wait for peers to issue requests to open a BGP session, rather than initiating sessions from the local router. Default value is **false**.
+
+@line 18: Explicitly designate the peer as internal or external. Default value is **INTERNAL**.
+
 -----
 
 Once the remote peer is connected and it advertised routes to local BGP system, routes are stored in peer's RIBs.
 The RIBs can be checked via REST:
 
+**XML**
+
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F192.0.2.1``
+
+**RFC8040 URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F192.0.2.1?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -157,9 +212,120 @@ The RIBs can be checked via REST:
 
 @line 66: The peer's Adj-RIB-Out is empty as there are no routes to be advertise from local BGP speaker.
 
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F192.0.2.1``
+
+**RFC8040 URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F192.0.2.1?content=nonconfig``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 12,18,42,48,72,76
+
+   {
+       "peer": [
+           {
+               "peer-id": "bgp://192.0.2.1",
+               "peer-role": "ibgp",
+               "supported-tables": [
+                   {
+                       "afi": "bgp-types:ipv4-address-family",
+                       "safi": "bgp-types:unicast-subsequent-address-family"
+                   }
+               ],
+               "adj-rib-in": {
+                   "tables": [
+                       {
+                           "afi": "bgp-types:ipv4-address-family",
+                           "safi": "bgp-types:unicast-subsequent-address-family",
+                           "bgp-inet:ipv4-routes":{
+                               "ipv4-route": [
+                                   {
+                                       "path-id": 0,
+                                       "prefix": "10.0.0.10/32",
+                                       "attributes": {
+                                           "origin": {
+                                               "value": "igp"
+                                           },
+                                           "local-pref": {
+                                               "pref": 100
+                                           },
+                                           "ipv4-next-hop": {
+                                               "global": "10.10.1.1"
+                                           }
+                                       }
+                                   }
+                               ]
+                           },
+                           "attributes": {
+                               "uptodate": true
+                           }
+                       }
+                   ]
+               },
+               "effective-rib-in": {
+                   "tables": [
+                       {
+                           "afi": "bgp-types:ipv4-address-family",
+                           "safi": "bgp-types:unicast-subsequent-address-family",
+                           "bgp-inet:ipv4-routes":{
+                               "ipv4-route": [
+                                   {
+                                       "path-id": 0,
+                                       "prefix": "10.0.0.11/32",
+                                       "attributes": {
+                                           "origin": {
+                                               "value": "igp"
+                                           },
+                                           "local-pref": {
+                                               "pref": 100
+                                           },
+                                           "ipv4-next-hop": {
+                                               "global": "10.11.1.1"
+                                           }
+                                       }
+                                   }
+                               ]
+                           },
+                           "attributes": {
+                               "uptodate": true
+                           }
+                       }
+                   ]
+               },
+               "adj-rib-out": {
+                   "tables": [
+                       {
+                           "afi": "bgp-types:ipv4-address-family",
+                           "safi": "bgp-types:unicast-subsequent-address-family"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
+
+@line 12: **Adj-RIB-In** - Per-peer RIB, which contains unprocessed routes that has been advertised to local BGP speaker by the remote peer.
+
+@line 18: Here is the reported route with destination *10.0.0.10/32* in Adj-RIB-In.
+
+@line 42: **Effective-RIB-In** - Per-peer RIB, which contains processed routes as a result of applying inbound policy to Adj-RIB-In routes.
+
+@line 48: Here is the reported route with destination *10.0.0.10/32*, same as in Adj-RIB-In, as it was not touched by import policy.
+
+@line 72: **Adj-RIB-Out** - Per-peer RIB, which contains routes for advertisement to the peer by means of the local speaker's UPDATE message.
+
+@line 76: The peer's Adj-RIB-Out is empty as there are no routes to be advertise from local BGP speaker.
+
 -----
 
 Also the same route should appeared in Loc-RIB now:
+
+**XML**
 
 **URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
 
@@ -199,6 +365,48 @@ Also the same route should appeared in Loc-RIB now:
 @line 11: **LOCAL_PREF** - indicates a degree of preference for external routes, higher value is preferred.
 
 @line 14: **NEXT_HOP** - mandatory attribute, defines IP address of the router that should be used as the next hop to the destination.
+
+**JSON**
+
+**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 6,12,15,18
+
+   {
+       "bgp-inet:ipv4-routes":{
+           "ipv4-route": [
+               {
+                   "path-id": 0,
+                   "prefix": "10.0.0.10/32",
+                   "attributes": {
+                       "origin": {
+                           "value": "igp"
+                       },
+                       "local-pref": {
+                          "pref": "100"
+                       },
+                       "ipv4-next-hop": {
+                          "global": "10.10.1.1"
+                       }
+                   }
+               }
+           ]
+       }
+   }
+
+@line 6: **Destination** - IPv4 Prefix Address.
+
+@line 12: **ORIGIN** - mandatory attribute, indicates an origin of the route - **ibgp**, **egp**, **incomplete**.
+
+@line 15: **LOCAL_PREF** - indicates a degree of preference for external routes, higher value is preferred.
+
+@line 18: **NEXT_HOP** - mandatory attribute, defines IP address of the router that should be used as the next hop to the destination.
 
 -----
 
@@ -354,6 +562,8 @@ External peering configuration
 An example above provided configuration for internal peering only.
 Following configuration sample is intended for external peering:
 
+**XML**
+
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
@@ -376,6 +586,34 @@ Following configuration sample is intended for external peering:
 
 @line 5: AS number of the remote peer.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 6
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.3",
+               "config": {
+                   "peer-as": 64999,
+                   "peer-type": "EXTERNAL"
+               }
+           }
+       ]
+   }
+
+@line 6: AS number of the remote peer.
+
 Local AS
 ''''''''
 
@@ -391,6 +629,8 @@ In updates sent from R3 to R2, the AS_SEQUENCE in the AS_PATH attribute contains
 AS 62 will be prepended to updates that are sent to and received from R3.
 
 Following configuration sample is intended for external peering with Local AS:
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -417,10 +657,43 @@ Following configuration sample is intended for external peering with Local AS:
 
 @line 6: Local AS number of the remote peer.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 7,8
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.3",
+               "config": {
+                   "peer-type": "EXTERNAL",
+                   "peer-as": 63,
+                   "local-as":62
+               }
+           }
+       ]
+   }
+
+@line 7: AS number of the remote peer.
+
+@line 8: Local AS number of the remote peer.
+
 Route reflector configuration
 '''''''''''''''''''''''''''''
 The local BGP speaker can be configured with a specific *cluster ID*.
 Following example adds the cluster ID to the existing speaker instance:
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/global/config``
 
@@ -443,9 +716,36 @@ Following example adds the cluster ID to the existing speaker instance:
 @line 4: Route-reflector cluster id to use when local router is configured as a route reflector.
    The *router-id* is used as a default value.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/global/config``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 5
+
+   {
+       "bgp-openconfig-extensions:config": {
+           "router-id": "192.0.2.2",
+           "as": 65000,
+           "route-reflector-cluster-id": "192.0.2.1"
+       }
+   }
+
+@line 5: Route-reflector cluster id to use when local router is configured as a route reflector.
+   The *router-id* is used as a default value.
+
 -----
 
 Following configuration sample is intended for route reflector client peering:
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -473,11 +773,43 @@ Following configuration sample is intended for route reflector client peering:
 
 @line 8: Configure the neighbor as a route reflector client. Default value is *false*.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 10
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.4",
+               "config": {
+                   "peer-type": "INTERNAL"
+               },
+               "route-reflector": {
+                   "config": {
+                       "route-reflector-client": true
+                   }
+               }
+           }
+       ]
+   }
+
+@line 10: Configure the neighbor as a route reflector client. Default value is *false*.
+
 Route reflector and Multiple Cluster IDs
 ''''''''''''''''''''''''''''''''''''''''
 
-An optional non-transitive attribute called CLUSTER_LIST is modified when a route reflector reflects a prefix. 
-For loop prevention the route reflector adds its own cluster ID to, and discards any update containing router's own cluster ID. 
+An optional non-transitive attribute called CLUSTER_LIST is modified when a route reflector reflects a prefix.
+For loop prevention the route reflector adds its own cluster ID to, and discards any update containing router's own cluster ID.
 Using multiple cluster IDs allows updates to propagate to nodes that reside in a different cluster.
 
 
@@ -485,6 +817,8 @@ Using multiple cluster IDs allows updates to propagate to nodes that reside in a
    :alt: BGP RR Multiple Cluster IDs setup.
 
 Following configuration sample is intended for route reflector client peering using specific cluster id:
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -515,10 +849,47 @@ Following configuration sample is intended for route reflector client peering us
 
 @line 9: Route-reflector cluster id to use for this specific neighbor when local router is configured as a route reflector.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 10,11
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.4",
+               "config": {
+                   "peer-type": "INTERNAL"
+               },
+               "route-reflector": {
+                   "config": {
+                       "route-reflector-client": true,
+                       "route-reflector-cluster-id":"192.0.2.4"
+                   }
+               }
+           }
+       ]
+   }
+
+@line 10: Configure the neighbor as a route reflector client. Default value is *false*.
+
+@line 11: Route-reflector cluster id to use for this specific neighbor when local router is configured as a route reflector.
+
 MD5 authentication configuration
 ''''''''''''''''''''''''''''''''
 The OpenDaylight BGP implementation is supporting TCP MD5 for authentication.
 Sample configuration below shows how to set authentication password for a peer:
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -541,12 +912,41 @@ Sample configuration below shows how to set authentication password for a peer:
 
 @line 4: Configures an MD5 authentication password for use with neighboring devices.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 6
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.5",
+               "config": {
+                   "auth-password": "topsecret"
+               }
+           }
+       ]
+   }
+
+@line 6: Configures an MD5 authentication password for use with neighboring devices.
+
 BGP Peer Group
 ''''''''''''''
 
 Allows the creation of a peer group configuration that applies to all peers configured as part of the group.
 
 A sample peer group configuration follows:
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups``
 
@@ -628,9 +1028,96 @@ A sample peer group configuration follows:
 
 @line 2: Peer Group Identifier.
 
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4
+
+   {
+       "peer-group": [
+           {
+               "peer-group-name": "internal-neighbor",
+               "config": {
+                   "peer-as": 64496,
+                   "peer-type": "INTERNAL"
+               },
+               "transport": {
+                   "config": {
+                       "remote-port": 179,
+                       "passive-mode": true
+                   }
+               },
+               "timers": {
+                   "config": {
+                       "hold-time": 180,
+                       "connect-retry": 10
+                   }
+               },
+               "route-reflector": {
+                   "config": {
+                       "route-reflector-client": false
+                   }
+               },
+               "afi-safis": {
+                   "afi-safi": [
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:L2VPN-EVPN"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV6-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "bgp-openconfig-extensions:IPV6-FLOW"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV4-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:IPV6-LABELLED-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "bgp-openconfig-extensions:LINKSTATE"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:IPV6-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "bgp-openconfig-extensions:IPV4-L3VPN-FLOW"
+                       },
+                       {
+                           "afi-safi-name": "bgp-openconfig-extensions:IPV6-L3VPN-FLOW"
+                       },
+                       {
+                           "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST"
+                       },
+                       {
+                           "afi-safi-name": "bgp-openconfig-extensions:IPV4-FLOW"
+                       }
+                   ]
+               }
+           }
+       ]
+   }
+
+@line 4: Peer Group Identifier.
+
 -----
 
 A sample basic neighbor configuration using a peer group follows:
+
+**XML**
 
 **URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
@@ -652,6 +1139,33 @@ A sample basic neighbor configuration using a peer group follows:
    </neighbor>
 
 @line 4: Peer group identifier.
+
+**JSON**
+
+**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 6
+
+   {
+       "neighbor": [
+           {
+               "neighbor-address": "192.0.2.1",
+               "config": {
+                   "peer-group": "/bgp/neighbors/neighbor/bgp/peer-groups/peer-group[peer-group-name=\"internal-neighbor\"]"
+               }
+           }
+       ]
+   }
+
+@line 6: Peer group identifier.
 
 .. note:: Existing neighbor configuration can be reconfigured (change configuration parameters) anytime.
    As a result, established connection is dropped, peer instance is recreated with a new configuration settings and connection re-established.
