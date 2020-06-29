@@ -161,7 +161,7 @@ public final class LinkAttributesParser {
                     parseUnreservedBandwidth(value, builder);
                     break;
                 case TE_METRIC:
-                    builder.setTeMetric(new TeMetric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
+                    builder.setTeMetric(new TeMetric(ByteBufUtils.readUint32(value)));
                     LOG.debug("Parsed Metric {}", builder.getTeMetric());
                     break;
                 case LINK_PROTECTION_TYPE:
