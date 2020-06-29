@@ -47,7 +47,7 @@ public final class Ipv4Util {
      * @return Ipv4AddressNoZone
      */
     public static Ipv4AddressNoZone addressForByteBuf(final ByteBuf buffer) {
-        return IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(ByteArray.readBytes(buffer, IP4_LENGTH));
+        return IetfInetUtil.INSTANCE.ipv4AddressFor(ByteArray.readBytes(buffer, IP4_LENGTH));
     }
 
     /**
@@ -227,8 +227,7 @@ public final class Ipv4Util {
     }
 
     public static Ipv4Prefix incrementIpv4Prefix(final Ipv4Prefix ipv4Prefix) {
-        final Entry<Ipv4AddressNoZone, Integer> splitIpv4Prefix =
-                IetfInetUtil.INSTANCE.splitIpv4PrefixNoZone(ipv4Prefix);
+        final Entry<Ipv4AddressNoZone, Integer> splitIpv4Prefix = IetfInetUtil.INSTANCE.splitIpv4Prefix(ipv4Prefix);
         return IetfInetUtil.INSTANCE.ipv4PrefixFor(incrementIpv4Address(splitIpv4Prefix.getKey()),
                 splitIpv4Prefix.getValue());
     }

@@ -52,7 +52,7 @@ public final class Ipv6Util {
      * @return Ipv6Address
      */
     public static Ipv6AddressNoZone addressForByteBuf(final ByteBuf buffer) {
-        return IetfInetUtil.INSTANCE.ipv6AddressNoZoneFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
+        return IetfInetUtil.INSTANCE.ipv6AddressFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
     }
 
     /**
