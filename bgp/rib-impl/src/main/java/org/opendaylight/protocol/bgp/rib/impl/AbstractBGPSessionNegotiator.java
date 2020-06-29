@@ -109,8 +109,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
 
             final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
             final Uint16 as = openASNumber(preferences.getMyAs().getValue().longValue());
-            sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
-                    preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
+            sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(Uint16.valueOf(preferences.getHoldTime()))
+                .setBgpIdentifier(preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
             if (this.state != State.FINISHED) {
                 this.state = State.OPEN_SENT;
                 this.pending = this.channel.eventLoop().schedule(() -> {
