@@ -9,9 +9,7 @@
 package org.opendaylight.protocol.bgp.state;
 
 import com.google.common.primitives.UnsignedInteger;
-import com.google.common.primitives.UnsignedLong;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -81,7 +79,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.Sent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instances.network.instance.protocols.protocol.bgp.neighbors.neighbor.state.messages.SentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 /**
  * Util for create OpenConfig Neighbor with corresponding openConfig state.
@@ -238,7 +238,7 @@ public final class NeighborUtil {
         final NeighborGracefulRestartStateAugmentation gracefulRestartState =
                 new NeighborGracefulRestartStateAugmentationBuilder()
                         .setLocalRestarting(neighbor.isLocalRestarting())
-                        .setPeerRestartTime(neighbor.getPeerRestartTime())
+                        .setPeerRestartTime(Uint16.valueOf(neighbor.getPeerRestartTime()))
                         .setMode(neighbor.getMode())
                         .setPeerRestarting(neighbor.isPeerRestarting()).build();
 
@@ -299,19 +299,15 @@ public final class NeighborUtil {
 
     private static Received buildMessagesReceived(final @NonNull BGPPeerMessagesState neighbor) {
         return new ReceivedBuilder()
-                .setUPDATE(toBigInteger(neighbor.getUpdateMessagesReceivedCount()))
-                .setNOTIFICATION(toBigInteger(neighbor.getNotificationMessagesReceivedCount()))
+                .setUPDATE(Uint64.valueOf(neighbor.getUpdateMessagesReceivedCount()))
+                .setNOTIFICATION(Uint64.valueOf(neighbor.getNotificationMessagesReceivedCount()))
                 .build();
-    }
-
-    public static BigInteger toBigInteger(final long updateReceivedCounter) {
-        return UnsignedLong.valueOf(updateReceivedCounter).bigIntegerValue();
     }
 
     private static Sent buildMessagesSent(final @NonNull BGPPeerMessagesState neighbor) {
         return new SentBuilder()
-                .setUPDATE(toBigInteger(neighbor.getUpdateMessagesSentCount()))
-                .setNOTIFICATION(toBigInteger(neighbor.getNotificationMessagesSentCount()))
+                .setUPDATE(Uint64.valueOf(neighbor.getUpdateMessagesSentCount()))
+                .setNOTIFICATION(Uint64.valueOf(neighbor.getNotificationMessagesSentCount()))
                 .build();
     }
 

@@ -378,7 +378,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         attBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(localPreference)).build());
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
-        attBuilder.setUnrecognizedAttributes(Collections.emptyList());
+        attBuilder.setUnrecognizedAttributes(Collections.emptyMap());
         return new UpdateBuilder()
                 .setWithdrawnRoutes(Collections.singletonList(new WithdrawnRoutesBuilder().setPrefix(prefix).build()))
                 .build();

@@ -64,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class PeerUtil {
@@ -173,7 +174,7 @@ final class PeerUtil {
                     .addAugmentation(new CParameters1Builder()
                         .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
                             .setRestartFlags(new GracefulRestartCapability.RestartFlags(false))
-                            .setRestartTime(restartTime)
+                            .setRestartTime(Uint16.valueOf(restartTime))
                             .setTables(gracefulTables.keySet().stream()
                                 .map(key -> new TablesBuilder()
                                     .setAfi(key.getAfi())

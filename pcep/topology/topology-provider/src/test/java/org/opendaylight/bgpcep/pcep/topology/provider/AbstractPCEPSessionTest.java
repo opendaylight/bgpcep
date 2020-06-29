@@ -146,7 +146,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(this.statsRegistry).when(this.topologyDependencies).getStateRegistry();
 
         @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
+                .getGenericSuperclass()).getActualTypeArguments()[0]).getDeclaredConstructor().newInstance();
         doReturn(new IpAddressNoZone(new Ipv4AddressNoZone(this.testAddress))).when(this.sessionConfig)
             .getListenAddress();
         doReturn(new PortNumber(Uint16.valueOf(4189))).when(this.sessionConfig).getListenPort();
