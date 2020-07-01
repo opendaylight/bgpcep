@@ -378,7 +378,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         this.addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         final boolean restartingLocally = isLocalRestarting();
-
+        if (!restartingLocally) {
+            addBgp4Support();
+        }
         if (!isRestartingGracefully()) {
             this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
             this.peerId = RouterIds.createPeerId(session.getBgpId());
@@ -449,7 +451,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
 
         if (!restartingLocally) {
-            addBgp4Support();
+            if (!setTables.contains(IPV4_UCAST_TABLE_KEY)) {
+                createAdjRibOutListener(IPV4_UCAST_TABLE_KEY, false);
+            }
             for (final TablesKey key : getAfiSafisAdvertized()) {
                 createAdjRibOutListener(key, true);
             }
@@ -481,7 +485,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final HashSet<TablesKey> newSet = new HashSet<>(this.tables);
             newSet.add(IPV4_UCAST_TABLE_KEY);
             this.tables = ImmutableSet.copyOf(newSet);
-            createAdjRibOutListener(IPV4_UCAST_TABLE_KEY, false);
         }
     }
 
