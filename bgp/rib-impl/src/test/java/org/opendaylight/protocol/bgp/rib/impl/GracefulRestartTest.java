@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkStateIsNotRestarting;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkUpState;
@@ -74,7 +75,9 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 public class GracefulRestartTest extends AbstractAddPathTest {
 
     private BGPSessionImpl session;
+    private BGPSessionImpl sessionv6;
     private BGPPeer peer;
+    private BGPPeer nonIpv4;
     private final Set<TablesKey> afiSafiAdvertised = new HashSet<>();
     private final Set<TablesKey> gracefulAfiSafiAdvertised = new HashSet<>();
     private RIBImpl ribImpl;
@@ -137,6 +140,28 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         waitFutureSuccess(this.serverChannel.close());
         this.session.close();
         super.tearDown();
+    }
+
+    /**
+     * Test graceful restart of a non-IPv4 peer.
+     * {@link BGPPeer#releaseConnection(boolean)} should not throw NPE and binding chain should be closed
+     * successfully.
+     *
+     * @throws InterruptedException on create peer session.
+     */
+    @Test
+    public void nonIpv4PeerGracefulRestart() throws InterruptedException {
+        BgpParameters parametersv6 = PeerUtil.createBgpParameters(Collections.singletonList(IPV6_TABLES_KEY),
+                Collections.emptyList(), Collections.singletonMap(IPV6_TABLES_KEY, true),
+                GRACEFUL_RESTART_TIME);
+        gracefulAfiSafiAdvertised.add(IPV6_TABLES_KEY);
+        this.nonIpv4 = configurePeer(this.tableRegistry, PEER2, this.ribImpl, parametersv6, PeerRole.Ibgp,
+                this.serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised);
+        this.sessionv6 = createPeerSession(PEER2, parametersv6, this.listener);
+        final Open open = createClassicOpen(true);
+        this.sessionv6.writeAndFlush(open);
+        checkIdleState(this.nonIpv4);
+        assertNull(this.nonIpv4.bindingChain);
     }
 
     /**
