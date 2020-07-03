@@ -23,27 +23,55 @@ PCEP session is restarted.
 
 **URL:** ``/restconf/config/network-topology:network-topology/topology/pcep-topology/node/43.43.43.43``
 
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
+
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,4
+      **Content-Type:** ``application/xml``
 
+      **Request Body:**
 
-    <node xmlns="urn:TBD:params:xml:ns:yang:network-topology">
-        <node-id>43.43.43.43</node-id>
-        <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
-            <speaker-entity-id-value xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:sync:optimizations:config">AQIDBA==</speaker-entity-id-value>
-        </session-config>
-    </node>
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,4
 
-@line 2: **address** - A PCC IP address.
+         <node xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+             <node-id>43.43.43.43</node-id>
+             <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
+                 <speaker-entity-id-value xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:sync:optimizations:config">AQIDBA==</speaker-entity-id-value>
+             </session-config>
+         </node>
 
-@line 4: **Speaker Entity Identifier** - The Speaker Entity identifier assigned to PCEP Node.
+      @line 2: **address** - A PCC IP address.
+
+      @line 4: **Speaker Entity Identifier** - The Speaker Entity identifier assigned to PCEP Node.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,5
+
+         {
+             "node": {
+                 "node-id": "43.43.43.43",
+                 "topology:pcep:config:session-config": {
+                     "topology:pcep:sync:optimizations:config:speaker-entity-id-value": "AQIDBA=="
+                 }
+             }
+         }
+
+      @line 3: **address** - A PCC IP address.
+
+      @line 5: **Speaker Entity Identifier** - The Speaker Entity identifier assigned to PCEP Node.
 
 MD5 authentication configuration
 ''''''''''''''''''''''''''''''''
@@ -52,27 +80,55 @@ The sample configuration below shows how to set authentication password for a pa
 
 **URL:** ``/restconf/config/network-topology:network-topology/topology/pcep-topology/node/43.43.43.43``
 
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
+
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,4
+      **Content-Type:** ``application/xml``
 
+      **Request Body:**
 
-    <node xmlns="urn:TBD:params:xml:ns:yang:network-topology">
-        <node-id>43.43.43.43</node-id>
-        <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
-            <password>topsecret</password>
-        </session-config>
-    </node>
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,4
 
-@line 2: **address** - A PCC IP address.
+         <node xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+             <node-id>43.43.43.43</node-id>
+             <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
+                 <password>topsecret</password>
+             </session-config>
+         </node>
 
-@line 4: **password** - MD5 authentication phrase.
+      @line 2: **address** - A PCC IP address.
+
+      @line 4: **password** - MD5 authentication phrase.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,5
+
+         {
+             "node": {
+                 "node-id": "43.43.43.43",
+                 "topology:pcep:config:session-config": {
+                     "password": "topsecret"
+                 }
+             }
+         }
+
+      @line 3: **address** - A PCC IP address.
+
+      @line 5: **password** - MD5 authentication phrase.
 
 LSP State Database
 ^^^^^^^^^^^^^^^^^^
@@ -419,114 +475,231 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
 
 **URL:** ``/restconf/operational/network-topology:network-topology/topology/pcep-topology/node/pcc:%2F%2F43.43.43.43``
 
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43``
+
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,4,5,8,12,14,15,16,17,18,20,24,25,26,28,29,32,36
+   .. tab:: XML
 
-   <node>
-      <node-id>pcc://43.43.43.43</node-id>
-      <path-computation-client>
-         <ip-address>43.43.43.43</ip-address>
-         <state-sync>synchronized</state-sync>
-         <stateful-tlv>
-            <stateful>
-               <lsp-update-capability>true</lsp-update-capability>
-            </stateful>
-         </stateful-tlv>
-         <reported-lsp>
-            <name>foo</name>
-            <lsp>
-               <operational>up</operational>
-               <sync>true</sync>
-               <plsp-id>1</plsp-id>
-               <create>false</create>
-               <administrative>true</administrative>
-               <remove>false</remove>
-               <delegate>true</delegate>
-               <tlvs>
-                  <lsp-identifiers>
-                     <ipv4>
-                        <ipv4-tunnel-sender-address>43.43.43.43</ipv4-tunnel-sender-address>
-                        <ipv4-tunnel-endpoint-address>39.39.39.39</ipv4-tunnel-endpoint-address>
-                        <ipv4-extended-tunnel-id>39.39.39.39</ipv4-extended-tunnel-id>
-                     </ipv4>
-                     <tunnel-id>1</tunnel-id>
-                     <lsp-id>1</lsp-id>
-                  </lsp-identifiers>
-                  <symbolic-path-name>
-                     <path-name>Zm9v</path-name>
-                  </symbolic-path-name>
-               </tlvs>
-            </lsp>
-            <ero>
-               <subobject>
-                  <loose>false</loose>
-                  <ip-prefix>
-                     <ip-prefix>201.20.160.40/32</ip-prefix>
-                  </ip-prefix>
-               </subobject>
-               <subobject>
-                  <loose>false</loose>
-                  <ip-prefix>
-                     <ip-prefix>195.20.160.39/32</ip-prefix>
-                  </ip-prefix>
-               </subobject>
-               <subobject>
-                  <loose>false</loose>
-                  <ip-prefix>
-                     <ip-prefix>39.39.39.39/32</ip-prefix>
-                  </ip-prefix>
-               </subobject>
-            </ero>
-         </reported-lsp>
-      </path-computation-client>
-   </node>
+      **Response Body:**
 
-@line 2: **node-id** The PCC identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,4,5,8,12,14,15,16,17,18,20,24,25,26,28,29,32,36
 
-@line 4: **ip-address** IP address of the PCC.
+         <node>
+            <node-id>pcc://43.43.43.43</node-id>
+            <path-computation-client>
+               <ip-address>43.43.43.43</ip-address>
+               <state-sync>synchronized</state-sync>
+               <stateful-tlv>
+                  <stateful>
+                     <lsp-update-capability>true</lsp-update-capability>
+                  </stateful>
+               </stateful-tlv>
+               <reported-lsp>
+                  <name>foo</name>
+                  <lsp>
+                     <operational>up</operational>
+                     <sync>true</sync>
+                     <plsp-id>1</plsp-id>
+                     <create>false</create>
+                     <administrative>true</administrative>
+                     <remove>false</remove>
+                     <delegate>true</delegate>
+                     <tlvs>
+                        <lsp-identifiers>
+                           <ipv4>
+                              <ipv4-tunnel-sender-address>43.43.43.43</ipv4-tunnel-sender-address>
+                              <ipv4-tunnel-endpoint-address>39.39.39.39</ipv4-tunnel-endpoint-address>
+                              <ipv4-extended-tunnel-id>39.39.39.39</ipv4-extended-tunnel-id>
+                           </ipv4>
+                           <tunnel-id>1</tunnel-id>
+                           <lsp-id>1</lsp-id>
+                        </lsp-identifiers>
+                        <symbolic-path-name>
+                           <path-name>Zm9v</path-name>
+                        </symbolic-path-name>
+                     </tlvs>
+                  </lsp>
+                  <ero>
+                     <subobject>
+                        <loose>false</loose>
+                        <ip-prefix>
+                           <ip-prefix>201.20.160.40/32</ip-prefix>
+                        </ip-prefix>
+                     </subobject>
+                     <subobject>
+                        <loose>false</loose>
+                        <ip-prefix>
+                           <ip-prefix>195.20.160.39/32</ip-prefix>
+                        </ip-prefix>
+                     </subobject>
+                     <subobject>
+                        <loose>false</loose>
+                        <ip-prefix>
+                           <ip-prefix>39.39.39.39/32</ip-prefix>
+                        </ip-prefix>
+                     </subobject>
+                  </ero>
+               </reported-lsp>
+            </path-computation-client>
+         </node>
 
-@line 5: **state-sync** Synchronization status of the PCC's LSPs. The *synchronized* indicates the State Synchronization is done.
+      @line 2: **node-id** The PCC identifier.
 
-@line 8: **lsp-update-capability** - Indicates that PCC allows LSP modifications.
+      @line 4: **ip-address** IP address of the PCC.
 
-@line 12: **name** - Textual representation of LPS's name.
+      @line 5: **state-sync** Synchronization status of the PCC's LSPs. The *synchronized* indicates the State Synchronization is done.
 
-@line 14: **operational** - Represent operational status of the LSP:
+      @line 8: **lsp-update-capability** - Indicates that PCC allows LSP modifications.
 
-   * *down* - not active.
-   * *up* - signaled.
-   * *active* - up and carrying traffic.
-   * *going-down* - LSP is being torn down, resources are being released.
-   * *going-up* - LSP is being signaled.
+      @line 12: **name** - Textual representation of LPS's name.
 
-@line 15: **sync** - The flag set by PCC during LSPs State Synchronization.
+      @line 14: **operational** - Represent operational status of the LSP:
 
-@line 16: **plsp-id** - A PCEP-specific identifier for the LSP. It is assigned by PCC and it is constant for a lifetime of a PCEP session.
+         * *down* - not active.
+         * *up* - signaled.
+         * *active* - up and carrying traffic.
+         * *going-down* - LSP is being torn down, resources are being released.
+         * *going-up* - LSP is being signaled.
 
-@line 17: **create** - The *false* indicates that LSP is PCC-initiated.
+      @line 15: **sync** - The flag set by PCC during LSPs State Synchronization.
 
-@line 18: **administrative** - The flag indicates target operational status of the LSP.
+      @line 16: **plsp-id** - A PCEP-specific identifier for the LSP. It is assigned by PCC and it is constant for a lifetime of a PCEP session.
 
-@line 20: **delegate** - The delegate flag indicates that the PCC is delegating the LSP to the PCE.
+      @line 17: **create** - The *false* indicates that LSP is PCC-initiated.
 
-@line 24: **ipv4-tunnel-sender-address** - Contains the sender node's IP address.
+      @line 18: **administrative** - The flag indicates target operational status of the LSP.
 
-@line 25: **ipv4-tunnel-endpoint-address** - Contains the egress node's IP address.
+      @line 20: **delegate** - The delegate flag indicates that the PCC is delegating the LSP to the PCE.
 
-@line 26: **ipv4-extended-tunnel-id** - The *Extended Tunnel ID* identifier.
+      @line 24: **ipv4-tunnel-sender-address** - Contains the sender node's IP address.
 
-@line 28: **tunnel-id** - The *Tunnel ID* identifier.
+      @line 25: **ipv4-tunnel-endpoint-address** - Contains the egress node's IP address.
 
-@line 29: **lsp-id** - The *LSP ID* identifier.
+      @line 26: **ipv4-extended-tunnel-id** - The *Extended Tunnel ID* identifier.
 
-@line 32: **path-name** - The symbolic name for the LSP.
+      @line 28: **tunnel-id** - The *Tunnel ID* identifier.
 
-@line 36: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
+      @line 29: **lsp-id** - The *LSP ID* identifier.
+
+      @line 32: **path-name** - The symbolic name for the LSP.
+
+      @line 36: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,5,6,9,13,15,16,17,18,19,21,25,26,27,29,30,33,37
+
+         {
+             "node": {
+                 "node-id": "pcc://43.43.43.43",
+                 "path-computation-client": {
+                     "ip-address": "43.43.43.43",
+                     "state-sync": "synchronized",
+                     "stateful-tlv": {
+                         "stateful": {
+                             "lsp-update-capability": true
+                         }
+                     },
+                     "reported-lsp": {
+                         "name": "foo",
+                         "lsp": {
+                             "operational": "up",
+                             "sync": true,
+                             "plsp-id": 1,
+                             "create": false,
+                             "administrative": true,
+                             "remove": false,
+                             "delegate": true,
+                             "tlvs": {
+                                 "lsp-identifiers": {
+                                     "ipv4": {
+                                         "ipv4-tunnel-sender-address": "43.43.43.43",
+                                         "ipv4-tunnel-endpoint-address": "39.39.39.39",
+                                         "ipv4-extended-tunnel-id": "39.39.39.39"
+                                     },
+                                     "tunnel-id": 1,
+                                     "lsp-id": 1
+                                 },
+                                 "symbolic-path-name": {
+                                     "path-name": "Zm9v"
+                                 }
+                             }
+                         },
+                         "ero": [
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "201.20.160.40/32"
+                                 }
+                             },
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "195.20.160.39/32"
+                                 }
+                             },
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "39.39.39.39/32"
+                                 }
+                             }
+                         ]
+                     }
+                 }
+             }
+         }
+
+      @line 3: **node-id** The PCC identifier.
+
+      @line 5: **ip-address** IP address of the PCC.
+
+      @line 6: **state-sync** Synchronization status of the PCC's LSPs. The *synchronized* indicates the State Synchronization is done.
+
+      @line 9: **lsp-update-capability** - Indicates that PCC allows LSP modifications.
+
+      @line 13: **name** - Textual representation of LPS's name.
+
+      @line 15: **operational** - Represent operational status of the LSP:
+
+         * *down* - not active.
+         * *up* - signaled.
+         * *active* - up and carrying traffic.
+         * *going-down* - LSP is being torn down, resources are being released.
+         * *going-up* - LSP is being signaled.
+
+      @line 16: **sync** - The flag set by PCC during LSPs State Synchronization.
+
+      @line 17: **plsp-id** - A PCEP-specific identifier for the LSP. It is assigned by PCC and it is constant for a lifetime of a PCEP session.
+
+      @line 18: **create** - The *false* indicates that LSP is PCC-initiated.
+
+      @line 19: **administrative** - The flag indicates target operational status of the LSP.
+
+      @line 21: **delegate** - The delegate flag indicates that the PCC is delegating the LSP to the PCE.
+
+      @line 25: **ipv4-tunnel-sender-address** - Contains the sender node's IP address.
+
+      @line 26: **ipv4-tunnel-endpoint-address** - Contains the egress node's IP address.
+
+      @line 27: **ipv4-extended-tunnel-id** - The *Extended Tunnel ID* identifier.
+
+      @line 29: **tunnel-id** - The *Tunnel ID* identifier.
+
+      @line 30: **lsp-id** - The *LSP ID* identifier.
+
+      @line 33: **path-name** - The symbolic name for the LSP.
+
+      @line 37: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
 
 LSP Delegation
 ''''''''''''''
@@ -546,40 +719,83 @@ Following RPC example illustrates a request for the LSP delegation give up:
 
 **URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3,6,10
+      **Content-Type:** ``application/xml``
 
-   <input>
-      <node>pcc://43.43.43.43</node>
-      <name>foo</name>
-      <arguments>
-         <lsp xmlns:stateful="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-            <delegate>false</delegate>
-            <administrative>true</administrative>
-            <tlvs>
-               <symbolic-path-name>
-                  <path-name>Zm9v</path-name>
-               </symbolic-path-name>
-            </tlvs>
-         </lsp>
-      </arguments>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
 
-@line 2: **node** The PCC identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3,6,10
 
-@line 3: **name** The name of the LSP.
+         <input>
+            <node>pcc://43.43.43.43</node>
+            <name>foo</name>
+            <arguments>
+               <lsp xmlns:stateful="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+                  <delegate>false</delegate>
+                  <administrative>true</administrative>
+                  <tlvs>
+                     <symbolic-path-name>
+                        <path-name>Zm9v</path-name>
+                     </symbolic-path-name>
+                  </tlvs>
+               </lsp>
+            </arguments>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
 
-@line 6: **delegate** - Delegation flag set *false* in order to return the LSP delegation.
+      @line 2: **node** The PCC identifier.
 
-@line 10: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
+      @line 3: **name** The name of the LSP.
+
+      @line 6: **delegate** - Delegation flag set *false* in order to return the LSP delegation.
+
+      @line 10: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
+
+   .. tab:: JSON 
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,4,7,11
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "name": "foo",
+                 "arguments": {
+                     "lsp": {
+                         "delegate": false,
+                         "administrative": true,
+                         "tlvs": {
+                             "symbolic-path-name": {
+                                 "path-name": "Zm9v"
+                             }
+                         }
+                     }
+                 },
+                "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
+
+      @line 3: **node** The PCC identifier.
+
+      @line 4: **name** The name of the LSP.
+
+      @line 7: **delegate** - Delegation flag set *false* in order to return the LSP delegation.
+
+      @line 11: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
 
 LSP Update
 ''''''''''
@@ -599,57 +815,119 @@ Following RPC example shows a request for the LSP update:
 
 **URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3,6,7,9
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
-      <node>pcc://43.43.43.43</node>
-      <name>foo</name>
-      <arguments>
-         <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-            <delegate>true</delegate>
-            <administrative>true</administrative>
-         </lsp>
-         <ero>
-            <subobject>
-               <loose>false</loose>
-               <ip-prefix>
-                  <ip-prefix>200.20.160.41/32</ip-prefix>
-               </ip-prefix>
-            </subobject>
-            <subobject>
-               <loose>false</loose>
-               <ip-prefix>
-                  <ip-prefix>196.20.160.39/32</ip-prefix>
-               </ip-prefix>
-            </subobject>
-            <subobject>
-               <loose>false</loose>
-               <ip-prefix>
-                  <ip-prefix>39.39.39.39/32</ip-prefix>
-               </ip-prefix>
-            </subobject>
-         </ero>
-      </arguments>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
 
-@line 2: **node** The PCC identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3,6,7,9
 
-@line 3: **name** The name of the LSP to be updated.
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+            <node>pcc://43.43.43.43</node>
+            <name>foo</name>
+            <arguments>
+               <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+                  <delegate>true</delegate>
+                  <administrative>true</administrative>
+               </lsp>
+               <ero>
+                  <subobject>
+                     <loose>false</loose>
+                     <ip-prefix>
+                        <ip-prefix>200.20.160.41/32</ip-prefix>
+                     </ip-prefix>
+                  </subobject>
+                  <subobject>
+                     <loose>false</loose>
+                     <ip-prefix>
+                        <ip-prefix>196.20.160.39/32</ip-prefix>
+                     </ip-prefix>
+                  </subobject>
+                  <subobject>
+                     <loose>false</loose>
+                     <ip-prefix>
+                        <ip-prefix>39.39.39.39/32</ip-prefix>
+                     </ip-prefix>
+                  </subobject>
+               </ero>
+            </arguments>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
 
-@line 6: **delegate** - Delegation flag set *true* in order to keep the LSP control.
+      @line 2: **node** The PCC identifier.
 
-@line 7: **administrative** - Desired administrative status of the LSP is active.
+      @line 3: **name** The name of the LSP to be updated.
 
-@line 9: **ero** - This LSP attribute is changed.
+      @line 6: **delegate** - Delegation flag set *true* in order to keep the LSP control.
+
+      @line 7: **administrative** - Desired administrative status of the LSP is active.
+
+      @line 9: **ero** - This LSP attribute is changed.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,4,7,8,10
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "name": "foo",
+                 "arguments": {
+                     "lsp": {
+                         "delegate": true,
+                         "administrative": true
+                     },
+                     "ero": {
+                         "subobject": [
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "200.20.160.41/32"
+                                 }
+                             },
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "196.20.160.39/32"
+                                 }
+                             },
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "39.39.39.39/32"
+                                 }
+                             }
+                         ]
+                     }
+                 },
+                 "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
+
+      @line 3: **node** The PCC identifier.
+
+      @line 4: **name** The name of the LSP to be updated.
+
+      @line 7: **delegate** - Delegation flag set *true* in order to keep the LSP control.
+
+      @line 8: **administrative** - Desired administrative status of the LSP is active.
+
+      @line 10: **ero** - This LSP attribute is changed.
 
 PCE-initiated LSP Setup
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -678,61 +956,127 @@ Following RPC example shows a request for the LSP initiation:
 
 **URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:add-lsp``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3,8,14
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
-      <node>pcc://43.43.43.43</node>
-      <name>update-tunel</name>
-         <arguments>
-            <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-               <delegate>true</delegate>
-               <administrative>true</administrative>
-            </lsp>
-            <endpoints-obj>
-               <ipv4>
-                  <source-ipv4-address>43.43.43.43</source-ipv4-address>
-                  <destination-ipv4-address>39.39.39.39</destination-ipv4-address>
-               </ipv4>
-            </endpoints-obj>
-            <ero>
-               <subobject>
-                  <loose>false</loose>
-                  <ip-prefix>
-                     <ip-prefix>201.20.160.40/32</ip-prefix>
-                  </ip-prefix>
-               </subobject>
-               <subobject>
-                  <loose>false</loose>
-                  <ip-prefix>
-                     <ip-prefix>195.20.160.39/32</ip-prefix>
-                  </ip-prefix>
-               </subobject>
-               <subobject>
-                  <loose>false</loose>
-                  <ip-prefix>
-                     <ip-prefix>39.39.39.39/32</ip-prefix>
-                  </ip-prefix>
-               </subobject>
-            </ero>
-         </arguments>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
 
-@line 2: **node** The PCC identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3,9,15
 
-@line 3: **name** The name of the LSP to be created.
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+            <node>pcc://43.43.43.43</node>
+            <name>update-tunel</name>
+            <arguments>
+               <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+                  <delegate>true</delegate>
+                  <administrative>true</administrative>
+               </lsp>
+               <endpoints-obj>
+                  <ipv4>
+                     <source-ipv4-address>43.43.43.43</source-ipv4-address>
+                     <destination-ipv4-address>39.39.39.39</destination-ipv4-address>
+                  </ipv4>
+               </endpoints-obj>
+               <ero>
+                  <subobject>
+                     <loose>false</loose>
+                     <ip-prefix>
+                        <ip-prefix>201.20.160.40/32</ip-prefix>
+                     </ip-prefix>
+                  </subobject>
+                  <subobject>
+                     <loose>false</loose>
+                     <ip-prefix>
+                        <ip-prefix>195.20.160.39/32</ip-prefix>
+                     </ip-prefix>
+                  </subobject>
+                  <subobject>
+                     <loose>false</loose>
+                     <ip-prefix>
+                        <ip-prefix>39.39.39.39/32</ip-prefix>
+                     </ip-prefix>
+                  </subobject>
+               </ero>
+            </arguments>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
 
-@line 8: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
+      @line 2: **node** The PCC identifier.
 
-@line 14: **ero** - The *ERO* object is mandatory for LSP initiation request.
+      @line 3: **name** The name of the LSP to be created.
+
+      @line 9: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
+
+      @line 15: **ero** - The *ERO* object is mandatory for LSP initiation request.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,4,10,16
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "name": "update-tunel",
+                 "arguments": {
+                     "lsp": {
+                         "delegate": true,
+                         "administrative": true
+                     },
+                     "endpoints-obj": {
+                         "ipv4": {
+                             "source-ipv4-address": "43.43.43.43",
+                             "destination-ipv4-address": "39.39.39.39"
+                         }
+                     },
+                     "ero": {
+                         "subobject": [
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "201.20.160.40/32"
+                                 }
+                             },
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "195.20.160.39/32"
+                                 }
+                             },
+                             {
+                                 "loose": false,
+                                 "ip-prefix": {
+                                     "ip-prefix": "39.39.39.39/32"
+                                 }
+                             }
+                         ]
+                     }
+                 },
+                 "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
+
+      @line 3: **node** The PCC identifier.
+
+      @line 4: **name** The name of the LSP to be created.
+
+      @line 10: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
+
+      @line 16: **ero** - The *ERO* object is mandatory for LSP initiation request.
 
 LSP Deletion
 ''''''''''''
@@ -751,25 +1095,53 @@ Following RPC example shows a request for the LSP deletion:
 
 **URL:** ``/restconf/operations/network-topology-pcep:remove-lsp``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:remove-lsp``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
-      <node>pcc://43.43.43.43</node>
-      <name>update-tunel</name>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
 
-@line 2: **node** The PCC identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3
 
-@line 3: **name** The name of the LSP to be removed.
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+            <node>pcc://43.43.43.43</node>
+            <name>update-tunel</name>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
+
+      @line 2: **node** The PCC identifier.
+
+      @line 3: **name** The name of the LSP to be removed.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,4
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "name": "update-tunel",
+                 "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
+
+      @line 3: **node** The PCC identifier.
+
+      @line 4: **name** The name of the LSP to be removed.
 
 PCE-initiated LSP Delegation
 ''''''''''''''''''''''''''''
@@ -790,40 +1162,83 @@ Following RPC example illustrates a request for the LSP delegation:
 
 **URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3,6,10
+      **Content-Type:** ``application/xml``
 
-   <input>
-      <node>pcc://43.43.43.43</node>
-      <name>update-tunel</name>
-      <arguments>
-         <lsp xmlns:stateful="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-            <delegate>true</delegate>
-            <administrative>true</administrative>
-            <tlvs>
-               <symbolic-path-name>
-                  <path-name>dXBkYXRlLXR1bmVs</path-name>
-               </symbolic-path-name>
-            </tlvs>
-         </lsp>
-      </arguments>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
 
-@line 2: **node** The PCC identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3,6,10
 
-@line 3: **name** The name of the LSP.
+         <input>
+            <node>pcc://43.43.43.43</node>
+            <name>update-tunel</name>
+            <arguments>
+               <lsp xmlns:stateful="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+                  <delegate>true</delegate>
+                  <administrative>true</administrative>
+                  <tlvs>
+                     <symbolic-path-name>
+                        <path-name>dXBkYXRlLXR1bmVs</path-name>
+                     </symbolic-path-name>
+                  </tlvs>
+               </lsp>
+            </arguments>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
 
-@line 6: **delegate** - *Delegation* flag set *true* in order to take the LSP delegation.
+      @line 2: **node** The PCC identifier.
 
-@line 10: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
+      @line 3: **name** The name of the LSP.
+
+      @line 6: **delegate** - *Delegation* flag set *true* in order to take the LSP delegation.
+
+      @line 10: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3,4,7,11
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "name": "update-tunel",
+                 "arguments": {
+                     "lsp": {
+                         "delegate": true,
+                         "administrative": true,
+                         "tlvs": {
+                             "symbolic-path-name": {
+                                 "path-name": "dXBkYXRlLXR1bmVs"
+                             }
+                         }
+                     }
+                 },
+                 "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
+
+      @line 3: **node** The PCC identifier.
+
+      @line 4: **name** The name of the LSP.
+
+      @line 7: **delegate** - *Delegation* flag set *true* in order to take the LSP delegation.
+
+      @line 11: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
 
 Segment Routing
 ^^^^^^^^^^^^^^^
@@ -838,21 +1253,45 @@ This capability is enabled by default. In order to disable it, a configuration s
 
 **URL:** ``/restconf/config/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
 
+**RFC8040 URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
+
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2
+      **Content-Type:** ``application/xml``
 
-   <pcep-segment-routing-config xmlns="urn:opendaylight:params:xml:ns:yang:controller:pcep:segment-routing-app-config">
-      <sr-capable>false</sr-capable>
-   </pcep-segment-routing-config>
+      **Request Body:**
 
-@line 2: **sr-capable** - True if capability is supported.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2
+
+         <pcep-segment-routing-config xmlns="urn:opendaylight:params:xml:ns:yang:controller:pcep:segment-routing-app-config">
+            <sr-capable>false</sr-capable>
+         </pcep-segment-routing-config>
+
+      @line 2: **sr-capable** - True if capability is supported.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3
+
+         {
+             "pcep-segment-routing-app-config:pcep-segment-routing-config": {
+                 "sr-capable": false
+             }
+         }
+
+      @line 3: **sr-capable** - True if capability is supported.
 
 IANA code points
 ''''''''''''''''
@@ -862,21 +1301,45 @@ In order to use the latest code points, a configuration should be changed as fol
 
 **URL:** ``/restconf/config/pcep-segment-routing-app-config:pcep-segment-routing-config``
 
+**RFC8040 URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-config``
+
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2
+      **Content-Type:** ``application/xml``
 
-   <pcep-segment-routing-config xmlns="urn:opendaylight:params:xml:ns:yang:controller:pcep:segment-routing-app-config">
-      <iana-sr-subobjects-type>true</iana-sr-subobjects-type>
-   </pcep-segment-routing-config>
+      **Request Body:**
 
-@line 2: **iana-sr-subobjects-type** - True if IANA code points should be used.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2
+
+         <pcep-segment-routing-config xmlns="urn:opendaylight:params:xml:ns:yang:controller:pcep:segment-routing-app-config">
+            <iana-sr-subobjects-type>true</iana-sr-subobjects-type>
+         </pcep-segment-routing-config>
+
+      @line 2: **iana-sr-subobjects-type** - True if IANA code points should be used.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 3
+
+         {
+             "pcep-segment-routing-app-config:pcep-segment-routing-config": {
+                 "iana-sr-subobjects-type": true
+             }
+         }
+
+      @line 3: **iana-sr-subobjects-type** - True if IANA code points should be used.
 
 LSP Operations for PCEP SR
 ''''''''''''''''''''''''''
@@ -907,53 +1370,109 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
 
 **URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:add-lsp``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 16,21,22,23
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
-      <node>pcc://43.43.43.43</node>
-      <name>sr-path</name>
-      <arguments>
-         <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-            <delegate>true</delegate>
-            <administrative>true</administrative>
-         </lsp>
-         <endpoints-obj>
-            <ipv4>
-               <source-ipv4-address>43.43.43.43</source-ipv4-address>
-               <destination-ipv4-address>39.39.39.39</destination-ipv4-address>
-            </ipv4>
-         </endpoints-obj>
-         <path-setup-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-            <pst>1</pst>
-         </path-setup-type>
-         <ero>
-            <subobject>
-               <loose>false</loose>
-               <sid-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</sid-type>
-               <m-flag xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">true</m-flag>
-               <sid xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">24001</sid>
-               <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">39.39.39.39</ip-address>
-           </subobject>
-         </ero>
-      </arguments>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
 
-@line 16: **path-setup-type** - Set *1* for SR-TE LSP
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 16,21,22,23
 
-@line 21: **ipv4-node-id** - The SR-ERO subobject represents *IPv4 Node ID* NAI.
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+            <node>pcc://43.43.43.43</node>
+            <name>sr-path</name>
+            <arguments>
+               <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+                  <delegate>true</delegate>
+                  <administrative>true</administrative>
+               </lsp>
+               <endpoints-obj>
+                  <ipv4>
+                     <source-ipv4-address>43.43.43.43</source-ipv4-address>
+                     <destination-ipv4-address>39.39.39.39</destination-ipv4-address>
+                  </ipv4>
+               </endpoints-obj>
+               <path-setup-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+                  <pst>1</pst>
+               </path-setup-type>
+               <ero>
+                  <subobject>
+                     <loose>false</loose>
+                     <sid-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</sid-type>
+                     <m-flag xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">true</m-flag>
+                     <sid xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">24001</sid>
+                     <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">39.39.39.39</ip-address>
+                  </subobject>
+               </ero>
+            </arguments>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
 
-@line 22: **m-flag** - The SID value represents an MPLS label.
+      @line 16: **path-setup-type** - Set *1* for SR-TE LSP
 
-@line 23: **sid** - The Segment Identifier.
+      @line 21: **ipv4-node-id** - The SR-ERO subobject represents *IPv4 Node ID* NAI.
+
+      @line 22: **m-flag** - The SID value represents an MPLS label.
+
+      @line 23: **sid** - The Segment Identifier.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 17,22,23,24
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "name": "sr-path",
+                 "arguments": {
+                     "lsp": {
+                         "delegate": true,
+                         "administrative": true
+                     },
+                     "endpoints-obj": {
+                         "ipv4": {
+                             "source-ipv4-address": "43.43.43.43",
+                             "destination-ipv4-address": "39.39.39.39"
+                         }
+                     },
+                     "path-setup-type": {
+                         "pst": 1
+                     },
+                     "ero": {
+                         "subobject": {
+                             "loose": false,
+                             "sid-type": "ipv4-node-id",
+                             "m-flag": true,
+                             "sid": 24001,
+                             "ip-address": "39.39.39.39"
+                         }
+                     }
+                 },
+                 "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
+
+@line 17: **path-setup-type** - Set *1* for SR-TE LSP
+
+@line 22: **ipv4-node-id** - The SR-ERO subobject represents *IPv4 Node ID* NAI.
+
+@line 23: **m-flag** - The SID value represents an MPLS label.
+
+@line 24: **sid** - The Segment Identifier.
 
 -----
 
@@ -961,45 +1480,95 @@ Following RPC example illustrates a request for the SR-TE LSP update including m
 
 **URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
-      <node>pcc://43.43.43.43</node>
-      <name>update-tunnel</name>
-      <arguments>
-         <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-            <delegate>true</delegate>
-            <administrative>true</administrative>
-         </lsp>
-         <path-setup-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-            <pst>1</pst>
-         </path-setup-type>
-         <ero>
-            <subobject>
-               <loose>false</loose>
-               <sid-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</sid-type>
-               <m-flag xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">true</m-flag>
-               <sid xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">24002</sid>
-               <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">200.20.160.41</ip-address>
-            </subobject>
-            <subobject>
-               <loose>false</loose>
-               <sid-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</sid-type>
-               <m-flag xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">true</m-flag>
-               <sid xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">24001</sid>
-               <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">39.39.39.39</ip-address>
-            </subobject>
-         </ero>
-      </arguments>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
+
+      .. code-block:: xml
+         :linenos:
+
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+            <node>pcc://43.43.43.43</node>
+            <name>update-tunnel</name>
+            <arguments>
+               <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+                  <delegate>true</delegate>
+                  <administrative>true</administrative>
+               </lsp>
+               <path-setup-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+                  <pst>1</pst>
+               </path-setup-type>
+               <ero>
+                  <subobject>
+                     <loose>false</loose>
+                     <sid-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</sid-type>
+                     <m-flag xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">true</m-flag>
+                     <sid xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">24002</sid>
+                     <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">200.20.160.41</ip-address>
+                  </subobject>
+                  <subobject>
+                     <loose>false</loose>
+                     <sid-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</sid-type>
+                     <m-flag xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">true</m-flag>
+                     <sid xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">24001</sid>
+                     <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">39.39.39.39</ip-address>
+                  </subobject>
+               </ero>
+            </arguments>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "name": "foo",
+                 "arguments": {
+                     "lsp": {
+                         "delegate": true,
+                         "administrative": true
+                     },
+                     "path-setup-type": {
+                         "pst": 1
+                     },
+                     "ero": {
+                         "subobject": [
+                             {
+                                 "loose": false,
+                                 "sid-type": "ipv4-node-id",
+                                 "m-flag" : true,
+                                 "sid": 24002,
+                                 "ip-address": "200.20.160.41"
+                             },
+                             {
+                                 "loose": false,
+                                 "sid-type": "ipv4-node-id",
+                                 "m-flag" : true,
+                                 "sid": 24001,
+                                 "ip-address": "39.39.39.39"
+                             }
+                         ]
+                     }
+                 },
+                 "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
 
 LSP State Synchronization Optimization Procedures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1050,19 +1619,41 @@ Following RPC example illustrates a request for the initial synchronization:
 
 **URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
-      <node>pcc://43.43.43.43</node>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
+
+      .. code-block:: xml
+         :linenos:
+
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+            <node>pcc://43.43.43.43</node>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
 
 PCE-triggered Re-synchronization
 ''''''''''''''''''''''''''''''''
@@ -1080,20 +1671,46 @@ Following RPC example illustrates a request for the LSP re-synchronization:
 
 **URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
 
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
+
 **Method:** ``POST``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 3
+      **Content-Type:** ``application/xml``
 
-   <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
-      <node>pcc://43.43.43.43</node>
-      <name>update-lsp</name>
-      <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
-   </input>
+      **Request Body:**
 
-@line 3: **name** - The LSP name. If this parameter is omitted, re-synchronization is requested for all PCC's LSPs.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 3
+
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+            <node>pcc://43.43.43.43</node>
+            <name>update-lsp</name>
+            <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+         </input>
+
+      @line 3: **name** - The LSP name. If this parameter is omitted, re-synchronization is requested for all PCC's LSPs.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4
+
+         {
+             "input": {
+                 "node": "pcc://43.43.43.43",
+                 "name": "update-lsp",
+                 "network-topology-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]"
+             }
+         }
+
+      @line 4: **name** - The LSP name. If this parameter is omitted, re-synchronization is requested for all PCC's LSPs.
