@@ -21,7 +21,11 @@ TLV that may be included in the OPEN Object when a PCEP speaker
 wishes to determine if state synchronization can be skipped when a
 PCEP session is restarted.
 
+**XML**
+
 **URL:** ``/restconf/config/network-topology:network-topology/topology/pcep-topology/node/43.43.43.43``
+
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
 
 **Method:** ``PUT``
 
@@ -45,12 +49,46 @@ PCEP session is restarted.
 
 @line 4: **Speaker Entity Identifier** - The Speaker Entity identifier assigned to PCEP Node.
 
+**JSON**
+
+**URL:** ``/restconf/config/network-topology:network-topology/topology/pcep-topology/node/43.43.43.43``
+
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,5
+
+
+   {
+       "node": {
+           "node-id": "43.43.43.43",
+           "topology:pcep:config:session-config": {
+               "topology:pcep:sync:optimizations:config:speaker-entity-id-value": "AQIDBA=="
+           }    
+       }   
+   }
+
+@line 3: **address** - A PCC IP address.
+
+@line 5: **Speaker Entity Identifier** - The Speaker Entity identifier assigned to PCEP Node.
+
 MD5 authentication configuration
 ''''''''''''''''''''''''''''''''
 The OpenDaylight PCEP implementation supports TCP MD5 for authentication.
 The sample configuration below shows how to set authentication password for a particular PCC.
 
+**XML**
+
 **URL:** ``/restconf/config/network-topology:network-topology/topology/pcep-topology/node/43.43.43.43``
+
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
 
 **Method:** ``PUT``
 
@@ -73,6 +111,36 @@ The sample configuration below shows how to set authentication password for a pa
 @line 2: **address** - A PCC IP address.
 
 @line 4: **password** - MD5 authentication phrase.
+
+**JSON**
+
+**URL:** ``/restconf/config/network-topology:network-topology/topology/pcep-topology/node/43.43.43.43``
+
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,5
+
+
+   {
+       "node": {
+           "node-id": "43.43.43.43",
+           "topology:pcep:config:session-config": {
+               "password": "topsecret"
+           }    
+       }   
+   }
+
+@line 3: **address** - A PCC IP address.
+
+@line 5: **password** - MD5 authentication phrase.
 
 LSP State Database
 ^^^^^^^^^^^^^^^^^^
@@ -417,7 +485,11 @@ The LSP-DB is accessible via RESTCONF.
 The PCC's LSPs are stored in the ``pcep-topology`` while the session is active.
 In a next example, there is one PCEP session with PCC identified by its IP address (*43.43.43.43*) and one reported LSP (*foo*).
 
+**XML**
+
 **URL:** ``/restconf/operational/network-topology:network-topology/topology/pcep-topology/node/pcc:%2F%2F43.43.43.43``
+
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43``
 
 **Method:** ``GET``
 
@@ -528,6 +600,123 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
 
 @line 36: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
 
+**JSON**
+
+**URL:** ``/restconf/operational/network-topology:network-topology/topology/pcep-topology/node/pcc:%2F%2F43.43.43.43``
+
+**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43``
+
+**Method:** ``GET``
+
+**Response Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,5,6,9,13,15,16,17,18,19,21,25,26,27,29,30,33,37
+
+   {
+       "node": {
+           "node-id": "pcc://43.43.43.43",
+           "path-computation-client": {
+               "ip-address": "43.43.43.43",
+               "state-sync": "synchronized",
+               "stateful-tlv": {
+                   "stateful": {
+                       "lsp-update-capability": true
+                   }
+               },
+               "reported-lsp": {
+                   "name": "foo",
+                   "lsp": {
+                       "operational": "up",
+                       "sync": true,
+                       "plsp-id": 1,
+                       "create": false,
+                       "administrative": true,
+                       "remove": false,
+                       "delegate": true,
+                       "tlvs": {
+                           "lsp-identifiers": {
+                               "ipv4": {
+                                   "ipv4-tunnel-sender-address": "43.43.43.43",
+                                   "ipv4-tunnel-endpoint-address": "39.39.39.39",
+                                   "ipv4-extended-tunnel-id": "39.39.39.39"
+                               },
+                               "tunnel-id": 1,
+                               "lsp-id": 1
+                           },
+                           "symbolic-path-name": {
+                               "path-name": "Zm9v"
+                           }
+                       }
+                   },
+                   "ero": [
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "201.20.160.40/32"
+                           }
+                       },
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "195.20.160.39/32"
+                           }
+                       },
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "39.39.39.39/32"
+                           }
+                       }
+                   ]
+               }
+           } 
+       }
+   }    
+
+@line 3: **node-id** The PCC identifier.
+
+@line 5: **ip-address** IP address of the PCC.
+
+@line 6: **state-sync** Synchronization status of the PCC's LSPs. The *synchronized* indicates the State Synchronization is done.
+
+@line 9: **lsp-update-capability** - Indicates that PCC allows LSP modifications.
+
+@line 13: **name** - Textual representation of LPS's name.
+
+@line 15: **operational** - Represent operational status of the LSP:
+
+   * *down* - not active.
+   * *up* - signaled.
+   * *active* - up and carrying traffic.
+   * *going-down* - LSP is being torn down, resources are being released.
+   * *going-up* - LSP is being signaled.
+
+@line 16: **sync** - The flag set by PCC during LSPs State Synchronization.
+
+@line 17: **plsp-id** - A PCEP-specific identifier for the LSP. It is assigned by PCC and it is constant for a lifetime of a PCEP session.
+
+@line 18: **create** - The *false* indicates that LSP is PCC-initiated.
+
+@line 19: **administrative** - The flag indicates target operational status of the LSP.
+
+@line 21: **delegate** - The delegate flag indicates that the PCC is delegating the LSP to the PCE.
+
+@line 25: **ipv4-tunnel-sender-address** - Contains the sender node's IP address.
+
+@line 26: **ipv4-tunnel-endpoint-address** - Contains the egress node's IP address.
+
+@line 27: **ipv4-extended-tunnel-id** - The *Extended Tunnel ID* identifier.
+
+@line 29: **tunnel-id** - The *Tunnel ID* identifier.
+
+@line 30: **lsp-id** - The *LSP ID* identifier.
+
+@line 33: **path-name** - The symbolic name for the LSP.
+
+@line 37: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
+
 LSP Delegation
 ''''''''''''''
 The LSP control delegations is an mechanism, where PCC grants to a PCE the temporary right in order to modify LSP attributes.
@@ -544,7 +733,11 @@ The LSP control is delegated to at most one PCE at the same time.
 
 Following RPC example illustrates a request for the LSP delegation give up:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -581,6 +774,49 @@ Following RPC example illustrates a request for the LSP delegation give up:
 
 @line 10: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
 
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,4,7,11
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "name": "foo",
+           "arguments": {
+               "lsp": {
+                   "delegate": false,
+                   "administrative": true,
+                   "tlvs": {
+                       "symbolic-path-name": {
+                           "path-name": "Zm9v"
+                       }
+                   }
+               }
+           },
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"	
+       }
+   }
+
+@line 3: **node** The PCC identifier.
+
+@line 4: **name** The name of the LSP.
+
+@line 7: **delegate** - Delegation flag set *false* in order to return the LSP delegation.
+
+@line 11: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
+
 LSP Update
 ''''''''''
 The LSP Update Request is an operation where a PCE requests a PCC to update attributes of an LSP and to rebuild the LSP with updated attributes.
@@ -597,7 +833,11 @@ The LSP update is done in *make-before-break* fashion - first, new LSP is initia
 
 Following RPC example shows a request for the LSP update:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -651,6 +891,68 @@ Following RPC example shows a request for the LSP update:
 
 @line 9: **ero** - This LSP attribute is changed.
 
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,4,7,8,10
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "name": "foo",
+           "arguments": {
+               "lsp": {
+                   "delegate": true,
+                   "administrative": true
+               },
+               "ero": {
+                   "subobject": [
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "200.20.160.41/32"
+                           }
+                       },
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "196.20.160.39/32"
+                           }
+                       },
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "39.39.39.39/32"
+                           }
+                       }
+                   ]
+               }
+           },
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"
+       }
+   }
+
+@line 3: **node** The PCC identifier.
+
+@line 4: **name** The name of the LSP to be updated.
+
+@line 7: **delegate** - Delegation flag set *true* in order to keep the LSP control.
+
+@line 8: **administrative** - Desired administrative status of the LSP is active.
+
+@line 10: **ero** - This LSP attribute is changed.
+
 PCE-initiated LSP Setup
 ^^^^^^^^^^^^^^^^^^^^^^^
 The PCEP Extension for PCE-initiated LSP Setup allows PCE to request a creation and deletion of LSPs.
@@ -676,7 +978,11 @@ PCE-initiated LSPs are identified by *Create* flag.
 
 Following RPC example shows a request for the LSP initiation:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:add-lsp``
 
 **Method:** ``POST``
 
@@ -686,7 +992,7 @@ Following RPC example shows a request for the LSP initiation:
 
 .. code-block:: xml
    :linenos:
-   :emphasize-lines: 2,3,8,14
+   :emphasize-lines: 2,3,9,15
 
    <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
       <node>pcc://43.43.43.43</node>
@@ -730,9 +1036,75 @@ Following RPC example shows a request for the LSP initiation:
 
 @line 3: **name** The name of the LSP to be created.
 
-@line 8: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
+@line 9: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
 
-@line 14: **ero** - The *ERO* object is mandatory for LSP initiation request.
+@line 15: **ero** - The *ERO* object is mandatory for LSP initiation request.
+
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:add-lsp``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,4,10,16
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "name": "update-tunel",
+           "arguments": {
+               "lsp": {
+                   "delegate": true,
+                   "administrative": true
+               },
+               "endpoints-obj": {
+                   "ipv4": {
+                       "source-ipv4-address": "43.43.43.43",
+                       "destination-ipv4-address": "39.39.39.39"
+                   }
+               },
+               "ero": {
+                   "subobject": [
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "201.20.160.40/32"
+                           }
+                       },
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "195.20.160.39/32"
+                           }
+                       },
+                       {
+                           "loose": false,
+                           "ip-prefix": {
+                               "ip-prefix": "39.39.39.39/32"
+                           }
+                       }
+                   ]
+               }
+           },
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"
+       }
+   }
+
+@line 3: **node** The PCC identifier.
+
+@line 4: **name** The name of the LSP to be created.
+
+@line 10: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
+
+@line 16: **ero** - The *ERO* object is mandatory for LSP initiation request.
 
 LSP Deletion
 ''''''''''''
@@ -749,7 +1121,11 @@ The PCE must be delegation holder for this particular LSP.
 
 Following RPC example shows a request for the LSP deletion:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:remove-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:remove-lsp``
 
 **Method:** ``POST``
 
@@ -771,6 +1147,34 @@ Following RPC example shows a request for the LSP deletion:
 
 @line 3: **name** The name of the LSP to be removed.
 
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:remove-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:remove-lsp``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,4
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "name": "update-tunel",
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"	
+       }
+   }
+
+@line 3: **node** The PCC identifier.
+
+@line 4: **name** The name of the LSP to be removed.
+
 PCE-initiated LSP Delegation
 ''''''''''''''''''''''''''''
 The PCE-initiated LSP control is delegated to the PCE which requested the initiation.
@@ -788,7 +1192,11 @@ The PCE may ask for a delegation of the orphan LSP.
 
 Following RPC example illustrates a request for the LSP delegation:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -825,6 +1233,49 @@ Following RPC example illustrates a request for the LSP delegation:
 
 @line 10: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
 
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3,4,7,11
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "name": "update-tunel",
+           "arguments": {
+               "lsp": {
+                   "delegate": true,
+                   "administrative": true,
+                   "tlvs": {
+                       "symbolic-path-name": {
+                           "path-name": "dXBkYXRlLXR1bmVs"
+                       }
+                   }
+               }
+           },
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"	
+       }
+   }
+
+@line 3: **node** The PCC identifier.
+
+@line 4: **name** The name of the LSP.
+
+@line 7: **delegate** - *Delegation* flag set *true* in order to take the LSP delegation.
+
+@line 11: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
+
 Segment Routing
 ^^^^^^^^^^^^^^^
 The PCEP Extensions for Segment Routing (SR) allow a stateful PCE to compute and initiate TE paths in SR networks.
@@ -836,7 +1287,11 @@ Configuration
 '''''''''''''
 This capability is enabled by default. In order to disable it, a configuration should be changed as follows:
 
+**XML**
+
 **URL:** ``/restconf/config/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
+
+**RFC8040 URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
 
 **Method:** ``PUT``
 
@@ -854,13 +1309,41 @@ This capability is enabled by default. In order to disable it, a configuration s
 
 @line 2: **sr-capable** - True if capability is supported.
 
+**JSON**
+
+**URL:** ``/restconf/config/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
+
+**RFC8040 URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3
+
+   {
+       "pcep-segment-routing-app-config:pcep-segment-routing-config": {
+           "sr-capable": false
+       }
+   }
+
+@line 3: **sr-capable** - True if capability is supported.
+
 IANA code points
 ''''''''''''''''
 
 In PCEP-SR draft version 6, SR Explicit Route Object/Record Route Object subobjects IANA code points change was proposed.
 In order to use the latest code points, a configuration should be changed as follows:
 
+**XML**
+
 **URL:** ``/restconf/config/pcep-segment-routing-app-config:pcep-segment-routing-config``
+
+**RFC8040 URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-config``
 
 **Method:** ``PUT``
 
@@ -877,6 +1360,30 @@ In order to use the latest code points, a configuration should be changed as fol
    </pcep-segment-routing-config>
 
 @line 2: **iana-sr-subobjects-type** - True if IANA code points should be used.
+
+**JSON**
+
+**URL:** ``/restconf/config/pcep-segment-routing-app-config:pcep-segment-routing-config``
+
+**RFC8040 URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-config``
+
+**Method:** ``PUT``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 3
+
+   {
+       "pcep-segment-routing-app-config:pcep-segment-routing-config": {
+           "iana-sr-subobjects-type": true
+       }
+   }
+
+@line 3: **iana-sr-subobjects-type** - True if IANA code points should be used.
 
 LSP Operations for PCEP SR
 ''''''''''''''''''''''''''
@@ -905,7 +1412,11 @@ The PCEP SR extension defines new ERO subobject - *SR-ERO subobject* capable of 
 
 Following RPC example illustrates a request for the SR-TE LSP creation:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:add-lsp``
 
 **Method:** ``POST``
 
@@ -955,11 +1466,71 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
 
 @line 23: **sid** - The Segment Identifier.
 
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:add-lsp``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 17,22,23,24
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "name": "sr-path",
+           "arguments": {
+               "lsp": {
+                   "delegate": true,
+                   "administrative": true
+               },
+               "endpoints-obj": {
+                   "ipv4": {
+                       "source-ipv4-address": "43.43.43.43",
+                       "destination-ipv4-address": "39.39.39.39"
+                   }
+               },
+               "path-setup-type": {
+                   "pst": 1
+               },
+               "ero": {
+                   "subobject": {
+                       "loose": false,
+                       "sid-type": "ipv4-node-id",
+                       "m-flag": true,
+                       "sid": 24001,
+                       "ip-address": "39.39.39.39"
+                   }
+               }
+           },
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"
+       }
+   }
+
+@line 17: **path-setup-type** - Set *1* for SR-TE LSP
+
+@line 22: **ipv4-node-id** - The SR-ERO subobject represents *IPv4 Node ID* NAI.
+
+@line 23: **m-flag** - The SID value represents an MPLS label.
+
+@line 24: **sid** - The Segment Identifier.
+
 -----
 
 Following RPC example illustrates a request for the SR-TE LSP update including modified path:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -1000,6 +1571,56 @@ Following RPC example illustrates a request for the SR-TE LSP update including m
       </arguments>
       <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
    </input>
+
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "name": "foo",
+           "arguments": {
+               "lsp": {
+                   "delegate": true,
+                   "administrative": true
+               },
+               "path-setup-type": {
+                   "pst": 1 
+               },
+               "ero": {
+                   "subobject": [
+                       {
+                           "loose": false,
+                           "sid-type": "ipv4-node-id",
+                           "m-flag" : true,
+                           "sid": 24002,
+                           "ip-address": "200.20.160.41"
+                       },
+                       {
+                           "loose": false,
+                           "sid-type": "ipv4-node-id",
+                           "m-flag" : true,
+                           "sid": 24001,
+                           "ip-address": "39.39.39.39"    
+                       }
+                   ]
+               }
+           },
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"
+       }
+   }
 
 LSP State Synchronization Optimization Procedures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1048,7 +1669,11 @@ The PCE-triggered Initial Synchronization procedure is intended to do let PCE co
 
 Following RPC example illustrates a request for the initial synchronization:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
 
 **Method:** ``POST``
 
@@ -1064,6 +1689,28 @@ Following RPC example illustrates a request for the initial synchronization:
       <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
    </input>
 
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"
+       }
+   }
+
 PCE-triggered Re-synchronization
 ''''''''''''''''''''''''''''''''
 The PCE-triggered Re-synchronization: To let PCE re-synchronize the state for sanity check.
@@ -1078,7 +1725,11 @@ The PCE-triggered Re-synchronization: To let PCE re-synchronize the state for sa
 
 Following RPC example illustrates a request for the LSP re-synchronization:
 
+**XML**
+
 **URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
 
 **Method:** ``POST``
 
@@ -1097,3 +1748,29 @@ Following RPC example illustrates a request for the LSP re-synchronization:
    </input>
 
 @line 3: **name** - The LSP name. If this parameter is omitted, re-synchronization is requested for all PCC's LSPs.
+
+**JSON**
+
+**URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
+
+**RFC8040 URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
+
+**Method:** ``POST``
+
+**Content-Type:** ``application/json``
+
+**Request Body:**
+
+.. code-block:: json
+   :linenos:
+   :emphasize-lines: 4
+
+   {
+       "input": {
+           "node": "pcc://43.43.43.43",
+           "name": "update-lsp",
+           "network-topology-ref": "/topo:network-topology/topo:topology[topo:topology-id=\"pcep-topology\"]"
+       }
+   }
+
+@line 4: **name** - The LSP name. If this parameter is omitted, re-synchronization is requested for all PCC's LSPs.
