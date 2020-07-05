@@ -15,7 +15,11 @@ This section explains how to install PCEP plugin.
 2. The PCEP plugin contains a default configuration, which is applied after the feature starts up.
    One instance of PCEP plugin is created (named *pcep-topology*), and its presence can be verified via REST:
 
+   **XML**
+
    **URL:** ``restconf/operational/network-topology:network-topology/topology/pcep-topology``
+
+   **RFC8040 URL:** ``rests/data/network-topology:network-topology/topology=pcep-topology?content=nonconfig``
 
    **Method:** ``GET``
 
@@ -29,3 +33,26 @@ This section explains how to install PCEP plugin.
               <topology-pcep xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep"></topology-pcep>
           </topology-types>
       </topology>
+
+   **JSON**   
+
+   **URL:** ``restconf/operational/network-topology:network-topology/topology/pcep-topology``
+
+   **RFC8040 URL:** ``rests/data/network-topology:network-topology/topology=pcep-topology?content=nonconfig``
+
+   **Method:** ``GET``
+
+   **Response Body:**
+
+   .. code-block:: json
+
+      {
+          "topology": [
+              {
+                  "topology-id": "pcep-topology",
+                  "topology-types": {
+                      "network-topology-pcep:topology-pcep": {}
+                  }
+              }
+          ]
+      }
