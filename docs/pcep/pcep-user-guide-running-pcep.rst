@@ -17,15 +17,38 @@ This section explains how to install PCEP plugin.
 
    **URL:** ``restconf/operational/network-topology:network-topology/topology/pcep-topology``
 
+   **RFC8040 URL:** ``rests/data/network-topology:network-topology/topology=pcep-topology?content=nonconfig``
+
    **Method:** ``GET``
 
-   **Response Body:**
+   .. tabs::
 
-   .. code-block:: xml
+      .. tab:: XML
 
-      <topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
-          <topology-id>pcep-topology</topology-id>
-          <topology-types>
-              <topology-pcep xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep"></topology-pcep>
-          </topology-types>
-      </topology>
+         **Response Body:**
+
+         .. code-block:: xml
+
+            <topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+                <topology-id>pcep-topology</topology-id>
+                <topology-types>
+                    <topology-pcep xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep"></topology-pcep>
+                </topology-types>
+            </topology>
+
+      .. tab:: JSON  
+
+         **Response Body:**
+
+         .. code-block:: json
+
+            {
+                "topology": [
+                    {
+                        "topology-id": "pcep-topology",
+                        "topology-types": {
+                            "network-topology-pcep:topology-pcep": {}
+                        }
+                    }
+                ]
+            }
