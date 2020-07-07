@@ -46,6 +46,30 @@
       "revId": "8e0dc15e867c34ac86898f7ac58f24e25da2f763",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dadca0af_d98b5538",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPPeerStateImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 8615
+      },
+      "writtenOn": "2020-07-07T15:17:16Z",
+      "side": 1,
+      "message": "Hello Robert, \n\nDo you have more comments for this patch ? If not, Could you please approve.",
+      "parentUuid": "b86c25d9_12e7446a",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 60
+      },
+      "revId": "8e0dc15e867c34ac86898f7ac58f24e25da2f763",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
