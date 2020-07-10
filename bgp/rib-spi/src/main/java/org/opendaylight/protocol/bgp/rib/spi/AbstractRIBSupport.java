@@ -399,12 +399,6 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode nlri) {
-        deleteRoutes(tx, tablePath, nlri, ROUTES_NID);
-    }
-
-    @Override
     public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
                                                                     final YangInstanceIdentifier tablePath,
                                                                     final ContainerNode nlri,
@@ -437,6 +431,12 @@ public abstract class AbstractRIBSupport<
         ub.setAttributes(ab.build());
         LOG.debug("update {}", ub.build());
         return ub.build();
+    }
+
+    @Override
+    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
+            final ContainerNode nlri) {
+        deleteRoutes(tx, tablePath, nlri, ROUTES_NID);
     }
 
     @Override
