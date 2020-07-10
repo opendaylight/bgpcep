@@ -131,9 +131,38 @@ module path-computation {
         }
     }
 
+    grouping sr-description {
+        description "Segment Routing path description";
+        leaf sid {
+            description "Segment Routing Identifier as an Index or MPLS label";
+            when "path-constraints/address-family = 2 or path-constraints/address-family = 3";
+            type uint32;
+        }
+        leaf local-ipv4 {
+            description "Local IPv4 address";
+            when "path-constraints/address-family = 2";
+            type inet:ipv4-address;
+        }
+        leaf remote-ipv4 {
+            description "Remote IPv4 address";
+            when "path-constraints/address-family = 2";
+            type inet:ipv4-address;
+        }
+        leaf local-ipv6 {
+            description "Local IPv4 address";
+            when "path-constraints/address-family = 3";
+            type inet:ipv6-address;
+        }
+        leaf remote-ipv6 {
+            description "Remote IPv4 address";
+            when "path-constraints/address-family = 3";
+            type inet:ipv6-address;
+        }
+    }
+
     grouping path-descriptions {
         description
-            "Computed Path description as a list of IPv4, IPv6 or MPLS Label";
+            "Computed Path description as a list of IPv4, IPv6 or Segment Routing subobject";
         list path-description {
             leaf ipv4 {
                 when "path-constraints/address-family = 0";
@@ -143,10 +172,7 @@ module path-computation {
                 when "path-constraints/address-family = 1";
                 type inet:ipv6-address;
             }
-            leaf label {
-                when "path-constraints/address-family = 2 or path-constraints/address-family = 3";
-                type netc:mpls-label;
-            }
+            uses sr-description;
         }
     }
 
