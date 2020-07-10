@@ -17,6 +17,7 @@ import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.EdgeAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.attributes.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
@@ -235,9 +236,14 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                 return true;
             } else {
                 Long bandwidth = constraints.getBandwidth().getValue().longValue();
-                if (attributes.getUnreservedBandwidth().get(constraints.getClassType().intValue()).getBandwidth()
-                        .getValue().longValue() < bandwidth
-                        || attributes.getMaxLinkBandwidth().getValue().longValue() < bandwidth
+                Long unrsv = 0L;
+                for (UnreservedBandwidth unResBw : attributes.getUnreservedBandwidth()) {
+                    if (unResBw.getClassType().intValue() == constraints.getClassType().intValue()) {
+                        unrsv = unResBw.getBandwidth().getValue().longValue();
+                        break;
+                    }
+                }
+                if (unrsv < bandwidth || attributes.getMaxLinkBandwidth().getValue().longValue() < bandwidth
                         || attributes.getMaxResvLinkBandwidth().getValue().longValue() < bandwidth) {
                     LOG.debug("Bandwidth constraint is not met");
                     return true;
