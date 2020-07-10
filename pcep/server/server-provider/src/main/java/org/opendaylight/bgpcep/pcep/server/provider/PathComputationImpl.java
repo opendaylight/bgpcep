@@ -178,7 +178,7 @@ public class PathComputationImpl implements PathComputation {
         }
 
         ConnectedVertex vertex = tedGraph.getConnectedVertex(address);
-        LOG.debug("Compute path from Source {}", vertex.toString());
+        LOG.debug("Compute path from Source {}", vertex != null ? vertex.toString() : "Unknown");
         return (vertex != null) ? vertex.getVertex().key() : null;
     }
 
@@ -196,7 +196,7 @@ public class PathComputationImpl implements PathComputation {
         }
 
         ConnectedVertex vertex = tedGraph.getConnectedVertex(address);
-        LOG.debug("Compute path to Destination {}", vertex.toString());
+        LOG.debug("Compute path to Destination {}", vertex != null ? vertex.toString() : "Unknown");
         return (vertex != null) ? vertex.getVertex().key() : null;
     }
 
