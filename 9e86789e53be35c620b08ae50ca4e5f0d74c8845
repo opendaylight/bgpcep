@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db7e89f3_c0da05dd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-07-10T14:46:39Z",
+      "side": 1,
+      "message": "rather \"routers expect a SR-ERO\" ?",
+      "range": {
+        "startLine": 11,
+        "startChar": 17,
+        "endLine": 11,
+        "endChar": 32
+      },
+      "revId": "9e86789e53be35c620b08ae50ca4e5f0d74c8845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05b66326_3c778bd2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-07-10T14:46:39Z",
+      "side": 1,
+      "message": "Indeed",
+      "range": {
+        "startLine": 12,
+        "startChar": 42,
+        "endLine": 12,
+        "endChar": 49
+      },
+      "revId": "9e86789e53be35c620b08ae50ca4e5f0d74c8845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cce9e6d8_8cc7da9d",
+        "filename": "algo/algo-api/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-07-10T14:46:39Z",
+      "side": 1,
+      "message": "revision date should be changed.",
+      "revId": "9e86789e53be35c620b08ae50ca4e5f0d74c8845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
