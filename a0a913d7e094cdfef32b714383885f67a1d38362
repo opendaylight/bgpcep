@@ -46,6 +46,30 @@
       "revId": "a0a913d7e094cdfef32b714383885f67a1d38362",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3497c6f_be0f04ec",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PceServerFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-07-10T14:57:52Z",
+      "side": 1,
+      "message": "a more elegant approach would be to make this check in setTedGraph so that it returns a boolean instead of void (false when the cgraph return is null)\nthis way, the solution become\n\n        if (tedGraph \u003d\u003d null) {\n            if (!setTedGraph())\n                return null;\n            }\n        }\n        return new PathComputationImpl(tedGraph, algoProvider);",
+      "parentUuid": "c2947be6_2b4b61b5",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 9
+      },
+      "revId": "a0a913d7e094cdfef32b714383885f67a1d38362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
