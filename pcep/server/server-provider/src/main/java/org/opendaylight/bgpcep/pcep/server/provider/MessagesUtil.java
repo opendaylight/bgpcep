@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.SidType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.pcrep.pcrep.message.replies.result.success._case.success.paths.ero.subobject.subobject.type.SrEroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.pcrep.pcrep.message.replies.result.success._case.success.paths.ero.subobject.subobject.type.SrEroTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpNodeIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpAdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.NoPathVectorTlv.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
@@ -97,7 +97,7 @@ public final class MessagesUtil {
         /* Fulfill ERO sublist */
         for (PathDescription path : pathDescriptions) {
             Subobject sb = null;
-            if (path.getLabel() == null) {
+            if (path.getSid() == null) {
                 IpPrefix ipPref = null;
                 /* Prepare SubObject for IPv4 or IPv6 address */
                 if (path.getIpv4() != null) {
@@ -121,25 +121,31 @@ public final class MessagesUtil {
             } else {
                 /* Prepare SubObject for Segment Routing */
                 SrEroType srEro = null;
-                if (path.getIpv4() != null) {
+                if ((path.getLocalIpv4() != null) && (path.getRemoteIpv4() != null)) {
                     srEro = new SrEroTypeBuilder()
-                            .setSidType(SidType.Ipv4NodeId)
-                            .setSid(path.getLabel().getValue())
+                            .setSidType(SidType.Ipv4Adjacency)
+                            .setSid(path.getSid())
                             .setCFlag(false)
-                            .setMFlag(false)
-                            .setNai(new IpNodeIdBuilder()
-                                    .setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(path.getIpv4().getValue())))
+                            .setMFlag(true)
+                            .setNai(new IpAdjacencyBuilder()
+                                    .setLocalIpAddress(
+                                            new IpAddressNoZone(new Ipv4AddressNoZone(path.getLocalIpv4().getValue())))
+                                    .setRemoteIpAddress(
+                                            new IpAddressNoZone(new Ipv4AddressNoZone(path.getRemoteIpv4().getValue())))
                                     .build())
                             .build();
                 }
-                if (path.getIpv6() != null) {
+                if ((path.getLocalIpv6() != null) && (path.getRemoteIpv6() != null)) {
                     srEro = new SrEroTypeBuilder()
-                            .setSidType(SidType.Ipv6NodeId)
-                            .setSid(path.getLabel().getValue())
+                            .setSidType(SidType.Ipv6Adjacency)
+                            .setSid(path.getSid())
                             .setCFlag(false)
-                            .setMFlag(false)
-                            .setNai(new IpNodeIdBuilder()
-                                    .setIpAddress(new IpAddressNoZone(new Ipv6AddressNoZone(path.getIpv6().getValue())))
+                            .setMFlag(true)
+                            .setNai(new IpAdjacencyBuilder()
+                                    .setLocalIpAddress(
+                                            new IpAddressNoZone(new Ipv6AddressNoZone(path.getLocalIpv6().getValue())))
+                                    .setRemoteIpAddress(
+                                            new IpAddressNoZone(new Ipv6AddressNoZone(path.getRemoteIpv6().getValue())))
                                     .build())
                             .build();
                 }
