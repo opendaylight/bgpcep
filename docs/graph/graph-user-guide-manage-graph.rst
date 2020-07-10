@@ -115,7 +115,7 @@ through the ``graph:graph-topology`` namespace as follow:
                             "vertex-type": "standard"
                         }
                     ],
-                    "graph-type": "intra-domain"
+                    "domain-scope": "intra-domain"
                 }
             ]
         }
@@ -152,7 +152,7 @@ API with the same namespace as follow:
                             "vertex-type": "standard"
                         }
                     ],
-                    "graph-type": "intra-domain"
+                    "domain-scope": "intra-domain"
                 }
             ]
         }
@@ -184,7 +184,7 @@ Data Store. This includes all modification and associated Connected Graphs.
             "graph": [
                 {
                     "name": "example",
-                    "graph-type": "intra-domain",
+                    "domain-scope": "intra-domain",
                     "vertex": [
                         {
                             "vertex-id": 1,
@@ -216,7 +216,7 @@ Data Store. This includes all modification and associated Connected Graphs.
 
 @line 5: **name** The Graph identifier. Must be unique.
 
-@line 6: **graph-type** The type of the Graph: intra-domain or inter-domain.
+@line 6: **domain-scope** The type of the Graph: intra-domain or inter-domain.
 
 @line 7: **vertex** - List of Vertices. Each Vertex ID must be unique.
 
