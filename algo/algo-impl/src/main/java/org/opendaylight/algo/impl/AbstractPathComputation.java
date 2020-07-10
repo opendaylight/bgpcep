@@ -158,13 +158,21 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                 break;
             case SrIpv4:
                 if (getIpv4NodeSid(edge.getDestination()) == null) {
-                    LOG.debug("No SR-Ipv4 SID");
+                    LOG.debug("No Node-SID for IPv4");
+                    return true;
+                }
+                if (attributes.getAdjSid() == null) {
+                    LOG.debug("No Adjacency-SID");
                     return true;
                 }
                 break;
             case SrIpv6:
                 if (getIpv6NodeSid(edge.getDestination()) == null) {
-                    LOG.debug("No SR-Ipv6 SID");
+                    LOG.debug("No Node-SID for IPv6");
+                    return true;
+                }
+                if (attributes.getAdjSid() == null) {
+                    LOG.debug("No SR Adjacency-SID");
                     return true;
                 }
                 break;
@@ -340,14 +348,16 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                     break;
                 case SrIpv4:
                     pathDesc = new PathDescriptionBuilder()
-                            .setIpv4(edge.getDestination().getVertex().getRouterId().getIpv4Address())
-                            .setLabel(getIpv4NodeSid(edge.getDestination()))
+                            .setLocalIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv4Address())
+                            .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv4Address())
+                            .setSid(edge.getEdge().getEdgeAttributes().getAdjSid())
                             .build();
                     break;
                 case SrIpv6:
                     pathDesc = new PathDescriptionBuilder()
-                            .setIpv6(edge.getDestination().getVertex().getRouterId().getIpv6Address())
-                            .setLabel(getIpv6NodeSid(edge.getDestination()))
+                            .setLocalIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv6Address())
+                            .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv6Address())
+                            .setSid(edge.getEdge().getEdgeAttributes().getAdjSid())
                             .build();
                     break;
                 default:
