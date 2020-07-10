@@ -399,20 +399,6 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode nlri) {
-        deleteRoutes(tx, tablePath, nlri, ROUTES_NID);
-    }
-
-    @Override
-    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
-                                                                    final YangInstanceIdentifier tablePath,
-                                                                    final ContainerNode nlri,
-                                                                    final ContainerNode attributes) {
-        return putRoutes(tx, tablePath, nlri, attributes, ROUTES_NID);
-    }
-
-    @Override
     public final Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn,
             final Attributes attr) {
         final UpdateBuilder ub = new UpdateBuilder();
@@ -440,6 +426,12 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
+    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
+            final ContainerNode nlri) {
+        deleteRoutes(tx, tablePath, nlri, ROUTES_NID);
+    }
+
+    @Override
     @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri, final NodeIdentifier routesNodeId) {
@@ -452,6 +444,14 @@ public abstract class AbstractRIBSupport<
         } else {
             LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
         }
+    }
+
+    @Override
+    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
+                                                                    final YangInstanceIdentifier tablePath,
+                                                                    final ContainerNode nlri,
+                                                                    final ContainerNode attributes) {
+        return putRoutes(tx, tablePath, nlri, attributes, ROUTES_NID);
     }
 
     @Override
