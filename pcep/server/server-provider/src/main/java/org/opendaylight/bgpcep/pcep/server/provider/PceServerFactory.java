@@ -44,16 +44,20 @@ public class PceServerFactory implements PceServerProvider {
 
     @Override
     public PathComputationImpl getPathComputation() {
-        /* Leave a change to get a valid Graph */
+        /* Leave a chance to get a valid Graph in case of late fulfillment */
         if (tedGraph == null) {
             setTedGraph();
         }
-        return new PathComputationImpl(tedGraph, algoProvider);
+        if (tedGraph != null) {
+            return new PathComputationImpl(tedGraph, algoProvider);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public @Nullable ConnectedGraph getTedGraph() {
-        /* Leave a change to get a valid Graph in case of late fulfillment */
+        /* Leave a chance to get a valid Graph in case of late fulfillment */
         if (tedGraph == null) {
             setTedGraph();
         }
