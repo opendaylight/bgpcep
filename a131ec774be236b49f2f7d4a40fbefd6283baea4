@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1070168_b724b31d",
+        "filename": "algo/algo-api/src/main/yang/path-computation.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-07-14T10:52:02Z",
+      "side": 1,
+      "message": "new revision date?",
+      "revId": "a131ec774be236b49f2f7d4a40fbefd6283baea4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
