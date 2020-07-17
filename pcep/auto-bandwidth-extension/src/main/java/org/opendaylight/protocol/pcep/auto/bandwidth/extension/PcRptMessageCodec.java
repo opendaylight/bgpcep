@@ -13,7 +13,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
-import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCReportMessageParser;
+import org.opendaylight.protocol.pcep.ietf.stateful.StatefulPCReportMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.Bandwidth1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.Bandwidth1Builder;
@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
 
-public class PcRptMessageCodec extends Stateful07PCReportMessageParser {
+public class PcRptMessageCodec extends StatefulPCReportMessageParser {
 
     public PcRptMessageCodec(final ObjectRegistry registry) {
         super(registry);

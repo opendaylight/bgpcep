@@ -90,11 +90,11 @@ configuration of the parser-spi module (*32-pcep.xml*).
      </extension>
      <extension>
       <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-      <name>pcep-parser-ietf-stateful07</name>
+      <name>pcep-parser-ietf-stateful</name>
      </extension>
      <extension>
       <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-      <name>pcep-parser-ietf-initiated00</name>
+      <name>pcep-parser-ietf-initiated</name>
      </extension>
      <extension>
       <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
@@ -105,17 +105,17 @@ configuration of the parser-spi module (*32-pcep.xml*).
 -  *pcep-parser-base* - will register parsers and serializers
    implemented in pcep-impl module
 
--  *pcep-parser-ietf-stateful07* - will register parsers and serializers
+-  *pcep-parser-ietf-stateful* - will register parsers and serializers
    of draft-ietf-pce-stateful-pce-07 implementation
 
--  *pcep-parser-ietf-initiated00* - will register parser and serializer
+-  *pcep-parser-ietf-initiated* - will register parser and serializer
    of draft-ietf-pce-pce-initiated-lsp-00 implementation
 
 -  *pcep-parser-sync-optimizations* - will register parser and
    serializers of draft-ietf-pce-stateful-sync-optimizations-03
    implementation
 
-Stateful07 module is a good example of a PCEP parser extension.
+Stateful module is a good example of a PCEP parser extension.
 
 Configuration of PCEP parsers specifies one implementation of *Extension
 provider* that will take care of registering mentioned parser
@@ -159,7 +159,7 @@ Better understanding provides this sequence diagram:
 PCEP IETF stateful
 ~~~~~~~~~~~~~~~~~~
 
-This section summarizes module pcep-ietf-stateful07. The term *stateful*
+This section summarizes module pcep-ietf-stateful. The term *stateful*
 refers to
 `draft-ietf-pce-stateful-pce <http://tools.ietf.org/html/draft-ietf-pce-stateful-pce>`__
 and
