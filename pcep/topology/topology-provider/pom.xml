@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-ietf-stateful07</artifactId>
+            <artifactId>pcep-ietf-stateful</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

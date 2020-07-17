@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev181109.lsp.db.version.tlv.LspDbVersionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev181109.Stateful1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev181109.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.PlspId;
@@ -44,15 +44,15 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class StateSynchronizationAvoidanceProcedureTest extends
-    AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
+    AbstractPCEPSessionTest<PCEPTopologySessionListenerFactory> {
 
-    private Stateful07TopologySessionListener listener;
+    private PCEPTopologySessionListener listener;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.listener = (Stateful07TopologySessionListener) getSessionListener();
+        this.listener = (PCEPTopologySessionListener) getSessionListener();
     }
 
     @Test
@@ -128,7 +128,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
         });
 
         this.listener.onSessionDown(session, new IllegalArgumentException("Simulate Exception"));
-        this.listener = (Stateful07TopologySessionListener) getSessionListener();
+        this.listener = (PCEPTopologySessionListener) getSessionListener();
 
         //session up - expect sync (LSP-DBs do not match)
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()

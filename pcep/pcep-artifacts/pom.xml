@@ -59,7 +59,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-ietf-stateful07</artifactId>
+                <artifactId>pcep-ietf-stateful</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -198,7 +198,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
+                <artifactId>odl-bgpcep-pcep-stateful</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
                 <version>${project.version}</version>
