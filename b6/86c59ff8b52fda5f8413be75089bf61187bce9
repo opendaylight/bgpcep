@@ -1,0 +1,9 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Code-Review+1: Cedric Ollivier <cedric.ollivier@orange.com>
+Code-Review+1: Olivier Dugeon <olivier.dugeon@orange.com>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Fri, 17 Jul 2020 10:02:28 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/90809
+Project: bgpcep
+Branch: refs/heads/master
