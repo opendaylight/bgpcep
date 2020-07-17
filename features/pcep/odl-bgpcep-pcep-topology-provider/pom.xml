@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-pcep-stateful07</artifactId>
+            <artifactId>odl-bgpcep-pcep-stateful</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

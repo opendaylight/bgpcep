@@ -51,7 +51,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopologySessionListenerFactory> {
 
     private static final String NAME = "test-tunnel";
-    private static Stateful07TopologySessionListener listener;
+    private static PCEPTopologySessionListener listener;
 
     @Mock
     private InstructionScheduler scheduler;
@@ -206,7 +206,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     protected static final class MockedTopologySessionListenerFactory implements TopologySessionListenerFactory {
         @Override
         public TopologySessionListener createTopologySessionListener(final ServerSessionManager manager) {
-            listener = Mockito.spy(new Stateful07TopologySessionListener(manager));
+            listener = Mockito.spy(new PCEPTopologySessionListener(manager));
             return listener;
         }
     }

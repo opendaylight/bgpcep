@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2016 Brocade Communications Systems, Inc. and others.  All rights reserved.
+
+  This program and the accompanying materials are made available under the
+  terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+  <!-- Protocal extension providers -->
+
+  <bean id="ietfStatefulActivator" class="org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator"/>
+  <service ref="ietfStatefulActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator"/>
+
+  <bean id="ietfInitiatedActivator" class="org.opendaylight.protocol.pcep.ietf.initiated.InitiatedActivator"/>
+  <service ref="ietfInitiatedActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.pcep.ietf.initiated.InitiatedActivator"/>
+
+  <bean id="syncOptimizationsActivator" class="org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator"/>
+  <service ref="syncOptimizationsActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
+          odl:type="org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator"/>
+
+  <!-- Capabilities -->
+
+  <odl:clustered-app-config id="statefulCapabilityConfig"
+      binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.ietf.stateful.app.config.rev160707.PcepIetfStatefulConfig"/>
+
+  <bean id="statefulCapability" class="org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability">
+    <argument ref="statefulCapabilityConfig"/>
+  </bean>
+
+  <service ref="statefulCapability" interface="org.opendaylight.protocol.pcep.PCEPCapability"
+          odl:type="org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability"/>
+
+</blueprint>
