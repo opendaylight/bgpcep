@@ -5,8 +5,8 @@ module odl-pcep-segment-routing {
 
     import pcep-types { prefix pcep; revision-date 2018-11-09; }
     import pcep-message { prefix msg; revision-date 2018-11-09; }
-    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2018-11-09; }
-    import odl-pcep-ietf-initiated00 { prefix crabbe; revision-date 2018-11-09; }
+    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2018-11-09; }
+    import odl-pcep-ietf-initiated { prefix initiated; revision-date 2018-11-09; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix pn; revision-date 2020-01-20; }
@@ -167,8 +167,8 @@ module odl-pcep-segment-routing {
         }
     }
 
-    //stateful07
-    augment "/crabbe:pcinitiate/crabbe:pcinitiate-message/crabbe:requests/crabbe:ero/crabbe:subobject/crabbe:subobject-type" {
+    //stateful
+    augment "/initiated:pcinitiate/initiated:pcinitiate-message/initiated:requests/initiated:ero/initiated:subobject/initiated:subobject-type" {
         case sr-ero-type {
             uses sr-ero-subobject;
         }
@@ -230,8 +230,8 @@ module odl-pcep-segment-routing {
         }
     }
 
-    //stateful07
-    augment "/crabbe:pcinitiate/crabbe:pcinitiate-message/crabbe:requests/crabbe:rro/crabbe:subobject/crabbe:subobject-type" {
+    //stateful
+    augment "/initiated:pcinitiate/initiated:pcinitiate-message/initiated:requests/initiated:rro/initiated:subobject/initiated:subobject-type" {
         case sr-rro-type {
             uses sr-rro-subobject;
         }

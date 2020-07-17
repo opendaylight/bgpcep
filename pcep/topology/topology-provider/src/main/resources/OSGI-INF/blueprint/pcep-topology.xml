@@ -9,9 +9,9 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="Stateful07TopologySessionListenerFactory"
-          class="org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionListenerFactory"/>
-    <service ref="Stateful07TopologySessionListenerFactory"
+    <bean id="PCEPTopologySessionListenerFactory"
+          class="org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologySessionListenerFactory"/>
+    <service ref="PCEPTopologySessionListenerFactory"
              interface="org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory"/>
 
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"
@@ -42,7 +42,7 @@
         <argument ref="dataBroker"/>
         <argument ref="pcepDispatcher"/>
         <argument ref="rpcProviderService"/>
-        <argument ref="Stateful07TopologySessionListenerFactory"/>
+        <argument ref="PCEPTopologySessionListenerFactory"/>
         <argument ref="topologySessionStatsRegistry"/>
         <argument ref="pceServerProvider"/>
     </bean>
