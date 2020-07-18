@@ -137,6 +137,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     public void tearDown() throws Exception {
         waitFutureSuccess(this.serverChannel.close());
         this.session.close();
+        this.ribImpl.closeServiceInstance().get();
         super.tearDown();
     }
 
