@@ -101,24 +101,53 @@ Once we set the configuration, a new data change counter will be created and reg
 
 **URL:** ``/restconf/config/odl-data-change-counter-config:data-change-counter-config/data-change-counter``
 
+**RFC8040 URL:** ``/rests/data/odl-data-change-counter-config:data-change-counter-config=data-change-counter``
+
 **Method:** ``PUT``
 
-**Content-Type:** ``application/xml``
+.. tabs::
 
-**Request Body:**
+   .. tab:: XML
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3
+      **Content-Type:** ``application/xml``
 
-   <data-change-counter-config xmlns="urn:opendaylight:params:xml:ns:yang:bgpcep:data-change-counter-config">
-       <counter-id>data-change-counter</counter-id>
-       <topology-name>example-linkstate-topology</topology-name>
-   </data-change-counter-config>
+      **Request Body:**
 
-@line 2: **Counter Id** - Unique counter change identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3
 
-@line 3: **Topology Name** - An identifier for a topology.
+         <data-change-counter-config xmlns="urn:opendaylight:params:xml:ns:yang:bgpcep:data-change-counter-config">
+             <counter-id>data-change-counter</counter-id>
+             <topology-name>example-linkstate-topology</topology-name>
+         </data-change-counter-config>
+
+      @line 2: **Counter Id** - Unique counter change identifier.
+
+      @line 3: **Topology Name** - An identifier for a topology.
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4,5
+
+         {
+             "odl-data-change-counter-config:data-change-counter-config": [
+                 {
+                     "counter-id": "data-change-counter",
+                     "topology-name": "example-linkstate-topology"
+                 }
+             ]
+         }
+
+      @line 4: **Counter Id** - Unique counter change identifier.
+
+      @line 5: **Topology Name** - An identifier for a topology.
 
 Usage
 '''''
@@ -127,19 +156,46 @@ Counter state for topology
 
 **URL:** ``/restconf/operational/data-change-counter:data-change-counter/counter/data-change-counter``
 
+**RFC8040 URL:** ``/rests/data/data-change-counter:data-change-counter/counter=data-change-counter?content=nonconfig``
+
 **Method:** ``GET``
 
-**Response Body:**
+.. tabs::
 
-.. code-block:: xml
-   :linenos:
-   :emphasize-lines: 2,3
+   .. tab:: XML
 
-   <counter xmlns="urn:opendaylight:params:xml:ns:yang:bgp-data-change-counter">
-       <id>data-change-counter</id>
-       <count>0</count>
-   </counter>
+      **Response Body:**
 
-@line 2: **Counter Id** - Unique counter change identifier.
+      .. code-block:: xml
+         :linenos:
+         :emphasize-lines: 2,3
 
-@line 3: **Count** - Number of changes under registered topology's subtree.
+         <counter xmlns="urn:opendaylight:params:xml:ns:yang:bgp-data-change-counter">
+             <id>data-change-counter</id>
+             <count>0</count>
+         </counter>
+
+      @line 2: **Counter Id** - Unique counter change identifier.
+
+      @line 3: **Count** - Number of changes under registered topology's subtree.
+
+   .. tab:: JSON
+
+      **Response Body:**
+
+      .. code-block:: json
+         :linenos:
+         :emphasize-lines: 4,5
+
+         {
+             "data-change-counter:counter": [
+                 {
+                     "id": "data-change-counter",
+                     "count": 0
+                 }
+             ]
+         }
+
+      @line 4: **Counter Id** - Unique counter change identifier.
+
+      @line 5: **Count** - Number of changes under registered topology's subtree.
