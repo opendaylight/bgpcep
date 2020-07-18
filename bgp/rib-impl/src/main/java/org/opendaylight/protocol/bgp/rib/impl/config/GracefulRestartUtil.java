@@ -36,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables;
@@ -76,19 +75,20 @@ public final class GracefulRestartUtil {
     }
 
     public static CParameters getLlGracefulCapability(final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestarts) {
-        final List<Tables> tablesList = llGracefulRestarts.stream()
-                .map(dto -> new TablesBuilder()
-                        .setAfi(dto.getTableKey().getAfi())
-                        .setSafi(dto.getTableKey().getSafi())
-                        .setAfiFlags(new AfiFlags(dto.isForwarding()))
-                        .setLongLivedStaleTime(new Uint24(Uint32.valueOf(dto.getStaleTime())))
+        return new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder()
+                    .setLlGracefulRestartCapability(new LlGracefulRestartCapabilityBuilder()
+                        .setTables(llGracefulRestarts.stream()
+                            .map(dto -> new TablesBuilder()
+                                .setAfi(dto.getTableKey().getAfi())
+                                .setSafi(dto.getTableKey().getSafi())
+                                .setAfiFlags(new AfiFlags(dto.isForwarding()))
+                                .setLongLivedStaleTime(new Uint24(Uint32.valueOf(dto.getStaleTime())))
+                                .build())
+                            .collect(Collectors.toMap(Tables::key, Function.identity())))
                         .build())
-                .collect(Collectors.toList());
-        return new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setLlGracefulRestartCapability(
-                        new LlGracefulRestartCapabilityBuilder()
-                        .setTables(tablesList)
-                        .build()).build()).build();
+                    .build())
+                .build();
     }
 
     static Set<TablesKey> getGracefulTables(final Collection<? extends AfiSafi> afiSafis,
