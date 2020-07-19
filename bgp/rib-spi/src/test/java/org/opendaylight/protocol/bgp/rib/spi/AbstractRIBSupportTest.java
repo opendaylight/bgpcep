@@ -14,13 +14,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.opendaylight.binding.runtime.spi.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
@@ -88,14 +86,9 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     protected AdapterContext adapter;
     private AbstractRIBSupport<C, S, R, I> abstractRIBSupport;
-    private ModuleInfoBackedContext moduleInfoBackedContext;
 
     protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R, I> ribSupport) throws Exception {
         this.abstractRIBSupport = ribSupport;
-        this.moduleInfoBackedContext.registerModuleInfos(Arrays.asList(
-            BindingReflections.getModuleInfo(this.abstractRIBSupport.routesContainerClass()),
-            BindingReflections.getModuleInfo(this.abstractRIBSupport.routesCaseClass()),
-            BindingReflections.getModuleInfo(this.abstractRIBSupport.routesListClass())));
     }
 
     @Before
@@ -117,7 +110,6 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         }).when(this.tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         this.deletedRoutes = new ArrayList<>();
         this.insertedRoutes = new ArrayList<>();
-        this.moduleInfoBackedContext = ModuleInfoBackedContext.create();
     }
 
     @Override
