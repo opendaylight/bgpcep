@@ -9,8 +9,8 @@ package org.opendaylight.protocol.pcep.segment.routing;
 
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -26,7 +26,8 @@ public class PCEPSegmentRoutingCapability implements PCEPCapability {
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
         if (this.isSegmentRoutingCapable) {
             builder.addAugmentation(new Tlvs1Builder()
-                .setSrPceCapability(new SrPceCapabilityBuilder().setMsd(Uint8.ZERO).build())
+                .setSrPceCapability(new SrPceCapabilityBuilder().setNFlag(Boolean.FALSE).setXFlag(Boolean.FALSE)
+                    .setMsd(Uint8.ZERO).build())
                 .build());
         }
     }
