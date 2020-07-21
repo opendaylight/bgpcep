@@ -20,24 +20,24 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.SidType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpAdjacencyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpNodeIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.NaiType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpNodeIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.UnnumberedAdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class SrEroSubobjectParserTest {
 
     private static final byte[] SR_ERO_SUBOBJECT_WITH_IPV4_NODEID = {
-        0x05,0x0c,(byte) 0x10,0x00,
+        0x24,0x0c,(byte) 0x10,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         0x4A,0x7D,0x2b,0x63,
     };
 
     private static final byte[] SR_ERO_SUBOBJECT_WITH_IPV6_NODEID = {
-        0x05,0x18,(byte) 0x20,0x00,
+        0x24,0x18,(byte) 0x20,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         (byte) 0xFE,(byte) 0x80,(byte) 0xCD,0x00,
         0x00,0x00,0x00,0x00,
@@ -46,14 +46,14 @@ public class SrEroSubobjectParserTest {
     };
 
     private static final byte[] SR_ERO_SUBOBJECT_WITH_IPV4_ADJ = {
-        0x05,0x10,(byte) 0x30,0x00,
+        0x24,0x10,(byte) 0x30,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         0x4A,0x7D,0x2b,0x63,
         0x4A,0x7D,0x2b,0x64,
     };
 
     private static final byte[] SR_ERO_SUBOBJECT_WITH_IPV6_ADJ = {
-        0x05,0x28,(byte) 0x40,0x00,
+        0x24,0x28,(byte) 0x40,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         (byte) 0xFE,(byte) 0x80,(byte) 0xCD,0x00,
         0x00,0x00,0x00,0x00,
@@ -66,7 +66,7 @@ public class SrEroSubobjectParserTest {
     };
 
     private static final byte[] SR_ERO_SUBOBJECT_WITH_UNNUMBERED = {
-        0x05,0x18,(byte) 0x50,0x00,
+        0x24,0x18,(byte) 0x50,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
         0x00,0x00,0x00,0x01,
         0x00,0x00,0x00,0x02,
@@ -75,22 +75,22 @@ public class SrEroSubobjectParserTest {
     };
 
     private static final byte[] SR_ERO_SUBOBJECT_WITHOUT_NAI = {
-        0x05,0x08,(byte) 0x10,0x08,
+        0x24,0x08,(byte) 0x10,0x08,
         0x00,0x01,(byte) 0xe2,0x40
     };
 
     private static final byte[] SR_ERO_SUBOBJECT_WITHOUT_SID = {
-        0x05,0x08,(byte) 0x10,0x04,
+        0x24,0x08,(byte) 0x10,0x04,
         0x4A,0x7D,0x2b,0x63,
     };
 
     private static final byte[] SR_ERO_SUBOBJECT_WITH_IPV4_NODEID_MFLAG = {
-        0x05,0x0c,(byte) 0x10,0x01,
+        0x24,0x0c,(byte) 0x10,0x01,
         0x07,0x5B,(byte) 0xCD,0x15,
         0x4A,0x7D,0x2b,0x63,
     };
     private static final byte[] SR_ERO_SUBOBJECT_WITH_IPV4_NODEID_MFLAG_AFTER = {
-        0x05,0x0c,(byte) 0x10,0x01,
+        0x24,0x0c,(byte) 0x10,0x01,
         0x07,0x5B,(byte) 0xC0,0x00,
         0x4A,0x7D,0x2b,0x63,
     };
@@ -104,14 +104,13 @@ public class SrEroSubobjectParserTest {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new SegmentRoutingActivator();
         this.act.start(this.ctx);
-        final boolean isIanaAssignedType = false;
-        this.parser = new SrEroSubobjectParser(isIanaAssignedType);
+        this.parser = new SrEroSubobjectParser();
     }
 
     @Test
     public void testSrEroSubobjectIpv4NodeIdNAI() throws PCEPDeserializerException {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder()
-                .setSidType(SidType.Ipv4NodeId)
+                .setNaiType(NaiType.Ipv4NodeId)
                 .setSid(Uint32.valueOf(123456))
                 .setCFlag(false)
                 .setMFlag(false)
@@ -129,7 +128,7 @@ public class SrEroSubobjectParserTest {
     @Test
     public void testSrEroSubobjectIpv6NodeIdNAI() throws PCEPDeserializerException {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder()
-                .setSidType(SidType.Ipv6NodeId)
+                .setNaiType(NaiType.Ipv6NodeId)
                 .setSid(Uint32.valueOf(123456))
                 .setCFlag(false)
                 .setMFlag(false)
@@ -147,7 +146,7 @@ public class SrEroSubobjectParserTest {
     @Test
     public void testSrEroSubobjectIpv4AdjacencyNAI() throws PCEPDeserializerException {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder()
-                .setSidType(SidType.Ipv4Adjacency)
+                .setNaiType(NaiType.Ipv4Adjacency)
                 .setSid(Uint32.valueOf(123456))
                 .setCFlag(false)
                 .setMFlag(false)
@@ -166,7 +165,7 @@ public class SrEroSubobjectParserTest {
     @Test
     public void testSrEroSubobjectIpv6AdjacencyNAI() throws PCEPDeserializerException {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder()
-                .setSidType(SidType.Ipv6Adjacency)
+                .setNaiType(NaiType.Ipv6Adjacency)
                 .setSid(Uint32.valueOf(123456))
                 .setCFlag(false)
                 .setMFlag(false)
@@ -186,7 +185,7 @@ public class SrEroSubobjectParserTest {
     @Test
     public void testSrEroSubobjectUnnumberedNAI() throws PCEPDeserializerException {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder()
-                .setSidType(SidType.Unnumbered)
+                .setNaiType(NaiType.Unnumbered)
                 .setSid(Uint32.valueOf(123456))
                 .setCFlag(false)
                 .setMFlag(false)
@@ -206,7 +205,7 @@ public class SrEroSubobjectParserTest {
     @Test
     public void testSrEroSubobjectWithoutNAI() throws PCEPDeserializerException {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder()
-                .setSidType(SidType.Ipv4NodeId)
+                .setNaiType(NaiType.Ipv4NodeId)
                 .setSid(Uint32.valueOf(123456))
                 .setCFlag(false)
                 .setMFlag(false);
@@ -222,7 +221,7 @@ public class SrEroSubobjectParserTest {
     @Test
     public void testSrEroSubobjectWithoutBody() throws PCEPDeserializerException {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder()
-                .setSidType(SidType.Ipv4NodeId)
+                .setNaiType(NaiType.Ipv4NodeId)
                 .setCFlag(false)
                 .setMFlag(false)
                 .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
@@ -241,7 +240,7 @@ public class SrEroSubobjectParserTest {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder()
                 .setCFlag(false)
                 .setMFlag(true)
-                .setSidType(SidType.Ipv4NodeId)
+                .setNaiType(NaiType.Ipv4NodeId)
                 .setSid(Uint32.valueOf(30140))
                 .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
                     .build());
