@@ -7,14 +7,15 @@ module odl-pcep-ietf-initiated {
     import pcep-message { prefix msg; revision-date 2018-11-09; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2020-01-20; }
-    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2018-11-09; }
+    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2020-07-20; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
 
     description
         "This module contains the data model of PCEP extensions defined
-        in draft-ietf-pce-pce-initiated-lsp.
+        in RFC 8281: 'Path Computation Element Communication Protocol (PCEP)
+        Extensions for PCE-Initiated LSP Setup in a Stateful PCE Model'.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -22,6 +23,11 @@ module odl-pcep-ietf-initiated {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2020-07-20" {
+        description "Update to PCEP Initiated RFC";
+        reference "RFC8281";
+    }
 
     revision "2018-11-09" {
         description
@@ -44,7 +50,7 @@ module odl-pcep-ietf-initiated {
 
         container pcinitiate-message {
             description "LSP Initiate Message";
-            reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.1";
+            reference "http://tools.ietf.org/html/rfc8281#section-5.1";
 
             uses pcep:message-header;
 
@@ -63,7 +69,7 @@ module odl-pcep-ietf-initiated {
     }
 
     grouping initiated-capability-tlv {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-4.1";
+        reference "http://tools.ietf.org/html/rfc8281#section-4.1";
         leaf initiation {
             type boolean;
             default false;
@@ -71,7 +77,7 @@ module odl-pcep-ietf-initiated {
     }
 
     augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:srp" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.2";
+        reference "http://tools.ietf.org/html/rfc8281#section-5.2";
         leaf remove {
             type boolean;
             default false;
@@ -79,7 +85,7 @@ module odl-pcep-ietf-initiated {
     }
 
     augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:srp" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.2";
+        reference "http://tools.ietf.org/html/rfc8281#section-5.2";
         leaf remove {
             type boolean;
             default false;
@@ -87,7 +93,7 @@ module odl-pcep-ietf-initiated {
     }
 
     augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:lsp" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.3.1";
+        reference "http://tools.ietf.org/html/rfc8281#section-5.3.1";
         leaf create {
             type boolean;
             default false;
@@ -95,7 +101,7 @@ module odl-pcep-ietf-initiated {
     }
 
     augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:lsp" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.3.1";
+        reference "http://tools.ietf.org/html/rfc8281#section-5.3.1";
         leaf create {
             type boolean;
             default false;
@@ -115,7 +121,7 @@ module odl-pcep-ietf-initiated {
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/topo:path/stateful:lsp" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.3.1";
+        reference "http://tools.ietf.org/html/rfc8281#section-5.3.1";
         leaf create {
             type boolean;
             default false;
