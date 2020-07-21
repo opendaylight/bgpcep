@@ -16,8 +16,8 @@ import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.symbolic.path.name.tlv.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.symbolic.path.name.tlv.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.symbolic.path.name.tlv.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 
 /**
@@ -33,13 +33,13 @@ public final class StatefulLspSymbolicNameTlvParser implements TlvParser, TlvSer
             return null;
         }
         return new SymbolicPathNameBuilder().setPathName(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-            .yang.pcep.ietf.stateful.rev181109.SymbolicPathName(ByteArray.getAllBytes(buffer))).build();
+            .yang.pcep.ietf.stateful.rev200720.SymbolicPathName(ByteArray.getAllBytes(buffer))).build();
     }
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         checkArgument(tlv instanceof SymbolicPathName, "SymbolicPathNameTlv is mandatory.");
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720
             .SymbolicPathName spn = ((SymbolicPathName) tlv).getPathName();
         checkArgument(spn != null, "SymbolicPathName is mandatory");
         TlvUtil.formatTlv(TYPE, Unpooled.copiedBuffer(spn.getValue()), buffer);

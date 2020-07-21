@@ -7,14 +7,15 @@ module odl-pcep-sync-optimizations {
     import pcep-message { prefix msg; revision-date 2018-11-09; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2020-01-20; }
-    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2018-11-09; }
+    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2020-07-20; }
 
     organization "Pantheon Technologies";
     contact "Iveta Halanova <iveta.halanova@pantheon.sk>";
 
     description
         "This module contains the data model of PCEP extensions defined
-        in draft-ietf-pce-stateful-sync-optimizations-02.
+        in RFC8232: 'Optimizations of Label Switched Path State Synchronization
+        Procedures for a Stateful PCE'.
 
         Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
 
@@ -22,6 +23,11 @@ module odl-pcep-sync-optimizations {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2020-07-20" {
+        description "Update to Path State Synchronization Procedures RFC";
+        reference "RFC8232: https://tools.ietf.org/html/rfc8232";
+    }
 
     revision "2018-11-09" {
         description

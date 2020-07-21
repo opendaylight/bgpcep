@@ -20,7 +20,8 @@ module odl-pcep-ietf-stateful {
 
     description
         "This module contains the data model of PCEP extensions defined
-        in draft-ietf-pce-stateful-pce.
+        in RFC 8231: 'Path Computation Element Communication Protocol (PCEP)
+        Extensions for Stateful PCE'.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -28,6 +29,12 @@ module odl-pcep-ietf-stateful {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2020-07-20" {
+        description "Update to PCEP Stateful RFC & PCE binding label sid draft";
+        reference "https://tools.ietf.org/html/rfc8231
+                   https://tools.ietf.org/html/draft-ietf-pce-binding-label-sid-03";
+    }
 
     revision "2018-11-09" {
         description
@@ -84,7 +91,7 @@ module odl-pcep-ietf-stateful {
     }
 
     grouping path-binding-tlv {
-        reference "https://tools.ietf.org/html/draft-sivabalan-pce-binding-label-sid-01#section-3";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-binding-label-sid-03#section-3";
         container path-binding {
             uses pcep:tlv;
             choice binding-type-value {
@@ -109,13 +116,18 @@ module odl-pcep-ietf-stateful {
                         type uint8;
                     }
                 }
+                case srv6 {
+                    leaf srv6-address {
+                        type inet:ipv6-address-no-zone;
+                    }
+                }
             }
         }
     }
 
     grouping lsp-identifiers-tlv {
         description "LSP Identifiers TLV";
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.1";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.1";
         container lsp-identifiers {
             uses pcep:tlv;
             leaf lsp-id {
@@ -165,7 +177,7 @@ module odl-pcep-ietf-stateful {
 
     grouping lsp-error-code-tlv {
         description "LSP Error Code TLV";
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.3";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.3";
         container lsp-error-code {
             uses pcep:tlv;
             leaf error-code {
@@ -176,7 +188,7 @@ module odl-pcep-ietf-stateful {
 
     grouping rsvp-error-spec-tlv {
         description "RSVP Error Spec TLV";
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.4";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.4";
         container rsvp-error-spec {
             uses pcep:tlv;
             choice error-type {
@@ -196,7 +208,7 @@ module odl-pcep-ietf-stateful {
 
     grouping stateful-capability-tlv {
         description "Stateful PCE Capability TLV";
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.1.1";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.1.1";
 
         container stateful {
             uses pcep:tlv;
@@ -210,7 +222,7 @@ module odl-pcep-ietf-stateful {
 
     grouping symbolic-path-name-tlv {
         description "Symbolic Path Name TLV";
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.2";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.2";
         container symbolic-path-name {
             uses pcep:tlv;
             leaf path-name {
@@ -221,7 +233,7 @@ module odl-pcep-ietf-stateful {
 
     grouping lsp-object {
         description "LSP Object";
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3";
+        reference "https://tools.ietf.org/html/rfc8321#section-7.3";
 
         container lsp {
             uses pcep:object;
@@ -273,7 +285,7 @@ module odl-pcep-ietf-stateful {
 
     grouping srp-object {
         description "SRP Object";
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.2";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.2";
 
         container srp {
             uses pcep:object;
@@ -298,7 +310,7 @@ module odl-pcep-ietf-stateful {
 
         container pcupd-message {
             description "State Update Request Message";
-            reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-6.2";
+            reference "https://tools.ietf.org/html/rfc8231#section-6.2";
 
             uses pcep:message-header;
 
@@ -319,7 +331,7 @@ module odl-pcep-ietf-stateful {
 
         container pcrpt-message {
             description "State Report Message";
-            reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-6.1";
+            reference "https://tools.ietf.org/html/rfc8231#section-6.1";
 
             uses pcep:message-header;
 
@@ -348,13 +360,24 @@ module odl-pcep-ietf-stateful {
         ext:augment-identifier tlvs-1;
     }
 
-    augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:failure-case/msg:lspa/msg:tlvs" {
-        uses symbolic-path-name-tlv;
+    augment "/msg:pcrep/msg:pcrep-message/msg:replies" {
+        reference "https://tools.ietf.org/html/rfc8231#section-6.5";
+        uses lsp-object;
         ext:augment-identifier tlvs-4;
     }
 
+    augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p" {
+        reference "https://tools.ietf.org/html/rfc8231#section-6.4";
+        uses lsp-object;
+    }
+
+    augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2mp" {
+        reference "https://tools.ietf.org/html/rfc8231#section-6.4";
+        uses lsp-object;
+    }
+
     augment "/msg:pcerr/msg:pcerr-message/msg:error-type" {
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-6.3";
+        reference "https://tools.ietf.org/html/rfc8231#section-6.3";
         case stateful-case {
             container stateful {
                 list srps {
@@ -362,11 +385,6 @@ module odl-pcep-ietf-stateful {
                 }
             }
         }
-    }
-
-    augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:lspa/msg:tlvs" {
-        uses symbolic-path-name-tlv;
-        ext:augment-identifier tlvs-2;
     }
 
     augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
@@ -407,7 +425,7 @@ module odl-pcep-ietf-stateful {
             enum active;
             enum inactive;
         }
-        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3";
     }
 
     grouping cfg-attributes {
