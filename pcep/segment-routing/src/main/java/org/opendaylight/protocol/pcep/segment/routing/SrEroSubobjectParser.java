@@ -13,21 +13,28 @@ import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.SrSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.SrSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
 
 public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements EROSubobjectParser,
         EROSubobjectSerializer {
 
+    @Deprecated
     private static final int LEGACY_TYPE = 5;
-    private static final int PROPOSED_TYPE = 36;
+    private static final int IANA_TYPE = 36;
 
+    @Deprecated
     private final int type;
 
+    SrEroSubobjectParser() {
+        this.type = IANA_TYPE;
+    }
+
+    @Deprecated
     SrEroSubobjectParser(final boolean isIanaAssignedType) {
-        this.type = isIanaAssignedType ? PROPOSED_TYPE : LEGACY_TYPE;
+        this.type = isIanaAssignedType ? IANA_TYPE : LEGACY_TYPE;
     }
 
     @Override
@@ -50,6 +57,7 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
         return subobjectBuilder.build();
     }
 
+    @Deprecated
     public int getCodePoint() {
         return this.type;
     }

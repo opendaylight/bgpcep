@@ -14,8 +14,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.SrSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.SrSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType;
@@ -23,13 +23,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements RROSubobjectParser,
         RROSubobjectSerializer {
 
+    @Deprecated
     private static final int LEGACY_TYPE = 6;
-    private static final int PROPOSED_TYPE = 36;
+    private static final int IANA_TYPE = 36;
 
+    @Deprecated
     private final int type;
 
+    SrRroSubobjectParser() {
+        this.type = IANA_TYPE;
+    }
+
+    @Deprecated
     SrRroSubobjectParser(final boolean isIanaAssignedType) {
-        this.type = isIanaAssignedType ? PROPOSED_TYPE : LEGACY_TYPE;
+        this.type = isIanaAssignedType ? IANA_TYPE : LEGACY_TYPE;
     }
 
     @Override
@@ -50,6 +57,7 @@ public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements R
         return subobjectBuilder.build();
     }
 
+    @Deprecated
     public int getCodePoint() {
         return this.type;
     }

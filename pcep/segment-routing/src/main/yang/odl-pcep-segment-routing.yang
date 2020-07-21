@@ -16,7 +16,7 @@ module odl-pcep-segment-routing {
 
     description
         "This module contains the data model of PCEP Extensions for Segment Routing,
-        draft-ietf-pce-segment-routing-01.
+        as defined in RFC 8664.
 
         Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
 
@@ -24,6 +24,11 @@ module odl-pcep-segment-routing {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2020-07-20" {
+        description "Update to RFC 8664";
+        reference "RFC8664: https://tools.ietf.org/html/rfc8664";
+    }
 
     revision "2018-11-09" {
         description
@@ -43,10 +48,20 @@ module odl-pcep-segment-routing {
 
     grouping sr-pce-capability-tlv {
         description "SR-PCE-CAPABILITY TLV";
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.1.1";
+        reference "http://tools.ietf.org/html/rfc8664#section-4.1.2";
 
         container sr-pce-capability {
             uses pcep:tlv;
+            leaf n-flag {
+                description "N flag used by a PCC to indicate that it is capable of resolving a NAI to a SID";
+                type boolean;
+                default false;
+            }
+            leaf x-flag {
+                description " X flag used by a PCC to indicate that it does not impose any limit to the MSD";
+                type boolean;
+                default false;
+            }
             leaf msd {
                 description "Maximum SID Depth";
                 type uint8;
@@ -56,17 +71,17 @@ module odl-pcep-segment-routing {
     }
 
     augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.1";
+        reference "http://tools.ietf.org/html/rfc4664#section-4.1";
         uses sr-pce-capability-tlv;
     }
 
     augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.1";
+        reference "http://tools.ietf.org/html/rfc8664#section-5.1";
         uses sr-pce-capability-tlv;
     }
 
-    typedef sid-type {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.3.1";
+    typedef nai-type {
+        reference "http://tools.ietf.org/html/rfc8664#section-4.3.1";
         type enumeration {
             enum ipv4-node-id {
                 value 1;
@@ -83,31 +98,39 @@ module odl-pcep-segment-routing {
             enum unnumbered {
                 value 5;
             }
+            enum ipv6-local {
+                value 6;
+            }
         }
     }
 
     grouping sr-subobject {
         description "Common grouping for both SR-ERO and SR-RRO subobjects as they share the same content representation.";
-        leaf c-flag {
-            type boolean;
-            default false;
+        leaf nai-type {
+            description "Node or Adjacency Identifier Type (NT)";
+            type nai-type;
         }
         leaf m-flag {
+            description "If this bit is set to 1, the SID value represents an MPLS label stack entry";
             type boolean;
             default false;
         }
-        leaf sid-type {
-            type sid-type;
+        leaf c-flag {
+            description "TC, S & TTL fields in the MPLS label are specified by the PCE if M & C are set to 1";
+            type boolean;
+            default false;
         }
+        /* S-Flag is represented by the presence of the SID TLV: isSflag() is equivalent to getSid() != null */
         leaf sid {
             description "Segment Identifier";
             type uint32;
         }
+        /* F-Flag is represented by the presence of the NAI TLV: isFflag() is equivalent to getNai() != null */
         choice nai {
-            reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.3.2";
+            reference "http://tools.ietf.org/html/rfc8664#section-4.3.2";
             description "Node or Adjacency Identifier";
             case ip-node-id {
-                when "../sid-type = 'ipv4-node-id' or ../sid-type = 'ipv6-node-id'";
+                when "../nai-type = 'ipv4-node-id' or ../nai-type = 'ipv6-node-id'";
                 description "IP Node ID";
                 leaf ip-address {
                     type inet:ip-address-no-zone;
@@ -115,7 +138,7 @@ module odl-pcep-segment-routing {
                 }
             }
             case ip-adjacency {
-                when "../sid-type = 'ipv4-adjacency' or ../sid-type = 'ipv6-adjacency'";
+                when "../nai-type = 'ipv4-adjacency' or ../nai-type = 'ipv6-adjacency'";
                 description "IP Adjacency";
                 leaf local-ip-address {
                     type inet:ip-address-no-zone;
@@ -127,7 +150,7 @@ module odl-pcep-segment-routing {
                 }
             }
             case unnumbered-adjacency {
-                when "../sid-type = 'unnumbered'";
+                when "../nai-type = 'unnumbered'";
                 description "Unnumbered Adjacency with IPv4 NodeIDs";
                 leaf local-node-id {
                     type uint32;
@@ -146,17 +169,38 @@ module odl-pcep-segment-routing {
                     mandatory true;
                 }
             }
+            case ipv6-local {
+                when "../nai-type = 'ipv6-local'";
+                description "IPv6 adjacency with link-local IPv6 addresses";
+                leaf local-ipv6-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf local-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-ipv6-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf remote-id {
+                    type uint32;
+                    mandatory true;
+                }
+            }
         }
     }
 
     // kept both groupings in case draft changes and they won't be equal
     grouping sr-ero-subobject {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.3.1";
+        reference "http://tools.ietf.org/html/rfc8664#section-4.3";
+        /* L(oose)-flag is already present within the ERO subObject */
         uses sr-subobject;
     }
 
     grouping sr-rro-subobject {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.4";
+        reference "http://tools.ietf.org/html/rfc8664#section-4.4";
         uses sr-subobject;
     }
 
