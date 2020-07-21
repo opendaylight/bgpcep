@@ -16,15 +16,17 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.SidType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.SrSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.Nai;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpAdjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpAdjacencyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpNodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpNodeIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.UnnumberedAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.NaiType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.SrSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.Nai;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpAdjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpNodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpNodeIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.Ipv6Local;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.Ipv6LocalBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.UnnumberedAdjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.UnnumberedAdjacencyBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
@@ -37,20 +39,20 @@ public abstract class AbstractSrSubobjectParser {
     protected static final int F_FLAG_POSITION = 4;
     protected static final int MPLS_LABEL_OFFSET = 12;
 
-    private static final int SID_TYPE_BITS_OFFSET = 4;
+    private static final int NAI_TYPE_BITS_OFFSET = 4;
 
     private static class SrSubobjectImpl implements SrSubobject {
         private final boolean mflag;
         private final boolean cflag;
-        private final SidType sidType;
+        private final NaiType naiType;
         private final Uint32 sid;
         private final Nai nai;
 
-        SrSubobjectImpl(final boolean mflag, final boolean cflag, final SidType sidType, final Uint32 sid,
+        SrSubobjectImpl(final boolean mflag, final boolean cflag, final NaiType naiType, final Uint32 sid,
                 final Nai nai) {
             this.mflag = mflag;
             this.cflag = cflag;
-            this.sidType = sidType;
+            this.naiType = naiType;
             this.sid = sid;
             this.nai = nai;
         }
@@ -71,8 +73,8 @@ public abstract class AbstractSrSubobjectParser {
         }
 
         @Override
-        public SidType getSidType() {
-            return this.sidType;
+        public NaiType getNaiType() {
+            return this.naiType;
         }
 
         @Override
@@ -87,24 +89,37 @@ public abstract class AbstractSrSubobjectParser {
     }
 
     public ByteBuf serializeSubobject(final SrSubobject srSubobject) {
-        final ByteBuf buffer = Unpooled.buffer(MINIMAL_LENGTH);
-        // sid type
-        buffer.writeByte(srSubobject.getSidType().getIntValue() << SID_TYPE_BITS_OFFSET);
-
-        final BitArray bits = new BitArray(BITSET_LENGTH);
-        bits.set(M_FLAG_POSITION, srSubobject.isMFlag());
-        bits.set(C_FLAG_POSITION, srSubobject.isCFlag());
-        if (srSubobject.getSid() == null) {
-            bits.set(S_FLAG_POSITION, Boolean.TRUE);
-        }
-        if (srSubobject.getNai() == null) {
-            bits.set(F_FLAG_POSITION, Boolean.TRUE);
-        }
-        // bits
-        bits.toByteBuf(buffer);
-        // sid
         checkArgument(srSubobject.getNai() != null || srSubobject.getSid() != null,
                 "Both SID and NAI are absent in SR subobject.");
+
+        final ByteBuf buffer = Unpooled.buffer(MINIMAL_LENGTH);
+
+        /* Write NAI Type */
+        buffer.writeByte(srSubobject.getNaiType().getIntValue() << NAI_TYPE_BITS_OFFSET);
+
+        /* Flags set according to RFC8664#section 4.3.1 */
+        final BitArray bits = new BitArray(BITSET_LENGTH);
+        bits.set(M_FLAG_POSITION, srSubobject.isMFlag());
+        /* C flag MUST be set to 0 if M flag is set to 0 */
+        if (!srSubobject.isMFlag()) {
+            bits.set(C_FLAG_POSITION, Boolean.FALSE);
+        } else {
+            bits.set(C_FLAG_POSITION, srSubobject.isCFlag());
+        }
+        /* M & C flags MUST be set to 0 if S flag is set to 1 */
+        if (srSubobject.getSid() == null) {
+            bits.set(M_FLAG_POSITION, Boolean.FALSE);
+            bits.set(C_FLAG_POSITION, Boolean.FALSE);
+            bits.set(S_FLAG_POSITION, Boolean.TRUE);
+        }
+        /* F flag MUST be set if NT=0 or NAI is absent */
+        if ((srSubobject.getNai() == null) || (srSubobject.getNaiType().getIntValue() == 0)) {
+            bits.set(F_FLAG_POSITION, Boolean.TRUE);
+        }
+        /* Write Flags */
+        bits.toByteBuf(buffer);
+
+        /* Write SID */
         if (srSubobject.getSid() != null) {
             if (srSubobject.isMFlag()) {
                 buffer.writeInt(srSubobject.getSid().intValue() << MPLS_LABEL_OFFSET);
@@ -112,16 +127,17 @@ public abstract class AbstractSrSubobjectParser {
                 ByteBufUtils.writeOrZero(buffer, srSubobject.getSid());
             }
         }
-        // nai
+
+        /* Write NAI */
         final Nai nai = srSubobject.getNai();
         if (nai != null) {
-            serializeNai(nai, srSubobject.getSidType() ,buffer);
+            serializeNai(nai, srSubobject.getNaiType() ,buffer);
         }
         return buffer;
     }
 
-    private static void serializeNai(final Nai nai, final SidType sidType, final ByteBuf buffer) {
-        switch (sidType) {
+    private static void serializeNai(final Nai nai, final NaiType naiType, final ByteBuf buffer) {
+        switch (naiType) {
             case Ipv4NodeId:
                 Ipv4Util.writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4AddressNoZone(), buffer);
                 break;
@@ -143,13 +159,20 @@ public abstract class AbstractSrSubobjectParser {
                 ByteBufUtils.writeOrZero(buffer, unnumbered.getRemoteNodeId());
                 ByteBufUtils.writeOrZero(buffer, unnumbered.getRemoteInterfaceId());
                 break;
+            case Ipv6Local:
+                final Ipv6Local ipv6Local = (Ipv6Local) nai;
+                Ipv6Util.writeIpv6Address(ipv6Local.getLocalIpv6Address(), buffer);
+                ByteBufUtils.writeOrZero(buffer, ipv6Local.getLocalId());
+                Ipv6Util.writeIpv6Address(ipv6Local.getRemoteIpv6Address(), buffer);
+                ByteBufUtils.writeOrZero(buffer, ipv6Local.getRemoteId());
+                break;
             default:
                 break;
         }
     }
 
-    private static Nai parseNai(final SidType sidType, final ByteBuf buffer) {
-        switch (sidType) {
+    private static Nai parseNai(final NaiType naiType, final ByteBuf buffer) {
+        switch (naiType) {
             case Ipv4NodeId:
                 return new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
                         .build();
@@ -170,14 +193,20 @@ public abstract class AbstractSrSubobjectParser {
                         .setLocalInterfaceId(ByteBufUtils.readUint32(buffer))
                         .setRemoteNodeId(ByteBufUtils.readUint32(buffer))
                         .setRemoteInterfaceId(ByteBufUtils.readUint32(buffer)).build();
+            case Ipv6Local:
+                return new Ipv6LocalBuilder()
+                        .setLocalIpv6Address(Ipv6Util.addressForByteBuf(buffer))
+                        .setLocalId(ByteBufUtils.readUint32(buffer))
+                        .setRemoteIpv6Address(Ipv6Util.addressForByteBuf(buffer))
+                        .setRemoteId(ByteBufUtils.readUint32(buffer)).build();
             default:
                 return null;
         }
     }
 
     protected static SrSubobject parseSrSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-        final int sidTypeByte = buffer.readByte() >> SID_TYPE_BITS_OFFSET;
-        final SidType sidType = SidType.forValue(sidTypeByte);
+        final int naiTypeByte = buffer.readByte() >> NAI_TYPE_BITS_OFFSET;
+        final NaiType naiType = NaiType.forValue(naiTypeByte);
         final BitArray bitSet = BitArray.valueOf(buffer.readByte());
         final boolean f = bitSet.get(F_FLAG_POSITION);
         final boolean s = bitSet.get(S_FLAG_POSITION);
@@ -196,11 +225,11 @@ public abstract class AbstractSrSubobjectParser {
             sid = null;
         }
         final Nai nai;
-        if (sidType != null && !f) {
-            nai = parseNai(sidType, buffer);
+        if (naiType != null && naiType.getIntValue() != 0 && !f) {
+            nai = parseNai(naiType, buffer);
         } else {
             nai = null;
         }
-        return new SrSubobjectImpl(m, c, sidType, sid, nai);
+        return new SrSubobjectImpl(m, c, naiType, sid, nai);
     }
 }
