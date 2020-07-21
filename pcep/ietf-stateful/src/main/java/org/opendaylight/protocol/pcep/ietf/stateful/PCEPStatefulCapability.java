@@ -10,9 +10,9 @@ package org.opendaylight.protocol.pcep.ietf.stateful;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.ietf.stateful.app.config.rev160707.PcepIetfStatefulConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev181109.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev181109.stateful.capability.tlv.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 
 public class PCEPStatefulCapability implements PCEPCapability {
@@ -49,7 +49,7 @@ public class PCEPStatefulCapability implements PCEPCapability {
                     .setStateful(new StatefulBuilder().setLspUpdateCapability(this.active)
                         .addAugmentation(new Stateful1Builder().setInitiation(this.instant).build())
                         .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
-                            .pcep.sync.optimizations.rev181109.Stateful1Builder()
+                            .pcep.sync.optimizations.rev200720.Stateful1Builder()
                                 .setTriggeredInitialSync(this.triggeredSync)
                                 .setTriggeredResync(this.triggeredResync)
                                 .setDeltaLspSyncCapability(this.deltaLspSync)
