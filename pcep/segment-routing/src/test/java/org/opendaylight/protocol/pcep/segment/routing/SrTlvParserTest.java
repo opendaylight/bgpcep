@@ -15,22 +15,23 @@ import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class SrTlvParserTest {
 
-    private static final byte[] SPC_TLV_BYTES = { 0x0, 0x1a, 0x0, 0x4, 0x0, 0x0, 0x0, 0x1 };
+    private static final byte[] SPC_TLV_BYTES = { 0x0, 0x1a, 0x0, 0x4, 0x0, 0x0, 0x3, 0x1 };
 
     private static final byte[] SR_TE_PST_BYTES = { 0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x1 };
 
     @Test
     public void testSrPceCapabilityParser() throws PCEPDeserializerException {
         final SrPceCapabilityTlvParser parser = new SrPceCapabilityTlvParser();
-        final SrPceCapability spcTlv = new SrPceCapabilityBuilder().setMsd(Uint8.ONE).build();
+        final SrPceCapability spcTlv = new SrPceCapabilityBuilder().setNFlag(Boolean.TRUE).setXFlag(Boolean.TRUE)
+                .setMsd(Uint8.ONE).build();
         assertEquals(spcTlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(SPC_TLV_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(spcTlv, buff);

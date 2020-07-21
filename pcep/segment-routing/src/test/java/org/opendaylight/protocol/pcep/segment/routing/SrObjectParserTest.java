@@ -27,11 +27,11 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.SidType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.pce.capability.tlv.SrPceCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.sr.subobject.nai.IpNodeIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.NaiType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpNodeIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
@@ -48,12 +48,12 @@ public class SrObjectParserTest {
         0x20,0x1e,0x78,0x01,
         /* sr-capability-tlv */
         0x00,0x1a,0x00,0x04,
-        0x00,0x00,0x00,0x01};
+        0x00,0x00,0x03,0x01};
 
     private static final byte[] SR_ERO_OBJECT_BYTES = {
         0x07,0x10,0x00,0x10,
         /* ero-subobject */
-        0x05,0x0c,(byte) 0x10,0x00,
+        0x24,0x0c,(byte) 0x10,0x00,
         0x00,0x01,(byte)0xe2,0x40,
         0x4A,0x7D,0x2b,0x63,
     };
@@ -90,7 +90,8 @@ public class SrObjectParserTest {
                 .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
                     .rev200720.Tlvs1Builder().build())
                 .addAugmentation(new Tlvs1Builder()
-                    .setSrPceCapability(new SrPceCapabilityBuilder().setMsd(Uint8.ONE).build())
+                    .setSrPceCapability(new SrPceCapabilityBuilder().setNFlag(Boolean.TRUE).setXFlag(Boolean.TRUE)
+                        .setMsd(Uint8.ONE).build())
                     .build())
                 .addAugmentation(new Tlvs3Builder().build()).build());
 
@@ -117,7 +118,7 @@ public class SrObjectParserTest {
         final SrEroTypeBuilder srEroSubBuilder = new SrEroTypeBuilder()
                 .setCFlag(false)
                 .setMFlag(false)
-                .setSidType(SidType.Ipv4NodeId)
+                .setNaiType(NaiType.Ipv4NodeId)
                 .setSid(Uint32.valueOf(123456))
                 .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
                     new Ipv4AddressNoZone("74.125.43.99"))).build());
@@ -144,13 +145,13 @@ public class SrObjectParserTest {
         builder.setProcessingRule(false);
         builder.setIgnore(false);
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109.update.lsp
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.update.lsp
             .input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder srEroSubBuilder =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev181109
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720
                     .update.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder()
                     .setCFlag(false)
                     .setMFlag(false)
-                    .setSidType(SidType.Ipv4NodeId)
+                    .setNaiType(NaiType.Ipv4NodeId)
                     .setSid(Uint32.valueOf(123456))
                     .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
                         new Ipv4AddressNoZone("74.125.43.99"))).build());
