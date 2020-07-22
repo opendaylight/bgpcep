@@ -120,7 +120,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
             if (Epoll.isAvailable()) {
                 b.option(EpollChannelOption.TCP_MD5SIG, this.keys);
             } else {
-                throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
+                throw new UnsupportedOperationException("Setting TCP-MD5 signatures is not supported",
+                        Epoll.unavailabilityCause().getCause());
             }
         }
 
