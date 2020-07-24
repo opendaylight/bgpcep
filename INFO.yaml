@@ -44,9 +44,20 @@ committers:
       company: 'frinx'
       id: 'dkutenicsova'
       timezone: 'Unknown/Unknown'
+    - name: 'Ajay Lele'
+      email: 'ajayslele@gmail.com'
+      company: ''
+      id: ''
+      timezone: 'Unknown/Unknown'
+    - name: 'Olivier Dugeon'
+      email: 'olivier.dugeon@orange.com'
+      company: 'Orange'
+      id: ''
+      timezone: 'Unknown/Unknown'
+
 tsc:
     # yamllint disable rule:line-length
-    approval: 'NA'
+    approval: 'https://wiki.opendaylight.org/display/ODL/BGPCEP+Committer+Approval'
     changes:
         - type: ''
           name: ''
