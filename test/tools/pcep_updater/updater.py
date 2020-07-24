@@ -80,9 +80,48 @@ parser.add_argument('--scope', default='sdn',
                     help='Scope for restconf authentication')
 parser.add_argument('--reuse', default='True', type=str2bool,
                     help='Should single requests session be re-used')
+parser.add_argument('--delegate', default='true',
+                    help='should delegate the lsp or set "false" if lsp not be delegated')
+parser.add_argument('--pccip', default=None,
+                    help='IP address of the simulated PCC')
+parser.add_argument('--tunnelnumber', default=None,
+                    help='Tunnel Number for the simulated PCC')
 args = parser.parse_args()  # arguments are read
 
 expected = '''{"output":{}}'''
+
+payload_list_data = [
+    '{',
+    '   "input":{',
+    '       "node":"pcc://', '', '",',
+    '       "name":"pcc_', '', '_tunnel_', '', '",',
+    '       "network-topology-ref":"/network-topology:network-topology/network-topology:topology',
+    '[network-topology:topology-id=\\\"pcep-topology\\\"]",',
+    '       "arguments":{',
+    '           "lsp":{',
+    '           "delegate":', '',
+    '           ,"administrative":true',
+    '},',
+    '"ero":{',
+    '   "subobject":[',
+    '       {',
+    '           "loose":false,',
+    '           "ip-prefix":{',
+    '                "ip-prefix":', '"', '', '"',
+    '           }',
+    '       },',
+    '       {',
+    '           "loose":false,',
+    '           "ip-prefix":{',
+    '                "ip-prefix":"1.1.1.1/32"',
+    '            }',
+    '        }',
+    '        ]',
+    '       }',
+    '   }',
+    ' }',
+    '}'
+]
 
 
 class CounterDown(object):
@@ -97,33 +136,53 @@ class CounterDown(object):
         self.opened -= 1
 
 
-def iterable_msg(pccs, lsps, workers, hop):
+def iterable_msg(pccs, lsps, workers, hop, delegate):
     """Generator yielding tuple of worker number and kwargs to post."""
     first_pcc_int = int(ipaddr.IPv4Address(args.pccaddress))
     # Headers are constant, but it is easier to add them to kwargs in this generator.
     headers = {'Content-Type': 'application/json'}
     # TODO: Perhaps external text file with Template? May affect performance.
-    list_data = [
-        '{"input":{"node":"pcc://', '', '",',
-        '"name":"pcc_', '', '_tunnel_', '', '","network-topology-ref":',
-        '"/network-topology:network-topology/network-topology:topology',
-        '[network-topology:topology-id=\\\"pcep-topology\\\"]",',
-        '"arguments":{"lsp":{"delegate":true,"administrative":true},',
-        '"ero":{"subobject":[{"loose":false,"ip-prefix":{"ip-prefix":',
-        '"', hop, '"}},{"loose":false,"ip-prefix":{"ip-prefix":',
-        '"1.1.1.1/32"}}]}}}}'
-    ]
+    list_data = payload_list_data
     for lsp in range(1, lsps + 1):
         str_lsp = str(lsp)
-        list_data[6] = str_lsp  # Replaces with new pointer.
+        list_data[8] = str_lsp  # Replaces with new pointer.
         for pcc in range(pccs):
             pcc_ip = str(ipaddr.IPv4Address(first_pcc_int + pcc))
-            list_data[1] = pcc_ip
-            list_data[4] = pcc_ip
+            list_data[3] = pcc_ip
+            list_data[6] = pcc_ip
+            list_data[15] = delegate
+            list_data[25] = hop
             whole_data = ''.join(list_data)
             worker = (lsp * pccs + pcc) % workers
             post_kwargs = {"data": whole_data, "headers": headers}
             yield worker, post_kwargs
+
+
+def generate_payload_for_single_pcc(hop, delegate, pccip, tunnel_no):
+    """Generator yielding single kwargs to post."""
+    first_pcc_int = int(ipaddr.IPv4Address(args.pccaddress))
+    # Headers are constant, but it is easier to add them to kwargs in this generator.
+    headers = {'Content-Type': 'application/json'}
+    # TODO: Perhaps external text file with Template? May affect performance.
+    list_data = payload_list_data
+    if tunnel_no == "None":
+        str_lsp = str(1)
+    else:
+        str_lsp = str(tunnel_no)
+    list_data[8] = str_lsp  # Replaces with new pointer.
+    if pccip == "None":
+        pcc_ip = str(ipaddr.IPv4Address(first_pcc_int))
+    else:
+        pcc_ip = pccip
+    list_data[3] = pcc_ip
+    list_data[6] = pcc_ip
+    list_data[15] = delegate
+    list_data[25] = hop
+    whole_data = ''.join(list_data)
+    worker = 0
+    post_kwargs = {"data": whole_data, "headers": headers}
+    print(post_kwargs)
+    yield worker, post_kwargs
 
 
 def queued_send(session, queue_messages, queue_responses):
@@ -158,8 +217,12 @@ def classify(resp_tuple):
 
 # Main.
 list_q_msg = [collections.deque() for _ in range(args.workers)]
-for worker, post_kwargs in iterable_msg(args.pccs, args.lsps, args.workers, args.hop):
-    list_q_msg[worker].append(post_kwargs)
+if args.pccip == "None":
+    for worker, post_kwargs in iterable_msg(args.pccs, args.lsps, args.workers, args.hop, args.delegate):
+        list_q_msg[worker].append(post_kwargs)
+else:
+    for worker, post_kwargs in generate_payload_for_single_pcc(args.hop, args.delegate, args.pccip, args.tunnelnumber):
+        list_q_msg[worker].append(post_kwargs)
 queue_responses = collections.deque()  # thread safe
 threads = []
 for worker in range(args.workers):
