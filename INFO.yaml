@@ -23,13 +23,13 @@ realtime_discussion:
     server: 'freenode.net'
     channel: '#opendaylight'
 meetings:
-    - type: 'gotomeeting+irc'
-      agenda: 'https://wiki.opendaylight.org'
-      url: ''
-      server: 'freenode.net'
-      channel: '#opendaylight'
-      repeats: ''
-      time: ''
+    - type: 'zoom'
+      agenda: ''
+      url: 'https://zoom.us/j/185572371'
+      server: 'zoom.us'
+      number: '185572371'
+      repeats: 'Alternative Thursdays'
+      time: '08:30pm to 09:00pm PST'
 repositories:
     - bgpcep
 committers:
@@ -44,10 +44,24 @@ committers:
       company: 'frinx'
       id: 'dkutenicsova'
       timezone: 'Unknown/Unknown'
+    - name: 'Ajay Lele'
+      email: 'ajayslele@gmail.com'
+      company: ''
+      id: ''
+      timezone: 'Unknown/Unknown'
+    - name: 'Olivier Dugeon'
+      email: 'olivier.dugeon@orange.com'
+      company: 'Orange'
+      id: 'odd22'
+      timezone: 'CET/UTC+2'
+
 tsc:
     # yamllint disable rule:line-length
-    approval: 'NA'
+    approval: ''
     changes:
-        - type: ''
-          name: ''
-          link: ''
+        - type: 'Approval'
+          name: 'TSC Vote'
+          link: 'https://wiki.opendaylight.org/display/ODL/BGPCEP+Committer+Approval'
+        - type: 'Approval'
+          name: 'Committer Approval'
+          link: 'https://lists.opendaylight.org/g/app-dev/topic/72808144#353'
