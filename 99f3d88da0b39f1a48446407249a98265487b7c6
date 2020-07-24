@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcd9d80b_3f2ceac5",
+        "filename": "INFO.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-07-24T10:56:04Z",
+      "side": 1,
+      "message": "May be we could take the opportunity to update also this section with the bi-weelky BGPCEP meeting like that:\nurl: \u0027https://zoom.us/j/185572371\u0027\nserver: \u0027zoom.us\u0027\nnumber: \u0027185572371\u0027\nrepeats: \u0027Thursday every 2 weeks\u0027\ntime: \u002708:30pm to 09:00pm PST\u0027",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 13
+      },
+      "revId": "99f3d88da0b39f1a48446407249a98265487b7c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f815dd2c_9879a63c",
+        "filename": "INFO.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-07-24T10:56:04Z",
+      "side": 1,
+      "message": "timezone: \u0027CET/UTC+2\u0027 or timezone: \u0027CET\u0027",
+      "revId": "99f3d88da0b39f1a48446407249a98265487b7c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
