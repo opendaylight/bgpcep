@@ -140,7 +140,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     }
 
     synchronized void handleMessage(final Notification msg) {
-        LOG.debug("Channel {} handling message in state {}, msg: {}", this.channel, this.state, msg);
+        LOG.info("Channel {} handling message in state {}, msg: {}", this.channel, this.state, msg);
         switch (this.state) {
             case FINISHED:
                 sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
@@ -153,6 +153,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
                     handleOpen((Open) msg);
                     return;
                 }
+                LOG.info("Unexpected message type {}, open is {}", msg.getClass(), Open.class);
                 sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
                 break;
             case OPEN_CONFIRM:
@@ -196,7 +197,9 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         return builder.build();
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     private synchronized void handleOpen(final Open openObj) {
+        LOG.info("Handling open {}", openObj);
         final IpAddressNoZone remoteIp = getRemoteIp();
         final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
         try {
@@ -206,8 +209,8 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
             this.state = State.OPEN_CONFIRM;
             this.session = new BGPSessionImpl(peer, this.channel, openObj, preferences, this.registry);
             this.session.setChannelExtMsgCoder(openObj);
-            LOG.debug("Channel {} moved to OPEN_CONFIRM state with remote proposal {}", this.channel, openObj);
-        } catch (final BGPDocumentedException e) {
+            LOG.info("Channel {} moved to OPEN_CONFIRM state with remote proposal {}", this.channel, openObj);
+        } catch (final BGPDocumentedException | RuntimeException e) {
             LOG.warn("Channel {} negotiation failed", this.channel, e);
             negotiationFailed(e);
         }

@@ -204,19 +204,14 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             LOG.warn("Remote and local BGP Identifiers are the same: {}", openObj.getBgpIdentifier());
             throw new BGPDocumentedException("Remote and local BGP Identifiers are the same.", BGPError.BAD_BGP_ID);
         }
-        final List<BgpParameters> prefs = openObj.getBgpParameters();
-        if (prefs != null) {
-            final As4BytesCapability localCap = getAs4BytesCapability(localPref.getParams());
-            if (localCap != null && getAs4BytesCapability(prefs) == null) {
-                throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.",
-                        BGPError.UNSUPPORTED_CAPABILITY, serializeAs4BytesCapability(localCap));
-            }
-            if (!prefs.containsAll(localPref.getParams())) {
-                LOG.info("BGP Open message session parameters differ, session still accepted.");
-            }
-        } else {
-            throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.",
-                    BGPError.UNSPECIFIC_OPEN_ERROR);
+        final List<BgpParameters> prefs = openObj.nonnullBgpParameters();
+        final As4BytesCapability localCap = getAs4BytesCapability(localPref.getParams());
+        if (localCap != null && getAs4BytesCapability(prefs) == null) {
+            throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.",
+                    BGPError.UNSUPPORTED_CAPABILITY, serializeAs4BytesCapability(localCap));
+        }
+        if (!prefs.containsAll(localPref.getParams())) {
+            LOG.info("BGP Open message session parameters differ, session still accepted.");
         }
     }
 
