@@ -199,7 +199,7 @@ public class FSMTest {
     }
 
     @Test
-    public void testNotAccChars() {
+    public void testEmptyBgpParams() {
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
@@ -212,7 +212,9 @@ public class FSMTest {
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Notify);
         final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
-        assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR,
+
+        // Empty and not-present bgp-parameters are treated the same way, hence we end up with unsupported capability
+        assertEquals(BGPError.UNSUPPORTED_CAPABILITY,
                 BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
     }
 
