@@ -222,7 +222,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     private static Optional<As4BytesCapability> getAs4BytesCapability(final List<BgpParameters> prefs) {
         for (final BgpParameters param : prefs) {
-            for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+            for (final OptionalCapabilities capa : param.nonnullOptionalCapabilities()) {
                 final CParameters cParam = capa.getCParameters();
                 if (cParam.getAs4BytesCapability() != null) {
                     return Optional.of(cParam.getAs4BytesCapability());
