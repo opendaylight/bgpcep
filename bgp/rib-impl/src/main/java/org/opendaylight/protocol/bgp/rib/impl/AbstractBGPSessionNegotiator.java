@@ -195,6 +195,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         return builder.build();
     }
 
+    @SuppressWarnings("checkstyle:illegalCatch")
     private synchronized void handleOpen(final Open openObj) {
         final IpAddress remoteIp = getRemoteIp();
         final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
@@ -206,7 +207,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
             this.session = new BGPSessionImpl(peer, this.channel, openObj, preferences, this.registry);
             this.session.setChannelExtMsgCoder(openObj);
             LOG.debug("Channel {} moved to OPEN_CONFIRM state with remote proposal {}", this.channel, openObj);
-        } catch (final BGPDocumentedException e) {
+        } catch (final BGPDocumentedException | RuntimeException e) {
             LOG.warn("Channel {} negotiation failed", this.channel, e);
             negotiationFailed(e);
         }
