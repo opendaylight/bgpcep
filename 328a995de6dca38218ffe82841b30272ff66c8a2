@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94946a7c_84ccc204",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/AbstractSrSubobjectParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-07-29T19:36:43Z",
+      "side": 1,
+      "message": "(srSubobject.getSid() \u003d\u003d null) evaluated 5 lines above\n\npossible factorization ?",
+      "range": {
+        "startLine": 123,
+        "startChar": 8,
+        "endLine": 123,
+        "endChar": 42
+      },
+      "revId": "328a995de6dca38218ffe82841b30272ff66c8a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
