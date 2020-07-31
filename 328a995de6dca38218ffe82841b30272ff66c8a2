@@ -22,6 +22,30 @@
       "revId": "328a995de6dca38218ffe82841b30272ff66c8a2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc162a69_a0c2448f",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/AbstractSrSubobjectParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-07-31T12:30:04Z",
+      "side": 1,
+      "message": "No. Because we must write the flags before the NAI. However, flags reflect the type of NAI, and in particular when the SID is not provided. Thus, we need to check if SID is present or nor in two different place without the possibility to factorise.",
+      "parentUuid": "94946a7c_84ccc204",
+      "range": {
+        "startLine": 123,
+        "startChar": 8,
+        "endLine": 123,
+        "endChar": 42
+      },
+      "revId": "328a995de6dca38218ffe82841b30272ff66c8a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
