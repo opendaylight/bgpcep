@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bb3f5492_f2ed46e3",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-04T16:56:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "853eec76_67358e1e",
+      "revId": "c117b07d535fde2b3f22056fd76051ee19fddec8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95625f8f_6d5286f0",
         "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2020-08-04T14:35:08Z",
       "side": 1,
       "message": "Do we need to use XML as well as JSON here as well?",
+      "revId": "c117b07d535fde2b3f22056fd76051ee19fddec8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3596d81e_0b0f7563",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-04T16:56:48Z",
+      "side": 1,
+      "message": "We can have it(json) here but there is no Api to validate that.",
+      "parentUuid": "95625f8f_6d5286f0",
       "revId": "c117b07d535fde2b3f22056fd76051ee19fddec8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
