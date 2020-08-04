@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "853eec76_67358e1e",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-04T14:35:08Z",
+      "side": 1,
+      "message": "These lines are showing up in the JSON tab for some reason. Pls check that.",
+      "revId": "c117b07d535fde2b3f22056fd76051ee19fddec8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95625f8f_6d5286f0",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-04T14:35:08Z",
+      "side": 1,
+      "message": "Do we need to use XML as well as JSON here as well?",
+      "revId": "c117b07d535fde2b3f22056fd76051ee19fddec8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
