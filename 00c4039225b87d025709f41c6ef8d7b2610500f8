@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0cfe45f_de1aca24",
+        "filename": "bgp/openconfig-state/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2020-08-05T21:50:16Z",
+      "side": 1,
+      "message": "I set this to 1.8.0 because infrautils is now an MRI project. I think the SNAPSHOT release was likely a missed version update?",
+      "revId": "00c4039225b87d025709f41c6ef8d7b2610500f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
