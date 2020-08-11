@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d4e871c_f064fb2c",
+        "filename": "docs/bgp/bgp-user-guide-rib-config-policies.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T17:39:03Z",
+      "side": 1,
+      "message": "Pls add JSON blocks here too",
+      "revId": "7f6e84dfccf3a1a5c17a12a0d2b57671f6f0b7e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
