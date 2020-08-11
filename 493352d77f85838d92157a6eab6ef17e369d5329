@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04b16c48_ee2e7c6b",
+        "filename": "docs/bgp/bgp-user-guide-route-refresh-capability.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T18:30:37Z",
+      "side": 1,
+      "message": "Pls change to \"bgp-types:afi\": \"types:ipv4-address-family\". Similarly others",
+      "revId": "493352d77f85838d92157a6eab6ef17e369d5329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
