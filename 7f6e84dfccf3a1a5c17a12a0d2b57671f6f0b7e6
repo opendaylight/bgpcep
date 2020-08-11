@@ -16,6 +16,23 @@
       "revId": "7f6e84dfccf3a1a5c17a12a0d2b57671f6f0b7e6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff9a83fb_e4bb7b1b",
+        "filename": "docs/bgp/bgp-user-guide-rib-config-policies.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T17:40:23Z",
+      "side": 1,
+      "message": "Pls add JSON in all these sections too",
+      "revId": "7f6e84dfccf3a1a5c17a12a0d2b57671f6f0b7e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
