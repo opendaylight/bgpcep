@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "644772a3_d88f99ed",
+        "filename": "docs/bgp/bgp-user-guide-l3vpn-family.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T18:41:16Z",
+      "side": 1,
+      "message": "JSON tab does not render",
+      "revId": "5458b29130447a3a927dcabad04c2b1b79e64a2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
