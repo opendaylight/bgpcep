@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30173dc8_9ac481a8",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T18:19:08Z",
+      "side": 1,
+      "message": "This is missing in the JSON",
+      "revId": "f4eaa4791bba762c912ae6e921dfcb2ffe865b3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0afa581b_ef73601f",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T18:19:08Z",
+      "side": 1,
+      "message": "Missing in the JSON",
+      "revId": "f4eaa4791bba762c912ae6e921dfcb2ffe865b3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6b351b2_1994ed04",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T18:19:08Z",
+      "side": 1,
+      "message": "Pls correct the emphasize lines. they dont match the ones in XML",
+      "revId": "f4eaa4791bba762c912ae6e921dfcb2ffe865b3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ed68a85_71df4cef",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T18:19:08Z",
+      "side": 1,
+      "message": "The JSON attributes are missing for these snippets.",
+      "revId": "f4eaa4791bba762c912ae6e921dfcb2ffe865b3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
