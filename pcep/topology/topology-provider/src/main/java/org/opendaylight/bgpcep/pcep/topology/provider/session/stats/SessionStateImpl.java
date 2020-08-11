@@ -135,6 +135,9 @@ public final class SessionStateImpl implements PcepSessionState {
 
     @Override
     public Messages getMessages() {
+        if (pcepSessionState == null) {
+            return null;
+        }
         return new MessagesBuilder(this.pcepSessionState.getMessages())
                 .setReplyTime(setReplyTime())
                 .addAugmentation(createStatefulMessages())
