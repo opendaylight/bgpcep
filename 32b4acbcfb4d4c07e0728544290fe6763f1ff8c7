@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62ff66d3_3cb6699d",
+        "filename": "docs/bgp/bgp-user-guide-linkstate-family.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T18:26:59Z",
+      "side": 1,
+      "message": "RFC8040 URL",
+      "revId": "32b4acbcfb4d4c07e0728544290fe6763f1ff8c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4de2ad1a_7318e9a0",
+        "filename": "docs/bgp/bgp-user-guide-linkstate-family.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-11T18:26:59Z",
+      "side": 1,
+      "message": "Needs to be \"bgp-linkstate:linkstate-routes\" : [\n...\n]",
+      "revId": "32b4acbcfb4d4c07e0728544290fe6763f1ff8c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
