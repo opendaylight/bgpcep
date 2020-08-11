@@ -342,6 +342,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     private void clearNodeState() {
         if (this.nodeState != null) {
             this.serverSessionManager.unbind(this.nodeState.getNodeId());
+            LOG.info("Clear Node state: {}", this.nodeState.getNodeId().getKey().getNodeId().getValue());
             this.nodeState = null;
         }
     }

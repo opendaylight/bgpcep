@@ -125,6 +125,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             return;
         }
         this.nodes.remove(createNodeId(session.getRemoteAddress()));
+        this.state.remove(createNodeId(session.getRemoteAddress()));
         if (nodeState != null) {
             LOG.debug("Node {} unbound", nodeState.getNodeId());
             nodeState.released(persistNode);
