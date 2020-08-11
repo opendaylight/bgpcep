@@ -16,6 +16,24 @@
       "revId": "5458b29130447a3a927dcabad04c2b1b79e64a2e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "871acdcb_9daa247f",
+        "filename": "docs/bgp/bgp-user-guide-l3vpn-family.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-11T18:49:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "644772a3_d88f99ed",
+      "revId": "5458b29130447a3a927dcabad04c2b1b79e64a2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
