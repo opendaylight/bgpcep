@@ -16,6 +16,24 @@
       "revId": "493352d77f85838d92157a6eab6ef17e369d5329",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9fbbf10_977b6039",
+        "filename": "docs/bgp/bgp-user-guide-route-refresh-capability.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-12T21:23:46Z",
+      "side": 1,
+      "message": "Not working with \"bgp-types:afi\" node and similarly in others",
+      "parentUuid": "04b16c48_ee2e7c6b",
+      "revId": "493352d77f85838d92157a6eab6ef17e369d5329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
