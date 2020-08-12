@@ -16,6 +16,24 @@
       "revId": "68ec954fdb00f22b95beda30c60fae608894b56c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcd575ba_f7587d87",
+        "filename": "docs/bgp/bgp-user-guide-labeled-family.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-12T20:34:57Z",
+      "side": 1,
+      "message": "Added JSON Tabs",
+      "parentUuid": "23e92575_6228b86f",
+      "revId": "68ec954fdb00f22b95beda30c60fae608894b56c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
