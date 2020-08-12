@@ -16,6 +16,24 @@
       "revId": "6c0d8897a5d1cb487fe165c51927ad158616203a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9efb7f81_0fdccd73",
+        "filename": "docs/bgp/bgp-user-guide-flowspec-family.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-12T21:21:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "659e23d6_2b7cd347",
+      "revId": "6c0d8897a5d1cb487fe165c51927ad158616203a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
