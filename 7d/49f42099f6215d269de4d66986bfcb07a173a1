@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Ajay Lele <ajayslele@gmail.com>
+Submitted-by: Olivier Dugeon <olivier.dugeon@orange.com>
+Submitted-at: Thu, 20 Aug 2020 14:27:56 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/92095
+Project: bgpcep
+Branch: refs/heads/stable/magnesium
