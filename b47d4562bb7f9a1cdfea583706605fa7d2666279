@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ee3b941a_3d5f3702",
+        "filename": "docs/bgp/bgp-user-guide-evpn-family.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-27T18:24:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c9d4635_0d5e182d",
+      "revId": "b47d4562bb7f9a1cdfea583706605fa7d2666279",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71756f85_d42be5b0",
         "filename": "docs/bgp/bgp-user-guide-evpn-family.rst",
         "patchSetId": 12
@@ -33,6 +51,24 @@
       "revId": "b47d4562bb7f9a1cdfea583706605fa7d2666279",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c96816e7_7809875a",
+        "filename": "docs/bgp/bgp-user-guide-evpn-family.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-27T18:24:29Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/c/bgpcep/+/92309",
+      "parentUuid": "71756f85_d42be5b0",
+      "revId": "b47d4562bb7f9a1cdfea583706605fa7d2666279",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
