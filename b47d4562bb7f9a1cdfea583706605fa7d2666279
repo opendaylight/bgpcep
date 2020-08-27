@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c9d4635_0d5e182d",
+        "filename": "docs/bgp/bgp-user-guide-evpn-family.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-27T17:05:13Z",
+      "side": 1,
+      "message": "Pls add a extended communities object like in the XML and point to that within the attributes",
+      "revId": "b47d4562bb7f9a1cdfea583706605fa7d2666279",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71756f85_d42be5b0",
+        "filename": "docs/bgp/bgp-user-guide-evpn-family.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-27T17:05:13Z",
+      "side": 1,
+      "message": "need to add the JSONs in the included file as well.",
+      "revId": "b47d4562bb7f9a1cdfea583706605fa7d2666279",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
