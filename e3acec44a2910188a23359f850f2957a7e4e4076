@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d37e5869_e954cd75",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-28T15:43:04Z",
+      "side": 1,
+      "message": "Should be line 5",
+      "revId": "e3acec44a2910188a23359f850f2957a7e4e4076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dd2a183_755ea13f",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-28T15:43:04Z",
+      "side": 1,
+      "message": "Should be line 6",
+      "revId": "e3acec44a2910188a23359f850f2957a7e4e4076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
