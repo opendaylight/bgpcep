@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77e96c04_ae7bfd69",
+        "filename": "docs/bgp/bgp-user-guide-running-bgp.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-28T15:48:32Z",
+      "side": 1,
+      "message": "Pls show this as \n\n\"loc-rib: : [\n...\n]",
+      "revId": "afb3f640e15c74c57a69a4e37a4644bb32317911",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
