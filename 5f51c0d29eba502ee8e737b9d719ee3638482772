@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e6a8817_5a6bf2a8",
+        "filename": "docs/bgp/bgp-user-guide-flowspec-family.rst",
+        "patchSetId": 23
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-28T15:53:02Z",
+      "side": 1,
+      "message": "Should be line 6",
+      "revId": "5f51c0d29eba502ee8e737b9d719ee3638482772",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
