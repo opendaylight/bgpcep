@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bafb43b7_5edba76a",
+        "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-28T16:14:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10070e31_b02a8a76",
+      "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d08e4ab0_c093585c",
         "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
         "patchSetId": 16
@@ -33,6 +51,24 @@
       "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b131ba6_33621371",
+        "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-28T16:14:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d08e4ab0_c093585c",
+      "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "9bd4e160_c2889cca",
+        "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-28T16:14:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e50b363_29ea80f8",
+      "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42965715_7c877a3b",
         "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
         "patchSetId": 16
@@ -67,6 +121,24 @@
       "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97ada04c_a7da5079",
+        "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-28T16:14:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42965715_7c877a3b",
+      "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "6b59b3c8_25ea2b60",
+        "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-28T16:14:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f26690ef_3ba2bcb3",
+      "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca127215_d5fc2ac0",
         "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
         "patchSetId": 16
@@ -101,6 +191,24 @@
       "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e318cbae_1e7eff47",
+        "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-08-28T16:14:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca127215_d5fc2ac0",
+      "revId": "b2120fd8348373dc2c01a3bfcb6ec9fb528103a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
