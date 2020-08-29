@@ -16,6 +16,24 @@
       "revId": "3e0a341241b9a0121dbdf334de73e9d33bfb28cf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c872873_75f1b21c",
+        "filename": "docs/bgp/bgp-user-guide-mvpn-family.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 855,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-08-29T05:39:05Z",
+      "side": 1,
+      "message": "This is fixed here https://git.opendaylight.org/gerrit/c/bgpcep/+/92309",
+      "parentUuid": "e44901db_5aaf356e",
+      "revId": "3e0a341241b9a0121dbdf334de73e9d33bfb28cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
