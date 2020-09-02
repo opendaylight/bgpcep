@@ -16,6 +16,24 @@
       "revId": "258f1967d14b09e08b9fd1d90e95ebb762030e5c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "890e5b82_4cd17fb9",
+        "filename": "docs/bgp/bgp-user-guide-route-target-family.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-09-02T22:13:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3d21817_8572aa25",
+      "revId": "258f1967d14b09e08b9fd1d90e95ebb762030e5c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
