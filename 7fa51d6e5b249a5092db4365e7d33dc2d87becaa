@@ -16,6 +16,24 @@
       "revId": "7fa51d6e5b249a5092db4365e7d33dc2d87becaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dacdb040_a92b096f",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-09-02T21:02:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a75a475_eb7dd085",
+      "revId": "7fa51d6e5b249a5092db4365e7d33dc2d87becaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
