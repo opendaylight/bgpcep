@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8eb7f6e5_de0ce996",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-09-02T21:12:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d37e5869_e954cd75",
+      "revId": "e3acec44a2910188a23359f850f2957a7e4e4076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5dd2a183_755ea13f",
         "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
         "patchSetId": 12
@@ -33,6 +51,24 @@
       "revId": "e3acec44a2910188a23359f850f2957a7e4e4076",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ad7382f_e8f87329",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 8694
+      },
+      "writtenOn": "2020-09-02T21:12:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5dd2a183_755ea13f",
+      "revId": "e3acec44a2910188a23359f850f2957a7e4e4076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
