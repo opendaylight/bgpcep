@@ -566,7 +566,7 @@ class MessageGenerator(object):
         # TODO: Notification for hold timer expiration can be handy.
 
     def store_results(self, file_name=None, threshold=None):
-        """ Stores specified results into files based on file_name value.
+        """Stores specified results into files based on file_name value.
 
         Arguments:
             :param file_name: Trailing (common) part of result file names
@@ -2222,7 +2222,7 @@ class StateTracker(object):
         self.inqueue = inqueue
 
     def perform_one_loop_iteration(self):
-        """ The main loop iteration
+        """The main loop iteration
 
         Notes:
             Calculates priority, resolves all conditions, calls
