@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b26d294_0c0f3136",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-09-04T05:36:05Z",
+      "side": 1,
+      "message": "line 6",
+      "revId": "c0df8ba4e6bcdd5d54f731fefa7b6acedf236d1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "935cb8c6_0e1f1218",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-09-04T05:36:05Z",
+      "side": 1,
+      "message": "line 10",
+      "revId": "c0df8ba4e6bcdd5d54f731fefa7b6acedf236d1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32005014_155fdf54",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-09-04T05:36:05Z",
+      "side": 1,
+      "message": "line 11",
+      "revId": "c0df8ba4e6bcdd5d54f731fefa7b6acedf236d1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47d2eb09_14a8e5a9",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-09-04T05:36:05Z",
+      "side": 1,
+      "message": "line 16",
+      "revId": "c0df8ba4e6bcdd5d54f731fefa7b6acedf236d1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1525e57_3029be4f",
+        "filename": "docs/bgp/bgp-user-guide-protocol-configuration.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8351
+      },
+      "writtenOn": "2020-09-04T05:36:05Z",
+      "side": 1,
+      "message": "line 19",
+      "revId": "c0df8ba4e6bcdd5d54f731fefa7b6acedf236d1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
