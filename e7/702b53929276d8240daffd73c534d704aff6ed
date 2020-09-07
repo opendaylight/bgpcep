@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Olivier Dugeon <olivier.dugeon@orange.com>
+Code-Review-1: Jamo Luhrsen <jluhrsen@gmail.com>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Mon, 07 Sep 2020 12:16:11 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/91971
+Project: bgpcep
+Branch: refs/heads/stable/aluminium
