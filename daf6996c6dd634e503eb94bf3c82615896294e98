@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a380cb23_259fbc72",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-09-17T14:52:40Z",
+      "side": 1,
+      "message": "Do we need to keep this? It is not present in the json form.",
+      "revId": "daf6996c6dd634e503eb94bf3c82615896294e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f147807b_21e41f25",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-09-17T14:52:40Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "daf6996c6dd634e503eb94bf3c82615896294e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ec9dd40_171fe16a",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-09-17T14:52:40Z",
+      "side": 1,
+      "message": "one more.",
+      "revId": "daf6996c6dd634e503eb94bf3c82615896294e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fa20597_f47206f1",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-09-17T14:52:40Z",
+      "side": 1,
+      "message": "one again",
+      "revId": "daf6996c6dd634e503eb94bf3c82615896294e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cefde7c5_0d7a0e67",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-09-17T14:52:40Z",
+      "side": 1,
+      "message": "penultimate one",
+      "revId": "daf6996c6dd634e503eb94bf3c82615896294e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46eddf10_2eeb011a",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-09-17T14:52:40Z",
+      "side": 1,
+      "message": "last one",
+      "revId": "daf6996c6dd634e503eb94bf3c82615896294e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
