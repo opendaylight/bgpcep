@@ -2,4 +2,3 @@
 #
 c9025ab9ddc1e3171919e085449f22c54f8f7b54                              	GitHub Replication
 e157b51f204f1e4586ca964e315ea0c476c19fc0                              	saml/odl-gerrit-bgpcep-committers
-ldap:cn=odl-gerrit-bgpcep-committers,ou=Groups,dc=freestandards,dc=org	ldap/odl-gerrit-bgpcep-committers
