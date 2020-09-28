@@ -13,9 +13,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -31,6 +33,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpNeighborState.SessionState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.bgp.neighbor.prefix.counters_state.PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
@@ -109,7 +112,7 @@ public final class NeighborUtil {
         return new NeighborsBuilder().setNeighbor(peerStats.stream()
                 .filter(Objects::nonNull)
                 .map(neighbor -> buildNeighbor(neighbor, bgpTableTypeRegistry))
-                .collect(Collectors.toList())).build();
+                .collect(Collectors.toUnmodifiableMap(Neighbor::key, Function.identity()))).build();
     }
 
     /**
@@ -320,7 +323,7 @@ public final class NeighborUtil {
     public static @NonNull NeighborErrorHandlingStateAugmentation buildErrorHandlingState(
             final long erroneousUpdateCount) {
         return new NeighborErrorHandlingStateAugmentationBuilder()
-                .setErroneousUpdateMessages(erroneousUpdateCount).build();
+                .setErroneousUpdateMessages(saturatedUint32(erroneousUpdateCount)).build();
     }
 
     /**
@@ -328,13 +331,13 @@ public final class NeighborUtil {
      *
      * @return AfiSafi List
      */
-    public static @NonNull List<AfiSafi> buildAfisSafisState(final @NonNull BGPAfiSafiState neighbor,
+    public static @NonNull Map<AfiSafiKey, AfiSafi> buildAfisSafisState(final @NonNull BGPAfiSafiState neighbor,
             final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         final Set<TablesKey> afiSafiJoin = new HashSet<>(neighbor.getAfiSafisAdvertized());
         afiSafiJoin.addAll(neighbor.getAfiSafisReceived());
         return afiSafiJoin.stream().map(tableKey -> buildAfiSafi(neighbor, tableKey, bgpTableTypeRegistry))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableMap(AfiSafi::key, Function.identity()));
     }
 
     private static AfiSafi buildAfiSafi(final @NonNull BGPAfiSafiState neighbor,
@@ -353,12 +356,17 @@ public final class NeighborUtil {
         builder.setActive(afiSafiSupported);
         if (afiSafiSupported) {
             builder.setPrefixes(new PrefixesBuilder()
-                    .setInstalled(neighbor.getPrefixesInstalledCount(tablesKey))
-                    .setReceived(neighbor.getPrefixesReceivedCount(tablesKey))
-                    .setSent(neighbor.getPrefixesSentCount(tablesKey)).build());
+                    .setInstalled(saturatedUint32(neighbor.getPrefixesInstalledCount(tablesKey)))
+                    .setReceived(saturatedUint32(neighbor.getPrefixesReceivedCount(tablesKey)))
+                    .setSent(saturatedUint32(neighbor.getPrefixesSentCount(tablesKey))).build());
         }
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
                 .safi.list.afi.safi.StateBuilder().addAugmentation(builder.build()).build();
+    }
+
+    // FIXME: remove this with YANGTOOLS-5.0.7+
+    private static Uint32 saturatedUint32(final long value) {
+        return value < 4294967295L ? Uint32.valueOf(value) : Uint32.MAX_VALUE;
     }
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi

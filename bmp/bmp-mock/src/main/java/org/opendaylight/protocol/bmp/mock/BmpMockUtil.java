@@ -50,7 +50,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 final class BmpMockUtil {
     private static final String DESCRIPTION = "OpenDaylight";
     private static final String NAME = "BMP mock";
-    private static final int HOLD_TIMER = 180;
+    private static final Uint16 HOLD_TIMER = Uint16.valueOf(180);
     private static final AsNumber ASN = new AsNumber(Uint32.valueOf(65431));
     private static final Ipv4AddressNoZone NEXT_HOP = new Ipv4AddressNoZone("1.2.3.4");
     private static final PortNumber PEER_PORT = new PortNumber(Uint16.valueOf(179).intern());

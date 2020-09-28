@@ -136,7 +136,7 @@ public class NeighborUtilTest {
 
     @Test
     public void buildAfisSafisState() {
-        assertEquals(Collections.emptyList(),
+        assertEquals(Collections.emptyMap(),
                 NeighborUtil.buildAfisSafisState(this.bgpAfiSafiState, this.tableRegistry));
 
         final GracefulRestart graceful = new GracefulRestartBuilder()
@@ -158,7 +158,7 @@ public class NeighborUtilTest {
         final AfiSafi expected = new AfiSafiBuilder().setAfiSafiName(this.afiSafi.get())
                 .setState(afiSafiState)
                 .setGracefulRestart(graceful).build();
-        assertEquals(Collections.singletonList(expected),
+        assertEquals(Collections.singletonMap(expected.key(), expected),
                 NeighborUtil.buildAfisSafisState(this.bgpAfiSafiState, this.tableRegistry));
     }
 }
