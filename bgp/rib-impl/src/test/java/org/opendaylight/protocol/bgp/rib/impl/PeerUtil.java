@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -181,7 +182,7 @@ final class PeerUtil {
                                     .setSafi(key.getSafi())
                                     .setAfiFlags(new Tables.AfiFlags(gracefulTables.get(key)))
                                     .build())
-                                .collect(Collectors.toList()))
+                                .collect(Collectors.toUnmodifiableMap(Tables::key, Function.identity())))
                             .build())
                         .build())
                     .build())

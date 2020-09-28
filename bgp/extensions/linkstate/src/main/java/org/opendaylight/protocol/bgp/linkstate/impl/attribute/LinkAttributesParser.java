@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
@@ -175,7 +176,7 @@ public final class LinkAttributesParser {
                     break;
                 case METRIC:
                     // length can 3, 2 or 1
-                    builder.setMetric(new Metric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
+                    builder.setMetric(new Metric(Uint32.valueOf(ByteArray.bytesToLong(ByteArray.readAllBytes(value)))));
                     LOG.debug("Parsed Metric {}", builder.getMetric());
                     break;
                 case SHARED_RISK_LINK_GROUP:

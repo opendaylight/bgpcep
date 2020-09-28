@@ -7,14 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.state;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -22,6 +24,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAfiSafiStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class GlobalUtil {
     private GlobalUtil() {
@@ -49,11 +52,11 @@ public final class GlobalUtil {
      * @param bgpTableTypeRegistry BGP TableType Registry
      * @return List containing per afi/safi operational state
      */
-    public static List<AfiSafi> buildAfisSafis(final BGPRibState ribState,
+    public static Map<AfiSafiKey, AfiSafi> buildAfisSafis(final BGPRibState ribState,
             final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
         return ribState.getPathsCount().keySet().stream()
                 .map(tk -> buildAfiSafi(ribState, tk, bgpTableTypeRegistry))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableMap(AfiSafi::key, Function.identity()));
     }
 
     /**
@@ -67,9 +70,14 @@ public final class GlobalUtil {
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.StateBuilder()
                 .setAs(ribState.getAs())
                 .setRouterId(ribState.getRouteId())
-                .setTotalPaths(ribState.getTotalPathsCount())
-                .setTotalPrefixes(ribState.getTotalPrefixesCount())
+                .setTotalPaths(saturatedUint32(ribState.getTotalPathsCount()))
+                .setTotalPrefixes(saturatedUint32(ribState.getTotalPrefixesCount()))
                 .build();
+    }
+
+    // FIXME: remove this with YANGTOOLS-5.0.7+
+    private static Uint32 saturatedUint32(final long value) {
+        return value < 4294967295L ? Uint32.valueOf(value) : Uint32.MAX_VALUE;
     }
 
     /**
@@ -90,8 +98,8 @@ public final class GlobalUtil {
                 .setAfiSafiName(optAfiSafi.get())
                 .setState(new StateBuilder()
                     .addAugmentation(new GlobalAfiSafiStateAugmentationBuilder()
-                        .setTotalPaths(ribState.getPathCount(tablesKey))
-                        .setTotalPrefixes(ribState.getPrefixesCount(tablesKey))
+                        .setTotalPaths(saturatedUint32(ribState.getPathCount(tablesKey)))
+                        .setTotalPrefixes(saturatedUint32(ribState.getPrefixesCount(tablesKey)))
                         .build())
                     .build())
                 .build();

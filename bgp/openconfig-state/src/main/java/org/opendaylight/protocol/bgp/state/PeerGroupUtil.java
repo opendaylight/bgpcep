@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroupsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.PeerGroupStateAugmentationBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Util for create OpenConfig Peer group with corresponding openConfig state.
@@ -62,8 +63,8 @@ public final class PeerGroupUtil {
     public static @NonNull PeerGroup buildPeerGroupState(final @NonNull String groupId,
             final @NonNull List<BGPPeerState> groups) {
         final PeerGroupStateAugmentation groupState = new PeerGroupStateAugmentationBuilder()
-                .setTotalPrefixes(groups.stream().mapToLong(BGPPeerState::getTotalPrefixes).sum())
-                .setTotalPaths(groups.stream().mapToLong(BGPPeerState::getTotalPathsCount).sum())
+                .setTotalPrefixes(saturatedUint32(groups.stream().mapToLong(BGPPeerState::getTotalPrefixes).sum()))
+                .setTotalPaths(saturatedUint32(groups.stream().mapToLong(BGPPeerState::getTotalPathsCount).sum()))
                 .build();
 
         return new PeerGroupBuilder()
@@ -71,4 +72,10 @@ public final class PeerGroupUtil {
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
                         .StateBuilder().addAugmentation(groupState).build()).build();
     }
+
+    // FIXME: remove this with YANGTOOLS-5.0.7+
+    private static Uint32 saturatedUint32(final long value) {
+        return value < 4294967295L ? Uint32.valueOf(value) : Uint32.MAX_VALUE;
+    }
+
 }
