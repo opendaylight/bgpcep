@@ -16,6 +16,7 @@ import io.netty.util.Timer;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.Executors;
+import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -55,6 +56,7 @@ public final class InstructionSchedulerFactoryImpl implements InstructionSchedul
     }
 
     @Override
+    @SuppressModernizer
     public InstructionScheduler createInstructionScheduler(final String instructionId) {
         LOG.info("Creating Instruction Scheduler {}.", instructionId);
 

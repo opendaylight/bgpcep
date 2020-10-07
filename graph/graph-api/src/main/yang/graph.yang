@@ -4,7 +4,7 @@ module graph {
     prefix "graph";
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import odl-uint24 { prefix uint24; }
+    import ietf-routing-types { prefix rt-types; }
 
     organization "Orange";
     contact "Philippe Niger <philippe.niger@orange.com>";
@@ -29,13 +29,13 @@ module graph {
     typedef delay {
         description "Link delay is in the range 0 - 16.777215 seconds. Larger value is also encoded with Max value.";
         units "microseconds";
-        type uint24:uint24;
+        type rt-types:uint24;
     }
 
     typedef loss {
         description "Link loss is in the range 0 - 50.331642% (= 2^24 - 2). Larger value is also encoded with Max value.";
         units "0.000003%";
-        type uint24:uint24;
+        type rt-types:uint24;
     }
 
     typedef decimal-bandwidth {

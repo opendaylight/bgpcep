@@ -63,6 +63,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder()
             .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720
                 .lsp.object.lsp.TlvsBuilder()
+                    .setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(Uint32.ONE)).build())
                     .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
                         .pcep.sync.optimizations.rev200720.Tlvs1Builder()
                             .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(Uint64.ONE).build())
