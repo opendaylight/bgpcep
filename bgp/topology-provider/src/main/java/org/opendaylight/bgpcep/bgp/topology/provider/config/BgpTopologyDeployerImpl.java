@@ -16,6 +16,7 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
@@ -130,6 +131,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     }
 
     @Override
+    @SuppressModernizer
     @SuppressWarnings("checkstyle:IllegalCatch")
     public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyProviderService) {
         final Dictionary<String, String> properties = new Hashtable<>();
