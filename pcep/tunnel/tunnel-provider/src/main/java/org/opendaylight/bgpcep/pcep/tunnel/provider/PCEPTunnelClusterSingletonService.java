@@ -16,6 +16,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -89,15 +90,19 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
         this.tp = new TunnelProgramming(scheduler, dependencies);
 
 
-        final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(PCEPTunnelTopologyProvider.class.getName(), tunnelTopologyId.getValue());
         this.serviceRegistration = dependencies.getBundleContext()
-                .registerService(DefaultTopologyReference.class.getName(), this.ttp, properties);
+                .registerService(DefaultTopologyReference.class.getName(), this.ttp, props(tunnelTopologyId));
 
         LOG.info("PCEP Tunnel Cluster Singleton service {} registered", getIdentifier().getName());
         this.pcepTunnelCssReg = dependencies.getCssp().registerClusterSingletonService(this);
     }
 
+    @SuppressModernizer
+    private static Dictionary<String, String> props(final TopologyId tunnelTopologyId) {
+        final Dictionary<String, String> ret = new Hashtable<>();
+        ret.put(PCEPTunnelTopologyProvider.class.getName(), tunnelTopologyId.getValue());
+        return ret;
+    }
 
     @Override
     public synchronized void instantiateServiceInstance() {

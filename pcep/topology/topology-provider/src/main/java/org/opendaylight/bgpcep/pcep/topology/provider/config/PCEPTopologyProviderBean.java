@@ -15,6 +15,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
@@ -149,12 +150,17 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
             this.sgi = this.scheduler.getIdentifier();
             this.pcepTopoProvider = PCEPTopologyProvider.create(bean, this.scheduler, configDependencies);
 
-            final Dictionary<String, String> properties = new Hashtable<>();
-            properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
-            this.serviceRegistration = bean.bundleContext
-                    .registerService(DefaultTopologyReference.class.getName(), this.pcepTopoProvider, properties);
+            this.serviceRegistration = bean.bundleContext.registerService(DefaultTopologyReference.class.getName(),
+                this.pcepTopoProvider, props(configDependencies));
             LOG.info("PCEP Topology Provider service {} registered", getIdentifier().getName());
             this.cssRegistration = bean.cssp.registerClusterSingletonService(this);
+        }
+
+        @SuppressModernizer
+        private static Dictionary<String, String> props(final PCEPTopologyConfiguration configDependencies) {
+            final Dictionary<String, String> properties = new Hashtable<>();
+            properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
+            return properties;
         }
 
         @Override
