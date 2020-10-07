@@ -7,11 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
+import static org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils.readUint24;
+import static org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils.writeUint24;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.mdsal.uint24.netty.Uint24ByteBufUtils;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvParser;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.Srgb;
@@ -39,8 +41,10 @@ final class OriginatorSrgbTlvParser implements BgpPrefixSidTlvParser, BgpPrefixS
                 "Number of SRGBs does not fit available bytes.");
         final List<SrgbValue> ret = new ArrayList<>();
         while (buffer.isReadable()) {
-            ret.add(new SrgbValueBuilder().setBase(new Srgb(Uint24ByteBufUtils.readUint24(buffer)))
-                .setRange(new Srgb(Uint24ByteBufUtils.readUint24(buffer))).build());
+            ret.add(new SrgbValueBuilder()
+                .setBase(new Srgb(readUint24(buffer)))
+                .setRange(new Srgb(readUint24(buffer)))
+                .build());
         }
         return ret;
     }
@@ -50,9 +54,9 @@ final class OriginatorSrgbTlvParser implements BgpPrefixSidTlvParser, BgpPrefixS
         Preconditions.checkArgument(tlv instanceof LuOriginatorSrgbTlv, "Incoming TLV is not LuOriginatorSrgbTlv");
         final LuOriginatorSrgbTlv luTlv = (LuOriginatorSrgbTlv) tlv;
         valueBuf.writeZero(ORIGINATOR_FLAGS_BYTES);
-        for (final SrgbValue val : luTlv.getSrgbValue()) {
-            Uint24ByteBufUtils.writeUint24(valueBuf, val.getBase());
-            Uint24ByteBufUtils.writeUint24(valueBuf, val.getRange());
+        for (final SrgbValue val : luTlv.nonnullSrgbValue()) {
+            writeUint24(valueBuf, val.getBase());
+            writeUint24(valueBuf, val.getRange());
         }
     }
 

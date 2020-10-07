@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>odl-mdsal-model-odl-uint24</artifactId>
+            <artifactId>odl-mdsal-model-rfc8294</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
