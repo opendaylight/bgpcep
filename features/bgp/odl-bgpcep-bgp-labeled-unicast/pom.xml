@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>odl-mdsal-uint24-netty</artifactId>
+            <artifactId>odl-mdsal-rfc8294-netty</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
