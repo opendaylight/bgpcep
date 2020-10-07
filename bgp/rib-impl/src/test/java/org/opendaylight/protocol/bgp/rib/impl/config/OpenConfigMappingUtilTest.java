@@ -105,6 +105,10 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class OpenConfigMappingUtilTest {
     private static final Neighbor NEIGHBOR = createNeighborExpected(NEIGHBOR_ADDRESS);
+    private static final Neighbor EMPTY_NEIGHBOR = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).build();
+
+    private static final PeerGroup EMPTY_PEERGROUP = new PeerGroupBuilder().setPeerGroupName("foo").build();
+
     private static final String KEY = "bgp";
     private static final InstanceIdentifier<Bgp> BGP_II = InstanceIdentifier.create(NetworkInstances.class)
         .child(NetworkInstance.class, new NetworkInstanceKey("identifier-test")).child(Protocols.class)
@@ -184,17 +188,15 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void testGetHoldTimer() {
-        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
-                OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, null));
-        assertEquals(HOLDTIMER,
-                OpenConfigMappingUtil.getHoldTimer(new NeighborBuilder().build(), null));
+        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, null));
+        assertEquals(HOLDTIMER, OpenConfigMappingUtil.getHoldTimer(EMPTY_NEIGHBOR, null));
 
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
-                OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, new PeerGroupBuilder().build()));
+                OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, EMPTY_PEERGROUP));
         TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
                 .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(BigDecimal.TEN).build());
         assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, new PeerGroupBuilder()
-                .setTimers(builder.build()).build()));
+                .setPeerGroupName("foo").setTimers(builder.build()).build()));
     }
 
     @Test
@@ -204,12 +206,11 @@ public class OpenConfigMappingUtilTest {
         assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(configBuilder.build(), null,
                 this.rib.getLocalAs()));
 
-        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(NEIGHBOR.getConfig(),
-                new PeerGroupBuilder().build(), null));
-        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(configBuilder.build(), new PeerGroupBuilder().build(),
+        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(NEIGHBOR.getConfig(), EMPTY_PEERGROUP, null));
+        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(configBuilder.build(), EMPTY_PEERGROUP,
                 this.rib.getLocalAs()));
 
-        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(null, new PeerGroupBuilder()
+        assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(null, new PeerGroupBuilder().setPeerGroupName("foo")
                         .setConfig(new ConfigBuilder().setPeerAs(AS).build()).build(), null));
     }
 
@@ -223,45 +224,43 @@ public class OpenConfigMappingUtilTest {
     @Test
     public void testIsActive() {
         final TransportBuilder builder = new TransportBuilder();
-        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().build(), null));
-        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder()
+        assertTrue(OpenConfigMappingUtil.isActive(EMPTY_NEIGHBOR, null));
+        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setTransport(builder.build()).build(), null));
 
         final Transport activeFalse = builder.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                 .rev151009.bgp.neighbor.group.transport.ConfigBuilder().setPassiveMode(true).build()).build();
-        assertFalse(OpenConfigMappingUtil.isActive(new NeighborBuilder().setTransport(activeFalse).build(),
-                null));
+        assertFalse(OpenConfigMappingUtil.isActive(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
+                .setTransport(activeFalse).build(), null));
 
-        assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().build(),
-                new PeerGroupBuilder().build()));
-        assertFalse(OpenConfigMappingUtil.isActive(new NeighborBuilder().build(),
-                new PeerGroupBuilder().setTransport(activeFalse).build()));
+        assertTrue(OpenConfigMappingUtil.isActive(EMPTY_NEIGHBOR, EMPTY_PEERGROUP));
+        assertFalse(OpenConfigMappingUtil.isActive(EMPTY_NEIGHBOR, new PeerGroupBuilder().setPeerGroupName("foo")
+            .setTransport(activeFalse).build()));
     }
 
     @Test
     public void testGetRetryTimer() {
+        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, null));
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
-                OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, null));
-        assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
-                OpenConfigMappingUtil.getRetryTimer(new NeighborBuilder().build(), null));
+                OpenConfigMappingUtil.getRetryTimer(EMPTY_NEIGHBOR, null));
         TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
                 .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setConnectRetry(BigDecimal.TEN).build());
         assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getRetryTimer(new NeighborBuilder()
-                .setTimers(builder.build()).build(), null));
+                .setNeighborAddress(NEIGHBOR_ADDRESS).setTimers(builder.build()).build(), null));
 
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
-                OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, new PeerGroupBuilder().build()));
+                OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, EMPTY_PEERGROUP));
         assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getRetryTimer(NEIGHBOR,
-                new PeerGroupBuilder().setTimers(builder.build()).build()));
+                new PeerGroupBuilder().setPeerGroupName("foo").setTimers(builder.build()).build()));
     }
 
     @Test
     public void testGetNeighborKey() {
         assertArrayEquals(MD5_PASSWORD.getBytes(StandardCharsets.US_ASCII),
             OpenConfigMappingUtil.getNeighborKey(NEIGHBOR).get(INSTANCE.inetAddressFor(NEIGHBOR_ADDRESS)));
-        assertNull(OpenConfigMappingUtil.getNeighborKey(new NeighborBuilder().build()));
-        assertNull(OpenConfigMappingUtil.getNeighborKey(new NeighborBuilder().setConfig(new ConfigBuilder()
-                .build()).build()));
+        assertNull(OpenConfigMappingUtil.getNeighborKey(EMPTY_NEIGHBOR));
+        assertNull(OpenConfigMappingUtil.getNeighborKey(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
+                .setConfig(new ConfigBuilder().build()).build()));
     }
 
     @Test
@@ -281,26 +280,26 @@ public class OpenConfigMappingUtilTest {
     public void testGetPort() {
         final TransportBuilder transport = new TransportBuilder();
         assertEquals(PORT, OpenConfigMappingUtil.getPort(NEIGHBOR, null));
-        assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder()
+        assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setTransport(transport.build()).build(), null));
-        assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder().setTransport(
-                transport.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor
-                        .group.transport.ConfigBuilder().build()).build()).build(), null));
+        assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
+                .setTransport(transport.setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
+                        .rev151009.bgp.neighbor.group.transport.ConfigBuilder().build()).build()).build(), null));
         final PortNumber newPort = new PortNumber(Uint16.valueOf(111));
         final Config portConfig = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor
                 .group.transport.ConfigBuilder()
                     .addAugmentation(new NeighborTransportConfigBuilder().setRemotePort(newPort).build()).build();
-        assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder().setTransport(
-                transport.setConfig(portConfig).build()).build(), null));
+        assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
+                .setTransport(transport.setConfig(portConfig).build()).build(), null));
 
-        assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder()
-                .setTransport(transport.setConfig(portConfig).build()).build(), new PeerGroupBuilder().build()));
+        assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
+                .setTransport(transport.setConfig(portConfig).build()).build(), EMPTY_PEERGROUP));
 
         final Config portConfigGroup = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp
                 .neighbor.group.transport.ConfigBuilder()
                     .addAugmentation(new PeerGroupTransportConfigBuilder().setRemotePort(newPort).build()).build();
-        assertEquals(newPort, OpenConfigMappingUtil.getPort(new NeighborBuilder().build(), new PeerGroupBuilder()
-                .setTransport(transport.setConfig(portConfigGroup).build()).build()));
+        assertEquals(newPort, OpenConfigMappingUtil.getPort(EMPTY_NEIGHBOR, new PeerGroupBuilder()
+                .setPeerGroupName("foo").setTransport(transport.setConfig(portConfigGroup).build()).build()));
     }
 
     @Test
@@ -368,7 +367,7 @@ public class OpenConfigMappingUtilTest {
 
         assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(null, null));
 
-        final PeerGroupBuilder peerGroup = new PeerGroupBuilder();
+        final PeerGroupBuilder peerGroup = new PeerGroupBuilder().setPeerGroupName("foo");
         assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(null, peerGroup.build()));
 
         final RouteReflectorBuilder configBuilder = new RouteReflectorBuilder();
@@ -386,10 +385,11 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void isAppNeighbor() {
-        assertFalse(OpenConfigMappingUtil.isApplicationPeer(new NeighborBuilder()
+        assertFalse(OpenConfigMappingUtil.isApplicationPeer(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setConfig(new ConfigBuilder().build()).build()));
-        final Neighbor neighbor = new NeighborBuilder().setConfig(new ConfigBuilder()
-                .addAugmentation(new NeighborPeerGroupConfigBuilder()
+        final Neighbor neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
+                .setConfig(new ConfigBuilder()
+                    .addAugmentation(new NeighborPeerGroupConfigBuilder()
                         .setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME).build()).build()).build();
         assertTrue(OpenConfigMappingUtil.isApplicationPeer(neighbor));
     }
@@ -415,16 +415,18 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void toPeerRole() {
-        Neighbor neighbor = new NeighborBuilder().setConfig(new ConfigBuilder()
+        Neighbor neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).setConfig(new ConfigBuilder()
                 .setPeerType(PeerType.EXTERNAL).build()).build();
         PeerRole peerRoleResult = OpenConfigMappingUtil.toPeerRole(neighbor);
         Assert.assertEquals(PeerRole.Ebgp, peerRoleResult);
 
-        neighbor = new NeighborBuilder().setConfig(new ConfigBuilder().setPeerType(PeerType.INTERNAL).build()).build();
+        neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
+            .setConfig(new ConfigBuilder().setPeerType(PeerType.INTERNAL).build())
+            .build();
         peerRoleResult = OpenConfigMappingUtil.toPeerRole(neighbor);
         Assert.assertEquals(PeerRole.Ibgp, peerRoleResult);
 
-        neighbor = new NeighborBuilder()
+        neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
             .setRouteReflector(new RouteReflectorBuilder().setConfig(
                     new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp
                 .neighbor.group.route.reflector.ConfigBuilder().setRouteReflectorClient(true).build()).build()).build();
@@ -452,13 +454,11 @@ public class OpenConfigMappingUtilTest {
     public void getGracefulRestartTimerTest() {
         final int neighborTimer = 5;
         final int peerGroupTimer = 10;
-        final Neighbor emptyNeighbor = new NeighborBuilder().build();
-        final PeerGroup emptyPeer = new PeerGroupBuilder().build();
-        Neighbor neighbor = new NeighborBuilder()
+        Neighbor neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setGracefulRestart(new GracefulRestartBuilder()
                         .setConfig(createGracefulConfig(Uint16.valueOf(neighborTimer)))
                         .build()).build();
-        PeerGroup peerGroup = new PeerGroupBuilder()
+        PeerGroup peerGroup = new PeerGroupBuilder().setPeerGroupName("foo")
                 .setGracefulRestart(new GracefulRestartBuilder()
                         .setConfig(createGracefulConfig(Uint16.valueOf(peerGroupTimer)))
                         .build()).build();
@@ -467,15 +467,15 @@ public class OpenConfigMappingUtilTest {
         assertEquals(peerGroupTimer, timer);
 
         // peer group missing graceful restart, use neighbor timer
-        timer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, emptyPeer, HOLDTIMER);
+        timer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, EMPTY_PEERGROUP, HOLDTIMER);
         assertEquals(neighborTimer, timer);
 
         // graceful restart enabled but timer not set, use hold time
-        peerGroup = new PeerGroupBuilder()
+        peerGroup = new PeerGroupBuilder().setPeerGroupName("bar")
                 .setGracefulRestart(new GracefulRestartBuilder()
                         .setConfig(createGracefulConfig(null))
                         .build()).build();
-        timer = OpenConfigMappingUtil.getGracefulRestartTimer(emptyNeighbor, peerGroup, HOLDTIMER);
+        timer = OpenConfigMappingUtil.getGracefulRestartTimer(EMPTY_NEIGHBOR, peerGroup, HOLDTIMER);
         assertEquals(HOLDTIMER, timer);
     }
 
@@ -487,8 +487,8 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void getRevisedErrorHandlingTest() {
-        final NeighborBuilder neighbor = new NeighborBuilder();
-        final PeerGroupBuilder peerGroup = new PeerGroupBuilder();
+        final NeighborBuilder neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS);
+        final PeerGroupBuilder peerGroup = new PeerGroupBuilder().setPeerGroupName("foo");
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling
                 .ConfigBuilder errorHandlingConfig = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                         .rev151009.bgp.neighbor.group.error.handling.ConfigBuilder();

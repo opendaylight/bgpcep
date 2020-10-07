@@ -77,7 +77,8 @@ public class NeighborStateCliUtilsTest {
     @Test
     public void testNeighborStateWO_StateCli() {
         NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS,
-                new NeighborBuilder().build(), this.stream);
+                new NeighborBuilder().setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4"))).build(),
+                this.stream);
         assertEquals(NO_SESSION_FOUND, this.output.toString());
     }
 
@@ -151,6 +152,7 @@ public class NeighborStateCliUtilsTest {
                         .build())
                 .build();
         final Neighbor neighbor = new NeighborBuilder()
+                .setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4")))
                 .setState(stateBuilder.build())
                 .setAfiSafis(new AfiSafisBuilder().setAfiSafi(Map.of(afiSafi.key(), afiSafi)).build())
                 .setTransport(transport)
