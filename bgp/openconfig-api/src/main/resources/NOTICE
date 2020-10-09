@@ -1,0 +1,9 @@
+This work includes YANG models developed by the OpenConfig working group
+and originally published under the Apache License Version 2.
+A copy of the original license can be found in the file openconfig.LICENSE
+
+More details at the http://www.openconfig.net/ web site.
+
+Note that uncompliant ^/$ inside openconfig models XSD regular expressions
+have been removed here.
+https://github.com/openconfig/public/issues/44
