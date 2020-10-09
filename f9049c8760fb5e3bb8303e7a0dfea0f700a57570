@@ -46,6 +46,30 @@
       "revId": "f9049c8760fb5e3bb8303e7a0dfea0f700a57570",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5db70c2_c0480d7c",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-network-instance-types.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-09T14:04:02Z",
+      "side": 1,
+      "message": "+1 to reuse the latest version of openconfig",
+      "parentUuid": "002c475b_f29337fb",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 91,
+        "endChar": 39
+      },
+      "revId": "f9049c8760fb5e3bb8303e7a0dfea0f700a57570",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
