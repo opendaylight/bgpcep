@@ -22,6 +22,30 @@
       "revId": "f9049c8760fb5e3bb8303e7a0dfea0f700a57570",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "002c475b_f29337fb",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-network-instance-types.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2020-10-09T09:30:08Z",
+      "side": 1,
+      "message": "According to OpenConfig model (https://github.com/openconfig/public/blob/master/release/models/network-instance/openconfig-network-instance-types.yang line 278-281) the regex pattern is:\n          \u0027^(4[0-2][0-9][0-4][0-9][0-6][0-7][0-2][0-9][0-5]|\u0027\n          + \u0027[0-3][0-9]{9}|[1-9][0-9]{1,8}|[1-9]):\u0027\n          + \u0027(65[0-5][0-3][0-5]|[1-5]{2}[0-9]{3}|\u0027\n          + \u0027[1-9]{0,2}[0-9][0-9]|[1-9])$\u0027;\n\nSo, ending bracket must be keep. Not also that Openconfig add \u0027^\u0027 and \u0027$\u0027 to check that there is no extra superfluous character at the beginning and the end of the string.\n\nMay be, it will be safe to copy/paste the latest openconfig yang models.",
+      "parentUuid": "6652f621_e539c665",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 91,
+        "endChar": 39
+      },
+      "revId": "f9049c8760fb5e3bb8303e7a0dfea0f700a57570",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
