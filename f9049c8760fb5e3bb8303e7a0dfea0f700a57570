@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6652f621_e539c665",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-network-instance-types.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-09T08:36:17Z",
+      "side": 1,
+      "message": "According to YANG comments, this regex seems to give the same ending pattern than type 1 at line 82-83\nIf true, it is probably worth to syncing them since they don\u0027t use the same syntax.\n\nThere is clearly a parenthesis-hell error here in type 2 but I am not sure this is the right fix.\nWithout the \"(\" before 65, the \"|\" might not apply only to the first end pattern \"65[0-5][0-3][0-5]\" \nbut to the whole previous chain including the \":\" delimiter\ni.e. \"(4[0-2][0-9]xxx[1-9]):65[0-5][0-3][0-5]\"\n\nWhat about \n         + \"(65[0-5][0-3][0-5]|[1-5]{2}[0-9]{3}|\"\n         + \"[1-9]{0,2}[0-9][0-9]|[1-9])\";\n?",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 91,
+        "endChar": 39
+      },
+      "revId": "f9049c8760fb5e3bb8303e7a0dfea0f700a57570",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
