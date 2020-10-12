@@ -16,11 +16,10 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createNe
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTimers;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTransport;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.StateBuilder;
@@ -35,24 +34,19 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.GlobalAddPathsConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 final class RIBTestsUtil {
     private static final BgpId BGP_ID = new BgpId(new Ipv4AddressNoZone("127.0.0.1"));
-    private static final List<AfiSafi> AFISAFIS_IPV4 = new ArrayList<>();
-    private static final List<AfiSafi> AFISAFIS_IPV6 = new ArrayList<>();
-
-    static {
-        AFISAFIS_IPV4.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-                .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
-                .build());
-    }
-
-    static {
-        AFISAFIS_IPV6.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-                .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
-                .build());
-    }
+    private static final Map<AfiSafiKey, AfiSafi> AFISAFIS_IPV4 = BindingMap.of(new AfiSafiBuilder()
+        .setAfiSafiName(IPV4UNICAST.class)
+        .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
+        .build());
+    private static final Map<AfiSafiKey, AfiSafi> AFISAFIS_IPV6 = BindingMap.of(new AfiSafiBuilder()
+        .setAfiSafiName(IPV6UNICAST.class)
+        .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
+        .build());
 
     private RIBTestsUtil() {
         // Hidden on purpose
@@ -76,7 +70,7 @@ final class RIBTestsUtil {
 
     public static Neighbors createNeighbors() {
         return new NeighborsBuilder()
-                .setNeighbor(Collections.singletonList(createNeighbor()))
+                .setNeighbor(BindingMap.of(createNeighbor()))
                 .build();
     }
 
@@ -86,7 +80,7 @@ final class RIBTestsUtil {
 
     public static Neighbors createNeighborsNoRR() {
         return new NeighborsBuilder()
-                .setNeighbor(Collections.singletonList(createNeighborNoRR()))
+                .setNeighbor(BindingMap.of(createNeighborNoRR()))
                 .build();
     }
 
