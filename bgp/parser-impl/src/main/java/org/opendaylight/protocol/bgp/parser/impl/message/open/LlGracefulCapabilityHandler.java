@@ -12,8 +12,6 @@ import static java.util.Objects.requireNonNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
@@ -32,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
 
     @Override
     public CParameters parseCapability(final ByteBuf buffer) {
-        final List<Tables> tables = new ArrayList<>();
+        final BindingMap.Builder<TablesKey, Tables> tables = BindingMap.builder();
 
         while (buffer.isReadable()) {
             final short afival = buffer.readShort();
@@ -94,7 +93,9 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
         }
         return new CParametersBuilder()
                 .addAugmentation(new CParameters1Builder()
-                    .setLlGracefulRestartCapability(new LlGracefulRestartCapabilityBuilder().setTables(tables).build())
+                    .setLlGracefulRestartCapability(new LlGracefulRestartCapabilityBuilder()
+                        .setTables(tables.build())
+                        .build())
                     .build())
                 .build();
     }
