@@ -12,8 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -35,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +134,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         final int timer = ((buffer.readUnsignedByte() & TIMER_TOPBITS_MASK) << Byte.SIZE) + buffer.readUnsignedByte();
         cb.setRestartTime(Uint16.valueOf(timer));
 
-        final List<Tables> tables = new ArrayList<>();
+        final BindingMap.Builder<TablesKey, Tables> tables = BindingMap.builder();
         while (buffer.readableBytes() != 0) {
             final int afiVal = buffer.readShort();
             final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
@@ -155,7 +154,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             tables.add(new TablesBuilder().setAfi(afi).setSafi(safi)
                 .setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
         }
-        cb.setTables(tables);
+        cb.setTables(tables.build());
         return new CParametersBuilder()
                 .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(cb.build()).build())
                 .build();
