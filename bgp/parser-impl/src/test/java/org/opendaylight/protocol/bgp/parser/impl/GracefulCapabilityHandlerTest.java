@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.parser.impl;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collections;
@@ -31,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class GracefulCapabilityHandlerTest {
@@ -59,7 +59,7 @@ public class GracefulCapabilityHandlerTest {
                 .setAfiFlags(new AfiFlags(true))
                 .setAfi(Ipv4AddressFamily.class)
                 .setSafi(UnicastSubsequentAddressFamily.class);
-        capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
+        capaBuilder.setTables(BindingMap.of(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer(capaBytes.length);
         handler.serializeCapability(new CParametersBuilder()
@@ -78,7 +78,7 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setRestartFlags(new RestartFlags(false));
         capaBuilder.setRestartTime(Uint16.ZERO);
         tablesBuilder.setAfiFlags(new AfiFlags(false));
-        capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
+        capaBuilder.setTables(BindingMap.of(tablesBuilder.build()));
         buffer.clear();
         handler.serializeCapability(new CParametersBuilder()
             .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
@@ -91,7 +91,7 @@ public class GracefulCapabilityHandlerTest {
         capaBuilder.setRestartFlags(null);
         tablesBuilder.setAfiFlags(null);
         capaBuilder.setRestartTime((Uint16) null);
-        capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
+        capaBuilder.setTables(BindingMap.of(tablesBuilder.build()));
         buffer.clear();
         handler.serializeCapability(new CParametersBuilder()
             .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
@@ -104,7 +104,7 @@ public class GracefulCapabilityHandlerTest {
         };
         capaBuilder.setRestartFlags(new RestartFlags(false));
         capaBuilder.setRestartTime(Uint16.ZERO);
-        capaBuilder.setTables(Collections.emptyList());
+        capaBuilder.setTables(Collections.emptyMap());
         assertEquals(new CParametersBuilder()
             .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
             .build(), handler.parseCapability(Unpooled.wrappedBuffer(capaBytes3).slice(2, capaBytes3.length - 2)));
@@ -150,7 +150,7 @@ public class GracefulCapabilityHandlerTest {
 
         tablesBuilder.setAfi(AddressFamily.class);
         tablesBuilder.setSafi(UnicastSubsequentAddressFamily.class);
-        capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
+        capaBuilder.setTables(BindingMap.of(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer();
         handler.serializeCapability(new CParametersBuilder()
@@ -170,7 +170,7 @@ public class GracefulCapabilityHandlerTest {
         tablesBuilder.setAfiFlags(new AfiFlags(true));
         tablesBuilder.setAfi(Ipv4AddressFamily.class);
         tablesBuilder.setSafi(SubsequentAddressFamily.class);
-        capaBuilder.setTables(Lists.newArrayList(tablesBuilder.build()));
+        capaBuilder.setTables(BindingMap.of(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer();
         handler.serializeCapability(new CParametersBuilder()
@@ -187,7 +187,7 @@ public class GracefulCapabilityHandlerTest {
                 .setRestartFlags(new RestartFlags(true))
                 // FIXME: this is throwing IAE, why is the rest of the test even here?
                 .setRestartTime(Uint16.MAX_VALUE)
-                .setTables(Lists.newArrayList(new TablesBuilder()
+                .setTables(BindingMap.of(new TablesBuilder()
                     .setAfiFlags(new AfiFlags(true))
                     .setAfi(Ipv4AddressFamily.class)
                     .setSafi(UnicastSubsequentAddressFamily.class)
@@ -208,7 +208,7 @@ public class GracefulCapabilityHandlerTest {
                 .setRestartFlags(new RestartFlags(true))
                 .setRestartTime(Uint16.valueOf(50000));
 
-        capaBuilder.setTables(Lists.newArrayList(new TablesBuilder()
+        capaBuilder.setTables(BindingMap.of(new TablesBuilder()
             .setAfiFlags(new AfiFlags(true))
             .setAfi(Ipv4AddressFamily.class)
             .setSafi(UnicastSubsequentAddressFamily.class)
