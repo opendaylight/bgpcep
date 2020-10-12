@@ -12,9 +12,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 
-import com.google.common.collect.Maps;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -30,10 +28,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -51,14 +51,12 @@ public class ComplementaryTest {
         final CParameters tlv2 = new CParametersBuilder().addAugmentation(new CParameters1Builder()
             .setMultiprotocolCapability(cap1).build()).build();
 
-        final List<Tables> tt = new ArrayList<>();
-        tt.add(new TablesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-            .build());
-        tt.add(new TablesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-            .build());
+        final Map<TablesKey, Tables> tt = BindingMap.of(
+            new TablesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build(),
+            new TablesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build());
 
-        final GracefulRestartCapability tlv3 = new GracefulRestartCapabilityBuilder().setRestartFlags(
-            new RestartFlags(Boolean.FALSE)).setRestartTime(Uint16.ZERO).setTables(tt).build();
+        final GracefulRestartCapability tlv3 = new GracefulRestartCapabilityBuilder()
+            .setRestartFlags(new RestartFlags(Boolean.FALSE)).setRestartTime(Uint16.ZERO).setTables(tt).build();
 
         final CParameters tlv4 = new CParametersBuilder().setAs4BytesCapability(
             new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(Uint32.valueOf(40))).build()).build();
@@ -73,7 +71,7 @@ public class ComplementaryTest {
 
         assertNotSame(tlv2.toString(), tlv3.toString());
 
-        assertEquals(Maps.uniqueIndex(tt, Tables::key), tlv3.getTables());
+        assertEquals(tt, tlv3.getTables());
 
         assertEquals(cap.getSafi(), cap1.getSafi());
 

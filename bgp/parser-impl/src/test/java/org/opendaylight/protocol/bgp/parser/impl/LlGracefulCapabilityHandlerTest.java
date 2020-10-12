@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class LlGracefulCapabilityHandlerTest {
@@ -78,7 +78,7 @@ public class LlGracefulCapabilityHandlerTest {
         };
 
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(Arrays.asList(new TablesBuilder()
+                .setTables(BindingMap.of(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
@@ -106,7 +106,7 @@ public class LlGracefulCapabilityHandlerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testUnsupportedAfi() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(Arrays.asList(new TablesBuilder()
+                .setTables(BindingMap.of(new TablesBuilder()
                                 .setAfi(AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
@@ -136,7 +136,7 @@ public class LlGracefulCapabilityHandlerTest {
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xa0
         };
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(Arrays.asList(new TablesBuilder()
+                .setTables(BindingMap.of(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
@@ -161,7 +161,7 @@ public class LlGracefulCapabilityHandlerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testUnsupportedSafi() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(Arrays.asList(new TablesBuilder()
+                .setTables(BindingMap.of(new TablesBuilder()
                         .setAfi(Ipv4AddressFamily.class)
                         .setSafi(SubsequentAddressFamily.class)
                         .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
@@ -192,7 +192,7 @@ public class LlGracefulCapabilityHandlerTest {
         };
 
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(Arrays.asList(new TablesBuilder()
+                .setTables(BindingMap.of(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
