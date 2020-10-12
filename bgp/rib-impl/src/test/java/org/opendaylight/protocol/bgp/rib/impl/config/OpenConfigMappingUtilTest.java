@@ -15,7 +15,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.AFI_SAFI;
-import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.AFI_SAFI_IPV4;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.MD5_PASSWORD;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.NEIGHBOR_ADDRESS;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.PORT;
@@ -99,6 +98,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -327,11 +327,7 @@ public class OpenConfigMappingUtilTest {
         final AfiSafi afiSafiIpv6 = new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
                 .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(true).setSendMax(SHORT).build())
                 .build();
-        final List<AfiSafi> afiSafiIpv6List = new ArrayList<>();
-        afiSafiIpv6List.add(afiSafiIpv6);
-
-        final List<AfiSafi> expected = new ArrayList<>(afiSafiIpv6List);
-        expected.add(AFI_SAFI_IPV4);
+        final Map<AfiSafiKey, AfiSafi> afiSafiIpv6List = BindingMap.of(afiSafiIpv6);
 
         final Map<AfiSafiKey, AfiSafi> v6 = OpenConfigMappingUtil.getAfiSafiWithDefault(new AfiSafisBuilder()
             .setAfiSafi(afiSafiIpv6List).build(), true);
