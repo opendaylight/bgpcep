@@ -94,6 +94,30 @@
       "revId": "f9049c8760fb5e3bb8303e7a0dfea0f700a57570",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2259c608_57664fd0",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-network-instance-types.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-13T08:44:39Z",
+      "side": 1,
+      "message": "Good to know. Thx.\nThis bug is 2 years old... it\u0027s a pity that OpenConfig has not addressed this issue yet.\nOtherwise, I am fine with the correction you proposed in PS7.",
+      "parentUuid": "14cfdca2_2cff83c7",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 91,
+        "endChar": 39
+      },
+      "revId": "f9049c8760fb5e3bb8303e7a0dfea0f700a57570",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
