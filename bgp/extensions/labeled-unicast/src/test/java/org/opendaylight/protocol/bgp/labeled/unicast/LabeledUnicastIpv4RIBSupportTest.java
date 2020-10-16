@@ -86,7 +86,7 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
         final ByteBuf buffer = Unpooled.buffer();
-        LUNlriParser.serializeNlri(LABELED_DESTINATION_LIST, false, buffer);
+        LUNlriParser.serializeNlri(LABELED_DESTINATION_LIST, buffer);
         LABEL_KEY = ByteArray.encodeBase64(buffer);
         ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, LABEL_KEY);
         ROUTE = new LabeledUnicastRouteBuilder()
