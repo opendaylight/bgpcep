@@ -12,8 +12,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +20,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.bgp.rib.rib.loc.rib.tables.routes.LabeledUnicastIpv6RoutesCase;
@@ -61,36 +58,27 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest<Lab
     private static final LabeledUnicastRoute ROUTE;
     private static final LabeledUnicastIpv6Routes ROUTES;
     private static final LabeledUnicastRouteKey ROUTE_KEY;
-    private static final String LABEL_KEY;
+    private static final String ROUTE_KEY_VALUE;
     private static final PathId PATH_ID = new PathId(Uint32.ONE);
     private static final List<LabelStack> LABEL_STACK = List.of(new LabelStackBuilder()
             .setLabelValue(new MplsLabel(Uint32.valueOf(355))).build());
     private static final List<CLabeledUnicastDestination> LABELED_DESTINATION_LIST =
         List.of(new CLabeledUnicastDestinationBuilder()
             .setPathId(PATH_ID).setLabelStack(LABEL_STACK).setPrefix(IPV6_PREFIX).build());
-    private static final DestinationIpv6LabeledUnicastCase REACH_NLRI
-            = new DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
-                new DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(LABELED_DESTINATION_LIST)
-                    .build()).build();
+    private static final DestinationIpv6LabeledUnicastCase REACH_NLRI = reachNlri(LABELED_DESTINATION_LIST);
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329
             .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
-            .DestinationIpv6LabeledUnicastCase UNREACH_NLRI = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-            .xml.ns.yang.bgp.labeled.unicast.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination
-            .type.DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(new org.opendaylight
-            .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.update.attributes.mp
-            .unreach.nlri.withdrawn.routes.destination.type.destination.ipv6.labeled.unicast._case
-            .DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(LABELED_DESTINATION_LIST).build())
-            .build();
+            .DestinationIpv6LabeledUnicastCase UNREACH_NLRI = unreachNlri(LABELED_DESTINATION_LIST);
     private LabeledUnicastIpv6RIBSupport ribSupport;
 
     static {
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
-        final ByteBuf buffer = Unpooled.buffer();
-        LUNlriParser.serializeNlri(LABELED_DESTINATION_LIST, false, buffer);
-        LABEL_KEY = ByteArray.encodeBase64(buffer);
-        ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, LABEL_KEY);
+        // Expected key built by the private AbstractLabeledUnicastRIBSupport.createRouteKey(). It is the
+        // base64 of path ID 1, prefix length 40 and prefix 102:304:500::/40, without the label stack.
+        ROUTE_KEY_VALUE = "AAAAASgBAgMEBQ==";
+        ROUTE_KEY = new LabeledUnicastRouteKey(PATH_ID, ROUTE_KEY_VALUE);
         ROUTE = new LabeledUnicastRouteBuilder().withKey(ROUTE_KEY)
                 .setPrefix(IPV6_PREFIX).setPathId(PATH_ID).setLabelStack(LABEL_STACK)
             .setAttributes(new AttributesBuilder().build()).build();
@@ -108,6 +96,29 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest<Lab
     public void testDeleteRoutes() {
         ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
         assertEquals(ROUTE_KEY, deletedRoutes.getFirst().firstKeyOf(LabeledUnicastRoute.class));
+    }
+
+    @Test
+    public void testDeleteRouteWithoutLabelStack() {
+        ribSupport.putRoutes(tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        final var announced = (LabeledUnicastRoute) insertedRoutes.getFirst().getValue();
+
+        final var withdrawn = unreachNlri(List.of(destination(PATH_ID, null, IPV6_PREFIX)));
+        ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(withdrawn));
+
+        assertEquals(announced.key(), deletedRoutes.getFirst().firstKeyOf(LabeledUnicastRoute.class));
+    }
+
+    @Test
+    public void testPutRouteWithNewLabelKeepsKey() {
+        final var newLabelStack = List.of(new LabelStackBuilder()
+            .setLabelValue(new MplsLabel(Uint32.valueOf(1000))).build());
+        final var relabeled = reachNlri(List.of(destination(PATH_ID, newLabelStack, IPV6_PREFIX)));
+        ribSupport.putRoutes(tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        ribSupport.putRoutes(tx, getTablePath(), createNlriAdvertiseRoute(relabeled), createAttributes());
+
+        assertEquals(insertedRoutes.get(0).getKey(), insertedRoutes.get(1).getKey());
+        assertEquals(newLabelStack, ((LabeledUnicastRoute) insertedRoutes.get(1).getValue()).getLabelStack());
     }
 
     @Test
@@ -194,5 +205,36 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest<Lab
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
         final Collection<DataTreeCandidateNode> result = ribSupport.changedRoutes(tree);
         assertFalse(result.isEmpty());
+    }
+
+    private static CLabeledUnicastDestination destination(final PathId pathId, final List<LabelStack> labelStack,
+            final IpPrefix prefix) {
+        return new CLabeledUnicastDestinationBuilder()
+            .setPathId(pathId)
+            .setLabelStack(labelStack)
+            .setPrefix(prefix)
+            .build();
+    }
+
+    private static DestinationIpv6LabeledUnicastCase reachNlri(final List<CLabeledUnicastDestination> destinations) {
+        return new DestinationIpv6LabeledUnicastCaseBuilder()
+            .setDestinationIpv6LabeledUnicast(new DestinationIpv6LabeledUnicastBuilder()
+                .setCLabeledUnicastDestination(destinations)
+                .build())
+            .build();
+    }
+
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329
+            .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6LabeledUnicastCase
+            unreachNlri(final List<CLabeledUnicastDestination> destinations) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329
+            .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+            .DestinationIpv6LabeledUnicastCaseBuilder()
+            .setDestinationIpv6LabeledUnicast(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .bgp.labeled.unicast.rev180329.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
+                .destination.ipv6.labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder()
+                .setCLabeledUnicastDestination(destinations)
+                .build())
+            .build();
     }
 }

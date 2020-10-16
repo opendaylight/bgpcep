@@ -11,7 +11,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
@@ -116,7 +115,12 @@ abstract class AbstractLabeledUnicastRIBSupport<
         final ByteBuf buffer = Unpooled.buffer();
 
         final CLabeledUnicastDestination dest = extractCLabeledUnicastDestination(labeledUnicast);
-        LUNlriParser.serializeNlri(Collections.singletonList(dest), false, buffer);
+        // Same as LUNlriParser.serializeNlri(), but without the label stack. A withdrawal carries no label
+        // (RFC 8277 section 2.4), and a new label for the same prefix replaces the route (section 2.5).
+        PathIdUtil.writePathId(dest.getPathId(), buffer);
+        final var prefix = dest.getPrefix();
+        buffer.writeByte(LUNlriParser.getPrefixLength(prefix) * Byte.SIZE);
+        LUNlriParser.serializePrefixField(prefix, buffer);
         final String routeKeyValue = ByteArray.encodeBase64(buffer);
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), routeKeyValue,
             labeledUnicast.findChildByArg(routePathIdNid()));
