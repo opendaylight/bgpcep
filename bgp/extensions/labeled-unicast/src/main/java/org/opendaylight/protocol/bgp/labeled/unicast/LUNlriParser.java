@@ -69,13 +69,13 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
                     .labeled.unicast.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type
                     .DestinationLabeledUnicastCase labeledUnicastCase) {
                     serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(),
-                        false, byteAggregator);
+                        byteAggregator);
                 } else if (destinationType
                         instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                         .bgp.labeled.unicast.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination
                         .type.DestinationIpv6LabeledUnicastCase labeledUnicastCase) {
                     serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(),
-                        false, byteAggregator);
+                        byteAggregator);
                 }
             }
         } else if (pathAttributes2 != null) {
@@ -86,29 +86,25 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
                 final DestinationType destinationType = withDrawnRoutes.getDestinationType();
                 if (destinationType instanceof DestinationLabeledUnicastCase labeledUnicastCase) {
                     serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(),
-                        true, byteAggregator);
+                        byteAggregator);
                 } else if (destinationType instanceof DestinationIpv6LabeledUnicastCase labeledUnicastCase) {
                     serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(),
-                        true, byteAggregator);
+                        byteAggregator);
                 }
             }
         }
     }
 
-    protected static void serializeNlri(final List<CLabeledUnicastDestination> dests, final boolean isUnreachNlri,
-            final ByteBuf buffer) {
+    protected static void serializeNlri(final List<CLabeledUnicastDestination> dests, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         for (final CLabeledUnicastDestination dest : dests) {
             PathIdUtil.writePathId(dest.getPathId(), buffer);
 
-            final List<LabelStack> labelStack = dest.getLabelStack();
-            final IpPrefix prefix = dest.getPrefix();
             // Serialize the length field
-            // Length field contains one Byte which represents the length of label stack and prefix in bits
-            nlriByteBuf.writeByte((LABEL_LENGTH * (!isUnreachNlri ? labelStack.size() : 1)
-                    + getPrefixLength(prefix)) * Byte.SIZE);
+            // Length field contains prefix in bits
+            final IpPrefix prefix = dest.getPrefix();
+            nlriByteBuf.writeByte(getPrefixLength(prefix) * Byte.SIZE);
 
-            serializeLabelStackEntries(labelStack, isUnreachNlri, nlriByteBuf);
             serializePrefixField(prefix, nlriByteBuf);
         }
         buffer.writeBytes(nlriByteBuf);
