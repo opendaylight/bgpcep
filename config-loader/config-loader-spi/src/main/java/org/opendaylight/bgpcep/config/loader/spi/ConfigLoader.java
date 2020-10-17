@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.config.loader.spi;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 @NonNullByDefault
@@ -22,11 +21,4 @@ public interface ConfigLoader {
      */
     // FIXME: use plain Registration here to not leak implementation
     AbstractRegistration registerConfigFile(ConfigFileProcessor config);
-
-    /**
-     * Provides BindingNormalizedNodeSerializer.
-     *
-     * @return Binding Normalized node serializer
-     */
-    BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer();
 }
