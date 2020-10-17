@@ -12,12 +12,15 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 @NonNullByDefault
+// FIXME: this interface should probably go: for OSGi we want to use a whiteboard, for static contexts we want to use
+//        an explicit list
 public interface ConfigLoader {
     /**
      * Register object model handler.
      *
      * @param config Config File Processor
      */
+    // FIXME: use plain Registration here to not leak implementation
     AbstractRegistration registerConfigFile(ConfigFileProcessor config);
 
     /**
