@@ -7,12 +7,14 @@
  */
 package org.opendaylight.bgpcep.config.loader.topology;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.opendaylight.bgpcep.config.loader.spi.AbstractConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -21,7 +23,6 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -34,38 +35,31 @@ import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class NetworkTopologyConfigFileProcessor implements ConfigFileProcessor, AutoCloseable {
-
+@Singleton
+public final class NetworkTopologyConfigFileProcessor extends AbstractConfigFileProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkTopologyConfigFileProcessor.class);
 
     private static final SchemaPath TOPOLOGY_SCHEMA_PATH = SchemaPath.create(true, NetworkTopology.QNAME);
-    private final BindingNormalizedNodeSerializer bindingSerializer;
-    private AbstractRegistration registration;
-    private final YangInstanceIdentifier topologyYii;
     private static final InstanceIdentifier<Topology> TOPOLOGY_IID =
             InstanceIdentifier.create(NetworkTopology.class).child(Topology.class);
-    private final DataBroker dataBroker;
-    private final ConfigLoader configLoader;
 
+    private final YangInstanceIdentifier topologyYii;
+
+    @Inject
     public NetworkTopologyConfigFileProcessor(final ConfigLoader configLoader, final DataBroker dataBroker) {
-        requireNonNull(configLoader);
-        this.dataBroker = requireNonNull(dataBroker);
-        this.configLoader = requireNonNull(configLoader);
-        this.bindingSerializer = configLoader.getBindingNormalizedNodeSerializer();
-        this.topologyYii = this.bindingSerializer.toYangInstanceIdentifier(TOPOLOGY_IID);
+        super("Network Topology", configLoader, dataBroker);
+        this.topologyYii = configLoader.getBindingNormalizedNodeSerializer().toYangInstanceIdentifier(TOPOLOGY_IID);
     }
 
-    public synchronized void init() {
-        this.registration = this.configLoader.registerConfigFile(this);
-        LOG.info("Network Topology Loader service initiated");
+    @PostConstruct
+    public void init() {
+        start();
     }
 
+    @PreDestroy
     @Override
-    public synchronized void close() {
-        if (this.registration != null) {
-            this.registration.close();
-            this.registration = null;
-        }
+    public void close() {
+        stop();
     }
 
     @Override
@@ -74,7 +68,8 @@ public final class NetworkTopologyConfigFileProcessor implements ConfigFileProce
     }
 
     @Override
-    public synchronized void loadConfiguration(final NormalizedNode<?, ?> dto) {
+    protected void loadConfiguration(final DataBroker dataBroker, final BindingNormalizedNodeSerializer serializer,
+            final NormalizedNode<?, ?> dto) {
         final ContainerNode networkTopologyContainer = (ContainerNode) dto;
         final MapNode topologyList = (MapNode) networkTopologyContainer.getChild(
                 this.topologyYii.getLastPathArgument()).get();
@@ -82,11 +77,11 @@ public final class NetworkTopologyConfigFileProcessor implements ConfigFileProce
         if (networkTopology.isEmpty()) {
             return;
         }
-        final WriteTransaction wtx = this.dataBroker.newWriteOnlyTransaction();
+        final WriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
 
         for (final MapEntryNode topologyEntry : networkTopology) {
             final Map.Entry<InstanceIdentifier<?>, DataObject> bi =
-                    this.bindingSerializer.fromNormalizedNode(this.topologyYii, topologyEntry);
+                    serializer.fromNormalizedNode(topologyYii, topologyEntry);
             if (bi != null) {
                 processTopology((Topology) bi.getValue(), wtx);
             }
