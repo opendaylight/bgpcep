@@ -10,15 +10,15 @@ package org.opendaylight.bgpcep.config.loader.spi;
 import com.google.common.collect.ForwardingObject;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 /**
  * Implementation of {@link ConfigFileProcessor} which forwards request to a delegate.
  */
 public abstract class ForwardingConfigFileProcessor extends ForwardingObject implements ConfigFileProcessor {
     @Override
-    public SchemaPath getSchemaPath() {
-        return delegate().getSchemaPath();
+    public Absolute fileRootSchema() {
+        return delegate().fileRootSchema();
     }
 
     @Override
