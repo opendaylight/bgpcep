@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.OdlBmpMonitors;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoaderTest {
     private static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
@@ -32,7 +32,7 @@ public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoaderTest 
         processor.init();
         checkPresentConfiguration(getDataBroker(), ODL_BMP_MONITORS_IID);
 
-        assertEquals(SchemaPath.create(true, OdlBmpMonitors.QNAME), processor.getSchemaPath());
+        assertEquals(Absolute.of(OdlBmpMonitors.QNAME), processor.fileRootSchema());
         processor.close();
     }
 }
