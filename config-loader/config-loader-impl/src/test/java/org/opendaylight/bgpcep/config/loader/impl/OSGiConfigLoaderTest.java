@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
+import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class OSGiConfigLoaderTest {
@@ -37,6 +38,8 @@ public class OSGiConfigLoaderTest {
     private WatchEvent<?> watchEvent;
     @Mock
     private BindingRuntimeContext bindingContext;
+    @Mock
+    private EffectiveModelContext domContext;
 
     private OSGiConfigLoader loader;
 
@@ -51,10 +54,11 @@ public class OSGiConfigLoaderTest {
         }).when(watchKey).pollEvents();
         doReturn("watchEvent").when(watchEvent).context();
         doReturn(true).when(watchKey).reset();
+        doReturn(domContext).when(bindingContext).getEffectiveModelContext();
 
         loader = new OSGiConfigLoader();
         loader.watcher = watcher;
-        loader.runtimeContext = bindingContext;
+        loader.setRuntimeContext(bindingContext);
     }
 
     @After
