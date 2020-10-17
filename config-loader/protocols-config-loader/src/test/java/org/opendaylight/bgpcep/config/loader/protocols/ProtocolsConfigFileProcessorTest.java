@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoaderTest {
     @VisibleForTesting
@@ -38,8 +38,8 @@ public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoaderTest {
         processor.init();
         checkPresentConfiguration(getDataBroker(), BGP_PROTOCOLS_IID);
 
-        assertEquals(SchemaPath.create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME),
-                processor.getSchemaPath());
+        assertEquals(Absolute.of(NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME),
+                processor.fileRootSchema());
         processor.close();
     }
 }

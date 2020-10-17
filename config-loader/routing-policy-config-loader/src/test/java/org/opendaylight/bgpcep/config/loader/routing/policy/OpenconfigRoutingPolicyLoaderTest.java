@@ -11,11 +11,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 public class OpenconfigRoutingPolicyLoaderTest extends AbstractOpenconfigRoutingPolicyLoaderTest {
     @Test
     public void configFileTest() {
-        assertEquals(SchemaPath.create(true, RoutingPolicy.QNAME), this.policyLoader.getSchemaPath());
+        assertEquals(Absolute.of(RoutingPolicy.QNAME), this.policyLoader.fileRootSchema());
     }
 }

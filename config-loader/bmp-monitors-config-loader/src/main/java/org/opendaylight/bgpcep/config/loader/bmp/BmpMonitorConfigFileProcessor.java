@@ -25,12 +25,10 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 @Singleton
 public final class BmpMonitorConfigFileProcessor extends AbstractConfigFileProcessor {
-    private static final SchemaPath POLICY_SCHEMA_PATH = SchemaPath.create(true, OdlBmpMonitors.QNAME);
-
     @Inject
     public BmpMonitorConfigFileProcessor(final ConfigLoader configLoader, final DOMDataBroker dataBroker) {
         super("BMP", configLoader, dataBroker);
@@ -48,8 +46,8 @@ public final class BmpMonitorConfigFileProcessor extends AbstractConfigFileProce
     }
 
     @Override
-    public SchemaPath getSchemaPath() {
-        return POLICY_SCHEMA_PATH;
+    public Absolute fileRootSchema() {
+        return Absolute.of(OdlBmpMonitors.QNAME);
     }
 
     @Override
