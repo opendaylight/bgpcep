@@ -7,50 +7,33 @@
  */
 package org.opendaylight.bgpcep.config.loader.bmp;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
+import com.google.common.util.concurrent.FluentFuture;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.bgpcep.config.loader.spi.AbstractConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.OdlBmpMonitors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.odl.bmp.monitors.BmpMonitorConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.odl.bmp.monitors.BmpMonitorConfigKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class BmpMonitorConfigFileProcessor extends AbstractConfigFileProcessor {
-    private static final Logger LOG = LoggerFactory.getLogger(BmpMonitorConfigFileProcessor.class);
-
-    @VisibleForTesting
-    static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
-            InstanceIdentifier.create(OdlBmpMonitors.class);
     private static final SchemaPath POLICY_SCHEMA_PATH = SchemaPath.create(true, OdlBmpMonitors.QNAME);
 
-    private final YangInstanceIdentifier bmpMonitorsYii;
-
     @Inject
-    public BmpMonitorConfigFileProcessor(final ConfigLoader configLoader, final DataBroker dataBroker) {
+    public BmpMonitorConfigFileProcessor(final ConfigLoader configLoader, final DOMDataBroker dataBroker) {
         super("BMP", configLoader, dataBroker);
-        this.bmpMonitorsYii = configLoader.getBindingNormalizedNodeSerializer().toYangInstanceIdentifier(
-                InstanceIdentifier.create(OdlBmpMonitors.class).child(BmpMonitorConfig.class));
     }
 
     @PostConstruct
@@ -70,33 +53,19 @@ public final class BmpMonitorConfigFileProcessor extends AbstractConfigFileProce
     }
 
     @Override
-    protected void loadConfiguration(final DataBroker dataBroker, final BindingNormalizedNodeSerializer serializer,
+    protected FluentFuture<? extends CommitInfo> loadConfiguration(final DOMDataBroker dataBroker,
             final NormalizedNode<?, ?> dto) {
-        final ContainerNode bmpMonitorsConfigsContainer = (ContainerNode) dto;
-        final MapNode monitorsList = (MapNode) bmpMonitorsConfigsContainer.getChild(
-                bmpMonitorsYii.getLastPathArgument()).orElse(null);
+        final ContainerNode odlBmpMonitors = (ContainerNode) dto;
+        final MapNode monitorsList = (MapNode) odlBmpMonitors.getChild(new NodeIdentifier(BmpMonitorConfig.QNAME))
+            .orElse(null);
         if (monitorsList == null) {
-            return;
+            return CommitInfo.emptyFluentFuture();
         }
-        final Collection<MapEntryNode> bmpMonitorConfig = monitorsList.getValue();
-        final WriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
 
-        bmpMonitorConfig.stream().map(topology -> serializer
-                .fromNormalizedNode(bmpMonitorsYii, topology))
-                .filter(Objects::nonNull)
-                .forEach(bi -> processBmpMonitorConfig((BmpMonitorConfig) bi.getValue(), wtx));
-
-        try {
-            wtx.commit().get();
-        } catch (final ExecutionException | InterruptedException e) {
-            LOG.warn("Failed to create Bmp config", e);
-        }
-    }
-
-    private static void processBmpMonitorConfig(final BmpMonitorConfig bmpConfig, final WriteTransaction wtx) {
-        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = ODL_BMP_MONITORS_IID
-                .child(BmpMonitorConfig.class, bmpConfig.key());
-
-        wtx.mergeParentStructureMerge(LogicalDatastoreType.CONFIGURATION, iid, bmpConfig);
+        final DOMDataTreeWriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
+        wtx.merge(LogicalDatastoreType.CONFIGURATION,
+            YangInstanceIdentifier.create(new NodeIdentifier(OdlBmpMonitors.QNAME), monitorsList.getIdentifier()),
+            monitorsList);
+        return wtx.commit();
     }
 }
