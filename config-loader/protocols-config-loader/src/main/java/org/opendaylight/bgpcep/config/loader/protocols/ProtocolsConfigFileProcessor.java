@@ -33,7 +33,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 @Singleton
 public final class ProtocolsConfigFileProcessor extends AbstractConfigFileProcessor {
@@ -47,8 +47,6 @@ public final class ProtocolsConfigFileProcessor extends AbstractConfigFileProces
         NodeIdentifierWithPredicates.of(NetworkInstance.QNAME, NAME, GLOBAL_BGP_NAME);
     private static final @NonNull YangInstanceIdentifier GLOBAL_BGP_PATH = YangInstanceIdentifier.create(
         NodeIdentifier.create(NetworkInstances.QNAME), NodeIdentifier.create(NetworkInstance.QNAME), GLOBAL_BGP);
-    private static final SchemaPath PROTOCOLS_SCHEMA_PATH = SchemaPath
-            .create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME);
 
     @Inject
     public ProtocolsConfigFileProcessor(final ConfigLoader configLoader, final DOMDataBroker dataBroker) {
@@ -67,8 +65,8 @@ public final class ProtocolsConfigFileProcessor extends AbstractConfigFileProces
     }
 
     @Override
-    public SchemaPath getSchemaPath() {
-        return PROTOCOLS_SCHEMA_PATH;
+    public Absolute fileRootSchema() {
+        return Absolute.of(NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME);
     }
 
     @Override
