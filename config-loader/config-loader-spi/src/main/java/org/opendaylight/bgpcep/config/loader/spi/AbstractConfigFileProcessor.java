@@ -10,9 +10,11 @@ package org.opendaylight.bgpcep.config.loader.spi;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.util.concurrent.FluentFuture;
+import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -27,13 +29,13 @@ public abstract class AbstractConfigFileProcessor implements ConfigFileProcessor
     private static final Logger LOG = LoggerFactory.getLogger(AbstractConfigFileProcessor.class);
 
     private final @NonNull ConfigLoader configLoader;
-    private final @NonNull DataBroker dataBroker;
+    private final @NonNull DOMDataBroker dataBroker;
     private final String name;
 
     private AbstractRegistration reg;
 
     protected AbstractConfigFileProcessor(final String name, final ConfigLoader configLoader,
-            final DataBroker dataBroker) {
+            final DOMDataBroker dataBroker) {
         this.name = requireNonNull(name);
         this.configLoader = requireNonNull(configLoader);
         this.dataBroker = requireNonNull(dataBroker);
@@ -41,18 +43,23 @@ public abstract class AbstractConfigFileProcessor implements ConfigFileProcessor
 
     @Override
     public final void loadConfiguration(final NormalizedNode<?, ?> dto) {
-        loadConfiguration(dataBroker, configLoader.getBindingNormalizedNodeSerializer(), dto);
+        final FluentFuture<? extends CommitInfo> future = loadConfiguration(dataBroker, dto);
+        try {
+            future.get();
+        } catch (final ExecutionException | InterruptedException e) {
+            LOG.warn("Failed to create {} configuration", name, e);
+        }
     }
 
     /**
-     * Load specified DTO using provided {@link DataBroker} and {@link BindingNormalizedNodeSerializer}.
+     * Load specified DTO using provided {@link DOMDataBroker}.
      *
      * @param dataBroker data broker to use
-     * @param serializer Binding/DOM serializer to use
      * @param dto normalizedNode
+     * @return Transaction commit future
      */
-    protected abstract void loadConfiguration(@NonNull DataBroker dataBroker,
-        @NonNull BindingNormalizedNodeSerializer serializer, NormalizedNode<?, ?> dto);
+    protected abstract @NonNull FluentFuture<? extends CommitInfo> loadConfiguration(@NonNull DOMDataBroker dataBroker,
+        @NonNull NormalizedNode<?, ?> dto);
 
     /**
      * Start this processor by registering it with the config loader.
