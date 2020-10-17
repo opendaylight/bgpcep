@@ -13,8 +13,11 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.opendaylight.bgpcep.config.loader.spi.AbstractConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -23,7 +26,6 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.OdlBmpMonitors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.odl.bmp.monitors.BmpMonitorConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.odl.bmp.monitors.BmpMonitorConfigKey;
-import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -35,67 +37,56 @@ import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BmpMonitorConfigFileProcessor implements ConfigFileProcessor, AutoCloseable {
+@Singleton
+public final class BmpMonitorConfigFileProcessor extends AbstractConfigFileProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(BmpMonitorConfigFileProcessor.class);
 
     @VisibleForTesting
     static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
             InstanceIdentifier.create(OdlBmpMonitors.class);
-    private static final Logger LOG = LoggerFactory.getLogger(BmpMonitorConfigFileProcessor.class);
-    private final SchemaPath bmpMonitorsSchemaPath = SchemaPath.create(true, OdlBmpMonitors.QNAME);
-    private final BindingNormalizedNodeSerializer bindingSerializer;
-    private final YangInstanceIdentifier bmpMonitorsYii;
-    private final ConfigLoader configLoader;
-    private final DataBroker dataBroker;
-    @GuardedBy("this")
-    private AbstractRegistration registration;
+    private static final SchemaPath POLICY_SCHEMA_PATH = SchemaPath.create(true, OdlBmpMonitors.QNAME);
 
+    private final YangInstanceIdentifier bmpMonitorsYii;
+    private final DataBroker dataBroker;
+
+    @Inject
     public BmpMonitorConfigFileProcessor(final ConfigLoader configLoader, final DataBroker dataBroker) {
-        requireNonNull(configLoader);
-        this.configLoader = requireNonNull(configLoader);
+        super("BMP", configLoader);
         this.dataBroker = requireNonNull(dataBroker);
-        this.bindingSerializer = configLoader.getBindingNormalizedNodeSerializer();
-        this.bmpMonitorsYii = this.bindingSerializer.toYangInstanceIdentifier(
+        this.bmpMonitorsYii = configLoader.getBindingNormalizedNodeSerializer().toYangInstanceIdentifier(
                 InstanceIdentifier.create(OdlBmpMonitors.class).child(BmpMonitorConfig.class));
     }
 
-    private static void processBmpMonitorConfig(final BmpMonitorConfig bmpConfig, final WriteTransaction wtx) {
-        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = ODL_BMP_MONITORS_IID
-                .child(BmpMonitorConfig.class, bmpConfig.key());
-
-        wtx.mergeParentStructureMerge(LogicalDatastoreType.CONFIGURATION, iid, bmpConfig);
+    @PostConstruct
+    public void init() {
+        start();
     }
 
-    public synchronized void init() {
-        this.registration = this.configLoader.registerConfigFile(this);
-        LOG.info("BMP Config Loader service initiated");
-    }
-
+    @PreDestroy
     @Override
-    public synchronized void close() {
-        if (this.registration != null) {
-            this.registration.close();
-            this.registration = null;
-        }
+    public void close() {
+        stop();
     }
 
     @Override
     public SchemaPath getSchemaPath() {
-        return this.bmpMonitorsSchemaPath;
+        return POLICY_SCHEMA_PATH;
     }
 
     @Override
-    public synchronized void loadConfiguration(final NormalizedNode<?, ?> dto) {
+    public void loadConfiguration(final NormalizedNode<?, ?> dto) {
         final ContainerNode bmpMonitorsConfigsContainer = (ContainerNode) dto;
         final MapNode monitorsList = (MapNode) bmpMonitorsConfigsContainer.getChild(
-                this.bmpMonitorsYii.getLastPathArgument()).orElse(null);
+                bmpMonitorsYii.getLastPathArgument()).orElse(null);
         if (monitorsList == null) {
             return;
         }
         final Collection<MapEntryNode> bmpMonitorConfig = monitorsList.getValue();
         final WriteTransaction wtx = this.dataBroker.newWriteOnlyTransaction();
 
-        bmpMonitorConfig.stream().map(topology -> this.bindingSerializer
-                .fromNormalizedNode(this.bmpMonitorsYii, topology))
+        final BindingNormalizedNodeSerializer serializer = configLoader().getBindingNormalizedNodeSerializer();
+        bmpMonitorConfig.stream().map(topology -> serializer
+                .fromNormalizedNode(bmpMonitorsYii, topology))
                 .filter(Objects::nonNull)
                 .forEach(bi -> processBmpMonitorConfig((BmpMonitorConfig) bi.getValue(), wtx));
 
@@ -104,5 +95,12 @@ public final class BmpMonitorConfigFileProcessor implements ConfigFileProcessor,
         } catch (final ExecutionException | InterruptedException e) {
             LOG.warn("Failed to create Bmp config", e);
         }
+    }
+
+    private static void processBmpMonitorConfig(final BmpMonitorConfig bmpConfig, final WriteTransaction wtx) {
+        final KeyedInstanceIdentifier<BmpMonitorConfig, BmpMonitorConfigKey> iid = ODL_BMP_MONITORS_IID
+                .child(BmpMonitorConfig.class, bmpConfig.key());
+
+        wtx.mergeParentStructureMerge(LogicalDatastoreType.CONFIGURATION, iid, bmpConfig);
     }
 }
