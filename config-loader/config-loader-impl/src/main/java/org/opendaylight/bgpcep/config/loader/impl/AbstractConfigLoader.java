@@ -21,17 +21,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
-import org.opendaylight.yangtools.concepts.AbstractObjectRegistration;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.util.xml.UntrustedXML;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.codec.xml.XmlParserStream;
@@ -39,6 +40,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNormalizedNodeS
 import org.opendaylight.yangtools.yang.data.impl.schema.NormalizedNodeResult;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaNode;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.opendaylight.yangtools.yang.model.util.SchemaContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +50,36 @@ import org.xml.sax.SAXException;
  * Reference implementation of configuration loading bits, without worrying where files are actually coming from.
  */
 abstract class AbstractConfigLoader implements ConfigLoader {
-    private final class PatternRegistration extends AbstractObjectRegistration<Pattern> {
-        PatternRegistration(final Pattern pattern) {
-            super(pattern);
-        }
-
+    private final class ProcessorRegistration extends AbstractRegistration {
         @Override
         protected void removeRegistration() {
             unregister(this);
+        }
+    }
+
+    private static final class ProcessorContext {
+        private final ConfigFileProcessor processor;
+        private final Pattern pattern;
+
+        private SchemaNode schemaNode;
+
+        ProcessorContext(final ConfigFileProcessor processor, final Pattern pattern) {
+            this.processor = processor;
+            this.pattern = pattern;
+        }
+
+        boolean matchesFile(final String filename) {
+            return pattern.matcher(filename).matches();
+        }
+
+        void updateSchemaNode(final EffectiveModelContext newContext) {
+            if (newContext != null) {
+                final Absolute path = processor.fileRootSchema();
+                // FIXME: do not use SchemaPath here, use a more direct lookup
+                schemaNode = SchemaContextUtil.findDataSchemaNode(newContext, path.asSchemaPath());
+            } else {
+                schemaNode = null;
+            }
         }
     }
 
@@ -66,63 +90,81 @@ abstract class AbstractConfigLoader implements ConfigLoader {
     private static final long TIMEOUT_NANOS = TimeUnit.SECONDS.toNanos(5);
 
     @GuardedBy("this")
-    private final Map<PatternRegistration, ConfigFileProcessor> configServices = new HashMap<>();
+    private final Map<ProcessorRegistration, ProcessorContext> configServices = new HashMap<>();
+
+    @GuardedBy("this")
+    private EffectiveModelContext currentContext;
 
     @Override
     public final synchronized AbstractRegistration registerConfigFile(final ConfigFileProcessor config) {
         final String patternStr = INITIAL + config.fileRootSchema().lastNodeIdentifier().getLocalName() + EXTENSION;
-        final Pattern pattern = Pattern.compile(patternStr);
-        final PatternRegistration reg = new PatternRegistration(pattern);
+        final ProcessorContext context = new ProcessorContext(config, Pattern.compile(patternStr));
+        context.updateSchemaNode(currentContext);
 
-        this.configServices.put(reg, config);
+        final ProcessorRegistration reg = new ProcessorRegistration();
+        this.configServices.put(reg, context);
 
         final File[] fList = directory().listFiles();
-        final List<String> newFiles = new ArrayList<>();
         if (fList != null) {
+            final List<String> newFiles = new ArrayList<>();
             for (final File newFile : fList) {
                 if (newFile.isFile()) {
                     final String filename = newFile.getName();
-                    if (pattern.matcher(filename).matches()) {
+                    if (context.matchesFile(filename)) {
                         newFiles.add(filename);
                     }
                 }
             }
-        }
-        for (final String filename : newFiles) {
-            handleConfigFile(config, filename);
+
+            for (final String filename : newFiles) {
+                handleConfigFile(context, filename);
+            }
         }
         return reg;
     }
 
     final synchronized void handleEvent(final String filename) {
-        configServices.entrySet().stream()
-                .filter(entry -> entry.getKey().getInstance().matcher(filename).matches())
-                .forEach(entry -> handleConfigFile(entry.getValue(), filename));
+        configServices.values().stream()
+                .filter(context -> context.matchesFile(filename))
+                .forEach(context -> handleConfigFile(context, filename));
+    }
+
+    final synchronized void updateModelContext(final EffectiveModelContext newModelContext) {
+        if (!Objects.equals(currentContext, newModelContext)) {
+            currentContext = newModelContext;
+            configServices.values().stream().forEach(context -> context.updateSchemaNode(newModelContext));
+        }
     }
 
     abstract @NonNull File directory();
 
-    abstract @NonNull EffectiveModelContext modelContext();
-
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
         justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private synchronized void unregister(final PatternRegistration reg) {
+    private synchronized void unregister(final ProcessorRegistration reg) {
         configServices.remove(reg);
     }
 
-    private synchronized void handleConfigFile(final ConfigFileProcessor config, final String filename) {
+    @Holding("this")
+    private void handleConfigFile(final ProcessorContext context, final String filename) {
+        final SchemaNode schemaNode = context.schemaNode;
+        if (schemaNode == null) {
+            LOG.info("No schema present for {}, ignoring file {}", context.processor.fileRootSchema(), filename);
+            return;
+        }
+
         final NormalizedNode<?, ?> dto;
         try {
-            dto = parseDefaultConfigFile(config, filename);
+            dto = parseDefaultConfigFile(schemaNode, filename);
         } catch (final IOException | XMLStreamException e) {
             LOG.warn("Failed to parse config file {}", filename, e);
             return;
         }
         LOG.info("Loading initial config {}", filename);
-        config.loadConfiguration(dto);
+        context.processor.loadConfiguration(dto);
     }
 
-    private NormalizedNode<?, ?> parseDefaultConfigFile(final ConfigFileProcessor config, final String filename)
+    @Holding("this")
+    private NormalizedNode<?, ?> parseDefaultConfigFile(final SchemaNode schemaNode, final String filename)
             throws IOException, XMLStreamException {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
@@ -149,14 +191,9 @@ abstract class AbstractConfigLoader implements ConfigLoader {
             }
 
             try (InputStream resourceAsStream = new FileInputStream(newFile)) {
-                final XMLInputFactory factory = XMLInputFactory.newInstance();
-                final XMLStreamReader reader = factory.createXMLStreamReader(resourceAsStream);
+                final XMLStreamReader reader = UntrustedXML.createXMLStreamReader(resourceAsStream);
 
-                final EffectiveModelContext modelContext = modelContext();
-                final SchemaNode schemaNode = SchemaContextUtil.findDataSchemaNode(modelContext(),
-                    // FIXME: this is a bridge method, we should be able to do better
-                    config.fileRootSchema().asSchemaPath());
-                try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, modelContext, schemaNode)) {
+                try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, currentContext, schemaNode)) {
                     xmlParser.parse(reader);
                 } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
                     LOG.warn("Failed to parse xml", e);
