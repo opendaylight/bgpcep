@@ -9,7 +9,7 @@ package org.opendaylight.bgpcep.config.loader.bmp;
 
 import org.opendaylight.bgpcep.config.loader.spi.AbstractOSGiConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
-import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 // FIXME: merge with BmpMonitorConfigFileProcessor once we have constructor injection
 public final class OSGiBmpMonitorConfigFileProcessor extends AbstractOSGiConfigFileProcessor {
     @Reference
-    DataBroker dataBroker;
+    DOMDataBroker dataBroker;
     @Reference
     ConfigLoader configLoader;
 
