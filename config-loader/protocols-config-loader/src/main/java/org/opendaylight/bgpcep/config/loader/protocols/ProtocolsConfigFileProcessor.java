@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.config.loader.protocols;
 
 import static java.util.Objects.requireNonNull;
@@ -14,7 +13,11 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.opendaylight.bgpcep.config.loader.spi.AbstractConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -26,7 +29,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
-import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -39,39 +41,37 @@ import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, AutoCloseable {
+@Singleton
+public final class ProtocolsConfigFileProcessor extends AbstractConfigFileProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(ProtocolsConfigFileProcessor.class);
 
     @VisibleForTesting
     static final InstanceIdentifier<Protocols> BGP_PROTOCOLS_IID =
             InstanceIdentifier.create(NetworkInstances.class)
                     .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp")).child(Protocols.class);
-    private static final Logger LOG = LoggerFactory.getLogger(ProtocolsConfigFileProcessor.class);
     private static final SchemaPath PROTOCOLS_SCHEMA_PATH = SchemaPath
             .create(true, NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME);
-    private final BindingNormalizedNodeSerializer bindingSerializer;
+
     private final YangInstanceIdentifier protocolYIId;
     private final DataBroker dataBroker;
-    private final ConfigLoader configLoader;
-    private AbstractRegistration registration;
 
+    @Inject
     public ProtocolsConfigFileProcessor(final ConfigLoader configLoader, final DataBroker dataBroker) {
-        requireNonNull(configLoader);
+        super("Protocols", configLoader);
         this.dataBroker = requireNonNull(dataBroker);
-        this.configLoader = requireNonNull(configLoader);
-        this.bindingSerializer = configLoader.getBindingNormalizedNodeSerializer();
-        this.protocolYIId = this.bindingSerializer
-                .toYangInstanceIdentifier(BGP_PROTOCOLS_IID.child(Protocol.class));
+        this.protocolYIId = configLoader.getBindingNormalizedNodeSerializer()
+            .toYangInstanceIdentifier(BGP_PROTOCOLS_IID.child(Protocol.class));
     }
 
-    private static void processProtocol(final Protocol protocol, final WriteTransaction wtx) {
-        final KeyedInstanceIdentifier<Protocol, ProtocolKey> topologyIIdKeyed =
-                BGP_PROTOCOLS_IID.child(Protocol.class, protocol.key());
-        wtx.mergeParentStructureMerge(LogicalDatastoreType.CONFIGURATION, topologyIIdKeyed, protocol);
+    @PostConstruct
+    public void init() {
+        start();
     }
 
-    public synchronized void init() {
-        this.registration = configLoader.registerConfigFile(this);
-        LOG.info("Protocols Loader service initiated");
+    @PreDestroy
+    @Override
+    public void close() {
+        stop();
     }
 
     @Override
@@ -86,8 +86,10 @@ public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, 
                 .getChild(protocolYIId.getLastPathArgument()).get();
         final Collection<MapEntryNode> protocolsCollection = protocolList.getValue();
         final WriteTransaction wtx = this.dataBroker.newWriteOnlyTransaction();
+
+        final BindingNormalizedNodeSerializer serializer = configLoader().getBindingNormalizedNodeSerializer();
         for (final MapEntryNode protocolEntry : protocolsCollection) {
-            final Map.Entry<InstanceIdentifier<?>, DataObject> bi = this.bindingSerializer
+            final Map.Entry<InstanceIdentifier<?>, DataObject> bi = serializer
                     .fromNormalizedNode(this.protocolYIId, protocolEntry);
             if (bi != null) {
                 final Protocol protocol = (Protocol) bi.getValue();
@@ -101,11 +103,9 @@ public final class ProtocolsConfigFileProcessor implements ConfigFileProcessor, 
         }
     }
 
-    @Override
-    public synchronized void close() {
-        if (this.registration != null) {
-            this.registration.close();
-            this.registration = null;
-        }
+    private static void processProtocol(final Protocol protocol, final WriteTransaction wtx) {
+        final KeyedInstanceIdentifier<Protocol, ProtocolKey> topologyIIdKeyed =
+                BGP_PROTOCOLS_IID.child(Protocol.class, protocol.key());
+        wtx.mergeParentStructureMerge(LogicalDatastoreType.CONFIGURATION, topologyIIdKeyed, protocol);
     }
 }
