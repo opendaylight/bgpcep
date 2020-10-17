@@ -19,16 +19,15 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 public class ConfigLoaderImplTest extends AbstractConfigLoaderTest {
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        final SchemaPath schemaPath = SchemaPath.create(true,
-                NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME);
-        doReturn(schemaPath).when(this.processor).getSchemaPath();
+        doReturn(Absolute.of(NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME))
+            .when(this.processor).fileRootSchema();
         doReturn("processor").when(this.processor).toString();
     }
 

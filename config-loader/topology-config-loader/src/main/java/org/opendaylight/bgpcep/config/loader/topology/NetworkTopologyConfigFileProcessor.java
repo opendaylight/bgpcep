@@ -26,14 +26,13 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class NetworkTopologyConfigFileProcessor extends AbstractConfigFileProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkTopologyConfigFileProcessor.class);
-    private static final SchemaPath TOPOLOGY_SCHEMA_PATH = SchemaPath.create(true, NetworkTopology.QNAME);
 
     @Inject
     public NetworkTopologyConfigFileProcessor(final ConfigLoader configLoader, final DOMDataBroker dataBroker) {
@@ -52,8 +51,8 @@ public final class NetworkTopologyConfigFileProcessor extends AbstractConfigFile
     }
 
     @Override
-    public SchemaPath getSchemaPath() {
-        return TOPOLOGY_SCHEMA_PATH;
+    public Absolute fileRootSchema() {
+        return Absolute.of(NetworkTopology.QNAME);
     }
 
     @Override

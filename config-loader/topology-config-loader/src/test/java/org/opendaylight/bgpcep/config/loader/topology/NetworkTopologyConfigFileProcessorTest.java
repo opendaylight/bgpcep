@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoaderTest {
     @Test
@@ -37,7 +37,7 @@ public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader
         processor.init();
         checkPresentConfiguration(getDataBroker(), topologyIIdKeyed);
 
-        assertEquals(SchemaPath.create(true, NetworkTopology.QNAME), processor.getSchemaPath());
+        assertEquals(Absolute.of(NetworkTopology.QNAME), processor.fileRootSchema());
         processor.close();
     }
 }
