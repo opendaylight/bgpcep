@@ -48,11 +48,6 @@
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-dom-api</artifactId>
         </dependency>
-        <dependency>
-            <!-- FIXME: do we need this? -->
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-codec-api</artifactId>
-        </dependency>
     </dependencies>
 
     <scm>

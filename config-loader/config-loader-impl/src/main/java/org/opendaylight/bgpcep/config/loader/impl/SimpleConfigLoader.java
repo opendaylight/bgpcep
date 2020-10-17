@@ -7,8 +7,6 @@
  */
 package org.opendaylight.bgpcep.config.loader.impl;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.annotations.Beta;
 import java.io.File;
 import java.nio.file.WatchKey;
@@ -18,29 +16,21 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.mdsal.binding.dom.codec.spi.BindingDOMCodecServices;
+import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 
 @Beta
 @Singleton
 public final class SimpleConfigLoader extends AbstractWatchingConfigLoader implements AutoCloseable {
-    private final @NonNull BindingNormalizedNodeSerializer serializer;
     private final @NonNull EffectiveModelContext modelContext;
     private final @NonNull WatchService watchService;
     private final @NonNull File directory;
 
     @Inject
-    public SimpleConfigLoader(final FileWatcher fileWatcher, final BindingDOMCodecServices codec) {
-        this.serializer = requireNonNull(codec);
-        this.modelContext = codec.getRuntimeContext().getEffectiveModelContext();
+    public SimpleConfigLoader(final FileWatcher fileWatcher, final BindingRuntimeContext runtimeContext) {
+        this.modelContext = runtimeContext.getEffectiveModelContext();
         this.watchService = fileWatcher.getWatchService();
         this.directory = new File(fileWatcher.getPathFile());
-    }
-
-    @Override
-    public BindingNormalizedNodeSerializer getBindingNormalizedNodeSerializer() {
-        return serializer;
     }
 
     @PostConstruct
