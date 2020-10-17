@@ -17,18 +17,16 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
-import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 
 @Beta
 @Singleton
 public final class SimpleConfigLoader extends AbstractWatchingConfigLoader implements AutoCloseable {
-    private final @NonNull EffectiveModelContext modelContext;
     private final @NonNull WatchService watchService;
     private final @NonNull File directory;
 
     @Inject
     public SimpleConfigLoader(final FileWatcher fileWatcher, final BindingRuntimeContext runtimeContext) {
-        this.modelContext = runtimeContext.getEffectiveModelContext();
+        updateModelContext(runtimeContext.getEffectiveModelContext());
         this.watchService = fileWatcher.getWatchService();
         this.directory = new File(fileWatcher.getPathFile());
     }
@@ -42,11 +40,6 @@ public final class SimpleConfigLoader extends AbstractWatchingConfigLoader imple
     @PreDestroy
     public void close() {
         stop();
-    }
-
-    @Override
-    EffectiveModelContext modelContext() {
-        return modelContext;
     }
 
     @Override
