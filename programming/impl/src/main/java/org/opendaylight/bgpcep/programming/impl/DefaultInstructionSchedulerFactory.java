@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.programming.impl;
 
 import static java.util.Objects.requireNonNull;
@@ -13,60 +12,60 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.Timer;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.concurrent.Executors;
-import org.gaul.modernizer_maven_annotations.SuppressModernizer;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class InstructionSchedulerFactoryImpl implements InstructionSchedulerFactory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(InstructionSchedulerFactoryImpl.class);
+@Component(immediate = true, service = InstructionSchedulerFactory.class)
+@Singleton
+public final class DefaultInstructionSchedulerFactory implements InstructionSchedulerFactory, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultInstructionSchedulerFactory.class);
 
     private final DataBroker dataProvider;
     private final NotificationPublishService notifs;
     private final Timer timer;
     private final RpcProviderService rpcProviderRegistry;
-    private final BundleContext bundleContext;
     private final ClusterSingletonServiceProvider cssp;
     private final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
-    public InstructionSchedulerFactoryImpl(
-            final DataBroker dataProvider,
-            final RpcProviderService rpcProviderRegistry,
-            final NotificationPublishService notifs,
-            final Timer timer,
-            final ClusterSingletonServiceProvider cssp,
-            final BundleContext bundleContext) {
+    @Inject
+    @Activate
+    public DefaultInstructionSchedulerFactory(@Reference final DataBroker dataProvider,
+            @Reference final RpcProviderService rpcProviderRegistry,
+            @Reference final NotificationPublishService notifs,
+            @Reference(target = "(type=global-timer)") final Timer timer,
+            @Reference final ClusterSingletonServiceProvider cssp) {
         this.dataProvider = requireNonNull(dataProvider);
         this.notifs = requireNonNull(notifs);
         this.timer = requireNonNull(timer);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
-        this.bundleContext = requireNonNull(bundleContext);
         this.cssp = requireNonNull(cssp);
     }
 
     @Override
-    @SuppressModernizer
     public InstructionScheduler createInstructionScheduler(final String instructionId) {
         LOG.info("Creating Instruction Scheduler {}.", instructionId);
+        return new ProgrammingServiceImpl(dataProvider, notifs, exec, rpcProviderRegistry, cssp, timer, instructionId);
+    }
 
-        final ProgrammingServiceImpl programmingInst = new ProgrammingServiceImpl(this.dataProvider, this.notifs,
-                this.exec, this.rpcProviderRegistry, this.cssp, this.timer, instructionId);
-        final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(InstructionScheduler.class.getName(), instructionId);
-        final ServiceRegistration<?> serviceRegistration = this.bundleContext
-                .registerService(InstructionScheduler.class.getName(), programmingInst, properties);
-        programmingInst.setServiceRegistration(serviceRegistration);
-        return programmingInst;
+    @Deactivate
+    @PreDestroy
+    @Override
+    public void close() {
+        // FIXME: This can have weird effects: should we keep track of all schedulers and refcount?
+        exec.shutdown();
     }
 }

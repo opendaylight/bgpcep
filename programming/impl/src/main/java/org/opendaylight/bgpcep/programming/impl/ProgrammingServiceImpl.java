@@ -70,12 +70,10 @@ import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ProgrammingServiceImpl implements ClusterSingletonService, InstructionScheduler,
-        ProgrammingService {
+final class ProgrammingServiceImpl implements ClusterSingletonService, InstructionScheduler, ProgrammingService {
     private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
 
     private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
@@ -90,8 +88,6 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
     private final RpcProviderService rpcProviderRegistry;
     @GuardedBy("this")
     private ObjectRegistration<ProgrammingService> reg;
-    @GuardedBy("this")
-    private ServiceRegistration<?> serviceRegistration;
 
     private final class InstructionPusher implements QueueInstruction {
         private final InstructionBuilder builder = new InstructionBuilder();
@@ -446,22 +442,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
     }
 
     @Override
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized void close() {
-        if (this.csspReg != null) {
-            try {
-                this.csspReg.close();
-            } catch (final Exception e) {
-                LOG.error("Failed to close Instruction Scheduler service", e);
-            }
-        }
-        if (this.serviceRegistration != null) {
-            this.serviceRegistration.unregister();
-            this.serviceRegistration = null;
-        }
-    }
-
-    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
-        this.serviceRegistration = serviceRegistration;
+        this.csspReg.close();
     }
 }
