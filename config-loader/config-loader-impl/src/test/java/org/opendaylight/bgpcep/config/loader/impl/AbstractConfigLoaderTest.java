@@ -18,7 +18,6 @@ import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
-import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 
 public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBrokerTest {
     protected final class TestConfigLoader extends AbstractConfigLoader {
@@ -27,22 +26,13 @@ public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBro
             return new File(getResourceFolder());
         }
 
-        @Override
-        @SuppressWarnings("checkstyle:illegalCatch")
-        EffectiveModelContext modelContext() {
-            try {
-                return getSchemaContext();
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to acquire schema context", e);
-            }
-        }
-
         public void triggerEvent(final String filename) {
             handleEvent(filename);
         }
     }
 
     protected final TestConfigLoader configLoader = new TestConfigLoader();
+
     @Mock
     ConfigFileProcessor processor;
     protected DOMSchemaService schemaService;
@@ -55,6 +45,7 @@ public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBro
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         doNothing().when(processor).loadConfiguration(any());
+        configLoader.updateModelContext(getSchemaContext());
     }
 
     @Override
