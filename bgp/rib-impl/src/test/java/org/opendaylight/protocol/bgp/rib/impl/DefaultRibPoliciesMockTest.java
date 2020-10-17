@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.Optional;
 import org.junit.Before;
 import org.mockito.Mock;
+import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.BGPRibRoutingPolicyFactoryImpl;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.AbstractStatementRegistryConsumerTest;
@@ -33,6 +35,7 @@ public class DefaultRibPoliciesMockTest extends AbstractStatementRegistryConsume
     private final ClusterIdentifier ci = new ClusterIdentifier(new Ipv4AddressNoZone("127.0.0.1"));
     protected BGPRibRoutingPolicy policies;
     protected BGPRibRoutingPolicyFactory policyProvider;
+    protected AdapterContext mappingService;
     @Mock
     protected BGPTableTypeRegistryConsumer tableRegistry;
     @Mock
@@ -50,5 +53,12 @@ public class DefaultRibPoliciesMockTest extends AbstractStatementRegistryConsume
 
         this.policyProvider = new BGPRibRoutingPolicyFactoryImpl(getDataBroker(), this.statementRegistry);
         this.policies = this.policyProvider.buildBGPRibPolicy(AS, this.bgpID, this.ci, this.config);
+    }
+
+    @Override
+    protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+        this.mappingService = customizer.getAdapterContext();
+        return customizer;
     }
 }

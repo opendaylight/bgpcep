@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.mdsal.binding.dom.codec.spi.BindingDOMCodecServices;
+import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class OSGiConfigLoaderTest {
@@ -36,7 +36,7 @@ public class OSGiConfigLoaderTest {
     @Mock
     private WatchEvent<?> watchEvent;
     @Mock
-    private BindingDOMCodecServices codec;
+    private BindingRuntimeContext bindingContext;
 
     private OSGiConfigLoader loader;
 
@@ -54,7 +54,7 @@ public class OSGiConfigLoaderTest {
 
         loader = new OSGiConfigLoader();
         loader.watcher = watcher;
-        loader.codecServices = codec;
+        loader.runtimeContext = bindingContext;
     }
 
     @After
