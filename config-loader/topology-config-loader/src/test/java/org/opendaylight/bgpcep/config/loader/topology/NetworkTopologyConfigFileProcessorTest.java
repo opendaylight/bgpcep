@@ -33,7 +33,7 @@ public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoader
 
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/network-topology-config.xml"));
         final NetworkTopologyConfigFileProcessor processor = new NetworkTopologyConfigFileProcessor(this.configLoader,
-                getDataBroker());
+                getDomBroker());
         processor.init();
         checkPresentConfiguration(getDataBroker(), topologyIIdKeyed);
 
