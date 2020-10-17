@@ -9,25 +9,32 @@ package org.opendaylight.bgpcep.config.loader.protocols;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.opendaylight.bgpcep.config.loader.protocols.ProtocolsConfigFileProcessor.BGP_PROTOCOLS_IID;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
 import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.junit.Test;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoaderTest {
+    @VisibleForTesting
+    static final InstanceIdentifier<Protocols> BGP_PROTOCOLS_IID = InstanceIdentifier.create(NetworkInstances.class)
+        .child(NetworkInstance.class, new NetworkInstanceKey(ProtocolsConfigFileProcessor.GLOBAL_BGP_NAME))
+        .child(Protocols.class);
+
     @Test
     public void configFileTest() throws Exception {
         checkNotPresentConfiguration(getDataBroker(), BGP_PROTOCOLS_IID);
 
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/protocols-config.xml"));
         final ProtocolsConfigFileProcessor processor = new ProtocolsConfigFileProcessor(this.configLoader,
-                getDataBroker());
+                getDomBroker());
         processor.init();
         checkPresentConfiguration(getDataBroker(), BGP_PROTOCOLS_IID);
 
