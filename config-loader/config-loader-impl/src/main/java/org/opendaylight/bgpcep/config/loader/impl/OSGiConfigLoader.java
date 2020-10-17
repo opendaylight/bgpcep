@@ -14,25 +14,23 @@ import java.io.File;
 import java.nio.file.WatchKey;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
-import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 @Beta
 @Component(immediate = true, service = ConfigLoader.class)
 public final class OSGiConfigLoader extends AbstractWatchingConfigLoader {
     @Reference
     FileWatcher watcher;
-    @Reference
-    BindingRuntimeContext runtimeContext;
 
     private File directory;
 
-    @Override
-    EffectiveModelContext modelContext() {
-        return runtimeContext.getEffectiveModelContext();
+    @Reference(policy = ReferencePolicy.DYNAMIC, updated = "setRuntimeContext", unbind = "setRuntimeContext")
+    void setRuntimeContext(final BindingRuntimeContext runtimeContext) {
+        updateModelContext(runtimeContext.getEffectiveModelContext());
     }
 
     @Activate
