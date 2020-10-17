@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.mdsal.binding.dom.codec.spi.BindingDOMCodecServices;
 import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 
@@ -38,8 +37,6 @@ public class SimpleConfigLoaderTest {
     @Mock
     private WatchEvent<?> watchEvent;
     @Mock
-    private BindingDOMCodecServices codec;
-    @Mock
     private BindingRuntimeContext bindingContext;
     @Mock
     private EffectiveModelContext domContext;
@@ -48,7 +45,6 @@ public class SimpleConfigLoaderTest {
 
     @Before
     public void before() throws InterruptedException {
-        doReturn(bindingContext).when(codec).getRuntimeContext();
         doReturn(domContext).when(bindingContext).getEffectiveModelContext();
         doReturn(watchService).when(watcher).getWatchService();
         doReturn("foo").when(watcher).getPathFile();
@@ -60,7 +56,7 @@ public class SimpleConfigLoaderTest {
         doReturn("watchEvent").when(watchEvent).context();
         doReturn(true).when(watchKey).reset();
 
-        loader = new SimpleConfigLoader(watcher, codec);
+        loader = new SimpleConfigLoader(watcher, bindingContext);
     }
 
     @After
