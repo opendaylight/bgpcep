@@ -22,12 +22,10 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 @Singleton
 public final class OpenconfigRoutingConfigFileProcessor extends AbstractConfigFileProcessor {
-    private static final SchemaPath POLICY_SCHEMA_PATH = SchemaPath.create(true, RoutingPolicy.QNAME);
-
     @Inject
     public OpenconfigRoutingConfigFileProcessor(final ConfigLoader configLoader, final DOMDataBroker dataBroker) {
         super("Routing Policy", configLoader, dataBroker);
@@ -45,8 +43,8 @@ public final class OpenconfigRoutingConfigFileProcessor extends AbstractConfigFi
     }
 
     @Override
-    public SchemaPath getSchemaPath() {
-        return POLICY_SCHEMA_PATH;
+    public Absolute fileRootSchema() {
+        return Absolute.of(RoutingPolicy.QNAME);
     }
 
     @Override

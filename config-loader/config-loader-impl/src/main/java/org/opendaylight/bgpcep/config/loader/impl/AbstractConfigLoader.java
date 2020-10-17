@@ -70,7 +70,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
 
     @Override
     public final synchronized AbstractRegistration registerConfigFile(final ConfigFileProcessor config) {
-        final String patternStr = INITIAL + config.getSchemaPath().getLastComponent().getLocalName() + EXTENSION;
+        final String patternStr = INITIAL + config.fileRootSchema().lastNodeIdentifier().getLocalName() + EXTENSION;
         final Pattern pattern = Pattern.compile(patternStr);
         final PatternRegistration reg = new PatternRegistration(pattern);
 
@@ -154,7 +154,8 @@ abstract class AbstractConfigLoader implements ConfigLoader {
 
                 final EffectiveModelContext modelContext = modelContext();
                 final SchemaNode schemaNode = SchemaContextUtil.findDataSchemaNode(modelContext(),
-                    config.getSchemaPath());
+                    // FIXME: this is a bridge method, we should be able to do better
+                    config.fileRootSchema().asSchemaPath());
                 try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, modelContext, schemaNode)) {
                     xmlParser.parse(reader);
                 } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
