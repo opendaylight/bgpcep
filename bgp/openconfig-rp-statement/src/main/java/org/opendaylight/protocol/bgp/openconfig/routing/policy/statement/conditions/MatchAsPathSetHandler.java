@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.FluentFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import java.util.Collections;
@@ -70,10 +71,12 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private AsPathSet loadSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<AsPathSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
-                AS_PATHS_SETS_IID.child(AsPathSet.class, new AsPathSetKey(key))).get();
-        return result.orElse(null);
+        final FluentFuture<Optional<AsPathSet>> future;
+        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+            future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    AS_PATHS_SETS_IID.child(AsPathSet.class, new AsPathSetKey(key)));
+        }
+        return future.get().orElse(null);
     }
 
     @Override

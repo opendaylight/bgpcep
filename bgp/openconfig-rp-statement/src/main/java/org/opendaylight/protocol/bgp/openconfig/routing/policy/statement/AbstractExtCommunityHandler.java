@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.FluentFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ExtCommunitySets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySetKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ext.community.set.ExtCommunityMember;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
@@ -55,15 +57,22 @@ public class AbstractExtCommunityHandler {
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<ExtendedCommunities> loadCommunitySet(final String key)
             throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.databroker.newReadOnlyTransaction();
-        final Optional<ExtCommunitySet> result =
-                tr.read(LogicalDatastoreType.CONFIGURATION, EXT_COMMUNITY_SETS_IID
-                        .child(ExtCommunitySet.class, new ExtCommunitySetKey(key))).get();
-        if (!result.isPresent()) {
-            return Collections.emptyList();
+        final FluentFuture<Optional<ExtCommunitySet>> future;
+        try (ReadTransaction tr = this.databroker.newReadOnlyTransaction()) {
+            future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    EXT_COMMUNITY_SETS_IID.child(ExtCommunitySet.class, new ExtCommunitySetKey(key)));
         }
-        return result.get().getExtCommunityMember()
-                .stream().map(ge -> new ExtendedCommunitiesBuilder().setExtendedCommunity(ge.getExtendedCommunity())
-                        .setTransitive(ge.getTransitive()).build()).collect(Collectors.toList());
+        final Optional<ExtCommunitySet> result = future.get();
+        return result.map(AbstractExtCommunityHandler::toExtendedCommunitiesList).orElse(Collections.emptyList());
+    }
+
+    private static List<ExtendedCommunities> toExtendedCommunitiesList(ExtCommunitySet extCommunitySets) {
+        return extCommunitySets.getExtCommunityMember().stream()
+                       .map(AbstractExtCommunityHandler::toExtendedCommunities).collect(Collectors.toList());
+    }
+
+    private static ExtendedCommunities toExtendedCommunities(final ExtCommunityMember ge) {
+        return new ExtendedCommunitiesBuilder().setExtendedCommunity(ge.getExtendedCommunity())
+                .setTransitive(ge.getTransitive()).build();
     }
 }

@@ -12,8 +12,8 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.FluentFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +52,7 @@ public final class MatchBgpNeighborSetHandler
             .child(NeighborSets.class);
     private final DataBroker dataBroker;
     private final LoadingCache<String, List<PeerId>> peerSets = CacheBuilder.newBuilder()
-            .build(new CacheLoader<String, List<PeerId>>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public List<PeerId> load(final String key) throws ExecutionException, InterruptedException {
                     return loadRoleSets(key);
@@ -66,15 +66,15 @@ public final class MatchBgpNeighborSetHandler
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<PeerId> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<NeighborSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
-                NEIGHBOR_SET_IID.child(NeighborSet.class, new NeighborSetKey(key))).get();
-        if (!result.isPresent()) {
-            return Collections.emptyList();
+        final FluentFuture<Optional<NeighborSet>> future;
+        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+            future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    NEIGHBOR_SET_IID.child(NeighborSet.class, new NeighborSetKey(key)));
+
         }
-        return result.get().getNeighbor().values().stream()
-                .map(nei -> RouterIds.createPeerId(nei.getAddress()))
-                .collect(Collectors.toList());
+        return future.get().map(neighboursSet -> neighboursSet.getNeighbor().values().stream()
+                                                         .map(nei -> RouterIds.createPeerId(nei.getAddress()))
+                                                         .collect(Collectors.toUnmodifiableList())).orElse(List.of());
     }
 
     @Override

@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.FluentFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +54,7 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
             .augmentation(BgpRoleSets.class).child(RoleSets.class);
     private final DataBroker dataBroker;
     private final LoadingCache<String, List<PeerRole>> roleSets = CacheBuilder.newBuilder()
-            .build(new CacheLoader<String, List<PeerRole>>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public List<PeerRole> load(final String key) throws ExecutionException, InterruptedException {
                     return loadRoleSets(key);
@@ -67,13 +68,12 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<PeerRole> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<RoleSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
-                ROLE_SET_IID.child(RoleSet.class, new RoleSetKey(key))).get();
-        if (!result.isPresent()) {
-            return Collections.emptyList();
+        final  FluentFuture<Optional<RoleSet>> future;
+        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+            future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    ROLE_SET_IID.child(RoleSet.class, new RoleSetKey(key)));
         }
-        return result.get().getRole();
+        return future.get().map(RoleSet::getRole).orElse(Collections.emptyList());
     }
 
     @Override
