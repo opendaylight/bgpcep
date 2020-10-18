@@ -67,10 +67,11 @@ public final class MatchClusterIdSetHandler
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private ClusterIdSet loadSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<ClusterIdSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
-                CLUSTERS_ID_SETS_IID.child(ClusterIdSet.class, new ClusterIdSetKey(key))).get();
-        return result.orElse(null);
+        try(final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+            final Optional<ClusterIdSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    CLUSTERS_ID_SETS_IID.child(ClusterIdSet.class, new ClusterIdSetKey(key))).get();
+            return result.orElse(null);
+        }
     }
 
     @Override

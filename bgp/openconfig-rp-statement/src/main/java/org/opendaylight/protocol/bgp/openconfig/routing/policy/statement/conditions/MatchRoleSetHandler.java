@@ -67,13 +67,11 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<PeerRole> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<RoleSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
-                ROLE_SET_IID.child(RoleSet.class, new RoleSetKey(key))).get();
-        if (!result.isPresent()) {
-            return Collections.emptyList();
+        try(final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+            final Optional<RoleSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    ROLE_SET_IID.child(RoleSet.class, new RoleSetKey(key))).get();
+            return result.map(roleSets->roleSets.getRole()).orElse(Collections.emptyList());
         }
-        return result.get().getRole();
     }
 
     @Override
