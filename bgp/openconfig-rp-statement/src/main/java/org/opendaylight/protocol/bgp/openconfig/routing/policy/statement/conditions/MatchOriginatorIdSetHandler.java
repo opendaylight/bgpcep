@@ -64,10 +64,11 @@ public final class MatchOriginatorIdSetHandler
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private OriginatorIdSet loadSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<OriginatorIdSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
-                ORIGINATOR_ID_SETS_IID.child(OriginatorIdSet.class, new OriginatorIdSetKey(key))).get();
-        return result.orElse(null);
+        try(final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+            final Optional<OriginatorIdSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    ORIGINATOR_ID_SETS_IID.child(OriginatorIdSet.class, new OriginatorIdSetKey(key))).get();
+            return result.orElse(null);
+        }
     }
 
     @Override

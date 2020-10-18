@@ -35,10 +35,11 @@ public class AbstractStatementRegistryConsumerTest extends AbstractStatementRegi
 
     @Override
     protected List<Statement> loadStatement(final String policyName) throws ExecutionException, InterruptedException {
-        final ReadWriteTransaction rt = getDataBroker().newReadWriteTransaction();
-        final PolicyDefinition policy = rt.read(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID
-                .child(PolicyDefinitions.class).child(PolicyDefinition.class, new PolicyDefinitionKey(policyName)))
-                .get().get();
-        return policy.getStatements().getStatement();
+        try(final ReadWriteTransaction rt = getDataBroker().newReadWriteTransaction()) {
+            final PolicyDefinition policy = rt.read(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID
+                    .child(PolicyDefinitions.class).child(PolicyDefinition.class, new PolicyDefinitionKey(policyName)))
+                    .get().get();
+            return policy.getStatements().getStatement();
+        }
     }
 }
