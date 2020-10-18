@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.FluentFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -50,7 +51,7 @@ public final class MatchOriginatorIdSetHandler
             .augmentation(BgpOriginatorIdSets.class).child(OriginatorIdSets.class);
     private final DataBroker dataBroker;
     private final LoadingCache<String, OriginatorIdSet> sets = CacheBuilder.newBuilder()
-            .build(new CacheLoader<String, OriginatorIdSet>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public OriginatorIdSet load(final String key) throws ExecutionException, InterruptedException {
                     return loadSets(key);
@@ -64,10 +65,12 @@ public final class MatchOriginatorIdSetHandler
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private OriginatorIdSet loadSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<OriginatorIdSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
-                ORIGINATOR_ID_SETS_IID.child(OriginatorIdSet.class, new OriginatorIdSetKey(key))).get();
-        return result.orElse(null);
+        final FluentFuture<Optional<OriginatorIdSet>> future;
+        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+            future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    ORIGINATOR_ID_SETS_IID.child(OriginatorIdSet.class, new OriginatorIdSetKey(key)));
+        }
+        return  future.get().orElse(null);
     }
 
     @Override
