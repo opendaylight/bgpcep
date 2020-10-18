@@ -66,15 +66,13 @@ public final class MatchBgpNeighborSetHandler
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<PeerId> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        final Optional<NeighborSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
-                NEIGHBOR_SET_IID.child(NeighborSet.class, new NeighborSetKey(key))).get();
-        if (!result.isPresent()) {
-            return Collections.emptyList();
+        try(final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+            final Optional<NeighborSet> result = tr.read(LogicalDatastoreType.CONFIGURATION,
+                    NEIGHBOR_SET_IID.child(NeighborSet.class, new NeighborSetKey(key))).get();
+            return result.map(neighboursSet->neighboursSet.getNeighbor().values().stream()
+                    .map(nei -> RouterIds.createPeerId(nei.getAddress()))
+                    .collect(Collectors.toList())).orElse(Collections.emptyList());
         }
-        return result.get().getNeighbor().values().stream()
-                .map(nei -> RouterIds.createPeerId(nei.getAddress()))
-                .collect(Collectors.toList());
     }
 
     @Override

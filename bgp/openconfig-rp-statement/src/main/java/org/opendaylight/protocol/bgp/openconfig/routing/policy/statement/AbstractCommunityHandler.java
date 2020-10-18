@@ -53,18 +53,15 @@ public class AbstractCommunityHandler {
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<Communities> loadCommunitySet(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.databroker.newReadOnlyTransaction();
-        final Optional<CommunitySet> result =
-                tr.read(LogicalDatastoreType.CONFIGURATION, COMMUNITY_SETS_IID
-                        .child(CommunitySet.class, new CommunitySetKey(key))).get();
+        try(final ReadTransaction tr = this.databroker.newReadOnlyTransaction()) {
+            final Optional<CommunitySet> result =
+                    tr.read(LogicalDatastoreType.CONFIGURATION, COMMUNITY_SETS_IID
+                            .child(CommunitySet.class, new CommunitySetKey(key))).get();
 
-
-        if (!result.isPresent()) {
-            return Collections.emptyList();
+            return result.map(comunitySet->comunitySet.getCommunities()
+                    .stream().map(ge -> new CommunitiesBuilder().setAsNumber(ge.getAsNumber())
+                            .setSemantics(ge.getSemantics()).build()).collect(Collectors.toList()))
+                    .orElse(Collections.emptyList());
         }
-
-        return result.get().getCommunities()
-                .stream().map(ge -> new CommunitiesBuilder().setAsNumber(ge.getAsNumber())
-                        .setSemantics(ge.getSemantics()).build()).collect(Collectors.toList());
     }
 }

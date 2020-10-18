@@ -55,15 +55,14 @@ public class AbstractExtCommunityHandler {
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<ExtendedCommunities> loadCommunitySet(final String key)
             throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.databroker.newReadOnlyTransaction();
-        final Optional<ExtCommunitySet> result =
-                tr.read(LogicalDatastoreType.CONFIGURATION, EXT_COMMUNITY_SETS_IID
-                        .child(ExtCommunitySet.class, new ExtCommunitySetKey(key))).get();
-        if (!result.isPresent()) {
-            return Collections.emptyList();
+        try (final ReadTransaction tr = this.databroker.newReadOnlyTransaction()) {
+            final Optional<ExtCommunitySet> result =
+                    tr.read(LogicalDatastoreType.CONFIGURATION, EXT_COMMUNITY_SETS_IID
+                            .child(ExtCommunitySet.class, new ExtCommunitySetKey(key))).get();
+            return result.map(extCommunitySets->extCommunitySets.getExtCommunityMember()
+                    .stream().map(ge -> new ExtendedCommunitiesBuilder().setExtendedCommunity(ge.getExtendedCommunity())
+                            .setTransitive(ge.isTransitive()).build()).collect(Collectors.toList()))
+                    .orElse(Collections.emptyList());
         }
-        return result.get().getExtCommunityMember()
-                .stream().map(ge -> new ExtendedCommunitiesBuilder().setExtendedCommunity(ge.getExtendedCommunity())
-                        .setTransitive(ge.isTransitive()).build()).collect(Collectors.toList());
     }
 }
