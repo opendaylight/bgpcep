@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad887875_a2d73727",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-18T21:25:35Z",
+      "side": 1,
+      "message": "Can we decompose this step in a separate commit to ease the review or is it something too much coupled with the rest to do so ?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 19
+      },
+      "revId": "67aa5ff6930b590c615c961681f750bf346044b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23775cd5_a19640d1",
+        "filename": "config-loader/config-loader-impl/src/main/java/org/opendaylight/bgpcep/config/loader/impl/AbstractConfigLoader.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-18T21:25:35Z",
+      "side": 1,
+      "message": "It looks like in this change and in the next one, git/Gerrit does not detect many files renames correctly.\nThis complicates the review.\nMaybe we should try to outsource the files renames operations in (a) separate commit/change(s).",
+      "revId": "67aa5ff6930b590c615c961681f750bf346044b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d6b3dd9_63da2182",
+        "filename": "config-loader/config-loader-impl/src/main/java/org/opendaylight/bgpcep/config/loader/impl/DefaultFileWatcher.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-18T21:25:35Z",
+      "side": 1,
+      "message": "StringUtils.join(components, File.separator) or something equivalent would be more indicated here.\nalso java.nio.file.Paths.get() might also do a better job here too and would avoit this constant.\nThis should result in something like that if I am not mistaken:\n\n\nprivate static final Path PATH \u003d Paths.get(\"etc\",\"opendaylight\",BGPCEP_CONFIG_FOLDER);\n\n[...]\n\n\t\n    @Override\n    public String getPathFile() {\n        return PATH.toString();\n    }\n\netc...",
+      "range": {
+        "startLine": 34,
+        "startChar": 63,
+        "endLine": 35,
+        "endChar": 69
+      },
+      "revId": "67aa5ff6930b590c615c961681f750bf346044b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "047650d2_02e3e3d8",
+        "filename": "config-loader/config-loader-impl/src/test/java/org/opendaylight/bgpcep/config/loader/impl/DefaultWatcherTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-18T21:25:35Z",
+      "side": 1,
+      "message": "StringUtils.join(components, File.separator) or something equivalent would be more indicated here.\njava.nio.file.Paths.get() might also do a better job here too.\n\nAlso if the file path in tests should be OS agnostic, this is not coherent with the previous file listed in this change...",
+      "range": {
+        "startLine": 17,
+        "startChar": 39,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "67aa5ff6930b590c615c961681f750bf346044b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
