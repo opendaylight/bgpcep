@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5978842_d0ce5d33",
+        "filename": "config-loader/config-loader-spi/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-18T21:31:09Z",
+      "side": 1,
+      "message": "obsolete URL",
+      "range": {
+        "startLine": 56,
+        "startChar": 13,
+        "endLine": 56,
+        "endChar": 64
+      },
+      "revId": "a783cb7914f0be15343f9deb28a9a1eda4615054",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5de12c4f_a9537948",
+        "filename": "config-loader/routing-policy-config-loader/src/main/java/org/opendaylight/bgpcep/config/loader/routing/policy/OpenconfigRoutingConfigFileProcessor.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-18T21:31:09Z",
+      "side": 1,
+      "message": "It seems git didn\u0027t detect the file rename here.",
+      "revId": "a783cb7914f0be15343f9deb28a9a1eda4615054",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
