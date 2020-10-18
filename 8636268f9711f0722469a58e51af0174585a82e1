@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9a0ee7e_2c696c6d",
+        "filename": "config-loader/routing-policy-config-loader/src/test/java/org/opendaylight/bgpcep/config/loader/routing/policy/OpenconfigRoutingPolicyLoaderTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-18T21:37:25Z",
+      "side": 0,
+      "message": "why not but just removing this empty useless line does not really bring anything here.\nIt would better be done in the next change where other modifications are done.",
+      "revId": "8636268f9711f0722469a58e51af0174585a82e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
