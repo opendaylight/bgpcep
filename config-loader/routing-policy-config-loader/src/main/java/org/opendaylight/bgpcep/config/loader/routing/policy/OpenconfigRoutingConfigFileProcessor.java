@@ -26,10 +26,10 @@ import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class OpenconfigRoutingPolicyLoader implements ConfigFileProcessor, AutoCloseable {
+public final class OpenconfigRoutingConfigFileProcessor implements ConfigFileProcessor, AutoCloseable {
     public static final InstanceIdentifier<RoutingPolicy> ROUTING_POLICY_IID
             = InstanceIdentifier.create(RoutingPolicy.class);
-    private static final Logger LOG = LoggerFactory.getLogger(OpenconfigRoutingPolicyLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpenconfigRoutingConfigFileProcessor.class);
     private static final SchemaPath POLICY_SCHEMA_PATH = SchemaPath.create(true, RoutingPolicy.QNAME);
     private final BindingNormalizedNodeSerializer bindingSerializer;
     private final ConfigLoader configLoader;
@@ -38,7 +38,7 @@ public final class OpenconfigRoutingPolicyLoader implements ConfigFileProcessor,
     @GuardedBy("this")
     private AbstractRegistration registration;
 
-    public OpenconfigRoutingPolicyLoader(final ConfigLoader configLoader, final DataBroker dataBroker) {
+    public OpenconfigRoutingConfigFileProcessor(final ConfigLoader configLoader, final DataBroker dataBroker) {
         requireNonNull(configLoader);
         this.configLoader = requireNonNull(configLoader);
         this.dataBroker = requireNonNull(dataBroker);
