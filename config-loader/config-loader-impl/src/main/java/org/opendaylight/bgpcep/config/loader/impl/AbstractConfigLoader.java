@@ -48,8 +48,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigLoaderImpl.class);
+public final class AbstractConfigLoader implements ConfigLoader, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractConfigLoader.class);
     private static final String INTERRUPTED = "InterruptedException";
     private static final String EXTENSION = "-.*\\.xml";
     private static final String INITIAL = "^";
@@ -65,7 +65,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
     @GuardedBy("this")
     private boolean closed = false;
 
-    public ConfigLoaderImpl(final EffectiveModelContext schemaContext,
+    public AbstractConfigLoader(final EffectiveModelContext schemaContext,
             final BindingNormalizedNodeSerializer bindingSerializer, final FileWatcher fileWatcher) {
         this.schemaContext = requireNonNull(schemaContext);
         this.bindingSerializer = requireNonNull(bindingSerializer);
@@ -158,8 +158,8 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                synchronized (ConfigLoaderImpl.this) {
-                    ConfigLoaderImpl.this.configServices.remove(pattern);
+                synchronized (AbstractConfigLoader.this) {
+                    AbstractConfigLoader.this.configServices.remove(pattern);
                 }
             }
         };
@@ -198,7 +198,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
             try {
                 key = this.watchService.take();
             } catch (final InterruptedException | ClosedWatchServiceException e) {
-                if (!ConfigLoaderImpl.this.closed) {
+                if (!AbstractConfigLoader.this.closed) {
                     LOG.warn(INTERRUPTED, e);
                     Thread.currentThread().interrupt();
                 }
@@ -219,7 +219,7 @@ public final class ConfigLoaderImpl implements ConfigLoader, AutoCloseable {
         }
 
         private synchronized void handleEvent(final String filename) {
-            ConfigLoaderImpl.this.configServices.entrySet().stream()
+            AbstractConfigLoader.this.configServices.entrySet().stream()
                     .filter(entry -> Pattern.matches(entry.getKey(), filename))
                     .forEach(entry -> handleConfigFile(entry.getValue(), filename));
         }

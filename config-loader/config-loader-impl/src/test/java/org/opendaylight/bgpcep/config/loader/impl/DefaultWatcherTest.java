@@ -13,12 +13,12 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import org.junit.Test;
 
-public class FileWatcherTest {
+public class DefaultWatcherTest {
     private static final String PATH = String.join(File.separator, "etc", "opendaylight", "bgpcep");
 
     @Test
     public void bgpFileWatcherTest() throws Exception {
-        final FileWatcherImpl bgpFileWatcher = new FileWatcherImpl();
+        final DefaultFileWatcher bgpFileWatcher = new DefaultFileWatcher();
         assertEquals(PATH, bgpFileWatcher.getPathFile());
         assertNotNull(bgpFileWatcher.getWatchService());
         bgpFileWatcher.close();
