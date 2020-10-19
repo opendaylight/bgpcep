@@ -15,8 +15,7 @@ import java.io.File;
 import org.junit.Test;
 
 public class FileWatcherTest {
-    private static final String PATH = "etc" + File.separator + "opendaylight" + File.separator
-            + "bgpcep" + File.separator;
+    private static final String PATH = String.join(File.separator, "etc", "opendaylight", "bgpcep");
 
     @Test
     public void bgpFileWatcherTest() throws Exception {
