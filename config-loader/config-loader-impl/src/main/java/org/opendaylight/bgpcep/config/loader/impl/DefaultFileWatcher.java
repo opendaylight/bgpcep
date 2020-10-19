@@ -20,14 +20,14 @@ import java.nio.file.WatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class FileWatcherImpl implements FileWatcher, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(FileWatcherImpl.class);
+public final class DefaultFileWatcher implements FileWatcher, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultFileWatcher.class);
     private static final String INTERRUPTED = "InterruptedException";
     //BGPCEP config folder OS agnostic path
     private static final Path PATH = Paths.get("etc","opendaylight","bgpcep");
     private final WatchService watchService;
 
-    public FileWatcherImpl() throws IOException {
+    public DefaultFileWatcher() throws IOException {
         this.watchService = FileSystems.getDefault().newWatchService();
         final File file = new File(PATH.toString());
         if (!file.exists()) {
@@ -39,7 +39,7 @@ public final class FileWatcherImpl implements FileWatcher, AutoCloseable {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                FileWatcherImpl.this.watchService.close();
+                DefaultFileWatcher.this.watchService.close();
             } catch (final IOException e) {
                 LOG.warn(INTERRUPTED, e);
             }
