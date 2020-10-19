@@ -65,6 +65,30 @@
     },
     {
       "key": {
+        "uuid": "f7d59bc7_8ad1bd69",
+        "filename": "config-loader/config-loader-impl/src/main/java/org/opendaylight/bgpcep/config/loader/impl/DefaultFileWatcher.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-19T14:11:26Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/c/bgpcep/+/93181",
+      "parentUuid": "6d6b3dd9_63da2182",
+      "range": {
+        "startLine": 34,
+        "startChar": 63,
+        "endLine": 35,
+        "endChar": 69
+      },
+      "revId": "67aa5ff6930b590c615c961681f750bf346044b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "047650d2_02e3e3d8",
         "filename": "config-loader/config-loader-impl/src/test/java/org/opendaylight/bgpcep/config/loader/impl/DefaultWatcherTest.java",
         "patchSetId": 10
@@ -85,6 +109,30 @@
       "revId": "67aa5ff6930b590c615c961681f750bf346044b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc285d93_0c8c33e5",
+        "filename": "config-loader/config-loader-impl/src/test/java/org/opendaylight/bgpcep/config/loader/impl/DefaultWatcherTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-19T14:11:26Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/c/bgpcep/+/93181",
+      "parentUuid": "047650d2_02e3e3d8",
+      "range": {
+        "startLine": 17,
+        "startChar": 39,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "67aa5ff6930b590c615c961681f750bf346044b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
