@@ -23,18 +23,16 @@ import org.slf4j.LoggerFactory;
 public final class FileWatcherImpl implements FileWatcher, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(FileWatcherImpl.class);
     private static final String INTERRUPTED = "InterruptedException";
-    private static final String BGPCEP_CONFIG_FOLDER = "bgpcep";
-    private static final String DEFAULT_APP_CONFIG_FILE_PATH = "etc" + File.separator + "opendaylight"
-            + File.separator + BGPCEP_CONFIG_FOLDER + File.separator;
-    private static final Path PATH = Paths.get(DEFAULT_APP_CONFIG_FILE_PATH);
+    //BGPCEP config folder OS agnostic path
+    private static final Path PATH = Paths.get("etc","opendaylight","bgpcep");
     private final WatchService watchService;
 
     public FileWatcherImpl() throws IOException {
         this.watchService = FileSystems.getDefault().newWatchService();
-        final File file = new File(DEFAULT_APP_CONFIG_FILE_PATH);
+        final File file = new File(PATH.toString());
         if (!file.exists()) {
             if (!file.mkdirs()) {
-                LOG.warn("Failed to create config directory {}", DEFAULT_APP_CONFIG_FILE_PATH);
+                LOG.warn("Failed to create config directory {}", PATH);
                 return;
             }
         }
@@ -52,7 +50,7 @@ public final class FileWatcherImpl implements FileWatcher, AutoCloseable {
 
     @Override
     public String getPathFile() {
-        return DEFAULT_APP_CONFIG_FILE_PATH;
+        return PATH.toString();
     }
 
     @Override
