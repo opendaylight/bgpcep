@@ -13,7 +13,7 @@
     <reference id="configLoader" interface="org.opendaylight.bgpcep.config.loader.spi.ConfigLoader"/>
 
     <bean id="rpConfigFileProcessor"
-          class="org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingPolicyLoader"
+          class="org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingConfigFileProcessor"
           init-method="init"
           destroy-method="close">
         <argument ref="configLoader"/>
