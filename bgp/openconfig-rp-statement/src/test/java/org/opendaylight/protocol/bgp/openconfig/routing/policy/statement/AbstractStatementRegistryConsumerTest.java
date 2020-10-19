@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
-import static org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingPolicyLoader.ROUTING_POLICY_IID;
+import static org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingConfigFileProcessor.ROUTING_POLICY_IID;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

@@ -12,10 +12,10 @@
     <odl:static-reference id="mappingCodec"
                           interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer"/>
 
-    <bean id="filewatcher" class="org.opendaylight.bgpcep.config.loader.impl.FileWatcherImpl"
+    <bean id="filewatcher" class="org.opendaylight.bgpcep.config.loader.impl.DefaultFileWatcher"
           destroy-method="close"/>
 
-    <bean id="configLoader" class="org.opendaylight.bgpcep.config.loader.impl.ConfigLoaderImpl"
+    <bean id="configLoader" class="org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoader"
           init-method="init"
           destroy-method="close">
         <argument>

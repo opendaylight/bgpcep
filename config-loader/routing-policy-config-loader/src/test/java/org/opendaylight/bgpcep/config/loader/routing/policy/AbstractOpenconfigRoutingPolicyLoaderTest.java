@@ -8,16 +8,16 @@
 package org.opendaylight.bgpcep.config.loader.routing.policy;
 
 import static org.junit.Assert.assertNotNull;
-import static org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingPolicyLoader.ROUTING_POLICY_IID;
+import static org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingConfigFileProcessor.ROUTING_POLICY_IID;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentConfiguration;
 import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
 
 import org.junit.After;
 import org.junit.Before;
-import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoader;
+import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
 
-public class AbstractOpenconfigRoutingPolicyLoaderTest extends AbstractConfigLoader {
-    OpenconfigRoutingPolicyLoader policyLoader;
+public class AbstractOpenconfigRoutingPolicyLoaderTest extends AbstractConfigLoaderTest {
+    OpenconfigRoutingConfigFileProcessor policyLoader;
 
     @Override
     @Before
@@ -25,7 +25,7 @@ public class AbstractOpenconfigRoutingPolicyLoaderTest extends AbstractConfigLoa
         super.setUp();
         checkNotPresentConfiguration(getDataBroker(), ROUTING_POLICY_IID);
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/routing-policy-config.xml"));
-        this.policyLoader = new OpenconfigRoutingPolicyLoader(this.configLoader, getDataBroker());
+        this.policyLoader = new OpenconfigRoutingConfigFileProcessor(this.configLoader, getDataBroker());
         this.policyLoader.init();
         checkPresentConfiguration(getDataBroker(), ROUTING_POLICY_IID);
         this.policyLoader.close();

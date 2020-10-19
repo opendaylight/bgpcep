@@ -10,10 +10,10 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker" odl:type="default"/>
-    <reference id="configLoader" interface="org.opendaylight.bgpcep.config.loader.spi.ConfigLoader"/>
+    <reference id="configLoader" interface="org.opendaylight.bgpcep.config.loader.spi.AbstractConfigLoader"/>
 
     <bean id="rpConfigFileProcessor"
-          class="org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingPolicyLoader"
+          class="org.opendaylight.bgpcep.config.loader.routing.policy.OpenconfigRoutingConfigFileProcessor"
           init-method="init"
           destroy-method="close">
         <argument ref="configLoader"/>

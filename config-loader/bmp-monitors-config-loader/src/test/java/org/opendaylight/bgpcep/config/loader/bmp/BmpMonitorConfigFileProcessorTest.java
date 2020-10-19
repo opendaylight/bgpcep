@@ -16,11 +16,11 @@ import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoader;
+import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.OdlBmpMonitors;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
-public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoader {
+public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoaderTest {
 
     @Override
     @Before
