@@ -46,6 +46,30 @@
       "revId": "1db06d42ea5bf1bf20b50cf32ffa80db74050d1c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c7430ed_6cbb66a6",
+        "filename": "config-loader/config-loader-spi/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-20T21:59:31Z",
+      "side": 1,
+      "message": "Yes I\u0027ve seen that.\nI am wondering whether this solution can be transposed or not to the previous Aluminium API too.\nWe migrated tpce GNPy support to use BindingDOMcodecServices in Al but I got now some troubles to transpose that to support lighty.",
+      "parentUuid": "22a746ff_faaae1bb",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 21
+      },
+      "revId": "1db06d42ea5bf1bf20b50cf32ffa80db74050d1c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
