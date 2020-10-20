@@ -22,6 +22,30 @@
       "revId": "1db06d42ea5bf1bf20b50cf32ffa80db74050d1c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22a746ff_faaae1bb",
+        "filename": "config-loader/config-loader-spi/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-10-20T16:47:13Z",
+      "side": 1,
+      "message": "It is actually removed in one of the follow-up patches.",
+      "parentUuid": "7863dbca_c8778149",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 21
+      },
+      "revId": "1db06d42ea5bf1bf20b50cf32ffa80db74050d1c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
