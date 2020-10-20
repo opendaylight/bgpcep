@@ -70,6 +70,30 @@
       "revId": "1db06d42ea5bf1bf20b50cf32ffa80db74050d1c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60dd3ca5_79584428",
+        "filename": "config-loader/config-loader-spi/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-10-20T22:42:26Z",
+      "side": 1,
+      "message": "Aluminium is probably going to tough to crack -- this work is preconditioned on wiring fixes in upstreams and I am not sure what is where :(\nI mean this seamless migration -- if upstreams do not provide components, things get more messy",
+      "parentUuid": "6c7430ed_6cbb66a6",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 21
+      },
+      "revId": "1db06d42ea5bf1bf20b50cf32ffa80db74050d1c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
