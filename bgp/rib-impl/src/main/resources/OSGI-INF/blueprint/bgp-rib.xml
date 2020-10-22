@@ -17,8 +17,7 @@
   <bean id="BGPPeerRegistry" class="org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry"
           factory-method="instance" destroy-method="close"/>
 
-  <service ref="BGPPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"
-          odl:type="default"/>
+  <service ref="BGPPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"/>
 
   <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl"  destroy-method="close">
     <argument>
@@ -31,9 +30,9 @@
 
   <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
 
-  <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker" odl:type="default"/>
+  <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
   <reference id="globalBgpExtensions" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext"/>
-  <reference id="domDataBroker" interface="org.opendaylight.mdsal.dom.api.DOMDataBroker" odl:type="default"/>
+  <reference id="domDataBroker" interface="org.opendaylight.mdsal.dom.api.DOMDataBroker"/>
   <reference id="bgpTableTypeRegistry" interface="org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer"/>
   <reference id="rpcRegistry" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
 
