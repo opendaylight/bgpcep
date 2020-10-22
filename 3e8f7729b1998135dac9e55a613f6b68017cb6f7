@@ -46,6 +46,30 @@
       "revId": "3e8f7729b1998135dac9e55a613f6b68017cb6f7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50f24772_bc4ed091",
+        "filename": "config-loader/routing-policy-config-loader/src/main/resources/OSGI-INF/blueprint/routing-policy-config-loader.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-22T12:48:32Z",
+      "side": 1,
+      "message": "I\u0027ve seen that. I just expected to make the tests change passed here but after testing locally, it is not the problem.\nProbably the classes rename would have been better placed after the DS conversion.\n\nAnyway, I generalized this attribute removal on the whole project at\nhttps://git.opendaylight.org/gerrit/c/bgpcep/+/93256",
+      "parentUuid": "d0ecd164_ba16419d",
+      "range": {
+        "startLine": 12,
+        "startChar": 88,
+        "endLine": 12,
+        "endChar": 107
+      },
+      "revId": "3e8f7729b1998135dac9e55a613f6b68017cb6f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
