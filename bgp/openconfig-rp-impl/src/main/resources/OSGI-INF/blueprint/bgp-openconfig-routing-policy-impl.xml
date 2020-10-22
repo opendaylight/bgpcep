@@ -8,7 +8,7 @@
 -->
 <blueprint xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker" odl:type="default"/>
+    <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
 
     <reference id="statementRegistry"
                interface="org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryConsumer"/>

@@ -14,8 +14,7 @@
     <service ref="PCEPTopologySessionListenerFactory"
              interface="org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory"/>
 
-    <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"
-               odl:type="default"/>
+    <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
     <reference id="rpcProviderService" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
     <reference id="clusterSingletonServiceProvider"
