@@ -122,7 +122,7 @@
     <scm>
         <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
         <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
-        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
+        <url>https://wiki.opendaylight.org/display/ODL/BGPCEP</url>
         <tag>HEAD</tag>
     </scm>
 </project>
