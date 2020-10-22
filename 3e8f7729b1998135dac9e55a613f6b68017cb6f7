@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c2c8c6a_70d6551d",
+        "filename": "config-loader/routing-policy-config-loader/src/main/resources/OSGI-INF/blueprint/routing-policy-config-loader.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-22T09:11:27Z",
+      "side": 1,
+      "message": "I think this is now discouraged since Aluminium.",
+      "range": {
+        "startLine": 12,
+        "startChar": 88,
+        "endLine": 12,
+        "endChar": 107
+      },
+      "revId": "3e8f7729b1998135dac9e55a613f6b68017cb6f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
