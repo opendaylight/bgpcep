@@ -16,6 +16,24 @@
       "revId": "8636268f9711f0722469a58e51af0174585a82e1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a2f26ae_d8c8a8a4",
+        "filename": "config-loader/routing-policy-config-loader/src/test/java/org/opendaylight/bgpcep/config/loader/routing/policy/OpenconfigRoutingPolicyLoaderTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-22T06:51:32Z",
+      "side": 0,
+      "message": "https://git.opendaylight.org/gerrit/c/bgpcep/+/93252",
+      "parentUuid": "a9a0ee7e_2c696c6d",
+      "revId": "8636268f9711f0722469a58e51af0174585a82e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
