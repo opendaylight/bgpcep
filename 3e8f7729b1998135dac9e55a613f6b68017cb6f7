@@ -70,6 +70,29 @@
       "revId": "3e8f7729b1998135dac9e55a613f6b68017cb6f7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76edee87_6a8790db",
+        "filename": "config-loader/routing-policy-config-loader/src/main/resources/OSGI-INF/blueprint/routing-policy-config-loader.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2020-10-26T10:45:40Z",
+      "side": 1,
+      "message": "the interface is still ConfigLoader, AbstractConfigLoader is only used in impl.\nTests should pass now.",
+      "range": {
+        "startLine": 13,
+        "startChar": 82,
+        "endLine": 13,
+        "endChar": 105
+      },
+      "revId": "3e8f7729b1998135dac9e55a613f6b68017cb6f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
