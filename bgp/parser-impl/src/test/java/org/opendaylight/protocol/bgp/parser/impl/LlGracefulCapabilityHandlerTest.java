@@ -78,7 +78,7 @@ public class LlGracefulCapabilityHandlerTest {
         };
 
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(BindingMap.of(new TablesBuilder()
+                .setTables(BindingMap.ordered(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
@@ -136,7 +136,7 @@ public class LlGracefulCapabilityHandlerTest {
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xa0
         };
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(BindingMap.of(new TablesBuilder()
+                .setTables(BindingMap.ordered(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
@@ -192,7 +192,7 @@ public class LlGracefulCapabilityHandlerTest {
         };
 
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
-                .setTables(BindingMap.of(new TablesBuilder()
+                .setTables(BindingMap.ordered(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.class)
                                 .setSafi(UnicastSubsequentAddressFamily.class)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
