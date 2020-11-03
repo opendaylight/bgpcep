@@ -12,6 +12,10 @@ import static java.util.Objects.requireNonNull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -25,6 +29,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener<DataChangeCounterConfig>,
         AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounterDeployer.class);
@@ -35,16 +40,17 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
     private final Map<String, TopologyDataChangeCounter> counters = new HashMap<>();
     private ListenerRegistration<TopologyDataChangeCounterDeployer> registration;
 
+    @Inject
     public TopologyDataChangeCounterDeployer(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
     }
 
+    @PostConstruct
     public synchronized void register() {
         this.registration = this.dataBroker.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, DATA_CHANGE_COUNTER_IID), this);
         LOG.info("Data change counter Deployer initiated");
     }
-
 
     @Override
     public synchronized void onDataTreeChanged(
@@ -85,6 +91,7 @@ public class TopologyDataChangeCounterDeployer implements DataTreeChangeListener
         this.counters.put(counterId, counter);
     }
 
+    @PreDestroy
     @Override
     public synchronized void close() {
         LOG.info("Closing Data change counter Deployer");
