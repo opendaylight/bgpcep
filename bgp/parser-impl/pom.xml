@@ -49,7 +49,6 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -82,6 +81,23 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common-netty</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.cmpn</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
