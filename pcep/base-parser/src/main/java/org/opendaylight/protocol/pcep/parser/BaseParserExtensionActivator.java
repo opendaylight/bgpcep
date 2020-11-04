@@ -9,6 +9,8 @@ package org.opendaylight.protocol.pcep.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.protocol.pcep.parser.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPKeepAliveMessageParser;
@@ -90,6 +92,7 @@ import org.opendaylight.protocol.pcep.parser.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
@@ -148,8 +151,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.Type1LabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.WavebandSwitchingLabelCase;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
+@Component(immediate = true, service = PCEPExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator")
 public final class BaseParserExtensionActivator extends AbstractPCEPExtensionProviderActivator {
+    @Inject
+    public BaseParserExtensionActivator() {
+        // Exposed for DI
+    }
+
     @Override
     protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
