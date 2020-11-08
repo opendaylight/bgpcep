@@ -5,13 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.inet;
 
-import com.google.common.collect.Lists;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.openconfig.spi.AbstractBGPTableTypeRegistryProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProvider;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
@@ -19,16 +19,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
+@MetaInfServices(value = BGPTableTypeRegistryProviderActivator.class)
 public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProviderActivator {
-
     @Override
     protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
             final BGPTableTypeRegistryProvider provider) {
-        return Lists.newArrayList(
-                provider.registerBGPTableType(Ipv4AddressFamily.class,
-                        UnicastSubsequentAddressFamily.class, IPV4UNICAST.class),
-                provider.registerBGPTableType(Ipv6AddressFamily.class,
-                        UnicastSubsequentAddressFamily.class, IPV6UNICAST.class));
+        return List.of(
+                provider.registerBGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+                    IPV4UNICAST.class),
+                provider.registerBGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class,
+                    IPV6UNICAST.class));
     }
-
 }

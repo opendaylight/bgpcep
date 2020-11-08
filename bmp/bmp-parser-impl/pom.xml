@@ -82,6 +82,11 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
+        </dependency>
+
         <!-- test dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>

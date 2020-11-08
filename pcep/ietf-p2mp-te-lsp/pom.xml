@@ -48,6 +48,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
+        </dependency>
     </dependencies>
 
     <scm>

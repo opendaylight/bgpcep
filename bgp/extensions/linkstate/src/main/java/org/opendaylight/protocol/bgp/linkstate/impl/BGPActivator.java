@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl;
 
+import com.google.common.base.MoreObjects;
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.BackupUnnumberedParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.EroMetricParser;
@@ -48,6 +50,7 @@ import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.RouterIdTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleBindingSubTlvsRegistry;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
@@ -76,24 +79,20 @@ import org.opendaylight.yangtools.concepts.Registration;
 /**
  * Activator for registering linkstate extensions to BGP parser.
  */
+@MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
-
     private static final int LINKSTATE_AFI = 16388;
-
     private static final int LINKSTATE_SAFI = 71;
 
     private final boolean ianaLinkstateAttributeType;
-
     private final RSVPTeObjectRegistry rsvpTeObjectRegistry;
 
     public BGPActivator() {
-        super();
-        this.ianaLinkstateAttributeType = true;
-        this.rsvpTeObjectRegistry = null;
+        this(true, null);
     }
 
+    // FIXME: this should be properly injected
     public BGPActivator(final boolean ianaLinkstateAttributeType, final RSVPTeObjectRegistry rsvpTeObjectRegistry) {
-        super();
         this.rsvpTeObjectRegistry = rsvpTeObjectRegistry;
         this.ianaLinkstateAttributeType = ianaLinkstateAttributeType;
     }
@@ -266,5 +265,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final OspfRouteTlvParser ospfRouterParser = new OspfRouteTlvParser();
         regs.add(nlriTypeReg.registerTlvParser(ospfRouterParser.getType(), ospfRouterParser));
         regs.add(nlriTypeReg.registerTlvSerializer(ospfRouterParser.getTlvQName(), ospfRouterParser));
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("ianaLinkstateAttribute", ianaLinkstateAttributeType).toString();
     }
 }

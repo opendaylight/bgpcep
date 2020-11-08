@@ -9,6 +9,8 @@ package org.opendaylight.protocol.pcep.ietf.initiated;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
@@ -19,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.Stateful;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = PCEPExtensionProviderActivator.class)
 public final class InitiatedActivator extends AbstractPCEPExtensionProviderActivator {
     @Override
     protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {

@@ -5,26 +5,25 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.evpn.impl;
 
-import java.util.Collections;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.L2vpnAddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = RIBExtensionProviderActivator.class)
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
-
     @Override
     protected List<Registration> startRIBExtensionProviderImpl(
             final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        return Collections.singletonList(context.registerRIBSupport(L2vpnAddressFamily.class,
-                EvpnSubsequentAddressFamily.class,
+        return List.of(context.registerRIBSupport(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class,
                 EvpnRibSupport.getInstance(mappingService)));
     }
 }

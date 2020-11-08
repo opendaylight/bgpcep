@@ -5,12 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PEDistinguisherLabelsAttributeHandler;
@@ -18,6 +18,7 @@ import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHan
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnIpv4NlriHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnIpv6NlriHandler;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.routes.ipv4.MvpnRoutesIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6;
@@ -33,6 +34,7 @@ import org.opendaylight.yangtools.concepts.Registration;
  *
  * @author Claudio D. Gasparini
  */
+@MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int MVPN_SAFI = 5;

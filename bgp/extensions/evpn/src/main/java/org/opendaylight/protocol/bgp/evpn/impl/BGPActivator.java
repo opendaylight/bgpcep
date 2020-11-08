@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.evpn.impl;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.DefaultGatewayExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESILabelExtCom;
@@ -19,6 +20,7 @@ import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.MACMobExtCom
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.EvpnSubsequentAddressFamily;
@@ -33,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int L2VPN_AFI = 25;

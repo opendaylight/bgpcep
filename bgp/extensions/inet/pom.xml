@@ -23,6 +23,11 @@
     <name>${project.artifactId}</name>
 
     <dependencies>
+        <dependency>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
+        </dependency>
+
         <!-- test scope dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>

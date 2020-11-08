@@ -7,21 +7,23 @@
  */
 package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.bandwidth.usage.object.BandwidthUsage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Pcrpt;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = PCEPExtensionProviderActivator.class)
 public class Activator extends AbstractPCEPExtensionProviderActivator {
     private final int bandwidthUsageObjectType;
 
-    @VisibleForTesting
     public Activator() {
-        this(1);
+        this(5);
     }
 
     public Activator(final int bandwidthUsageObjectType) {
@@ -33,7 +35,7 @@ public class Activator extends AbstractPCEPExtensionProviderActivator {
         final List<Registration> regs = new ArrayList<>();
 
         final BandwidthUsageObjectCodec bandwidthUsageObjectCodec =
-                new BandwidthUsageObjectCodec(this.bandwidthUsageObjectType);
+                new BandwidthUsageObjectCodec(bandwidthUsageObjectType);
         regs.add(context.registerObjectParser(bandwidthUsageObjectCodec));
         regs.add(context.registerObjectSerializer(BandwidthUsage.class, bandwidthUsageObjectCodec));
 
@@ -42,5 +44,10 @@ public class Activator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerMessageSerializer(Pcrpt.class, pcRptMessageCodec));
 
         return regs;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("bandwithUsage", bandwidthUsageObjectType).toString();
     }
 }

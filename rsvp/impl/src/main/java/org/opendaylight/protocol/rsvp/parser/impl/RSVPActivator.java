@@ -9,6 +9,7 @@ package org.opendaylight.protocol.rsvp.parser.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROIpv4PrefixSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROIpv6PrefixSubobjectParser;
@@ -62,6 +63,7 @@ import org.opendaylight.protocol.rsvp.parser.impl.te.SessionAttributeLspObjectPa
 import org.opendaylight.protocol.rsvp.parser.impl.te.SessionAttributeLspRaObjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.AbstractRSVPExtensionProviderActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelRegistry;
+import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.admin.status.object.AdminStatusObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
@@ -99,7 +101,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
 import org.opendaylight.yangtools.concepts.Registration;
 
-public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
+@MetaInfServices(value = RSVPExtensionProviderActivator.class)
+public final class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
+
     @Override
     protected List<Registration> startImpl(final RSVPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();

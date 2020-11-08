@@ -5,12 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.l3vpn;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.l3vpn.mcast.nlri.L3vpnMcastIpv4NlriHandler;
@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NlriParser;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.ipv4.L3vpnMcastRoutesIpv4;
@@ -38,6 +39,7 @@ import org.opendaylight.yangtools.concepts.Registration;
  *
  * @author Claudio D. Gasparini
  */
+@MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int MCAST_L3VPN_SAFI = 129;

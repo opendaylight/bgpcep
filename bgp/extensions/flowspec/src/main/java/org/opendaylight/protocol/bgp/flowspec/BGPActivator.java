@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectAsFourOctetEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectIpNextHopEcHandler;
@@ -25,6 +26,7 @@ import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv6.FlowspecL3vpnIpv6NlriPa
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.FlowspecL3vpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.FlowspecSubsequentAddressFamily;
@@ -46,22 +48,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
-
     private static final int FLOWSPEC_SAFI = 133;
     private static final int FLOWSPEC_L3VPN_SAFI = 134;
 
     private final FlowspecActivator activator;
 
+    // FIXME: this needs proper injection
     public BGPActivator(final @NonNull FlowspecActivator activator) {
         this.activator = requireNonNull(activator);
     }
 
     @Override
     protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>();
-        final SimpleFlowspecExtensionProviderContext flowspecContext = this.activator.getContext();
+        final SimpleFlowspecExtensionProviderContext flowspecContext = activator.getContext();
 
+        final List<Registration> regs = new ArrayList<>();
         regs.add(context.registerSubsequentAddressFamily(FlowspecSubsequentAddressFamily.class, FLOWSPEC_SAFI));
         regs.add(context.registerSubsequentAddressFamily(FlowspecL3vpnSubsequentAddressFamily.class,
             FLOWSPEC_L3VPN_SAFI));

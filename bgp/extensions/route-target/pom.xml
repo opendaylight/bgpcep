@@ -52,6 +52,10 @@
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-spec-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
+        </dependency>
 
         <!-- test scope dependencies -->
         <dependency>

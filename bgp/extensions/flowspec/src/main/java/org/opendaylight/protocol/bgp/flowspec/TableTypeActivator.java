@@ -7,10 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import java.util.Arrays;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.openconfig.spi.AbstractBGPTableTypeRegistryProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProvider;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.FlowspecL3vpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.IPV4FLOW;
@@ -21,11 +22,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
+@MetaInfServices(value = BGPTableTypeRegistryProviderActivator.class)
 public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProviderActivator {
     @Override
     protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
             final BGPTableTypeRegistryProvider provider) {
-        return Arrays.asList(
+        return List.of(
             provider.registerBGPTableType(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class,
                 IPV4FLOW.class),
             provider.registerBGPTableType(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class,

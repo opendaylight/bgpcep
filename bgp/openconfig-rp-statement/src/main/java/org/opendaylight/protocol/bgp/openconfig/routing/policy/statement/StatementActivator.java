@@ -11,8 +11,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.AbstractBGPStatementProviderActivator;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryProvider;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.AsPathPrepend;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions.LocalAsPathPrependHandler;
@@ -48,9 +50,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.VpnNonMemberCondition;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = StatementProviderActivator.class)
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
     private final DataBroker dataBroker;
 
+    // FIXME: this needs to be properly injected
     public StatementActivator(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
     }

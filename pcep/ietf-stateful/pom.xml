@@ -77,11 +77,6 @@
             <artifactId>concepts</artifactId>
         </dependency>
 
-        <!--
-             FIXME: these are IETF models which are pre-generated in SAL infra.
-                    This should not be here, but rather should somehow be
-                    discovered by the plugin.
-        -->
         <dependency>
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
             <artifactId>rfc6991-ietf-inet-types</artifactId>
@@ -97,6 +92,10 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
         </dependency>
 
         <!--test dependencies -->

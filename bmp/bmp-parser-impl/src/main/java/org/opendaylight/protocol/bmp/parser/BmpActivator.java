@@ -5,11 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
@@ -41,6 +41,7 @@ import org.opendaylight.protocol.bmp.parser.tlv.StatType012TlvHandler;
 import org.opendaylight.protocol.bmp.parser.tlv.StatType013TlvHandler;
 import org.opendaylight.protocol.bmp.parser.tlv.StringTlvHandler;
 import org.opendaylight.protocol.bmp.spi.registry.AbstractBmpExtensionProviderActivator;
+import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.InitiationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerDownNotification;
@@ -69,17 +70,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.stat.tlvs.UpdatesTreatedAsWithdrawTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.string.tlv.StringTlv;
 
-
-
-/**
- * Created by cgasparini on 15.5.2015.
- */
+@MetaInfServices(value = BmpExtensionProviderActivator.class)
 public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
-
     private final MessageRegistry messageRegistry;
     private final AddressFamilyRegistry afiRegistry;
     private final SubsequentAddressFamilyRegistry safiRegistry;
 
+    // FIXME: this needs to be properly injected
     public BmpActivator(final BGPExtensionConsumerContext context) {
         this.messageRegistry = context.getMessageRegistry();
         this.afiRegistry = context.getAddressFamilyRegistry();

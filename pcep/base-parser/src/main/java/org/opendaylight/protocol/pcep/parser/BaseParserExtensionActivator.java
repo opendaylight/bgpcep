@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.parser.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPKeepAliveMessageParser;
@@ -154,6 +155,7 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
 @Singleton
+@MetaInfServices(value = PCEPExtensionProviderActivator.class)
 @Component(immediate = true, service = PCEPExtensionProviderActivator.class,
            property = "type=org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator")
 public final class BaseParserExtensionActivator extends AbstractPCEPExtensionProviderActivator {

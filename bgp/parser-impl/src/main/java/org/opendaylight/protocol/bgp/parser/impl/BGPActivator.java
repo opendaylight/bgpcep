@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPKeepAliveMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
@@ -117,6 +118,7 @@ import org.osgi.service.component.annotations.Component;
 @Singleton
 @Component(immediate = true, service = BGPExtensionProviderActivator.class,
            property = "type=org.opendaylight.protocol.bgp.parser.impl.BGPActivator")
+@MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private static final int IPV4_AFI = 1;
     private static final int IPV6_AFI = 2;

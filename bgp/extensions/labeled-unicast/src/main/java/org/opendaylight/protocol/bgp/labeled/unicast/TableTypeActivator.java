@@ -7,10 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.openconfig.spi.AbstractBGPTableTypeRegistryProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProvider;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.LabeledUnicastSubsequentAddressFamily;
@@ -18,16 +19,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
+@MetaInfServices(value = BGPTableTypeRegistryProviderActivator.class)
 public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProviderActivator {
-
     @Override
     protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
             final BGPTableTypeRegistryProvider provider) {
-        return ImmutableList.of(
+        return List.of(
                 provider.registerBGPTableType(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
                     IPV4LABELLEDUNICAST.class),
                 provider.registerBGPTableType(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
                     IPV6LABELLEDUNICAST.class));
     }
-
 }

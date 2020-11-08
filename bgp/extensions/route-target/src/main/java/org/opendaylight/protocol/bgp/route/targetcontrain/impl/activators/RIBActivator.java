@@ -9,8 +9,10 @@ package org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators;
 
 import java.util.Collections;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.RouteTargetConstrainRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
@@ -22,6 +24,7 @@ import org.opendaylight.yangtools.concepts.Registration;
  *
  * @author Claudio D. Gasparini
  */
+@MetaInfServices(value = RIBExtensionProviderActivator.class)
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,

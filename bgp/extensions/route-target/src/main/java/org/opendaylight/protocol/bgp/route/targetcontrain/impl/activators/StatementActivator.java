@@ -9,12 +9,15 @@ package org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators;
 
 import java.util.Collections;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.AbstractBGPStatementProviderActivator;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryProvider;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.route.policy.ClientAttributePrependHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.ClientAttributePrepend;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = StatementProviderActivator.class)
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
     @Override
     protected synchronized List<Registration> startImpl(final StatementRegistryProvider provider) {

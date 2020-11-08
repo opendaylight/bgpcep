@@ -9,6 +9,8 @@ package org.opendaylight.protocol.pcep.sync.optimizations;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
@@ -20,8 +22,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = PCEPExtensionProviderActivator.class)
 public class SyncOptimizationsActivator extends AbstractPCEPExtensionProviderActivator {
-
     @Override
     protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();

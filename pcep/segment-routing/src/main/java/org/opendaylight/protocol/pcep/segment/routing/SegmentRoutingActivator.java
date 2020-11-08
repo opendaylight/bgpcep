@@ -7,8 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.segment.routing;
 
+import com.google.common.base.MoreObjects;
 import java.util.ArrayList;
 import java.util.List;
+import org.kohsuke.MetaInfServices;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
@@ -20,13 +23,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@MetaInfServices(value = PCEPExtensionProviderActivator.class)
 public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActivator {
-
     @Deprecated
     private final boolean ianaSrSubobjectsType;
 
     public SegmentRoutingActivator() {
-        this.ianaSrSubobjectsType = true;
+        ianaSrSubobjectsType = true;
     }
 
     @Deprecated
@@ -46,7 +49,7 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
         regs.add(context.registerTlvSerializer(SrPceCapability.class, new SrPceCapabilityTlvParser()));
 
         /* Subobjects */
-        final SrEroSubobjectParser srEroSubobjectParser = new SrEroSubobjectParser(this.ianaSrSubobjectsType);
+        final SrEroSubobjectParser srEroSubobjectParser = new SrEroSubobjectParser(ianaSrSubobjectsType);
         regs.add(context.registerEROSubobjectParser(srEroSubobjectParser.getCodePoint(), srEroSubobjectParser));
         regs.add(context.registerEROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
             .pcep.segment.routing.rev200720.network.topology.topology.node.path.computation.client.reported.lsp.path.ero
@@ -68,7 +71,7 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
             srEroSubobjectParser));
         regs.add(context.registerEROSubobjectSerializer(SrEroType.class, srEroSubobjectParser));
 
-        final SrRroSubobjectParser srRroSubobjectParser = new SrRroSubobjectParser(this.ianaSrSubobjectsType);
+        final SrRroSubobjectParser srRroSubobjectParser = new SrRroSubobjectParser(ianaSrSubobjectsType);
         regs.add(context.registerRROSubobjectParser(srRroSubobjectParser.getCodePoint(), srRroSubobjectParser));
         regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
             .pcep.segment.routing.rev200720.network.topology.topology.node.path.computation.client.reported.lsp.path.rro
@@ -107,5 +110,10 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
             new PcepOpenObjectWithSpcTlvParser(tlvReg, viTlvRegistry)));
 
         return regs;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("ianaSubobjects", ianaSrSubobjectsType).toString();
     }
 }
