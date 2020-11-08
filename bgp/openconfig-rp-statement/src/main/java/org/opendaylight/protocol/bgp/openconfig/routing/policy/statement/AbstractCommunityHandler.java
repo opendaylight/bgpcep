@@ -12,8 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Collections;
+import com.google.common.util.concurrent.FluentFuture;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -37,34 +36,28 @@ public class AbstractCommunityHandler {
             = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
             .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
             .child(CommunitySets.class);
-    private final DataBroker databroker;
-    protected final LoadingCache<String, List<Communities>> communitySets = CacheBuilder.newBuilder()
+    protected final LoadingCache<String, List<Communities>> communitySets;
+
+    public AbstractCommunityHandler(final DataBroker dataBroker) {
+        requireNonNull(dataBroker);
+        communitySets = CacheBuilder.newBuilder()
             .build(new CacheLoader<String, List<Communities>>() {
                 @Override
                 public List<Communities> load(final String key) throws ExecutionException, InterruptedException {
-                    return loadCommunitySet(key);
+                    final FluentFuture<Optional<CommunitySet>> future;
+                    try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
+                        future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                            COMMUNITY_SETS_IID.child(CommunitySet.class, new CommunitySetKey(key)));
+                    }
+
+                    return future.get().map(set -> set.nonnullCommunities().stream()
+                        .map(ge -> new CommunitiesBuilder()
+                            .setAsNumber(ge.getAsNumber())
+                            .setSemantics(ge.getSemantics())
+                            .build())
+                        .collect(Collectors.toUnmodifiableList()))
+                        .orElse(List.of());
                 }
             });
-
-    public AbstractCommunityHandler(final DataBroker dataBroker) {
-        this.databroker = requireNonNull(dataBroker);
-    }
-
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private List<Communities> loadCommunitySet(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.databroker.newReadOnlyTransaction();
-        final Optional<CommunitySet> result =
-                tr.read(LogicalDatastoreType.CONFIGURATION, COMMUNITY_SETS_IID
-                        .child(CommunitySet.class, new CommunitySetKey(key))).get();
-
-
-        if (!result.isPresent()) {
-            return Collections.emptyList();
-        }
-
-        return result.get().getCommunities()
-                .stream().map(ge -> new CommunitiesBuilder().setAsNumber(ge.getAsNumber())
-                        .setSemantics(ge.getSemantics()).build()).collect(Collectors.toList());
     }
 }

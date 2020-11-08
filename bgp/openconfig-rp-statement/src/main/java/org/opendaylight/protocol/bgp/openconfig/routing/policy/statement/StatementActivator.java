@@ -9,8 +9,11 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.ArrayList;
+import com.google.common.base.MoreObjects;
 import java.util.List;
+import java.util.ServiceLoader;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.AbstractBGPStatementProviderActivator;
@@ -50,71 +53,58 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.VpnNonMemberCondition;
 import org.opendaylight.yangtools.concepts.Registration;
 
+@Singleton
 @MetaInfServices(value = StatementProviderActivator.class)
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
     private final DataBroker dataBroker;
 
-    // FIXME: this needs to be properly injected
+    public StatementActivator() {
+        this(ServiceLoader.load(DataBroker.class).findFirst().orElseThrow(
+            () -> new IllegalStateException("No DataBroker found")));
+    }
+
+    @Inject
     public StatementActivator(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
     }
 
     @Override
-    protected synchronized List<Registration> startImpl(final StatementRegistryProvider provider) {
-        final List<Registration> registration = new ArrayList<>(14);
-        registerActions(provider, registration);
-        registerConditions(provider, registration);
-        return registration;
-    }
+    protected synchronized List<Registration> startImpl(final StatementRegistryProvider context) {
+        return List.of(
+            // Register actions
+            context.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.getInstance()),
+            context.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,
+                LocalAsPathPrependHandler.getInstance()),
+            context.registerBgpActionPolicy(SetCommunity.class, new SetCommunityHandler(dataBroker)),
+            context.registerBgpActionPolicy(SetExtCommunity.class, new SetExtCommunityHandler(dataBroker)),
+            context.registerBgpActionAugmentationPolicy(SetOriginatorIdPrepend.class,
+                SetOriginatorIdPrependHandler.getInstance()),
+            context.registerBgpActionAugmentationPolicy(NonTransitiveAttributesFilter.class,
+                NonTransitiveAttributesFilterHandler.getInstance()),
+            context.registerBgpActionAugmentationPolicy(SetClusterIdPrepend.class,
+                SetClusterIdPrependHandler.getInstance()),
 
-    private void registerConditions(final StatementRegistryProvider provider, final List<Registration> registration) {
-        registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchRoleSetCondition.class,
-                new MatchRoleSetHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchOriginatorIdSetCondition.class,
-                new MatchOriginatorIdSetHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchClusterIdSetCondition.class,
-                new MatchClusterIdSetHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpConditionsPolicy(MatchAsPathSet.class,
-                new MatchAsPathSetHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpConditionsPolicy(MatchExtCommunitySet.class,
-                new MatchExtCommunitySetHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpConditionsPolicy(MatchCommunitySet.class,
-                new MatchCommunitySetHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
-                new MatchBgpNeighborSetHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpConditionsAugmentationPolicy(MatchAfiSafiNotInCondition.class,
-                MatchAfiSafiNotInHandler.getInstance()));
-
-        registration.add(provider.registerBgpConditionsAugmentationPolicy(VpnNonMemberCondition.class,
+            // Register conditions
+            context.registerBgpConditionsAugmentationPolicy(MatchRoleSetCondition.class,
+                new MatchRoleSetHandler(dataBroker)),
+            context.registerBgpConditionsAugmentationPolicy(MatchOriginatorIdSetCondition.class,
+                new MatchOriginatorIdSetHandler(dataBroker)),
+            context.registerBgpConditionsAugmentationPolicy(MatchClusterIdSetCondition.class,
+                new MatchClusterIdSetHandler(dataBroker)),
+            context.registerBgpConditionsPolicy(MatchAsPathSet.class, new MatchAsPathSetHandler(dataBroker)),
+            context.registerBgpConditionsPolicy(MatchExtCommunitySet.class,
+                new MatchExtCommunitySetHandler(dataBroker)),
+            context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(dataBroker)),
+            context.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
+                new MatchBgpNeighborSetHandler(dataBroker)),
+            context.registerBgpConditionsAugmentationPolicy(MatchAfiSafiNotInCondition.class,
+                MatchAfiSafiNotInHandler.getInstance()),
+            context.registerBgpConditionsAugmentationPolicy(VpnNonMemberCondition.class,
                 VpnNonMemberHandler.getInstance()));
     }
 
-    private void registerActions(final StatementRegistryProvider provider, final List<Registration> registration) {
-        registration.add(provider.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.getInstance()));
-
-        registration.add(provider.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,
-                LocalAsPathPrependHandler.getInstance()));
-
-        registration.add(provider.registerBgpActionPolicy(SetCommunity.class,
-                new SetCommunityHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpActionPolicy(SetExtCommunity.class,
-                new SetExtCommunityHandler(this.dataBroker)));
-
-        registration.add(provider.registerBgpActionAugmentationPolicy(SetOriginatorIdPrepend.class,
-                SetOriginatorIdPrependHandler.getInstance()));
-
-        registration.add(provider.registerBgpActionAugmentationPolicy(NonTransitiveAttributesFilter.class,
-                NonTransitiveAttributesFilterHandler.getInstance()));
-
-        registration.add(provider.registerBgpActionAugmentationPolicy(SetClusterIdPrepend.class,
-                SetClusterIdPrependHandler.getInstance()));
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("dataBroker", dataBroker).toString();
     }
 }
