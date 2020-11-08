@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerTrue;
@@ -32,13 +31,8 @@ import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
 public final class StatementRegistry implements StatementRegistryConsumer, StatementRegistryProvider {
-    private final ConditionsRegistryImpl conditionsRegistry;
-    private final ActionsRegistryImpl actionsRegistry;
-
-    public StatementRegistry() {
-        this.conditionsRegistry = new ConditionsRegistryImpl();
-        this.actionsRegistry = new ActionsRegistryImpl();
-    }
+    private final ConditionsRegistryImpl conditionsRegistry = new ConditionsRegistryImpl();
+    private final ActionsRegistryImpl actionsRegistry = new ActionsRegistryImpl();
 
     @Override
     public RouteAttributeContainer applyExportStatement(
