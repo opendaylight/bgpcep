@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators;
 
-import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
@@ -18,19 +19,28 @@ import org.opendaylight.protocol.bgp.route.targetcontrain.impl.RouteTargetConstr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * RIBActivator.
  *
  * @author Claudio D. Gasparini
  */
+@Singleton
+@Component(immediate = true, service = RIBExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.RIBActivator")
 @MetaInfServices(value = RIBExtensionProviderActivator.class)
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
+    @Inject
+    public RIBActivator() {
+        // Exposed for DI
+    }
+
     @Override
     protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        return Collections.singletonList(
-                context.registerRIBSupport(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,
-                        RouteTargetConstrainRIBSupport.getInstance(mappingService)));
+        return List.of(
+            context.registerRIBSupport(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,
+                RouteTargetConstrainRIBSupport.getInstance(mappingService)));
     }
 }
