@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -101,9 +100,8 @@ public final class GracefulRestartUtil {
                 if (config != null && Boolean.TRUE.equals(config.isEnabled())) {
                     final Class<? extends AfiSafiType> afiSafiName = afiSafi.getAfiSafiName();
                     if (afiSafiName != null) {
-                        final Optional<TablesKey> tableKey = tableTypeRegistry.getTableKey(afiSafiName);
-                        if (tableKey.isPresent()) {
-                            final TablesKey tablesKey = tableKey.get();
+                        final TablesKey tablesKey = tableTypeRegistry.getTableKey(afiSafiName);
+                        if (tablesKey != null) {
                             gracefulTables.add(tablesKey);
                         }
                     }
@@ -140,11 +138,11 @@ public final class GracefulRestartUtil {
                         if (config != null) {
                             final Uint24 staleTime = config.getLongLivedStaleTime();
                             if (staleTime != null && staleTime.getValue().toJava() > 0) {
-                                final Optional<TablesKey> key = tableTypeRegistry.getTableKey(afiSafi.getAfiSafiName());
-                                if (key.isPresent()) {
-                                    timers.put(key.get(), staleTime.getValue().intValue());
+                                final TablesKey key = tableTypeRegistry.getTableKey(afiSafi.getAfiSafiName());
+                                if (key != null) {
+                                    timers.put(key, staleTime.getValue().intValue());
                                 } else {
-                                    LOG.debug("Skipping unsupported afi-safi {}",afiSafi.getAfiSafiName());
+                                    LOG.debug("Skipping unsupported afi-safi {}", afiSafi.getAfiSafiName());
                                 }
                             }
                         }

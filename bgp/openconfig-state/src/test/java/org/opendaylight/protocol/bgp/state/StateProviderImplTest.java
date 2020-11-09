@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -192,8 +191,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        doReturn(Optional.of(IPV4UNICAST.class))
-            .when(this.tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
+        doReturn(IPV4UNICAST.class).when(this.tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
 
         doReturn(this.bgpRibStates).when(this.stateCollector).getRibStats();
         doReturn(this.bgpPeerStates).when(this.stateCollector).getPeerStats();

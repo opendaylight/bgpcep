@@ -23,7 +23,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.RIBTestsUtil.createN
 import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
 
 import java.util.Dictionary;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,8 +95,8 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         super.setUp();
 
         doReturn("mapping").when(this.tableTypeRegistry).toString();
-        doReturn(Optional.of(TABLE_TYPE)).when(this.tableTypeRegistry).getTableType(any());
-        doReturn(Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
+        doReturn(TABLE_TYPE).when(this.tableTypeRegistry).getTableType(any());
+        doReturn(TABLES_KEY).when(this.tableTypeRegistry).getTableKey(any());
         doNothing().when(this.registration).unregister();
         doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()),
                 any(), any(Dictionary.class));

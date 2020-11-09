@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -186,8 +187,8 @@ final class OpenConfigMappingUtil {
         for (final AfiSafi afiSafi : afiSafis) {
             final BgpNeighborAddPathsConfig afiSafi2 = afiSafi.augmentation(GlobalAddPathsConfig.class);
             if (afiSafi2 != null) {
-                final Optional<BgpTableType> bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
-                if (bgpTableType.isPresent()) {
+                final BgpTableType bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
+                if (bgpTableType != null) {
                     final short sendMax = afiSafi2.getSendMax().toJava();
                     final PathSelectionMode selectionMode;
                     if (sendMax > 1) {
@@ -195,7 +196,7 @@ final class OpenConfigMappingUtil {
                     } else {
                         selectionMode = new AllPathSelection();
                     }
-                    pathSelectionModes.put(bgpTableType.get(), selectionMode);
+                    pathSelectionModes.put(bgpTableType, selectionMode);
                 }
             }
         }
@@ -220,9 +221,9 @@ final class OpenConfigMappingUtil {
         final List<AddressFamilies> addPathCapability = new ArrayList<>();
         for (final AfiSafi afiSafi : afiSafis) {
             final BgpNeighborAddPathsConfig afiSafi1 = afiSafi.augmentation(NeighborAddPathsConfig.class);
-            final Optional<BgpTableType> bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
-            if (afiSafi1 != null && bgpTableType.isPresent()) {
-                final AddressFamiliesBuilder builder = new AddressFamiliesBuilder(bgpTableType.get());
+            final BgpTableType bgpTableType = tableTypeRegistry.getTableType(afiSafi.getAfiSafiName());
+            if (afiSafi1 != null && bgpTableType != null) {
+                final AddressFamiliesBuilder builder = new AddressFamiliesBuilder(bgpTableType);
                 builder.setSendReceive(toSendReceiveMode(afiSafi1));
                 addPathCapability.add(builder.build());
             }
@@ -252,18 +253,16 @@ final class OpenConfigMappingUtil {
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         return afiSafis.stream()
                 .map(afiSafi -> tableTypeRegistry.getTableType(afiSafi.getAfiSafiName()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     static Set<TablesKey> toTableKey(final Map<AfiSafiKey, AfiSafi> afiSafis, final BGPTableTypeRegistryConsumer
             tableTypeRegistry) {
         return afiSafis.values().stream()
                 .map(afiSafi -> tableTypeRegistry.getTableKey(afiSafi.getAfiSafiName()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     static boolean isActive(final Neighbor neighbor, final PeerGroup peerGroup) {

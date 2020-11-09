@@ -8,10 +8,10 @@
 package org.opendaylight.protocol.bgp.state;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -66,7 +66,7 @@ public final class GlobalUtil {
      * @return Openconfig Global State
      */
     public static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
-            .State buildState(final BGPRibState ribState) {
+            .@NonNull State buildState(final BGPRibState ribState) {
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.StateBuilder()
                 .setAs(ribState.getAs())
                 .setRouterId(ribState.getRouteId())
@@ -88,14 +88,11 @@ public final class GlobalUtil {
      * @param bgpTableTypeRegistry BGP TableType Registry
      * @return Afi Safi Operational State
      */
-    public static AfiSafi buildAfiSafi(final BGPRibState ribState, final TablesKey tablesKey,
+    public static @Nullable AfiSafi buildAfiSafi(final BGPRibState ribState, final TablesKey tablesKey,
             final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
-        final Optional<Class<? extends AfiSafiType>> optAfiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
-        if (!optAfiSafi.isPresent()) {
-            return null;
-        }
-        return new AfiSafiBuilder()
-                .setAfiSafiName(optAfiSafi.get())
+        final Class<? extends AfiSafiType> afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
+        return afiSafi == null ? null : new AfiSafiBuilder()
+                .setAfiSafiName(afiSafi)
                 .setState(new StateBuilder()
                     .addAugmentation(new GlobalAfiSafiStateAugmentationBuilder()
                         .setTotalPaths(saturatedUint32(ribState.getPathCount(tablesKey)))
