@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
@@ -91,15 +90,14 @@ final class BgpConditionsRegistry {
                     bgpConditions)) {
                 return false;
             }
-            final Map<Class<? extends Augmentation<?>>, Augmentation<?>> bgpAug = BindingReflections
-                    .getAugmentations(bgpConditions);
-            for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : bgpAug.entrySet()) {
-                final BgpConditionsAugmentationPolicy handler = this.bgpConditionsAugRegistry.get(entry.getKey());
+            for (final Augmentation<BgpConditions> condition : bgpConditions.augmentations().values()) {
+                final BgpConditionsAugmentationPolicy handler =
+                    this.bgpConditionsAugRegistry.get(condition.implementedInterface());
                 if (handler == null) {
                     continue;
                 }
                 if (!handler.matchExportCondition(afiSafi, entryInfo, routeEntryExportParameters,
-                        handler.getConditionParameter(attributes), entry.getValue())) {
+                        handler.getConditionParameter(attributes), condition)) {
                     return false;
                 }
             }
@@ -124,15 +122,14 @@ final class BgpConditionsRegistry {
                     return false;
                 }
             }
-            final Map<Class<? extends Augmentation<?>>, Augmentation<?>> bgpAug = BindingReflections
-                    .getAugmentations(bgpConditions);
-            for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : bgpAug.entrySet()) {
-                final BgpConditionsAugmentationPolicy handler = this.bgpConditionsAugRegistry.get(entry.getKey());
+            for (final Augmentation<BgpConditions> condition : bgpConditions.augmentations().values()) {
+                final BgpConditionsAugmentationPolicy handler =
+                    this.bgpConditionsAugRegistry.get(condition.implementedInterface());
                 if (handler == null) {
                     continue;
                 }
                 if (!handler.matchImportCondition(afiSafi, entryInfo, routeEntryImportParameters,
-                        handler.getConditionParameter(attributes), entry.getValue())) {
+                        handler.getConditionParameter(attributes), condition)) {
                     return false;
                 }
             }
