@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.evpn.impl;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.DefaultGatewayExtCom;
@@ -34,13 +36,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
+@Component(immediate = true, service = BGPExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.evpn.impl.BGPActivator")
 @MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int L2VPN_AFI = 25;
     @VisibleForTesting
     static final int EVPN_SAFI = 70;
+
+    @Inject
+    public BGPActivator() {
+        // Exposed for DI
+    }
 
     @Override
     protected List<Registration> startImpl(final BGPExtensionProviderContext context) {

@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.inet;
 
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
@@ -17,9 +19,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
+@Component(immediate = true, service = RIBExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.inet.RIBActivator")
 @MetaInfServices(value = RIBExtensionProviderActivator.class)
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
+    @Inject
+    public RIBActivator() {
+        // Exposed for DI
+    }
+
     @Override
     protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
