@@ -12,7 +12,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
@@ -82,22 +81,16 @@ final class ConditionsRegistryImpl {
             return false;
         }
 
-        final Map<Class<? extends Augmentation<?>>, Augmentation<?>> conditionsAug = BindingReflections
-                .getAugmentations(conditions);
-
-        if (conditionsAug != null) {
-            for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : conditionsAug.entrySet()) {
-                final ConditionsAugPolicy handler = this.conditionsRegistry.get(entry.getKey());
-                if (handler == null) {
-                    continue;
-                }
-                if (!handler.matchExportCondition(afiSafi, entryInfo, routeEntryExportParameters,
-                        handler.getConditionParameter(attributes), entry.getValue())) {
-                    return false;
-                }
+        for (final Augmentation<Conditions> entry : conditions.augmentations().values()) {
+            final ConditionsAugPolicy handler = this.conditionsRegistry.get(entry.implementedInterface());
+            if (handler == null) {
+                continue;
+            }
+            if (!handler.matchExportCondition(afiSafi, entryInfo, routeEntryExportParameters,
+                handler.getConditionParameter(attributes), entry)) {
+                return false;
             }
         }
-
         return true;
     }
 
@@ -112,16 +105,12 @@ final class ConditionsRegistryImpl {
             return false;
         }
 
-        final Map<Class<? extends Augmentation<?>>, Augmentation<?>> conditionsAug = BindingReflections
-                .getAugmentations(conditions);
-
-        if (conditionsAug != null && attributes != null) {
-            for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : conditionsAug.entrySet()) {
-                final ConditionsAugPolicy handler = this.conditionsRegistry.get(entry.getKey());
+        if (attributes != null) {
+            for (final Augmentation<Conditions> condition : conditions.augmentations().values()) {
+                final ConditionsAugPolicy handler = this.conditionsRegistry.get(condition.implementedInterface());
                 if (handler != null) {
-                    final Augmentation<Conditions> conditionConfig = (Augmentation<Conditions>) entry.getValue();
                     if (!handler.matchImportCondition(afiSafi, entryInfo, routeEntryImportParameters,
-                            handler.getConditionParameter(attributes), conditionConfig)) {
+                            handler.getConditionParameter(attributes), condition)) {
                         return false;
                     }
                 }
